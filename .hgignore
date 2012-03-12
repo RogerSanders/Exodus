@@ -1,0 +1,32 @@
+syntax: glob
+
+# Data folders to ignore
+Crash Reports/
+Data/Captures/
+Data/DebugSessions/
+Data/Savestates/
+
+# We ignore the documentation folder for now, but once we've cleaned this folder
+# up and made it useful, we'll want to commit it to the repository.
+Documentation/
+
+# Visual Studio auto-generated files to ignore
+*.user
+*.ncb
+*.suo
+*.pgc
+*.pgd
+*.aps
+
+# Compiled output folders to ignore
+Win32/
+x64/
+Modules/
+StaticModules/
+Exodus - Debug.exe
+Exodus - Debug.ilk
+Exodus - Debug.pdb
+Exodus - Release.exe
+Exodus - Release.ilk
+Exodus - Release.pdb
+settings.xml
