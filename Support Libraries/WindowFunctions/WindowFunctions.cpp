@@ -251,7 +251,7 @@ void GetHiddenBorderDimensions(HWND hwnd, int& borderLeft, int& borderRight, int
 //but we'll check it just to be sure.
 #ifndef DWMWA_EXTENDED_FRAME_BOUNDS
 		//Enter a spin lock until we can acquire the mutex
-		while(InterlockedCompareExchange(&mutex_GetHiddenBorderDimensions, 1, 0) != 0) {}
+		while(InterlockedCompareExchangeAcquire(&mutex_GetHiddenBorderDimensions, 1, 0) != 0) {}
 
 		//Attempt to load the target assembly if it hasn't already been loaded
 		if(dllHandle_GetHiddenBorderDimensions == NULL)
@@ -285,7 +285,7 @@ void GetHiddenBorderDimensions(HWND hwnd, int& borderLeft, int& borderRight, int
 		}
 
 		//Release the mutex
-		InterlockedCompareExchange(&mutex_GetHiddenBorderDimensions, 0, 1);
+		InterlockedCompareExchangeRelease(&mutex_GetHiddenBorderDimensions, 0, 1);
 #endif
 
 		if(foundExtendedWindowSize)
