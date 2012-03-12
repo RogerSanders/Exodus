@@ -58,6 +58,7 @@ References:
 #include <set>
 #include <map>
 #include "Device/Device.pkg"
+#include "TimedBuffers/TimedBuffers.pkg"
 #include "AudioStream/AudioStream.pkg"
 #include "WAVFile/WAVFile.pkg"
 

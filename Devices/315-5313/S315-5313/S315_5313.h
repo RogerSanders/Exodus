@@ -131,6 +131,7 @@ References:
 #define __S315_5313_H__
 #include "WindowFunctions/WindowFunctions.pkg"
 #include "SystemInterface/SystemInterface.pkg"
+#include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
 #include <list>
 #include <boost/thread/mutex.hpp>

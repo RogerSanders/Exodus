@@ -2,6 +2,7 @@
 #define __MANAGEDBUFFERINT_H__
 #include "MemoryWrite.h"
 #include "Device/Device.pkg"
+#include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
 
 class ManagedBufferInt :public IManagedBufferInt, public MemoryWrite

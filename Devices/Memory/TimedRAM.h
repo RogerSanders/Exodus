@@ -2,6 +2,7 @@
 #define __TIMEDRAM_H__
 #include "MemoryWrite.h"
 #include "Device/Device.pkg"
+#include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
 
 class TimedRAM :public MemoryWrite

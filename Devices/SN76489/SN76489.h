@@ -40,6 +40,7 @@ References:
 #ifndef __SN76489_H__
 #define __SN76489_H__
 #include "SystemInterface/SystemInterface.pkg"
+#include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
 #include <map>
 #include <set>

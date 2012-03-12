@@ -1,5 +1,6 @@
 #include "TraceView.h"
 #include "resource.h"
+#include "Stream/Stream.pkg"
 
 //----------------------------------------------------------------------------------------
 //Constructors
