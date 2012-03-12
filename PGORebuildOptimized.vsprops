@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="PGORebuildOptimized"
+	OutputDirectory="$(SolutionDir)$(PlatformName)\Output\ReleaseOptimized\$(ProjectName)"
+	IntermediateDirectory="$(SolutionDir)$(PlatformName)\Intermediate\ReleaseOptimized\$(ProjectName)"
+	>
+</VisualStudioPropertySheet>

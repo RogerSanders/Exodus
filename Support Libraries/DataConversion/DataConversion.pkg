@@ -1,0 +1,11 @@
+#ifndef __DATACONVERSION_PKG__
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#define __DATACONVERSION_PKG__
+#endif
+
+//Include any header files which are part of the public interface for this library here
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#include "DataConversion.h"
+#endif
+
+#endif

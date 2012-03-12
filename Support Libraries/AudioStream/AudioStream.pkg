@@ -1,0 +1,24 @@
+#ifndef __AUDIOSTREAM_PKG__
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#define __AUDIOSTREAM_PKG__
+#endif
+
+//Include any public package dependencies here. A package has a public dependency on
+//another package if the other package headers are directly included in the public header
+//file tree which defines this package. Even though these package files would normally be
+//included when the public interface files for this package are included below, they need
+//to be included here too, otherwise a dependent library may not be linked if this
+//package is used as a private package of another.
+#include "WindowFunctions/WindowFunctions.pkg"
+
+//Include any header files which are part of the public interface for this library here
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#include "AudioStream.h"
+#endif
+
+//Automatically link library dependencies
+#ifndef _STATICLIB
+#pragma comment(lib, "Winmm")
+#endif
+
+#endif
