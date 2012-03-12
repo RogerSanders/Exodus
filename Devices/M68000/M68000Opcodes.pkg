@@ -1,0 +1,110 @@
+#ifndef __M68000OPCODES_PKG__
+#define __M68000OPCODES_PKG__
+
+//Arithmetic instructions
+#include "ADD.h"
+#include "ADDA.h"
+#include "ADDI.h"
+#include "ADDQ.h"
+#include "ADDX.h"
+#include "SUB.h"
+#include "SUBA.h"
+#include "SUBI.h"
+#include "SUBQ.h"
+#include "SUBX.h"
+#include "DIVS.h"
+#include "DIVU.h"
+#include "MULS.h"
+#include "MULU.h"
+#include "CLR.h"
+#include "CMP.h"
+#include "CMPA.h"
+#include "CMPI.h"
+#include "CMPM.h"
+#include "EXT.h"
+#include "NEG.h"
+#include "NEGX.h"	
+#include "NOP.h"
+
+//Logic instructions
+#include "AND.h"
+#include "ANDI.h"
+#include "EOR.h"
+#include "EORI.h"
+#include "OR.h"
+#include "ORI.h"
+#include "NOT.h"
+#include "TST.h"
+#include "Scc.h"
+
+//Shift and Rotate
+#include "ASL.h"
+#include "ASR.h"
+#include "LSL.h"
+#include "LSR.h"
+#include "ROL.h"
+#include "ROR.h"
+#include "ROXL.h"
+#include "ROXR.h"
+#include "SWAP.h"
+
+//Bit Manipulation
+#include "BCHG.h"
+#include "BCLR.h"
+#include "BSET.h"
+#include "BTST.h"
+
+//BCD instructions
+#include "ABCD.h"
+#include "NBCD.h"
+#include "SBCD.h"
+
+//Data Transfer
+#include "EXG.h"
+#include "LEA.h"
+#include "LINK.h"
+#include "MOVE.h"
+#include "MOVEA.h"
+#include "MOVEQ.h"
+#include "MOVEM.h"
+#include "MOVEP.h"
+#include "PEA.h"
+#include "UNLK.h"
+
+//Flow Control
+#include "Bcc.h"
+#include "DBcc.h"
+#include "BRA.h"
+#include "BSR.h"
+#include "JMP.h"
+#include "JSR.h"
+#include "RTR.h"
+#include "RTS.h"
+
+//Privileged
+#include "ANDI to SR.h"
+#include "EORI to SR.h"
+#include "ORI to SR.h"
+#include "MOVE to SR.h"
+#include "MOVE from SR.h"
+#include "MOVE USP.h"
+#include "RESET.h"
+#include "RTE.h"
+#include "STOP.h"
+
+//Exceptions
+#include "CHK.h"
+#include "ILLEGAL.h"
+#include "TRAP.h"
+#include "TRAPV.h"
+
+//CCR Related
+#include "ANDI to CCR.h"
+#include "EORI to CCR.h"
+#include "ORI to CCR.h"
+#include "MOVE to CCR.h"
+
+//Multiprocessor
+#include "TAS.h"
+
+#endif

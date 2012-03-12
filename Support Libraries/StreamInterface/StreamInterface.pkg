@@ -1,0 +1,14 @@
+#ifndef __STREAMINTERFACE_PKG__
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#define __STREAMINTERFACE_PKG__
+#endif
+
+//Include any header files which are part of the public interface for this library here
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#include "IStream.h"
+#include "ViewBinary.h"
+#include "ViewText.h"
+#include "ViewTextManipulators.h"
+#endif
+
+#endif

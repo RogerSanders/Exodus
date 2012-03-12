@@ -1,0 +1,54 @@
+#ifndef __HEIRARCHICALSTORAGE_PKG__
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#define __HEIRARCHICALSTORAGE_PKG__
+#endif
+
+//Include any public package dependencies here. A package has a public dependency on
+//another package if the other package headers are directly included in the public header
+//file tree which defines this package. Even though these package files would normally be
+//included when the public interface files for this package are included below, they need
+//to be included here too, otherwise a dependent library may not be linked if this
+//package is used as a private package of another.
+#include "Stream/Stream.pkg"
+
+//Include any header files which are part of the public interface for this library here
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#include "HeirarchicalStorageTree.h"
+#include "HeirarchicalStorageNode.h"
+#include "HeirarchicalStorageAttribute.h"
+#endif
+
+//Automatically link library dependencies
+#ifndef _STATICLIB
+#ifdef _DEBUG
+	#ifdef _DLL
+		#ifdef _M_X64
+			#pragma comment(lib, "libexpatwdrdx64")
+		#else
+			#pragma comment(lib, "libexpatwdrd")
+		#endif
+	#else
+		#ifdef _M_X64
+			#pragma comment(lib, "libexpatwdx64")
+		#else
+			#pragma comment(lib, "libexpatwd")
+		#endif
+	#endif
+#else
+	#ifdef _DLL
+		#ifdef _M_X64
+			#pragma comment(lib, "libexpatwdrx64")
+		#else
+			#pragma comment(lib, "libexpatwdr")
+		#endif
+	#else
+		#ifdef _M_X64
+			#pragma comment(lib, "libexpatwx64")
+		#else
+			#pragma comment(lib, "libexpatw")
+		#endif
+	#endif
+#endif
+#endif
+
+#endif
