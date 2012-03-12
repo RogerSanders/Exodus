@@ -232,6 +232,7 @@ References:
 #include <list>
 #include <map>
 #include "Device/Device.pkg"
+#include "TimedBuffers/TimedBuffers.pkg"
 //##FIX##
 #include "../../Memory/TimedRAM.h"
 #include <boost/thread/mutex.hpp>
