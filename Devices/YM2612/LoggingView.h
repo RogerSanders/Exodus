@@ -3,7 +3,7 @@
 #define __YM2612_LOGGINGVIEW_H__
 #include "WindowFunctions/WindowFunctions.pkg"
 #include "SystemInterface/SystemInterface.pkg"
-#include "WAVFile/WAVFile.pkg"
+#include "Stream/Stream.pkg"
 
 class YM2612::LoggingView :public ViewBase
 {
@@ -23,7 +23,7 @@ private:
 
 	//Logging functions
 	void SelectLoggingPath(HWND hwnd, std::wstring& fileName) const;
-	bool ToggleLoggingEnabledState(WAVFile& wavFile, const std::wstring& fileName, bool currentState, bool newState, unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec) const;
+	bool ToggleLoggingEnabledState(Stream::WAVFile& wavFile, const std::wstring& fileName, bool currentState, bool newState, unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec) const;
 
 private:
 	YM2612* device;

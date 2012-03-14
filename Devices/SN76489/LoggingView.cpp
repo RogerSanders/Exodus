@@ -192,14 +192,14 @@ void SN76489::LoggingView::SelectLoggingPath(HWND hwnd, std::wstring& fileName) 
 }
 
 //----------------------------------------------------------------------------------------
-bool SN76489::LoggingView::ToggleLoggingEnabledState(WAVFile& wavFile, const std::wstring& fileName, bool currentState, bool newState, unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec) const
+bool SN76489::LoggingView::ToggleLoggingEnabledState(Stream::WAVFile& wavFile, const std::wstring& fileName, bool currentState, bool newState, unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec) const
 {
 	boost::mutex::scoped_lock lock(device->waveLoggingMutex);
 	if(newState != currentState)
 	{
 		if(newState)
 		{
-			wavFile.Open(fileName, channelCount, bitsPerSample, samplesPerSec);
+			wavFile.Open(fileName, Stream::WAVFile::OPENMODE_WRITEONLY, Stream::WAVFile::CREATEMODE_CREATE, channelCount, bitsPerSample, samplesPerSec);
 		}
 		else
 		{

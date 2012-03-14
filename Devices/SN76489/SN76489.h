@@ -47,7 +47,7 @@ References:
 #include <list>
 #include "Device/Device.pkg"
 #include "AudioStream/AudioStream.pkg"
-#include "WAVFile/WAVFile.pkg"
+#include "Stream/Stream.pkg"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/function.hpp>
@@ -195,8 +195,8 @@ private:
 	bool wavLoggingChannelEnabled[channelCount];
 	std::wstring wavLoggingPath;
 	std::wstring wavLoggingChannelPath[channelCount];
-	WAVFile wavLog;
-	WAVFile wavLogChannel[channelCount];
+	Stream::WAVFile wavLog;
+	Stream::WAVFile wavLogChannel[channelCount];
 };
 
 #include "SN76489.inl"

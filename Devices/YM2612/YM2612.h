@@ -60,7 +60,7 @@ References:
 #include "Device/Device.pkg"
 #include "TimedBuffers/TimedBuffers.pkg"
 #include "AudioStream/AudioStream.pkg"
-#include "WAVFile/WAVFile.pkg"
+#include "Stream/Stream.pkg"
 
 class YM2612 :public Device
 {
@@ -456,9 +456,9 @@ private:
 	std::wstring wavLoggingPath;
 	std::wstring wavLoggingChannelPath[channelCount];
 	std::wstring wavLoggingOperatorPath[channelCount][operatorCount];
-	WAVFile wavLog;
-	WAVFile wavLogChannel[channelCount];
-	WAVFile wavLogOperator[channelCount][operatorCount];
+	Stream::WAVFile wavLog;
+	Stream::WAVFile wavLogChannel[channelCount];
+	Stream::WAVFile wavLogOperator[channelCount][operatorCount];
 };
 
 #include "YM2612.inl"

@@ -603,6 +603,22 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="WAVFile"
+			>
+			<File
+				RelativePath=".\WAVFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WAVFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WAVFile.inl"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Stream.pkg"
 			>
