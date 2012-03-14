@@ -37,6 +37,7 @@
 #include "Stream.h"
 #include "Buffer.h"
 #include "File.h"
+#include "WAVFile.h"
 #endif
 
 #endif

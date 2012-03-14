@@ -833,8 +833,8 @@ void YM2612::RenderThread()
 							float operatorOutputNormalized = (float)operatorOutput[channelNo][operatorNo] / ((1 << (operatorOutputBitCount - 1)) - 1);
 							//We halve the amplitude of the operator output just to
 							//make it a little easier to work with.
-							outputSample = (short)((32767.0f/2) * operatorOutputNormalized);
-							Stream::ViewBinary wavlogStream(wavLogOperator[channelNo][operatorNo].GetStream());
+							outputSample = (short)(operatorOutputNormalized * (32767.0f/2));
+							Stream::ViewBinary wavlogStream(wavLogOperator[channelNo][operatorNo]);
 							wavlogStream << outputSample;
 						}
 					}
@@ -975,9 +975,9 @@ void YM2612::RenderThread()
 						float channelOutputRightNormalized = (float)channelOutput[channelNo][1] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
 						//We halve the amplitude of the channel output just to
 						//make it a little easier to work with.
-						outputSampleLeft = (short)((32767.0f/2) * channelOutputLeftNormalized);
-						outputSampleRight = (short)((32767.0f/2) * channelOutputRightNormalized);
-						Stream::ViewBinary wavlogStream(wavLogChannel[channelNo].GetStream());
+						outputSampleLeft = (short)(channelOutputLeftNormalized * (32767.0f/2));
+						outputSampleRight = (short)(channelOutputRightNormalized * (32767.0f/2));
+						Stream::ViewBinary wavlogStream(wavLogChannel[channelNo]);
 						wavlogStream << outputSampleLeft;
 						wavlogStream << outputSampleRight;
 					}
@@ -1031,7 +1031,7 @@ void YM2612::RenderThread()
 				if(wavLoggingEnabled)
 				{
 					boost::mutex::scoped_lock lock(waveLoggingMutex);
-					Stream::ViewBinary wavlogStream(wavLog.GetStream());
+					Stream::ViewBinary wavlogStream(wavLog);
 					wavlogStream << outputSampleLeft;
 					wavlogStream << outputSampleRight;
 				}

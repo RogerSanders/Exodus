@@ -305,10 +305,10 @@ void SN76489::RenderThread()
 				if(wavLoggingChannelEnabled[channelNo])
 				{
 					boost::mutex::scoped_lock lock(waveLoggingMutex);
-					Stream::ViewBinary wavlogStream(wavLogChannel[channelNo].GetStream());
+					Stream::ViewBinary wavlogStream(wavLogChannel[channelNo]);
 					for(unsigned int i = 0; i < channelBuffer[channelNo].size(); ++i)
 					{
-						wavlogStream << (short)((32767.0f/channelCount) * channelBuffer[channelNo][i]);
+						wavlogStream << (short)(channelBuffer[channelNo][i] * (32767.0f/channelCount));
 					}
 				}
 			}
@@ -322,7 +322,7 @@ void SN76489::RenderThread()
 					mixedSample += channelBuffer[channelNo][sampleNo];
 				}
 				mixedSample /= channelCount;
-				outputBuffer[outputBufferPos++] = (short)((32767.0f / 6) * mixedSample);
+				outputBuffer[outputBufferPos++] = (short)(mixedSample * (32767.0f/6));
 			}
 
 			RandomTimeAccessBuffer<Data, double>::WriteInfo writeInfo = reg.GetWriteInfo(0, regTimesliceCopy);
@@ -344,11 +344,7 @@ void SN76489::RenderThread()
 		if(wavLoggingEnabled)
 		{
 			boost::mutex::scoped_lock lock(waveLoggingMutex);
-			Stream::ViewBinary wavlogStream(wavLog.GetStream());
-			for(unsigned int i = 0; i < outputBuffer.size(); ++i)
-			{
-				wavlogStream << outputBuffer[i];
-			}
+			wavLog.WriteData(outputBuffer);
 		}
 
 		//Play the mixed audio stream
