@@ -8,10 +8,11 @@ class PUSH :public Z80Instruction
 public:
 	virtual PUSH* Clone() {return new PUSH();}
 	virtual PUSH* ClonePlacement(void* buffer) {return new(buffer) PUSH();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"11**0101", L"");
+		return table.AllocateRegionToOpcode(this, L"11**0101", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

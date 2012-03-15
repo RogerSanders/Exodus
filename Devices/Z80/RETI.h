@@ -8,10 +8,11 @@ class RETI :public Z80Instruction
 public:
 	virtual RETI* Clone() {return new RETI();}
 	virtual RETI* ClonePlacement(void* buffer) {return new(buffer) RETI();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"01001101", L"");
+		return table.AllocateRegionToOpcode(this, L"01001101", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

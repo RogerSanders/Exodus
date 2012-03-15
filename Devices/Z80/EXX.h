@@ -8,10 +8,11 @@ class EXX :public Z80Instruction
 public:
 	virtual EXX* Clone() {return new EXX();}
 	virtual EXX* ClonePlacement(void* buffer) {return new(buffer) EXX();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"11011001", L"");
+		return table.AllocateRegionToOpcode(this, L"11011001", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

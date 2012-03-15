@@ -8,10 +8,11 @@ class BSR :public M68000Instruction
 public:
 	virtual BSR* Clone() {return new BSR();}
 	virtual BSR* ClonePlacement(void* buffer) {return new(buffer) BSR();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"01100001********", L"");
+		return table.AllocateRegionToOpcode(this, L"01100001********", L"");
 	}
 
 	virtual Disassembly M68000Disassemble()

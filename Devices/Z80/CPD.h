@@ -8,10 +8,11 @@ class CPD :public Z80Instruction
 public:
 	virtual CPD* Clone() {return new CPD();}
 	virtual CPD* ClonePlacement(void* buffer) {return new(buffer) CPD();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"10101001", L"");
+		return table.AllocateRegionToOpcode(this, L"10101001", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

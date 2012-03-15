@@ -8,10 +8,11 @@ class SUBX :public M68000Instruction
 public:
 	virtual SUBX* Clone() {return new SUBX();}
 	virtual SUBX* ClonePlacement(void* buffer) {return new(buffer) SUBX();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"1001***1CC00****", L"CC=00-10");
+		return table.AllocateRegionToOpcode(this, L"1001***1CC00****", L"CC=00-10");
 	}
 
 	virtual Disassembly M68000Disassemble()

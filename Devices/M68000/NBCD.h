@@ -8,10 +8,11 @@ class NBCD :public M68000Instruction
 public:
 	virtual NBCD* Clone() {return new NBCD();}
 	virtual NBCD* ClonePlacement(void* buffer) {return new(buffer) NBCD();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0100100000DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001");
+		return table.AllocateRegionToOpcode(this, L"0100100000DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001");
 	}
 
 	virtual Disassembly M68000Disassemble()

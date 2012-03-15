@@ -262,9 +262,9 @@ private:
 	IBusInterface* memoryBus;
 
 	//Opcode decode tables
-	OpcodeTable<Z80Instruction> opcodeTable;
-	OpcodeTable<Z80Instruction> opcodeTableCB;
-	OpcodeTable<Z80Instruction> opcodeTableED;
+	OpcodeTable opcodeTable;
+	OpcodeTable opcodeTableCB;
+	OpcodeTable opcodeTableED;
 
 	//Opcode allocation buffer for placement new
 	void* opcodeBuffer;

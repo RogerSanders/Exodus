@@ -8,10 +8,11 @@ class DAA :public Z80Instruction
 public:
 	virtual DAA* Clone() {return new DAA();}
 	virtual DAA* ClonePlacement(void* buffer) {return new(buffer) DAA();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00100111", L"");
+		return table.AllocateRegionToOpcode(this, L"00100111", L"");
 	}
 
 	Z80Byte GetDiffValue(bool cflag, unsigned int upperData, bool hflag, unsigned int lowerData) const

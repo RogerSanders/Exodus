@@ -8,10 +8,11 @@ class SUBA :public M68000Instruction
 public:
 	virtual SUBA* Clone() {return new SUBA();}
 	virtual SUBA* ClonePlacement(void* buffer) {return new(buffer) SUBA();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"1001***CC1DDDDDD", L"CC=01,11 DDDDDD=000000-110111,111000,111001,111010,111011,111100");
+		return table.AllocateRegionToOpcode(this, L"1001***CC1DDDDDD", L"CC=01,11 DDDDDD=000000-110111,111000,111001,111010,111011,111100");
 	}
 
 	virtual Disassembly M68000Disassemble()

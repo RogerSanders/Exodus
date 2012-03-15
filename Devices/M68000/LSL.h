@@ -8,12 +8,13 @@ class LSL :public M68000Instruction
 public:
 	virtual LSL* Clone() {return new LSL();}
 	virtual LSL* ClonePlacement(void* buffer) {return new(buffer) LSL();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"1110***1CC*01***", L"CC=00-10");
-		result &= table->AllocateRegionToOpcode(this, L"1110001111DDDDDD", L"DDDDDD=010000-110111,111000,111001");
+		result &= table.AllocateRegionToOpcode(this, L"1110***1CC*01***", L"CC=00-10");
+		result &= table.AllocateRegionToOpcode(this, L"1110001111DDDDDD", L"DDDDDD=010000-110111,111000,111001");
 		return result;
 	}
 

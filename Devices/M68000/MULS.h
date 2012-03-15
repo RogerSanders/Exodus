@@ -8,10 +8,11 @@ class MULS :public M68000Instruction
 public:
 	virtual MULS* Clone() {return new MULS();}
 	virtual MULS* ClonePlacement(void* buffer) {return new(buffer) MULS();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"1100***111DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
+		return table.AllocateRegionToOpcode(this, L"1100***111DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
 	}
 
 	virtual Disassembly M68000Disassemble()

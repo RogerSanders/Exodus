@@ -8,10 +8,11 @@ class ILLEGAL :public M68000Instruction
 public:
 	virtual ILLEGAL* Clone() {return new ILLEGAL();}
 	virtual ILLEGAL	* ClonePlacement(void* buffer) {return new(buffer) ILLEGAL();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0100101011111100", L"");
+		return table.AllocateRegionToOpcode(this, L"0100101011111100", L"");
 	}
 
 	virtual Disassembly M68000Disassemble()

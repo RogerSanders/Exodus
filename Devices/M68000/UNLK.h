@@ -8,10 +8,11 @@ class UNLK :public M68000Instruction
 public:
 	virtual UNLK* Clone() {return new UNLK();}
 	virtual UNLK* ClonePlacement(void* buffer) {return new(buffer) UNLK();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0100111001011***", L"");
+		return table.AllocateRegionToOpcode(this, L"0100111001011***", L"");
 	}
 
 	virtual Disassembly M68000Disassemble()

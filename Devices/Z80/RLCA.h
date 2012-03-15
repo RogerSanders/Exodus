@@ -8,10 +8,11 @@ class RLCA :public Z80Instruction
 public:
 	virtual RLCA* Clone() {return new RLCA();}
 	virtual RLCA* ClonePlacement(void* buffer) {return new(buffer) RLCA();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00000111", L"");
+		return table.AllocateRegionToOpcode(this, L"00000111", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

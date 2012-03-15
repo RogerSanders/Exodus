@@ -8,10 +8,11 @@ class RES :public Z80Instruction
 public:
 	virtual RES* Clone() {return new RES();}
 	virtual RES* ClonePlacement(void* buffer) {return new(buffer) RES();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"10******", L"");
+		return table.AllocateRegionToOpcode(this, L"10******", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

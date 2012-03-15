@@ -8,12 +8,13 @@ class SUB8 :public Z80Instruction
 public:
 	virtual SUB8* Clone() {return new SUB8();}
 	virtual SUB8* ClonePlacement(void* buffer) {return new(buffer) SUB8();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"10010***", L"");
-		result &= table->AllocateRegionToOpcode(this, L"11010110", L"");
+		result &= table.AllocateRegionToOpcode(this, L"10010***", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11010110", L"");
 		return result;
 	}
 

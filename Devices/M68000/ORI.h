@@ -8,10 +8,11 @@ class ORI :public M68000Instruction
 public:
 	virtual ORI* Clone() {return new ORI();}
 	virtual ORI* ClonePlacement(void* buffer) {return new(buffer) ORI();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00000000CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001");
+		return table.AllocateRegionToOpcode(this, L"00000000CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001");
 	}
 
 	virtual Disassembly M68000Disassemble()

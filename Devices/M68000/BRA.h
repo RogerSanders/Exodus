@@ -8,10 +8,11 @@ class BRA :public M68000Instruction
 public:
 	virtual BRA* Clone() {return new BRA();}
 	virtual BRA* ClonePlacement(void* buffer) {return new(buffer) BRA();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"01100000********", L"");
+		return table.AllocateRegionToOpcode(this, L"01100000********", L"");
 	}
 
 	virtual Disassembly M68000Disassemble()

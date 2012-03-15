@@ -8,10 +8,11 @@ class ADDX :public M68000Instruction
 public:
 	virtual ADDX* Clone() {return new ADDX();}
 	virtual ADDX* ClonePlacement(void* buffer) {return new(buffer) ADDX();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"1101***1CC00****", L"CC=00-10");
+		return table.AllocateRegionToOpcode(this, L"1101***1CC00****", L"CC=00-10");
 	}
 
 	virtual Disassembly M68000Disassemble()

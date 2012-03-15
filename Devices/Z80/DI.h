@@ -8,10 +8,11 @@ class DI :public Z80Instruction
 public:
 	virtual DI* Clone() {return new DI();}
 	virtual DI* ClonePlacement(void* buffer) {return new(buffer) DI();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"11110011", L"");
+		return table.AllocateRegionToOpcode(this, L"11110011", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

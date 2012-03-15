@@ -8,10 +8,11 @@ class RRD :public Z80Instruction
 public:
 	virtual RRD* Clone() {return new RRD();}
 	virtual RRD* ClonePlacement(void* buffer) {return new(buffer) RRD();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"01100111", L"");
+		return table.AllocateRegionToOpcode(this, L"01100111", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

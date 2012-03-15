@@ -8,10 +8,11 @@ class LDIR :public Z80Instruction
 public:
 	virtual LDIR* Clone() {return new LDIR();}
 	virtual LDIR* ClonePlacement(void* buffer) {return new(buffer) LDIR();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"10110000", L"");
+		return table.AllocateRegionToOpcode(this, L"10110000", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

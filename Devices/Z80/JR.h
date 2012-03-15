@@ -8,10 +8,11 @@ class JR :public Z80Instruction
 public:
 	virtual JR* Clone() {return new JR();}
 	virtual JR* ClonePlacement(void* buffer) {return new(buffer) JR();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00AAA000", L"AAA=011-111");
+		return table.AllocateRegionToOpcode(this, L"00AAA000", L"AAA=011-111");
 	}
 
 	virtual Disassembly Z80Disassemble()

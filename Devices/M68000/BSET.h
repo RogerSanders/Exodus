@@ -8,12 +8,13 @@ class BSET :public M68000Instruction
 public:
 	virtual BSET* Clone() {return new BSET();}
 	virtual BSET* ClonePlacement(void* buffer) {return new(buffer) BSET();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"0000***B11DDDDDD", L"B=1 DDDDDD=000000-000111,010000-110111,111000,111001");
-		result &= table->AllocateRegionToOpcode(this, L"0000100B11DDDDDD", L"B=0 DDDDDD=000000-000111,010000-110111,111000,111001");
+		result &= table.AllocateRegionToOpcode(this, L"0000***B11DDDDDD", L"B=1 DDDDDD=000000-000111,010000-110111,111000,111001");
+		result &= table.AllocateRegionToOpcode(this, L"0000100B11DDDDDD", L"B=0 DDDDDD=000000-000111,010000-110111,111000,111001");
 		return result;
 	}
 

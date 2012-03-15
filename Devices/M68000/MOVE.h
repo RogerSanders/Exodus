@@ -119,14 +119,15 @@ public:
 
 	virtual MOVE* Clone() {return new MOVE();}
 	virtual MOVE* ClonePlacement(void* buffer) {return new(buffer) MOVE();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"00CC***DDDEEEEEE", L"CC=01 DDD=000,010,011,100,101,110 EEEEEE=000000-000111,010000-110111,111000,111001,111010,111011,111100");
-		result &= table->AllocateRegionToOpcode(this, L"00CCDDDDDDEEEEEE", L"CC=01 DDDDDD=000111,001111 EEEEEE=000000-000111,010000-110111,111000,111001,111010,111011,111100");
-		result &= table->AllocateRegionToOpcode(this, L"00CC***DDDEEEEEE", L"CC=11,10 DDD=000,010,011,100,101,110 EEEEEE=000000-110111,111000,111001,111010,111011,111100");
-		result &= table->AllocateRegionToOpcode(this, L"00CCDDDDDDEEEEEE", L"CC=11,10 DDDDDD=000111,001111 EEEEEE=000000-110111,111000,111001,111010,111011,111100");
+		result &= table.AllocateRegionToOpcode(this, L"00CC***DDDEEEEEE", L"CC=01 DDD=000,010,011,100,101,110 EEEEEE=000000-000111,010000-110111,111000,111001,111010,111011,111100");
+		result &= table.AllocateRegionToOpcode(this, L"00CCDDDDDDEEEEEE", L"CC=01 DDDDDD=000111,001111 EEEEEE=000000-000111,010000-110111,111000,111001,111010,111011,111100");
+		result &= table.AllocateRegionToOpcode(this, L"00CC***DDDEEEEEE", L"CC=11,10 DDD=000,010,011,100,101,110 EEEEEE=000000-110111,111000,111001,111010,111011,111100");
+		result &= table.AllocateRegionToOpcode(this, L"00CCDDDDDDEEEEEE", L"CC=11,10 DDDDDD=000111,001111 EEEEEE=000000-110111,111000,111001,111010,111011,111100");
 		return result;
 	}
 

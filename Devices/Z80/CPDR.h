@@ -8,10 +8,11 @@ class CPDR :public Z80Instruction
 public:
 	virtual CPDR* Clone() {return new CPDR();}
 	virtual CPDR* ClonePlacement(void* buffer) {return new(buffer) CPDR();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"10111001", L"");
+		return table.AllocateRegionToOpcode(this, L"10111001", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

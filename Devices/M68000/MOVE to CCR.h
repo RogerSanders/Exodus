@@ -8,10 +8,11 @@ class MOVE_to_CCR :public M68000Instruction
 public:
 	virtual MOVE_to_CCR* Clone() {return new MOVE_to_CCR();}
 	virtual MOVE_to_CCR* ClonePlacement(void* buffer) {return new(buffer) MOVE_to_CCR();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0100010011DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
+		return table.AllocateRegionToOpcode(this, L"0100010011DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
 	}
 
 	virtual Disassembly M68000Disassemble()

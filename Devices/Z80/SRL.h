@@ -8,10 +8,11 @@ class SRL :public Z80Instruction
 public:
 	virtual SRL* Clone() {return new SRL();}
 	virtual SRL* ClonePlacement(void* buffer) {return new(buffer) SRL();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00111***", L"");
+		return table.AllocateRegionToOpcode(this, L"00111***", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()
