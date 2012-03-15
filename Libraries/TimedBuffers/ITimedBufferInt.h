@@ -52,6 +52,9 @@ public:
 	virtual void Rollback() = 0;
 	virtual void AddTimeslice(TimesliceType timeslice) = 0;
 
+	//Session management functions
+	virtual void BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice* targetTimeslice, bool retrieveWriteInfo) const = 0;
+
 protected:
 	//Access functions
 	virtual void GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const = 0;

@@ -655,24 +655,6 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataTy
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceBySession(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice)
 {
-	//Ensure this session has been initialized
-	//##TODO## Make a separate function which creates and initializes a session, and
-	//remove this check here.
-	if(!advanceSession.initialized)
-	{
-		boost::mutex::scoped_lock lock(accessLock);
-
-		//Initialize the base time settings for this session
-		advanceSession.timeRemovedDuringSession = 0;
-		advanceSession.initialTimeOffset = currentTimeOffset;
-
-		//Get the next write time, relative to the start of this session.
-		advanceSession.nextWriteTime = (advanceSession.timeRemovedDuringSession + GetNextWriteTimeNoLock(targetTimeslice)) - advanceSession.initialTimeOffset;
-
-		//Mark the session as initialized
-		advanceSession.initialized = true;
-	}
-
 	//Check if we're going to reach a write in this step. We perform this conditional test
 	//here before the inner loop so that we can avoid any locks for updates where we don't
 	//reach a write.
@@ -681,6 +663,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 		//Since a write needs to be processed, obtain a lock, and loop around until there
 		//are no writes left within the update step.
 		boost::mutex::scoped_lock lock(accessLock);
+		advanceSession.writeInfo.exists = false;
 		bool done = false;
 		while(!done && (currentProgress >= advanceSession.nextWriteTime))
 		{
@@ -716,6 +699,19 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 					//next step in this session.
 					advanceSession.nextWriteTime = (advanceSession.timeRemovedDuringSession + currentTimeBase + i->writeTime) - advanceSession.initialTimeOffset;
 					foundNextWrite = true;
+
+					//If the caller has requested full write info to be retrieved for the
+					//next write, populate the writeInfo structure.
+					if(advanceSession.retrieveWriteInfo)
+					{
+						//Note that we construct a new WriteInfo structure to overwrite
+						//the old one to ensure that the newValue member is correctly
+						//constructed. We can't guarantee the caller correctly constructed
+						//this member using the same default value as was passed to this
+						//container. We construct it again here to take the burden off the
+						//caller.
+						advanceSession.writeInfo = WriteInfo(true, i->writeAddress, advanceSession.nextWriteTime, i->newValue);
+					}
 					continue;
 				}
 				//If the next buffered write has been passed during this update, commit
@@ -930,6 +926,25 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 
 	//Select the new timeslice entry as the latest timeslice
 	latestTimeslice = (++timesliceList.rbegin()).base();
+}
+
+//----------------------------------------------------------------------------------------
+//Session management functions
+//----------------------------------------------------------------------------------------
+template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice& targetTimeslice, bool retrieveWriteInfo) const
+{
+	boost::mutex::scoped_lock lock(accessLock);
+
+	//Record whether we want to retrieve the full write info for steps in this session
+	advanceSession.retrieveWriteInfo = retrieveWriteInfo;
+	advanceSession.writeInfo.exists = false;
+
+	//Initialize the base time settings for this session
+	advanceSession.timeRemovedDuringSession = 0;
+	advanceSession.initialTimeOffset = currentTimeOffset;
+
+	//Get the next write time, relative to the start of this session.
+	advanceSession.nextWriteTime = (advanceSession.timeRemovedDuringSession + GetNextWriteTimeNoLock(targetTimeslice)) - advanceSession.initialTimeOffset;
 }
 
 //----------------------------------------------------------------------------------------

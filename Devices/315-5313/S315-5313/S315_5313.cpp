@@ -30,7 +30,11 @@ bcommandAddress(16),
 commandCode(16),
 bcommandCode(16),
 dmaTransferReadCache(16),
-bdmaTransferReadCache(16)
+bdmaTransferReadCache(16),
+regSession(Data(8)),
+vramSession(0),
+cramSession(0),
+vsramSession(0)
 {
 	//Create the menu handler
 	menuHandler = new DebugMenuHandler(this);
@@ -1400,10 +1404,10 @@ void S315_5313::RenderFrame()
 
 	//##TODO##
 	mclkCycleRenderProgress = 0;
-	regSession.Reset();
-	vramSession.Reset();
-	vsramSession.Reset();
-	cramSession.Reset();
+	reg.BeginAdvanceSession(regSession, regTimesliceCopy, false);
+	vram->BeginAdvanceSession(vramSession, vramTimesliceCopy, false);
+	cram->BeginAdvanceSession(cramSession, cramTimesliceCopy, false);
+	vsram->BeginAdvanceSession(vsramSession, vsramTimesliceCopy, false);
 
 	//Obtain the VScan settings for the currently active display mode
 	//##TODO## Implement palMode properly. We need to know what the palMode flag was

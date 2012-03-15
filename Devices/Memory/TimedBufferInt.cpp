@@ -194,3 +194,11 @@ void TimedBufferInt::AddTimeslice(TimesliceType timeslice)
 {
 	memory.AddTimeslice(timeslice);
 }
+
+//----------------------------------------------------------------------------------------
+//Session management functions
+//----------------------------------------------------------------------------------------
+void TimedBufferInt::BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice* targetTimeslice, bool retrieveWriteInfo) const
+{
+	memory.BeginAdvanceSession(advanceSession, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice, retrieveWriteInfo);
+}
