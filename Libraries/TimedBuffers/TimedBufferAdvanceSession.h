@@ -1,24 +1,19 @@
 #ifndef __TIMEDBUFFERADVANCESESSION_H__
 #define __TIMEDBUFFERADVANCESESSION_H__
 
-//##TODO## Add an optional parameter to retrieve the new value and write address for the
-//next write, as well as the next write time. This will allow us to efficiently implement
-//CRAM write flicker.
 template<class DataType, class TimesliceType> struct TimedBufferAdvanceSession
 {
 public:
 	//Constructors
-	inline TimedBufferAdvanceSession();
-
-	//Session functions
-	inline void Reset();
+	inline TimedBufferAdvanceSession(const DataType& writeDataDefaultValue);
 
 public:
 	//Data members
-	bool initialized;
+	bool retrieveWriteInfo;
 	TimesliceType timeRemovedDuringSession;
 	TimesliceType initialTimeOffset;
-	TimesliceType nextWriteTime; 
+	TimesliceType nextWriteTime;
+	TimedBufferWriteInfo<DataType, TimesliceType> writeInfo;
 };
 
 #include "TimedBufferAdvanceSession.inl"

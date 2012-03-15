@@ -1,14 +1,6 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> TimedBufferAdvanceSession<DataType, TimesliceType>::TimedBufferAdvanceSession()
-:initialized(false)
+template<class DataType, class TimesliceType> TimedBufferAdvanceSession<DataType, TimesliceType>::TimedBufferAdvanceSession(const DataType& writeDataDefaultValue)
+:retrieveWriteInfo(false), writeInfo(writeDataDefaultValue)
 {}
-
-//----------------------------------------------------------------------------------------
-//Session functions
-//----------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void TimedBufferAdvanceSession<DataType, TimesliceType>::Reset()
-{
-	initialized = false;
-}

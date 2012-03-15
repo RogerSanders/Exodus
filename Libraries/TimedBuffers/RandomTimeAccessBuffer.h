@@ -106,6 +106,9 @@ public:
 	void Rollback();
 	void AddTimeslice(TimesliceType timeslice);
 
+	//Session management functions
+	void BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice& targetTimeslice, bool retrieveWriteInfo) const;
+
 	//Savestate functions
 	bool LoadState(IHeirarchicalStorageNode& node);
 	bool GetState(IHeirarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData = false) const;

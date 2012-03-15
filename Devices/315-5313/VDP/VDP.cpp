@@ -3119,10 +3119,8 @@ void VDP::RenderLine(unsigned int line)
 		{
 			if(enableCRAMFlicker && (cram->GetNextWriteTime(cramTimesliceCopy) < (lineRenderTime / (double)width)))
 			{
-				TimedRAM::WriteInfo cramWriteInfo1;
-				TimedRAM::WriteInfo cramWriteInfo2;
-				cramWriteInfo1 = cram->GetWriteInfo(0, cramTimesliceCopy);
-				cramWriteInfo2 = cram->GetWriteInfo(1, cramTimesliceCopy);
+				TimedRAM::WriteInfo cramWriteInfo1 = cram->GetWriteInfo(0, cramTimesliceCopy);
+				TimedRAM::WriteInfo cramWriteInfo2 = cram->GetWriteInfo(1, cramTimesliceCopy);
 
 				//Decode palette color
 				unsigned short paletteEntry;
@@ -3375,10 +3373,8 @@ void VDP::RenderLine(unsigned int line)
 		//Draw pixel
 		if(enableCRAMFlicker && (cram->GetNextWriteTime(cramTimesliceCopy) < (lineRenderTime / (double)width)))
 		{
-			TimedRAM::WriteInfo cramWriteInfo1;
-			TimedRAM::WriteInfo cramWriteInfo2;
-			cramWriteInfo1 = cram->GetWriteInfo(0, cramTimesliceCopy);
-			cramWriteInfo2 = cram->GetWriteInfo(1, cramTimesliceCopy);
+			TimedRAM::WriteInfo cramWriteInfo1 = cram->GetWriteInfo(0, cramTimesliceCopy);
+			TimedRAM::WriteInfo cramWriteInfo2 = cram->GetWriteInfo(1, cramTimesliceCopy);
 
 			//Decode palette color
 			unsigned short paletteEntry;

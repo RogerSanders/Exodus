@@ -5,8 +5,8 @@ template<class DataType, class TimesliceType> struct TimedBufferWriteInfo
 {
 public:
 	//Constructors
-	inline TimedBufferWriteInfo();
 	inline TimedBufferWriteInfo(const DataType& defaultValue);
+	inline TimedBufferWriteInfo(bool aexists, unsigned int awriteAddress, TimesliceType awriteTime, DataType anewValue);
 
 public:
 	//Data members
