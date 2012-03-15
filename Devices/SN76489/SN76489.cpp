@@ -248,35 +248,40 @@ void SN76489::ExecuteCommit()
 void SN76489::RenderThread()
 {
 	boost::mutex::scoped_lock lock(renderThreadMutex);
-	//We need this doublecheck for renderThreadActive here before the wait, as we were
-	//getting deadlocks in the case where the system is single-stepped. Without this
-	//test, it's possible for the parent thread to signal a system stop before this
-	//thread has even started executing. Now that we've obtained the lock above, we are
-	//in a consistent state, and we simply need to check that the render thread is still
-	//marked as active before we start our wait cycle for updates.
-	if(!renderThreadActive)
-	{
-		renderThreadStopped.notify_all();
-		return;
-	}
 
 	//Start the render loop
-	renderThreadUpdate.wait(lock);
 	while(renderThreadActive)
 	{
 		//Obtain a copy of the latest completed timeslice period
 		RandomTimeAccessBuffer<Data, double>::Timeslice regTimesliceCopy;
+		bool renderTimesliceObtained = false;
 		{
 			boost::mutex::scoped_lock lock(timesliceMutex);
 
-			//Update the lagging state for the render thread
-			--pendingRenderOperationCount;
-			renderThreadLagging = (pendingRenderOperationCount > maxPendingRenderOperationCount);
-			renderThreadLaggingStateChange.notify_all();
+			//If there is at least one render timeslice pending, grab it from the queue.
+			if(!regTimesliceList.empty())
+			{
+				//Update the lagging state for the render thread
+				--pendingRenderOperationCount;
+				renderThreadLagging = (pendingRenderOperationCount > maxPendingRenderOperationCount);
+				renderThreadLaggingStateChange.notify_all();
 
-			//Grab the next completed timeslice from the timeslice list
-			regTimesliceCopy = *regTimesliceList.begin();
-			regTimesliceList.pop_front();
+				//Grab the next completed timeslice from the timeslice list
+				regTimesliceCopy = *regTimesliceList.begin();
+				regTimesliceList.pop_front();
+
+				//Flag that we managed to obtain a render timeslice
+				renderTimesliceObtained = true;
+			}
+		}
+
+		//If no render timeslice was available, suspend this thread until a timeslice
+		//becomes available, or this thread is instructed to stop, then begin the loop
+		//again.
+		if(!renderTimesliceObtained)
+		{
+			renderThreadUpdate.wait(lock);
+			continue;
 		}
 
 		//Render the audio output
@@ -360,19 +365,11 @@ void SN76489::RenderThread()
 			}
 		}
 
-		//Advance to the latest target timeslice
-		bool moreRenderBlocksPending;
+		//Advance past the timeslice we've just rendered from
 		{
 			boost::mutex::scoped_lock lock(timesliceMutex);
 			reg.AdvancePastTimeslice(regTimesliceCopy);
-			moreRenderBlocksPending = !regTimesliceList.empty();
 		}
-
-		if(!renderThreadActive || moreRenderBlocksPending)
-		{
-			continue;
-		}
-		renderThreadUpdate.wait(lock);
 	}
 	renderThreadStopped.notify_all();
 }

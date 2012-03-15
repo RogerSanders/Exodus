@@ -1325,6 +1325,8 @@ void S315_5313::ExecuteCommit()
 void S315_5313::RenderThread()
 {
 	boost::mutex::scoped_lock lock(renderThreadMutex);
+
+	//Start the render loop
 	while(renderThreadActive)
 	{
 		//Obtain a copy of the latest completed timeslice period
@@ -1333,12 +1335,14 @@ void S315_5313::RenderThread()
 			boost::mutex::scoped_lock lock(timesliceMutex);
 			if(renderTimeslicePending)
 			{
-				renderTimesliceObtained = true;
 				regTimesliceCopy = regTimeslice;
 				vramTimesliceCopy = vramTimeslice;
 				cramTimesliceCopy = cramTimeslice;
 				vsramTimesliceCopy = vsramTimeslice;
 				renderTimeslicePending = false;
+
+				//Flag that we managed to obtain a render timeslice
+				renderTimesliceObtained = true;
 			}
 		}
 
