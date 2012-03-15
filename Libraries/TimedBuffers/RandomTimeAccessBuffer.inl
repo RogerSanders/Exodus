@@ -1,3 +1,4 @@
+#include "WindowFunctions/WindowFunctions.pkg"
 #include "Stream/Stream.pkg"
 #include "Debug/Debug.pkg"
 
@@ -29,21 +30,6 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<Data
 };
 
 //----------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<DataType, TimesliceType>::WriteInfo
-{
-	WriteInfo()
-	{}
-	WriteInfo(const DataType& defaultValue)
-	:newValue(defaultValue)
-	{}
-
-	bool exists;
-	unsigned int writeAddress;
-	TimesliceType writeTime;
-	DataType newValue;
-};
-
-//----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<DataType, TimesliceType>::TimesliceSaveEntry
 {
 	TimesliceSaveEntry(typename const std::list<TimesliceEntry>::const_iterator& atimeslice, unsigned int aid)
@@ -68,73 +54,6 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<Data
 	TimesliceType writeTime;
 	DataType oldValue;
 	unsigned int currentTimeslice;
-};
-
-//----------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<DataType, TimesliceType>::AccessTarget
-{
-	enum Target
-	{
-		ACCESSTARGET_COMMITTED,
-		ACCESSTARGET_COMMITTED_TIME,
-		ACCESSTARGET_LATEST,
-		ACCESSTARGET_TIME,
-		ACCESSTARGET_TIMESLICE
-	};
-
-	AccessTarget()
-	{}
-	AccessTarget& AccessCommitted()
-	{
-		accessTarget = ACCESSTARGET_COMMITTED;
-		return *this;
-	}
-	AccessTarget& AccessCommitted(TimesliceType aaccessTime)
-	{
-		accessTarget = ACCESSTARGET_COMMITTED_TIME;
-		accessTime = aaccessTime;
-		return *this;
-	}
-	AccessTarget& AccessLatest()
-	{
-		accessTarget = ACCESSTARGET_LATEST;
-		return *this;
-	}
-	AccessTarget& AccessTime(TimesliceType aaccessTime)
-	{
-		accessTarget = ACCESSTARGET_TIME;
-		accessTime = aaccessTime;
-		return *this;
-	}
-	AccessTarget& AccessTimeslice(TimesliceType aaccessTime, const Timeslice& aaccessTimeslice)
-	{
-		accessTarget = ACCESSTARGET_TIMESLICE;
-		accessTime = aaccessTime;
-		accessTimeslice = aaccessTimeslice;
-		return *this;
-	}
-
-	Target accessTarget;
-	TimesliceType accessTime;
-	Timeslice accessTimeslice;
-};
-
-//----------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceSession
-{
-	AdvanceSession()
-	:initialized(false)
-	{}
-
-	void Reset()
-	{
-		initialized = false;
-	}
-
-	bool initialized;
-	TimesliceType timeRemovedDuringSession;
-	TimesliceType initialTimeOffset;
-	TimesliceType nextWriteTime;
 };
 
 //----------------------------------------------------------------------------------------
@@ -200,16 +119,16 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<DataType, TimesliceType>::Read(unsigned int address, const AccessTarget& accessTarget) const
 {
-	switch(accessTarget.accessTarget)
+	switch(accessTarget.target)
 	{
-	case accessTarget.ACCESSTARGET_COMMITTED:
+	case accessTarget.TARGET_COMMITTED:
 		return ReadCommitted(address);
-	case accessTarget.ACCESSTARGET_COMMITTED_TIME:
-		return ReadCommitted(address, accessTarget.accessTime);
-	case accessTarget.ACCESSTARGET_LATEST:
+	case accessTarget.TARGET_COMMITTED_TIME:
+		return ReadCommitted(address, accessTarget.time);
+	case accessTarget.TARGET_LATEST:
 		return ReadLatest(address);
-	case accessTarget.ACCESSTARGET_TIME:
-		return Read(address, accessTarget.accessTime);
+	case accessTarget.TARGET_TIME:
+		return Read(address, accessTarget.time);
 	}
 	ReleaseAssert(false);
 	return DataType(defaultValue);
@@ -218,16 +137,52 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<Da
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::Write(unsigned int address, const DataType& data, const AccessTarget& accessTarget)
 {
-	switch(accessTarget.accessTarget)
+	switch(accessTarget.target)
 	{
-	case accessTarget.ACCESSTARGET_COMMITTED:
+	case accessTarget.TARGET_COMMITTED:
 		WriteCommitted(address, data);
 		return;
-	case accessTarget.ACCESSTARGET_LATEST:
+	case accessTarget.TARGET_LATEST:
 		WriteLatest(address, data);
 		return;
-	case accessTarget.ACCESSTARGET_TIME:
-		Write(address, accessTarget.accessTime, data);
+	case accessTarget.TARGET_TIME:
+		Write(address, accessTarget.time, data);
+		return;
+	}
+	ReleaseAssert(false);
+}
+
+//----------------------------------------------------------------------------------------
+template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<DataType, TimesliceType>::Read(unsigned int address, const TimedBufferAccessTarget<DataType, TimesliceType>* accessTarget) const
+{
+	switch(accessTarget.target)
+	{
+	case accessTarget.TARGET_COMMITTED:
+		return ReadCommitted(address);
+	case accessTarget.TARGET_COMMITTED_TIME:
+		return ReadCommitted(address, accessTarget.time);
+	case accessTarget.TARGET_LATEST:
+		return ReadLatest(address);
+	case accessTarget.TARGET_TIME:
+		return Read(address, accessTarget.time);
+	}
+	ReleaseAssert(false);
+	return DataType(defaultValue);
+}
+
+//----------------------------------------------------------------------------------------
+template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::Write(unsigned int address, const DataType& data, const TimedBufferAccessTarget<DataType, TimesliceType>* accessTarget)
+{
+	switch(accessTarget.target)
+	{
+	case accessTarget.TARGET_COMMITTED:
+		WriteCommitted(address, data);
+		return;
+	case accessTarget.TARGET_LATEST:
+		WriteLatest(address, data);
+		return;
+	case accessTarget.TARGET_TIME:
+		Write(address, accessTarget.time, data);
 		return;
 	}
 	ReleaseAssert(false);
@@ -443,6 +398,36 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 		//Resize the target buffer to match the size of the source buffer, and populate
 		//with the latest memory state.
 		buffer.assign(latestMemory.begin(), latestMemory.end());
+	}
+}
+
+//----------------------------------------------------------------------------------------
+template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const
+{
+	//Determine the number of elements to copy
+	size_t copySize = (size_t)bufferSize;
+	if(copySize > memory.size())
+	{
+		copySize = memory.size();
+	}
+
+	if(!latestMemoryBufferExists)
+	{
+		boost::mutex::scoped_lock lock(accessLock);
+
+		//Populate the target buffer with the committed memory state
+		memcpy((void*)buffer, (const void*)&memory[0], (size_t)copySize * sizeof(DataType));
+
+		//Commit each buffered write entry to the target buffer
+		for(std::list<WriteEntry>::const_iterator i = writeList.begin(); i != writeList.end(); ++i)
+		{
+			buffer[i->writeAddress] = i->newValue;
+		}
+	}
+	else
+	{
+		//Populate the target buffer with the latest memory state
+		memcpy((void*)buffer, (const void*)&latestMemory[0], (size_t)copySize * sizeof(DataType));
 	}
 }
 

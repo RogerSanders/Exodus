@@ -519,14 +519,6 @@
 	</References>
 	<Files>
 		<Filter
-			Name="IManagedBufferInt"
-			>
-			<File
-				RelativePath=".\IManagedBufferInt.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="RandomTimeAccessBuffer"
 			>
 			<File
@@ -557,6 +549,74 @@
 				RelativePath=".\RandomTimeAccessValue.inl"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="TimedBuffer"
+			>
+			<Filter
+				Name="ITimedBufferInt"
+				>
+				<File
+					RelativePath=".\ITimedBufferInt.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ITimedBufferInt.inl"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="ITimedBufferIntDevice"
+				>
+				<File
+					RelativePath=".\ITimedBufferIntDevice.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="ITimedBufferTimeslice"
+				>
+				<File
+					RelativePath=".\ITimedBufferTimeslice.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="TimedBufferWriteInfo"
+				>
+				<File
+					RelativePath=".\TimedBufferWriteInfo.h"
+					>
+				</File>
+				<File
+					RelativePath=".\TimedBufferWriteInfo.inl"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="TimedBufferAccessTarget"
+				>
+				<File
+					RelativePath=".\TimedBufferAccessTarget.h"
+					>
+				</File>
+				<File
+					RelativePath=".\TimedBufferAccessTarget.inl"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="TimedBufferAdvanceSession"
+				>
+				<File
+					RelativePath=".\TimedBufferAdvanceSession.h"
+					>
+				</File>
+				<File
+					RelativePath=".\TimedBufferAdvanceSession.inl"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\TimedBuffers.pkg"

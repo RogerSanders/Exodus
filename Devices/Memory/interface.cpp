@@ -3,7 +3,7 @@
 #include "RAM.h"
 #include "SharedRAM.h"
 #include "TimedRAM.h"
-#include "ManagedBufferInt.h"
+#include "TimedBufferIntDevice.h"
 
 //----------------------------------------------------------------------------------------
 IDevice* GetROM(const wchar_t* instanceName, unsigned int moduleID)
@@ -54,13 +54,13 @@ void DeleteTimedRAM(IDevice* device)
 }
 
 //----------------------------------------------------------------------------------------
-IDevice* GetManagedBufferInt(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetTimedBufferIntDeviceDeviceInfo(const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new ManagedBufferInt(instanceName, moduleID);
+	return new TimedBufferIntDevice(instanceName, moduleID);
 }
 
 //----------------------------------------------------------------------------------------
-void DeleteManagedBufferInt(IDevice* device)
+void DeleteTimedBufferIntDeviceDevice(IDevice* device)
 {
 	delete device;
 }
@@ -96,7 +96,7 @@ extern "C" __declspec(dllexport) bool GetLibraryEntry(unsigned int entryNo, IDev
 		entry.SetDeviceSettings(L"TimedRAM", GetTimedRAM, DeleteTimedRAM, 1);
 		return true;
 	case 4:
-		entry.SetDeviceSettings(L"ManagedBufferInt", GetManagedBufferInt, DeleteManagedBufferInt, 1);
+		entry.SetDeviceSettings(L"TimedBufferIntDevice", GetTimedBufferIntDeviceDeviceInfo, DeleteTimedBufferIntDeviceDevice, 1);
 		return true;
 	}
 	return false;

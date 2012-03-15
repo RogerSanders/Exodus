@@ -1398,16 +1398,44 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="ManagedBufferInt"
+			Name="TimedBuffer"
 			>
-			<File
-				RelativePath=".\ManagedBufferInt.cpp"
+			<Filter
+				Name="TimedBufferInt"
 				>
-			</File>
-			<File
-				RelativePath=".\ManagedBufferInt.h"
+				<File
+					RelativePath=".\TimedBufferInt.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\TimedBufferInt.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="TimedBufferIntDevice"
 				>
-			</File>
+				<File
+					RelativePath=".\TimedBufferIntDevice.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\TimedBufferIntDevice.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="TimedBufferTimeslice"
+				>
+				<File
+					RelativePath=".\TimedBufferTimeslice.h"
+					>
+				</File>
+				<File
+					RelativePath=".\TimedBufferTimeslice.inl"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\interface.cpp"

@@ -3,6 +3,7 @@
 #include <list>
 #include <vector>
 #include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include <boost/thread/mutex.hpp>
 
 //template<class T> class RandomTimeAccessBufferNew
 //{

@@ -279,7 +279,7 @@ LRESULT S315_5313::VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 
 	//Fill the VRAM render buffer
 	std::vector<unsigned char> vramDataCopy;
-	device->vram->BufferGetLatestBufferCopy(vramDataCopy);
+	device->vram->GetLatestBufferCopy(vramDataCopy);
 	for(unsigned int line = 0; line < height; ++line)
 	{
 		for(unsigned int xpos = 0; xpos < width; ++xpos)
@@ -347,8 +347,8 @@ LRESULT S315_5313::VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 				unsigned int paletteEntriesPerLine = 16;
 				//Decode palette color
 				Data paletteEntry(16);
-				unsigned char byte1 = device->cram->BufferReadCommitted((paletteIndex.entry + (paletteIndex.line * paletteEntriesPerLine)) * 2);
-				unsigned char byte2 = device->cram->BufferReadCommitted(((paletteIndex.entry + (paletteIndex.line * paletteEntriesPerLine)) * 2) + 1);
+				unsigned char byte1 = device->cram->ReadCommitted((paletteIndex.entry + (paletteIndex.line * paletteEntriesPerLine)) * 2);
+				unsigned char byte2 = device->cram->ReadCommitted(((paletteIndex.entry + (paletteIndex.line * paletteEntriesPerLine)) * 2) + 1);
 				paletteEntry.SetUpperHalf(byte1);
 				paletteEntry.SetLowerHalf(byte2);
 				//##TODO## Add some notes here showing the bit structure of a palette entry in a

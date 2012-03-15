@@ -135,7 +135,7 @@ void TimedRAM::WriteBuffer(unsigned int location, const Data& data, const Access
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
 		unsigned int bytePos = (location + i) % memory.Size();
-		if(!IsByteLocked(bytePos) || (accessTarget.accessTarget == AccessTarget::ACCESSTARGET_LATEST))
+		if(!IsByteLocked(bytePos) || (accessTarget.target == AccessTarget::TARGET_LATEST))
 		{
 			memory.Write(bytePos, data.GetByte((dataByteSize - 1) - i), accessTarget);
 		}

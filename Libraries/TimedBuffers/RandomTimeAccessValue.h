@@ -1,5 +1,6 @@
 #ifndef __RANDOMTIMEACCESSVALUE_H__
 #define __RANDOMTIMEACCESSVALUE_H__
+#include <boost/thread/mutex.hpp>
 #include <list>
 
 //Any object can be stored, saved, or loaded from this container, provided it meets the

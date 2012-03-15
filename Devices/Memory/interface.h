@@ -6,7 +6,7 @@ void GetROMDeviceInfo(IDeviceInfo& deviceInfo);
 void GetRAMDeviceInfo(IDeviceInfo& deviceInfo);
 void GetSharedRAMDeviceInfo(IDeviceInfo& deviceInfo);
 void GetTimedRAMDeviceInfo(IDeviceInfo& deviceInfo);
-void GetManagedBufferIntDeviceInfo(IDeviceInfo& deviceInfo);
+void GetTimedBufferIntDeviceDeviceInfo(IDeviceInfo& deviceInfo);
 
 
 #endif

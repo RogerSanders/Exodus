@@ -246,7 +246,7 @@ private:
 	//Typedefs
 	typedef RandomTimeAccessBuffer<Data, unsigned int> RegBuffer;
 	typedef RegBuffer::AccessTarget AccessTarget;
-	typedef IManagedBufferInt::AccessTarget RAMAccessTarget;
+	typedef ITimedBufferInt::AccessTarget RAMAccessTarget;
 
 	//Constants
 	static const unsigned int registerCount = 24;
@@ -568,9 +568,9 @@ private:
 	mutable boost::mutex accessMutex;
 	double lastAccessTime;
 	RegBuffer reg;
-	IManagedBufferInt* vram;
-	IManagedBufferInt* cram;
-	IManagedBufferInt* vsram;
+	ITimedBufferInt* vram;
+	ITimedBufferInt* cram;
+	ITimedBufferInt* vsram;
 	Data status;
 	Data bstatus;
 	Data hcounter;
@@ -707,19 +707,20 @@ private:
 	bool pendingRenderOperation;
 	double pendingRenderTimesliceLength;
 	double bpendingRenderTimesliceLength;
+	bool renderTimeslicePending;
 	RegBuffer::Timeslice regTimeslice;
-	IManagedBufferInt::Timeslice vramTimeslice;
-	IManagedBufferInt::Timeslice cramTimeslice;
-	IManagedBufferInt::Timeslice vsramTimeslice;
+	ITimedBufferInt::Timeslice* vramTimeslice;
+	ITimedBufferInt::Timeslice* cramTimeslice;
+	ITimedBufferInt::Timeslice* vsramTimeslice;
 	double remainingRenderTime;
 	RegBuffer::Timeslice regTimesliceCopy;
-	IManagedBufferInt::Timeslice vramTimesliceCopy;
-	IManagedBufferInt::Timeslice cramTimesliceCopy;
-	IManagedBufferInt::Timeslice vsramTimesliceCopy;
+	ITimedBufferInt::Timeslice* vramTimesliceCopy;
+	ITimedBufferInt::Timeslice* cramTimesliceCopy;
+	ITimedBufferInt::Timeslice* vsramTimesliceCopy;
 	RegBuffer::AdvanceSession regSession;
-	IManagedBufferInt::AdvanceSession vramSession;
-	IManagedBufferInt::AdvanceSession cramSession;
-	IManagedBufferInt::AdvanceSession vsramSession;
+	ITimedBufferInt::AdvanceSession vramSession;
+	ITimedBufferInt::AdvanceSession cramSession;
+	ITimedBufferInt::AdvanceSession vsramSession;
 	unsigned int mclkCycleRenderProgress;
 	static const unsigned int layerPriorityLookupTableSize = 0x200;
 	std::vector<unsigned int> layerPriorityLookupTable;
