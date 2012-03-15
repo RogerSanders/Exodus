@@ -66,6 +66,7 @@ bdmaTransferReadCache(16)
 	//initialization the first time the system is booted.
 	pendingRenderOperation = false;
 	renderThreadActive = false;
+	renderTimeslicePending = false;
 	drawingImageBufferPlane = 0;
 
 	busGranted = false;
@@ -241,40 +242,40 @@ void S315_5313::Initialize()
 	//tests must be carried out to determine what this pattern is. I would suggest reading
 	//the entire contents of VRAM, CRAM, and VSRAM back into RAM for analysis.
 	//##TODO## Confirm the default pattern for the VRAM
-	vram->BufferInitialize();
+	vram->Initialize();
 	for(unsigned int i = 0; i < vramSize; i += 2)
 	{
 		//##FIX## This is just a random value, not what the system actually has.
-		vram->BufferWriteLatest(i, 0xDE);
-		vram->BufferWriteLatest(i+1, 0xAD);
+		vram->WriteLatest(i, 0xDE);
+		vram->WriteLatest(i+1, 0xAD);
 	}
 
 	//The CRAM is initialized to 0x0EEE in all slots, except for the second entry in the
 	//second palette line, which is initialized to 0x0CEE. This means byte 0x22 in the
 	//CRAM is 0x0C instead of 0x0E.
 	//##TODO## Confirm the default pattern for the CRAM
-	cram->BufferInitialize();
+	cram->Initialize();
 	for(unsigned int i = 0; i < cramSize; i += 2)
 	{
-		cram->BufferWriteLatest(i, 0x0E);
-		cram->BufferWriteLatest(i+1, 0xEE);
+		cram->WriteLatest(i, 0x0E);
+		cram->WriteLatest(i+1, 0xEE);
 	}
-	cram->BufferWriteLatest(0x22, 0x0C);
-	cram->BufferWriteLatest(0x23, 0xEE);
+	cram->WriteLatest(0x22, 0x0C);
+	cram->WriteLatest(0x23, 0xEE);
 
 	//The VSRAM is initialized to 0x07FF, except for the entry at 0x00, which is 0x07DF,
 	//and the entry at 0x22, which is 0x07FB.
 	//##TODO## Confirm the default pattern for the VSRAM
-	vsram->BufferInitialize();
+	vsram->Initialize();
 	for(unsigned int i = 0; i < vsramSize; i += 2)
 	{
-		vsram->BufferWriteLatest(i, 0x07);
-		vsram->BufferWriteLatest(i+1, 0xFF);
+		vsram->WriteLatest(i, 0x07);
+		vsram->WriteLatest(i+1, 0xFF);
 	}
-	vsram->BufferWriteLatest(0x00, 0x07);
-	vsram->BufferWriteLatest(0x01, 0xDF);
-	vsram->BufferWriteLatest(0x22, 0x07);
-	vsram->BufferWriteLatest(0x23, 0xFB);
+	vsram->WriteLatest(0x00, 0x07);
+	vsram->WriteLatest(0x01, 0xDF);
+	vsram->WriteLatest(0x22, 0x07);
+	vsram->WriteLatest(0x23, 0xFB);
 
 	currentTimesliceLength = 0;
 	currentTimesliceMclkCyclesRemainingTime = 0;
@@ -442,15 +443,27 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
 	std::wstring referenceNameString = referenceName;
 	if(referenceNameString == L"VRAM")
 	{
-		vram = dynamic_cast<IManagedBufferInt*>(target);
+		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
+		if(device != 0)
+		{
+			vram = device->GetTimedBuffer();
+		}
 	}
 	else if(referenceNameString == L"CRAM")
 	{
-		cram = dynamic_cast<IManagedBufferInt*>(target);
+		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
+		if(device != 0)
+		{
+			cram = device->GetTimedBuffer();
+		}
 	}
 	else if(referenceNameString == L"VSRAM")
 	{
-		vsram = dynamic_cast<IManagedBufferInt*>(target);
+		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
+		if(device != 0)
+		{
+			vsram = device->GetTimedBuffer();
+		}
 	}
 	else if(referenceNameString == L"PSG")
 	{
@@ -563,9 +576,9 @@ void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 //	std::wcout << "VDPNotifyUpcomingTimeslice:\t" << currentTimesliceLength << '\t' << currentTimesliceTotalMclkCycles << '\t' << mclkCyclesToAddInAccessTime << '\t' << currentTimesliceMclkCyclesRemainingTime << '\n';
 
 	reg.AddTimeslice(currentTimesliceTotalMclkCycles);
-	vram->BufferAddTimeslice(currentTimesliceTotalMclkCycles);
-	cram->BufferAddTimeslice(currentTimesliceTotalMclkCycles);
-	vsram->BufferAddTimeslice(currentTimesliceTotalMclkCycles);
+	vram->AddTimeslice(currentTimesliceTotalMclkCycles);
+	cram->AddTimeslice(currentTimesliceTotalMclkCycles);
+	vsram->AddTimeslice(currentTimesliceTotalMclkCycles);
 }
 
 //----------------------------------------------------------------------------------------
@@ -619,7 +632,7 @@ void S315_5313::NotifyAfterExecuteCalled()
 
 	//##DEBUG##
 //	std::wcout << "VDP - NotifyAfterExecuteCalled(After): " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << '\t' << std::setprecision(16) << stateLastUpdateTime << '\n';
-	double lastTimesliceRemainingTimeOriginal = lastTimesliceRemainingTime;
+//	double lastTimesliceRemainingTimeOriginal = lastTimesliceRemainingTime;
 
 	//Record any unused mclk cycles from this timeslice, so we can pass them over into the
 	//next timeslice.
@@ -1103,9 +1116,9 @@ void S315_5313::ExecuteRollback()
 
 	//Physical registers and memory buffers
 	reg.Rollback();
-	vram->BufferRollback();
-	cram->BufferRollback();
-	vsram->BufferRollback();
+	vram->Rollback();
+	cram->Rollback();
+	vsram->Rollback();
 	status = bstatus;
 	hcounter = bhcounter;
 	vcounter = bvcounter;
@@ -1199,9 +1212,9 @@ void S315_5313::ExecuteCommit()
 
 	//Physical registers and memory buffers
 	reg.Commit();
-	vram->BufferCommit();
-	cram->BufferCommit();
-	vsram->BufferCommit();
+	vram->Commit();
+	cram->Commit();
+	vsram->Commit();
 	bstatus = status;
 	bhcounter = hcounter;
 	bvcounter = vcounter;
@@ -1293,10 +1306,17 @@ void S315_5313::ExecuteCommit()
 	{
 		pendingRenderOperation = false;
 		boost::mutex::scoped_lock lock(timesliceMutex);
+		if(renderTimeslicePending)
+		{
+			vram->FreeTimesliceReference(vramTimeslice);
+			cram->FreeTimesliceReference(cramTimeslice);
+			vsram->FreeTimesliceReference(vsramTimeslice);
+		}
 		regTimeslice = reg.GetLatestTimeslice();
-		vramTimeslice = vram->BufferGetLatestTimeslice();
-		cramTimeslice = cram->BufferGetLatestTimeslice();
-		vsramTimeslice = vsram->BufferGetLatestTimeslice();
+		vramTimeslice = vram->GetLatestTimesliceReference();
+		cramTimeslice = cram->GetLatestTimesliceReference();
+		vsramTimeslice = vsram->GetLatestTimesliceReference();
+		renderTimeslicePending = true;
 		renderThreadUpdate.notify_all();
 	}
 }
@@ -1304,32 +1324,31 @@ void S315_5313::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 void S315_5313::RenderThread()
 {
-	//Assumed constants
-	const unsigned int mclkCyclesPerLine = 3420;
-
 	boost::mutex::scoped_lock lock(renderThreadMutex);
-	//We need this doublecheck for renderThreadActive here before the wait, as we were
-	//getting deadlocks in the case where the system is single-stepped. Without this
-	//test, it's possible for the parent thread to signal a system stop before this
-	//thread has even started executing. Now that we've obtained the lock above, we are
-	//in a consistent state, and we simply need to check that the render thread is still
-	//marked as active before we start our wait cycle for updates.
-	if(!renderThreadActive)
-	{
-		renderThreadStopped.notify_all();
-		return;
-	}
-
-	renderThreadUpdate.wait(lock);
 	while(renderThreadActive)
 	{
 		//Obtain a copy of the latest completed timeslice period
+		bool renderTimesliceObtained = false;
 		{
 			boost::mutex::scoped_lock lock(timesliceMutex);
-			regTimesliceCopy = regTimeslice;
-			vramTimesliceCopy = vramTimeslice;
-			cramTimesliceCopy = cramTimeslice;
-			vsramTimesliceCopy = vsramTimeslice;
+			if(renderTimeslicePending)
+			{
+				renderTimesliceObtained = true;
+				regTimesliceCopy = regTimeslice;
+				vramTimesliceCopy = vramTimeslice;
+				cramTimesliceCopy = cramTimeslice;
+				vsramTimesliceCopy = vsramTimeslice;
+				renderTimeslicePending = false;
+			}
+		}
+
+		//If no render timeslice was available, suspend this thread until a timeslice
+		//becomes available, or this thread is instructed to stop, then begin the loop
+		//again.
+		if(!renderTimesliceObtained)
+		{
+			renderThreadUpdate.wait(lock);
+			continue;
 		}
 
 		//Render a complete frame to the framebuffer
@@ -1347,21 +1366,16 @@ void S315_5313::RenderThread()
 		//rendered. We need to consider how we'll handle interlacing with this system
 		//though.
 		//Advance to the latest target timeslice
-		bool moreRenderBlocksPending;
 		{
 			boost::mutex::scoped_lock lock(timesliceMutex);
 			reg.AdvancePastTimeslice(regTimesliceCopy);
-			vram->BufferAdvancePastTimeslice(vramTimesliceCopy);
-			cram->BufferAdvancePastTimeslice(cramTimesliceCopy);
-			vsram->BufferAdvancePastTimeslice(vsramTimesliceCopy);
-			moreRenderBlocksPending = (regTimesliceCopy != regTimeslice) || (vramTimesliceCopy != vramTimeslice) || (cramTimesliceCopy != cramTimeslice) || (vsramTimesliceCopy != vsramTimeslice);
+			vram->AdvancePastTimeslice(vramTimesliceCopy);
+			cram->AdvancePastTimeslice(cramTimesliceCopy);
+			vsram->AdvancePastTimeslice(vsramTimesliceCopy);
+			vram->FreeTimesliceReference(vramTimesliceCopy);
+			cram->FreeTimesliceReference(cramTimesliceCopy);
+			vsram->FreeTimesliceReference(vsramTimesliceCopy);
 		}
-
-		if(!renderThreadActive || moreRenderBlocksPending)
-		{
-			continue;
-		}
-		renderThreadUpdate.wait(lock);
 	}
 	renderThreadStopped.notify_all();
 }
@@ -1489,9 +1503,9 @@ void S315_5313::RenderBorderLine(const AccessTarget& accessTarget, unsigned int 
 
 	mclkCycleRenderProgress += 3420;
 	reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
-	vram->BufferAdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
-	vsram->BufferAdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
-	cram->BufferAdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
+	vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
+	vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
+	cram->AdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1554,8 +1568,8 @@ void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int 
 	//##TODO## According to the official documentation, the upper 6 bits of the hscroll
 	//data are unused, and are allowed to be used by software to store whatever values
 	//they want. Confirm this on hardware.
-	unsigned int layerAHscrollOffset = ((unsigned int)vram->BufferReadCommitted(hscrollDataAddress+0) << 8) | (unsigned int)vram->BufferReadCommitted(hscrollDataAddress+1);
-	unsigned int layerBHscrollOffset = ((unsigned int)vram->BufferReadCommitted(hscrollDataAddress+2) << 8) | (unsigned int)vram->BufferReadCommitted(hscrollDataAddress+3);
+	unsigned int layerAHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+1);
+	unsigned int layerBHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+3);
 	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
 
 	//##TODO## Read the sprite pattern data
@@ -1627,8 +1641,8 @@ void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int 
 	//effective, or the lower 11 bits in the case of interlace mode 2, due to the
 	//scrolled address being wrapped to lie within the total field boundaries,
 	//which never exceed 128 blocks.
-	unsigned int layerAVscrollOffset = ((unsigned int)vsram->BufferReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->BufferReadCommitted(vscrollDataAddress+1);
-	unsigned int layerBVscrollOffset = ((unsigned int)vsram->BufferReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->BufferReadCommitted(vscrollDataAddress+3);
+	unsigned int layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
+	unsigned int layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
 
 	//Calculate the target block mapping pair and selected row for layer A
 	//##TODO## Confirm through VRAM snooping which actual address is read from for the
@@ -1711,8 +1725,8 @@ void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int 
 			//effective, or the lower 11 bits in the case of interlace mode 2, due to the
 			//scrolled address being wrapped to lie within the total field boundaries,
 			//which never exceed 128 blocks.
-			unsigned int layerAVscrollOffset = ((unsigned int)vsram->BufferReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->BufferReadCommitted(vscrollDataAddress+1);
-			unsigned int layerBVscrollOffset = ((unsigned int)vsram->BufferReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->BufferReadCommitted(vscrollDataAddress+3);
+			unsigned int layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
+			unsigned int layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
 
 			//Calculate the target block mapping pair and selected row for layer A
 			unsigned int mappingColumnNumberLayerA = columnNumber - columnShiftValueLayerA;
@@ -1728,8 +1742,8 @@ void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int 
 			if(i < 3)
 			{
 				reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
-				vram->BufferAdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
-				vsram->BufferAdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
+				vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
+				vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
 			}
 			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
 
@@ -1914,9 +1928,9 @@ void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int 
 	unsigned int remainingMclkCyclesInLine = mclkCyclesPerLine - (mclkCycleRenderProgress - initialMclkCycleRenderProgress);
 	mclkCycleRenderProgress += remainingMclkCyclesInLine;
 	reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
-	vram->BufferAdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
-	cram->BufferAdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
-	vsram->BufferAdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
+	vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
+	cram->AdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
+	vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
 }
 
 //----------------------------------------------------------------------------------------
@@ -2096,7 +2110,7 @@ void S315_5313::WriteColorValueToImageBuffer(unsigned int paletteLine, unsigned 
 
 	//Read the target palette entry
 	Data paletteData(16);
-	paletteData = (unsigned int)(cram->BufferReadCommitted(paletteEntryAddress+0) << 8) | (unsigned int)cram->BufferReadCommitted(paletteEntryAddress+1);
+	paletteData = (unsigned int)(cram->ReadCommitted(paletteEntryAddress+0) << 8) | (unsigned int)cram->ReadCommitted(paletteEntryAddress+1);
 
 	//Decode palette color
 	unsigned char r;
@@ -2339,8 +2353,8 @@ void S315_5313::ReadMappingDataPair(Data& mappingDataEntry1, Data& mappingDataEn
 	//unsigned int mappingDataAddress = nameTableBaseAddress + ((mappingDataColumnAddress + (mappingDataRowAddress * playfieldBlockSizeX)) * renderSettings.blockMappingEntryByteSize);
 
 	//Read target layer mapping data
-	mappingDataEntry1 = ((unsigned int)vram->BufferReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->BufferReadCommitted(mappingDataAddress+1);
-	mappingDataEntry2 = ((unsigned int)vram->BufferReadCommitted(mappingDataAddress+2) << 8) | (unsigned int)vram->BufferReadCommitted(mappingDataAddress+3);
+	mappingDataEntry1 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+1);
+	mappingDataEntry2 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+3);
 }
 
 //----------------------------------------------------------------------------------------
@@ -2358,7 +2372,7 @@ void S315_5313::ReadPatternDataRow(const LineRenderSettings& renderSettings, Dat
 	unsigned int patternDataAddress = ((mappingData.GetData() * renderSettings.blockPatternByteSize) + (patternRowNumberWithFlip * renderSettings.blockPatternRowByteSize)) % vramSize;
 
 	//Read the target pattern row
-	patternData = ((unsigned int)vram->BufferReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->BufferReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->BufferReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->BufferReadCommitted(patternDataAddress+3);
+	patternData = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
 }
 
 //----------------------------------------------------------------------------------------
@@ -5499,8 +5513,8 @@ void S315_5313::PerformDMACopyOperation()
 	RAMAccessTarget ramAccessTarget;
 	ramAccessTarget.AccessTime(GetProcessorStateMclkCurrent());
 	unsigned char data;
-	data = vram->BufferRead(sourceAddressByteswapped.GetData(), ramAccessTarget);
-	vram->BufferWrite(targetAddressByteswapped.GetData(), data, ramAccessTarget);
+	data = vram->Read(sourceAddressByteswapped.GetData(), ramAccessTarget);
+	vram->Write(targetAddressByteswapped.GetData(), data, ramAccessTarget);
 
 	//Increment the target address
 	commandAddress += autoIncrementData;
@@ -6275,7 +6289,7 @@ void S315_5313::M5ReadVRAM8Bit(const Data& address, Data& data, const RAMAccessT
 	//Read the data. Only a single 8-bit read is performed from VRAM in this case. The
 	//upper 8 bits retain their previous value.
 	//##TODO## Snoop on the VRAM bus to confirm only a single byte is read for this target
-	data.SetByte(0, vram->BufferRead(tempAddress.GetData(), accessTarget));
+	data.SetByte(0, vram->Read(tempAddress.GetData(), accessTarget));
 }
 
 //----------------------------------------------------------------------------------------
@@ -6293,8 +6307,8 @@ void S315_5313::M5ReadCRAM(const Data& address, Data& data, const RAMAccessTarge
 	//existing value in the FIFO buffer that the read data is being saved into.
 	unsigned int dataMask = 0x0EEE;
 	Data tempData(16);
-	tempData.SetByte(1, cram->BufferRead(tempAddress, accessTarget));
-	tempData.SetByte(0, cram->BufferRead(tempAddress+1, accessTarget));
+	tempData.SetByte(1, cram->Read(tempAddress, accessTarget));
+	tempData.SetByte(0, cram->Read(tempAddress+1, accessTarget));
 	data = (data & ~dataMask) | (tempData & dataMask);
 }
 
@@ -6333,8 +6347,8 @@ void S315_5313::M5ReadVSRAM(const Data& address, Data& data, const RAMAccessTarg
 		//corresponding with the existing value in the FIFO buffer that the read data is
 		//being saved into.
 		Data tempData(16);
-		tempData.SetByte(1, vsram->BufferRead(tempAddress, accessTarget));
-		tempData.SetByte(0, vsram->BufferRead(tempAddress+1, accessTarget));
+		tempData.SetByte(1, vsram->Read(tempAddress, accessTarget));
+		tempData.SetByte(0, vsram->Read(tempAddress+1, accessTarget));
 		data = (data & ~dataMask) | (tempData & dataMask);
 
 		//##TODO## Determine whether this is correct
@@ -6364,7 +6378,7 @@ void S315_5313::M5WriteVRAM8Bit(const Data& address, const Data& data, const RAM
 	tempAddress.SetBit(0, !tempAddress.GetBit(0));
 
 	//Write the data
-	vram->BufferWrite(tempAddress.GetData(), data.GetByte(0), accessTarget);
+	vram->Write(tempAddress.GetData(), data.GetByte(0), accessTarget);
 }
 
 ////----------------------------------------------------------------------------------------
@@ -6428,8 +6442,8 @@ void S315_5313::M5WriteCRAM(const Data& address, const Data& data, const RAMAcce
 	tempData = data & dataMask;
 
 	//Write the masked data to CRAM
-	cram->BufferWrite(tempAddress, tempData.GetByte(1), accessTarget);
-	cram->BufferWrite(tempAddress+1, tempData.GetByte(0), accessTarget);
+	cram->Write(tempAddress, tempData.GetByte(1), accessTarget);
+	cram->Write(tempAddress+1, tempData.GetByte(0), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
@@ -6456,8 +6470,8 @@ void S315_5313::M5WriteVSRAM(const Data& address, const Data& data, const RAMAcc
 	if(tempAddress < 0x50)
 	{
 		//Write the masked data to VSRAM
-		vsram->BufferWrite(tempAddress, tempData.GetByte(1), accessTarget);
-		vsram->BufferWrite(tempAddress+1, tempData.GetByte(0), accessTarget);
+		vsram->Write(tempAddress, tempData.GetByte(1), accessTarget);
+		vsram->Write(tempAddress+1, tempData.GetByte(0), accessTarget);
 
 		//##TODO## Determine whether this is correct
 		//vsramCachedRead = tempData;

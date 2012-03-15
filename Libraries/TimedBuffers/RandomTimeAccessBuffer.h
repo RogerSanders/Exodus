@@ -21,13 +21,15 @@ should hand the responsibility over to the caller, and give them the rules under
 access must occur. This is consistent with how any other basic container would operate
 anyway.
 \*--------------------------------------------------------------------------------------*/
-
 #ifndef __RANDOMTIMEACCESSBUFFER_H__
 #define __RANDOMTIMEACCESSBUFFER_H__
 #include <list>
 #include <vector>
 #include <boost/thread/mutex.hpp>
 #include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include "TimedBufferWriteInfo.h"
+#include "TimedBufferAccessTarget.h"
+#include "TimedBufferAdvanceSession.h"
 
 //Any object can be stored, saved, or loaded from this container, provided it meets the
 //following requirements:
@@ -50,14 +52,11 @@ template<class DataType, class TimesliceType> class RandomTimeAccessBuffer
 public:
 	//Structures
 	struct TimesliceEntry;
-	struct WriteEntry;
-	struct WriteInfo;
-	struct TimesliceSaveEntry;
-	struct WriteSaveEntry;
-	struct AccessTarget;
-	struct AdvanceSession;
 
 	//Typedefs
+	typedef typename TimedBufferWriteInfo<DataType, TimesliceType> WriteInfo;
+	typedef typename TimedBufferAccessTarget<DataType, TimesliceType> AccessTarget;
+	typedef typename TimedBufferAdvanceSession<DataType, TimesliceType> AdvanceSession;
 	typedef typename std::list<TimesliceEntry>::iterator Timeslice;
 
 	//Constructors
@@ -73,6 +72,8 @@ public:
 	//Access functions
 	inline DataType Read(unsigned int address, const AccessTarget& accessTarget) const;
 	inline void Write(unsigned int address, const DataType& data, const AccessTarget& accessTarget);
+	inline DataType Read(unsigned int address, const TimedBufferAccessTarget<DataType, TimesliceType>* accessTarget) const;
+	inline void Write(unsigned int address, const DataType& data, const TimedBufferAccessTarget<DataType, TimesliceType>* accessTarget);
 	DataType Read(unsigned int address, TimesliceType readTime) const;
 	void Write(unsigned int address, TimesliceType writeTime, const DataType& data);
 	inline DataType& ReferenceCommitted(unsigned int address);
@@ -89,6 +90,7 @@ public:
 	DataType ReadLatest(unsigned int address) const;
 	void WriteLatest(unsigned int address, const DataType& data);
 	void GetLatestBufferCopy(std::vector<DataType>& buffer) const;
+	void GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const;
 
 	//Time management functions
 	void Initialize();
@@ -106,13 +108,20 @@ public:
 
 	//Savestate functions
 	bool LoadState(IHeirarchicalStorageNode& node);
-	bool LoadTimesliceEntries(IHeirarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);
-	bool LoadWriteEntries(IHeirarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
 	bool GetState(IHeirarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData = false) const;
 
 private:
+	//Structures
+	struct WriteEntry;
+	struct TimesliceSaveEntry;
+	struct WriteSaveEntry;
+
 	//Time management functions
 	TimesliceType GetNextWriteTimeNoLock(const Timeslice& targetTimeslice) const;
+
+	//Savestate functions
+	bool LoadTimesliceEntries(IHeirarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);
+	bool LoadWriteEntries(IHeirarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
 
 private:
 	mutable boost::mutex accessLock;

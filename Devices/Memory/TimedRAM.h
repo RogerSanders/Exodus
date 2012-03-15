@@ -5,6 +5,10 @@
 #include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
 
+//##TODO## This class has been superseded by our TimedBuffer structure. It is only
+//referenced now by our old VDP core, and it isn't safe to use across DLL boundaries. This
+//class should be removed along with the old VDP core as soon as the new VDP core is
+//complete.
 class TimedRAM :public MemoryWrite
 {
 public:
