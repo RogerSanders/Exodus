@@ -912,7 +912,6 @@
 			ConfigurationType="1"
 			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOOptimize.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops"
 			CharacterSet="1"
-			DeleteExtensionsOnClean="*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;$(TargetPath)"
 			WholeProgramOptimization="1"
 			ExcludeBuckets="7"
 			>
@@ -1004,7 +1003,6 @@
 			ConfigurationType="1"
 			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOOptimize.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops"
 			CharacterSet="1"
-			DeleteExtensionsOnClean="*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;$(TargetPath)"
 			WholeProgramOptimization="1"
 			ExcludeBuckets="7"
 			>
@@ -1097,7 +1095,6 @@
 			ConfigurationType="1"
 			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOUpdate.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops"
 			CharacterSet="1"
-			DeleteExtensionsOnClean="*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;$(TargetPath)"
 			WholeProgramOptimization="1"
 			ExcludeBuckets="7"
 			>
@@ -1189,7 +1186,6 @@
 			ConfigurationType="1"
 			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOUpdate.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops"
 			CharacterSet="1"
-			DeleteExtensionsOnClean="*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;$(TargetPath)"
 			WholeProgramOptimization="1"
 			ExcludeBuckets="7"
 			>
