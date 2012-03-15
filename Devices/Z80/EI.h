@@ -8,10 +8,11 @@ class EI :public Z80Instruction
 public:
 	virtual EI* Clone() {return new EI();}
 	virtual EI* ClonePlacement(void* buffer) {return new(buffer) EI();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"11111011", L"");
+		return table.AllocateRegionToOpcode(this, L"11111011", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

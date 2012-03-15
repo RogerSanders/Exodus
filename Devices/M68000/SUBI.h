@@ -8,10 +8,11 @@ class SUBI :public M68000Instruction
 public:
 	virtual SUBI* Clone() {return new SUBI();}
 	virtual SUBI* ClonePlacement(void* buffer) {return new(buffer) SUBI();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00000100CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001");
+		return table.AllocateRegionToOpcode(this, L"00000100CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001");
 	}
 
 	virtual Disassembly M68000Disassemble()

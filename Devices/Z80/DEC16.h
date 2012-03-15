@@ -8,10 +8,11 @@ class DEC16 :public Z80Instruction
 public:
 	virtual DEC16* Clone() {return new DEC16();}
 	virtual DEC16* ClonePlacement(void* buffer) {return new(buffer) DEC16();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00**1011", L"");
+		return table.AllocateRegionToOpcode(this, L"00**1011", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

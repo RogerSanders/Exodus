@@ -8,13 +8,14 @@ class JP :public Z80Instruction
 public:
 	virtual JP* Clone() {return new JP();}
 	virtual JP* ClonePlacement(void* buffer) {return new(buffer) JP();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"11101001", L"");
-		result &= table->AllocateRegionToOpcode(this, L"11000011", L"");
-		result &= table->AllocateRegionToOpcode(this, L"11***010", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11101001", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11000011", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11***010", L"");
 		return result;
 	}
 

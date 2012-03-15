@@ -8,10 +8,11 @@ class Bcc :public M68000Instruction
 public:
 	virtual Bcc* Clone() {return new Bcc();}
 	virtual Bcc* ClonePlacement(void* buffer) {return new(buffer) Bcc();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0110CCCC********", L"CCCC=0010-1111");
+		return table.AllocateRegionToOpcode(this, L"0110CCCC********", L"CCCC=0010-1111");
 	}
 
 	virtual Disassembly M68000Disassemble()

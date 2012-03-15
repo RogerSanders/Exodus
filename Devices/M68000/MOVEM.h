@@ -115,12 +115,13 @@ public:
 
 	virtual MOVEM* Clone() {return new MOVEM();}
 	virtual MOVEM* ClonePlacement(void* buffer) {return new(buffer) MOVEM();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"01001B001*DDDDDD", L"B=0 DDDDDD=010000-010111,100000-110111,111000,111001");
-		result &= table->AllocateRegionToOpcode(this, L"01001B001*DDDDDD", L"B=1 DDDDDD=010000-011111,101000-110111,111000,111001,111010,111011");
+		result &= table.AllocateRegionToOpcode(this, L"01001B001*DDDDDD", L"B=0 DDDDDD=010000-010111,100000-110111,111000,111001");
+		result &= table.AllocateRegionToOpcode(this, L"01001B001*DDDDDD", L"B=1 DDDDDD=010000-011111,101000-110111,111000,111001,111010,111011");
 		return result;
 	}
 

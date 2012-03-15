@@ -8,10 +8,11 @@ class EXG :public M68000Instruction
 public:
 	virtual EXG* Clone() {return new EXG();}
 	virtual EXG* ClonePlacement(void* buffer) {return new(buffer) EXG();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"1100***1DDDDD***", L"DDDDD=01000,01001,10001");
+		return table.AllocateRegionToOpcode(this, L"1100***1DDDDD***", L"DDDDD=01000,01001,10001");
 	}
 
 	virtual Disassembly M68000Disassemble()

@@ -8,10 +8,11 @@ class NEG :public Z80Instruction
 public:
 	virtual NEG* Clone() {return new NEG();}
 	virtual NEG* ClonePlacement(void* buffer) {return new(buffer) NEG();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"01000100", L"");
+		return table.AllocateRegionToOpcode(this, L"01000100", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

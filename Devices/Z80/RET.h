@@ -8,12 +8,13 @@ class RET :public Z80Instruction
 public:
 	virtual RET* Clone() {return new RET();}
 	virtual RET* ClonePlacement(void* buffer) {return new(buffer) RET();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"11001001", L"");
-		result &= table->AllocateRegionToOpcode(this, L"11***000", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11001001", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11***000", L"");
 		return result;
 	}
 

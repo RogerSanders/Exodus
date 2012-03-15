@@ -8,12 +8,13 @@ class AND :public M68000Instruction
 public:
 	virtual AND* Clone() {return new AND();}
 	virtual AND* ClonePlacement(void* buffer) {return new(buffer) AND();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"1100***BCCDDDDDD", L"B=0 CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
-		result &= table->AllocateRegionToOpcode(this, L"1100***BCCDDDDDD", L"B=1 CC=00-10 DDDDDD=010000-110111,111000,111001");
+		result &= table.AllocateRegionToOpcode(this, L"1100***BCCDDDDDD", L"B=0 CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
+		result &= table.AllocateRegionToOpcode(this, L"1100***BCCDDDDDD", L"B=1 CC=00-10 DDDDDD=010000-110111,111000,111001");
 		return result;
 	}
 

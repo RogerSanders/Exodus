@@ -8,12 +8,13 @@ class BTST :public M68000Instruction
 public:
 	virtual BTST* Clone() {return new BTST();}
 	virtual BTST* ClonePlacement(void* buffer) {return new(buffer) BTST();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"0000***B00DDDDDD", L"B=1 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
-		result &= table->AllocateRegionToOpcode(this, L"0000100B00DDDDDD", L"B=0 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011");
+		result &= table.AllocateRegionToOpcode(this, L"0000***B00DDDDDD", L"B=1 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
+		result &= table.AllocateRegionToOpcode(this, L"0000100B00DDDDDD", L"B=0 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011");
 		return result;
 	}
 

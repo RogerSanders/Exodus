@@ -8,10 +8,11 @@ class INC8 :public Z80Instruction
 public:
 	virtual INC8* Clone() {return new INC8();}
 	virtual INC8* ClonePlacement(void* buffer) {return new(buffer) INC8();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00***100", L"");
+		return table.AllocateRegionToOpcode(this, L"00***100", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

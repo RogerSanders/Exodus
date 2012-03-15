@@ -8,12 +8,13 @@ class BCHG :public M68000Instruction
 public:
 	virtual BCHG* Clone() {return new BCHG();}
 	virtual BCHG* ClonePlacement(void* buffer) {return new(buffer) BCHG();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"0000***B01DDDDDD", L"B=1 DDDDDD=000000-000111,010000-110111,111000,111001");
-		result &= table->AllocateRegionToOpcode(this, L"0000100B01DDDDDD", L"B=0 DDDDDD=000000-000111,010000-110111,111000,111001");
+		result &= table.AllocateRegionToOpcode(this, L"0000***B01DDDDDD", L"B=1 DDDDDD=000000-000111,010000-110111,111000,111001");
+		result &= table.AllocateRegionToOpcode(this, L"0000100B01DDDDDD", L"B=0 DDDDDD=000000-000111,010000-110111,111000,111001");
 		return result;
 	}
 

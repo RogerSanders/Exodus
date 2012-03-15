@@ -8,10 +8,11 @@ class MOVEP :public M68000Instruction
 public:
 	virtual MOVEP* Clone() {return new MOVEP();}
 	virtual MOVEP* ClonePlacement(void* buffer) {return new(buffer) MOVEP();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0000***1**001***", L"");
+		return table.AllocateRegionToOpcode(this, L"0000***1**001***", L"");
 	}
 
 	virtual Disassembly M68000Disassemble()

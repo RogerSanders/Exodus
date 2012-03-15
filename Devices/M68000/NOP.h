@@ -8,10 +8,11 @@ class NOP :public M68000Instruction
 public:
 	virtual NOP* Clone() {return new NOP();}
 	virtual NOP* ClonePlacement(void* buffer) {return new(buffer) NOP();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0100111001110001", L"");
+		return table.AllocateRegionToOpcode(this, L"0100111001110001", L"");
 	}
 
 	virtual Disassembly M68000Disassemble()

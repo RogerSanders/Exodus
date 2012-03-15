@@ -303,7 +303,7 @@ private:
 	IBusInterface* memoryBus;
 
 	//Opcode decode table
-	OpcodeTable<M68000Instruction> opcodeTable;
+	OpcodeTable opcodeTable;
 
 	//Opcode allocation buffer for placement new
 	void* opcodeBuffer;

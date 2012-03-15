@@ -3,8 +3,9 @@
 #include <vector>
 #include <set>
 #include <string>
+class IInstruction;
 
-template<class T> class OpcodeTable
+class OpcodeTable
 {
 public:
 	//Constructors
@@ -15,16 +16,16 @@ public:
 	void InitializeOpcodeTable();
 
 	//Instruction functions
-	bool RegisterOpcode(T* opcode);
-	bool AllocateRegionToOpcode(T* opcode, const std::wstring& definition, const std::wstring& substitutions);
-	T* GetInstruction(unsigned int opcode) const;
+	bool RegisterOpcode(IInstruction* opcode);
+	bool AllocateRegionToOpcode(IInstruction* opcode, const std::wstring& definition, const std::wstring& substitutions);
+	inline IInstruction* GetInstruction(unsigned int opcode) const;
+	size_t GetLargestOpcodeObjectSize() const;
 
 private:
 	unsigned int opcodeDecodeBits;
 	unsigned int opcodeDecodeMask;
-
-	std::set<T*> opcodeSet;
-	std::vector<T*> opcodeArray;
+	std::set<IInstruction*> opcodeSet;
+	std::vector<IInstruction*> opcodeArray;
 };
 
 #include "OpcodeTable.inl"

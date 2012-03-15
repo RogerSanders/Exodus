@@ -47,10 +47,11 @@ public:
 
 	virtual JMP* Clone() {return new JMP();}
 	virtual JMP* ClonePlacement(void* buffer) {return new(buffer) JMP();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0100111011DDDDDD", L"DDDDDD=010000-010111,101000-110111,111000,111001,111010,111011");
+		return table.AllocateRegionToOpcode(this, L"0100111011DDDDDD", L"DDDDDD=010000-010111,101000-110111,111000,111001,111010,111011");
 	}
 
 	virtual Disassembly M68000Disassemble()

@@ -8,10 +8,11 @@ class TRAPV :public M68000Instruction
 public:
 	virtual TRAPV* Clone() {return new TRAPV();}
 	virtual TRAPV* ClonePlacement(void* buffer) {return new(buffer) TRAPV();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0100111001110110", L"");
+		return table.AllocateRegionToOpcode(this, L"0100111001110110", L"");
 	}
 
 	virtual Disassembly M68000Disassemble()

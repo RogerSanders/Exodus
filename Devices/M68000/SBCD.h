@@ -8,10 +8,11 @@ class SBCD :public M68000Instruction
 public:
 	virtual SBCD* Clone() {return new SBCD();}
 	virtual SBCD* ClonePlacement(void* buffer) {return new(buffer) SBCD();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"1000***10000****", L"");
+		return table.AllocateRegionToOpcode(this, L"1000***10000****", L"");
 	}
 
 	virtual Disassembly M68000Disassemble()

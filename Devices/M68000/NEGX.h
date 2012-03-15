@@ -8,10 +8,11 @@ class NEGX :public M68000Instruction
 public:
 	virtual NEGX* Clone() {return new NEGX();}
 	virtual NEGX* ClonePlacement(void* buffer) {return new(buffer) NEGX();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"01000000CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001");
+		return table.AllocateRegionToOpcode(this, L"01000000CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001");
 	}
 
 	virtual Disassembly M68000Disassemble()

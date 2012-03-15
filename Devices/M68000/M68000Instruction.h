@@ -5,7 +5,7 @@
 #include "EffectiveAddress.h"
 namespace M68000 {
 
-class M68000Instruction
+class M68000Instruction :public IInstruction
 {
 public:
 	//Enumerations
@@ -22,9 +22,6 @@ public:
 	//Clone functions
 	virtual M68000Instruction* Clone() = 0;
 	virtual M68000Instruction* ClonePlacement(void* buffer) = 0;
-
-	//Registration functions
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table) = 0;
 
 	//Size functions
 	inline unsigned int GetInstructionSize() const;

@@ -8,10 +8,11 @@ class TRAP :public M68000Instruction
 public:
 	virtual TRAP* Clone() {return new TRAP();}
 	virtual TRAP* ClonePlacement(void* buffer) {return new(buffer) TRAP();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"010011100100****", L"");
+		return table.AllocateRegionToOpcode(this, L"010011100100****", L"");
 	}
 
 	virtual Disassembly M68000Disassemble()

@@ -8,12 +8,13 @@ class ASL :public M68000Instruction
 public:
 	virtual ASL* Clone() {return new ASL();}
 	virtual ASL* ClonePlacement(void* buffer) {return new(buffer) ASL();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"1110***1CC*00***", L"CC=00-10");
-		result &= table->AllocateRegionToOpcode(this, L"1110000111DDDDDD", L"DDDDDD=010000-110111,111000,111001");
+		result &= table.AllocateRegionToOpcode(this, L"1110***1CC*00***", L"CC=00-10");
+		result &= table.AllocateRegionToOpcode(this, L"1110000111DDDDDD", L"DDDDDD=010000-110111,111000,111001");
 		return result;
 	}
 

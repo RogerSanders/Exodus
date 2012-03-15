@@ -7,11 +7,8 @@ namespace Z80{
 
 //----------------------------------------------------------------------------------------
 Z80::Z80(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Processor(L"Z80", ainstanceName, amoduleID), opcodeTable(8), opcodeTableCB(8), opcodeTableED(8), opcodeBuffer(0)
+:Processor(L"Z80", ainstanceName, amoduleID), opcodeTable(8), opcodeTableCB(8), opcodeTableED(8), opcodeBuffer(0), memoryBus(0)
 {
-	memoryBus = 0;
-	opcodeBuffer = (void*)new unsigned char[0x1000];
-
 	//Initialize our CE line state
 	ceLineMaskRD = 0;
 	ceLineMaskWR = 0;
@@ -139,6 +136,11 @@ bool Z80::BuildDevice()
 	//OTIR
 	//OUTD
 	//OTDR
+
+	//Determine the size of the largest opcode object, and reserve enough size in our
+	//opcode buffer for it.
+	size_t opcodeBufferSize = opcodeTable.GetLargestOpcodeObjectSize();
+	opcodeBuffer = (void*)new unsigned char[opcodeBufferSize];
 
 	return result;
 }
@@ -710,7 +712,7 @@ double Z80::ExecuteStep()
 			}
 			ReadMemory(readLocation++, opcode, false);
 			++instructionSize;
-			nextOpcode = opcodeTableCB.GetInstruction(opcode.GetData());
+			nextOpcode = (Z80Instruction*)opcodeTableCB.GetInstruction(opcode.GetData());
 		}
 		else if(opcode == 0xED)
 		{
@@ -721,7 +723,7 @@ double Z80::ExecuteStep()
 			AddRefresh(1);
 			ReadMemory(readLocation++, opcode, false);
 			++instructionSize;
-			nextOpcode = opcodeTableED.GetInstruction(opcode.GetData());
+			nextOpcode = (Z80Instruction*)opcodeTableED.GetInstruction(opcode.GetData());
 
 			//If we've encountered an invalid ED prefixed opcode, force the opcode to a
 			//NOP instruction.
@@ -737,7 +739,7 @@ double Z80::ExecuteStep()
 		}
 		else
 		{
-			nextOpcode = opcodeTable.GetInstruction(opcode.GetData());
+			nextOpcode = (Z80Instruction*)opcodeTable.GetInstruction(opcode.GetData());
 		}
 		AddRefresh(1);
 
@@ -826,7 +828,7 @@ Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location)
 		}
 		ReadMemory(readLocation++, opcode, true);
 		++instructionSize;
-		nextOpcode = opcodeTableCB.GetInstruction(opcode.GetData());
+		nextOpcode = (Z80Instruction*)opcodeTableCB.GetInstruction(opcode.GetData());
 	}
 	else if(opcode == 0xED)
 	{
@@ -836,11 +838,11 @@ Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location)
 
 		ReadMemory(readLocation++, opcode, true);
 		++instructionSize;
-		nextOpcode = opcodeTableED.GetInstruction(opcode.GetData());
+		nextOpcode = (Z80Instruction*)opcodeTableED.GetInstruction(opcode.GetData());
 	}
 	else
 	{
-		nextOpcode = opcodeTable.GetInstruction(opcode.GetData());
+		nextOpcode = (Z80Instruction*)opcodeTable.GetInstruction(opcode.GetData());
 	}
 
 	//Process the opcode

@@ -8,10 +8,11 @@ class MULU :public M68000Instruction
 public:
 	virtual MULU* Clone() {return new MULU();}
 	virtual MULU* ClonePlacement(void* buffer) {return new(buffer) MULU();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"1100***011DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
+		return table.AllocateRegionToOpcode(this, L"1100***011DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
 	}
 
 	virtual Disassembly M68000Disassemble()

@@ -8,10 +8,11 @@ class DJNZ :public Z80Instruction
 public:
 	virtual DJNZ* Clone() {return new DJNZ();}
 	virtual DJNZ* ClonePlacement(void* buffer) {return new(buffer) DJNZ();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00010000", L"");
+		return table.AllocateRegionToOpcode(this, L"00010000", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

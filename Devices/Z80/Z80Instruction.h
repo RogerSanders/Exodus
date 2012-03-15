@@ -5,7 +5,7 @@
 #include "EffectiveAddress.h"
 namespace Z80 {
 
-class Z80Instruction
+class Z80Instruction :public IInstruction
 {
 public:
 	//Enumerations
@@ -22,9 +22,6 @@ public:
 	//Clone functions
 	virtual Z80Instruction* Clone() = 0;
 	virtual Z80Instruction* ClonePlacement(void* buffer) = 0;
-
-	//Registration functions
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table) = 0;
 
 	//Size functions
 	inline unsigned int GetInstructionSize() const;

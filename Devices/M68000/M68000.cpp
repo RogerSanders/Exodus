@@ -12,8 +12,6 @@ namespace M68000 {
 M68000::M68000(const std::wstring& ainstanceName, unsigned int amoduleID)
 :Processor(L"M68000", ainstanceName, amoduleID), opcodeTable(16), opcodeBuffer(0), memoryBus(0)
 {
-	opcodeBuffer = (void*)new unsigned char[0x1000];
-
 	//Create the menu handler
 	menuHandler = new DebugMenuHandler(this);
 	menuHandler->LoadMenuItems();
@@ -169,6 +167,11 @@ bool M68000::BuildDevice()
 	result &= opcodeTable.RegisterOpcode(new RESET());
 	result &= opcodeTable.RegisterOpcode(new RTE());
 	result &= opcodeTable.RegisterOpcode(new STOP());
+
+	//Determine the size of the largest opcode object, and reserve enough size in our
+	//opcode buffer for it.
+	size_t opcodeBufferSize = opcodeTable.GetLargestOpcodeObjectSize();
+	opcodeBuffer = (void*)new unsigned char[opcodeBufferSize];
 
 	//##TODO## Remove this debug code, and make a proper interface for controlling active
 	//disassembly.
@@ -1003,7 +1006,7 @@ double M68000::ExecuteStep()
 			ReadMemory(GetPC(), opcode, GetFunctionCode(false), GetPC(), false, 0, false, false);
 		}
 		wordIsPrefetched = false;
-		nextOpcode = opcodeTable.GetInstruction(opcode.GetData());
+		nextOpcode = (M68000Instruction*)opcodeTable.GetInstruction(opcode.GetData());
 		if(nextOpcode == 0)
 		{
 			//Generate an exception if we've encountered an unimplemented opcode
@@ -1228,7 +1231,7 @@ M68000::OpcodeInfo M68000::GetOpcodeInfo(unsigned int location)
 	M68000Instruction* targetOpcode = 0;
 	M68000Word opcode;
 	ReadMemoryTransparent(instructionLocation, opcode, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
-	targetOpcode = opcodeTable.GetInstruction(opcode.GetData());
+	targetOpcode = (M68000Instruction*)opcodeTable.GetInstruction(opcode.GetData());
 	if(targetOpcode != 0)
 	{
 		targetOpcode = targetOpcode->Clone();

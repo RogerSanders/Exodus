@@ -8,17 +8,18 @@ class LD8 :public Z80Instruction
 public:
 	virtual LD8* Clone() {return new LD8();}
 	virtual LD8* ClonePlacement(void* buffer) {return new(buffer) LD8();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"01AAABBB", L"AAA=111,000-101 BBB=111,000-101");
-		result &= table->AllocateRegionToOpcode(this, L"01110AAA", L"AAA=111,000-101");
-		result &= table->AllocateRegionToOpcode(this, L"01AAA110", L"AAA=111,000-101");
-		result &= table->AllocateRegionToOpcode(this, L"000**010", L"");
-		result &= table->AllocateRegionToOpcode(this, L"0011*010", L"");
-		result &= table->AllocateRegionToOpcode(this, L"00110110", L"");
-		result &= table->AllocateRegionToOpcode(this, L"00AAA110", L"AAA=111,000-101");
+		result &= table.AllocateRegionToOpcode(this, L"01AAABBB", L"AAA=111,000-101 BBB=111,000-101");
+		result &= table.AllocateRegionToOpcode(this, L"01110AAA", L"AAA=111,000-101");
+		result &= table.AllocateRegionToOpcode(this, L"01AAA110", L"AAA=111,000-101");
+		result &= table.AllocateRegionToOpcode(this, L"000**010", L"");
+		result &= table.AllocateRegionToOpcode(this, L"0011*010", L"");
+		result &= table.AllocateRegionToOpcode(this, L"00110110", L"");
+		result &= table.AllocateRegionToOpcode(this, L"00AAA110", L"AAA=111,000-101");
 		return result;
 	}
 

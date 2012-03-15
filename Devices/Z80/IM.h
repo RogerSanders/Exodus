@@ -8,13 +8,14 @@ class IM :public Z80Instruction
 public:
 	virtual IM* Clone() {return new IM();}
 	virtual IM* ClonePlacement(void* buffer) {return new(buffer) IM();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"01000110", L"");
-		result &= table->AllocateRegionToOpcode(this, L"01010110", L"");
-		result &= table->AllocateRegionToOpcode(this, L"01011110", L"");
+		result &= table.AllocateRegionToOpcode(this, L"01000110", L"");
+		result &= table.AllocateRegionToOpcode(this, L"01010110", L"");
+		result &= table.AllocateRegionToOpcode(this, L"01011110", L"");
 		return result;
 	}
 

@@ -8,10 +8,11 @@ class RRC :public Z80Instruction
 public:
 	virtual RRC* Clone() {return new RRC();}
 	virtual RRC* ClonePlacement(void* buffer) {return new(buffer) RRC();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"00001***", L"");
+		return table.AllocateRegionToOpcode(this, L"00001***", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

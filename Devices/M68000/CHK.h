@@ -8,10 +8,11 @@ class CHK :public M68000Instruction
 public:
 	virtual CHK* Clone() {return new CHK();}
 	virtual CHK* ClonePlacement(void* buffer) {return new(buffer) CHK();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"0100***CC0DDDDDD", L"CC=11 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
+		return table.AllocateRegionToOpcode(this, L"0100***CC0DDDDDD", L"CC=11 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
 	}
 
 	virtual Disassembly M68000Disassemble()

@@ -8,12 +8,13 @@ class XOR8 :public Z80Instruction
 public:
 	virtual XOR8* Clone() {return new XOR8();}
 	virtual XOR8* ClonePlacement(void* buffer) {return new(buffer) XOR8();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"10101***", L"");
-		result &= table->AllocateRegionToOpcode(this, L"11101110", L"");
+		result &= table.AllocateRegionToOpcode(this, L"10101***", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11101110", L"");
 		return result;
 	}
 

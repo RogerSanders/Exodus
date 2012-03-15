@@ -8,10 +8,11 @@ class RETN :public Z80Instruction
 public:
 	virtual RETN* Clone() {return new RETN();}
 	virtual RETN* ClonePlacement(void* buffer) {return new(buffer) RETN();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"01000101", L"");
+		return table.AllocateRegionToOpcode(this, L"01000101", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

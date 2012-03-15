@@ -8,10 +8,11 @@ class CPIR :public Z80Instruction
 public:
 	virtual CPIR* Clone() {return new CPIR();}
 	virtual CPIR* ClonePlacement(void* buffer) {return new(buffer) CPIR();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"10110001", L"");
+		return table.AllocateRegionToOpcode(this, L"10110001", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()

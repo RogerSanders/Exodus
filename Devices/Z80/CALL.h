@@ -8,12 +8,13 @@ class CALL :public Z80Instruction
 public:
 	virtual CALL* Clone() {return new CALL();}
 	virtual CALL* ClonePlacement(void* buffer) {return new(buffer) CALL();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"11001101", L"");
-		result &= table->AllocateRegionToOpcode(this, L"11***100", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11001101", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11***100", L"");
 		return result;
 	}
 

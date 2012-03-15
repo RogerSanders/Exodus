@@ -8,12 +8,13 @@ class AND8 :public Z80Instruction
 public:
 	virtual AND8* Clone() {return new AND8();}
 	virtual AND8* ClonePlacement(void* buffer) {return new(buffer) AND8();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"10100***", L"");
-		result &= table->AllocateRegionToOpcode(this, L"11100110", L"");
+		result &= table.AllocateRegionToOpcode(this, L"10100***", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11100110", L"");
 		return result;
 	}
 

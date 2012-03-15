@@ -8,12 +8,13 @@ class ADC8 :public Z80Instruction
 public:
 	virtual ADC8* Clone() {return new ADC8();}
 	virtual ADC8* ClonePlacement(void* buffer) {return new(buffer) ADC8();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
 		bool result = true;
-		result &= table->AllocateRegionToOpcode(this, L"10001***", L"");
-		result &= table->AllocateRegionToOpcode(this, L"11001110", L"");
+		result &= table.AllocateRegionToOpcode(this, L"10001***", L"");
+		result &= table.AllocateRegionToOpcode(this, L"11001110", L"");
 		return result;
 	}
 

@@ -38,6 +38,7 @@
 //Include any header files which are part of the public interface for this library here
 #ifndef PACKAGE_LINK_LIBS_ONLY
 #include "Processor.h"
+#include "IInstruction.h"
 #include "OpcodeTable.h"
 #endif
 

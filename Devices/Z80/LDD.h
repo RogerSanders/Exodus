@@ -8,10 +8,11 @@ class LDD :public Z80Instruction
 public:
 	virtual LDD* Clone() {return new LDD();}
 	virtual LDD* ClonePlacement(void* buffer) {return new(buffer) LDD();}
+	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>* table)
+	virtual bool RegisterOpcode(OpcodeTable& table)
 	{
-		return table->AllocateRegionToOpcode(this, L"10101000", L"");
+		return table.AllocateRegionToOpcode(this, L"10101000", L"");
 	}
 
 	virtual Disassembly Z80Disassemble()
