@@ -6,18 +6,23 @@ namespace M68000 {
 class NOT :public M68000Instruction
 {
 public:
-	virtual NOT* Clone() {return new NOT();}
-	virtual NOT* ClonePlacement(void* buffer) {return new(buffer) NOT();}
+	virtual NOT* Clone() const {return new NOT();}
+	virtual NOT* ClonePlacement(void* buffer) const {return new(buffer) NOT();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"01000110CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"NOT." + DisassembleSize(size), target.Disassemble());
+		return L"NOT";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

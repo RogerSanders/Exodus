@@ -6,8 +6,8 @@ namespace M68000 {
 class MOVE_USP :public M68000Instruction
 {
 public:
-	virtual MOVE_USP* Clone() {return new MOVE_USP();}
-	virtual MOVE_USP* ClonePlacement(void* buffer) {return new(buffer) MOVE_USP();}
+	virtual MOVE_USP* Clone() const {return new MOVE_USP();}
+	virtual MOVE_USP* ClonePlacement(void* buffer) const {return new(buffer) MOVE_USP();}
 
 	virtual bool Privileged() const
 	{
@@ -15,12 +15,17 @@ public:
 	}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"010011100110****", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"MOVE USP";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		std::wstring argumentDisassembly;
 

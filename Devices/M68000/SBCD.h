@@ -6,18 +6,23 @@ namespace M68000 {
 class SBCD :public M68000Instruction
 {
 public:
-	virtual SBCD* Clone() {return new SBCD();}
-	virtual SBCD* ClonePlacement(void* buffer) {return new(buffer) SBCD();}
+	virtual SBCD* Clone() const {return new SBCD();}
+	virtual SBCD* ClonePlacement(void* buffer) const {return new(buffer) SBCD();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"1000***10000****", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"SBCD", source.Disassemble() + L", " + target.Disassemble());
+		return L"SBCD";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), source.Disassemble() + L", " + target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

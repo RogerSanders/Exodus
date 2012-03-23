@@ -117,18 +117,23 @@ public:
 		}
 	}
 
-	virtual MOVEA* Clone() {return new MOVEA();}
-	virtual MOVEA* ClonePlacement(void* buffer) {return new(buffer) MOVEA();}
+	virtual MOVEA* Clone() const {return new MOVEA();}
+	virtual MOVEA* ClonePlacement(void* buffer) const {return new(buffer) MOVEA();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00CC***001DDDDDD", L"CC=11,10 DDDDDD=000000-110111,111000,111001,111010,111011,111100");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"MOVEA." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+		return L"MOVEA";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

@@ -6,11 +6,11 @@ namespace M68000 {
 class ASL :public M68000Instruction
 {
 public:
-	virtual ASL* Clone() {return new ASL();}
-	virtual ASL* ClonePlacement(void* buffer) {return new(buffer) ASL();}
+	virtual ASL* Clone() const {return new ASL();}
+	virtual ASL* ClonePlacement(void* buffer) const {return new(buffer) ASL();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"1110***1CC*00***", L"CC=00-10");
@@ -18,15 +18,20 @@ public:
 		return result;
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"ASL";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		if(target.GetAddressMode() == EffectiveAddress::DATAREG_DIRECT)
 		{
-			return Disassembly(L"ASL." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 		}
 		else
 		{
-			return Disassembly(L"ASL", target.Disassemble());
+			return Disassembly(GetOpcodeName(), target.Disassemble());
 		}
 	}
 

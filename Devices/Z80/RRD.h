@@ -6,18 +6,23 @@ namespace Z80 {
 class RRD :public Z80Instruction
 {
 public:
-	virtual RRD* Clone() {return new RRD();}
-	virtual RRD* ClonePlacement(void* buffer) {return new(buffer) RRD();}
+	virtual RRD* Clone() const {return new RRD();}
+	virtual RRD* ClonePlacement(void* buffer) const {return new(buffer) RRD();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"01100111", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"RRD", L"");
+		return L"RRD";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

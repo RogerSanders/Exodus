@@ -6,18 +6,23 @@ namespace Z80 {
 class LDD :public Z80Instruction
 {
 public:
-	virtual LDD* Clone() {return new LDD();}
-	virtual LDD* ClonePlacement(void* buffer) {return new(buffer) LDD();}
+	virtual LDD* Clone() const {return new LDD();}
+	virtual LDD* ClonePlacement(void* buffer) const {return new(buffer) LDD();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"10101000", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"LDD", L"");
+		return L"LDD";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

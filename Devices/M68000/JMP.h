@@ -45,18 +45,23 @@ public:
 		return executeTimeArray[targetIndex];
 	}
 
-	virtual JMP* Clone() {return new JMP();}
-	virtual JMP* ClonePlacement(void* buffer) {return new(buffer) JMP();}
+	virtual JMP* Clone() const {return new JMP();}
+	virtual JMP* ClonePlacement(void* buffer) const {return new(buffer) JMP();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100111011DDDDDD", L"DDDDDD=010000-010111,101000-110111,111000,111001,111010,111011");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"JMP", target.Disassemble());
+		return L"JMP";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

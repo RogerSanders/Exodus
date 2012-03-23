@@ -21,7 +21,22 @@ Z80::Z80(const std::wstring& ainstanceName, unsigned int amoduleID)
 //----------------------------------------------------------------------------------------
 Z80::~Z80()
 {
+	//Delete the opcode buffer
 	delete opcodeBuffer;
+
+	//Delete all objects stored in the opcode lists
+	for(std::list<Z80Instruction*>::const_iterator i = opcodeList.begin(); i != opcodeList.end(); ++i)
+	{
+		delete *i;
+	}
+	for(std::list<Z80Instruction*>::const_iterator i = opcodeListCB.begin(); i != opcodeListCB.end(); ++i)
+	{
+		delete *i;
+	}
+	for(std::list<Z80Instruction*>::const_iterator i = opcodeListED.begin(); i != opcodeListED.end(); ++i)
+	{
+		delete *i;
+	}
 
 	//Delete the menu handler
 	menuHandler->ClearMenuItems();
@@ -33,97 +48,117 @@ Z80::~Z80()
 //----------------------------------------------------------------------------------------
 bool Z80::BuildDevice()
 {
-	//Initialize our opcode table
 	bool result = true;
+
+	//Initialize our opcode tables
 	opcodeTable.InitializeOpcodeTable();
 	opcodeTableED.InitializeOpcodeTable();
 	opcodeTableCB.InitializeOpcodeTable();
 
+	//Delete all objects stored in the opcode lists
+	for(std::list<Z80Instruction*>::const_iterator i = opcodeList.begin(); i != opcodeList.end(); ++i)
+	{
+		delete *i;
+	}
+	for(std::list<Z80Instruction*>::const_iterator i = opcodeListCB.begin(); i != opcodeListCB.end(); ++i)
+	{
+		delete *i;
+	}
+	for(std::list<Z80Instruction*>::const_iterator i = opcodeListED.begin(); i != opcodeListED.end(); ++i)
+	{
+		delete *i;
+	}
+	opcodeList.clear();
+	opcodeListCB.clear();
+	opcodeListED.clear();
+
+	//Add all defined opcodes for this device to the opcode list
+
 	//8-Bit Load Instructions
-	result &= opcodeTable.RegisterOpcode(new LD8());
-	result &= opcodeTableED.RegisterOpcode(new LD8ED());
+	opcodeList.push_back(new LD8());
+	opcodeListED.push_back(new LD8ED());
 
 	//16-Bit Load Instructions
-	result &= opcodeTable.RegisterOpcode(new LD16());
-	result &= opcodeTableED.RegisterOpcode(new LD16ED());
-	result &= opcodeTable.RegisterOpcode(new PUSH());
-	result &= opcodeTable.RegisterOpcode(new POP());
+	opcodeList.push_back(new LD16());
+	opcodeListED.push_back(new LD16ED());
+	opcodeList.push_back(new PUSH());
+	opcodeList.push_back(new POP());
 
 	//Exchange, Block Transfer, and Search Instructions
-	result &= opcodeTable.RegisterOpcode(new EX());
-	result &= opcodeTable.RegisterOpcode(new EXX());
-	result &= opcodeTableED.RegisterOpcode(new LDI());
-	result &= opcodeTableED.RegisterOpcode(new LDIR());
-	result &= opcodeTableED.RegisterOpcode(new LDD());
-	result &= opcodeTableED.RegisterOpcode(new LDDR());
-	result &= opcodeTableED.RegisterOpcode(new CPI());
-	result &= opcodeTableED.RegisterOpcode(new CPIR());
-	result &= opcodeTableED.RegisterOpcode(new CPD());
-	result &= opcodeTableED.RegisterOpcode(new CPDR());
+	opcodeList.push_back(new EX());
+	opcodeList.push_back(new EXX());
+	opcodeListED.push_back(new LDI());
+	opcodeListED.push_back(new LDIR());
+	opcodeListED.push_back(new LDD());
+	opcodeListED.push_back(new LDDR());
+	opcodeListED.push_back(new CPI());
+	opcodeListED.push_back(new CPIR());
+	opcodeListED.push_back(new CPD());
+	opcodeListED.push_back(new CPDR());
 
 	//8-Bit Arithmetic Instructions
-	result &= opcodeTable.RegisterOpcode(new ADD8());
-	result &= opcodeTable.RegisterOpcode(new AND8());
-	result &= opcodeTable.RegisterOpcode(new CP8());
-	result &= opcodeTable.RegisterOpcode(new DEC8());
-	result &= opcodeTable.RegisterOpcode(new INC8());
-	result &= opcodeTable.RegisterOpcode(new OR8());
-	result &= opcodeTable.RegisterOpcode(new SUB8());
-	result &= opcodeTable.RegisterOpcode(new XOR8());
-	result &= opcodeTable.RegisterOpcode(new ADC8());
-	result &= opcodeTable.RegisterOpcode(new SBC8());
+	opcodeList.push_back(new ADD8());
+	opcodeList.push_back(new AND8());
+	opcodeList.push_back(new CP8());
+	opcodeList.push_back(new DEC8());
+	opcodeList.push_back(new INC8());
+	opcodeList.push_back(new OR8());
+	opcodeList.push_back(new SUB8());
+	opcodeList.push_back(new XOR8());
+	opcodeList.push_back(new ADC8());
+	opcodeList.push_back(new SBC8());
 
 	//General-Purpose Arithmetic and CPU Control Instructions
-	result &= opcodeTable.RegisterOpcode(new CPL());
-	result &= opcodeTable.RegisterOpcode(new CCF());
-	result &= opcodeTable.RegisterOpcode(new SCF());
-	result &= opcodeTable.RegisterOpcode(new NOP());
-	result &= opcodeTableED.RegisterOpcode(new NEG());
-	result &= opcodeTable.RegisterOpcode(new HALT());
-	result &= opcodeTable.RegisterOpcode(new DI());
-	result &= opcodeTable.RegisterOpcode(new EI());
-	result &= opcodeTableED.RegisterOpcode(new IM());
-	result &= opcodeTable.RegisterOpcode(new DAA());
+	opcodeList.push_back(new CPL());
+	opcodeList.push_back(new CCF());
+	opcodeList.push_back(new SCF());
+	opcodeList.push_back(new NOP());
+	opcodeListED.push_back(new NEG());
+	opcodeList.push_back(new HALT());
+	opcodeList.push_back(new DI());
+	opcodeList.push_back(new EI());
+	opcodeListED.push_back(new IM());
+	opcodeList.push_back(new DAA());
 
 	//16-bit Arithmetic Instructions
-	result &= opcodeTable.RegisterOpcode(new ADD16());
-	result &= opcodeTable.RegisterOpcode(new DEC16());
-	result &= opcodeTable.RegisterOpcode(new INC16());
-	result &= opcodeTableED.RegisterOpcode(new ADC16());
-	result &= opcodeTableED.RegisterOpcode(new SBC16());
+	opcodeList.push_back(new ADD16());
+	opcodeList.push_back(new DEC16());
+	opcodeList.push_back(new INC16());
+	opcodeListED.push_back(new ADC16());
+	opcodeListED.push_back(new SBC16());
 
 	//Rotate and Shift Instructions
-	result &= opcodeTable.RegisterOpcode(new RLCA());
-	result &= opcodeTable.RegisterOpcode(new RLA());
-	result &= opcodeTable.RegisterOpcode(new RRCA());
-	result &= opcodeTable.RegisterOpcode(new RRA());
-	result &= opcodeTableCB.RegisterOpcode(new RLC());
-	result &= opcodeTableCB.RegisterOpcode(new RL());
-	result &= opcodeTableCB.RegisterOpcode(new RRC());
-	result &= opcodeTableCB.RegisterOpcode(new RR());
-	result &= opcodeTableCB.RegisterOpcode(new SLA());
-	result &= opcodeTableCB.RegisterOpcode(new SRA());
-	result &= opcodeTableCB.RegisterOpcode(new SLL());
-	result &= opcodeTableCB.RegisterOpcode(new SRL());
-	result &= opcodeTableED.RegisterOpcode(new RLD());
-	result &= opcodeTableED.RegisterOpcode(new RRD());
+	opcodeList.push_back(new RLCA());
+	opcodeList.push_back(new RLA());
+	opcodeList.push_back(new RRCA());
+	opcodeList.push_back(new RRA());
+	opcodeListCB.push_back(new RLC());
+	opcodeListCB.push_back(new RL());
+	opcodeListCB.push_back(new RRC());
+	opcodeListCB.push_back(new RR());
+	opcodeListCB.push_back(new SLA());
+	opcodeListCB.push_back(new SRA());
+	opcodeListCB.push_back(new SLL());
+	opcodeListCB.push_back(new SRL());
+	opcodeListED.push_back(new RLD());
+	opcodeListED.push_back(new RRD());
 
 	//Bit set, reset, and test instructions
-	result &= opcodeTableCB.RegisterOpcode(new BIT());
-	result &= opcodeTableCB.RegisterOpcode(new SET());
-	result &= opcodeTableCB.RegisterOpcode(new RES());
+	opcodeListCB.push_back(new BIT());
+	opcodeListCB.push_back(new SET());
+	opcodeListCB.push_back(new RES());
 
 	//Jump Instructions
-	result &= opcodeTable.RegisterOpcode(new JP());
-	result &= opcodeTable.RegisterOpcode(new JR());
-	result &= opcodeTable.RegisterOpcode(new DJNZ());
+	opcodeList.push_back(new JP());
+	opcodeList.push_back(new JR());
+	opcodeList.push_back(new DJNZ());
 
 	//Call and Return Instructions
-	result &= opcodeTable.RegisterOpcode(new CALL());
-	result &= opcodeTable.RegisterOpcode(new RET());
-	result &= opcodeTable.RegisterOpcode(new RST());
-	result &= opcodeTableED.RegisterOpcode(new RETI());
-	result &= opcodeTableED.RegisterOpcode(new RETN());
+	opcodeList.push_back(new CALL());
+	opcodeList.push_back(new RET());
+	opcodeList.push_back(new RST());
+	opcodeListED.push_back(new RETI());
+	opcodeListED.push_back(new RETN());
 
 	//##TODO## Input and Output Instructions
 	//IN
@@ -137,10 +172,72 @@ bool Z80::BuildDevice()
 	//OUTD
 	//OTDR
 
-	//Determine the size of the largest opcode object, and reserve enough size in our
-	//opcode buffer for it.
-	size_t opcodeBufferSize = opcodeTable.GetLargestOpcodeObjectSize();
-	opcodeBuffer = (void*)new unsigned char[opcodeBufferSize];
+	//Prepare to calculate the size of the largest opcode object allocated by this device
+	size_t largestObjectSize = 0;
+
+	//Register each constructed opcode object in the opcode table, and update the size of
+	//the largest opcode object.
+	for(std::list<Z80Instruction*>::const_iterator i = opcodeList.begin(); i != opcodeList.end(); ++i)
+	{
+		//Register this opcode in the opcode table
+		Z80Instruction* opcodeObject = *i;
+		if(!opcodeObject->RegisterOpcode(opcodeTable))
+		{
+			//Log the event
+			LogEntry logEntry(LogEntry::EVENTLEVEL_CRITICAL);
+			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
+			GetDeviceContext()->WriteLogEvent(logEntry);
+			result = false;
+		}
+
+		//Update our calculation of the largest opcode size
+		size_t currentOpcodeObjectSize = opcodeObject->GetOpcodeClassByteSize();
+		largestObjectSize = (currentOpcodeObjectSize > largestObjectSize)? currentOpcodeObjectSize: largestObjectSize;
+	}
+
+	//Register each constructed CB opcode object in the CB opcode table, and update the
+	//size of the largest opcode object.
+	for(std::list<Z80Instruction*>::const_iterator i = opcodeListCB.begin(); i != opcodeListCB.end(); ++i)
+	{
+		//Register this opcode in the opcode table
+		Z80Instruction* opcodeObject = *i;
+		if(!opcodeObject->RegisterOpcode(opcodeTableCB))
+		{
+			//Log the event
+			LogEntry logEntry(LogEntry::EVENTLEVEL_CRITICAL);
+			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
+			GetDeviceContext()->WriteLogEvent(logEntry);
+			result = false;
+		}
+
+		//Update our calculation of the largest opcode size
+		size_t currentOpcodeObjectSize = opcodeObject->GetOpcodeClassByteSize();
+		largestObjectSize = (currentOpcodeObjectSize > largestObjectSize)? currentOpcodeObjectSize: largestObjectSize;
+	}
+
+	//Register each constructed ED opcode object in the ED opcode table, and update the
+	//size of the largest opcode object.
+	for(std::list<Z80Instruction*>::const_iterator i = opcodeListED.begin(); i != opcodeListED.end(); ++i)
+	{
+		//Register this opcode in the opcode table
+		Z80Instruction* opcodeObject = *i;
+		if(!opcodeObject->RegisterOpcode(opcodeTableED))
+		{
+			//Log the event
+			LogEntry logEntry(LogEntry::EVENTLEVEL_CRITICAL);
+			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
+			GetDeviceContext()->WriteLogEvent(logEntry);
+			result = false;
+		}
+
+		//Update our calculation of the largest opcode size
+		size_t currentOpcodeObjectSize = opcodeObject->GetOpcodeClassByteSize();
+		largestObjectSize = (currentOpcodeObjectSize > largestObjectSize)? currentOpcodeObjectSize: largestObjectSize;
+	}
+
+	//Allocate a new opcode buffer, which is large enough to hold an instance of the
+	//largest opcode object.
+	opcodeBuffer = (void*)new unsigned char[largestObjectSize];
 
 	return result;
 }
@@ -643,7 +740,7 @@ double Z80::ExecuteStep()
 		cyclesExecuted = 0;
 		bool mandatoryIndexOffset = false;
 		Z80Byte indexOffset;
-		Z80Instruction* nextOpcode = 0;
+		const Z80Instruction* nextOpcodeType = 0;
 		Z80Word readLocation = GetPC();
 		Z80Word instructionLocation = GetPC();
 		unsigned int instructionSize = 0;
@@ -712,7 +809,7 @@ double Z80::ExecuteStep()
 			}
 			ReadMemory(readLocation++, opcode, false);
 			++instructionSize;
-			nextOpcode = (Z80Instruction*)opcodeTableCB.GetInstruction(opcode.GetData());
+			nextOpcodeType = opcodeTableCB.GetInstruction(opcode.GetData());
 		}
 		else if(opcode == 0xED)
 		{
@@ -723,7 +820,7 @@ double Z80::ExecuteStep()
 			AddRefresh(1);
 			ReadMemory(readLocation++, opcode, false);
 			++instructionSize;
-			nextOpcode = (Z80Instruction*)opcodeTableED.GetInstruction(opcode.GetData());
+			nextOpcodeType = opcodeTableED.GetInstruction(opcode.GetData());
 
 			//If we've encountered an invalid ED prefixed opcode, force the opcode to a
 			//NOP instruction.
@@ -739,15 +836,16 @@ double Z80::ExecuteStep()
 		}
 		else
 		{
-			nextOpcode = (Z80Instruction*)opcodeTable.GetInstruction(opcode.GetData());
+			nextOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
 		}
 		AddRefresh(1);
 
 		//Process the opcode
-		if(nextOpcode != 0)
+		if(nextOpcodeType != 0)
 		{
+			Z80Instruction* nextOpcode = 0;
 //			nextOpcode = nextOpcode->Clone();
-			nextOpcode = nextOpcode->ClonePlacement(opcodeBuffer);
+			nextOpcode = nextOpcodeType->ClonePlacement(opcodeBuffer);
 
 			nextOpcode->SetInstructionSize(instructionSize);
 			nextOpcode->SetInstructionLocation(instructionLocation);
@@ -784,7 +882,7 @@ Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location)
 	Z80Word readLocation = location;
 	bool mandatoryIndexOffset = false;
 	Z80Byte indexOffset;
-	Z80Instruction* nextOpcode = 0;
+	const Z80Instruction* nextOpcodeType = 0;
 	unsigned int instructionSize = 0;
 	Z80Byte opcode;
 	EffectiveAddress::IndexState indexState = EffectiveAddress::INDEX_NONE;
@@ -828,7 +926,7 @@ Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location)
 		}
 		ReadMemory(readLocation++, opcode, true);
 		++instructionSize;
-		nextOpcode = (Z80Instruction*)opcodeTableCB.GetInstruction(opcode.GetData());
+		nextOpcodeType = opcodeTableCB.GetInstruction(opcode.GetData());
 	}
 	else if(opcode == 0xED)
 	{
@@ -838,17 +936,17 @@ Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location)
 
 		ReadMemory(readLocation++, opcode, true);
 		++instructionSize;
-		nextOpcode = (Z80Instruction*)opcodeTableED.GetInstruction(opcode.GetData());
+		nextOpcodeType = opcodeTableED.GetInstruction(opcode.GetData());
 	}
 	else
 	{
-		nextOpcode = (Z80Instruction*)opcodeTable.GetInstruction(opcode.GetData());
+		nextOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
 	}
 
 	//Process the opcode
-	if(nextOpcode != 0)
+	if(nextOpcodeType != 0)
 	{
-		nextOpcode = nextOpcode->Clone();
+		Z80Instruction* nextOpcode = nextOpcodeType->Clone();
 
 		nextOpcode->SetTransparentFlag(true);
 		nextOpcode->SetInstructionSize(instructionSize);

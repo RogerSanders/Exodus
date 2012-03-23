@@ -731,10 +731,6 @@
 			Name="OpcodeTable"
 			>
 			<File
-				RelativePath=".\OpcodeTable.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\OpcodeTable.h"
 				>
 			</File>
@@ -756,14 +752,6 @@
 			</File>
 			<File
 				RelativePath=".\Watchpoint.inl"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="IInstruction"
-			>
-			<File
-				RelativePath=".\IInstruction.h"
 				>
 			</File>
 		</Filter>

@@ -6,11 +6,11 @@ namespace Z80 {
 class OR8 :public Z80Instruction
 {
 public:
-	virtual OR8* Clone() {return new OR8();}
-	virtual OR8* ClonePlacement(void* buffer) {return new(buffer) OR8();}
+	virtual OR8* Clone() const {return new OR8();}
+	virtual OR8* ClonePlacement(void* buffer) const {return new(buffer) OR8();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"10110***", L"");
@@ -18,9 +18,14 @@ public:
 		return result;
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"OR", target.Disassemble() + L", " + source.Disassemble());
+		return L"OR";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble() + L", " + source.Disassemble());
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

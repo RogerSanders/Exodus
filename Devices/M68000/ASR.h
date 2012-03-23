@@ -6,11 +6,11 @@ namespace M68000 {
 class ASR :public M68000Instruction
 {
 public:
-	virtual ASR* Clone() {return new ASR();}
-	virtual ASR* ClonePlacement(void* buffer) {return new(buffer) ASR();}
+	virtual ASR* Clone() const {return new ASR();}
+	virtual ASR* ClonePlacement(void* buffer) const {return new(buffer) ASR();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"1110***0CC*00***", L"CC=00-10");
@@ -18,15 +18,20 @@ public:
 		return result;
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"ASR";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		if(target.GetAddressMode() == EffectiveAddress::DATAREG_DIRECT)
 		{
-			return Disassembly(L"ASR." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 		}
 		else
 		{
-			return Disassembly(L"ASR", target.Disassemble());
+			return Disassembly(GetOpcodeName(), target.Disassemble());
 		}
 	}
 

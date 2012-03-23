@@ -6,11 +6,11 @@ namespace Z80 {
 class SUB8 :public Z80Instruction
 {
 public:
-	virtual SUB8* Clone() {return new SUB8();}
-	virtual SUB8* ClonePlacement(void* buffer) {return new(buffer) SUB8();}
+	virtual SUB8* Clone() const {return new SUB8();}
+	virtual SUB8* ClonePlacement(void* buffer) const {return new(buffer) SUB8();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"10010***", L"");
@@ -18,9 +18,14 @@ public:
 		return result;
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"SUB", target.Disassemble() + L", " + source.Disassemble());
+		return L"SUB";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble() + L", " + source.Disassemble());
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

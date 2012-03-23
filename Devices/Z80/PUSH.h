@@ -6,18 +6,23 @@ namespace Z80 {
 class PUSH :public Z80Instruction
 {
 public:
-	virtual PUSH* Clone() {return new PUSH();}
-	virtual PUSH* ClonePlacement(void* buffer) {return new(buffer) PUSH();}
+	virtual PUSH* Clone() const {return new PUSH();}
+	virtual PUSH* ClonePlacement(void* buffer) const {return new(buffer) PUSH();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"11**0101", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"PUSH", source.Disassemble());
+		return L"PUSH";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), source.Disassemble());
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

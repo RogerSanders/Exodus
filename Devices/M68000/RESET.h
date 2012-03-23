@@ -6,8 +6,8 @@ namespace M68000 {
 class RESET :public M68000Instruction
 {
 public:
-	virtual RESET* Clone() {return new RESET();}
-	virtual RESET* ClonePlacement(void* buffer) {return new(buffer) RESET();}
+	virtual RESET* Clone() const {return new RESET();}
+	virtual RESET* ClonePlacement(void* buffer) const {return new(buffer) RESET();}
 
 	virtual bool Privileged() const
 	{
@@ -15,14 +15,19 @@ public:
 	}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100111001110000", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"RESET", L"");
+		return L"RESET";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

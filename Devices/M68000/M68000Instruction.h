@@ -5,7 +5,7 @@
 #include "EffectiveAddress.h"
 namespace M68000 {
 
-class M68000Instruction :public IInstruction
+class M68000Instruction
 {
 public:
 	//Enumerations
@@ -20,8 +20,12 @@ public:
 	virtual ~M68000Instruction();
 
 	//Clone functions
-	virtual M68000Instruction* Clone() = 0;
-	virtual M68000Instruction* ClonePlacement(void* buffer) = 0;
+	virtual M68000Instruction* Clone() const = 0;
+	virtual M68000Instruction* ClonePlacement(void* buffer) const = 0;
+	virtual size_t GetOpcodeClassByteSize() const = 0;
+
+	//Registration functions
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const = 0;
 
 	//Size functions
 	inline unsigned int GetInstructionSize() const;
@@ -52,7 +56,8 @@ public:
 	inline void SetTransparentFlag(bool astate);
 
 	//Disassembly functions
-	virtual Disassembly M68000Disassemble();
+	virtual std::wstring GetOpcodeName() const;
+	virtual Disassembly M68000Disassemble() const;
 	static std::wstring DisassembleConditionCode(ConditionCode code);
 	static std::wstring DisassembleSize(Bitcount asize);
 

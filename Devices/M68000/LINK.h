@@ -6,18 +6,23 @@ namespace M68000 {
 class LINK :public M68000Instruction
 {
 public:
-	virtual LINK* Clone() {return new LINK();}
-	virtual LINK* ClonePlacement(void* buffer) {return new(buffer) LINK();}
+	virtual LINK* Clone() const {return new LINK();}
+	virtual LINK* ClonePlacement(void* buffer) const {return new(buffer) LINK();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100111001010***", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"LINK." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+		return L"LINK";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

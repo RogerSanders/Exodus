@@ -6,16 +6,21 @@ namespace M68000 {
 class Bcc :public M68000Instruction
 {
 public:
-	virtual Bcc* Clone() {return new Bcc();}
-	virtual Bcc* ClonePlacement(void* buffer) {return new(buffer) Bcc();}
+	virtual Bcc* Clone() const {return new Bcc();}
+	virtual Bcc* ClonePlacement(void* buffer) const {return new(buffer) Bcc();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0110CCCC********", L"CCCC=0010-1111");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"Bcc";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		return Disassembly(L"B" + DisassembleConditionCode(conditionCode) + L"." + DisassembleSize(size), target.Disassemble(), target.DisassembleImmediateAsPCDisplacement());
 	}

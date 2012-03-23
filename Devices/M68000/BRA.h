@@ -6,18 +6,23 @@ namespace M68000 {
 class BRA :public M68000Instruction
 {
 public:
-	virtual BRA* Clone() {return new BRA();}
-	virtual BRA* ClonePlacement(void* buffer) {return new(buffer) BRA();}
+	virtual BRA* Clone() const {return new BRA();}
+	virtual BRA* ClonePlacement(void* buffer) const {return new(buffer) BRA();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"01100000********", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"BRA." + DisassembleSize(size), target.Disassemble(), target.DisassembleImmediateAsPCDisplacement());
+		return L"BRA";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), target.Disassemble(), target.DisassembleImmediateAsPCDisplacement());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

@@ -6,21 +6,26 @@ namespace M68000 {
 class TRAP :public M68000Instruction
 {
 public:
-	virtual TRAP* Clone() {return new TRAP();}
-	virtual TRAP* ClonePlacement(void* buffer) {return new(buffer) TRAP();}
+	virtual TRAP* Clone() const {return new TRAP();}
+	virtual TRAP* ClonePlacement(void* buffer) const {return new(buffer) TRAP();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"010011100100****", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"TRAP";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		//##TODO## Clean this up
 		EffectiveAddress source;
 		source.BuildImmediateData(0, M68000Byte(trapNo));
-		return Disassembly(L"TRAP", source.Disassemble());
+		return Disassembly(GetOpcodeName(), source.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

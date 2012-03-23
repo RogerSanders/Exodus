@@ -6,18 +6,23 @@ namespace M68000 {
 class NBCD :public M68000Instruction
 {
 public:
-	virtual NBCD* Clone() {return new NBCD();}
-	virtual NBCD* ClonePlacement(void* buffer) {return new(buffer) NBCD();}
+	virtual NBCD* Clone() const {return new NBCD();}
+	virtual NBCD* ClonePlacement(void* buffer) const {return new(buffer) NBCD();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100100000DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"NBCD", target.Disassemble());
+		return L"NBCD";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

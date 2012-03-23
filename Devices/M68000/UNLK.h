@@ -6,18 +6,23 @@ namespace M68000 {
 class UNLK :public M68000Instruction
 {
 public:
-	virtual UNLK* Clone() {return new UNLK();}
-	virtual UNLK* ClonePlacement(void* buffer) {return new(buffer) UNLK();}
+	virtual UNLK* Clone() const {return new UNLK();}
+	virtual UNLK* ClonePlacement(void* buffer) const {return new(buffer) UNLK();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100111001011***", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"UNLK", source.Disassemble());
+		return L"UNLK";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), source.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

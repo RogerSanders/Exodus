@@ -6,18 +6,23 @@ namespace Z80 {
 class BIT :public Z80Instruction
 {
 public:
-	virtual BIT* Clone() {return new BIT();}
-	virtual BIT* ClonePlacement(void* buffer) {return new(buffer) BIT();}
+	virtual BIT* Clone() const {return new BIT();}
+	virtual BIT* ClonePlacement(void* buffer) const {return new(buffer) BIT();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"01******", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"BIT", target.Disassemble() + L", " + source.Disassemble());
+		return L"BIT";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble() + L", " + source.Disassemble());
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

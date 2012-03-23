@@ -5,7 +5,7 @@
 #include "EffectiveAddress.h"
 namespace Z80 {
 
-class Z80Instruction :public IInstruction
+class Z80Instruction
 {
 public:
 	//Enumerations
@@ -20,8 +20,12 @@ public:
 	virtual ~Z80Instruction();
 
 	//Clone functions
-	virtual Z80Instruction* Clone() = 0;
-	virtual Z80Instruction* ClonePlacement(void* buffer) = 0;
+	virtual Z80Instruction* Clone() const = 0;
+	virtual Z80Instruction* ClonePlacement(void* buffer) const = 0;
+	virtual size_t GetOpcodeClassByteSize() const = 0;
+
+	//Registration functions
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const = 0;
 
 	//Size functions
 	inline unsigned int GetInstructionSize() const;
@@ -36,7 +40,7 @@ public:
 	inline void SetIndexState(EffectiveAddress::IndexState aindexState);
 	inline Z80Byte GetIndexOffset() const;
 	inline void SetIndexOffset(const Z80Byte& aindexOffset, bool amandatoryIndexOffset);
-	inline unsigned int GetIndexOffsetSize(bool add);
+	inline unsigned int GetIndexOffsetSize(bool add) const;
 
 	//Execute functions
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent) = 0;
@@ -58,7 +62,8 @@ public:
 	inline void SetTransparentFlag(bool astate);
 
 	//Disassembly functions
-	virtual Disassembly Z80Disassemble();
+	virtual std::wstring GetOpcodeName() const;
+	virtual Disassembly Z80Disassemble() const;
 	static std::wstring DisassembleConditionCode(ConditionCode conditionCode);
 
 private:

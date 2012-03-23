@@ -6,16 +6,21 @@ namespace Z80 {
 class INC16 :public Z80Instruction
 {
 public:
-	virtual INC16* Clone() {return new INC16();}
-	virtual INC16* ClonePlacement(void* buffer) {return new(buffer) INC16();}
+	virtual INC16* Clone() const {return new INC16();}
+	virtual INC16* ClonePlacement(void* buffer) const {return new(buffer) INC16();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00**0011", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"INC16";
+	}
+
+	virtual Disassembly Z80Disassemble() const
 	{
 		return Disassembly(L"INC", target.Disassemble());
 	}

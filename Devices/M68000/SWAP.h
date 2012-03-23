@@ -6,18 +6,23 @@ namespace M68000 {
 class SWAP :public M68000Instruction
 {
 public:
-	virtual SWAP* Clone() {return new SWAP();}
-	virtual SWAP* ClonePlacement(void* buffer) {return new(buffer) SWAP();}
+	virtual SWAP* Clone() const {return new SWAP();}
+	virtual SWAP* ClonePlacement(void* buffer) const {return new(buffer) SWAP();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100100001000***", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"SWAP", target.Disassemble());
+		return L"SWAP";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

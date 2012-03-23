@@ -6,18 +6,23 @@ namespace Z80 {
 class DJNZ :public Z80Instruction
 {
 public:
-	virtual DJNZ* Clone() {return new DJNZ();}
-	virtual DJNZ* ClonePlacement(void* buffer) {return new(buffer) DJNZ();}
+	virtual DJNZ* Clone() const {return new DJNZ();}
+	virtual DJNZ* ClonePlacement(void* buffer) const {return new(buffer) DJNZ();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00010000", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"DJNZ", target.Disassemble(), target.DisassembleImmediateAsPCDisplacement(GetInstructionLocation() + GetInstructionSize()));
+		return L"DJNZ";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble(), target.DisassembleImmediateAsPCDisplacement(GetInstructionLocation() + GetInstructionSize()));
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

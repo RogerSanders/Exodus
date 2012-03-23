@@ -6,18 +6,23 @@ namespace M68000 {
 class TAS :public M68000Instruction
 {
 public:
-	virtual TAS* Clone() {return new TAS();}
-	virtual TAS* ClonePlacement(void* buffer) {return new(buffer) TAS();}
+	virtual TAS* Clone() const {return new TAS();}
+	virtual TAS* ClonePlacement(void* buffer) const {return new(buffer) TAS();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100101011DDDDDD", L"DDDDDD=000000-000111,010000-110111,111000,111001");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"TAS", target.Disassemble());
+		return L"TAS";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

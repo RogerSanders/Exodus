@@ -6,24 +6,29 @@ namespace Z80 {
 class JR :public Z80Instruction
 {
 public:
-	virtual JR* Clone() {return new JR();}
-	virtual JR* ClonePlacement(void* buffer) {return new(buffer) JR();}
+	virtual JR* Clone() const {return new JR();}
+	virtual JR* ClonePlacement(void* buffer) const {return new(buffer) JR();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00AAA000", L"AAA=011-111");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"JR";
+	}
+
+	virtual Disassembly Z80Disassemble() const
 	{
 		if(conditionCode == CONDITIONCODE_NONE)
 		{
-			return Disassembly(L"JR", source.Disassemble(), source.DisassembleImmediateAsPCDisplacement(GetInstructionLocation() + GetInstructionSize()));
+			return Disassembly(GetOpcodeName(), source.Disassemble(), source.DisassembleImmediateAsPCDisplacement(GetInstructionLocation() + GetInstructionSize()));
 		}
 		else
 		{
-			return Disassembly(L"JR", DisassembleConditionCode(conditionCode) + L", " + source.Disassemble(), source.DisassembleImmediateAsPCDisplacement(GetInstructionLocation() + GetInstructionSize()));
+			return Disassembly(GetOpcodeName(), DisassembleConditionCode(conditionCode) + L", " + source.Disassemble(), source.DisassembleImmediateAsPCDisplacement(GetInstructionLocation() + GetInstructionSize()));
 		}
 	}
 

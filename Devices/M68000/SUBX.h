@@ -6,18 +6,23 @@ namespace M68000 {
 class SUBX :public M68000Instruction
 {
 public:
-	virtual SUBX* Clone() {return new SUBX();}
-	virtual SUBX* ClonePlacement(void* buffer) {return new(buffer) SUBX();}
+	virtual SUBX* Clone() const {return new SUBX();}
+	virtual SUBX* ClonePlacement(void* buffer) const {return new(buffer) SUBX();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"1001***1CC00****", L"CC=00-10");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"SUBX." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+		return L"SUBX";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

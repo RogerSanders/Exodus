@@ -38,7 +38,13 @@ bool Z80Instruction::ConditionCodeTrue(Z80* cpu, ConditionCode conditionCode)
 //----------------------------------------------------------------------------------------
 //Disassembly functions
 //----------------------------------------------------------------------------------------
-Z80Instruction::Disassembly Z80Instruction::Z80Disassemble()
+std::wstring Z80Instruction::GetOpcodeName() const
+{
+	return L"<Unknown>";
+}
+
+//----------------------------------------------------------------------------------------
+Z80Instruction::Disassembly Z80Instruction::Z80Disassemble() const
 {
 	return Disassembly();
 }

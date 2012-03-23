@@ -6,18 +6,23 @@ namespace M68000 {
 class ADDX :public M68000Instruction
 {
 public:
-	virtual ADDX* Clone() {return new ADDX();}
-	virtual ADDX* ClonePlacement(void* buffer) {return new(buffer) ADDX();}
+	virtual ADDX* Clone() const {return new ADDX();}
+	virtual ADDX* ClonePlacement(void* buffer) const {return new(buffer) ADDX();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"1101***1CC00****", L"CC=00-10");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"ADDX." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+		return L"ADDX";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

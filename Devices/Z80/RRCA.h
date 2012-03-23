@@ -6,18 +6,23 @@ namespace Z80 {
 class RRCA :public Z80Instruction
 {
 public:
-	virtual RRCA* Clone() {return new RRCA();}
-	virtual RRCA* ClonePlacement(void* buffer) {return new(buffer) RRCA();}
+	virtual RRCA* Clone() const {return new RRCA();}
+	virtual RRCA* ClonePlacement(void* buffer) const {return new(buffer) RRCA();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00001111", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"RRCA", L"");
+		return L"RRCA";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

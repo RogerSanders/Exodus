@@ -6,18 +6,23 @@ namespace M68000 {
 class BSR :public M68000Instruction
 {
 public:
-	virtual BSR* Clone() {return new BSR();}
-	virtual BSR* ClonePlacement(void* buffer) {return new(buffer) BSR();}
+	virtual BSR* Clone() const {return new BSR();}
+	virtual BSR* ClonePlacement(void* buffer) const {return new(buffer) BSR();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"01100001********", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"BSR." + DisassembleSize(size), source.Disassemble(), source.DisassembleImmediateAsPCDisplacement());
+		return L"BSR";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble(), source.DisassembleImmediateAsPCDisplacement());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

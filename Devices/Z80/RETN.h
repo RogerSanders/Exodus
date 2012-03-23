@@ -6,18 +6,23 @@ namespace Z80 {
 class RETN :public Z80Instruction
 {
 public:
-	virtual RETN* Clone() {return new RETN();}
-	virtual RETN* ClonePlacement(void* buffer) {return new(buffer) RETN();}
+	virtual RETN* Clone() const {return new RETN();}
+	virtual RETN* ClonePlacement(void* buffer) const {return new(buffer) RETN();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"01000101", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"RETN", L"");
+		return L"RETN";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

@@ -6,18 +6,23 @@ namespace Z80 {
 class SCF :public Z80Instruction
 {
 public:
-	virtual SCF* Clone() {return new SCF();}
-	virtual SCF* ClonePlacement(void* buffer) {return new(buffer) SCF();}
+	virtual SCF* Clone() const {return new SCF();}
+	virtual SCF* ClonePlacement(void* buffer) const {return new(buffer) SCF();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00110111", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"SCF", L"");
+		return L"SCF";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

@@ -6,11 +6,11 @@ namespace Z80 {
 class RET :public Z80Instruction
 {
 public:
-	virtual RET* Clone() {return new RET();}
-	virtual RET* ClonePlacement(void* buffer) {return new(buffer) RET();}
+	virtual RET* Clone() const {return new RET();}
+	virtual RET* ClonePlacement(void* buffer) const {return new(buffer) RET();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"11001001", L"");
@@ -18,15 +18,20 @@ public:
 		return result;
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"RET";
+	}
+
+	virtual Disassembly Z80Disassemble() const
 	{
 		if(conditionCode == CONDITIONCODE_NONE)
 		{
-			return Disassembly(L"RET", L"");
+			return Disassembly(GetOpcodeName(), L"");
 		}
 		else
 		{
-			return Disassembly(L"RET", DisassembleConditionCode(conditionCode));
+			return Disassembly(GetOpcodeName(), DisassembleConditionCode(conditionCode));
 		}
 	}
 

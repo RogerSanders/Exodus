@@ -6,11 +6,11 @@ namespace M68000 {
 class LSR:public M68000Instruction
 {
 public:
-	virtual LSR* Clone() {return new LSR();}
-	virtual LSR* ClonePlacement(void* buffer) {return new(buffer) LSR();}
+	virtual LSR* Clone() const {return new LSR();}
+	virtual LSR* ClonePlacement(void* buffer) const {return new(buffer) LSR();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"1110***0CC*01***", L"CC=00-10");
@@ -18,15 +18,20 @@ public:
 		return result;
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"LSR";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		if(target.GetAddressMode() == EffectiveAddress::DATAREG_DIRECT)
 		{
-			return Disassembly(L"LSR." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 		}
 		else
 		{
-			return Disassembly(L"LSR", target.Disassemble());
+			return Disassembly(GetOpcodeName(), target.Disassemble());
 		}
 	}
 

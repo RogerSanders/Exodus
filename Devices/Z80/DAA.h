@@ -6,13 +6,23 @@ namespace Z80 {
 class DAA :public Z80Instruction
 {
 public:
-	virtual DAA* Clone() {return new DAA();}
-	virtual DAA* ClonePlacement(void* buffer) {return new(buffer) DAA();}
+	virtual DAA* Clone() const {return new DAA();}
+	virtual DAA* ClonePlacement(void* buffer) const {return new(buffer) DAA();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00100111", L"");
+	}
+
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"DAA";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	Z80Byte GetDiffValue(bool cflag, unsigned int upperData, bool hflag, unsigned int lowerData) const
@@ -156,11 +166,6 @@ public:
 			std::wcout << nflag << '\t' << hflag << '\t' << lowerData << '\n';
 			return false;
 		}
-	}
-
-	virtual Disassembly Z80Disassemble()
-	{
-		return Disassembly(L"DAA", L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
