@@ -6,18 +6,23 @@ namespace Z80 {
 class RES :public Z80Instruction
 {
 public:
-	virtual RES* Clone() {return new RES();}
-	virtual RES* ClonePlacement(void* buffer) {return new(buffer) RES();}
+	virtual RES* Clone() const {return new RES();}
+	virtual RES* ClonePlacement(void* buffer) const {return new(buffer) RES();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"10******", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"RES", target.Disassemble() + L", " + source.Disassemble());
+		return L"RES";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble() + L", " + source.Disassemble());
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

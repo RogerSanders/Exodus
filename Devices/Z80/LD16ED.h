@@ -6,16 +6,21 @@ namespace Z80 {
 class LD16ED :public Z80Instruction
 {
 public:
-	virtual LD16ED* Clone() {return new LD16ED();}
-	virtual LD16ED* ClonePlacement(void* buffer) {return new(buffer) LD16ED();}
+	virtual LD16ED* Clone() const {return new LD16ED();}
+	virtual LD16ED* ClonePlacement(void* buffer) const {return new(buffer) LD16ED();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"01***011", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"LD16ED";
+	}
+
+	virtual Disassembly Z80Disassemble() const
 	{
 		return Disassembly(L"LD", target.Disassemble() + L", " + source.Disassemble());
 	}

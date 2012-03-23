@@ -6,11 +6,11 @@ namespace Z80 {
 class IM :public Z80Instruction
 {
 public:
-	virtual IM* Clone() {return new IM();}
-	virtual IM* ClonePlacement(void* buffer) {return new(buffer) IM();}
+	virtual IM* Clone() const {return new IM();}
+	virtual IM* ClonePlacement(void* buffer) const {return new(buffer) IM();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"01000110", L"");
@@ -19,11 +19,16 @@ public:
 		return result;
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"IM";
+	}
+
+	virtual Disassembly Z80Disassemble() const
 	{
 		std::wstringstream argumentDisassembly;
 		argumentDisassembly << newInterruptMode;
-		return Disassembly(L"IM", argumentDisassembly.str());
+		return Disassembly(GetOpcodeName(), argumentDisassembly.str());
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

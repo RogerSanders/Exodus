@@ -6,11 +6,11 @@ namespace Z80 {
 class AND8 :public Z80Instruction
 {
 public:
-	virtual AND8* Clone() {return new AND8();}
-	virtual AND8* ClonePlacement(void* buffer) {return new(buffer) AND8();}
+	virtual AND8* Clone() const {return new AND8();}
+	virtual AND8* ClonePlacement(void* buffer) const {return new(buffer) AND8();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"10100***", L"");
@@ -18,9 +18,14 @@ public:
 		return result;
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"AND", target.Disassemble() + L", " + source.Disassemble());
+		return L"AND";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble() + L", " + source.Disassemble());
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

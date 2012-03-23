@@ -6,11 +6,11 @@ namespace M68000 {
 class AND :public M68000Instruction
 {
 public:
-	virtual AND* Clone() {return new AND();}
-	virtual AND* ClonePlacement(void* buffer) {return new(buffer) AND();}
+	virtual AND* Clone() const {return new AND();}
+	virtual AND* ClonePlacement(void* buffer) const {return new(buffer) AND();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"1100***BCCDDDDDD", L"B=0 CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
@@ -18,9 +18,14 @@ public:
 		return result;
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"AND." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+		return L"AND";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

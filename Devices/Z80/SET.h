@@ -6,18 +6,23 @@ namespace Z80 {
 class SET :public Z80Instruction
 {
 public:
-	virtual SET* Clone() {return new SET();}
-	virtual SET* ClonePlacement(void* buffer) {return new(buffer) SET();}
+	virtual SET* Clone() const {return new SET();}
+	virtual SET* ClonePlacement(void* buffer) const {return new(buffer) SET();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"11******", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"SET", target.Disassemble() + L", " + source.Disassemble());
+		return L"SET";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble() + L", " + source.Disassemble());
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

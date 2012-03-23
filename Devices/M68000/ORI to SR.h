@@ -6,8 +6,8 @@ namespace M68000 {
 class ORI_to_SR :public M68000Instruction
 {
 public:
-	virtual ORI_to_SR* Clone() {return new ORI_to_SR();}
-	virtual ORI_to_SR* ClonePlacement(void* buffer) {return new(buffer) ORI_to_SR();}
+	virtual ORI_to_SR* Clone() const {return new ORI_to_SR();}
+	virtual ORI_to_SR* ClonePlacement(void* buffer) const {return new(buffer) ORI_to_SR();}
 
 	virtual bool Privileged() const
 	{
@@ -15,12 +15,17 @@ public:
 	}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0000000001111100", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"ORI to SR";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		return Disassembly(L"ORI", source.Disassemble() + L", SR");
 	}

@@ -6,8 +6,8 @@ namespace M68000 {
 class EORI_to_SR :public M68000Instruction
 {
 public:
-	virtual EORI_to_SR* Clone() {return new EORI_to_SR();}
-	virtual EORI_to_SR* ClonePlacement(void* buffer) {return new(buffer) EORI_to_SR();}
+	virtual EORI_to_SR* Clone() const {return new EORI_to_SR();}
+	virtual EORI_to_SR* ClonePlacement(void* buffer) const {return new(buffer) EORI_to_SR();}
 
 	virtual bool Privileged() const
 	{
@@ -15,12 +15,17 @@ public:
 	}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0000101001111100", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"EORI to SR";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		return Disassembly(L"EORI", source.Disassemble() + L", SR");
 	}

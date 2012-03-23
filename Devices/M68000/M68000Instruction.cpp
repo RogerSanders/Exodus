@@ -62,7 +62,13 @@ bool M68000Instruction::Privileged() const
 //----------------------------------------------------------------------------------------
 //Disassembly functions
 //----------------------------------------------------------------------------------------
-M68000Instruction::Disassembly M68000Instruction::M68000Disassemble()
+std::wstring M68000Instruction::GetOpcodeName() const
+{
+	return L"<Unknown>";
+}
+
+//----------------------------------------------------------------------------------------
+M68000Instruction::Disassembly M68000Instruction::M68000Disassemble() const
 {
 	return Disassembly();
 }

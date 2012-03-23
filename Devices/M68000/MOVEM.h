@@ -113,11 +113,11 @@ public:
 		}
 	}
 
-	virtual MOVEM* Clone() {return new MOVEM();}
-	virtual MOVEM* ClonePlacement(void* buffer) {return new(buffer) MOVEM();}
+	virtual MOVEM* Clone() const {return new MOVEM();}
+	virtual MOVEM* ClonePlacement(void* buffer) const {return new(buffer) MOVEM();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"01001B001*DDDDDD", L"B=0 DDDDDD=010000-010111,100000-110111,111000,111001");
@@ -125,7 +125,12 @@ public:
 		return result;
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"MOVEM";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		std::wstringstream maskDisassembly;
 		for(unsigned int i = 0; i < mask.GetBitCount(); ++i)
@@ -177,7 +182,7 @@ public:
 		{
 			argumentDisassembly = maskDisassembly.str() + L", " + targetDisassembly;
 		}
-		return Disassembly(L"MOVEM." + DisassembleSize(size), argumentDisassembly);
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), argumentDisassembly);
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

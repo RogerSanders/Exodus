@@ -6,16 +6,21 @@ namespace M68000 {
 class ANDI_to_CCR :public M68000Instruction
 {
 public:
-	virtual ANDI_to_CCR* Clone() {return new ANDI_to_CCR();}
-	virtual ANDI_to_CCR* ClonePlacement(void* buffer) {return new(buffer) ANDI_to_CCR();}
+	virtual ANDI_to_CCR* Clone() const {return new ANDI_to_CCR();}
+	virtual ANDI_to_CCR* ClonePlacement(void* buffer) const {return new(buffer) ANDI_to_CCR();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0000001000111100", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"ANDI to CCR";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		return Disassembly(L"ANDI", source.Disassemble() + L", CCR");
 	}

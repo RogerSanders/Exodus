@@ -6,18 +6,23 @@ namespace Z80 {
 class RLCA :public Z80Instruction
 {
 public:
-	virtual RLCA* Clone() {return new RLCA();}
-	virtual RLCA* ClonePlacement(void* buffer) {return new(buffer) RLCA();}
+	virtual RLCA* Clone() const {return new RLCA();}
+	virtual RLCA* ClonePlacement(void* buffer) const {return new(buffer) RLCA();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00000111", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"RLCA", L"");
+		return L"RLCA";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

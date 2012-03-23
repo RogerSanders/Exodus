@@ -6,18 +6,23 @@ namespace Z80 {
 class NOP :public Z80Instruction
 {
 public:
-	virtual NOP* Clone() {return new NOP();}
-	virtual NOP* ClonePlacement(void* buffer) {return new(buffer) NOP();}
+	virtual NOP* Clone() const {return new NOP();}
+	virtual NOP* ClonePlacement(void* buffer) const {return new(buffer) NOP();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00000000", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"NOP", L"");
+		return L"NOP";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

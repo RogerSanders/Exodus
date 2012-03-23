@@ -6,18 +6,23 @@ namespace Z80 {
 class EXX :public Z80Instruction
 {
 public:
-	virtual EXX* Clone() {return new EXX();}
-	virtual EXX* ClonePlacement(void* buffer) {return new(buffer) EXX();}
+	virtual EXX* Clone() const {return new EXX();}
+	virtual EXX* ClonePlacement(void* buffer) const {return new(buffer) EXX();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"11011001", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"EXX", L"");
+		return L"EXX";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

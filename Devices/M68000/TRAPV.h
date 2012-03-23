@@ -6,18 +6,23 @@ namespace M68000 {
 class TRAPV :public M68000Instruction
 {
 public:
-	virtual TRAPV* Clone() {return new TRAPV();}
-	virtual TRAPV* ClonePlacement(void* buffer) {return new(buffer) TRAPV();}
+	virtual TRAPV* Clone() const {return new TRAPV();}
+	virtual TRAPV* ClonePlacement(void* buffer) const {return new(buffer) TRAPV();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100111001110110", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"TRAPV", L"");
+		return L"TRAPV";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

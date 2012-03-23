@@ -6,11 +6,11 @@ namespace Z80 {
 class JP :public Z80Instruction
 {
 public:
-	virtual JP* Clone() {return new JP();}
-	virtual JP* ClonePlacement(void* buffer) {return new(buffer) JP();}
+	virtual JP* Clone() const {return new JP();}
+	virtual JP* ClonePlacement(void* buffer) const {return new(buffer) JP();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"11101001", L"");
@@ -19,15 +19,20 @@ public:
 		return result;
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"JP";
+	}
+
+	virtual Disassembly Z80Disassemble() const
 	{
 		if(conditionCode == CONDITIONCODE_NONE)
 		{
-			return Disassembly(L"JP", source.Disassemble());
+			return Disassembly(GetOpcodeName(), source.Disassemble());
 		}
 		else
 		{
-			return Disassembly(L"JP", DisassembleConditionCode(conditionCode) + L", " + source.Disassemble());
+			return Disassembly(GetOpcodeName(), DisassembleConditionCode(conditionCode) + L", " + source.Disassemble());
 		}
 	}
 

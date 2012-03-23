@@ -6,11 +6,11 @@ namespace Z80 {
 class CALL :public Z80Instruction
 {
 public:
-	virtual CALL* Clone() {return new CALL();}
-	virtual CALL* ClonePlacement(void* buffer) {return new(buffer) CALL();}
+	virtual CALL* Clone() const {return new CALL();}
+	virtual CALL* ClonePlacement(void* buffer) const {return new(buffer) CALL();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"11001101", L"");
@@ -18,15 +18,20 @@ public:
 		return result;
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"CALL";
+	}
+
+	virtual Disassembly Z80Disassemble() const
 	{
 		if(conditionCode == CONDITIONCODE_NONE)
 		{
-			return Disassembly(L"CALL", source.Disassemble());
+			return Disassembly(GetOpcodeName(), source.Disassemble());
 		}
 		else
 		{
-			return Disassembly(L"CALL", DisassembleConditionCode(conditionCode) + L", " + source.Disassemble());
+			return Disassembly(GetOpcodeName(), DisassembleConditionCode(conditionCode) + L", " + source.Disassemble());
 		}
 	}
 

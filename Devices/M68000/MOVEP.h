@@ -6,18 +6,23 @@ namespace M68000 {
 class MOVEP :public M68000Instruction
 {
 public:
-	virtual MOVEP* Clone() {return new MOVEP();}
-	virtual MOVEP* ClonePlacement(void* buffer) {return new(buffer) MOVEP();}
+	virtual MOVEP* Clone() const {return new MOVEP();}
+	virtual MOVEP* ClonePlacement(void* buffer) const {return new(buffer) MOVEP();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0000***1**001***", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"MOVEP." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+		return L"MOVEP";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

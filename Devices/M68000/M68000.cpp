@@ -5,7 +5,6 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <list>
 namespace M68000 {
 
 //----------------------------------------------------------------------------------------
@@ -38,7 +37,14 @@ M68000::M68000(const std::wstring& ainstanceName, unsigned int amoduleID)
 //----------------------------------------------------------------------------------------
 M68000::~M68000()
 {
+	//Delete the opcode buffer
 	delete opcodeBuffer;
+
+	//Delete all objects stored in the opcode list
+	for(std::list<M68000Instruction*>::const_iterator i = opcodeList.begin(); i != opcodeList.end(); ++i)
+	{
+		delete *i;
+	}
 
 	//Delete any remaining exception debugging objects
 	for(ExceptionList::iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
@@ -58,125 +64,155 @@ M68000::~M68000()
 //----------------------------------------------------------------------------------------
 bool M68000::BuildDevice()
 {
-	//Initialize our opcode table
 	bool result = true;
+
+	//Initialize our opcode table
 	opcodeTable.InitializeOpcodeTable();
 
+	//Delete all objects stored in the opcode list
+	for(std::list<M68000Instruction*>::const_iterator i = opcodeList.begin(); i != opcodeList.end(); ++i)
+	{
+		delete *i;
+	}
+	opcodeList.clear();
+
+	//Add all defined opcodes for this device to the opcode list
+
 	//Arithmetic instructions
-	result &= opcodeTable.RegisterOpcode(new ADD());
-	result &= opcodeTable.RegisterOpcode(new ADDA());
-	result &= opcodeTable.RegisterOpcode(new ADDI());
-	result &= opcodeTable.RegisterOpcode(new ADDQ());
-	result &= opcodeTable.RegisterOpcode(new ADDX());
-	result &= opcodeTable.RegisterOpcode(new CLR());
-	result &= opcodeTable.RegisterOpcode(new CMP());
-	result &= opcodeTable.RegisterOpcode(new CMPA());
-	result &= opcodeTable.RegisterOpcode(new CMPI());
-	result &= opcodeTable.RegisterOpcode(new CMPM());
-	result &= opcodeTable.RegisterOpcode(new DIVS());
-	result &= opcodeTable.RegisterOpcode(new DIVU());
-	result &= opcodeTable.RegisterOpcode(new EXT());
-	result &= opcodeTable.RegisterOpcode(new MULS());
-	result &= opcodeTable.RegisterOpcode(new MULU());
-	result &= opcodeTable.RegisterOpcode(new NEG());
-	result &= opcodeTable.RegisterOpcode(new NEGX());
-	result &= opcodeTable.RegisterOpcode(new NOP());
-	result &= opcodeTable.RegisterOpcode(new SUB());
-	result &= opcodeTable.RegisterOpcode(new SUBA());
-	result &= opcodeTable.RegisterOpcode(new SUBI());
-	result &= opcodeTable.RegisterOpcode(new SUBQ());
-	result &= opcodeTable.RegisterOpcode(new SUBX());
+	opcodeList.push_back(new ADD());
+	opcodeList.push_back(new ADDA());
+	opcodeList.push_back(new ADDI());
+	opcodeList.push_back(new ADDQ());
+	opcodeList.push_back(new ADDX());
+	opcodeList.push_back(new CLR());
+	opcodeList.push_back(new CMP());
+	opcodeList.push_back(new CMPA());
+	opcodeList.push_back(new CMPI());
+	opcodeList.push_back(new CMPM());
+	opcodeList.push_back(new DIVS());
+	opcodeList.push_back(new DIVU());
+	opcodeList.push_back(new EXT());
+	opcodeList.push_back(new MULS());
+	opcodeList.push_back(new MULU());
+	opcodeList.push_back(new NEG());
+	opcodeList.push_back(new NEGX());
+	opcodeList.push_back(new NOP());
+	opcodeList.push_back(new SUB());
+	opcodeList.push_back(new SUBA());
+	opcodeList.push_back(new SUBI());
+	opcodeList.push_back(new SUBQ());
+	opcodeList.push_back(new SUBX());
 
 	//BCD instructions
-	result &= opcodeTable.RegisterOpcode(new ABCD());
-	result &= opcodeTable.RegisterOpcode(new NBCD());
-	result &= opcodeTable.RegisterOpcode(new SBCD());
+	opcodeList.push_back(new ABCD());
+	opcodeList.push_back(new NBCD());
+	opcodeList.push_back(new SBCD());
 
 	//Logic instructions
-	result &= opcodeTable.RegisterOpcode(new AND());
-	result &= opcodeTable.RegisterOpcode(new ANDI());
-	result &= opcodeTable.RegisterOpcode(new EOR());
-	result &= opcodeTable.RegisterOpcode(new EORI());
-	result &= opcodeTable.RegisterOpcode(new NOT());
-	result &= opcodeTable.RegisterOpcode(new OR());
-	result &= opcodeTable.RegisterOpcode(new ORI());
-	result &= opcodeTable.RegisterOpcode(new Scc());
-	result &= opcodeTable.RegisterOpcode(new TST());
+	opcodeList.push_back(new AND());
+	opcodeList.push_back(new ANDI());
+	opcodeList.push_back(new EOR());
+	opcodeList.push_back(new EORI());
+	opcodeList.push_back(new NOT());
+	opcodeList.push_back(new OR());
+	opcodeList.push_back(new ORI());
+	opcodeList.push_back(new Scc());
+	opcodeList.push_back(new TST());
 
 	//Shift and Rotate instructions
-	result &= opcodeTable.RegisterOpcode(new ASL());
-	result &= opcodeTable.RegisterOpcode(new ASR());
-	result &= opcodeTable.RegisterOpcode(new LSL());
-	result &= opcodeTable.RegisterOpcode(new LSR());
-	result &= opcodeTable.RegisterOpcode(new ROL());
-	result &= opcodeTable.RegisterOpcode(new ROR());
-	result &= opcodeTable.RegisterOpcode(new ROXL());
-	result &= opcodeTable.RegisterOpcode(new ROXR());
-	result &= opcodeTable.RegisterOpcode(new SWAP());
+	opcodeList.push_back(new ASL());
+	opcodeList.push_back(new ASR());
+	opcodeList.push_back(new LSL());
+	opcodeList.push_back(new LSR());
+	opcodeList.push_back(new ROL());
+	opcodeList.push_back(new ROR());
+	opcodeList.push_back(new ROXL());
+	opcodeList.push_back(new ROXR());
+	opcodeList.push_back(new SWAP());
 
 	//Bit Manipulation Instructions
-	result &= opcodeTable.RegisterOpcode(new BCHG());
-	result &= opcodeTable.RegisterOpcode(new BCLR());
-	result &= opcodeTable.RegisterOpcode(new BSET());
-	result &= opcodeTable.RegisterOpcode(new BTST());
+	opcodeList.push_back(new BCHG());
+	opcodeList.push_back(new BCLR());
+	opcodeList.push_back(new BSET());
+	opcodeList.push_back(new BTST());
 
 	//Data Transfer instructions
-	result &= opcodeTable.RegisterOpcode(new EXG());
-	result &= opcodeTable.RegisterOpcode(new LEA());
-	result &= opcodeTable.RegisterOpcode(new LINK());
-	result &= opcodeTable.RegisterOpcode(new MOVE());
-	result &= opcodeTable.RegisterOpcode(new MOVEA());
-	result &= opcodeTable.RegisterOpcode(new MOVEM());
-	result &= opcodeTable.RegisterOpcode(new MOVEQ());
-	result &= opcodeTable.RegisterOpcode(new MOVEP());
-	result &= opcodeTable.RegisterOpcode(new PEA());
-	result &= opcodeTable.RegisterOpcode(new UNLK());
+	opcodeList.push_back(new EXG());
+	opcodeList.push_back(new LEA());
+	opcodeList.push_back(new LINK());
+	opcodeList.push_back(new MOVE());
+	opcodeList.push_back(new MOVEA());
+	opcodeList.push_back(new MOVEM());
+	opcodeList.push_back(new MOVEQ());
+	opcodeList.push_back(new MOVEP());
+	opcodeList.push_back(new PEA());
+	opcodeList.push_back(new UNLK());
 
 	//Flow Control instructions
-	result &= opcodeTable.RegisterOpcode(new Bcc());
-	result &= opcodeTable.RegisterOpcode(new BRA());
-	result &= opcodeTable.RegisterOpcode(new BSR());
-	result &= opcodeTable.RegisterOpcode(new DBcc());
-	result &= opcodeTable.RegisterOpcode(new JMP());
-	result &= opcodeTable.RegisterOpcode(new JSR());
-	result &= opcodeTable.RegisterOpcode(new RTR());
-	result &= opcodeTable.RegisterOpcode(new RTS());
+	opcodeList.push_back(new Bcc());
+	opcodeList.push_back(new BRA());
+	opcodeList.push_back(new BSR());
+	opcodeList.push_back(new DBcc());
+	opcodeList.push_back(new JMP());
+	opcodeList.push_back(new JSR());
+	opcodeList.push_back(new RTR());
+	opcodeList.push_back(new RTS());
 
 	//CCR Related instructions
-	result &= opcodeTable.RegisterOpcode(new ANDI_to_CCR());
-	result &= opcodeTable.RegisterOpcode(new EORI_to_CCR());
-	result &= opcodeTable.RegisterOpcode(new MOVE_to_CCR());
-	result &= opcodeTable.RegisterOpcode(new ORI_to_CCR());
+	opcodeList.push_back(new ANDI_to_CCR());
+	opcodeList.push_back(new EORI_to_CCR());
+	opcodeList.push_back(new MOVE_to_CCR());
+	opcodeList.push_back(new ORI_to_CCR());
 
 	//Exception instructions
-	result &= opcodeTable.RegisterOpcode(new CHK());
-	result &= opcodeTable.RegisterOpcode(new ILLEGAL());
-	result &= opcodeTable.RegisterOpcode(new TRAP());
-	result &= opcodeTable.RegisterOpcode(new TRAPV());
+	opcodeList.push_back(new CHK());
+	opcodeList.push_back(new ILLEGAL());
+	opcodeList.push_back(new TRAP());
+	opcodeList.push_back(new TRAPV());
 
 	//Multiprocessor instructions
-	result &= opcodeTable.RegisterOpcode(new TAS());
+	opcodeList.push_back(new TAS());
 
 	//Privileged instructions
-	result &= opcodeTable.RegisterOpcode(new ANDI_to_SR());
-	result &= opcodeTable.RegisterOpcode(new EORI_to_SR());
-	result &= opcodeTable.RegisterOpcode(new MOVE_from_SR());
-	result &= opcodeTable.RegisterOpcode(new MOVE_to_SR());
-	result &= opcodeTable.RegisterOpcode(new MOVE_USP());
-	result &= opcodeTable.RegisterOpcode(new ORI_to_SR());
-	result &= opcodeTable.RegisterOpcode(new RESET());
-	result &= opcodeTable.RegisterOpcode(new RTE());
-	result &= opcodeTable.RegisterOpcode(new STOP());
+	opcodeList.push_back(new ANDI_to_SR());
+	opcodeList.push_back(new EORI_to_SR());
+	opcodeList.push_back(new MOVE_from_SR());
+	opcodeList.push_back(new MOVE_to_SR());
+	opcodeList.push_back(new MOVE_USP());
+	opcodeList.push_back(new ORI_to_SR());
+	opcodeList.push_back(new RESET());
+	opcodeList.push_back(new RTE());
+	opcodeList.push_back(new STOP());
 
-	//Determine the size of the largest opcode object, and reserve enough size in our
-	//opcode buffer for it.
-	size_t opcodeBufferSize = opcodeTable.GetLargestOpcodeObjectSize();
-	opcodeBuffer = (void*)new unsigned char[opcodeBufferSize];
+	//Register each constructed opcode object in the opcode table, and calculate the size
+	//of the largest opcode object.
+	size_t largestObjectSize = 0;
+	for(std::list<M68000Instruction*>::const_iterator i = opcodeList.begin(); i != opcodeList.end(); ++i)
+	{
+		//Register this opcode in the opcode table
+		M68000Instruction* opcodeObject = *i;
+		if(!opcodeObject->RegisterOpcode(opcodeTable))
+		{
+			//Log the event
+			LogEntry logEntry(LogEntry::EVENTLEVEL_CRITICAL);
+			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
+			GetDeviceContext()->WriteLogEvent(logEntry);
+			result = false;
+		}
+
+		//Update our calculation of the largest opcode size
+		size_t currentOpcodeObjectSize = opcodeObject->GetOpcodeClassByteSize();
+		largestObjectSize = (currentOpcodeObjectSize > largestObjectSize)? currentOpcodeObjectSize: largestObjectSize;
+	}
+
+	//Allocate a new opcode buffer, which is large enough to hold an instance of the
+	//largest opcode object.
+	opcodeBuffer = (void*)new unsigned char[largestObjectSize];
 
 	//##TODO## Remove this debug code, and make a proper interface for controlling active
 	//disassembly.
 	//##DEBUG## Enable active disassembly in the ROM region for the MegaDrive
-	EnableActiveDisassembly(0x0, 0x400000);
+	//EnableActiveDisassembly(0x0, 0x400000);
 
 	return result;
 }
@@ -993,7 +1029,6 @@ double M68000::ExecuteStep()
 	}
 
 	//If the processor isn't stopped, fetch the next opcode
-	M68000Instruction* nextOpcode = 0;
 	if(GetProcessorState() != STATE_STOPPED)
 	{
 		//Update the trace log, and test for breakpoints
@@ -1006,8 +1041,8 @@ double M68000::ExecuteStep()
 			ReadMemory(GetPC(), opcode, GetFunctionCode(false), GetPC(), false, 0, false, false);
 		}
 		wordIsPrefetched = false;
-		nextOpcode = (M68000Instruction*)opcodeTable.GetInstruction(opcode.GetData());
-		if(nextOpcode == 0)
+		const M68000Instruction* nextOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
+		if(nextOpcodeType == 0)
 		{
 			//Generate an exception if we've encountered an unimplemented opcode
 			unsigned int exception = EX_ILLEGAL_INSTRUCTION;
@@ -1027,8 +1062,9 @@ double M68000::ExecuteStep()
 		}
 		else
 		{
-//			nextOpcode = nextOpcode->Clone();
-			nextOpcode = nextOpcode->ClonePlacement(opcodeBuffer);
+			M68000Instruction* nextOpcode = 0;
+//			nextOpcode = nextOpcodeType->Clone();
+			nextOpcode = nextOpcodeType->ClonePlacement(opcodeBuffer);
 			if(nextOpcode->Privileged() && !GetSR_S() && !ExceptionDisabled(EX_PRIVILEGE_VIOLATION))
 			{
 				//Generate a privilege violation if the instruction is privileged and
@@ -1228,13 +1264,14 @@ M68000::OpcodeInfo M68000::GetOpcodeInfo(unsigned int location)
 	opcodeInfo.valid = false;
 
 	M68000Long instructionLocation = location;
-	M68000Instruction* targetOpcode = 0;
 	M68000Word opcode;
 	ReadMemoryTransparent(instructionLocation, opcode, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
-	targetOpcode = (M68000Instruction*)opcodeTable.GetInstruction(opcode.GetData());
-	if(targetOpcode != 0)
+
+	const M68000Instruction* targetOpcodeType = 0;
+	targetOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
+	if(targetOpcodeType != 0)
 	{
-		targetOpcode = targetOpcode->Clone();
+		M68000Instruction* targetOpcode = targetOpcodeType->Clone();
 
 		targetOpcode->SetTransparentFlag(true);
 		targetOpcode->SetInstructionSize(2);

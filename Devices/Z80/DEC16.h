@@ -6,16 +6,21 @@ namespace Z80 {
 class DEC16 :public Z80Instruction
 {
 public:
-	virtual DEC16* Clone() {return new DEC16();}
-	virtual DEC16* ClonePlacement(void* buffer) {return new(buffer) DEC16();}
+	virtual DEC16* Clone() const {return new DEC16();}
+	virtual DEC16* ClonePlacement(void* buffer) const {return new(buffer) DEC16();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"00**1011", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"DEC16";
+	}
+
+	virtual Disassembly Z80Disassemble() const
 	{
 		return Disassembly(L"DEC", target.Disassemble());
 	}

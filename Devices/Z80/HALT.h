@@ -6,18 +6,23 @@ namespace Z80 {
 class HALT :public Z80Instruction
 {
 public:
-	virtual HALT* Clone() {return new HALT();}
-	virtual HALT* ClonePlacement(void* buffer) {return new(buffer) HALT();}
+	virtual HALT* Clone() const {return new HALT();}
+	virtual HALT* ClonePlacement(void* buffer) const {return new(buffer) HALT();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"01110110", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"HALT", L"");
+		return L"HALT";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

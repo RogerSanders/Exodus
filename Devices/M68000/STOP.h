@@ -6,8 +6,8 @@ namespace M68000 {
 class STOP :public M68000Instruction
 {
 public:
-	virtual STOP* Clone() {return new STOP();}
-	virtual STOP* ClonePlacement(void* buffer) {return new(buffer) STOP();}
+	virtual STOP* Clone() const {return new STOP();}
+	virtual STOP* ClonePlacement(void* buffer) const {return new(buffer) STOP();}
 
 	virtual bool Privileged() const
 	{
@@ -15,14 +15,19 @@ public:
 	}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100111001110010", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"STOP", source.Disassemble());
+		return L"STOP";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), source.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

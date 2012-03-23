@@ -6,18 +6,23 @@ namespace M68000 {
 class RTR :public M68000Instruction
 {
 public:
-	virtual RTR* Clone() {return new RTR();}
-	virtual RTR* ClonePlacement(void* buffer) {return new(buffer) RTR();}
+	virtual RTR* Clone() const {return new RTR();}
+	virtual RTR* ClonePlacement(void* buffer) const {return new(buffer) RTR();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100111001110111", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"RTR", L"");
+		return L"RTR";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

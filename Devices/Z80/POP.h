@@ -6,18 +6,23 @@ namespace Z80 {
 class POP :public Z80Instruction
 {
 public:
-	virtual POP* Clone() {return new POP();}
-	virtual POP* ClonePlacement(void* buffer) {return new(buffer) POP();}
+	virtual POP* Clone() const {return new POP();}
+	virtual POP* ClonePlacement(void* buffer) const {return new(buffer) POP();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"11**0001", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"POP", target.Disassemble());
+		return L"POP";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), target.Disassemble());
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

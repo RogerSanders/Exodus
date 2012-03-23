@@ -6,18 +6,23 @@ namespace Z80 {
 class CPDR :public Z80Instruction
 {
 public:
-	virtual CPDR* Clone() {return new CPDR();}
-	virtual CPDR* ClonePlacement(void* buffer) {return new(buffer) CPDR();}
+	virtual CPDR* Clone() const {return new CPDR();}
+	virtual CPDR* ClonePlacement(void* buffer) const {return new(buffer) CPDR();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"10111001", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"CPDR", L"");
+		return L"CPDR";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

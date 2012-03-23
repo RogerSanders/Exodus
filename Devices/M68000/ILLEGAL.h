@@ -6,18 +6,23 @@ namespace M68000 {
 class ILLEGAL :public M68000Instruction
 {
 public:
-	virtual ILLEGAL* Clone() {return new ILLEGAL();}
-	virtual ILLEGAL	* ClonePlacement(void* buffer) {return new(buffer) ILLEGAL();}
+	virtual ILLEGAL* Clone() const {return new ILLEGAL();}
+	virtual ILLEGAL	* ClonePlacement(void* buffer) const {return new(buffer) ILLEGAL();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0100101011111100", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"ILLEGAL", L"");
+		return L"ILLEGAL";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

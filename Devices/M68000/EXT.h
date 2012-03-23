@@ -6,18 +6,23 @@ namespace M68000 {
 class EXT :public M68000Instruction
 {
 public:
-	virtual EXT* Clone() {return new EXT();}
-	virtual EXT* ClonePlacement(void* buffer) {return new(buffer) EXT();}
+	virtual EXT* Clone() const {return new EXT();}
+	virtual EXT* ClonePlacement(void* buffer) const {return new(buffer) EXT();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"010010001*000***", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"EXT." + DisassembleSize(size), target.Disassemble());
+		return L"EXT";
+	}
+
+	virtual Disassembly M68000Disassemble() const
+	{
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), target.Disassemble());
 	}
 
 	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)

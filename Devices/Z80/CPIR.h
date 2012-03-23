@@ -6,18 +6,23 @@ namespace Z80 {
 class CPIR :public Z80Instruction
 {
 public:
-	virtual CPIR* Clone() {return new CPIR();}
-	virtual CPIR* ClonePlacement(void* buffer) {return new(buffer) CPIR();}
+	virtual CPIR* Clone() const {return new CPIR();}
+	virtual CPIR* ClonePlacement(void* buffer) const {return new(buffer) CPIR();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<Z80Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"10110001", L"");
 	}
 
-	virtual Disassembly Z80Disassemble()
+	virtual std::wstring GetOpcodeName() const
 	{
-		return Disassembly(L"CPIR", L"");
+		return L"CPIR";
+	}
+
+	virtual Disassembly Z80Disassemble() const
+	{
+		return Disassembly(GetOpcodeName(), L"");
 	}
 
 	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)

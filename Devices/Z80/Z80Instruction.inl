@@ -96,7 +96,7 @@ void Z80Instruction::SetIndexOffset(const Z80Byte& aindexOffset, bool amandatory
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Z80Instruction::GetIndexOffsetSize(bool add)
+unsigned int Z80Instruction::GetIndexOffsetSize(bool add) const
 {
 	if(add && !mandatoryIndexOffset)
 	{

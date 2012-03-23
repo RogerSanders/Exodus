@@ -6,16 +6,21 @@ namespace M68000 {
 class EORI_to_CCR :public M68000Instruction
 {
 public:
-	virtual EORI_to_CCR* Clone() {return new EORI_to_CCR();}
-	virtual EORI_to_CCR* ClonePlacement(void* buffer) {return new(buffer) EORI_to_CCR();}
+	virtual EORI_to_CCR* Clone() const {return new EORI_to_CCR();}
+	virtual EORI_to_CCR* ClonePlacement(void* buffer) const {return new(buffer) EORI_to_CCR();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		return table.AllocateRegionToOpcode(this, L"0000101000111100", L"");
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"EORI to CCR";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		return Disassembly(L"EORI", source.Disassemble() + L", CCR");
 	}

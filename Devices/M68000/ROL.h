@@ -6,11 +6,11 @@ namespace M68000 {
 class ROL :public M68000Instruction
 {
 public:
-	virtual ROL* Clone() {return new ROL();}
-	virtual ROL* ClonePlacement(void* buffer) {return new(buffer) ROL();}
+	virtual ROL* Clone() const {return new ROL();}
+	virtual ROL* ClonePlacement(void* buffer) const {return new(buffer) ROL();}
 	virtual size_t GetOpcodeClassByteSize() const {return sizeof(*this);}
 
-	virtual bool RegisterOpcode(OpcodeTable& table)
+	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		bool result = true;
 		result &= table.AllocateRegionToOpcode(this, L"1110***1CC*11***", L"CC=00-10");
@@ -18,15 +18,20 @@ public:
 		return result;
 	}
 
-	virtual Disassembly M68000Disassemble()
+	virtual std::wstring GetOpcodeName() const
+	{
+		return L"ROL";
+	}
+
+	virtual Disassembly M68000Disassemble() const
 	{
 		if(target.GetAddressMode() == EffectiveAddress::DATAREG_DIRECT)
 		{
-			return Disassembly(L"ROL." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
+			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble() + L", " + target.Disassemble());
 		}
 		else
 		{
-			return Disassembly(L"ROL", target.Disassemble());
+			return Disassembly(GetOpcodeName(), target.Disassemble());
 		}
 	}
 
