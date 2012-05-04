@@ -301,6 +301,7 @@ void Z80::Initialize()
 	lastTimesliceLength = 0;
 	blastTimesliceLength = 0;
 	lineAccessBuffer.clear();
+	suspendUntilLineStateChangeReceived = false;
 
 	Reset();
 }
@@ -380,6 +381,14 @@ bool Z80::RemoveReference(IBusInterface* target)
 }
 
 //----------------------------------------------------------------------------------------
+//Suspend functions
+//----------------------------------------------------------------------------------------
+bool Z80::UsesExecuteSuspend() const
+{
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 //Execute functions
 //----------------------------------------------------------------------------------------
 void Z80::ExecuteRollback()
@@ -404,6 +413,7 @@ void Z80::ExecuteRollback()
 	lineAccessBuffer = blineAccessBuffer;
 	lineAccessPending = !lineAccessBuffer.empty();
 
+	suspendUntilLineStateChangeReceived = bsuspendUntilLineStateChangeReceived;
 	resetLineState = bresetLineState;
 	busreqLineState = bbusreqLineState;
 	intLineState = bintLineState;
@@ -441,6 +451,7 @@ void Z80::ExecuteCommit()
 		blineAccessBuffer.clear();
 	}
 
+	bsuspendUntilLineStateChangeReceived = suspendUntilLineStateChangeReceived;
 	bresetLineState = resetLineState;
 	bbusreqLineState = busreqLineState;
 	bintLineState = intLineState;
@@ -584,6 +595,14 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 		nmiLineState = !lineData.Zero();
 		break;
 	}
+
+	//Flag whether we want to suspend until another line state change is received, or we
+	//reach the end of the current timeslice. We do this so that the Z80 doesn't advance
+	//past the state of other devices in response to, for example, bus requests, when we
+	//expect those events often to be brief. If the Z80 advances too far ahead, when the
+	//bus is released for example, a rollback would need to be generated. This is an
+	//optimization to try and avoid excessive rollbacks.
+	suspendUntilLineStateChangeReceived = resetLineState || busreqLineState;
 }
 
 //----------------------------------------------------------------------------------------
@@ -625,6 +644,34 @@ double Z80::ExecuteStep()
 		lineAccessPending = !lineAccessBuffer.empty();
 	}
 	lastLineCheckTime = GetCurrentTimesliceProgress();
+
+	//If no line access is pending, and we've decided to suspend until another line state
+	//change is received, suspend execution waiting for another line state change to be
+	//received, unless execution suspension has now been disabled.
+	if(!lineAccessPending && suspendUntilLineStateChangeReceived && !GetDeviceContext()->TimesliceSuspensionDisabled())
+	{
+		//Check lineAccessPending again after taking a lock on lineMutex. This will ensure
+		//we never enter a suspend state when there are actually line access events
+		//sitting in the buffer.
+		boost::mutex::scoped_lock lock(lineMutex);
+		if(!lineAccessPending)
+		{
+			//Suspend timeslice execution, release the lock on lineMutex, then wait until
+			//execution is resumed. It is essential to perform these steps, in this order.
+			//By waiting to release the lock until after we have suspended timeslice
+			//execution, we ensure that no line state changes have sneaked into the buffer
+			//since we tested the value of the lineAccessPending variable. We need to
+			//release this lock before we enter our wait state however, so that other
+			//devices can resume execution of this device by triggering a line state
+			//change. After releasing the lock, we can now safely enter our wait state,
+			//since a command to resume timeslice execution between the calls we make here
+			//to suspend and wait for resume will be respected, and the wait call will
+			//return immediately.
+			GetDeviceContext()->SuspendTimesliceExecution();
+			lock.unlock();
+			GetDeviceContext()->WaitForTimesliceExecutionResume();
+		}
+	}
 
 	//Apply any active effects from input lines to the processor
 	bool processorNotExecuting = false;
