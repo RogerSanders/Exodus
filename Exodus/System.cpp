@@ -1281,6 +1281,18 @@ void System::SignalSystemStopped()
 }
 
 //----------------------------------------------------------------------------------------
+bool System::IsSystemRollbackFlagged() const
+{
+	return rollback;
+}
+
+//----------------------------------------------------------------------------------------
+double System::SystemRollbackTime() const
+{
+	return rollbackTimeslice;
+}
+
+//----------------------------------------------------------------------------------------
 void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, void (*callbackFunction)(void*), void* callbackParams)
 {
 	//##DEBUG##
