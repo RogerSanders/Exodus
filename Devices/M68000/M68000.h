@@ -115,6 +115,7 @@ References:
 #include "Data.h"
 #include "ExecuteTime.h"
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 #include <list>
 namespace M68000 {
 class M68000Instruction;
@@ -163,6 +164,9 @@ public:
 	void ExceptionLogIfRequested(unsigned int vector);
 	void ExceptionBreakIfRequested(unsigned int vector);
 	void TriggerExceptionFromDebugger(unsigned int vector);
+
+	//Suspend functions
+	virtual bool UsesExecuteSuspend() const;
 
 	//Execute functions
 	virtual double ExecuteStep();
@@ -402,12 +406,14 @@ private:
 	//Line access
 	boost::mutex lineMutex;
 	double lastLineCheckTime;
-	bool lineAccessPending;
+	mutable volatile bool lineAccessPending;
 	double lastTimesliceLength;
 	double blastTimesliceLength;
 	std::list<LineAccess> lineAccessBuffer;
 	std::list<LineAccess> blineAccessBuffer;
-
+	bool suspendUntilLineStateChangeReceived;
+	bool bsuspendUntilLineStateChangeReceived;
+	boost::condition lineStateChangeReceived;
 	mutable bool autoVectorPendingInterrupt;
 	bool resetLineState;
 	bool haltLineState;

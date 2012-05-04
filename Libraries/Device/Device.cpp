@@ -85,6 +85,20 @@ double Device::GetCurrentTimesliceProgress() const
 }
 
 //----------------------------------------------------------------------------------------
+//Suspend functions
+//----------------------------------------------------------------------------------------
+bool Device::UsesExecuteSuspend() const
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Device::UsesTransientExecution() const
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
 //Execute functions
 //----------------------------------------------------------------------------------------
 //The BeginExecution and SuspendExecution functions are called when the system starts and
@@ -99,14 +113,6 @@ void Device::BeginExecution()
 
 //----------------------------------------------------------------------------------------
 void Device::SuspendExecution()
-{}
-
-//----------------------------------------------------------------------------------------
-//This notification is sent to all devices before each separate timeslice is sent to any
-//devices for execution. It was implemented to support the RandomTime containers, which
-//require this information.
-//----------------------------------------------------------------------------------------
-void Device::NotifyUpcomingTimeslice(double nanoseconds)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -161,11 +167,25 @@ bool Device::SendNotifyUpcomingTimeslice() const
 }
 
 //----------------------------------------------------------------------------------------
-void Device::NotifyBeforeExecuteCalled()
+//This notification is sent to all devices before each separate timeslice is sent to any
+//devices for execution. It was implemented to support the RandomTime containers, which
+//require this information.
+//----------------------------------------------------------------------------------------
+void Device::NotifyUpcomingTimeslice(double nanoseconds)
 {}
 
 //----------------------------------------------------------------------------------------
 bool Device::SendNotifyBeforeExecuteCalled() const
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+void Device::NotifyBeforeExecuteCalled()
+{}
+
+//----------------------------------------------------------------------------------------
+bool Device::SendNotifyAfterExecuteCalled() const
 {
 	return false;
 }
@@ -179,12 +199,6 @@ bool Device::SendNotifyBeforeExecuteCalled() const
 //----------------------------------------------------------------------------------------
 void Device::NotifyAfterExecuteCalled()
 {}
-
-//----------------------------------------------------------------------------------------
-bool Device::SendNotifyAfterExecuteCalled() const
-{
-	return false;
-}
 
 //----------------------------------------------------------------------------------------
 //Name functions

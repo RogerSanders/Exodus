@@ -10,18 +10,37 @@ ensure that the sleep function doesn't last for longer than the specified interv
 also maximizes the available processor cycles during that time. I'd also suggest a
 separate overload of the sleep function which takes no arguments, and follows the
 Sleep(0) behaviour of Windows.
+-Create a new central worker thread, which is provided with a condition variable to wait
+on, and the location of a message structure. The message structure will contain a code for
+the type of message request. This will allow another thread to dispatch a request/command
+to all devices simultaneously. We will need a thread-safe way to collect data from each
+notified device however, such as for GetNextTimingPoint(). Providing a lock and a list
+structure is probably sufficient, or we can provide an array, giving each device an index
+number, and collect the data without any locks. At any rate, we still need a way to know
+when all device worker threads have fully processed the message. For this, some kind of
+thread-safe counter, possibly implemented using interlocked operations, would be
+appropriate. The counter is set to the number of notified threads, each thread modifies it
+directly, and when the counter reaches 0, the last device to finish notifies a supplied
+conditional, which unlocks the calling thread.
 \*--------------------------------------------------------------------------------------*/
 #ifndef __DEVICECONTEXT_H__
 #define __DEVICECONTEXT_H__
 #include "SystemInterface/SystemInterface.pkg"
 #include "WindowFunctions/WindowFunctions.pkg"
+#include "ThreadLib/ThreadLib.pkg"
 #include "ISystemInternal.h"
+#include "IExecutionSuspendManager.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <string>
+#include <vector>
 
 class DeviceContext :public IDeviceContext
 {
+public:
+	//Structures
+	struct DeviceContextCommand;
+
 public:
 	//Constructors
 	inline DeviceContext(IDevice* adevice);
@@ -33,6 +52,7 @@ public:
 	inline void ExecuteTimeslice(double nanoseconds);
 	inline double ExecuteStep();
 	inline void WaitForCompletion();
+	inline void WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, boost::mutex& commandMutex, IExecutionSuspendManager* asuspendManager);
 	inline void Commit();
 	inline void Rollback();
 	inline void Initialize();
@@ -49,16 +69,12 @@ public:
 	virtual void SetDeviceEnabled(bool state);
 
 	//Worker thread control
-	void BeginExecution();
-	void SuspendExecution();
+	void BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
 
 	//Device/System interface
 	virtual IDevice* GetTargetDevice() const;
 	inline void SetSystemInterface(ISystemInternal* asystemObject);
 	inline bool ActiveDevice() const;
-	inline bool SendNotifyUpcomingTimeslice() const;
-	inline bool SendNotifyBeforeExecuteCalled() const;
-	inline bool SendNotifyAfterExecuteCalled() const;
 
 	//System message functions
 	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, void (*callbackFunction)(void*) = 0, void* callbackParams = 0);
@@ -68,9 +84,25 @@ public:
 	virtual void RunSystem();
 	virtual void ExecuteDeviceStep();
 
+	//Suspend functions
+	virtual bool UsesExecuteSuspend() const;
+	virtual bool UsesTransientExecution() const;
+	virtual bool TimesliceExecutionSuspended() const;
+	virtual void SuspendTimesliceExecution();
+	virtual void WaitForTimesliceExecutionResume() const;
+	virtual void ResumeTimesliceExecution();
+	virtual bool TimesliceSuspensionDisabled() const;
+	virtual bool TransientExecutionActive() const;
+	virtual void SetTransientExecutionActive(bool state);
+	bool TimesliceExecutionCompleted() const;
+	void DisableTimesliceExecutionSuspend();
+	void EnableTimesliceExecutionSuspend();
+
 	//Dependent device functions
-	inline void AddDependentDevice(DeviceContext* device);
-	inline void RemoveDependentDevice(DeviceContext* device);
+	inline void AddDeviceDependency(DeviceContext* targetDevice);
+	inline void RemoveDeviceDependency(DeviceContext* targetDevice);
+	inline const std::vector<DeviceContext*>& GetDeviceDependencyArray() const;
+	inline const std::vector<DeviceContext*>& GetDependentDeviceArray() const;
 
 	//Input functions
 	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode);
@@ -84,27 +116,54 @@ protected:
 
 private:
 	//Worker thread control
-	void WorkerThread();
-	void WorkerThreadStep();
-	void WorkerThreadStepWithDependents();
-	void WorkerThreadTimeslice();
+	void SuspendExecution();
+
+	//Command worker thread control
+	void StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
+	void StopCommandWorkerThread();
+	void CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
+	void ProcessCommand(size_t deviceIndex, const DeviceContextCommand& command, volatile ReferenceCounterType& remainingThreadCount);
+
+	//Execute worker thread control
+	void StartExecuteWorkerThread();
+	void StopExecuteWorkerThread();
+	void ExecuteWorkerThread();
+	void ExecuteWorkerThreadStep();
+	void ExecuteWorkerThreadStepWithDependencies();
+	void ExecuteWorkerThreadTimeslice();
+	void ExecuteWorkerThreadTimesliceWithDependencies();
+
+	//Dependent device functions
+	inline void AddDependentDevice(DeviceContext* targetDevice);
+	inline void RemoveDependentDevice(DeviceContext* targetDevice);
 
 private:
-	//Main access mutex
-	mutable boost::mutex accessMutex;
-
 	//Device properties
 	IDevice* device;
 	bool deviceEnabled;
-	bool active;
-	std::vector<DeviceContext*> dependentTargets;
+	std::vector<DeviceContext*> deviceDependencies;
+	std::vector<DeviceContext*> dependentDevices;
 
-	//Execute thread data
-	boost::condition stateChanged;
-	boost::condition justCompletedTimeslice;
+	//Command worker thread data
+	bool commandWorkerThreadActive;
+	boost::condition commandThreadReady;
+
+	//Execute worker thread data
+	bool executeWorkerThreadActive;
+	mutable boost::mutex executeThreadMutex;
+	boost::condition executeTaskSent;
+	mutable boost::condition executeCompletionStateChanged;
 	boost::condition executeThreadReady;
 	boost::condition executeThreadStopped;
-	bool timesliceCompleted;
+	boost::mutex* commandMutexPointer;
+	volatile ReferenceCounterType* suspendedThreadCountPointer;
+	volatile ReferenceCounterType* remainingThreadCountPointer;
+	volatile bool executingWaitForCompletionCommand;
+	IExecutionSuspendManager* suspendManager;
+	volatile bool timesliceCompleted;
+	volatile bool timesliceSuspended;
+	volatile bool timesliceSuspensionDisable;
+	volatile bool transientExecutionActive;
 	double timeslice;
 	double remainingTime;
 	double remainingTimeBackup;

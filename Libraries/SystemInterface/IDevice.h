@@ -50,10 +50,13 @@ public:
 	virtual IDeviceContext* GetDeviceContext() const = 0;
 	virtual double GetCurrentTimesliceProgress() const = 0;
 
+	//Suspend functions
+	virtual bool UsesExecuteSuspend() const = 0;
+	virtual bool UsesTransientExecution() const = 0;
+
 	//Execute functions
 	virtual void BeginExecution() = 0;
 	virtual void SuspendExecution() = 0;
-	virtual void NotifyUpcomingTimeslice(double nanoseconds) = 0;
 	virtual double ExecuteStep() = 0;
 	virtual void ExecuteTimeslice(double nanoseconds) = 0;
 	virtual double GetNextTimingPointInDeviceTime() const = 0;
@@ -61,10 +64,11 @@ public:
 	virtual void ExecuteCommit() = 0;
 	virtual UpdateMethod GetUpdateMethod() const = 0;
 	virtual bool SendNotifyUpcomingTimeslice() const = 0;
-	virtual void NotifyBeforeExecuteCalled() = 0;
+	virtual void NotifyUpcomingTimeslice(double nanoseconds) = 0;
 	virtual bool SendNotifyBeforeExecuteCalled() const = 0;
-	virtual void NotifyAfterExecuteCalled() = 0;
+	virtual void NotifyBeforeExecuteCalled() = 0;
 	virtual bool SendNotifyAfterExecuteCalled() const = 0;
+	virtual void NotifyAfterExecuteCalled() = 0;
 
 	//Name functions
 	inline std::wstring GetDeviceClassName() const;

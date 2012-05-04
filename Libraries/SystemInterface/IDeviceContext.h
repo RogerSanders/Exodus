@@ -32,6 +32,17 @@ public:
 	inline std::wstring GetCapturePath() const;
 	inline std::wstring GetModuleDisplayName() const;
 
+	//Suspend functions
+	virtual bool UsesExecuteSuspend() const = 0;
+	virtual bool UsesTransientExecution() const = 0;
+	virtual bool TimesliceExecutionSuspended() const = 0;
+	virtual void SuspendTimesliceExecution() = 0;
+	virtual void WaitForTimesliceExecutionResume() const = 0;
+	virtual void ResumeTimesliceExecution() = 0;
+	virtual bool TimesliceSuspensionDisabled() const = 0;
+	virtual bool TransientExecutionActive() const = 0;
+	virtual void SetTransientExecutionActive(bool state) = 0;
+
 	//Input functions
 	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) = 0;
 	virtual void HandleInputKeyDown(KeyCode keyCode) const = 0;
