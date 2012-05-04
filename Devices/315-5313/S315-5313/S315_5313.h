@@ -1,5 +1,15 @@
 /*--------------------------------------------------------------------------------------*\
 Things to do:
+-Support "invalid" sync outputs from the VDP. There are a few specific cases we want to
+handle:
+1. Mid-line changes to H32/H40 setting (line lengthened or cut short)
+2. Internal fixed MCLK/4 H40 serial clock (sync too fast)
+3. V30 mode for NTSC (no VSYNC)
+All these screen settings cause a bad analog video output. We should detect them and
+visually warn the user in some way that the analog output is bad. That said, we should
+still display a valid image, as if the video equipment was manually synced to match the
+video output.
+
 -Make everything in this core which needs a way of determining the current progression
 through the horizontal and vertical scanlines use a different counting mechanism, rather
 than using hcounter and vcounter values like they do currently. I would suggest relating
@@ -170,14 +180,17 @@ public:
 	virtual bool RemoveReference(IBusInterface* target);
 	virtual bool RemoveReference(IDevice* target);
 
+	//Suspend functions
+	virtual bool UsesTransientExecution() const;
+
 	//Execute functions
 	virtual UpdateMethod GetUpdateMethod() const;
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
-	virtual void NotifyBeforeExecuteCalled();
 	virtual bool SendNotifyBeforeExecuteCalled() const;
-	virtual void NotifyAfterExecuteCalled();
+	virtual void NotifyBeforeExecuteCalled();
 	virtual bool SendNotifyAfterExecuteCalled() const;
+	virtual void NotifyAfterExecuteCalled();
 	virtual void ExecuteTimeslice(double nanoseconds);
 	virtual double GetNextTimingPointInDeviceTime() const;
 	virtual void ExecuteRollback();
@@ -240,7 +253,7 @@ private:
 		unsigned int hcounter;
 		unsigned int vcounter;
 	};
-	//##TODO## Implement this structure
+	struct RenderOp;
 	struct FIFOBufferEntry;
 
 	//Typedefs
@@ -255,6 +268,11 @@ private:
 	static const unsigned int vsramSize = 0x50;
 	static const unsigned int fifoBufferSize = 4;
 	static const unsigned int statusRegisterMask = 0x03FF;
+
+	//Render constants
+	static const unsigned int renderDigitalBlockPixelSizeY = 8;
+	static const RenderOp operationsH32[];
+	static const RenderOp operationsH40[];
 
 	//Interrupt settings
 	static const unsigned int exintIPLLineState = 2;
@@ -282,21 +300,33 @@ private:
 
 private:
 	//Execute functions
-	void RenderThread();
-	void RenderFrame();
-	void RenderPrefetchLineForSprites(const AccessTarget& accessTarget);
-	void RenderBorderLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo);
-	void RenderActiveLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo);
+//	void RenderThread();
+//	void RenderFrame();
+//	void RenderPrefetchLineForSprites(const AccessTarget& accessTarget);
+//	void RenderBorderLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo);
+//	void RenderActiveLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo);
+	void RenderThreadNew();
+	void AdvanceRenderProcess(unsigned int mclkCyclesToAdvance);
+	void UpdateDigitalRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
+	void UpdateAnalogRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
+	void DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const;
+	void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerAVscrollPatternDisplacement, unsigned int& layerBVscrollPatternDisplacement, unsigned int& layerAVscrollMappingDisplacement, unsigned int& layerBVscrollMappingDisplacement) const;
+	void DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const;
+	void DigitalRenderReadPatternDataRow(unsigned int screenRowNumber, unsigned int patternRowDisplacement, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const;
+	unsigned int DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const;
+//	void RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const;
+
+	void AdvanceAnalogRenderProcess(unsigned int pixelsToOutput);
 	void CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shadow, bool& highlight, bool shadowHighlightEnabled, bool spriteIsShadowOperator, bool spriteIsHighlightOperator, bool foundSpritePixel, bool foundLayerAPixel, bool foundLayerBPixel, bool prioritySprite, bool priorityLayerA, bool priorityLayerB) const;
-	void WriteColorValueToImageBuffer(unsigned int paletteLine, unsigned int paletteEntry, bool shadow, bool highlight, unsigned int xpos, unsigned int ypos);
-	void ReadMappingDataPair(Data& mappingDataEntry1, Data& mappingDataEntry2, unsigned int nameTableBaseAddress, unsigned int mappingColumnNumber, unsigned int mappingRowNumber, unsigned int screenSizeModeH, unsigned int screenSizeModeV) const;
-	void ReadPatternDataRow(const LineRenderSettings& renderSettings, Data& patternData, const Data& mappingData, unsigned int patternRowNumber) const;
-	void RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const;
+//	void WriteColorValueToImageBuffer(unsigned int paletteLine, unsigned int paletteEntry, bool shadow, bool highlight, unsigned int xpos, unsigned int ypos);
+//	void ReadMappingDataPair(Data& mappingDataEntry1, Data& mappingDataEntry2, unsigned int nameTableBaseAddress, unsigned int mappingColumnNumber, unsigned int mappingRowNumber, unsigned int screenSizeModeH, unsigned int screenSizeModeV) const;
+//	void ReadPatternDataRow(const LineRenderSettings& renderSettings, Data& patternData, const Data& mappingData, unsigned int patternRowNumber) const;
+//	void RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const;
 	void DMAWorkerThread();
 
 	//Event functions
-	void ExecuteEvent(EventProperties event, double accessTime, unsigned int ahcounter, unsigned int avcounter, bool ascreenModeH40, bool ascreenModeV30, bool apalMode, bool ainterlaceEnabled);
-	void GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, EventProperties& nextEvent) const;
+	void ExecuteEvent(EventProperties event, double accessTime, unsigned int ahcounter, unsigned int avcounter, bool ascreenModeRS0, bool ascreenModeRS1, bool ascreenModeV30, bool apalMode, bool ainterlaceEnabled);
+	void GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent) const;
 	bool EventOccursWithinCounterRange(const HScanSettings& hscanSettings, unsigned int hcounterStart, unsigned int vcounterStart, unsigned int hcounterEnd, unsigned int vcounterEnd, unsigned int hcounterEventPos, unsigned int vcounterEventPos) const;
 
 	//Port functions
@@ -316,7 +346,8 @@ private:
 	static unsigned int VCounterValueFromLinearToVDPInternal(const VScanSettings& vscanSettings, unsigned int vcounterCurrent, bool oddFlagSet);
 
 	//Video scan settings functions
-	static const HScanSettings& GetHScanSettings(bool screenModeH40Active);
+	//##TODO## Remove the RS0 parameter here. We only need the RS1 bit.
+	static const HScanSettings& GetHScanSettings(bool screenModeRS0Active, bool screenModeRS1Active);
 	static const VScanSettings& GetVScanSettings(bool screenModeV30Active, bool palModeActive, bool interlaceActive);
 
 	//HV counter comparison functions
@@ -330,9 +361,9 @@ private:
 	static void AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned int& hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool& oddFlagSet, unsigned int& vcounterCurrent, unsigned int pixelClockSteps);
 
 	//Pixel clock functions
-	static unsigned int GetPixelClockTicksUntilNextAccessSlot(unsigned int hcounterCurrent, bool screenModeH40Current, unsigned int vcounterCurrent, bool screenModeV30Current, bool palModeCurrent, bool interlaceEnabledCurrent);
-	static unsigned int GetPixelClockTicksForMclkTicks(unsigned int mclkTicks, unsigned int hcounterCurrent, bool screenModeH40Active, unsigned int& mclkTicksUnused);
-	static unsigned int GetMclkTicksForPixelClockTicks(unsigned int pixelClockTicks, unsigned int hcounterCurrent, bool screenModeH40Active);
+	static unsigned int GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vcounterCurrent);
+	static unsigned int GetPixelClockTicksForMclkTicks(const HScanSettings& hscanSettings, unsigned int mclkTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active, unsigned int& mclkTicksUnused);
+	static unsigned int GetMclkTicksForPixelClockTicks(const HScanSettings& hscanSettings, unsigned int pixelClockTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active);
 
 	//Access time functions
 	unsigned int ConvertAccessTimeToMclkCount(double accessTime) const;
@@ -542,6 +573,9 @@ private:
 	inline void M5SetDMD0(const AccessTarget& accessTarget, bool data);
 
 private:
+	//##DEBUG##
+	bool outputTestDebugMessages;
+
 	//Menu handling
 	DebugMenuHandler* menuHandler;
 
@@ -554,15 +588,6 @@ private:
 
 	//Embedded PSG device
 	IDevice* psg;
-
-	//Image buffer
-	//##TODO## Fix up these dimensions
-	mutable boost::mutex imageBufferMutex;
-	static const unsigned int imageWidth = 512;
-	static const unsigned int imageHeight = 512;
-	static const unsigned int imageBufferPlanes = 3;
-	unsigned char image[imageBufferPlanes][imageHeight * imageWidth * 4];
-	unsigned int drawingImageBufferPlane;
 
 	//Physical registers and memory buffers
 	mutable boost::mutex accessMutex;
@@ -599,8 +624,10 @@ private:
 	bool binterlaceEnabled;
 	bool interlaceDouble;
 	bool binterlaceDouble;
-	bool screenModeH40;
-	bool bscreenModeH40;
+	bool screenModeRS0;
+	bool bscreenModeRS0;
+	bool screenModeRS1;
+	bool bscreenModeRS1;
 	bool screenModeV30;
 	bool bscreenModeV30;
 	bool palMode;
@@ -633,8 +660,10 @@ private:
 	bool binterlaceEnabledCached;
 	bool interlaceDoubleCached;
 	bool binterlaceDoubleCached;
-	bool screenModeH40Cached;
-	bool bscreenModeH40Cached;
+	bool screenModeRS0Cached;
+	bool bscreenModeRS0Cached;
+	bool screenModeRS1Cached;
+	bool bscreenModeRS1Cached;
 	bool screenModeV30Cached;
 	bool bscreenModeV30Cached;
 	bool cachedDMASettingsChanged;
@@ -689,6 +718,7 @@ private:
 
 	//Control port registers
 	bool codeAndAddressRegistersModifiedSinceLastWrite;
+	bool bcodeAndAddressRegistersModifiedSinceLastWrite;
 	bool commandWritePending;
 	bool bcommandWritePending;
 	Data originalCommandAddress;
@@ -705,8 +735,6 @@ private:
 	boost::condition renderThreadStopped;
 	bool renderThreadActive;
 	bool pendingRenderOperation;
-	double pendingRenderTimesliceLength;
-	double bpendingRenderTimesliceLength;
 	bool renderTimeslicePending;
 	RegBuffer::Timeslice regTimeslice;
 	ITimedBufferInt::Timeslice* vramTimeslice;
@@ -724,6 +752,70 @@ private:
 	unsigned int mclkCycleRenderProgress;
 	static const unsigned int layerPriorityLookupTableSize = 0x200;
 	std::vector<unsigned int> layerPriorityLookupTable;
+
+	static const unsigned int maxPendingRenderOperationCount = 2;
+	bool renderThreadLagging;
+	boost::condition renderThreadLaggingStateChange;
+	unsigned int pendingRenderOperationCount;
+	std::list<RegBuffer::Timeslice> regTimesliceList;
+	std::list<ITimedBufferInt::Timeslice*> vramTimesliceList;
+	std::list<ITimedBufferInt::Timeslice*> cramTimesliceList;
+	std::list<ITimedBufferInt::Timeslice*> vsramTimesliceList;
+
+	//Digital render data buffers
+	//##TODO## Separate the analog and digital renderers into their own classes. Our
+	//single VDP superclass is getting too large to be manageable.
+	//##TODO## Initialize all these registers correctly, and store/load them during the
+	//savestate process.
+	unsigned int renderDigitalHCounterPos;
+	unsigned int renderDigitalVCounterPos;
+	unsigned int renderDigitalVCounterPosPreviousLine;
+	unsigned int renderDigitalRemainingMclkCycles;
+	bool renderDigitalScreenModeRS0Active;
+	bool renderDigitalScreenModeRS1Active;
+	bool renderDigitalScreenModeV30Active;
+	bool renderDigitalInterlaceEnabledActive;
+	bool renderDigitalInterlaceDoubleActive;
+	bool renderDigitalPalModeActive;
+	bool renderDigitalOddFlagSet;
+	unsigned int renderDigitalMclkCycleProgress;
+	unsigned int renderLayerAHscrollPatternDisplacement;
+	unsigned int renderLayerBHscrollPatternDisplacement;
+	unsigned int renderLayerAHscrollMappingDisplacement;
+	unsigned int renderLayerBHscrollMappingDisplacement;
+	unsigned int renderLayerAVscrollPatternDisplacement;
+	unsigned int renderLayerBVscrollPatternDisplacement;
+	unsigned int renderLayerAVscrollMappingDisplacement;
+	unsigned int renderLayerBVscrollMappingDisplacement;
+	static const unsigned int maxCellsPerRow = 42;
+	std::vector<Data> renderMappingDataCacheLayerA;
+	std::vector<Data> renderMappingDataCacheLayerB;
+	std::vector<Data> renderMappingDataCacheSprite;
+	std::vector<Data> renderPatternDataCacheLayerA;
+	std::vector<Data> renderPatternDataCacheLayerB;
+	std::vector<Data> renderPatternDataCacheSprite;
+
+	//Analog render data buffers
+	//##TODO## Complete this list, and implement these buffers.
+	struct ImageBufferColorEntry
+	{
+		unsigned char r;
+		unsigned char g;
+		unsigned char b;
+		unsigned char a;
+	};
+	static const unsigned int imageBufferWidth = 512;
+	static const unsigned int imageBufferHeight = 512;
+	std::vector<ImageBufferColorEntry> imageBuffer;
+
+	//Image buffer
+	//##TODO## Fix up these dimensions
+	mutable boost::mutex imageBufferMutex;
+	static const unsigned int imageWidth = 512;
+	static const unsigned int imageHeight = 512;
+	static const unsigned int imageBufferPlanes = 3;
+	unsigned char image[imageBufferPlanes][imageHeight * imageWidth * 4];
+	unsigned int drawingImageBufferPlane;
 
 	//DMA worker thread properties
 	mutable boost::mutex workerThreadMutex;
@@ -772,8 +864,10 @@ private:
 	//##TODO## Implement event snapshots
 	bool eventSnapshotSaved;
 	bool beventSnapshotSaved;
-	bool eventSnapshotScreenModeH40;
-	bool beventSnapshotScreenModeH40;
+	bool eventSnapshotScreenModeRS0;
+	bool beventSnapshotScreenModeRS0;
+	bool eventSnapshotScreenModeRS1;
+	bool beventSnapshotScreenModeRS1;
 	bool eventSnapshotScreenModeV30;
 	bool beventSnapshotScreenModeV30;
 	bool eventSnapshotPalMode;

@@ -31,6 +31,7 @@ public:
 
 	//Time management functions
 	virtual void Initialize();
+	virtual bool DoesLatestTimesliceExist() const;
 	virtual Timeslice* GetLatestTimesliceReference();
 	virtual void FreeTimesliceReference(Timeslice* targetTimeslice);
 	virtual void AdvancePastTimeslice(const Timeslice* targetTimeslice);

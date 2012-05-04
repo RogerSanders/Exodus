@@ -94,6 +94,7 @@ public:
 
 	//Time management functions
 	void Initialize();
+	bool DoesLatestTimesliceExist() const;
 	Timeslice GetLatestTimeslice();
 	void AdvancePastTimeslice(const Timeslice& targetTimeslice);
 	void AdvanceToTimeslice(const Timeslice& targetTimeslice);

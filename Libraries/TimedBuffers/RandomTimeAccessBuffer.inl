@@ -457,6 +457,13 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------
+template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataType, TimesliceType>::DoesLatestTimesliceExist() const
+{
+	boost::mutex::scoped_lock lock(accessLock);
+	return !timesliceList.empty();
+}
+
+//----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> typename RandomTimeAccessBuffer<DataType, TimesliceType>::Timeslice RandomTimeAccessBuffer<DataType, TimesliceType>::GetLatestTimeslice()
 {
 	boost::mutex::scoped_lock lock(accessLock);
@@ -667,7 +674,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 		bool done = false;
 		while(!done && (currentProgress >= advanceSession.nextWriteTime))
 		{
-			TimesliceType step = (((currentProgress - advanceSession.timeRemovedDuringSession) + advanceSession.initialTimeOffset) - currentTimeOffset);
+			TimesliceType step = (((currentProgress + advanceSession.initialTimeOffset) - advanceSession.timeRemovedDuringSession) - currentTimeOffset);
 			TimesliceType currentTimeBase = 0;
 
 			//Commit buffered writes which we have passed in this step
@@ -754,7 +761,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 
 			//If we've just removed some timeslices as a result of this step, advance the
 			//base address of the session.
-			advanceSession.timeRemovedDuringSession += currentTimeBase;
+			advanceSession.timeRemovedDuringSession += (currentTimeBase - advanceSession.initialTimeOffset);
+			advanceSession.initialTimeOffset = 0;
 		}
 	}
 }
@@ -944,7 +952,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 	advanceSession.initialTimeOffset = currentTimeOffset;
 
 	//Get the next write time, relative to the start of this session.
-	advanceSession.nextWriteTime = (advanceSession.timeRemovedDuringSession + GetNextWriteTimeNoLock(targetTimeslice)) - advanceSession.initialTimeOffset;
+	advanceSession.nextWriteTime = GetNextWriteTimeNoLock(targetTimeslice);
 }
 
 //----------------------------------------------------------------------------------------

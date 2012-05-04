@@ -234,6 +234,13 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------
+template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::DoesLatestTimesliceExist() const
+{
+	boost::mutex::scoped_lock lock(accessLock);
+	return !timesliceList.empty();
+}
+
+//----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> typename RandomTimeAccessValue<DataType, TimesliceType>::Timeslice RandomTimeAccessValue<DataType, TimesliceType>::GetLatestTimeslice()
 {
 	boost::mutex::scoped_lock lock(accessLock);

@@ -4,6 +4,112 @@
 #include <iostream>
 
 //----------------------------------------------------------------------------------------
+//Constants
+//----------------------------------------------------------------------------------------
+const S315_5313::RenderOp S315_5313::operationsH32[] = {
+	//End of left scrolled 2 cells
+	{S315_5313::RenderOp::PATTERN_B, 1},
+
+	//Cell block 1
+	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
+	{S315_5313::RenderOp::MAPPING_A, 4}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 4}, {S315_5313::RenderOp::PATTERN_A, 5}, {S315_5313::RenderOp::MAPPING_B, 4}, {S315_5313::RenderOp::MAPPING_S, 1}, {S315_5313::RenderOp::PATTERN_B, 4}, {S315_5313::RenderOp::PATTERN_B, 5},
+	{S315_5313::RenderOp::MAPPING_A, 6}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 6}, {S315_5313::RenderOp::PATTERN_A, 7}, {S315_5313::RenderOp::MAPPING_B, 6}, {S315_5313::RenderOp::MAPPING_S, 2}, {S315_5313::RenderOp::PATTERN_B, 6}, {S315_5313::RenderOp::PATTERN_B, 7},
+	{S315_5313::RenderOp::MAPPING_A, 8}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A, 8}, {S315_5313::RenderOp::PATTERN_A, 9}, {S315_5313::RenderOp::MAPPING_B, 8}, {S315_5313::RenderOp::MAPPING_S, 3}, {S315_5313::RenderOp::PATTERN_B, 8}, {S315_5313::RenderOp::PATTERN_B, 9},
+
+	//Cell block 2
+	{S315_5313::RenderOp::MAPPING_A,10}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,10}, {S315_5313::RenderOp::PATTERN_A,11}, {S315_5313::RenderOp::MAPPING_B,10}, {S315_5313::RenderOp::MAPPING_S, 4}, {S315_5313::RenderOp::PATTERN_B,10}, {S315_5313::RenderOp::PATTERN_B,11},
+	{S315_5313::RenderOp::MAPPING_A,12}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,12}, {S315_5313::RenderOp::PATTERN_A,13}, {S315_5313::RenderOp::MAPPING_B,12}, {S315_5313::RenderOp::MAPPING_S, 5}, {S315_5313::RenderOp::PATTERN_B,12}, {S315_5313::RenderOp::PATTERN_B,13},
+	{S315_5313::RenderOp::MAPPING_A,14}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,14}, {S315_5313::RenderOp::PATTERN_A,15}, {S315_5313::RenderOp::MAPPING_B,14}, {S315_5313::RenderOp::MAPPING_S, 6}, {S315_5313::RenderOp::PATTERN_B,14}, {S315_5313::RenderOp::PATTERN_B,15},
+	{S315_5313::RenderOp::MAPPING_A,16}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,16}, {S315_5313::RenderOp::PATTERN_A,17}, {S315_5313::RenderOp::MAPPING_B,16}, {S315_5313::RenderOp::MAPPING_S, 7}, {S315_5313::RenderOp::PATTERN_B,16}, {S315_5313::RenderOp::PATTERN_B,17},
+
+	//Cell block 3
+	{S315_5313::RenderOp::MAPPING_A,18}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,18}, {S315_5313::RenderOp::PATTERN_A,19}, {S315_5313::RenderOp::MAPPING_B,18}, {S315_5313::RenderOp::MAPPING_S, 8}, {S315_5313::RenderOp::PATTERN_B,18}, {S315_5313::RenderOp::PATTERN_B,19},
+	{S315_5313::RenderOp::MAPPING_A,20}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,20}, {S315_5313::RenderOp::PATTERN_A,21}, {S315_5313::RenderOp::MAPPING_B,20}, {S315_5313::RenderOp::MAPPING_S, 9}, {S315_5313::RenderOp::PATTERN_B,20}, {S315_5313::RenderOp::PATTERN_B,21},
+	{S315_5313::RenderOp::MAPPING_A,22}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,22}, {S315_5313::RenderOp::PATTERN_A,23}, {S315_5313::RenderOp::MAPPING_B,22}, {S315_5313::RenderOp::MAPPING_S,10}, {S315_5313::RenderOp::PATTERN_B,22}, {S315_5313::RenderOp::PATTERN_B,23},
+	{S315_5313::RenderOp::MAPPING_A,24}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,24}, {S315_5313::RenderOp::PATTERN_A,25}, {S315_5313::RenderOp::MAPPING_B,24}, {S315_5313::RenderOp::MAPPING_S,11}, {S315_5313::RenderOp::PATTERN_B,24}, {S315_5313::RenderOp::PATTERN_B,25},
+
+	//Cell block 4
+	{S315_5313::RenderOp::MAPPING_A,26}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,26}, {S315_5313::RenderOp::PATTERN_A,27}, {S315_5313::RenderOp::MAPPING_B,26}, {S315_5313::RenderOp::MAPPING_S,12}, {S315_5313::RenderOp::PATTERN_B,26}, {S315_5313::RenderOp::PATTERN_B,27},
+	{S315_5313::RenderOp::MAPPING_A,28}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,28}, {S315_5313::RenderOp::PATTERN_A,29}, {S315_5313::RenderOp::MAPPING_B,28}, {S315_5313::RenderOp::MAPPING_S,13}, {S315_5313::RenderOp::PATTERN_B,28}, {S315_5313::RenderOp::PATTERN_B,29},
+	{S315_5313::RenderOp::MAPPING_A,30}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,30}, {S315_5313::RenderOp::PATTERN_A,31}, {S315_5313::RenderOp::MAPPING_B,30}, {S315_5313::RenderOp::MAPPING_S,14}, {S315_5313::RenderOp::PATTERN_B,30}, {S315_5313::RenderOp::PATTERN_B,31},
+	{S315_5313::RenderOp::MAPPING_A,32}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,32}, {S315_5313::RenderOp::PATTERN_A,33}, {S315_5313::RenderOp::MAPPING_B,32}, {S315_5313::RenderOp::MAPPING_S,15}, {S315_5313::RenderOp::PATTERN_B,32}, {S315_5313::RenderOp::PATTERN_B,33},
+
+	//End of line
+	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  0},
+	{S315_5313::RenderOp::PATTERN_S, 0}, {S315_5313::RenderOp::PATTERN_S, 1}, {S315_5313::RenderOp::PATTERN_S, 2}, {S315_5313::RenderOp::PATTERN_S, 3}, {S315_5313::RenderOp::PATTERN_S, 4},
+	{S315_5313::RenderOp::PATTERN_S, 5}, {S315_5313::RenderOp::PATTERN_S, 6}, {S315_5313::RenderOp::PATTERN_S, 7}, {S315_5313::RenderOp::PATTERN_S, 8}, {S315_5313::RenderOp::PATTERN_S, 9},
+	{S315_5313::RenderOp::PATTERN_S,10}, {S315_5313::RenderOp::PATTERN_S,11}, {S315_5313::RenderOp::PATTERN_S,12},
+	{S315_5313::RenderOp::ACC_SLOT,  0},
+	{S315_5313::RenderOp::PATTERN_S,13}, {S315_5313::RenderOp::PATTERN_S,14},
+
+	//HBlank start
+	{S315_5313::RenderOp::PATTERN_S,15}, {S315_5313::RenderOp::PATTERN_S,16}, {S315_5313::RenderOp::PATTERN_S,17}, {S315_5313::RenderOp::PATTERN_S,18}, {S315_5313::RenderOp::PATTERN_S,19},
+	{S315_5313::RenderOp::PATTERN_S,20}, {S315_5313::RenderOp::PATTERN_S,21}, {S315_5313::RenderOp::PATTERN_S,22}, {S315_5313::RenderOp::PATTERN_S,23}, {S315_5313::RenderOp::PATTERN_S,24},
+	{S315_5313::RenderOp::PATTERN_S,25},
+	{S315_5313::RenderOp::ACC_SLOT,  0},
+
+	//New line
+	{S315_5313::RenderOp::HSCROLL,   0}, {S315_5313::RenderOp::PATTERN_S,26}, {S315_5313::RenderOp::PATTERN_S,27}, {S315_5313::RenderOp::PATTERN_S,28}, {S315_5313::RenderOp::PATTERN_S,29},
+
+	//Start of left scrolled 2 cells
+	{S315_5313::RenderOp::MAPPING_A, 0}, {S315_5313::RenderOp::PATTERN_S,30}, {S315_5313::RenderOp::PATTERN_A, 0}, {S315_5313::RenderOp::PATTERN_A, 1}, {S315_5313::RenderOp::MAPPING_B, 0}, {S315_5313::RenderOp::PATTERN_S,31}, {S315_5313::RenderOp::PATTERN_B, 0}
+};
+
+//----------------------------------------------------------------------------------------
+const S315_5313::RenderOp S315_5313::operationsH40[] = {
+	//Cell block 1
+	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
+	{S315_5313::RenderOp::MAPPING_A, 4}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 4}, {S315_5313::RenderOp::PATTERN_A, 5}, {S315_5313::RenderOp::MAPPING_B, 4}, {S315_5313::RenderOp::MAPPING_S, 1}, {S315_5313::RenderOp::PATTERN_B, 4}, {S315_5313::RenderOp::PATTERN_B, 5},
+	{S315_5313::RenderOp::MAPPING_A, 6}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 6}, {S315_5313::RenderOp::PATTERN_A, 7}, {S315_5313::RenderOp::MAPPING_B, 6}, {S315_5313::RenderOp::MAPPING_S, 2}, {S315_5313::RenderOp::PATTERN_B, 6}, {S315_5313::RenderOp::PATTERN_B, 7},
+	{S315_5313::RenderOp::MAPPING_A, 8}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A, 8}, {S315_5313::RenderOp::PATTERN_A, 9}, {S315_5313::RenderOp::MAPPING_B, 8}, {S315_5313::RenderOp::MAPPING_S, 3}, {S315_5313::RenderOp::PATTERN_B, 8}, {S315_5313::RenderOp::PATTERN_B, 9},
+
+	//Cell block 2
+	{S315_5313::RenderOp::MAPPING_A,10}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,10}, {S315_5313::RenderOp::PATTERN_A,11}, {S315_5313::RenderOp::MAPPING_B,10}, {S315_5313::RenderOp::MAPPING_S, 4}, {S315_5313::RenderOp::PATTERN_B,10}, {S315_5313::RenderOp::PATTERN_B,11},
+	{S315_5313::RenderOp::MAPPING_A,12}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,12}, {S315_5313::RenderOp::PATTERN_A,13}, {S315_5313::RenderOp::MAPPING_B,12}, {S315_5313::RenderOp::MAPPING_S, 5}, {S315_5313::RenderOp::PATTERN_B,12}, {S315_5313::RenderOp::PATTERN_B,13},
+	{S315_5313::RenderOp::MAPPING_A,14}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,14}, {S315_5313::RenderOp::PATTERN_A,15}, {S315_5313::RenderOp::MAPPING_B,14}, {S315_5313::RenderOp::MAPPING_S, 6}, {S315_5313::RenderOp::PATTERN_B,14}, {S315_5313::RenderOp::PATTERN_B,15},
+	{S315_5313::RenderOp::MAPPING_A,16}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,16}, {S315_5313::RenderOp::PATTERN_A,17}, {S315_5313::RenderOp::MAPPING_B,16}, {S315_5313::RenderOp::MAPPING_S, 7}, {S315_5313::RenderOp::PATTERN_B,16}, {S315_5313::RenderOp::PATTERN_B,17},
+
+	//Cell block 3
+	{S315_5313::RenderOp::MAPPING_A,18}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,18}, {S315_5313::RenderOp::PATTERN_A,19}, {S315_5313::RenderOp::MAPPING_B,18}, {S315_5313::RenderOp::MAPPING_S, 8}, {S315_5313::RenderOp::PATTERN_B,18}, {S315_5313::RenderOp::PATTERN_B,19},
+	{S315_5313::RenderOp::MAPPING_A,20}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,20}, {S315_5313::RenderOp::PATTERN_A,21}, {S315_5313::RenderOp::MAPPING_B,20}, {S315_5313::RenderOp::MAPPING_S, 9}, {S315_5313::RenderOp::PATTERN_B,20}, {S315_5313::RenderOp::PATTERN_B,21},
+	{S315_5313::RenderOp::MAPPING_A,22}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,22}, {S315_5313::RenderOp::PATTERN_A,23}, {S315_5313::RenderOp::MAPPING_B,22}, {S315_5313::RenderOp::MAPPING_S,10}, {S315_5313::RenderOp::PATTERN_B,22}, {S315_5313::RenderOp::PATTERN_B,23},
+	{S315_5313::RenderOp::MAPPING_A,24}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,24}, {S315_5313::RenderOp::PATTERN_A,25}, {S315_5313::RenderOp::MAPPING_B,24}, {S315_5313::RenderOp::MAPPING_S,11}, {S315_5313::RenderOp::PATTERN_B,24}, {S315_5313::RenderOp::PATTERN_B,25},
+
+	//Cell block 4
+	{S315_5313::RenderOp::MAPPING_A,26}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,26}, {S315_5313::RenderOp::PATTERN_A,27}, {S315_5313::RenderOp::MAPPING_B,26}, {S315_5313::RenderOp::MAPPING_S,12}, {S315_5313::RenderOp::PATTERN_B,26}, {S315_5313::RenderOp::PATTERN_B,27},
+	{S315_5313::RenderOp::MAPPING_A,28}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,28}, {S315_5313::RenderOp::PATTERN_A,29}, {S315_5313::RenderOp::MAPPING_B,28}, {S315_5313::RenderOp::MAPPING_S,13}, {S315_5313::RenderOp::PATTERN_B,28}, {S315_5313::RenderOp::PATTERN_B,29},
+	{S315_5313::RenderOp::MAPPING_A,30}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,30}, {S315_5313::RenderOp::PATTERN_A,31}, {S315_5313::RenderOp::MAPPING_B,30}, {S315_5313::RenderOp::MAPPING_S,14}, {S315_5313::RenderOp::PATTERN_B,30}, {S315_5313::RenderOp::PATTERN_B,31},
+	{S315_5313::RenderOp::MAPPING_A,32}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,32}, {S315_5313::RenderOp::PATTERN_A,33}, {S315_5313::RenderOp::MAPPING_B,32}, {S315_5313::RenderOp::MAPPING_S,15}, {S315_5313::RenderOp::PATTERN_B,32}, {S315_5313::RenderOp::PATTERN_B,33},
+
+	//Cell block 5
+	{S315_5313::RenderOp::MAPPING_A,34}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,34}, {S315_5313::RenderOp::PATTERN_A,35}, {S315_5313::RenderOp::MAPPING_B,34}, {S315_5313::RenderOp::MAPPING_S,16}, {S315_5313::RenderOp::PATTERN_B,34}, {S315_5313::RenderOp::PATTERN_B,35},
+	{S315_5313::RenderOp::MAPPING_A,36}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,36}, {S315_5313::RenderOp::PATTERN_A,37}, {S315_5313::RenderOp::MAPPING_B,36}, {S315_5313::RenderOp::MAPPING_S,17}, {S315_5313::RenderOp::PATTERN_B,36}, {S315_5313::RenderOp::PATTERN_B,37},
+	{S315_5313::RenderOp::MAPPING_A,38}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A,38}, {S315_5313::RenderOp::PATTERN_A,39}, {S315_5313::RenderOp::MAPPING_B,38}, {S315_5313::RenderOp::MAPPING_S,18}, {S315_5313::RenderOp::PATTERN_B,38}, {S315_5313::RenderOp::PATTERN_B,39},
+	{S315_5313::RenderOp::MAPPING_A,40}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,40}, {S315_5313::RenderOp::PATTERN_A,41}, {S315_5313::RenderOp::MAPPING_B,40}, {S315_5313::RenderOp::MAPPING_S,19}, {S315_5313::RenderOp::PATTERN_B,40}, {S315_5313::RenderOp::PATTERN_B,41},
+
+	//End of line
+	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  0},
+	{S315_5313::RenderOp::PATTERN_S, 0}, {S315_5313::RenderOp::PATTERN_S, 1}, {S315_5313::RenderOp::PATTERN_S, 2}, {S315_5313::RenderOp::PATTERN_S, 3}, {S315_5313::RenderOp::PATTERN_S, 4},
+	{S315_5313::RenderOp::PATTERN_S, 5}, {S315_5313::RenderOp::PATTERN_S, 6}, {S315_5313::RenderOp::PATTERN_S, 7}, {S315_5313::RenderOp::PATTERN_S, 8}, {S315_5313::RenderOp::PATTERN_S, 9},
+	{S315_5313::RenderOp::PATTERN_S,10}, {S315_5313::RenderOp::PATTERN_S,11}, {S315_5313::RenderOp::PATTERN_S,12}, {S315_5313::RenderOp::PATTERN_S,13}, {S315_5313::RenderOp::PATTERN_S,14},
+	{S315_5313::RenderOp::PATTERN_S,15}, {S315_5313::RenderOp::PATTERN_S,16},
+
+	//HBlank start
+	{S315_5313::RenderOp::PATTERN_S,17}, {S315_5313::RenderOp::PATTERN_S,18}, {S315_5313::RenderOp::PATTERN_S,19}, {S315_5313::RenderOp::PATTERN_S,20}, {S315_5313::RenderOp::PATTERN_S,21},
+	{S315_5313::RenderOp::PATTERN_S,22},
+	{S315_5313::RenderOp::ACC_SLOT,  0},
+	{S315_5313::RenderOp::PATTERN_S,23}, {S315_5313::RenderOp::PATTERN_S,24}, {S315_5313::RenderOp::PATTERN_S,25}, {S315_5313::RenderOp::PATTERN_S,26}, {S315_5313::RenderOp::PATTERN_S,27},
+	{S315_5313::RenderOp::PATTERN_S,28}, {S315_5313::RenderOp::PATTERN_S,29}, {S315_5313::RenderOp::PATTERN_S,30}, {S315_5313::RenderOp::PATTERN_S,31}, {S315_5313::RenderOp::PATTERN_S,32},
+	{S315_5313::RenderOp::PATTERN_S,33},
+
+	//New line
+	{S315_5313::RenderOp::HSCROLL,   0}, {S315_5313::RenderOp::PATTERN_S,34}, {S315_5313::RenderOp::PATTERN_S,35}, {S315_5313::RenderOp::PATTERN_S,36}, {S315_5313::RenderOp::PATTERN_S,37},
+
+	//Left scrolled 2 cells
+	{S315_5313::RenderOp::MAPPING_A, 0}, {S315_5313::RenderOp::PATTERN_S,38}, {S315_5313::RenderOp::PATTERN_A, 0}, {S315_5313::RenderOp::PATTERN_A, 1}, {S315_5313::RenderOp::MAPPING_B, 0}, {S315_5313::RenderOp::PATTERN_S,39}, {S315_5313::RenderOp::PATTERN_B, 0}, {S315_5313::RenderOp::PATTERN_B, 1}
+};
+
+//----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
 S315_5313::S315_5313(const std::wstring& ainstanceName, unsigned int amoduleID)
@@ -34,7 +140,13 @@ bdmaTransferReadCache(16),
 regSession(Data(8)),
 vramSession(0),
 cramSession(0),
-vsramSession(0)
+vsramSession(0),
+renderMappingDataCacheLayerA(maxCellsPerRow, Data(16)),
+renderMappingDataCacheLayerB(maxCellsPerRow, Data(16)),
+renderMappingDataCacheSprite(maxCellsPerRow, Data(16)),
+renderPatternDataCacheLayerA(maxCellsPerRow, Data(32)),
+renderPatternDataCacheLayerB(maxCellsPerRow, Data(32)),
+renderPatternDataCacheSprite(maxCellsPerRow, Data(32))
 {
 	//Create the menu handler
 	menuHandler = new DebugMenuHandler(this);
@@ -72,9 +184,13 @@ vsramSession(0)
 	renderThreadActive = false;
 	renderTimeslicePending = false;
 	drawingImageBufferPlane = 0;
+	imageBuffer.resize(imageBufferHeight * imageBufferWidth);
 
 	busGranted = false;
 	palModeLineState = false;
+
+	//##DEBUG##
+	outputTestDebugMessages = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -170,7 +286,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 
 		memoryBus->SetLine(LINE_INTAK, Data(GetLineWidth(LINE_INTAK), 1), GetDeviceContext(), GetDeviceContext(), accessTime);
 		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), GetDeviceContext(), accessTime);
-		//Since the interrupt has been acknowledged, clear the VINT occurance flag.
+		//Since the interrupt has been acknowledged, clear the VINT occurrence flag.
 		SetStatusFlagF(false);
 	}
 	else if(targetLine == LINE_BG)
@@ -178,8 +294,10 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		//##DEBUG##
 //		std::wcout << "SetLineState - VDP_LINE_BG:\t" << lineData.LSB() << '\n';
 
+		boost::mutex::scoped_lock lock(workerThreadMutex);
 		busGranted = lineData.LSB();
 		busGrantTime = accessTime;
+		GetDeviceContext()->SetTransientExecutionActive(busGranted);
 		workerThreadUpdate.notify_all();
 	}
 	else if(targetLine == LINE_PAL)
@@ -319,7 +437,8 @@ void S315_5313::Initialize()
 	palModeLineState = true;
 	interlaceEnabled = false;
 	interlaceDouble = false;
-	screenModeH40 = false;
+	screenModeRS0 = false;
+	screenModeRS1 = false;
 	screenModeV30 = false;
 	palMode = true;
 	eventSnapshotSaved = false;
@@ -351,7 +470,8 @@ void S315_5313::Reset()
 	autoIncrementData = 0;
 	interlaceEnabledCached = false;
 	interlaceDoubleCached = false;
-	screenModeH40Cached = false;
+	screenModeRS0Cached = false;
+	screenModeRS1Cached = false;
 	screenModeV30Cached = false;
 	cachedDMASettingsChanged = false;
 
@@ -365,11 +485,36 @@ void S315_5313::Reset()
 	hintEnabled = false;
 	exintEnabled = false;
 
+	renderDigitalHCounterPos = 0;
+	renderDigitalVCounterPos = 0;
+	renderDigitalVCounterPosPreviousLine = 0;
+	renderDigitalRemainingMclkCycles = 0;
+	renderDigitalScreenModeRS0Active = false;
+	renderDigitalScreenModeRS1Active = false;
+	renderDigitalScreenModeV30Active = false;
+	renderDigitalInterlaceEnabledActive = false;
+	renderDigitalInterlaceDoubleActive = false;
+	renderDigitalPalModeActive = false;
+	renderDigitalOddFlagSet = false;
+	renderDigitalMclkCycleProgress = 0;
+	renderLayerAHscrollPatternDisplacement = 0;
+	renderLayerBHscrollPatternDisplacement = 0;
+	renderLayerAHscrollMappingDisplacement = 0;
+	renderLayerBHscrollMappingDisplacement = 0;
+	renderLayerAVscrollPatternDisplacement = 0;
+	renderLayerBVscrollPatternDisplacement = 0;
+	renderLayerAVscrollMappingDisplacement = 0;
+	renderLayerBVscrollMappingDisplacement = 0;
+
 	//Initialize the command port data
 	//##TODO## Test to see if these values are actually cleared on a reset.
 	fifoNextReadEntry = 0;
 	fifoNextWriteEntry = 0;
+	codeAndAddressRegistersModifiedSinceLastWrite = true;
 	commandWritePending = false;
+	originalCommandAddress = 0;
+	commandAddress = 0;
+	commandCode = 0;
 	for(unsigned int i = 0; i < fifoBufferSize; ++i)
 	{
 		fifoBuffer[i].codeRegData = 0;
@@ -393,9 +538,17 @@ void S315_5313::Reset()
 //----------------------------------------------------------------------------------------
 void S315_5313::BeginExecution()
 {
+	//Initialize the render worker thread state
+	pendingRenderOperationCount = 0;
+	renderThreadLagging = false;
+	regTimesliceList.clear();
+	vramTimesliceList.clear();
+	cramTimesliceList.clear();
+	vsramTimesliceList.clear();
+
 	//Start the render worker thread
 	renderThreadActive = true;
-	boost::thread renderThread(boost::bind(boost::mem_fn(&S315_5313::RenderThread), this));
+	boost::thread renderThread(boost::bind(boost::mem_fn(&S315_5313::RenderThreadNew), this));
 
 	//Start the DMA worker thread
 	workerThreadActive = true;
@@ -517,6 +670,14 @@ bool S315_5313::RemoveReference(IDevice* target)
 }
 
 //----------------------------------------------------------------------------------------
+//Suspend functions
+//----------------------------------------------------------------------------------------
+bool S315_5313::UsesTransientExecution() const
+{
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 //Execute functions
 //----------------------------------------------------------------------------------------
 S315_5313::UpdateMethod S315_5313::GetUpdateMethod() const
@@ -533,6 +694,25 @@ bool S315_5313::SendNotifyUpcomingTimeslice() const
 //----------------------------------------------------------------------------------------
 void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 {
+	//##DEBUG##
+	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+	{
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		std::wcout << "busGranted:\t" << busGranted << "\n";
+		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+		std::wcout << "status:\t" << status.GetData() << "\n";
+		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+		std::wcout << "dmd1:\t" << dmd1 << "\n";
+		std::wcout << "dmd0:\t" << dmd1 << "\n";
+		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+	}
+
 	stateLastUpdateTime = 0;
 	stateLastUpdateMclk = 0;
 	stateLastUpdateMclkUnused = 0;
@@ -579,10 +759,19 @@ void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 	//##DEBUG##
 //	std::wcout << "VDPNotifyUpcomingTimeslice:\t" << currentTimesliceLength << '\t' << currentTimesliceTotalMclkCycles << '\t' << mclkCyclesToAddInAccessTime << '\t' << currentTimesliceMclkCyclesRemainingTime << '\n';
 
+	//Flag a new render operation to start at the next commit
+	pendingRenderOperation = true;
+
 	reg.AddTimeslice(currentTimesliceTotalMclkCycles);
 	vram->AddTimeslice(currentTimesliceTotalMclkCycles);
 	cram->AddTimeslice(currentTimesliceTotalMclkCycles);
 	vsram->AddTimeslice(currentTimesliceTotalMclkCycles);
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::SendNotifyBeforeExecuteCalled() const
+{
+	return true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -600,7 +789,7 @@ void S315_5313::NotifyBeforeExecuteCalled()
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::SendNotifyBeforeExecuteCalled() const
+bool S315_5313::SendNotifyAfterExecuteCalled() const
 {
 	return true;
 }
@@ -636,6 +825,26 @@ void S315_5313::NotifyAfterExecuteCalled()
 
 	//##DEBUG##
 //	std::wcout << "VDP - NotifyAfterExecuteCalled(After): " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << '\t' << std::setprecision(16) << stateLastUpdateTime << '\n';
+
+	//##FIX## We just moved the following block from the end of NotifyAfterExecuteCalled()
+	//to fix a problem with an external device calling into the VDP while it is stepping
+	//through a timing point, but this has changed the order of how things are done when
+	//performing a commit. Previously, this code was always run before ExecuteCommit() was
+	//called, but now ExecuteCommit() is always called before this is run. I believe this
+	//will break things, but we need to check the code to see. We also know this has
+	//introduced issues with savestate support. Perhaps we should issue a zero-sized
+	//timeslice to each device before stepping through a device? Or maybe we should
+	//reverse the order of the device step and the call to NotifyAfterExecuteCalled() when
+	//a device needs to be stepped through.
+	//-I would recommend reversing the order of NotifyAfterExecuteCalled() and the device
+	//step. The idea of a device step is just to step that device once more at the end of
+	//a timeslice, so it's not really a new timeslice, and the execute phase isn't really
+	//over until that step has occurred. This code should be moved back into the
+	//NotifyAfterExecuteCalled() function, and the system execution function modified to
+	//ensure that the device step is always called before this function.
+	//-Note that we just moved this code back, and fixed the system code.
+	//####################################################################################
+	//##DEBUG##
 //	double lastTimesliceRemainingTimeOriginal = lastTimesliceRemainingTime;
 
 	//Record any unused mclk cycles from this timeslice, so we can pass them over into the
@@ -674,12 +883,7 @@ void S315_5313::NotifyAfterExecuteCalled()
 //		std::wcout << "GetProcessorStateTime:\t" << GetProcessorStateTime() << "\n";
 //		std::wcout << "######################################################\n";
 //	}
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::SendNotifyAfterExecuteCalled() const
-{
-	return true;
+	//####################################################################################
 }
 
 //----------------------------------------------------------------------------------------
@@ -689,23 +893,47 @@ void S315_5313::ExecuteTimeslice(double nanoseconds)
 	//operation.
 	boost::mutex::scoped_lock lock(accessMutex);
 
+	//##FIX## Since we changed the order of execution between stepping through a timing
+	//point and calling NotifyAfterExecuteCalled(), timing points generated by the VDP now
+	//cause ExecuteTimeslice() to be called twice in succession, with no call to the
+	//NotifyAfterExecuteCalled() function in between. We need to correct the logic of our
+	//functions to handle this case.
+
 	//##FIX## This magic condition here is to detect when ExecuteTimeslice has been called
 	//in order to step through a timing point, as opposed to a normal execute step. I
 	//think we should modify our emulation platform to call a separate function for a
 	//timing point event than for a normal execute event.
 	if((eventLastUpdateMclk > 0) && (nanoseconds == 0))
 	{
+		//Ensure that the DMA worker thread has finished executing
+		boost::mutex::scoped_lock lock(workerThreadMutex);
+		if(workerThreadActive && !workerThreadPaused && busGranted)
+		{
+			//##DEBUG##
+//			std::wcout << L"ExecuteTimeslice is on a timing point waiting for DMA worker thread to pause\n";
+//			std::wcout << '\t' << workerThreadActive << '\t' << workerThreadPaused << '\t' << busGranted << '\n';
+
+			workerThreadIdle.wait(lock);
+		}
+
+		//Ensure the VDP is advanced up to the end of its timeslice
+		double lastTimesliceTotalExecuteTime = currentTimesliceLength + lastTimesliceRemainingTime;
+		if((lastTimesliceTotalExecuteTime > 0) && (lastTimesliceTotalExecuteTime > GetProcessorStateTime()))
+		{
+			UpdateInternalState(ConvertAccessTimeToMclkCount(lastTimesliceTotalExecuteTime), false, false, false, false, false, false, false);
+		}
+
 		//##DEBUG##
-//		std::wcout << "VDP - ExecuteOnTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
+//		std::wcout << "VDP - ExecuteOnTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.hcounter << '\t' << nextEventToExecute.vcounter << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
 
 		if(eventSnapshotSaved)
 		{
-			ExecuteEvent(nextEventToExecute, nextEventToExecuteTime, nextEventToExecute.hcounter, nextEventToExecute.vcounter, eventSnapshotScreenModeH40, eventSnapshotScreenModeV30, eventSnapshotPalMode, eventSnapshotInterlaceEnabled);
+			ExecuteEvent(nextEventToExecute, nextEventToExecuteTime, nextEventToExecute.hcounter, nextEventToExecute.vcounter, eventSnapshotScreenModeRS0, eventSnapshotScreenModeRS1, eventSnapshotScreenModeV30, eventSnapshotPalMode, eventSnapshotInterlaceEnabled);
 			eventSnapshotSaved = false;
 		}
 		else if((hcounter.GetData() == nextEventToExecute.hcounter) && (vcounter.GetData() == nextEventToExecute.vcounter))
 		{
-			ExecuteEvent(nextEventToExecute, nextEventToExecuteTime, nextEventToExecute.hcounter, nextEventToExecute.vcounter, screenModeH40, screenModeV30, palMode, interlaceEnabled);
+			ExecuteEvent(nextEventToExecute, nextEventToExecuteTime, nextEventToExecute.hcounter, nextEventToExecute.vcounter, screenModeRS0, screenModeRS1, screenModeV30, palMode, interlaceEnabled);
 		}
 		else
 		{
@@ -750,19 +978,19 @@ void S315_5313::ExecuteTimeslice(double nanoseconds)
 
 		//While an interrupt event is pending from this timeslice, process it.
 		EventProperties nextEvent;
-		GetNextEvent(eventLastUpdateMclk, false, nextEvent);
+		GetNextEvent(eventLastUpdateMclk, false, hintCounter, hcounter.GetData(), vcounter.GetData(), nextEvent);
 		double nextEventTime;
 		nextEventTime = ConvertMclkCountToAccessTime(nextEvent.mclkCycleCounter);
 		while((nextEventTime < nanoseconds) && (nextEvent.mclkCycleCounter < nextEventToExecute.mclkCycleCounter))
 		{
 			//##DEBUG##
 //			std::wcout << "NextEvent: " << eventLastUpdateMclk << '\t' << nanoseconds << '\t' << nextEvent << '\t' << nextEventTime << '\n';
-//			std::wcout << "NextEvent: " << nextEventFound << '\t' << eventLastUpdateMclk << '\t' << nextEvent << '\t' << nextEventMclkCounter << '\t' << std::setprecision(16) << nextEventTime << '\t' << std::setprecision(16) << nanoseconds << '\n';
+//			std::wcout << "NextEvent: " << eventLastUpdateMclk << '\t' << nextEvent.event << '\t' << nextEvent.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventTime << '\t' << std::setprecision(16) << nanoseconds << '\n';
 
-			ExecuteEvent(nextEvent, nextEventTime, nextEvent.hcounter, nextEvent.vcounter, screenModeH40, screenModeV30, palMode, interlaceEnabled);
+			ExecuteEvent(nextEvent, nextEventTime, nextEvent.hcounter, nextEvent.vcounter, screenModeRS0, screenModeRS1, screenModeV30, palMode, interlaceEnabled);
 
 			eventLastUpdateMclk = nextEvent.mclkCycleCounter;
-			GetNextEvent(eventLastUpdateMclk+1, false, nextEvent);
+			GetNextEvent(eventLastUpdateMclk+1, false, hintCounter, nextEvent.hcounter, nextEvent.vcounter, nextEvent);
 			nextEventTime = ConvertMclkCountToAccessTime(nextEvent.mclkCycleCounter);
 		}
 		//std::wcout << "NextEvent: " << nextEventFound << '\t' << eventLastUpdateMclk << '\t' << nextEvent << '\t' << nextEventMclkCounter << '\t' << nextEventTime << '\t' << nanoseconds << '\n';
@@ -779,22 +1007,33 @@ void S315_5313::ExecuteTimeslice(double nanoseconds)
 	//order to ensure that we can accurately calculate the time when the events occur.
 	eventsProcessedForTimeslice = true;
 	eventProcessingCompleted.notify_all();
+
+	//If the render thread is lagging, pause here until it has caught up, so we don't
+	//leave the render thread behind with an ever-increasing workload it will never be
+	//able to complete.
+	if(renderThreadLagging)
+	{
+		boost::mutex::scoped_lock lock(timesliceMutex);
+		while(renderThreadLagging)
+		{
+			renderThreadLaggingStateChange.wait(lock);
+		}
+	}
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, EventProperties& nextEvent) const
+void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent) const
 {
 	//Adjust the cycle count to factor in unused state mclk update cycles
+	//##NOTE## We've shifted responsibility for this to the caller
 	currentMclkCycleCounter += stateLastUpdateMclkUnused;
 
 	//Obtain information on the current processor state
-	const HScanSettings& hscanSettings = GetHScanSettings(screenModeH40);
+	const HScanSettings& hscanSettings = GetHScanSettings(screenModeRS0, screenModeRS1);
 	const VScanSettings& vscanSettings = GetVScanSettings(screenModeV30, palMode, interlaceEnabled);
 
 	//Start a search for the next event
 	bool skippedEvent = false;
-	unsigned int currentPosHCounter = hcounter.GetData();
-	unsigned int currentPosVCounter = vcounter.GetData();
 	unsigned int skippedMclkCycles = 0;
 	do
 	{
@@ -807,13 +1046,13 @@ void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPo
 
 		//Start with hint counter advance as the next event
 		unsigned int hintCounterAdvanceEventPosHCounter = hscanSettings.hintTriggerPoint;
-		unsigned int hintCounterAdvanceEventPosVCounter;
-		if((currentPosHCounter < hscanSettings.hintTriggerPoint) || (currentPosHCounter >= hscanSettings.vcounterIncrementPoint))
+		unsigned int hintCounterAdvanceEventPosVCounter = currentPosVCounter;
+		if((currentPosHCounter >= hscanSettings.hintTriggerPoint) && (currentPosHCounter < hscanSettings.vcounterIncrementPoint))
 		{
-			hintCounterAdvanceEventPosVCounter = currentPosVCounter;
-		}
-		else
-		{
+			//The hint trigger point is before the vcounter increment point on a line. If
+			//the current hcounter position indicates that the hint trigger point will not
+			//be hit until the next vcounter value, calculate the incremented vcounter
+			//value where the next hint trigger point will occur.
 			hintCounterAdvanceEventPosVCounter = AddStepsToVCounter(hscanSettings, currentPosHCounter, vscanSettings, interlaceEnabled, oddFlagSet, currentPosVCounter, 1);
 		}
 		nextEventToOccur = NEXTUPDATESTEP_HINTCOUNTERADVANCE;
@@ -823,9 +1062,10 @@ void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPo
 		//Only generate a timing point here if hint is enabled, the counter is going to
 		//expire if it is advanced one more slot, and the line on which the update will
 		//occur is in the active scan area.
-		if(hintEnabled && (hintCounter == 0) && (hintCounterAdvanceEventPosVCounter < vscanSettings.vblankSetPoint))
+		if(hintEnabled && (currentHIntCounter == 0) && (hintCounterAdvanceEventPosVCounter < vscanSettings.vblankSetPoint))
 		{
 			eventGeneratesTimingPoint = true;
+			currentHIntCounter = hintCounterReloadValue;
 		}
 		else
 		{
@@ -864,20 +1104,33 @@ void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPo
 
 		//Calculate the number of mclk cycles which correspond to the number of pixel
 		//clock cycles until the next event.
-		unsigned int mclkStepsUntilNextEvent = GetMclkTicksForPixelClockTicks(pixelClockStepsUntilNextEvent, currentPosHCounter, screenModeH40);
+		unsigned int mclkStepsUntilNextEvent = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockStepsUntilNextEvent, currentPosHCounter, screenModeRS0, screenModeRS1);
 
 		//Calculate the final mclk cycle counter value when the target event is reached
-		unsigned int mclkCounterAtNextEvent = mclkStepsUntilNextEvent + skippedMclkCycles;
+		unsigned int mclkCounterAtNextEvent = currentMclkCycleCounter + mclkStepsUntilNextEvent + skippedMclkCycles;
 
 		//If the next event we've found occurs before the start position for the event
 		//search, or we're looking for timing point events and the next event doesn't
 		//generate a timing point, skip it and look for the next event after this one.
 		if((mclkCounterAtNextEvent < currentMclkCycleCounter) || (timingPointsOnly && !eventGeneratesTimingPoint))
 		{
+			//If we're about to skip a hintcounter advance step, advance the hint counter
+			//first, so we can correctly determine when the counter expires.
+			if((nextEventToOccur == NEXTUPDATESTEP_HINTCOUNTERADVANCE) && (mclkCounterAtNextEvent > currentMclkCycleCounter))
+			{
+				if(eventPosVCounter >= vscanSettings.vblankSetPoint)
+				{
+					currentHIntCounter = hintCounterReloadValue;
+				}
+				else
+				{
+					--currentHIntCounter;
+				}
+			}
 			skippedEvent = true;
 			currentPosHCounter = eventPosHCounter;
 			currentPosVCounter = eventPosVCounter;
-			skippedMclkCycles = mclkCounterAtNextEvent;
+			skippedMclkCycles += mclkStepsUntilNextEvent;
 			continue;
 		}
 
@@ -928,14 +1181,22 @@ bool S315_5313::EventOccursWithinCounterRange(const HScanSettings& hscanSettings
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime, unsigned int ahcounter, unsigned int avcounter, bool ascreenModeH40, bool ascreenModeV30, bool apalMode, bool ainterlaceEnabled)
+void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime, unsigned int ahcounter, unsigned int avcounter, bool ascreenModeRS0, bool ascreenModeRS1, bool ascreenModeV30, bool apalMode, bool ainterlaceEnabled)
 {
 	//Assumed constants
 	//##TODO## Shift this into HScanSettings or the like
+	//##FIX## We no longer want the number of mclk cycles per line to be assumed. We know
+	//that it's possible for the number of mclk cycles per line to differ to the 3420
+	//count required for PAL/NTSC video encoding, in particular, when H40 mode is enabled
+	//without enabling the external EDCLK input. We should estimate when an event will
+	//occur, and predict the timing event occurring at that point, assuming the screen
+	//mode settings don't change, and if they do change, generate a rollback.
+	//##FIX## ...And looking some more, we only use this number to determine how long to
+	//assert the Z80 INT line for.
 	const unsigned int mclkCyclesPerLine = 3420;
 
 	//Obtain information on the current processor state
-	const HScanSettings& hscanSettings = GetHScanSettings(ascreenModeH40);
+//	const HScanSettings& hscanSettings = GetHScanSettings(ascreenModeRS0, ascreenModeRS1);
 	const VScanSettings& vscanSettings = GetVScanSettings(ascreenModeV30, apalMode, ainterlaceEnabled);
 
 	//Perform the next update step
@@ -956,7 +1217,7 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 		if(vintEnabled && vintPending)
 		{
 			//##DEBUG##
-//			std::wcout << "VDP - VINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\n';
+//			std::wcout << "VDP - VINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << eventProperties.hcounter << '\t' << eventProperties.vcounter << '\n';
 
 			//Trigger VInt for M68000
 			memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime);
@@ -1014,10 +1275,16 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 		break;}
 	//VSync
 	case NEXTUPDATESTEP_VSYNC:{
+		//##TODO## This is old code, back when we rendered a frame at a time. In reality,
+		//we probably do want to do something here still though, although in this case, it
+		//should be performing a buffer swap or the like to support double-buffered
+		//rendering. This should be optional however, and in particular, we should support
+		//rendering to the front buffer when partway through a line when emulation is
+		//paused, IE, sitting on a breakpoint.
 		//Since we've reached vsync, we should now have a complete frame worth of data to
 		//render. As such, flag a pending render operation to trigger rendering of the
 		//completed frame.
-		pendingRenderOperation = true;
+		//pendingRenderOperation = true;
 		break;}
 	//Hint counter advance
 	case NEXTUPDATESTEP_HINTCOUNTERADVANCE:{
@@ -1051,7 +1318,7 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 			if(hintEnabled && hintPending)
 			{
 				//##DEBUG##
-//				std::wcout << "VDP - HINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\n';
+//				std::wcout << "VDP - HINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << eventProperties.hcounter << '\t' << eventProperties.vcounter << '\t' << hintCounterReloadValue << '\n';
 
 				//Trigger HInt for M68000
 				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime);
@@ -1073,7 +1340,7 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 double S315_5313::GetNextTimingPointInDeviceTime() const
 {
 	//Determine the details of the next timing point event
-	GetNextEvent(0, true, nextEventToExecute);
+	GetNextEvent(0, true, hintCounter, hcounter.GetData(), vcounter.GetData(), nextEventToExecute);
 
 	//##FIX## I think this comment is misleading. lastTimesliceRemainingTime gives us the
 	//total amount of time our state update function ran over or under on the previous
@@ -1094,7 +1361,7 @@ double S315_5313::GetNextTimingPointInDeviceTime() const
 	//executing 2 in NotifyAfterExecuteCalled.
 
 	//##DEBUG##
-//	std::wcout << "VDP - GetTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
+//	std::wcout << "VDP - GetTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.hcounter << '\t' << nextEventToExecute.vcounter << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
 
 	return nextEventToExecuteTime;
 }
@@ -1102,6 +1369,25 @@ double S315_5313::GetNextTimingPointInDeviceTime() const
 //----------------------------------------------------------------------------------------
 void S315_5313::ExecuteRollback()
 {
+	//##DEBUG##
+	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+	{
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		std::wcout << "busGranted:\t" << busGranted << "\n";
+		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+		std::wcout << "status:\t" << status.GetData() << "\n";
+		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+		std::wcout << "dmd1:\t" << dmd1 << "\n";
+		std::wcout << "dmd0:\t" << dmd1 << "\n";
+		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+	}
+
 	//Update state
 	currentTimesliceMclkCyclesRemainingTime = bcurrentTimesliceMclkCyclesRemainingTime;
 	lastTimesliceRemainingTime = blastTimesliceRemainingTime;
@@ -1142,7 +1428,8 @@ void S315_5313::ExecuteRollback()
 	hvCounterLatched = bhvCounterLatchEnabled;
 	interlaceEnabled = binterlaceEnabled;
 	interlaceDouble = binterlaceDouble;
-	screenModeH40 = bscreenModeH40;
+	screenModeRS0 = bscreenModeRS0;
+	screenModeRS1 = bscreenModeRS1;
 	screenModeV30 = bscreenModeV30;
 	palMode = bpalMode;
 	vintEnabled = bvintEnabled;
@@ -1159,7 +1446,8 @@ void S315_5313::ExecuteRollback()
 	autoIncrementData = bautoIncrementData;
 	interlaceEnabledCached = binterlaceEnabledCached;
 	interlaceDoubleCached = binterlaceDoubleCached;
-	screenModeH40Cached = bscreenModeH40Cached;
+	screenModeRS0Cached = bscreenModeRS0Cached;
+	screenModeRS1Cached = bscreenModeRS1Cached;
 	screenModeV30Cached = bscreenModeV30Cached;
 
 	//FIFO buffer registers
@@ -1172,7 +1460,11 @@ void S315_5313::ExecuteRollback()
 	fifoNextWriteEntry = bfifoNextWriteEntry;
 
 	//Control port registers
+	codeAndAddressRegistersModifiedSinceLastWrite = bcodeAndAddressRegistersModifiedSinceLastWrite;
 	commandWritePending = bcommandWritePending;
+	originalCommandAddress = boriginalCommandAddress;
+	commandAddress = bcommandAddress;
+	commandCode = bcommandCode;
 
 	//DMA worker thread properties
 	workerThreadPaused = bworkerThreadPaused;
@@ -1189,7 +1481,8 @@ void S315_5313::ExecuteRollback()
 	nextEventToExecute = bnextEventToExecute;
 	nextEventToExecuteTime = bnextEventToExecuteTime;
 	eventSnapshotSaved = beventSnapshotSaved;
-	eventSnapshotScreenModeH40 = beventSnapshotScreenModeH40;
+	eventSnapshotScreenModeRS0 = beventSnapshotScreenModeRS0;
+	eventSnapshotScreenModeRS1 = beventSnapshotScreenModeRS1;
 	eventSnapshotScreenModeV30 = beventSnapshotScreenModeV30;
 	eventSnapshotPalMode = beventSnapshotPalMode;
 	eventSnapshotInterlaceEnabled = beventSnapshotInterlaceEnabled;
@@ -1198,6 +1491,25 @@ void S315_5313::ExecuteRollback()
 //----------------------------------------------------------------------------------------
 void S315_5313::ExecuteCommit()
 {
+	//##DEBUG##
+	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+	{
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		std::wcout << "busGranted:\t" << busGranted << "\n";
+		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+		std::wcout << "status:\t" << status.GetData() << "\n";
+		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+		std::wcout << "dmd1:\t" << dmd1 << "\n";
+		std::wcout << "dmd0:\t" << dmd1 << "\n";
+		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+	}
+
 	//Update state
 	bcurrentTimesliceMclkCyclesRemainingTime = currentTimesliceMclkCyclesRemainingTime;
 	blastTimesliceRemainingTime = lastTimesliceRemainingTime;
@@ -1238,7 +1550,8 @@ void S315_5313::ExecuteCommit()
 	bhvCounterLatched = hvCounterLatchEnabled;
 	binterlaceEnabled = interlaceEnabled;
 	binterlaceDouble = interlaceDouble;
-	bscreenModeH40 = screenModeH40;
+	bscreenModeRS0 = screenModeRS0;
+	bscreenModeRS1 = screenModeRS1;
 	bscreenModeV30 = screenModeV30;
 	bpalMode = palMode;
 	bvintEnabled = vintEnabled;
@@ -1255,7 +1568,8 @@ void S315_5313::ExecuteCommit()
 	bautoIncrementData = autoIncrementData;
 	binterlaceEnabledCached = interlaceEnabledCached;
 	binterlaceDoubleCached = interlaceDoubleCached;
-	bscreenModeH40Cached = screenModeH40Cached;
+	bscreenModeRS0Cached = screenModeRS0Cached;
+	bscreenModeRS1Cached = screenModeRS1Cached;
 	bscreenModeV30Cached = screenModeV30Cached;
 
 	//Propagate any changes to the cached DMA settings back into the reg buffer. This
@@ -1282,7 +1596,11 @@ void S315_5313::ExecuteCommit()
 	bfifoNextWriteEntry = fifoNextWriteEntry;
 
 	//Control port registers
+	bcodeAndAddressRegistersModifiedSinceLastWrite = codeAndAddressRegistersModifiedSinceLastWrite;
 	bcommandWritePending = commandWritePending;
+	boriginalCommandAddress = originalCommandAddress;
+	bcommandAddress = commandAddress;
+	bcommandCode = commandCode;
 
 	//DMA worker thread properties
 	bworkerThreadPaused = workerThreadPaused;
@@ -1299,7 +1617,8 @@ void S315_5313::ExecuteCommit()
 	bnextEventToExecute = nextEventToExecute;
 	bnextEventToExecuteTime = nextEventToExecuteTime;
 	beventSnapshotSaved = eventSnapshotSaved;
-	beventSnapshotScreenModeH40 = eventSnapshotScreenModeH40;
+	beventSnapshotScreenModeRS0 = eventSnapshotScreenModeRS0;
+	beventSnapshotScreenModeRS1 = eventSnapshotScreenModeRS1;
 	beventSnapshotScreenModeV30 = eventSnapshotScreenModeV30;
 	beventSnapshotPalMode = eventSnapshotPalMode;
 	beventSnapshotInterlaceEnabled = eventSnapshotInterlaceEnabled;
@@ -1308,25 +1627,117 @@ void S315_5313::ExecuteCommit()
 	//render operation on to the render thread.
 	if(pendingRenderOperation)
 	{
+		//Clear the pendingRenderOperation flag now that we've processed it
 		pendingRenderOperation = false;
-		boost::mutex::scoped_lock lock(timesliceMutex);
-		if(renderTimeslicePending)
+
+		//Ensure that a valid latest timeslice exists in all our buffers. We need this
+		//check here, because if rollbacks occur at certain points in time, it's possible
+		//for our buffers to be entirely advanced through all pending timeslices and
+		//sitting on the committed state when ExecuteCommit() is called.
+		if(reg.DoesLatestTimesliceExist() && vram->DoesLatestTimesliceExist() && cram->DoesLatestTimesliceExist() && vsram->DoesLatestTimesliceExist())
 		{
-			vram->FreeTimesliceReference(vramTimeslice);
-			cram->FreeTimesliceReference(cramTimeslice);
-			vsram->FreeTimesliceReference(vsramTimeslice);
+			//Obtain a timeslice lock so we can update the data we feed to the render
+			//thread
+			boost::mutex::scoped_lock lock(timesliceMutex);
+
+			//Increment the number of pending render operations. This is used to track if
+			//the render thread is lagging.
+			++pendingRenderOperationCount;
+
+			//Grab copies of the timeslice periods for the timed buffers the render thread
+			//will need to work with. We haven't been notified about any new timeslices
+			//yet since the last execution cycle, so these timeslice periods represent the
+			//point we want the render thread to execute up to.
+			regTimesliceList.push_back(reg.GetLatestTimeslice());
+			vramTimesliceList.push_back(vram->GetLatestTimesliceReference());
+			cramTimesliceList.push_back(cram->GetLatestTimesliceReference());
+			vsramTimesliceList.push_back(vsram->GetLatestTimesliceReference());
+
+			//##FIX## This is old code, related to the frame-based render method. Remove
+			//it once our new render code is online.
+			//if(renderTimeslicePending)
+			//{
+			//	vram->FreeTimesliceReference(vramTimeslice);
+			//	cram->FreeTimesliceReference(cramTimeslice);
+			//	vsram->FreeTimesliceReference(vsramTimeslice);
+			//}
+			//regTimeslice = reg.GetLatestTimeslice();
+			//vramTimeslice = vram->GetLatestTimesliceReference();
+			//cramTimeslice = cram->GetLatestTimesliceReference();
+			//vsramTimeslice = vsram->GetLatestTimesliceReference();
+			//renderTimeslicePending = true;
+
+			//Notify the render thread that it's got more work to do
+			renderThreadUpdate.notify_all();
 		}
-		regTimeslice = reg.GetLatestTimeslice();
-		vramTimeslice = vram->GetLatestTimesliceReference();
-		cramTimeslice = cram->GetLatestTimesliceReference();
-		vsramTimeslice = vsram->GetLatestTimesliceReference();
-		renderTimeslicePending = true;
-		renderThreadUpdate.notify_all();
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::RenderThread()
+//void S315_5313::RenderThread()
+//{
+//	boost::mutex::scoped_lock lock(renderThreadMutex);
+//
+//	//Start the render loop
+//	while(renderThreadActive)
+//	{
+//		//Obtain a copy of the latest completed timeslice period
+//		bool renderTimesliceObtained = false;
+//		{
+//			boost::mutex::scoped_lock lock(timesliceMutex);
+//			if(renderTimeslicePending)
+//			{
+//				regTimesliceCopy = regTimeslice;
+//				vramTimesliceCopy = vramTimeslice;
+//				cramTimesliceCopy = cramTimeslice;
+//				vsramTimesliceCopy = vsramTimeslice;
+//				renderTimeslicePending = false;
+//
+//				//Flag that we managed to obtain a render timeslice
+//				renderTimesliceObtained = true;
+//			}
+//		}
+//
+//		//If no render timeslice was available, suspend this thread until a timeslice
+//		//becomes available, or this thread is instructed to stop, then begin the loop
+//		//again.
+//		if(!renderTimesliceObtained)
+//		{
+//			renderThreadUpdate.wait(lock);
+//			continue;
+//		}
+//
+//		//Render a complete frame to the framebuffer
+//		//##TODO## Rather than rendering frame by frame, render line by line. What I mean
+//		//by that is, our render thread should receive updates in 3420 MCLK cycle blocks,
+//		//and should track which line it is up to in active scan, so that it knows which
+//		//line to render next. If double buffering is not being used, partially rendered
+//		//frames will be displayed on the screen. If double buffering is being used, our
+//		//render thread will switch the buffers after rendering the last line before
+//		//vblank.
+//		RenderFrame();
+//
+//		//##TODO## Re-evaluate this. We want to re-implement the frameskip behaviour we
+//		//had in the previous VDP core, where only the latest frame which is ready is
+//		//rendered. We need to consider how we'll handle interlacing with this system
+//		//though.
+//		//Advance to the latest target timeslice
+//		{
+//			boost::mutex::scoped_lock lock(timesliceMutex);
+//			reg.AdvancePastTimeslice(regTimesliceCopy);
+//			vram->AdvancePastTimeslice(vramTimesliceCopy);
+//			cram->AdvancePastTimeslice(cramTimesliceCopy);
+//			vsram->AdvancePastTimeslice(vsramTimesliceCopy);
+//			vram->FreeTimesliceReference(vramTimesliceCopy);
+//			cram->FreeTimesliceReference(cramTimesliceCopy);
+//			vsram->FreeTimesliceReference(vsramTimesliceCopy);
+//		}
+//	}
+//	renderThreadStopped.notify_all();
+//}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RenderThreadNew()
 {
 	boost::mutex::scoped_lock lock(renderThreadMutex);
 
@@ -1337,13 +1748,24 @@ void S315_5313::RenderThread()
 		bool renderTimesliceObtained = false;
 		{
 			boost::mutex::scoped_lock lock(timesliceMutex);
-			if(renderTimeslicePending)
+
+			//If there is at least one render timeslice pending, grab it from the queue.
+			if(!regTimesliceList.empty() && !vramTimesliceList.empty() && !cramTimesliceList.empty() && !vsramTimesliceList.empty())
 			{
-				regTimesliceCopy = regTimeslice;
-				vramTimesliceCopy = vramTimeslice;
-				cramTimesliceCopy = cramTimeslice;
-				vsramTimesliceCopy = vsramTimeslice;
-				renderTimeslicePending = false;
+				//Update the lagging state for the render thread
+				--pendingRenderOperationCount;
+				renderThreadLagging = (pendingRenderOperationCount > maxPendingRenderOperationCount);
+				renderThreadLaggingStateChange.notify_all();
+
+				//Grab the next completed timeslice from the timeslice list
+				regTimesliceCopy = *regTimesliceList.begin();
+				vramTimesliceCopy = *vramTimesliceList.begin();
+				cramTimesliceCopy = *cramTimesliceList.begin();
+				vsramTimesliceCopy = *vsramTimesliceList.begin();
+				regTimesliceList.pop_front();
+				vramTimesliceList.pop_front();
+				cramTimesliceList.pop_front();
+				vsramTimesliceList.pop_front();
 
 				//Flag that we managed to obtain a render timeslice
 				renderTimesliceObtained = true;
@@ -1359,22 +1781,81 @@ void S315_5313::RenderThread()
 			continue;
 		}
 
-		//Render a complete frame to the framebuffer
-		//##TODO## Rather than rendering frame by frame, render line by line. What I mean
-		//by that is, our render thread should receive updates in 3420 MCLK cycle blocks,
-		//and should track which line it is up to in active scan, so that it knows which
-		//line to render next. If double buffering is not being used, partially rendered
-		//frames will be displayed on the screen. If double buffering is being used, our
-		//render thread will switch the buffers after rendering the last line before
-		//vblank.
-		RenderFrame();
-
-		//##TODO## Re-evaluate this. We want to re-implement the frameskip behaviour we
-		//had in the previous VDP core, where only the latest frame which is ready is
-		//rendered. We need to consider how we'll handle interlacing with this system
-		//though.
-		//Advance to the latest target timeslice
+		//##DEBUG##
+		if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
 		{
+			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+			std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+			std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+			std::wcout << "busGranted:\t" << busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+			std::wcout << "dmd1:\t" << dmd1 << "\n";
+			std::wcout << "dmd0:\t" << dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		}
+
+		//Begin advance sessions for each of our timed buffers
+		reg.BeginAdvanceSession(regSession, regTimesliceCopy, false);
+		vram->BeginAdvanceSession(vramSession, vramTimesliceCopy, false);
+		cram->BeginAdvanceSession(cramSession, cramTimesliceCopy, true);
+		vsram->BeginAdvanceSession(vsramSession, vsramTimesliceCopy, false);
+
+		//Calculate the number of cycles to advance in this update step, and reset the
+		//current advance progress through this timeslice.
+		unsigned int mclkCyclesToAdvance = regTimesliceCopy->timesliceLength;
+		renderDigitalMclkCycleProgress = 0;
+
+		//##DEBUG##
+		if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+		{
+			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+			std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+			std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+			std::wcout << "busGranted:\t" << busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+			std::wcout << "dmd1:\t" << dmd1 << "\n";
+			std::wcout << "dmd0:\t" << dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		}
+
+		//Advance the digital render process
+		AdvanceRenderProcess(mclkCyclesToAdvance);
+
+		//##DEBUG##
+		if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+		{
+			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+			std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+			std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+			std::wcout << "busGranted:\t" << busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+			std::wcout << "dmd1:\t" << dmd1 << "\n";
+			std::wcout << "dmd0:\t" << dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		}
+
+		//Advance past the timeslice we've just rendered from
+		{
+			//##TODO## I don't think we need this lock here anymore. Confirm that we can
+			//remove it.
 			boost::mutex::scoped_lock lock(timesliceMutex);
 			reg.AdvancePastTimeslice(regTimesliceCopy);
 			vram->AdvancePastTimeslice(vramTimesliceCopy);
@@ -1388,474 +1869,1029 @@ void S315_5313::RenderThread()
 	renderThreadStopped.notify_all();
 }
 
+////----------------------------------------------------------------------------------------
+////##FIX## We're calling this when vsync is asserted in the VDP currently, but the logic of
+////this function doesn't consider what time the frame actually starts. We need to ensure
+////that the actual register and VRAM buffers are in sync with the correct time for the
+////rendering process. Basically, we need to advance the VDP state from the vsync initial
+////point up to the point where the first pixel output starts, which is when the vcounter is
+////incremented to the start of a certain line. Check the analog output notes for more info.
+//void S315_5313::RenderFrame()
+//{
+//	//Create our reg buffer access target. Since we're working with the committed
+//	//state, access will be very fast, so there's no need to worry about caching
+//	//settings.
+//	AccessTarget accessTarget;
+//	accessTarget.AccessCommitted();
+//
+//	//##TODO## We need to decide when we consider a "frame" to start, and when we
+//	//consider a "line" to start. The VDP doesn't have the concept of a start and end
+//	//for these things, but we need to make one in order to divide rendering into
+//	//logical segments.
+//
+//	//##TODO##
+//	mclkCycleRenderProgress = 0;
+//	reg.BeginAdvanceSession(regSession, regTimesliceCopy, true);
+//	vram->BeginAdvanceSession(vramSession, vramTimesliceCopy, false);
+//	cram->BeginAdvanceSession(cramSession, cramTimesliceCopy, true);
+//	vsram->BeginAdvanceSession(vsramSession, vsramTimesliceCopy, false);
+//
+//	//Obtain the VScan settings for the currently active display mode
+//	//##TODO## Implement palMode properly. We need to know what the palMode flag was
+//	//set to when the frame began, not what the current live state of the line is.
+//	//##FIX## We need to cache the state of the V30 cell mode at vsync
+//	bool v30CellModeEnabled = M5GetV30CellModeEnabled(accessTarget);
+//	const VScanSettings& vscanSettings = GetVScanSettings(v30CellModeEnabled, palMode, M5GetLSM0(accessTarget));
+//
+//	//Calculate the number of lines to render for this frame in the various sections of
+//	//the display.
+//	//##TODO## Calculate these somewhere else, perhaps in GetVScanSettings().
+//	//##TODO## Accurately calculate the video regions of the display
+//	unsigned int activeScanLinesToRender = v30CellModeEnabled? 30*8: 28*8;
+//	unsigned int topBorderLinesToRender = (vscanSettings.linesPerFrame - activeScanLinesToRender) / 2;
+//	unsigned int bottomBorderLinesToRender = ((vscanSettings.linesPerFrame - activeScanLinesToRender) / 2) + ((vscanSettings.linesPerFrame - activeScanLinesToRender) % 2);
+//
+//	//Perform the VDP render operations
+//	//##TODO## Render the top and bottom border regions correctly
+//	//Render the top border region
+//	for(unsigned int i = 0; i < topBorderLinesToRender; ++i)
+//	{
+//		RenderBorderLine(accessTarget, i, i);
+//	}
+//	//Render the active display lines
+//	for(unsigned int i = 0; i < activeScanLinesToRender; ++i)
+//	{
+//		RenderActiveLine(accessTarget, topBorderLinesToRender+i, i);
+//	}
+//	//Render the bottom border region
+//	for(unsigned int i = 0; i < bottomBorderLinesToRender; ++i)
+//	{
+//		RenderBorderLine(accessTarget, topBorderLinesToRender+activeScanLinesToRender+i, i);
+//	}
+//
+//	//Here's what we DO know about the way data is dealt with internally:
+//	//-Colour values are only decoded when a final pixel is being displayed. We know
+//	//this because the VDP colour bus outputs the palette line and entry information.
+//	//-Highlight and shadow flags are output separately on the colour bus.
+//	//-A flag is output indicating whether the pixel is "transparent". Not clear from
+//	//documentation exactly what this means, but most likely a pixel is flagged as
+//	//transparent if it comes from the backdrop.
+//	//-A flag is output indicating whether the pixel originated from a sprite or a
+//	//layer.
+//	//-What all of this tells us is that the VDP almost certainly has each layer fill
+//	//its own 16-pixel buffer plane, and the layer selection from each plane only
+//	//occurs as that pixel is being displayed.
+//
+//	//Pattern processing notes:
+//	//Patent 4243984, Column 9, row 25:
+//	//-A pattern name is latched into the "name latch" register, by combining the name
+//	//table base address, with the current vcounter and hcounter, and loading the
+//	//mapping entry it references.
+//	//-Using the current mapping stored in the "name latch" register, a pair of "video
+//	//colour codes" are latched from the "pattern colour table", and stored in a pair
+//	//of "pattern colour registers". These are a pair of 2-byte block mappings from
+//	//the layer mapping table.
+//	//-Using the video colour codes, the overlay control will load 2 sets of 4-byte
+//	//pattern data, corresponding with two visible lines of pixels, one from each
+//	//tile, into "pattern shift registers". These pattern shift registers then provide
+//	//the pixels for that plane to the output circuit.
+//
+//	//##NOTE## The VISUAL operation of the VDP runs behind the DIGITAL operation of
+//	//the VDP. The digital VDP starts rendering as soon as the left border begins. The
+//	//first pixel is "drawn" when the first pixel of the left border is displayed. The
+//	//last pixel is drawn before the right border is displayed. The drawn pixels are
+//	//buffered before they are drawn to the screen, but as far as the digital
+//	//operation of the VDP is concerned, the status register and hv counter will
+//	//report that the VDP is ahead of what has actually been drawn to the screen. This
+//	//is important, since the CRAM flicker bug affects the LIVE video output, not the
+//	//buffered video output. In other words, if you perform a CRAM write when the
+//	//digital operation (with active scan being at the start of the line, and the left
+//	//border being at the end of the line) reports that the right border is starting,
+//	//the actual flicker on the screen will occur before the right border begins.
+//}
+//
+////----------------------------------------------------------------------------------------
+////This handles the single line which runs immediately before the first "active" line which
+////shows plane data. This line has the normal access restrictions as an active line, but is
+////only used to capture sprite data for the following line.
+////----------------------------------------------------------------------------------------
+//void S315_5313::RenderPrefetchLineForSprites(const AccessTarget& accessTarget)
+//{
+//	//##TODO##
+//}
+//
+////----------------------------------------------------------------------------------------
+//void S315_5313::RenderBorderLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo)
+//{
+//	const unsigned int mclkCyclesPerLine = 3420;
+//
+//	//Note:
+//	//-A line starts at hscanSettings.vcounterIncrementPoint
+//	//-A frame starts at hscanSettings.vcounterIncrementPoint on line vscanSettings.vsyncAssertedPoint
+//	//-This is accurate in the sense that the first and last visible scanlines which
+//	//appear on the screen definitely start and stop rendering the border colour at the
+//	//vcounter increment point. This causes us a little problem for rendering purposes
+//	//however, since there are still pixels from active scan to be output by the analog
+//	//output of the chip, while the digital operation of the chip has completed rendering
+//	//at the increment point.
+//	//-I would suggest it is impractical to attempt to "pass on" rendered data from one
+//	//line to the next. Maybe we should have special case handling for the first and last
+//	//border lines, and the first and last active lines, and make the start of a line the
+//	//beginning of hsync for rendering purposes?
+//	//-Another alternative is to completely separate the digital and analog portions of
+//	//the rendering process. In this model, we would collect all digital rendering
+//	//information across all lines, then pass that information on to the analog output
+//	//phase, which would consume as much digital data as is available and use it to render
+//	//the final image. This seems like a much better option. Not only will the
+//	//implementation be easier, it will probably be faster and more flexible also, and
+//	//should open us up to be able to do mid-line drawing updates if we implement it
+//	//with that in mind.
+//
+//	//##TODO## Implement this properly
+//	const HScanSettings& hscanSettings = GetHScanSettings(M5GetRS0(accessTarget), M5GetRS1(accessTarget));
+//
+//	//Render the right border
+//	unsigned int totalLinePixelCount = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + hscanSettings.rightBorderPixelCount;
+//	for(unsigned int i = 0; i < totalLinePixelCount; ++i)
+//	{
+//		unsigned int borderColorPaletteLine = M5GetBackgroundColorPalette(accessTarget);
+//		unsigned int borderColorPaletteEntry = M5GetBackgroundColorIndex(accessTarget);
+//		WriteColorValueToImageBuffer(borderColorPaletteLine, borderColorPaletteEntry, false, false, i, renderBufferLineNo);
+//	}
+//
+//	mclkCycleRenderProgress += mclkCyclesPerLine;
+//	reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
+//	vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
+//	vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
+//	cram->AdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
+//}
+//
+////----------------------------------------------------------------------------------------
+////This function performs the actual task of rendering graphical data to the VDP
+////framebuffer. We have performed precise hardware tests on the physical hardware to
+////determine how and when various data is latched for the VDP rendering process. This
+////render function maintains cycle accuracy for the rendering process, and reads data from
+////the VRAM buffers and register settings at the same time as the real hardware.
+////
+////Testing notes:
+////-We have confirmed that the various base address registers, IE, for layer A mapping
+////data, are not cached. Changes to these registers take effect the next time mapping data
+////is read.
+////-We have confirmed that the field size registers are not cached, and changes take effect
+////the next time mapping data is read.
+////----------------------------------------------------------------------------------------
+//void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo)
+//{
+//	//##TODO## Implement mode 4 support
+//	//##FIX## The active interlace mode is latched during vblank. It needs to be cached,
+//	//and the cached value retrieved here.
+//	//##FIX## Although on the real hardware H40 mode can be enabled and disabled mid-line,
+//	//we do not support this for performance reasons, and it is instead latched at hblank.
+//	//We need to cache the H40 mode setting for each line, and use that cached value here.
+//	LineRenderSettings renderSettings;
+//	renderSettings.interlaceMode2Active = M5GetLSM0(accessTarget) && M5GetLSM1(accessTarget);
+//	renderSettings.renderWithH40Mode = M5GetRS1(accessTarget);
+//	const HScanSettings& hscanSettings = GetHScanSettings(M5GetRS0(accessTarget), renderSettings.renderWithH40Mode);
+//
+//	//Calculate various screen mode settings for this line
+//	renderSettings.blockPatternSizeY = renderSettings.interlaceMode2Active? 16: 8;
+//	renderSettings.blockPatternByteSize = renderSettings.blockPatternRowByteSize * renderSettings.blockPatternSizeY;
+//	renderSettings.cellBlockSetsToRead = renderSettings.renderWithH40Mode? 5: 4;
+//	renderSettings.mclkCyclesPerSCCycle = renderSettings.renderWithH40Mode? 4: 5;
+//	renderSettings.mclkCyclesPerLogicStep = renderSettings.mclkCyclesPerSCCycle * renderSettings.scCyclesPerLogicStep;
+//
+//	//Determine which line of active scan we're rendering
+//	renderSettings.activePixelY = sectionLineNo;
+//	renderSettings.activeBlockY = sectionLineNo / renderSettings.blockPixelSizeY;
+//
+//	//##DEBUG##
+//	const unsigned int mclkCyclesPerLine = 3420;
+//	unsigned int initialMclkCycleRenderProgress = mclkCycleRenderProgress;
+//
+//	//Calculate the address of the hscroll data to read for this line
+//	unsigned int hscrollDataBase = M5GetHScrollDataBase(accessTarget);
+//	bool hscrState = M5GetHSCR(accessTarget);
+//	bool lscrState = M5GetLSCR(accessTarget);
+//	unsigned int hscrollDataAddress = hscrollDataBase;
+//	//##TODO## Based on the EA logo for Populous, it appears that the state of LSCR is
+//	//ignored when HSCR is not set. We should confirm this on hardware.
+//	if(hscrState)
+//	{
+//		hscrollDataAddress += lscrState? (sectionLineNo * 4): ((renderSettings.activeBlockY * renderSettings.blockPixelSizeY) * 4);
+//	}
+//
+//	//Read the hscroll data for this line
+//	//##TODO## Confirm the way scrolling data is interpreted through hardware tests. Eg,
+//	//does -1 actually scroll to the left by one place, or are 0 and -1 equivalent?
+//	//##TODO## According to the official documentation, the upper 6 bits of the hscroll
+//	//data are unused, and are allowed to be used by software to store whatever values
+//	//they want. Confirm this on hardware.
+//	unsigned int layerAHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+1);
+//	unsigned int layerBHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+3);
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//##TODO## Read the sprite pattern data
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//Break the hscroll data into its two component parts. The lower 4 bits represent a
+//	//displacement into the 2-cell column, or in other words, the displacement of the
+//	//starting pixel within each column, while the upper 6 bits represent an offset for
+//	//the column mapping data itself.
+//	//-----------------------------------------
+//	//| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//	//|---------------------------------------|
+//	//|  Column Shift Value   | Displacement  |
+//	//-----------------------------------------
+//	unsigned int scrollValueDisplacementLayerA = layerAHscrollOffset & 0x00F;
+//	unsigned int columnShiftValueLayerA = (layerAHscrollOffset & 0x3F0) >> 4;
+//	unsigned int scrollValueDisplacementLayerB = layerBHscrollOffset & 0x00F;
+//	unsigned int columnShiftValueLayerB = (layerBHscrollOffset & 0x3F0) >> 4;
+//
+//	//Create the buffers for our mapping and pattern data
+//	unsigned int currentRenderPixelLayerA = 0;
+//	unsigned int currentRenderPixelLayerB = 0;
+//	std::vector<Data> mappingDataCacheLayerA(2, Data(16));
+//	std::vector<Data> mappingDataCacheLayerB(2, Data(16));
+//	std::vector<Data> patternDataCacheLayerA(2, Data(32));
+//	std::vector<Data> patternDataCacheLayerB(2, Data(32));
+//	std::vector<unsigned int> paletteIndexSprite(hscanSettings.activeDisplayPixelCount+16);
+//	std::vector<unsigned int> paletteIndexLayerA(hscanSettings.activeDisplayPixelCount+16);
+//	std::vector<unsigned int> paletteIndexLayerB(hscanSettings.activeDisplayPixelCount+16);
+//	std::vector<unsigned int> paletteLineSprite(hscanSettings.activeDisplayPixelCount+16);
+//	std::vector<unsigned int> paletteLineLayerA(hscanSettings.activeDisplayPixelCount+16);
+//	std::vector<unsigned int> paletteLineLayerB(hscanSettings.activeDisplayPixelCount+16);
+//	std::vector<bool> prioritySprite(hscanSettings.activeDisplayPixelCount+16);
+//	std::vector<bool> priorityLayerA(hscanSettings.activeDisplayPixelCount+16);
+//	std::vector<bool> priorityLayerB(hscanSettings.activeDisplayPixelCount+16);
+//
+//	//Determine the playfield dimensions
+//	//##TODO## Determine when playfield dimensions are actually calculated, either for the
+//	//entire line like this, or whether these registers are checked mid-line and can be
+//	//modified mid-line. Most likely, mid-line modifications are possible.
+//	unsigned int hszState = M5GetHSZ(accessTarget);
+//	unsigned int vszState = M5GetVSZ(accessTarget);
+//
+//	//##TODO## Comment this
+//	//##TODO## If we're in interlace mode 2, and the odd flag is set, we need to add 1 to
+//	//the virtual vertical screen position when calculating the pattern and mapping row
+//	//numbers.
+//	unsigned int columnNumber = 0x3F;
+//	unsigned int displayRowNumber = (renderSettings.interlaceMode2Active? (sectionLineNo * 2): sectionLineNo);
+//
+//	//Calculate the address of the vscroll data to read for this block
+//	//##TODO## Determine how hscroll interacts with vscroll when both are applied at the
+//	//same time. Read the test notes from Eke: Reportedly, if a 2-cell column is partially
+//	//visible on the left, that column has vscroll fixed to 0 for H32 mode, however for
+//	//H40 mode, it's some strange ANDed value of several VSRAM addresses. Check the
+//	//following thread from SpritesMind for more info:
+//	//http://gendev.spritesmind.net/forum/viewtopic.php?t=737&start=30
+//	//This only occurs when column-based vscroll is applied. Overall vscroll values work
+//	//correctly. This all needs major testing on hardware.
+//	//##TODO## Test how overall vertical scrolling interacts with line-based and overall
+//	//horizontal scrolling.
+//	bool vscrState = M5GetVSCR(accessTarget);
+//	unsigned int vscrollDataAddress = vscrState? (columnNumber * 4): 0;
+//
+//	//Read the vscroll data for this line. Note only the lower 10 bits are
+//	//effective, or the lower 11 bits in the case of interlace mode 2, due to the
+//	//scrolled address being wrapped to lie within the total field boundaries,
+//	//which never exceed 128 blocks.
+//	unsigned int layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
+//	unsigned int layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
+//
+//	//Calculate the target block mapping pair and selected row for layer A
+//	//##TODO## Confirm through VRAM snooping which actual address is read from for the
+//	//left scrolled cell block when the horizontal scroll value is aligned to a 2-cell
+//	//boundary. Even though the data is never displayed in this case, we can and should
+//	//determine where the VDP reads this data from.
+//	//##TODO## Confirm through VRAM snooping which actual address is read from when a
+//	//left-aligned window is present for layer A, both with and without horizontal
+//	//scrolling. We suspect that the normal block which is read for layer A, without a
+//	//window being active, may be read in this case.
+//	//##TODO## Replace the division and modulus operators here with bitshift and bitmask
+//	//operations.
+//	unsigned int mappingColumnNumberLayerA = columnNumber - columnShiftValueLayerA;
+//	unsigned int mappingRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) / renderSettings.blockPatternSizeY;
+//	unsigned int patternRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) % renderSettings.blockPatternSizeY;
+//
+//	//##TODO## Implement support for the window layer
+////	unsigned int nameTableBaseA = M5GetNameTableBaseWindow(accessTarget);
+////	ReadMappingDataPair(mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], nameTableBaseA, displayRowNumber / renderSettings.blockPatternSizeY, columnNumber, 0x0, 0x0);
+//
+//	//Read layer A left scrolled cell block mapping data
+//	unsigned int nameTableBaseA = M5GetNameTableBaseScrollA(accessTarget);
+//	ReadMappingDataPair(mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], nameTableBaseA, mappingRowNumberLayerA, mappingColumnNumberLayerA, hszState, vszState);
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//##TODO## Read the sprite pattern data
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//Read layer A left scrolled cell block pattern row 1
+//	ReadPatternDataRow(renderSettings, patternDataCacheLayerA[0], mappingDataCacheLayerA[0], patternRowNumberLayerA);
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//Read layer A left scrolled cell block pattern row 2
+//	ReadPatternDataRow(renderSettings, patternDataCacheLayerA[1], mappingDataCacheLayerA[1], patternRowNumberLayerA);
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//Render the layer A column
+//	RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerA, mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], patternDataCacheLayerA[0], patternDataCacheLayerA[1], paletteLineLayerA, paletteIndexLayerA, currentRenderPixelLayerA);
+//
+//	//Calculate the target block mapping pair and selected row for layer B
+//	unsigned int mappingColumnNumberLayerB = columnNumber - columnShiftValueLayerB;
+//	unsigned int mappingRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) / renderSettings.blockPatternSizeY;
+//	unsigned int patternRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) % renderSettings.blockPatternSizeY;
+//
+//	//Read layer B left scrolled cell block mapping data
+//	unsigned int nameTableBaseB = M5GetNameTableBaseScrollB(accessTarget);
+//	ReadMappingDataPair(mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], nameTableBaseB, mappingRowNumberLayerB, mappingColumnNumberLayerB, hszState, vszState);
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//##TODO## Read sprite mapping data
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//Read layer B left scrolled cell block pattern row 1
+//	ReadPatternDataRow(renderSettings, patternDataCacheLayerB[0], mappingDataCacheLayerB[0], patternRowNumberLayerB);
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//Read layer B left scrolled cell block pattern row 2
+//	ReadPatternDataRow(renderSettings, patternDataCacheLayerB[1], mappingDataCacheLayerB[1], patternRowNumberLayerB);
+//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//	//Render the layer B column
+//	RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerB, mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], patternDataCacheLayerB[0], patternDataCacheLayerB[1], paletteLineLayerB, paletteIndexLayerB, currentRenderPixelLayerB);
+//
+//	//Read the mapping and pattern data for all layers
+//	for(unsigned int cellBlockSet = 0; cellBlockSet < renderSettings.cellBlockSetsToRead; ++cellBlockSet)
+//	{
+//		for(unsigned int i = 0; i < 4; ++i)
+//		{
+//			columnNumber = (cellBlockSet * 4) + i;
+//
+//			//Calculate the address of the vscroll data to read for this block
+//			//##TODO## Determine if the vscroll data is read at the start of each 2-cell
+//			//block, even for overall scrolling. We can determine this by changing the
+//			//vscroll data mid-line.
+//			//##TODO## Determine if mid-line changes to VSCR take effect immediately
+//			bool vscrState = M5GetVSCR(accessTarget);
+//			unsigned int vscrollDataAddress = vscrState? (columnNumber * 4): 0;
+//
+//			//Read the vscroll data for this line. Note only the lower 10 bits are
+//			//effective, or the lower 11 bits in the case of interlace mode 2, due to the
+//			//scrolled address being wrapped to lie within the total field boundaries,
+//			//which never exceed 128 blocks.
+//			unsigned int layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
+//			unsigned int layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
+//
+//			//Calculate the target block mapping pair and selected row for layer A
+//			unsigned int mappingColumnNumberLayerA = columnNumber - columnShiftValueLayerA;
+//			unsigned int mappingRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) / renderSettings.blockPatternSizeY;
+//			unsigned int patternRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) % renderSettings.blockPatternSizeY;
+//
+//			//Read layer A mapping data
+//			unsigned int nameTableBaseA = M5GetNameTableBaseScrollA(accessTarget);
+//			ReadMappingDataPair(mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], nameTableBaseA, mappingRowNumberLayerA, mappingColumnNumberLayerA, hszState, vszState);
+//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//			//External access slot, or refresh cycle on 4th block in set.
+//			if(i < 3)
+//			{
+//				reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
+//				vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
+//				vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
+//			}
+//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//			//Read layer A pattern row 1
+//			ReadPatternDataRow(renderSettings, patternDataCacheLayerA[0], mappingDataCacheLayerA[0], patternRowNumberLayerA);
+//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//			//Read layer A pattern row 2
+//			ReadPatternDataRow(renderSettings, patternDataCacheLayerA[1], mappingDataCacheLayerA[1], patternRowNumberLayerA);
+//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//			//Render the layer A column
+//			RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerA, mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], patternDataCacheLayerA[0], patternDataCacheLayerA[1], paletteLineLayerA, paletteIndexLayerA, currentRenderPixelLayerA);
+//
+//			//Calculate the target block mapping pair and selected row for layer B
+//			unsigned int mappingColumnNumberLayerB = columnNumber - columnShiftValueLayerB;
+//			unsigned int mappingRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) / renderSettings.blockPatternSizeY;
+//			unsigned int patternRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) % renderSettings.blockPatternSizeY;
+//
+//			//Read layer B mapping data
+//			unsigned int nameTableBaseB = M5GetNameTableBaseScrollB(accessTarget);
+//			ReadMappingDataPair(mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], nameTableBaseB, mappingRowNumberLayerB, mappingColumnNumberLayerB, hszState, vszState);
+//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//			//##TODO## Read sprite mapping data
+//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//			//Read layer B pattern row 1
+//			ReadPatternDataRow(renderSettings, patternDataCacheLayerB[0], mappingDataCacheLayerB[0], patternRowNumberLayerB);
+//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//			//Read layer B pattern row 2
+//			ReadPatternDataRow(renderSettings, patternDataCacheLayerB[1], mappingDataCacheLayerB[1], patternRowNumberLayerB);
+//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//
+//			//Render the layer A column
+//			RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerB, mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], patternDataCacheLayerB[0], patternDataCacheLayerB[1], paletteLineLayerB, paletteIndexLayerB, currentRenderPixelLayerB);
+//		}
+//	}
+//
+//	//##TODO## Note that we only ever need to read or advance the CRAM data when we're
+//	//actually rendering, after the line has been built. This means we should be advancing
+//	//the CRAM data state separately from the rest of the buffers, and it is when we
+//	//perform this advance that we take CRAM write flicker into account.
+//	//##TODO## Clean up this old code.
+//	unsigned int cramWriteFlickerBufferSize = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + hscanSettings.rightBorderPixelCount;
+//	std::vector<unsigned int> cramWriteFlickerPaletteIndex(cramWriteFlickerBufferSize);
+//	std::vector<unsigned int> cramWriteFlickerPaletteLine(cramWriteFlickerBufferSize);
+//	std::vector<bool> cramWriteFlickerOccurred(cramWriteFlickerBufferSize, false);
+//
+//	//##TODO## Don't do this at all. Store CRAM writes into a buffer, like we will for
+//	//rendered sprite pixels.
+//	//##TODO## Consider enhancing the session stepping for timed buffers, to allow the
+//	//next write time to be extracted from the session info. This will avoid the need to
+//	//call BufferGetWriteInfo here unnecessarily, as we can use the saved information in
+//	//the session to determine if there is a write in range.
+//	//unsigned int cramWriteIndex = 0;
+//	//IManagedBufferInt::WriteInfo cramWriteInfo = cram->BufferGetWriteInfo(cramWriteIndex++, cramTimesliceCopy);
+//	//while(cramWriteInfo.exists && (cramWriteInfo.writeTime < mclkCyclesPerLine))
+//	//{
+//	//	unsigned int pixelIndex = (cramWriteInfo.writeTime / renderSettings.mclkCyclesPerSCCycle) / 2;
+//	//	unsigned int paletteLine = cramWriteInfo.writeAddress / 0x20;
+//	//	unsigned int paletteIndex = (cramWriteInfo.writeAddress % 0x20) / 2;
+//	//	cramWriteFlickerOccurred[pixelIndex] = true;
+//	//	cramWriteFlickerPaletteLine[pixelIndex] = paletteLine;
+//	//	cramWriteFlickerPaletteIndex[pixelIndex] = paletteIndex;
+//	//	cramWriteInfo = cram->BufferGetWriteInfo(cramWriteIndex++, cramTimesliceCopy);
+//	//}
+//
+//	//##FIX## The background colour palette and index settings have been advanced to the
+//	//end of the line by now. We need the live register values. In fact, this issue of
+//	//live register values affects a lot more than just background changes. It affects the
+//	//disable video flag for example.
+//	//Render the left border
+//	for(unsigned int i = 0; i < hscanSettings.leftBorderPixelCount; ++i)
+//	{
+//		unsigned int borderColorPaletteLine = M5GetBackgroundColorPalette(accessTarget);
+//		unsigned int borderColorPaletteEntry = M5GetBackgroundColorIndex(accessTarget);
+//		if(cramWriteFlickerOccurred[i])
+//		{
+//			borderColorPaletteLine = cramWriteFlickerPaletteLine[i];
+//			borderColorPaletteEntry = cramWriteFlickerPaletteIndex[i];
+//		}
+//		WriteColorValueToImageBuffer(borderColorPaletteLine, borderColorPaletteEntry, false, false, i, renderBufferLineNo);
+//	}
+//
+//	//Render the active display
+//	for(unsigned int i = 0; i < hscanSettings.activeDisplayPixelCount; ++i)
+//	{
+//		//Read the background palette settings
+//		unsigned int paletteLineBackground = M5GetBackgroundColorPalette(accessTarget);
+//		unsigned int paletteIndexBackground = M5GetBackgroundColorIndex(accessTarget);
+//
+//		//Load the palette line and index values for each layer into our data table
+//		unsigned int paletteLineData[4];
+//		unsigned int paletteIndexData[4];
+//		paletteLineData[LAYER_SPRITE] = paletteLineSprite[i];
+//		paletteLineData[LAYER_LAYERA] = paletteLineLayerA[i];
+//		paletteLineData[LAYER_LAYERB] = paletteLineLayerB[i];
+//		paletteLineData[LAYER_BACKGROUND] = paletteLineBackground;
+//		paletteIndexData[LAYER_SPRITE] = paletteIndexSprite[i];
+//		paletteIndexData[LAYER_LAYERA] = paletteIndexLayerA[i];
+//		paletteIndexData[LAYER_LAYERB] = paletteIndexLayerB[i];
+//		paletteIndexData[LAYER_BACKGROUND] = paletteIndexBackground;
+//
+//		//Determine if any of the palette index values for any of the layers indicate a
+//		//transparent pixel.
+//		//##TODO## Consider renaming and reversing the logic of these flags to match the
+//		//comment above. The name of "found pixel" isn't very descriptive, and in the case
+//		//of the sprite layer "isPixelOpaque" could be misleading when the sprite pixel is
+//		//being used as an operator in shadow/highlight mode. A flag with a name like
+//		//isPixelTransparent would be much more descriptive.
+//		bool foundSpritePixel = (paletteIndexData[LAYER_SPRITE] != 0);
+//		bool foundLayerAPixel = (paletteIndexData[LAYER_LAYERA] != 0);
+//		bool foundLayerBPixel = (paletteIndexData[LAYER_LAYERB] != 0);
+//
+//		//Read the shadow/highlight mode settings
+//		//##TODO## Check when changes to the shadow/highlight register take effect. Can
+//		//this register be toggled mid-line?
+//		bool shadowHighlightEnabled = M5GetShadowHighlightEnabled(accessTarget);
+//		bool spriteIsShadowOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 15);
+//		bool spriteIsHighlightOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 14);
+//
+//		//Perform layer priority calculations, and determine the layer to use, as well as
+//		//the resulting state of the shadow and highlight bits.
+//		//unsigned int layerIndex;
+//		//bool shadow;
+//		//bool highlight;
+//		//CalculateLayerPriorityIndex(layerIndex, shadow, highlight, shadowHighlightEnabled, spriteIsShadowOperator, spriteIsHighlightOperator, foundSpritePixel, foundLayerAPixel, foundLayerBPixel, prioritySprite, priorityLayerA, priorityLayerB);
+//
+//		//Encode the parameters for the layer priority calculation into an index value for
+//		//the priority lookup table.
+//		unsigned int priorityIndex = 0;
+//		priorityIndex |= (unsigned int)shadowHighlightEnabled << 8;
+//		priorityIndex |= (unsigned int)spriteIsShadowOperator << 7;
+//		priorityIndex |= (unsigned int)spriteIsHighlightOperator << 6;
+//		priorityIndex |= (unsigned int)foundSpritePixel << 5;
+//		priorityIndex |= (unsigned int)foundLayerAPixel << 4;
+//		priorityIndex |= (unsigned int)foundLayerBPixel << 3;
+//		priorityIndex |= (unsigned int)prioritySprite[i] << 2;
+//		priorityIndex |= (unsigned int)priorityLayerA[i] << 1;
+//		priorityIndex |= (unsigned int)priorityLayerB[i];
+//
+//		//Lookup the pre-calculated layer priority from the lookup table. We use a lookup
+//		//table to eliminate branching, which should yield a significant performance
+//		//boost.
+//		unsigned int layerSelectionResult = layerPriorityLookupTable[priorityIndex];
+//
+//		//Extract the layer index, shadow, and highlight data from the combined result
+//		//returned from the layer priority lookup table.
+//		unsigned int layerIndex = layerSelectionResult & 0x03;
+//		bool shadow = (layerSelectionResult & 0x08) != 0;
+//		bool highlight = (layerSelectionResult & 0x04) != 0;
+//
+//		//Read the palette line and index to use for the selected layer
+//		unsigned int paletteLine = paletteLineData[layerIndex];
+//		unsigned int paletteIndex = paletteIndexData[layerIndex];
+//
+//		//Write the final colour values to the image buffer
+//		if(cramWriteFlickerOccurred[hscanSettings.leftBorderPixelCount+i])
+//		{
+//			paletteLine = cramWriteFlickerPaletteLine[hscanSettings.leftBorderPixelCount+i];
+//			paletteIndex = cramWriteFlickerPaletteIndex[hscanSettings.leftBorderPixelCount+i];
+//		}
+//		WriteColorValueToImageBuffer(paletteLine, paletteIndex, shadow, highlight, hscanSettings.leftBorderPixelCount + i, renderBufferLineNo);
+//	}
+//
+//	//Render the right border
+//	for(unsigned int i = 0; i < hscanSettings.rightBorderPixelCount; ++i)
+//	{
+//		unsigned int borderColorPaletteLine = M5GetBackgroundColorPalette(accessTarget);
+//		unsigned int borderColorPaletteEntry = M5GetBackgroundColorIndex(accessTarget);
+//		if(cramWriteFlickerOccurred[hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i])
+//		{
+//			borderColorPaletteLine = cramWriteFlickerPaletteLine[hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i];
+//			borderColorPaletteEntry = cramWriteFlickerPaletteIndex[hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i];
+//		}
+//		WriteColorValueToImageBuffer(borderColorPaletteLine, borderColorPaletteEntry, false, false, hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i, renderBufferLineNo);
+//	}
+//
+//	//##DEBUG##
+//	unsigned int remainingMclkCyclesInLine = mclkCyclesPerLine - (mclkCycleRenderProgress - initialMclkCycleRenderProgress);
+//	mclkCycleRenderProgress += remainingMclkCyclesInLine;
+//	reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
+//	vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
+//	cram->AdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
+//	vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
+//}
+
 //----------------------------------------------------------------------------------------
-void S315_5313::RenderFrame()
+void S315_5313::AdvanceRenderProcess(unsigned int mclkCyclesRemainingToAdvance)
 {
-	//Create our reg buffer access target. Since we're working with the committed
-	//state, access will be very fast, so there's no need to worry about caching
-	//settings.
+	//Create our reg buffer access target. Since we're working with the committed state,
+	//access will be very fast, so there's no need to worry about caching settings.
 	AccessTarget accessTarget;
 	accessTarget.AccessCommitted();
 
-	//##TODO## We need to decide when we consider a "frame" to start, and when we
-	//consider a "line" to start. The VDP doesn't have the concept of a start and end
-	//for these things, but we need to make one in order to divide rendering into
-	//logical segments.
+ 	//Get the hscan and vscan settings for this scanline
+	const HScanSettings* hscanSettings = &GetHScanSettings(renderDigitalScreenModeRS0Active, renderDigitalScreenModeRS1Active);
+	const VScanSettings* vscanSettings = &GetVScanSettings(renderDigitalScreenModeV30Active, renderDigitalPalModeActive, renderDigitalInterlaceEnabledActive);
 
-	//##TODO##
-	mclkCycleRenderProgress = 0;
-	reg.BeginAdvanceSession(regSession, regTimesliceCopy, false);
-	vram->BeginAdvanceSession(vramSession, vramTimesliceCopy, false);
-	cram->BeginAdvanceSession(cramSession, cramTimesliceCopy, false);
-	vsram->BeginAdvanceSession(vsramSession, vsramTimesliceCopy, false);
+	//Combine any remaining mclk cycles from the previous render update step into this
+	//update step.
+	mclkCyclesRemainingToAdvance += renderDigitalRemainingMclkCycles;
 
-	//Obtain the VScan settings for the currently active display mode
-	//##TODO## Implement palMode properly. We need to know what the palMode flag was
-	//set to when the frame began, not what the current live state of the line is.
-	//##FIX## We need to cache the state of the V30 cell mode at vsync
-	bool v30CellModeEnabled = M5GetV30CellModeEnabled(accessTarget);
-	const VScanSettings& vscanSettings = GetVScanSettings(v30CellModeEnabled, palMode, M5GetLSM0(accessTarget));
+	//Calculate the number of mclk cycles required to advance the render process one
+	//pixel clock step
+	unsigned int mclkTicksForNextPixelClockTick;
+	mclkTicksForNextPixelClockTick = GetMclkTicksForPixelClockTicks(*hscanSettings, 1, renderDigitalHCounterPos, renderDigitalScreenModeRS0Active, renderDigitalScreenModeRS1Active);
 
-	//Calculate the number of lines to render for this frame in the various sections of
-	//the display.
-	//##TODO## Calculate these somewhere else, perhaps in GetVScanSettings().
-	//##TODO## Accurately calculate the video regions of the display
-	unsigned int activeScanLinesToRender = v30CellModeEnabled? 30*8: 28*8;
-	unsigned int topBorderLinesToRender = (vscanSettings.linesPerFrame - activeScanLinesToRender) / 2;
-	unsigned int bottomBorderLinesToRender = ((vscanSettings.linesPerFrame - activeScanLinesToRender) / 2) + ((vscanSettings.linesPerFrame - activeScanLinesToRender) % 2);
-
-	//Perform the VDP render operations
-	//##TODO## Render the top and bottom border regions correctly
-	//Render the top border region
-	for(unsigned int i = 0; i < topBorderLinesToRender; ++i)
+	//Advance each complete pixel clock step we are able to complete in this update step
+	while(mclkCyclesRemainingToAdvance >= mclkTicksForNextPixelClockTick)
 	{
-		RenderBorderLine(accessTarget, i, i);
-	}
-	//Render the active display lines
-	for(unsigned int i = 0; i < activeScanLinesToRender; ++i)
-	{
-		RenderActiveLine(accessTarget, topBorderLinesToRender+i, i);
-	}
-	//Render the bottom border region
-	for(unsigned int i = 0; i < bottomBorderLinesToRender; ++i)
-	{
-		RenderBorderLine(accessTarget, topBorderLinesToRender+activeScanLinesToRender+i, i);
-	}
+		//Advance the register buffer up to the current time. Register changes can occur
+		//at any time, so we need to ensure this buffer is always current.
+		reg.AdvanceBySession(renderDigitalMclkCycleProgress, regSession, regTimesliceCopy);
 
-	//Here's what we DO know about the way data is dealt with internally:
-	//-Colour values are only decoded when a final pixel is being displayed. We know
-	//this because the VDP colour bus outputs the palette line and entry information.
-	//-Highlight and shadow flags are output separately on the colour bus.
-	//-A flag is output indicating whether the pixel is "transparent". Not clear from
-	//documentation exactly what this means, but most likely a pixel is flagged as
-	//transparent if it comes from the backdrop.
-	//-A flag is output indicating whether the pixel originated from a sprite or a
-	//layer.
-	//-What all of this tells us is that the VDP almost certainly has each layer fill
-	//its own 16-pixel buffer plane, and the layer selection from each plane only
-	//occurs as that pixel is being displayed.
-
-	//Pattern processing notes:
-	//Patent 4243984, Column 9, row 25:
-	//-A pattern name is latched into the "name latch" register, by combining the name
-	//table base address, with the current vcounter and hcounter, and loading the
-	//mapping entry it references.
-	//-Using the current mapping stored in the "name latch" register, a pair of "video
-	//colour codes" are latched from the "pattern colour table", and stored in a pair
-	//of "pattern colour registers". These are a pair of 2-byte block mappings from
-	//the layer mapping table.
-	//-Using the video colour codes, the overlay control will load 2 sets of 4-byte
-	//pattern data, corresponding with two visible lines of pixels, one from each
-	//tile, into "pattern shift registers". These pattern shift registers then provide
-	//the pixels for that plane to the output circuit.
-
-	//##NOTE## The VISUAL operation of the VDP runs behind the DIGITAL operation of
-	//the VDP. The digital VDP starts rendering as soon as the left border begins. The
-	//first pixel is "drawn" when the first pixel of the left border is displayed. The
-	//last pixel is drawn before the right border is displayed. The drawn pixels are
-	//buffered before they are drawn to the screen, but as far as the digital
-	//operation of the VDP is concerned, the status register and hv counter will
-	//report that the VDP is ahead of what has actually been drawn to the screen. This
-	//is important, since the CRAM flicker bug affects the LIVE video output, not the
-	//buffered video output. In other words, if you perform a CRAM write when the
-	//digital operation (with active scan being at the start of the line, and the left
-	//border being at the end of the line) reports that the right border is starting,
-	//the actual flicker on the screen will occur before the right border begins.
-}
-
-//----------------------------------------------------------------------------------------
-//This handles the single line which runs immediately before the first "active" line which
-//shows plane data. This line has the normal access restrictions as an active line, but is
-//only used to capture sprite data for the following line.
-//----------------------------------------------------------------------------------------
-void S315_5313::RenderPrefetchLineForSprites(const AccessTarget& accessTarget)
-{
-	//##TODO##
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::RenderBorderLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo)
-{
-	//##TODO## Implement this properly
-	bool renderWithH40Mode = M5GetRS1(accessTarget);
-	const HScanSettings& hscanSettings = GetHScanSettings(renderWithH40Mode);
-
-	//Render the right border
-	unsigned int totalLinePixelCount = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + hscanSettings.rightBorderPixelCount;
-	for(unsigned int i = 0; i < totalLinePixelCount; ++i)
-	{
-		unsigned int borderColorPaletteLine = M5GetBackgroundColorPalette(accessTarget);
-		unsigned int borderColorPaletteEntry = M5GetBackgroundColorIndex(accessTarget);
-		WriteColorValueToImageBuffer(borderColorPaletteLine, borderColorPaletteEntry, false, false, i, renderBufferLineNo);
-	}
-
-	mclkCycleRenderProgress += 3420;
-	reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
-	vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
-	vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
-	cram->AdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
-}
-
-//----------------------------------------------------------------------------------------
-//This function performs the actual task of rendering graphical data to the VDP
-//framebuffer. We have performed precise hardware tests on the physical hardware to
-//determine how and when various data is latched for the VDP rendering process. This
-//render function maintains cycle accuracy for the rendering process, and reads data from
-//the VRAM buffers and register settings at the same time as the real hardware.
-//
-//Testing notes:
-//-We have confirmed that the various base address registers, IE, for layer A mapping
-//data, are not cached. Changes to these registers take effect the next time mapping data
-//is read.
-//-We have confirmed that the field size registers are not cached, and changes take effect
-//the next time mapping data is read.
-//----------------------------------------------------------------------------------------
-void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo)
-{
-	//##TODO## Implement mode 4 support
-	//##FIX## The active interlace mode is latched during vblank. It needs to be cached,
-	//and the cached value retrieved here.
-	//##FIX## Although on the real hardware H40 mode can be enabled and disabled mid-line,
-	//we do not support this for performance reasons, and it is instead latched at hblank.
-	//We need to cache the H40 mode setting for each line, and use that cached value here.
-	LineRenderSettings renderSettings;
-	renderSettings.interlaceMode2Active = M5GetLSM0(accessTarget) && M5GetLSM1(accessTarget);
-	renderSettings.renderWithH40Mode = M5GetRS1(accessTarget);
-	const HScanSettings& hscanSettings = GetHScanSettings(renderSettings.renderWithH40Mode);
-
-	//Calculate various screen mode settings for this line
-	renderSettings.blockPatternSizeY = renderSettings.interlaceMode2Active? 16: 8;
-	renderSettings.blockPatternByteSize = renderSettings.blockPatternRowByteSize * renderSettings.blockPatternSizeY;
-	renderSettings.cellBlockSetsToRead = renderSettings.renderWithH40Mode? 5: 4;
-	renderSettings.mclkCyclesPerSCCycle = renderSettings.renderWithH40Mode? 4: 5;
-	renderSettings.mclkCyclesPerLogicStep = renderSettings.mclkCyclesPerSCCycle * renderSettings.scCyclesPerLogicStep;
-
-	//Determine which line of active scan we're rendering
-	renderSettings.activePixelY = sectionLineNo;
-	renderSettings.activeBlockY = sectionLineNo / renderSettings.blockPixelSizeY;
-
-	//##DEBUG##
-	const unsigned int mclkCyclesPerLine = 3420;
-	unsigned int initialMclkCycleRenderProgress = mclkCycleRenderProgress;
-
-	//Calculate the address of the hscroll data to read for this line
-	unsigned int hscrollDataBase = M5GetHScrollDataBase(accessTarget);
-	bool hscrState = M5GetHSCR(accessTarget);
-	bool lscrState = M5GetLSCR(accessTarget);
-	unsigned int hscrollDataAddress = hscrollDataBase;
-	//##TODO## Based on the EA logo for Populous, it appears that the state of LSCR is
-	//ignored when HSCR is not set. We should confirm this on hardware.
-	if(hscrState)
-	{
-		hscrollDataAddress += lscrState? (sectionLineNo * 4): ((renderSettings.activeBlockY * renderSettings.blockPixelSizeY) * 4);
-	}
-
-	//Read the hscroll data for this line
-	//##TODO## Confirm the way scrolling data is interpreted through hardware tests. Eg,
-	//does -1 actually scroll to the left by one place, or are 0 and -1 equivalent?
-	//##TODO## According to the official documentation, the upper 6 bits of the hscroll
-	//data are unused, and are allowed to be used by software to store whatever values
-	//they want. Confirm this on hardware.
-	unsigned int layerAHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+1);
-	unsigned int layerBHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+3);
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//##TODO## Read the sprite pattern data
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//Break the hscroll data into its two component parts. The lower 4 bits represent a
-	//displacement into the 2-cell column, or in other words, the displacement of the
-	//starting pixel within each column, while the upper 6 bits represent an offset for
-	//the column mapping data itself.
-	//-----------------------------------------
-	//| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-	//----------------------------------------|
-	//|  Column Shift Value   | Displacement  |
-	//-----------------------------------------
-	unsigned int scrollValueDisplacementLayerA = layerAHscrollOffset & 0x00F;
-	unsigned int columnShiftValueLayerA = (layerAHscrollOffset & 0x3F0) >> 4;
-	unsigned int scrollValueDisplacementLayerB = layerBHscrollOffset & 0x00F;
-	unsigned int columnShiftValueLayerB = (layerBHscrollOffset & 0x3F0) >> 4;
-
-	//Create the buffers for our mapping and pattern data
-	unsigned int currentRenderPixelLayerA = 0;
-	unsigned int currentRenderPixelLayerB = 0;
-	std::vector<Data> mappingDataCacheLayerA(2, Data(16));
-	std::vector<Data> mappingDataCacheLayerB(2, Data(16));
-	std::vector<Data> patternDataCacheLayerA(2, Data(32));
-	std::vector<Data> patternDataCacheLayerB(2, Data(32));
-	std::vector<unsigned int> paletteIndexSprite(hscanSettings.activeDisplayPixelCount+16);
-	std::vector<unsigned int> paletteIndexLayerA(hscanSettings.activeDisplayPixelCount+16);
-	std::vector<unsigned int> paletteIndexLayerB(hscanSettings.activeDisplayPixelCount+16);
-	std::vector<unsigned int> paletteLineSprite(hscanSettings.activeDisplayPixelCount+16);
-	std::vector<unsigned int> paletteLineLayerA(hscanSettings.activeDisplayPixelCount+16);
-	std::vector<unsigned int> paletteLineLayerB(hscanSettings.activeDisplayPixelCount+16);
-	std::vector<bool> prioritySprite(hscanSettings.activeDisplayPixelCount+16);
-	std::vector<bool> priorityLayerA(hscanSettings.activeDisplayPixelCount+16);
-	std::vector<bool> priorityLayerB(hscanSettings.activeDisplayPixelCount+16);
-
-	//Determine the playfield dimensions
-	//##TODO## Determine when playfield dimensions are actually calculated, either for the
-	//entire line like this, or whether these registers are checked mid-line and can be
-	//modified mid-line. Most likely, mid-line modifications are possible.
-	unsigned int hszState = M5GetHSZ(accessTarget);
-	unsigned int vszState = M5GetVSZ(accessTarget);
-
-	//##TODO## Comment this
-	//##TODO## If we're in interlace mode 2, and the odd flag is set, we need to add 1 to
-	//the virtual vertical screen position when calculating the pattern and mapping row
-	//numbers.
-	unsigned int columnNumber = 0x3F;
-	unsigned int displayRowNumber = (renderSettings.interlaceMode2Active? (sectionLineNo * 2): sectionLineNo);
-
-	//Calculate the address of the vscroll data to read for this block
-	//##TODO## Determine how hscroll interacts with vscroll when both are applied at the
-	//same time. Read the test notes from Eke: Reportedly, if a 2-cell column is partially
-	//visible on the left, that column has vscroll fixed to 0 for H32 mode, however for
-	//H40 mode, it's some strange ANDed value of several VSRAM addresses. Check the
-	//following thread from SpritesMind for more info:
-	//http://gendev.spritesmind.net/forum/viewtopic.php?t=737&start=30
-	//This only occurs when column-based vscroll is applied. Overall vscroll values work
-	//correctly. This all needs major testing on hardware.
-	//##TODO## Test how overall vertical scrolling interacts with line-based and overall
-	//horizontal scrolling.
-	bool vscrState = M5GetVSCR(accessTarget);
-	unsigned int vscrollDataAddress = vscrState? (columnNumber * 4): 0;
-
-	//Read the vscroll data for this line. Note only the lower 10 bits are
-	//effective, or the lower 11 bits in the case of interlace mode 2, due to the
-	//scrolled address being wrapped to lie within the total field boundaries,
-	//which never exceed 128 blocks.
-	unsigned int layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
-	unsigned int layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
-
-	//Calculate the target block mapping pair and selected row for layer A
-	//##TODO## Confirm through VRAM snooping which actual address is read from for the
-	//left scrolled cell block when the horizontal scroll value is aligned to a 2-cell
-	//boundary. Even though the data is never displayed in this case, we can and should
-	//determine where the VDP reads this data from.
-	//##TODO## Confirm through VRAM snooping which actual address is read from when a
-	//left-aligned window is present for layer A, both with and without horizontal
-	//scrolling. We suspect that the normal block which is read for layer A, without a
-	//window being active, may be read in this case.
-	//##TODO## Replace the division and modulus operators here with bitshift and bitmask
-	//operations.
-	unsigned int mappingColumnNumberLayerA = columnNumber - columnShiftValueLayerA;
-	unsigned int mappingRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) / renderSettings.blockPatternSizeY;
-	unsigned int patternRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) % renderSettings.blockPatternSizeY;
-
-	//##TODO## Implement support for the window layer
-//	unsigned int nameTableBaseA = M5GetNameTableBaseWindow(accessTarget);
-//	ReadMappingDataPair(mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], nameTableBaseA, displayRowNumber / renderSettings.blockPatternSizeY, columnNumber, 0x0, 0x0);
-
-	//Read layer A left scrolled cell block mapping data
-	unsigned int nameTableBaseA = M5GetNameTableBaseScrollA(accessTarget);
-	ReadMappingDataPair(mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], nameTableBaseA, mappingRowNumberLayerA, mappingColumnNumberLayerA, hszState, vszState);
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//##TODO## Read the sprite pattern data
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//Read layer A left scrolled cell block pattern row 1
-	ReadPatternDataRow(renderSettings, patternDataCacheLayerA[0], mappingDataCacheLayerA[0], patternRowNumberLayerA);
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//Read layer A left scrolled cell block pattern row 2
-	ReadPatternDataRow(renderSettings, patternDataCacheLayerA[1], mappingDataCacheLayerA[1], patternRowNumberLayerA);
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//Render the layer A column
-	RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerA, mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], patternDataCacheLayerA[0], patternDataCacheLayerA[1], paletteLineLayerA, paletteIndexLayerA, currentRenderPixelLayerA);
-
-	//Calculate the target block mapping pair and selected row for layer B
-	unsigned int mappingColumnNumberLayerB = columnNumber - columnShiftValueLayerB;
-	unsigned int mappingRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) / renderSettings.blockPatternSizeY;
-	unsigned int patternRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) % renderSettings.blockPatternSizeY;
-
-	//Read layer B left scrolled cell block mapping data
-	unsigned int nameTableBaseB = M5GetNameTableBaseScrollB(accessTarget);
-	ReadMappingDataPair(mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], nameTableBaseB, mappingRowNumberLayerB, mappingColumnNumberLayerB, hszState, vszState);
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//##TODO## Read sprite mapping data
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//Read layer B left scrolled cell block pattern row 1
-	ReadPatternDataRow(renderSettings, patternDataCacheLayerB[0], mappingDataCacheLayerB[0], patternRowNumberLayerB);
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//Read layer B left scrolled cell block pattern row 2
-	ReadPatternDataRow(renderSettings, patternDataCacheLayerB[1], mappingDataCacheLayerB[1], patternRowNumberLayerB);
-	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-
-	//Render the layer B column
-	RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerB, mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], patternDataCacheLayerB[0], patternDataCacheLayerB[1], paletteLineLayerB, paletteIndexLayerB, currentRenderPixelLayerB);
-
-	//Read the mapping and pattern data for all layers
-	for(unsigned int cellBlockSet = 0; cellBlockSet < renderSettings.cellBlockSetsToRead; ++cellBlockSet)
-	{
-		for(unsigned int i = 0; i < 4; ++i)
+		//If we've reached a point where horizontal screen mode settings need to be
+		//latched, cache the new settings now.
+		if(renderDigitalHCounterPos == hscanSettings->hblankSetPoint)
 		{
-			columnNumber = (cellBlockSet * 4) + i;
+			//Cache the new settings
+			renderDigitalScreenModeRS0Active = M5GetRS0(accessTarget);
+			renderDigitalScreenModeRS1Active = M5GetRS1(accessTarget);
 
-			//Calculate the address of the vscroll data to read for this block
-			//##TODO## Determine if the vscroll data is read at the start of each 2-cell
-			//block, even for overall scrolling. We can determine this by changing the
-			//vscroll data mid-line.
-			//##TODO## Determine if mid-line changes to VSCR take effect immediately
-			bool vscrState = M5GetVSCR(accessTarget);
-			unsigned int vscrollDataAddress = vscrState? (columnNumber * 4): 0;
+			//Latch updated screen mode settings
+			hscanSettings = &GetHScanSettings(renderDigitalScreenModeRS0Active, renderDigitalScreenModeRS1Active);
+		}
 
-			//Read the vscroll data for this line. Note only the lower 10 bits are
-			//effective, or the lower 11 bits in the case of interlace mode 2, due to the
-			//scrolled address being wrapped to lie within the total field boundaries,
-			//which never exceed 128 blocks.
-			unsigned int layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
-			unsigned int layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
+		//If we've reached a point where vertical screen mode settings need to be latched,
+		//cache the new settings now.
+		if((renderDigitalVCounterPos == vscanSettings->vblankSetPoint) && (renderDigitalHCounterPos == hscanSettings->vcounterIncrementPoint))
+		{
+			//Cache the new settings
+			renderDigitalScreenModeV30Active = M5GetV30CellModeEnabled(accessTarget);
+			renderDigitalInterlaceEnabledActive = M5GetLSM0(accessTarget);
+			renderDigitalInterlaceDoubleActive = M5GetLSM1(accessTarget);
+			//##FIX## This is incorrect. This is retrieving the current live state of the
+			//line. We need to store history information for this line, so that the
+			//correct line state can be set here.
+			renderDigitalPalModeActive = palMode;
+			//##TODO## renderDigitalOddFlagSet
 
-			//Calculate the target block mapping pair and selected row for layer A
-			unsigned int mappingColumnNumberLayerA = columnNumber - columnShiftValueLayerA;
-			unsigned int mappingRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) / renderSettings.blockPatternSizeY;
-			unsigned int patternRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) % renderSettings.blockPatternSizeY;
+			//Latch updated screen mode settings
+			vscanSettings = &GetVScanSettings(renderDigitalScreenModeV30Active, renderDigitalPalModeActive, renderDigitalInterlaceEnabledActive);
+		}
 
-			//Read layer A mapping data
-			unsigned int nameTableBaseA = M5GetNameTableBaseScrollA(accessTarget);
-			ReadMappingDataPair(mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], nameTableBaseA, mappingRowNumberLayerA, mappingColumnNumberLayerA, hszState, vszState);
-			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+		//Perform any digital render operations which need to occur on this cycle. Note
+		//that operation steps only occur once every 4 SC cycles, since it takes the VRAM
+		//4 SC cycles for each 32-bit serial memory read, which is performed by the VDP
+		//itself to read VRAM data for the rendering process, or 4 SC cycles for an 8-bit
+		//direct memory read or write, which can occur at an access slot. Every 2 SC
+		//cycles however, a pixel is output to the analog output circuit to perform layer
+		//priority selection and video output. Interestingly, the synchronization of the
+		//memory times with the hcounter update process is different, depending on whether
+		//H40 mode is active. Where a H32 mode is selected, memory access occurs on odd
+		//hcounter values. Where H40 mode is selected, memory access occurs on even
+		//hcounter values.
+		//##TODO## Perform more hardware tests on this behaviour, to confirm the
+		//synchronization differences, and determine whether it is the memory access
+		//timing or the hcounter progression which changes at the time the H40 screen mode
+		//setting is toggled.
+		bool hcounterLowerBit = (renderDigitalHCounterPos & 0x1) != 0;
+		if(renderDigitalScreenModeRS1Active != hcounterLowerBit)
+		{
+			UpdateDigitalRenderProcess(accessTarget, *hscanSettings, *vscanSettings);
+		}
 
-			//External access slot, or refresh cycle on 4th block in set.
-			if(i < 3)
-			{
-				reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
-				vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
-				vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
-			}
-			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+		//Perform any analog render operations which need to occur on this cycle
+		UpdateAnalogRenderProcess(accessTarget, *hscanSettings, *vscanSettings);
 
-			//Read layer A pattern row 1
-			ReadPatternDataRow(renderSettings, patternDataCacheLayerA[0], mappingDataCacheLayerA[0], patternRowNumberLayerA);
-			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+		//If we're about to increment the vcounter, save the current value of it before
+		//the increment, so that the analog render process can use it to calculate the
+		//current analog output line.
+		if((renderDigitalHCounterPos + 1) == hscanSettings->vcounterIncrementPoint)
+		{
+			renderDigitalVCounterPosPreviousLine = renderDigitalVCounterPos;
+		}
 
-			//Read layer A pattern row 2
-			ReadPatternDataRow(renderSettings, patternDataCacheLayerA[1], mappingDataCacheLayerA[1], patternRowNumberLayerA);
-			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+		//Advance the HV counters for the digital render process
+		AdvanceHVCounters(*hscanSettings, renderDigitalHCounterPos, *vscanSettings, renderDigitalInterlaceEnabledActive, renderDigitalOddFlagSet, renderDigitalVCounterPos, 1);
 
-			//Render the layer A column
-			RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerA, mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], patternDataCacheLayerA[0], patternDataCacheLayerA[1], paletteLineLayerA, paletteIndexLayerA, currentRenderPixelLayerA);
+		//Advance the mclk cycle progress of the current render timeslice
+		mclkCyclesRemainingToAdvance -= mclkTicksForNextPixelClockTick;
+		renderDigitalMclkCycleProgress += mclkTicksForNextPixelClockTick;
 
-			//Calculate the target block mapping pair and selected row for layer B
-			unsigned int mappingColumnNumberLayerB = columnNumber - columnShiftValueLayerB;
-			unsigned int mappingRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) / renderSettings.blockPatternSizeY;
-			unsigned int patternRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) % renderSettings.blockPatternSizeY;
+		//Calculate the number of mclk cycles required to advance the render process one
+		//pixel clock step
+		mclkTicksForNextPixelClockTick = GetMclkTicksForPixelClockTicks(*hscanSettings, 1, renderDigitalHCounterPos, renderDigitalScreenModeRS0Active, renderDigitalScreenModeRS1Active);
+	}
 
-			//Read layer B mapping data
-			unsigned int nameTableBaseB = M5GetNameTableBaseScrollB(accessTarget);
-			ReadMappingDataPair(mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], nameTableBaseB, mappingRowNumberLayerB, mappingColumnNumberLayerB, hszState, vszState);
-			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+	//Save any remaining mclk cycles from this update step
+	renderDigitalRemainingMclkCycles = mclkCyclesRemainingToAdvance;
+}
 
-			//##TODO## Read sprite mapping data
-			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+//----------------------------------------------------------------------------------------
+void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings)
+{
+	const unsigned int cellsPerColumn = 2;
+	bool interlaceMode2Active = renderDigitalInterlaceEnabledActive && renderDigitalInterlaceDoubleActive;
 
-			//Read layer B pattern row 1
-			ReadPatternDataRow(renderSettings, patternDataCacheLayerB[0], mappingDataCacheLayerB[0], patternRowNumberLayerB);
-			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+	//Obtain the set of update steps for the current screen mode settings
+	unsigned int operationArraySize = 0;
+	const RenderOp* operationArray = 0;
+	if(renderDigitalScreenModeRS1Active)
+	{
+		operationArray = &operationsH40[0];
+		operationArraySize = sizeof(operationsH40) / sizeof(operationsH40[0]);
+	}
+	else
+	{
+		operationArray = &operationsH32[0];
+		operationArraySize = sizeof(operationsH32) / sizeof(operationsH32[0]);
+	}
 
-			//Read layer B pattern row 2
-			ReadPatternDataRow(renderSettings, patternDataCacheLayerB[1], mappingDataCacheLayerB[1], patternRowNumberLayerB);
-			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
+	//##TODO## Restructure the following code. We shouldn't manually manipulate the next
+	//operation outside of the section of code which originally determined it. What we
+	//should do is gather required state, and then calculate the next operation in one
+	//step at the end.
 
-			//Render the layer A column
-			RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerB, mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], patternDataCacheLayerB[0], patternDataCacheLayerB[1], paletteLineLayerB, paletteIndexLayerB, currentRenderPixelLayerB);
+	//Determine what operation to perform at the current scanline position
+	unsigned int hcounterLinear = HCounterValueFromVDPInternalToLinear(hscanSettings, renderDigitalHCounterPos);
+	RenderOp nextOperation = operationArray[(hcounterLinear >> 1) % operationArraySize];
+
+	//Read the display enable register. If this register is cleared, the output for
+	//this update step is forced to the background colour, and free access to VRAM is
+	//permitted. Any read operations that would have been performed from VRAM are not
+	//performed in this case. If this occurs during the active region of the display,
+	//it corrupts the output, due to mapping and pattern data not being read at the
+	//appropriate time. It is safe to disable the display during the portion of a
+	//scanline that lies outside the active display area, however, this reduces the
+	//number of sprite pattern blocks which can be read, creating a lower sprite limit
+	//on the following scanline. A sprite overflow is flagged if not all the sprite
+	//pixels could be read due to the display being disabled, even if there would
+	//normally be enough time to read all the pattern data had the display not been
+	//disabled. The only game which is known to rely on this is "Mickey Mania" for the
+	//Mega Drive. See http://gendev.spritesmind.net/forum/viewtopic.php?t=541
+	//##TODO## Determine if the display enable bit is effective when the VDP test
+	//register has been set to one of the modes that disables the blanking of the
+	//display in the border regions.
+	bool displayEnabled = M5GetDisplayEnabled(accessTarget);
+	if(!displayEnabled)
+	{
+		if((nextOperation.operation != RenderOp::REFRESH) && (nextOperation.operation != RenderOp::NONE))
+		{
+			nextOperation.operation = RenderOp::ACC_SLOT;
 		}
 	}
 
-	//##TODO## Note that we only ever need to read or advance the CRAM data when we're
-	//actually rendering, after the line has been built. This means we should be advancing
-	//the CRAM data state separately from the rest of the buffers, and it is when we
-	//perform this advance that we take CRAM write flicker into account.
-	//##TODO## Clean up this old code.
-	unsigned int cramWriteFlickerBufferSize = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + hscanSettings.rightBorderPixelCount;
-	std::vector<unsigned int> cramWriteFlickerPaletteIndex(cramWriteFlickerBufferSize);
-	std::vector<unsigned int> cramWriteFlickerPaletteLine(cramWriteFlickerBufferSize);
-	std::vector<bool> cramWriteFlickerOccurred(cramWriteFlickerBufferSize, false);
-
-	//##TODO## Don't do this at all. Store CRAM writes into a buffer, like we will for
-	//rendered sprite pixels.
-	//##TODO## Consider enhancing the session stepping for timed buffers, to allow the
-	//next write time to be extracted from the session info. This will avoid the need to
-	//call BufferGetWriteInfo here unnecessarily, as we can use the saved information in
-	//the session to determine if there is a write in range.
-	//unsigned int cramWriteIndex = 0;
-	//IManagedBufferInt::WriteInfo cramWriteInfo = cram->BufferGetWriteInfo(cramWriteIndex++, cramTimesliceCopy);
-	//while(cramWriteInfo.exists && (cramWriteInfo.writeTime < mclkCyclesPerLine))
-	//{
-	//	unsigned int pixelIndex = (cramWriteInfo.writeTime / renderSettings.mclkCyclesPerSCCycle) / 2;
-	//	unsigned int paletteLine = cramWriteInfo.writeAddress / 0x20;
-	//	unsigned int paletteIndex = (cramWriteInfo.writeAddress % 0x20) / 2;
-	//	cramWriteFlickerOccurred[pixelIndex] = true;
-	//	cramWriteFlickerPaletteLine[pixelIndex] = paletteLine;
-	//	cramWriteFlickerPaletteIndex[pixelIndex] = paletteIndex;
-	//	cramWriteInfo = cram->BufferGetWriteInfo(cramWriteIndex++, cramTimesliceCopy);
-	//}
-
-	//##FIX## The background colour palette and index settings have been advanced to the
-	//end of the line by now. We need the live register values. In fact, this issue of
-	//live register values affects a lot more than just background changes. It affects the
-	//disable video flag for example.
-	//Render the left border
-	for(unsigned int i = 0; i < hscanSettings.leftBorderPixelCount; ++i)
+	//Use the current VCounter data to determine which data is being displayed on this
+	//row, based on the current screen mode settings.
+	bool insideActiveScanRow = false;
+	unsigned int renderDigitalCurrentRow = 0;
+	if((renderDigitalVCounterPos >= vscanSettings.activeDisplayVCounterFirstValue) && (renderDigitalVCounterPos <= vscanSettings.activeDisplayVCounterLastValue))
 	{
-		unsigned int borderColorPaletteLine = M5GetBackgroundColorPalette(accessTarget);
-		unsigned int borderColorPaletteEntry = M5GetBackgroundColorIndex(accessTarget);
-		if(cramWriteFlickerOccurred[i])
+		//We're inside the active display region. Calculate the playfield row number
+		//for the current line.
+		insideActiveScanRow = true;
+		renderDigitalCurrentRow = renderDigitalVCounterPos - vscanSettings.activeDisplayVCounterFirstValue;
+	}
+	else
+	{
+		//If this line is outside the active display area, IE, in the top or bottom
+		//border areas, or in vblank, free access is permitted to VRAM, except during
+		//the memory refresh slots. In this case, we force the next operation to an
+		//external access slot, unless a refresh slot has been selected, or no
+		//operation is set to be performed.
+		if((nextOperation.operation != RenderOp::REFRESH) && (nextOperation.operation != RenderOp::NONE))
 		{
-			borderColorPaletteLine = cramWriteFlickerPaletteLine[i];
-			borderColorPaletteEntry = cramWriteFlickerPaletteIndex[i];
+			nextOperation.operation = RenderOp::ACC_SLOT;
 		}
-		WriteColorValueToImageBuffer(borderColorPaletteLine, borderColorPaletteEntry, false, false, i, renderBufferLineNo);
 	}
 
-	//Render the active display
-	for(unsigned int i = 0; i < hscanSettings.activeDisplayPixelCount; ++i)
+	//Perform the next operation
+	switch(nextOperation.operation)
 	{
-		//Read the background palette settings
-		unsigned int paletteLineBackground = M5GetBackgroundColorPalette(accessTarget);
-		unsigned int paletteIndexBackground = M5GetBackgroundColorIndex(accessTarget);
+	case RenderOp::HSCROLL:{
+		//Read register settings which affect which hscroll data is loaded
+		unsigned int hscrollDataBase = M5GetHScrollDataBase(accessTarget);
+		bool hscrState = M5GetHSCR(accessTarget);
+		bool lscrState = M5GetLSCR(accessTarget);
 
-		//Load the palette line and index values for each layer into our data table
+		//Load the hscroll data into the hscroll data cache
+		DigitalRenderReadHscrollData(renderDigitalCurrentRow, hscrollDataBase, hscrState, lscrState, renderLayerAHscrollPatternDisplacement, renderLayerBHscrollPatternDisplacement, renderLayerAHscrollMappingDisplacement, renderLayerBHscrollMappingDisplacement);
+		break;}
+	case RenderOp::MAPPING_A:{
+		//Calculate the index number of the current 2-cell column that's being rendered.
+		//Note that we subtract 1 from the index number specified in the operation table.
+		//The first mapping data we read is for the left-scrolled 2-cell column, which
+		//reads its mapping data from cell block -1.
+		unsigned int renderDigitalCurrentColumn = (nextOperation.index - 1) / cellsPerColumn;
+
+		//Read registers which affect the read of vscroll data
+		bool vscrState = M5GetVSCR(accessTarget);
+
+		//Read vscroll data for layers A and B
+		DigitalRenderReadVscrollData(renderDigitalCurrentColumn, vscrState, interlaceMode2Active, renderLayerAVscrollPatternDisplacement, renderLayerBVscrollPatternDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement);
+
+		//Read register settings which affect which mapping data is loaded
+		unsigned int nameTableBase = M5GetNameTableBaseScrollA(accessTarget);
+		unsigned int hszState = M5GetHSZ(accessTarget);
+		unsigned int vszState = M5GetVSZ(accessTarget);
+
+		//Read layer A mapping data
+		DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
+		break;}
+	case RenderOp::PATTERN_A:
+		//Read layer A pattern row
+		DigitalRenderReadPatternDataRow(renderDigitalCurrentRow, renderLayerAVscrollPatternDisplacement, interlaceMode2Active, renderMappingDataCacheLayerA[nextOperation.index], renderPatternDataCacheLayerA[nextOperation.index]);
+		break;
+	case RenderOp::MAPPING_B:{
+		//Calculate the index number of the current 2-cell column that's being rendered.
+		//Note that we subtract 1 from the index number specified in the operation table.
+		//The first mapping data we read is for the left-scrolled 2-cell column, which
+		//reads its mapping data from cell block -1.
+		unsigned int renderDigitalCurrentColumn = (nextOperation.index - 1) / cellsPerColumn;
+
+		//Read register settings which affect which mapping data is loaded
+		unsigned int nameTableBase = M5GetNameTableBaseScrollB(accessTarget);
+		unsigned int hszState = M5GetHSZ(accessTarget);
+		unsigned int vszState = M5GetVSZ(accessTarget);
+
+		//Read layer B mapping data
+		DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, renderLayerBHscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement, renderLayerBVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerB[nextOperation.index], renderMappingDataCacheLayerB[nextOperation.index+1]);
+		break;}
+	case RenderOp::PATTERN_B:
+		//Read layer B pattern row
+		DigitalRenderReadPatternDataRow(renderDigitalCurrentRow, renderLayerBVscrollPatternDisplacement, interlaceMode2Active, renderMappingDataCacheLayerB[nextOperation.index], renderPatternDataCacheLayerB[nextOperation.index]);
+		break;
+	case RenderOp::MAPPING_S:
+		//##TODO##
+		break;
+	case RenderOp::PATTERN_S:
+		//##TODO##
+		//##TODO## We know that if the display is disabled during active scan, sprite
+		//pattern data which was supposed to be read during the disabled region isn't
+		//skipped, but rather, the entire sprite pattern data load queue remains in its
+		//current state, and the next sprite pattern data block to read is retrieved from
+		//the queue when a slot becomes available. This means we can't use a simple index
+		//number to determine which sprite data to read, but rather, we need to keep a
+		//running index of the sprite pattern data we're up to.
+		break;
+	case RenderOp::ACC_SLOT:
+		//Since we've reached an external access slot, changes may now be made to VRAM
+		//or VSRAM, so we need to advance the VRAM and VSRAM buffers up to this time
+		//so any changes which occur at this access slot can take effect.
+		vram->AdvanceBySession(renderDigitalMclkCycleProgress, vramSession, vramTimesliceCopy);
+		vsram->AdvanceBySession(renderDigitalMclkCycleProgress, vsramSession, vsramTimesliceCopy);
+		break;
+	case RenderOp::REFRESH:
+		//Nothing to do on a memory refresh cycle
+		break;
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings)
+{
+	bool outputNothing = false;
+	bool forceOutputBackgroundPixel = false;
+
+	//If the digital vcounter has already been incremented, but we haven't reached the end
+	//of the analog line yet, move the digital vcounter back one step so we can calculate
+	//the analog line number.
+	unsigned int renderDigitalVCounterPosIncrementAtHBlank = renderDigitalVCounterPos;
+	if((renderDigitalHCounterPos >= hscanSettings.vcounterIncrementPoint) && (renderDigitalHCounterPos < hscanSettings.hblankSetPoint))
+	{
+		renderDigitalVCounterPosIncrementAtHBlank = renderDigitalVCounterPosPreviousLine;
+	}
+
+	//Use the current VCounter data to determine which data is being displayed on this
+	//row, based on the current screen mode settings.
+	bool insidePixelBufferRegion = true;
+	bool insideActiveScanVertically = false;
+	unsigned int renderAnalogCurrentRow = 0;
+
+	if((renderDigitalVCounterPosIncrementAtHBlank >= vscanSettings.activeDisplayVCounterFirstValue) && (renderDigitalVCounterPosIncrementAtHBlank <= vscanSettings.activeDisplayVCounterLastValue))
+	{
+		//We're inside the active display region
+		renderAnalogCurrentRow = vscanSettings.topBorderLineCount + (renderDigitalVCounterPosIncrementAtHBlank - vscanSettings.activeDisplayVCounterFirstValue);
+		insideActiveScanVertically = true;
+	}
+	else
+	{
+		//Check if we're in a border region, or in the blanking region
+		if((renderDigitalVCounterPosIncrementAtHBlank >= vscanSettings.topBorderVCounterFirstValue) && (renderDigitalVCounterPosIncrementAtHBlank <= vscanSettings.topBorderVCounterLastValue))
+		{
+			//We're in the top border. In this case, we need to force the pixel output to
+			//the current backdrop colour.
+			renderAnalogCurrentRow = renderDigitalVCounterPosIncrementAtHBlank - vscanSettings.topBorderVCounterFirstValue;
+			forceOutputBackgroundPixel = true;
+		}
+		else if((renderDigitalVCounterPosIncrementAtHBlank >= vscanSettings.bottomBorderVCounterFirstValue) && (renderDigitalVCounterPosIncrementAtHBlank <= vscanSettings.bottomBorderVCounterLastValue))
+		{
+			//We're in the bottom border. In this case, we need to force the pixel output
+			//to the current backdrop colour.
+			renderAnalogCurrentRow = vscanSettings.topBorderLineCount + vscanSettings.activeDisplayLineCount + (renderDigitalVCounterPosIncrementAtHBlank - vscanSettings.bottomBorderVCounterFirstValue);
+			forceOutputBackgroundPixel = true;
+		}
+		else
+		{
+			//We're in a blanking region. In this case, we need to force the pixel output
+			//to black.
+			insidePixelBufferRegion = false;
+			outputNothing = true;
+		}
+	}
+
+	//Use the current HCounter data to determine which data is next to be displayed on
+	//this line, based on the current screen mode settings.
+	bool insideActiveScanHorizontally = false;
+	unsigned int renderAnalogCurrentPixel = 0;
+	unsigned int activeScanPixelIndex = 0;
+	if((renderDigitalHCounterPos >= hscanSettings.activeDisplayHCounterFirstValue) && (renderDigitalHCounterPos <= hscanSettings.activeDisplayHCounterLastValue))
+	{
+		//We're inside the active display region. Calculate the pixel number of the
+		//current pixel to output on this update cycle.
+		renderAnalogCurrentPixel = hscanSettings.leftBorderPixelCount + (renderDigitalHCounterPos - hscanSettings.activeDisplayHCounterFirstValue);
+		activeScanPixelIndex = (renderDigitalHCounterPos - hscanSettings.activeDisplayHCounterFirstValue);
+		insideActiveScanHorizontally = true;
+	}
+	else
+	{
+		//Check if we're in a border region, or in the blanking region
+		if((renderDigitalHCounterPos >= hscanSettings.leftBorderHCounterFirstValue) && (renderDigitalHCounterPos <= hscanSettings.leftBorderHCounterLastValue))
+		{
+			//We're in the left border. In this case, we need to force the pixel output to
+			//the current backdrop colour.
+			renderAnalogCurrentPixel = renderDigitalHCounterPos - hscanSettings.leftBorderHCounterFirstValue;
+			forceOutputBackgroundPixel = true;
+		}
+		else if((renderDigitalHCounterPos >= hscanSettings.rightBorderHCounterFirstValue) && (renderDigitalHCounterPos <= hscanSettings.rightBorderHCounterLastValue))
+		{
+			//We're in the right border. In this case, we need to force the pixel output
+			//to the current backdrop colour.
+			renderAnalogCurrentPixel = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + (renderDigitalHCounterPos - hscanSettings.rightBorderHCounterFirstValue);
+			forceOutputBackgroundPixel = true;
+		}
+		else
+		{
+			//We're in a blanking region. In this case, we need to force the pixel output
+			//to black.
+			insidePixelBufferRegion = false;
+			outputNothing = true;
+		}
+	}
+
+	//Read the display enable register. If this register is cleared, the output for this
+	//update step is forced to the background colour, and free access to VRAM is
+	//permitted.
+	bool displayEnabled = M5GetDisplayEnabled(accessTarget);
+	if(!displayEnabled)
+	{
+		forceOutputBackgroundPixel = true;
+	}
+
+	//##TODO## Handle reg 0, bit 0, which completely disables video output while it is
+	//set. In our case here, we should force the output colour to black.
+	//##TODO## Test on the hardware if we should disable the actual rendering process
+	//and allow free access to VRAM if reg 0 bit 0 is set, or if this bit only
+	//disables the analog video output.
+
+	//Determine the palette line and index numbers and the shadow/highlight state for this
+	//pixel.
+	bool shadow = false;
+	bool highlight = false;
+	unsigned int paletteLine = 0;
+	unsigned int paletteIndex = 0;
+	if(outputNothing)
+	{
+		//If a pixel is being forced to black, we currently don't have anything to do
+		//here.
+	}
+	else if(forceOutputBackgroundPixel)
+	{
+		//If this pixel is being forced to the background colour, read the current
+		//background palette index and line data.
+		paletteLine = M5GetBackgroundColorPalette(accessTarget);
+		paletteIndex = M5GetBackgroundColorIndex(accessTarget);
+	}
+	else if(insideActiveScanVertically && insideActiveScanHorizontally)
+	{
+		//If we're displaying a pixel in the active display region, determine the correct
+		//palette index for this pixel.
+		const unsigned int cellBlockSizeH = 8;
+		const unsigned int cellsPerColumn = 2;
+
+		//Collect the pattern and priority data for this pixel from each of the various
+		//layers.
+		//Mapping (Pattern Name) data format:
+		//-----------------------------------------------------------------
+		//|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+		//|---------------------------------------------------------------|
+		//|Pri|PalRow |VF |HF |              Pattern Number               |
+		//-----------------------------------------------------------------
+		//Pri:    Priority Bit
+		//PalRow: The palette row number to use when displaying the pattern data
+		//VF:     Vertical Flip
+		//HF:     Horizontal Flip
 		unsigned int paletteLineData[4];
 		unsigned int paletteIndexData[4];
-		paletteLineData[LAYER_SPRITE] = paletteLineSprite[i];
-		paletteLineData[LAYER_LAYERA] = paletteLineLayerA[i];
-		paletteLineData[LAYER_LAYERB] = paletteLineLayerB[i];
-		paletteLineData[LAYER_BACKGROUND] = paletteLineBackground;
-		paletteIndexData[LAYER_SPRITE] = paletteIndexSprite[i];
-		paletteIndexData[LAYER_LAYERA] = paletteIndexLayerA[i];
-		paletteIndexData[LAYER_LAYERB] = paletteIndexLayerB[i];
-		paletteIndexData[LAYER_BACKGROUND] = paletteIndexBackground;
+		bool layerPriority[4];
+
+		//##TODO## Decode the sprite mapping and pattern data
+		layerPriority[LAYER_SPRITE] = false;
+		paletteLineData[LAYER_SPRITE] = 0;
+		paletteIndexData[LAYER_SPRITE] = 0;
+
+		//Decode the layer A mapping and pattern data
+		//##FIX## The horizontal scrolling within a column goes the wrong direction
+		//currently.
+		unsigned int scrolledMappingNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) / cellBlockSizeH;
+		unsigned int scrolledPixelNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) % cellBlockSizeH;
+		const Data& layerAMappingData = renderMappingDataCacheLayerA[scrolledMappingNumberLayerA];
+		layerPriority[LAYER_LAYERA] = layerAMappingData.GetBit(15);
+		paletteLineData[LAYER_LAYERA] = layerAMappingData.GetDataSegment(13, 2);
+		paletteIndexData[LAYER_LAYERA] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerA[scrolledMappingNumberLayerA], layerAMappingData.GetBit(11), scrolledPixelNumberLayerA);
+
+		//Decode the layer B mapping and pattern data
+		unsigned int scrolledMappingNumberLayerB = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerBHscrollPatternDisplacement) / cellBlockSizeH;
+		unsigned int scrolledPixelNumberLayerB = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerBHscrollPatternDisplacement) % cellBlockSizeH;
+		const Data& layerBMappingData = renderMappingDataCacheLayerB[scrolledMappingNumberLayerB];
+		layerPriority[LAYER_LAYERB] = layerBMappingData.GetBit(15);
+		paletteLineData[LAYER_LAYERB] = layerBMappingData.GetDataSegment(13, 2);
+		paletteIndexData[LAYER_LAYERB] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerB[scrolledMappingNumberLayerB], layerBMappingData.GetBit(11), scrolledPixelNumberLayerB);
+
+		//Read the background palette settings
+		layerPriority[LAYER_BACKGROUND] = false;
+		paletteLineData[LAYER_BACKGROUND] = M5GetBackgroundColorPalette(accessTarget);
+		paletteIndexData[LAYER_BACKGROUND] = M5GetBackgroundColorIndex(accessTarget);
 
 		//Determine if any of the palette index values for any of the layers indicate a
 		//transparent pixel.
@@ -1868,13 +2904,19 @@ void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int 
 		bool foundLayerAPixel = (paletteIndexData[LAYER_LAYERA] != 0);
 		bool foundLayerBPixel = (paletteIndexData[LAYER_LAYERB] != 0);
 
-		//Read the shadow/highlight mode settings
-		//##TODO## Check when changes to the shadow/highlight register take effect. Can
-		//this register be toggled mid-line?
+		//Read the shadow/highlight mode settings. Note that hardware tests have confirmed
+		//that changes to this register take effect immediately, at any point in a line.
+		//##TODO## Confirm whether shadow highlight is active in border areas
+		//##TODO## Confirm whether shadow highlight is active when the display is disabled
 		bool shadowHighlightEnabled = M5GetShadowHighlightEnabled(accessTarget);
 		bool spriteIsShadowOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 15);
 		bool spriteIsHighlightOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 14);
 
+		//##NOTE## The following code is disabled, because we use a lookup table to cache
+		//the result of layer priority calculations. This gives us a significant
+		//performance boost. The code below is provided for future reference and debugging
+		//purposes. This code should, in all instances, produce the same result as the
+		//table lookup below.
 		//Perform layer priority calculations, and determine the layer to use, as well as
 		//the resulting state of the shadow and highlight bits.
 		//unsigned int layerIndex;
@@ -1891,9 +2933,9 @@ void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int 
 		priorityIndex |= (unsigned int)foundSpritePixel << 5;
 		priorityIndex |= (unsigned int)foundLayerAPixel << 4;
 		priorityIndex |= (unsigned int)foundLayerBPixel << 3;
-		priorityIndex |= (unsigned int)prioritySprite[i] << 2;
-		priorityIndex |= (unsigned int)priorityLayerA[i] << 1;
-		priorityIndex |= (unsigned int)priorityLayerB[i];
+		priorityIndex |= (unsigned int)layerPriority[LAYER_SPRITE] << 2;
+		priorityIndex |= (unsigned int)layerPriority[LAYER_LAYERA] << 1;
+		priorityIndex |= (unsigned int)layerPriority[LAYER_LAYERB];
 
 		//Lookup the pre-calculated layer priority from the lookup table. We use a lookup
 		//table to eliminate branching, which should yield a significant performance
@@ -1903,42 +2945,393 @@ void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int 
 		//Extract the layer index, shadow, and highlight data from the combined result
 		//returned from the layer priority lookup table.
 		unsigned int layerIndex = layerSelectionResult & 0x03;
-		bool shadow = (layerSelectionResult & 0x08) != 0;
-		bool highlight = (layerSelectionResult & 0x04) != 0;
+		shadow = (layerSelectionResult & 0x08) != 0;
+		highlight = (layerSelectionResult & 0x04) != 0;
 
 		//Read the palette line and index to use for the selected layer
-		unsigned int paletteLine = paletteLineData[layerIndex];
-		unsigned int paletteIndex = paletteIndexData[layerIndex];
-
-		//Write the final colour values to the image buffer
-		if(cramWriteFlickerOccurred[hscanSettings.leftBorderPixelCount+i])
-		{
-			paletteLine = cramWriteFlickerPaletteLine[hscanSettings.leftBorderPixelCount+i];
-			paletteIndex = cramWriteFlickerPaletteIndex[hscanSettings.leftBorderPixelCount+i];
-		}
-		WriteColorValueToImageBuffer(paletteLine, paletteIndex, shadow, highlight, hscanSettings.leftBorderPixelCount + i, renderBufferLineNo);
+		paletteLine = paletteLineData[layerIndex];
+		paletteIndex = paletteIndexData[layerIndex];
 	}
 
-	//Render the right border
-	for(unsigned int i = 0; i < hscanSettings.rightBorderPixelCount; ++i)
+	//##TODO## Write a much longer comment here
+	//##FIX## This comment doesn't actually reflect what we do right now
+	//If a CRAM write has occurred at the same time as we're outputting this next
+	//pixel, retrieve the value written to CRAM and output that value instead.
+	//##TODO## Consider only advancing the CRAM buffer if we're passing the next write
+	//time in this step. If we're not, there's no point doing the advance, since it
+	//contains the same test we're doing here to decide if any work needs to be done.
+	if(cramSession.writeInfo.exists && (cramSession.nextWriteTime <= renderDigitalMclkCycleProgress))
 	{
-		unsigned int borderColorPaletteLine = M5GetBackgroundColorPalette(accessTarget);
-		unsigned int borderColorPaletteEntry = M5GetBackgroundColorIndex(accessTarget);
-		if(cramWriteFlickerOccurred[hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i])
-		{
-			borderColorPaletteLine = cramWriteFlickerPaletteLine[hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i];
-			borderColorPaletteEntry = cramWriteFlickerPaletteIndex[hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i];
-		}
-		WriteColorValueToImageBuffer(borderColorPaletteLine, borderColorPaletteEntry, false, false, hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i, renderBufferLineNo);
+		const unsigned int paletteEntriesPerLine = 16;
+		const unsigned int paletteEntrySize = 2;
+		unsigned int cramWriteAddress = cramSession.writeInfo.writeAddress;
+		paletteLine = (cramWriteAddress / paletteEntrySize) / paletteEntriesPerLine;
+		paletteIndex = (cramWriteAddress / paletteEntrySize) % paletteEntriesPerLine;
 	}
 
-	//##DEBUG##
-	unsigned int remainingMclkCyclesInLine = mclkCyclesPerLine - (mclkCycleRenderProgress - initialMclkCycleRenderProgress);
-	mclkCycleRenderProgress += remainingMclkCyclesInLine;
-	reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
-	vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
-	cram->AdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
-	vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
+	//Now that we've advanced the analog render cycle and handled CRAM write flicker,
+	//advance the committed state of the CRAM buffer. If a write occurred to CRAM at
+	//the same time as this pixel was being drawn, it will now have been committed to
+	//CRAM.
+	cram->AdvanceBySession(renderDigitalMclkCycleProgress, cramSession, cramTimesliceCopy);
+
+	//If we're drawing a pixel which is within the area of the screen we're rendering
+	//pixel data for, output the pixel data to the image buffer.
+	if(insidePixelBufferRegion)
+	{
+		//##TODO## Our new colour values are basically correct, assuming what is suspected
+		//after analysis posted on SpritesMind, that the Mega Drive VDP never actually outputs
+		//at full intensity. We haven't taken the apparent "ladder effect" into account
+		//however. It is highly recommended that we perform our own tests on the hardware, and
+		//make some comparisons between captured video output from the real system, and the
+		//output from our emulator, when playing back on the same physical screen. If the
+		//ladder effect is real and does have an effect on the way the intensity is perceived
+		//on the screen, we should emulate it. We also need to confirm the maximum intensity
+		//output by the VDP. A step size of 18 for example would get a max value of 252, which
+		//would be more logical.
+		//const unsigned char paletteEntryTo8Bit[8] = {0, 36, 73, 109, 146, 182, 219, 255};
+		//const unsigned char paletteEntryTo8BitShadow[8] = {0, 18, 37, 55, 73, 91, 110, 128};
+		//const unsigned char paletteEntryTo8BitHighlight[8] = {128, 146, 165, 183, 201, 219, 238, 255};
+		const unsigned char paletteEntryTo8Bit[8] = {0, 34, 68, 102, 136, 170, 204, 238};
+		const unsigned char paletteEntryTo8BitShadow[8] = {0, 17, 34, 51, 68, 85, 102, 119};
+		const unsigned char paletteEntryTo8BitHighlight[8] = {119, 136, 153, 170, 187, 204, 221, 238};
+		const unsigned int paletteEntriesPerLine = 16;
+		const unsigned int paletteEntrySize = 2;
+
+		//Calculate the address of the colour value to read from the palette
+		unsigned int paletteEntryAddress = (paletteIndex + (paletteLine * paletteEntriesPerLine)) * paletteEntrySize;
+
+		//Read the target palette entry
+		Data paletteData(16);
+		paletteData = (unsigned int)(cram->ReadCommitted(paletteEntryAddress+0) << 8) | (unsigned int)cram->ReadCommitted(paletteEntryAddress+1);
+
+		//Decode the target palette entry, and extract the individual 7-bit R, G, and B
+		//intensity values.
+		//-----------------------------------------------------------------
+		//|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+		//|---------------------------------------------------------------|
+		//| /   /   /   / |   Blue    | / |   Green   | / |    Red    | / |
+		//-----------------------------------------------------------------
+		unsigned int colorIntensityR = paletteData.GetDataSegment(1, 3);
+		unsigned int colorIntensityG = paletteData.GetDataSegment(5, 3);
+		unsigned int colorIntensityB = paletteData.GetDataSegment(9, 3);
+
+		//If a reduced palette is in effect, due to bit 2 of register 1 being cleared,
+		//only the lowest bit of each intensity value has any effect, and it selects
+		//between half intensity and minimum intensity. Note that hardware tests have
+		//shown that changes to this register take effect immediately, at any point in a
+		//line.
+		//##TODO## Confirm the interaction of shadow highlight mode with the palette
+		//select bit.
+		//##TODO## Confirm the mapping of intensity values when the palette select bit is
+		//cleared.
+		if(!M5GetPSEnabled(accessTarget))
+		{
+			colorIntensityR = (colorIntensityR & 0x01) << 2;
+			colorIntensityG = (colorIntensityG & 0x01) << 2;
+			colorIntensityB = (colorIntensityB & 0x01) << 2;
+		}
+
+		//Convert the palette data to a 24-bit RGB triple and write it to the image buffer
+		//##TODO## As an optimization, use a combined lookup table for colour value
+		//decoding, and eliminate the branching logic here.
+		//##TODO## Add bounds checking to the array here
+//		ImageBufferColorEntry& imageBufferEntry = imageBuffer[renderAnalogCurrentPixel + (renderAnalogCurrentRow * imageBufferWidth)];
+		//##FIX## We're grafting the old image buffer into our new render code here for
+		//temporary testing purposes. Once the new render code is tested and online,
+		//modify the image window to use the new buffer.
+		unsigned int imageBufferPixelIndex = (renderAnalogCurrentPixel + ((312 - renderAnalogCurrentRow) * imageBufferWidth)) * 4;
+		//##DEBUG##
+		if(imageBufferPixelIndex >= (imageWidth * imageHeight * 4))
+		{
+			std::wcout << "ERROR! Buffer overflow on image buffer\n";
+			std::wcout << renderAnalogCurrentPixel << ' ' << renderAnalogCurrentRow << '\n';
+		}
+		else
+		{
+			ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&image[drawingImageBufferPlane][imageBufferPixelIndex]);
+			if(outputNothing)
+			{
+				//If this pixel was forced to black, IE, if bit 0 of reg 0 is set, force the
+				//output of this pixel to black.
+				//##TODO## Do hardware testing to confirm exactly what effect setting this bit
+				//has on all areas of VDP function. Does it affect the digital operation of
+				//the VDP, or just the analog output? Does it affect hsync/vsync output lines
+				//as well, or just color output?
+				imageBufferEntry.r = 0;
+				imageBufferEntry.g = 0;
+				imageBufferEntry.b = 0;
+			}
+			else if(shadow && !highlight)
+			{
+				imageBufferEntry.r = paletteEntryTo8BitShadow[colorIntensityR];
+				imageBufferEntry.g = paletteEntryTo8BitShadow[colorIntensityG];
+				imageBufferEntry.b = paletteEntryTo8BitShadow[colorIntensityB];
+			}
+			else if(highlight && !shadow)
+			{
+				imageBufferEntry.r = paletteEntryTo8BitHighlight[colorIntensityR];
+				imageBufferEntry.g = paletteEntryTo8BitHighlight[colorIntensityG];
+				imageBufferEntry.b = paletteEntryTo8BitHighlight[colorIntensityB];
+			}
+			else
+			{
+				imageBufferEntry.r = paletteEntryTo8Bit[colorIntensityR];
+				imageBufferEntry.g = paletteEntryTo8Bit[colorIntensityG];
+				imageBufferEntry.b = paletteEntryTo8Bit[colorIntensityB];
+			}
+			imageBufferEntry.a = 0xFF;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const
+{
+	//Calculate the address of the hscroll data to read for this line
+	unsigned int hscrollDataAddress = hscrollDataBase;
+	//##TODO## Based on the EA logo for Populous, it appears that the state of LSCR is
+	//ignored when HSCR is not set. We should confirm this on hardware.
+	if(hscrState)
+	{
+		const unsigned int hscrollDataPairSize = 4;
+		hscrollDataAddress += lscrState? (screenRowNumber * hscrollDataPairSize): (((screenRowNumber / renderDigitalBlockPixelSizeY) * renderDigitalBlockPixelSizeY) * hscrollDataPairSize);
+	}
+
+	//Read the hscroll data for this line
+	//##TODO## Confirm the way scrolling data is interpreted through hardware tests. Eg,
+	//does -1 actually scroll to the left by one place, or are 0 and -1 equivalent?
+	//##TODO## According to the official documentation, the upper 6 bits of the hscroll
+	//data are unused, and are allowed to be used by software to store whatever values
+	//they want. Confirm this on hardware.
+	unsigned int layerAHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+1);
+	unsigned int layerBHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+3);
+
+	//Break the hscroll data into its two component parts. The lower 4 bits represent a
+	//displacement into the 2-cell column, or in other words, the displacement of the
+	//starting pixel within each column, while the upper 6 bits represent an offset for
+	//the column mapping data itself.
+	//-----------------------------------------
+	//| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	//|---------------------------------------|
+	//|  Column Shift Value   | Displacement  |
+	//-----------------------------------------
+	layerAHscrollPatternDisplacement = (layerAHscrollOffset & 0x00F);
+	layerAHscrollMappingDisplacement = (layerAHscrollOffset & 0x3F0) >> 4;
+	layerBHscrollPatternDisplacement = (layerBHscrollOffset & 0x00F);
+	layerBHscrollMappingDisplacement = (layerBHscrollOffset & 0x3F0) >> 4;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::DigitalRenderReadVscrollData(unsigned int screenColumnNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerAVscrollPatternDisplacement, unsigned int& layerBVscrollPatternDisplacement, unsigned int& layerAVscrollMappingDisplacement, unsigned int& layerBVscrollMappingDisplacement) const
+{
+	//Calculate the address of the vscroll data to read for this block
+	const unsigned int vscrollDataPairSize = 4;
+	unsigned int vscrollDataAddress = vscrState? (screenColumnNumber * vscrollDataPairSize): 0;
+
+	//##FIX## This is a temporary workaround for handling render reads past the end of the
+	//VSRAM buffer. We need to do more hardware tests on this behaviour, and implement
+	//this properly.
+	unsigned int layerAVscrollOffset = 0;
+	unsigned int layerBVscrollOffset = 0;
+	if(vscrollDataAddress < 0x50)
+	{
+		//Read the vscroll data for this line. Note only the lower 10 bits are
+		//effective, or the lower 11 bits in the case of interlace mode 2, due to the
+		//scrolled address being wrapped to lie within the total field boundaries,
+		//which never exceed 128 blocks.
+		layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
+		layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
+	}
+
+	//Break the vscroll data into its two component parts. The format of the vscroll data
+	//varies depending on whether interlace mode 2 is active. When interlace mode 2 is not
+	//active, the vscroll data is interpreted as a 10-bit value, where the lower 3 bits
+	//represent a vertical shift on the pattern line for the selected block mapping, or in
+	//other words, the displacement of the starting row within each pattern, while the
+	//upper 7 bits represent an offset for the mapping data itself, like so:
+	//------------------------------------------
+	//| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0  |
+	//|----------------------------------------|
+	//|    Column Shift Value     |Displacement|
+	//------------------------------------------
+	//Where interlace mode 2 is active, pattern data is 8x16 pixels, not 8x8 pixels. In
+	//this case, the vscroll data is treated as an 11-bit value, where the lower 4 bits
+	//give the row offset, and the upper 7 bits give the mapping offset, like so:
+	//---------------------------------------------
+	//|10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	//|-------------------------------------------|
+	//|    Column Shift Value     | Displacement  |
+	//---------------------------------------------
+	//Note that the unused upper bits in the vscroll data are simply discarded, since they
+	//fall outside the maximum virtual playfield size for the mapping data. Since the
+	//virtual playfield wraps, this means they have no effect.
+	layerAVscrollPatternDisplacement = interlaceMode2Active? (layerAVscrollOffset & 0x00F):      (layerAVscrollOffset & 0x007);
+	layerAVscrollMappingDisplacement = interlaceMode2Active? (layerAVscrollOffset & 0x7F0) >> 4: (layerAVscrollOffset & 0x3F8) >> 3;
+	layerBVscrollPatternDisplacement = interlaceMode2Active? (layerBVscrollOffset & 0x00F):      (layerBVscrollOffset & 0x007);
+	layerBVscrollMappingDisplacement = interlaceMode2Active? (layerBVscrollOffset & 0x7F0) >> 4: (layerBVscrollOffset & 0x3F8) >> 3;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const
+{
+	//The existence and contents of this table have been determined through analysis of
+	//the behaviour of the VDP when invalid field size settings are selected. In
+	//particular, the third table entry of 0 is used when the invalid HSZ mode of "10" is
+	//selected. This causes the row and column to overlap when building the final address
+	//value. The way the address is built in these circumstances can only be logically
+	//explained by a lookup table being used for the row shift count, with the third entry
+	//being set to 0, as we have implemented here.
+	//##FIX## Hardware tests have shown this is not actually the case
+	static const unsigned int rowShiftCountTable[4] = {6, 7, 0, 8};
+
+	//The following calculation limits the vertical playfield size, based on the
+	//horizontal playfield size. This calculation is quite simple in hardware, but looks
+	//more complicated in code than it really is. Basically, the upper bit of the vertical
+	//scroll mode is run through a NAND operation with the lower bit of the horizontal
+	//scroll mode, and likewise, the lower bit of the vertical scroll mode is run through
+	//a NAND operation with the upper bit of the horizontal scroll mode. This limits the
+	//vertical scroll mode in the exact same way the real hardware does, including when
+	//invalid scroll modes are being used.
+	unsigned int screenSizeModeH = hszState;
+	unsigned int screenSizeModeV = ((vszState & 0x1) & ((~hszState & 0x02) >> 1)) | ((vszState & 0x02) & ((~hszState & 0x01) << 1));
+
+	//Build the playfield block masks. These masks ultimately determine the boundaries of
+	//the playfield horizontally and vertically. Hardware testing and analysis on the
+	//scrolling behaviour of the VDP indicate that these masks are built by mapping the
+	//HSZ and VSZ bits to the upper bits of a 7-bit mask value, as shown below. Note that
+	//the invalid mode setting of "10" results in a mask where bit 7 is set, and bit 6 is
+	//unset. This has been confirmed through hardware tests.
+	//##TODO## Test this on hardware.
+	//##TODO## Test and confirm how the window distortion bug interacts with this block
+	//mapping selection process.
+	unsigned int playfieldBlockMaskX = (screenSizeModeH << 5) | 0x1F;
+	unsigned int playfieldBlockMaskY = (screenSizeModeV << 5) | 0x1F;
+
+	//##TODO## Update this comment
+	//Calculate the row and column numbers for the mapping data. This is simply done by
+	//converting the calculated playfield position from a pixel index into a block index,
+	//then masking the X and Y coordinates by the horizontal and vertical block masks.
+	//This gives us a row and column number, wrapped to the playfield boundaries.
+	//##TODO## We want to keep this shift method for calculating the row and column,
+	//rather than using division, but we should be using a constant, or at least
+	//explaining why the magic number "3" is being used.
+	//##TODO## Update these comments
+	//##TODO## Document why we add the horizontal scroll value, but subtract the vertical
+	//scroll value.
+	const unsigned int rowsToDisplayPerTile = 8;
+	const unsigned int cellsPerColumn = 2;
+	unsigned int mappingDataRowNumber = ((screenRowNumber + layerVscrollPatternDisplacement) / rowsToDisplayPerTile + layerVscrollMappingDisplacement) & playfieldBlockMaskY;
+	unsigned int mappingDataColumnNumber = ((screenColumnNumber - layerHscrollMappingDisplacement) * cellsPerColumn) & playfieldBlockMaskX;
+
+	//Based on the horizontal playfield mode, lookup the row shift count to use when
+	//building the final mapping data address value. The column shift count is always
+	//fixed to 1.
+	unsigned int rowShiftCount = rowShiftCountTable[screenSizeModeH];
+	const unsigned int columnShiftCount = 1;
+
+	//Calculate the final mapping data address. Note that the row number is masked with
+	//the inverted mask for the column number, so that row data is only allowed to appear
+	//where column data is not allowed to appear. This is based on the observed behaviour
+	//of the system, as is critical in order to correctly emulate the scrolling behaviour
+	//where an invalid horizontal scroll mode of "10" is applied. In this case, the row
+	//data can be interleaved with the column data, since the row shift count under this
+	//mode is 0.
+	unsigned int mappingDataAddress = nameTableBaseAddress | ((mappingDataRowNumber << rowShiftCount) & (~playfieldBlockMaskX << columnShiftCount)) | (mappingDataColumnNumber << columnShiftCount);
+
+	//Mask the lower two bits of the mapping data address, to align the mapping address
+	//with a 4-byte boundary. The VDP can only read data from the VRAM in aligned 4-byte
+	//blocks, so the lower two bits of the address are ineffective. We read a pair of
+	//2-byte block mappings from the masked address.
+	mappingDataAddress &= 0xFFFC;
+
+	//Read target layer mapping data
+	mappingDataEntry1 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+1);
+	mappingDataEntry2 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+3);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::DigitalRenderReadPatternDataRow(unsigned int screenRowNumber, unsigned int patternRowDisplacement, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const
+{
+	//Calculate the pattern row number to read for the selected pattern, based on the
+	//current row being drawn on the screen, and the vertical pattern displacement due to
+	//vscroll.
+	const unsigned int rowsToDisplayPerTile = 8;
+	unsigned int patternRowNumberNoFlip = (screenRowNumber + patternRowDisplacement) % rowsToDisplayPerTile;
+
+	//Note that we grab the entire mapping data block as
+	//the block number when calculating the address. This is because the resulting address
+	//is wrapped to keep it within the VRAM boundaries. Due to this wrapping, in reality
+	//only the lower 11 bits of the mapping data are effective when determining the block
+	//number, or the lower 10 bits in the case of interlace mode 2.
+	//##TODO## Use low-level bit operations here, and provide a comment showing the
+	//structure of the calculated address value.
+
+	//Calculate the final number of the pattern row to read, taking into account vertical
+	//flip if it is specified in the block mapping.
+	//Mapping (Pattern Name) data format:
+	//-----------------------------------------------------------------
+	//|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	//|---------------------------------------------------------------|
+	//|Pri|PalRow |VF |HF |              Pattern Number               |
+	//-----------------------------------------------------------------
+	//Pri:    Priority Bit
+	//PalRow: The palette row number to use when displaying the pattern data
+	//VF:     Vertical Flip
+	//HF:     Horizontal Flip
+	const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
+	unsigned int patternRowNumber = mappingData.GetBit(12)? (rowsPerTile - 1) - patternRowNumberNoFlip: patternRowNumberNoFlip;
+
+	//The address of the pattern data to read is determined by combining the number of the
+	//pattern (tile) with the row of the pattern to be read. The way the data is combined
+	//is different under interlace mode 2, where patterns are 16 pixels high instead of
+	//the usual 8 pixels. The format for pattern data address decoding is as follows when
+	//interlace mode 2 is not active:
+	//-----------------------------------------------------------------
+	//|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	//|---------------------------------------------------------------|
+	//|              Pattern Number               |Pattern Row| 0 | 0 |
+	//-----------------------------------------------------------------
+	//When interlace mode 2 is active, the pattern data address decoding is as follows:
+	//-----------------------------------------------------------------
+	//|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	//|---------------------------------------------------------------|
+	//|            Pattern Number             |  Pattern Row  | 0 | 0 |
+	//-----------------------------------------------------------------
+	const unsigned int patternDataRowByteSize = 4;
+	const unsigned int blockPatternByteSize = rowsPerTile * patternDataRowByteSize;
+	unsigned int patternDataAddress = ((mappingData.GetData() * blockPatternByteSize) + (patternRowNumber * patternDataRowByteSize)) % vramSize;
+
+	//Read the target pattern row
+	patternData = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const
+{
+	const unsigned int cellBlockSizeH = 8;
+	const unsigned int patternDataPixelEntryBitCount = 4;
+
+	if(!horizontalFlip)
+	{
+		//Pattern data row format (no horizontal flip):
+		//---------------------------------------------------------------------------------------------------------------------------------
+		//|31 |30 |29 |28 |27 |26 |25 |24 |23 |22 |21 |20 |19 |18 |17 |16 |15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+		//|-------------------------------------------------------------------------------------------------------------------------------|
+		//|    Pixel 1    |    Pixel 2    |    Pixel 3    |    Pixel 4    |    Pixel 5    |    Pixel 6    |    Pixel 7    |    Pixel 8    |
+		//---------------------------------------------------------------------------------------------------------------------------------
+		return patternRow.GetDataSegment(((cellBlockSizeH - 1) - pixelIndex) * patternDataPixelEntryBitCount, 4);
+	}
+	else
+	{
+		//Pattern data row format (with horizontal flip):
+		//---------------------------------------------------------------------------------------------------------------------------------
+		//|31 |30 |29 |28 |27 |26 |25 |24 |23 |22 |21 |20 |19 |18 |17 |16 |15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+		//|-------------------------------------------------------------------------------------------------------------------------------|
+		//|    Pixel 8    |    Pixel 7    |    Pixel 6    |    Pixel 5    |    Pixel 4    |    Pixel 3    |    Pixel 2    |    Pixel 1    |
+		//---------------------------------------------------------------------------------------------------------------------------------
+		return patternRow.GetDataSegment(pixelIndex * patternDataPixelEntryBitCount, 4);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -2090,370 +3483,370 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 	}
 }
 
-//----------------------------------------------------------------------------------------
-void S315_5313::WriteColorValueToImageBuffer(unsigned int paletteLine, unsigned int paletteEntry, bool shadow, bool highlight, unsigned int xpos, unsigned int ypos)
-{
-	//##TODO## Emulate CRAM write flicker
-	const unsigned int paletteEntriesPerLine = 16;
-	const unsigned int paletteEntrySize = 2;
-	//##TODO## Our new colour values are basically correct, assuming what is suspected
-	//after analysis posted on SpritesMind, that the Mega Drive VDP never actually outputs
-	//at full intensity. We haven't taken the apparent "ladder effect" into account
-	//however. It is highly recommended that we perform our own tests on the hardware, and
-	//make some comparisons between captured video output from the real system, and the
-	//output from our emulator, when playing back on the same physical screen. If the
-	//ladder effect is real and does have an effect on the way the intensity is perceived
-	//on the screen, we should emulate it. We also need to confirm the maximum intensity
-	//output by the VDP. A step size of 18 for example would get a max value of 252, which
-	//would be more logical.
-	//const unsigned char paletteEntryTo8Bit[8] = {0, 36, 73, 109, 146, 182, 219, 255};
-	//const unsigned char paletteEntryTo8BitShadow[8] = {0, 18, 37, 55, 73, 91, 110, 128};
-	//const unsigned char paletteEntryTo8BitHighlight[8] = {128, 146, 165, 183, 201, 219, 238, 255};
-	const unsigned char paletteEntryTo8Bit[8] = {0, 34, 68, 102, 136, 170, 204, 238};
-	const unsigned char paletteEntryTo8BitShadow[8] = {0, 17, 34, 51, 68, 85, 102, 119};
-	const unsigned char paletteEntryTo8BitHighlight[8] = {119, 136, 153, 170, 187, 204, 221, 238};
-
-	//Calculate the address of the colour value to read from the palette
-	unsigned int paletteEntryAddress = (paletteEntry + (paletteLine * paletteEntriesPerLine)) * paletteEntrySize;
-
-	//Read the target palette entry
-	Data paletteData(16);
-	paletteData = (unsigned int)(cram->ReadCommitted(paletteEntryAddress+0) << 8) | (unsigned int)cram->ReadCommitted(paletteEntryAddress+1);
-
-	//Decode palette color
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	if(shadow && !highlight)
-	{
-		r = paletteEntryTo8BitShadow[(paletteData.GetData() & 0x000E) >> 1];
-		g = paletteEntryTo8BitShadow[(paletteData.GetData() & 0x00E0) >> 5];
-		b = paletteEntryTo8BitShadow[(paletteData.GetData() & 0x0E00) >> 9];
-	}
-	else if(highlight && !shadow)
-	{
-		r = paletteEntryTo8BitHighlight[(paletteData.GetData() & 0x000E) >> 1];
-		g = paletteEntryTo8BitHighlight[(paletteData.GetData() & 0x00E0) >> 5];
-		b = paletteEntryTo8BitHighlight[(paletteData.GetData() & 0x0E00) >> 9];
-	}
-	else
-	{
-		r = paletteEntryTo8Bit[(paletteData.GetData() & 0x000E) >> 1];
-		g = paletteEntryTo8Bit[(paletteData.GetData() & 0x00E0) >> 5];
-		b = paletteEntryTo8Bit[(paletteData.GetData() & 0x0E00) >> 9];
-	}
-
-	//Write the final colour value to the image buffer
-	const unsigned int imageBufferEntryByteCount = 4;
-	//##TODO## Clean up this entry
-	const unsigned int height = 313;
-	unsigned int bufferPos = ((xpos + (((height - 1) * imageWidth) - (ypos * imageWidth))) * imageBufferEntryByteCount);
-//	unsigned int bufferPos = (xpos + (((imageHeight - 1) - ypos) * imageWidth)) * imageBufferEntryByteCount;
-	if(bufferPos >= (imageWidth * imageHeight * imageBufferEntryByteCount))
-	{
-		//##DEBUG##
-		std::wcout << "ERROR! Buffer overflow on image buffer\n";
-		std::wcout << ypos << ' ' << xpos << '\n';
-	}
-	image[drawingImageBufferPlane][bufferPos + 0] = r;
-	image[drawingImageBufferPlane][bufferPos + 1] = g;
-	image[drawingImageBufferPlane][bufferPos + 2] = b;
-	image[drawingImageBufferPlane][bufferPos + 3] = 0xFF;
-}
-
-//----------------------------------------------------------------------------------------
-//This function performs all the necessary calculations to determine which mapping data to
-//read for a given playfield position, and reads the corresponding mapping data pair from
-//VRAM. The calculations performed appear to produce the same result as the real VDP
-//hardware under all modes and settings, including when invalid scroll size modes are
-//used.
+////----------------------------------------------------------------------------------------
+//void S315_5313::WriteColorValueToImageBuffer(unsigned int paletteLine, unsigned int paletteEntry, bool shadow, bool highlight, unsigned int xpos, unsigned int ypos)
+//{
+//	//##TODO## Emulate CRAM write flicker
+//	const unsigned int paletteEntriesPerLine = 16;
+//	const unsigned int paletteEntrySize = 2;
+//	//##TODO## Our new colour values are basically correct, assuming what is suspected
+//	//after analysis posted on SpritesMind, that the Mega Drive VDP never actually outputs
+//	//at full intensity. We haven't taken the apparent "ladder effect" into account
+//	//however. It is highly recommended that we perform our own tests on the hardware, and
+//	//make some comparisons between captured video output from the real system, and the
+//	//output from our emulator, when playing back on the same physical screen. If the
+//	//ladder effect is real and does have an effect on the way the intensity is perceived
+//	//on the screen, we should emulate it. We also need to confirm the maximum intensity
+//	//output by the VDP. A step size of 18 for example would get a max value of 252, which
+//	//would be more logical.
+//	//const unsigned char paletteEntryTo8Bit[8] = {0, 36, 73, 109, 146, 182, 219, 255};
+//	//const unsigned char paletteEntryTo8BitShadow[8] = {0, 18, 37, 55, 73, 91, 110, 128};
+//	//const unsigned char paletteEntryTo8BitHighlight[8] = {128, 146, 165, 183, 201, 219, 238, 255};
+//	const unsigned char paletteEntryTo8Bit[8] = {0, 34, 68, 102, 136, 170, 204, 238};
+//	const unsigned char paletteEntryTo8BitShadow[8] = {0, 17, 34, 51, 68, 85, 102, 119};
+//	const unsigned char paletteEntryTo8BitHighlight[8] = {119, 136, 153, 170, 187, 204, 221, 238};
 //
-//The following comments are provided as a supplement to the comments within this
-//function, and show how the internally calculated row and column numbers are combined
-//with the mapping base address data to produce a final VRAM address for the mapping
-//block. All possible combinations of screen mode settings are shown, including invalid
-//modes (VSZ="10" or HSZ="10"). Note that invalid combinations of screen mode settings are
-//not shown, since invalid combinations never actually occur, due to the vertical screen
-//mode being adjusted based on the horizontal screen mode, as outlined in the function
-//comments below.
+//	//Calculate the address of the colour value to read from the palette
+//	unsigned int paletteEntryAddress = (paletteEntry + (paletteLine * paletteEntriesPerLine)) * paletteEntrySize;
 //
-//Officially supported screen mode settings. Note that the lower two bits of the resulting
-//address are masked before the address is used.
-//Mapping data VRAM address (HSZ=00 VSZ=00):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//| Base Addr | 0 | 0 |        Row        |       Column      | 0 | (Row Shift Count = 6)
-//-----------------------------------------------------------------
-//Mapping data VRAM address (HSZ=01 VSZ=00):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//| Base Addr | 0 |        Row        |         Column        | 0 | (Row Shift Count = 7)
-//-----------------------------------------------------------------
-//Mapping data VRAM address (HSZ=11 VSZ=00):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//| Base Addr |        Row        |           Column          | 0 | (Row Shift Count = 8)
-//-----------------------------------------------------------------
-//Mapping data VRAM address (HSZ=00 VSZ=01):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//| Base Addr | 0 |          Row          |       Column      | 0 | (Row Shift Count = 6)
-//-----------------------------------------------------------------
-//Mapping data VRAM address (HSZ=01 VSZ=01):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//| Base Addr |          Row          |         Column        | 0 | (Row Shift Count = 7)
-//-----------------------------------------------------------------
-//Mapping data VRAM address (HSZ=00 VSZ=11):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//| Base Addr |            Row            |       Column      | 0 | (Row Shift Count = 6)
-//-----------------------------------------------------------------
+//	//Read the target palette entry
+//	Data paletteData(16);
+//	paletteData = (unsigned int)(cram->ReadCommitted(paletteEntryAddress+0) << 8) | (unsigned int)cram->ReadCommitted(paletteEntryAddress+1);
 //
-//Officially unsupported screen modes. In this case, the row and column data may be
-//interleaved, and the row shift count may be 0, as shown below:
-//Mapping data VRAM address (HSZ=00 VSZ=10):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//|           |Row| 0 |        Row        |                       | (Row Shift Count = 6)
-//|           -------------------------------------------------   |
-//|                                       |       Column      |   |
-//|---------------------------------------------------------------|
-//| Base Addr |Row| 0 |        Row        |       Column      | 0 |
-//-----------------------------------------------------------------
-//##FIX## Hardware tests have shown the two cases below to be incorrect. It appears the
-//upper bit of the column data is never applied, and the row is never incremented when the
-//invalid horizontal mode is active.
-//Mapping data VRAM address (HSZ=10 VSZ=00):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//|                                           |        Row        | (Row Shift Count = 0)
-//|                                       ------------------------|
-//|                                       |       Column      |   |
-//|---------------------------------------------------------------|
-//| Base Addr | 0 | 0 | 0 | 0 | 0 |Col| 0 |       Column      |Row|
-//-----------------------------------------------------------------
-//Mapping data VRAM address (HSZ=10 VSZ=10):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//|                                   |Row| 0 |        Row        | (Row Shift Count = 0)
-//|                               --------------------------------|
-//|                               |Col| 0 |       Column      |   |
-//|---------------------------------------------------------------|
-//| Base Addr | 0 | 0 | 0 | 0 | 0 |Col|Row|       Column      |Row|
-//-----------------------------------------------------------------
-//##TODO## Implement the correct mappings, which are as follows:
-//Mapping data VRAM address (HSZ=10 VSZ=00):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//| Base Addr | 0 | 0 | 0 | 0 | 0 | 0 | 0 |       Column      | 0 |
-//-----------------------------------------------------------------
-//Mapping data VRAM address (HSZ=10 VSZ=10):
-//-----------------------------------------------------------------
-//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//|---------------------------------------------------------------|
-//| Base Addr | 0 | 0 | 0 | 0 | 0 | 0 | 0 |       Column      | 0 |
-//-----------------------------------------------------------------
-//----------------------------------------------------------------------------------------
-void S315_5313::ReadMappingDataPair(Data& mappingDataEntry1, Data& mappingDataEntry2, unsigned int nameTableBaseAddress, unsigned int mappingDataRowNumber, unsigned int mappingDataColumnNumber, unsigned int screenSizeModeH, unsigned int screenSizeModeV) const
-{
-	//The existence and contents of this table have been determined through analysis of
-	//the behaviour of the VDP when invalid field size settings are selected. In
-	//particular, the third table entry of 0 is used when the invalid HSZ mode of "10" is
-	//selected. This causes the row and column to overlap when building the final address
-	//value. The way the address is built in these circumstances can only be logically
-	//explained by a lookup table being used for the row shift count, with the third entry
-	//being set to 0, as we have implemented here.
-	//##FIX## Hardware tests have shown this is not actually the case
-	static const unsigned int rowShiftCountTable[4] = {6, 7, 0, 8};
-
-	//The following calculation limits the vertical playfield size, based on the
-	//horizontal playfield size. This calculation is quite simple in hardware, but looks
-	//more complicated in code than it really is. Basically, the upper bit of the vertical
-	//scroll mode is run through a NAND operation with the lower bit of the horizontal
-	//scroll mode, and likewise, the lower bit of the vertical scroll mode is run through
-	//a NAND operation with the upper bit of the horizontal scroll mode. This limits the
-	//vertical scroll mode in the exact same way the real hardware does, including when
-	//invalid scroll modes are being used.
-	screenSizeModeV = ((screenSizeModeV & 0x1) & ((~screenSizeModeH & 0x02) >> 1)) | ((screenSizeModeV & 0x02) & ((~screenSizeModeH & 0x01) << 1));
-
-	//Build the playfield block masks. These masks ultimately determine the boundaries of
-	//the playfield horizontally and vertically. Hardware testing and analysis on the
-	//scrolling behaviour of the VDP indicate that these masks are built by mapping the
-	//HSZ and VSZ bits to the upper bits of a 7-bit mask value, as shown below. Note that
-	//the invalid mode setting of "10" results in a mask where bit 7 is set, and bit 6 is
-	//unset. This has been confirmed through hardware tests.
-	//##TODO## Test this on hardware.
-	//##TODO## Test and confirm how the window distortion bug interacts with this block
-	//mapping selection process.
-	unsigned int playfieldBlockMaskX = (screenSizeModeH << 5) | 0x1F;
-	unsigned int playfieldBlockMaskY = (screenSizeModeV << 5) | 0x1F;
-
-	//Calculate the row and column numbers for the mapping data. This is simply done by
-	//converting the calculated playfield position from a pixel index into a block index,
-	//then masking the X and Y coordinates by the horizontal and vertical block masks.
-	//This gives us a row and column number, wrapped to the playfield boundaries.
-	//##TODO## We want to keep this shift method for calculating the row and column,
-	//rather than using division, but we should be using a constant, or at least
-	//explaining why the magic number "3" is being used.
-	//##TODO## Update these comments
-	mappingDataRowNumber &= playfieldBlockMaskY;
-	mappingDataColumnNumber <<= 1;
-	mappingDataColumnNumber &= playfieldBlockMaskX;
-
-	//Based on the horizontal playfield mode, lookup the row shift count to use when
-	//building the final mapping data address value. The column shift count is always
-	//fixed to 1.
-	unsigned int rowShiftCount = rowShiftCountTable[screenSizeModeH];
-	const unsigned int columnShiftCount = 1;
-
-	//Calculate the final mapping data address. Note that the row number is masked with
-	//the inverted mask for the column number, so that row data is only allowed to appear
-	//where column data is not allowed to appear. This is based on the observed behaviour
-	//of the system, as is critical in order to correctly emulate the scrolling behaviour
-	//where an invalid horizontal scroll mode of "10" is applied. In this case, the row
-	//data can be interleaved with the column data, since the row shift count under this
-	//mode is 0.
-	unsigned int mappingDataAddress = nameTableBaseAddress | ((mappingDataRowNumber << rowShiftCount) & (~playfieldBlockMaskX << columnShiftCount)) | (mappingDataColumnNumber << columnShiftCount);
-
-	//Mask the lower two bits of the mapping data address, to align the mapping address
-	//with a 4-byte boundary. The VDP can only read data from the VRAM in aligned 4-byte
-	//blocks, so the lower two bits of the address are ineffective. We read a pair of
-	//2-byte block mappings from the masked address.
-	mappingDataAddress &= 0xFFFC;
-
-	//##TODO## Clean up the old mapping code below
-	////Calculate the target layer mapping data column pair. Note that since we read mapping
-	////blocks in pairs, we need to find the next pair of mapping entries, not the next
-	////individual mapping entry, which lies at or after the specified playfield position.
-	////##TODO## The division operator we use in this function can be avoided. Since the
-	////size of a block is always a power of 2, we should be performing a bitshift rather
-	////than a full blown division operator. This is certainly what the real hardware would
-	////do.
-	//unsigned int mappingDataColumnAddress = ((layerScrolledPlayfieldX / (renderSettings.blockPatternSizeX * 2)) * 2) & playfieldBlockMaskX;
-	//if((layerScrolledPlayfieldX % (renderSettings.blockPatternSizeX * 2)) != 0)
-	//{
-	//	//If a block pair is partially visible on the left side of the playfield,
-	//	//those blocks are already being displayed using the scrolled block data.
-	//	//In this case, advance to the next pair block. Note that this also
-	//	//emulates the window distortion bug.
-	//	//##TODO## Confirm this emulates the window distortion bug.
-	//	mappingDataColumnAddress += 2;
-	//}
-
-	////Calculate the target layer mapping data row
-	////##TODO## Avoid the division operator here, and use a shift instead.
-	//unsigned int mappingDataRowAddress = (layerScrolledPlayfieldY / renderSettings.blockPatternSizeY) & playfieldBlockMaskY;
-
-	////Calculate the final target layer mapping data address
-	////##TODO## Continue testing and analysis on the invalid playfield sizes, and determine
-	////how the row number is combined into the base address.
-	//unsigned int mappingDataAddress = nameTableBaseAddress + ((mappingDataColumnAddress + (mappingDataRowAddress * playfieldBlockSizeX)) * renderSettings.blockMappingEntryByteSize);
-
-	//Read target layer mapping data
-	mappingDataEntry1 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+1);
-	mappingDataEntry2 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+3);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::ReadPatternDataRow(const LineRenderSettings& renderSettings, Data& patternData, const Data& mappingData, unsigned int patternRowNumber) const
-{
-	//Calculate the final address for the pattern row, applying vertical flip if it is
-	//specified in the block mapping. Note that we grab the entire mapping data block as
-	//the block number when calculating the address. This is because the resulting address
-	//is wrapped to keep it within the VRAM boundaries. Due to this wrapping, in reality
-	//only the lower 11 bits of the mapping data are effective when determining the block
-	//number, or the lower 10 bits in the case of interlace mode 2.
-	//##TODO## Use low-level bit operations here, and provide a comment showing the
-	//structure of the calculated address value.
-	unsigned int patternRowNumberWithFlip = mappingData.GetBit(12)? (renderSettings.blockPatternSizeY - 1) - patternRowNumber: patternRowNumber;
-	unsigned int patternDataAddress = ((mappingData.GetData() * renderSettings.blockPatternByteSize) + (patternRowNumberWithFlip * renderSettings.blockPatternRowByteSize)) % vramSize;
-
-	//Read the target pattern row
-	patternData = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const
-{
-	//Extract the individual palette index values from the block pattern data, accounting
-	//for the horizontal flip flag in the block mappings.
-	std::vector<unsigned int> patternEntryArray(16);
-	if(mappingDataCell1.GetBit(11))
-	{
-		patternEntryArray[0] = patternDataCell1.GetDataSegment(0, 4);
-		patternEntryArray[1] = patternDataCell1.GetDataSegment(4, 4);
-		patternEntryArray[2] = patternDataCell1.GetDataSegment(8, 4);
-		patternEntryArray[3] = patternDataCell1.GetDataSegment(12, 4);
-		patternEntryArray[4] = patternDataCell1.GetDataSegment(16, 4);
-		patternEntryArray[5] = patternDataCell1.GetDataSegment(20, 4);
-		patternEntryArray[6] = patternDataCell1.GetDataSegment(24, 4);
-		patternEntryArray[7] = patternDataCell1.GetDataSegment(28, 4);
-	}
-	else
-	{
-		patternEntryArray[0] = patternDataCell1.GetDataSegment(28, 4);
-		patternEntryArray[1] = patternDataCell1.GetDataSegment(24, 4);
-		patternEntryArray[2] = patternDataCell1.GetDataSegment(20, 4);
-		patternEntryArray[3] = patternDataCell1.GetDataSegment(16, 4);
-		patternEntryArray[4] = patternDataCell1.GetDataSegment(12, 4);
-		patternEntryArray[5] = patternDataCell1.GetDataSegment(8, 4);
-		patternEntryArray[6] = patternDataCell1.GetDataSegment(4, 4);
-		patternEntryArray[7] = patternDataCell1.GetDataSegment(0, 4);
-	}
-	if(mappingDataCell2.GetBit(11))
-	{
-		patternEntryArray[8] = patternDataCell2.GetDataSegment(0, 4);
-		patternEntryArray[9] = patternDataCell2.GetDataSegment(4, 4);
-		patternEntryArray[10] = patternDataCell2.GetDataSegment(8, 4);
-		patternEntryArray[11] = patternDataCell2.GetDataSegment(12, 4);
-		patternEntryArray[12] = patternDataCell2.GetDataSegment(16, 4);
-		patternEntryArray[13] = patternDataCell2.GetDataSegment(20, 4);
-		patternEntryArray[14] = patternDataCell2.GetDataSegment(24, 4);
-		patternEntryArray[15] = patternDataCell2.GetDataSegment(28, 4);
-	}
-	else
-	{
-		patternEntryArray[8] = patternDataCell2.GetDataSegment(28, 4);
-		patternEntryArray[9] = patternDataCell2.GetDataSegment(24, 4);
-		patternEntryArray[10] = patternDataCell2.GetDataSegment(20, 4);
-		patternEntryArray[11] = patternDataCell2.GetDataSegment(16, 4);
-		patternEntryArray[12] = patternDataCell2.GetDataSegment(12, 4);
-		patternEntryArray[13] = patternDataCell2.GetDataSegment(8, 4);
-		patternEntryArray[14] = patternDataCell2.GetDataSegment(4, 4);
-		patternEntryArray[15] = patternDataCell2.GetDataSegment(0, 4);
-	}
-
-	//Extract the palette line numbers from the block mappings
-	unsigned int paletteLineCell1 = mappingDataCell1.GetDataSegment(13, 2);
-	unsigned int paletteLineCell2 = mappingDataCell2.GetDataSegment(13, 2);
-
-	//##TODO## Make a comment about the window distortion bug
-	//Calculate the number of pixels to output for this column, and the initial pixel
-	//entry in the pattern buffer to output.
-	unsigned int columnPixelEndPosLayerA = (((columnNumber + 1) << 4) + scrollValueDisplacement) & 0x3FF;
-	unsigned int pixelsToOutputLayerA = columnPixelEndPosLayerA - currentRenderPixel;
-	unsigned int pixelIndexStartValueLayerA = 0x10 - (pixelsToOutputLayerA & 0x0F);
-
-	//Output each pixel for this column
-	for(unsigned int i = 0; i < pixelsToOutputLayerA; ++i)
-	{
-		unsigned int patternEntryBufferIndex = (pixelIndexStartValueLayerA + i) % 0x10;
-		outputPaletteEntries[currentRenderPixel] = patternEntryArray[patternEntryBufferIndex];
-		outputPaletteLines[currentRenderPixel] = (patternEntryBufferIndex < 8)? paletteLineCell1: paletteLineCell2;
-		++currentRenderPixel;
-	}
-}
+//	//Decode palette color
+//	unsigned char r;
+//	unsigned char g;
+//	unsigned char b;
+//	if(shadow && !highlight)
+//	{
+//		r = paletteEntryTo8BitShadow[(paletteData.GetData() & 0x000E) >> 1];
+//		g = paletteEntryTo8BitShadow[(paletteData.GetData() & 0x00E0) >> 5];
+//		b = paletteEntryTo8BitShadow[(paletteData.GetData() & 0x0E00) >> 9];
+//	}
+//	else if(highlight && !shadow)
+//	{
+//		r = paletteEntryTo8BitHighlight[(paletteData.GetData() & 0x000E) >> 1];
+//		g = paletteEntryTo8BitHighlight[(paletteData.GetData() & 0x00E0) >> 5];
+//		b = paletteEntryTo8BitHighlight[(paletteData.GetData() & 0x0E00) >> 9];
+//	}
+//	else
+//	{
+//		r = paletteEntryTo8Bit[(paletteData.GetData() & 0x000E) >> 1];
+//		g = paletteEntryTo8Bit[(paletteData.GetData() & 0x00E0) >> 5];
+//		b = paletteEntryTo8Bit[(paletteData.GetData() & 0x0E00) >> 9];
+//	}
+//
+//	//Write the final colour value to the image buffer
+//	const unsigned int imageBufferEntryByteCount = 4;
+//	//##TODO## Clean up this entry
+//	const unsigned int height = 313;
+//	unsigned int bufferPos = ((xpos + (((height - 1) * imageWidth) - (ypos * imageWidth))) * imageBufferEntryByteCount);
+////	unsigned int bufferPos = (xpos + (((imageHeight - 1) - ypos) * imageWidth)) * imageBufferEntryByteCount;
+//	if(bufferPos >= (imageWidth * imageHeight * imageBufferEntryByteCount))
+//	{
+//		//##DEBUG##
+//		std::wcout << "ERROR! Buffer overflow on image buffer\n";
+//		std::wcout << ypos << ' ' << xpos << '\n';
+//	}
+//	image[drawingImageBufferPlane][bufferPos + 0] = r;
+//	image[drawingImageBufferPlane][bufferPos + 1] = g;
+//	image[drawingImageBufferPlane][bufferPos + 2] = b;
+//	image[drawingImageBufferPlane][bufferPos + 3] = 0xFF;
+//}
+//
+////----------------------------------------------------------------------------------------
+////This function performs all the necessary calculations to determine which mapping data to
+////read for a given playfield position, and reads the corresponding mapping data pair from
+////VRAM. The calculations performed appear to produce the same result as the real VDP
+////hardware under all modes and settings, including when invalid scroll size modes are
+////used.
+////
+////The following comments are provided as a supplement to the comments within this
+////function, and show how the internally calculated row and column numbers are combined
+////with the mapping base address data to produce a final VRAM address for the mapping
+////block. All possible combinations of screen mode settings are shown, including invalid
+////modes (VSZ="10" or HSZ="10"). Note that invalid combinations of screen mode settings are
+////not shown, since invalid combinations never actually occur, due to the vertical screen
+////mode being adjusted based on the horizontal screen mode, as outlined in the function
+////comments below.
+////
+////Officially supported screen mode settings. Note that the lower two bits of the resulting
+////address are masked before the address is used.
+////Mapping data VRAM address (HSZ=00 VSZ=00):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////| Base Addr | 0 | 0 |        Row        |       Column      | 0 | (Row Shift Count = 6)
+////-----------------------------------------------------------------
+////Mapping data VRAM address (HSZ=01 VSZ=00):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////| Base Addr | 0 |        Row        |         Column        | 0 | (Row Shift Count = 7)
+////-----------------------------------------------------------------
+////Mapping data VRAM address (HSZ=11 VSZ=00):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////| Base Addr |        Row        |           Column          | 0 | (Row Shift Count = 8)
+////-----------------------------------------------------------------
+////Mapping data VRAM address (HSZ=00 VSZ=01):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////| Base Addr | 0 |          Row          |       Column      | 0 | (Row Shift Count = 6)
+////-----------------------------------------------------------------
+////Mapping data VRAM address (HSZ=01 VSZ=01):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////| Base Addr |          Row          |         Column        | 0 | (Row Shift Count = 7)
+////-----------------------------------------------------------------
+////Mapping data VRAM address (HSZ=00 VSZ=11):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////| Base Addr |            Row            |       Column      | 0 | (Row Shift Count = 6)
+////-----------------------------------------------------------------
+////
+////Officially unsupported screen modes. In this case, the row and column data may be
+////interleaved, and the row shift count may be 0, as shown below:
+////Mapping data VRAM address (HSZ=00 VSZ=10):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////|           |Row| 0 |        Row        |                       | (Row Shift Count = 6)
+////|           -------------------------------------------------   |
+////|                                       |       Column      |   |
+////|---------------------------------------------------------------|
+////| Base Addr |Row| 0 |        Row        |       Column      | 0 |
+////-----------------------------------------------------------------
+////##FIX## Hardware tests have shown the two cases below to be incorrect. It appears the
+////upper bit of the column data is never applied, and the row is never incremented when the
+////invalid horizontal mode is active.
+////Mapping data VRAM address (HSZ=10 VSZ=00):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////|                                           |        Row        | (Row Shift Count = 0)
+////|                                       ------------------------|
+////|                                       |       Column      |   |
+////|---------------------------------------------------------------|
+////| Base Addr | 0 | 0 | 0 | 0 | 0 |Col| 0 |       Column      |Row|
+////-----------------------------------------------------------------
+////Mapping data VRAM address (HSZ=10 VSZ=10):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////|                                   |Row| 0 |        Row        | (Row Shift Count = 0)
+////|                               --------------------------------|
+////|                               |Col| 0 |       Column      |   |
+////|---------------------------------------------------------------|
+////| Base Addr | 0 | 0 | 0 | 0 | 0 |Col|Row|       Column      |Row|
+////-----------------------------------------------------------------
+////##TODO## Implement the correct mappings, which are as follows:
+////Mapping data VRAM address (HSZ=10 VSZ=00):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////| Base Addr | 0 | 0 | 0 | 0 | 0 | 0 | 0 |       Column      | 0 |
+////-----------------------------------------------------------------
+////Mapping data VRAM address (HSZ=10 VSZ=10):
+////-----------------------------------------------------------------
+////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+////|---------------------------------------------------------------|
+////| Base Addr | 0 | 0 | 0 | 0 | 0 | 0 | 0 |       Column      | 0 |
+////-----------------------------------------------------------------
+////----------------------------------------------------------------------------------------
+//void S315_5313::ReadMappingDataPair(Data& mappingDataEntry1, Data& mappingDataEntry2, unsigned int nameTableBaseAddress, unsigned int mappingDataRowNumber, unsigned int mappingDataColumnNumber, unsigned int screenSizeModeH, unsigned int screenSizeModeV) const
+//{
+//	//The existence and contents of this table have been determined through analysis of
+//	//the behaviour of the VDP when invalid field size settings are selected. In
+//	//particular, the third table entry of 0 is used when the invalid HSZ mode of "10" is
+//	//selected. This causes the row and column to overlap when building the final address
+//	//value. The way the address is built in these circumstances can only be logically
+//	//explained by a lookup table being used for the row shift count, with the third entry
+//	//being set to 0, as we have implemented here.
+//	//##FIX## Hardware tests have shown this is not actually the case
+//	static const unsigned int rowShiftCountTable[4] = {6, 7, 0, 8};
+//
+//	//The following calculation limits the vertical playfield size, based on the
+//	//horizontal playfield size. This calculation is quite simple in hardware, but looks
+//	//more complicated in code than it really is. Basically, the upper bit of the vertical
+//	//scroll mode is run through a NAND operation with the lower bit of the horizontal
+//	//scroll mode, and likewise, the lower bit of the vertical scroll mode is run through
+//	//a NAND operation with the upper bit of the horizontal scroll mode. This limits the
+//	//vertical scroll mode in the exact same way the real hardware does, including when
+//	//invalid scroll modes are being used.
+//	screenSizeModeV = ((screenSizeModeV & 0x1) & ((~screenSizeModeH & 0x02) >> 1)) | ((screenSizeModeV & 0x02) & ((~screenSizeModeH & 0x01) << 1));
+//
+//	//Build the playfield block masks. These masks ultimately determine the boundaries of
+//	//the playfield horizontally and vertically. Hardware testing and analysis on the
+//	//scrolling behaviour of the VDP indicate that these masks are built by mapping the
+//	//HSZ and VSZ bits to the upper bits of a 7-bit mask value, as shown below. Note that
+//	//the invalid mode setting of "10" results in a mask where bit 7 is set, and bit 6 is
+//	//unset. This has been confirmed through hardware tests.
+//	//##TODO## Test this on hardware.
+//	//##TODO## Test and confirm how the window distortion bug interacts with this block
+//	//mapping selection process.
+//	unsigned int playfieldBlockMaskX = (screenSizeModeH << 5) | 0x1F;
+//	unsigned int playfieldBlockMaskY = (screenSizeModeV << 5) | 0x1F;
+//
+//	//Calculate the row and column numbers for the mapping data. This is simply done by
+//	//converting the calculated playfield position from a pixel index into a block index,
+//	//then masking the X and Y coordinates by the horizontal and vertical block masks.
+//	//This gives us a row and column number, wrapped to the playfield boundaries.
+//	//##TODO## We want to keep this shift method for calculating the row and column,
+//	//rather than using division, but we should be using a constant, or at least
+//	//explaining why the magic number "3" is being used.
+//	//##TODO## Update these comments
+//	mappingDataRowNumber &= playfieldBlockMaskY;
+//	mappingDataColumnNumber <<= 1;
+//	mappingDataColumnNumber &= playfieldBlockMaskX;
+//
+//	//Based on the horizontal playfield mode, lookup the row shift count to use when
+//	//building the final mapping data address value. The column shift count is always
+//	//fixed to 1.
+//	unsigned int rowShiftCount = rowShiftCountTable[screenSizeModeH];
+//	const unsigned int columnShiftCount = 1;
+//
+//	//Calculate the final mapping data address. Note that the row number is masked with
+//	//the inverted mask for the column number, so that row data is only allowed to appear
+//	//where column data is not allowed to appear. This is based on the observed behaviour
+//	//of the system, as is critical in order to correctly emulate the scrolling behaviour
+//	//where an invalid horizontal scroll mode of "10" is applied. In this case, the row
+//	//data can be interleaved with the column data, since the row shift count under this
+//	//mode is 0.
+//	unsigned int mappingDataAddress = nameTableBaseAddress | ((mappingDataRowNumber << rowShiftCount) & (~playfieldBlockMaskX << columnShiftCount)) | (mappingDataColumnNumber << columnShiftCount);
+//
+//	//Mask the lower two bits of the mapping data address, to align the mapping address
+//	//with a 4-byte boundary. The VDP can only read data from the VRAM in aligned 4-byte
+//	//blocks, so the lower two bits of the address are ineffective. We read a pair of
+//	//2-byte block mappings from the masked address.
+//	mappingDataAddress &= 0xFFFC;
+//
+//	//##TODO## Clean up the old mapping code below
+//	////Calculate the target layer mapping data column pair. Note that since we read mapping
+//	////blocks in pairs, we need to find the next pair of mapping entries, not the next
+//	////individual mapping entry, which lies at or after the specified playfield position.
+//	////##TODO## The division operator we use in this function can be avoided. Since the
+//	////size of a block is always a power of 2, we should be performing a bitshift rather
+//	////than a full blown division operator. This is certainly what the real hardware would
+//	////do.
+//	//unsigned int mappingDataColumnAddress = ((layerScrolledPlayfieldX / (renderSettings.blockPatternSizeX * 2)) * 2) & playfieldBlockMaskX;
+//	//if((layerScrolledPlayfieldX % (renderSettings.blockPatternSizeX * 2)) != 0)
+//	//{
+//	//	//If a block pair is partially visible on the left side of the playfield,
+//	//	//those blocks are already being displayed using the scrolled block data.
+//	//	//In this case, advance to the next pair block. Note that this also
+//	//	//emulates the window distortion bug.
+//	//	//##TODO## Confirm this emulates the window distortion bug.
+//	//	mappingDataColumnAddress += 2;
+//	//}
+//
+//	////Calculate the target layer mapping data row
+//	////##TODO## Avoid the division operator here, and use a shift instead.
+//	//unsigned int mappingDataRowAddress = (layerScrolledPlayfieldY / renderSettings.blockPatternSizeY) & playfieldBlockMaskY;
+//
+//	////Calculate the final target layer mapping data address
+//	////##TODO## Continue testing and analysis on the invalid playfield sizes, and determine
+//	////how the row number is combined into the base address.
+//	//unsigned int mappingDataAddress = nameTableBaseAddress + ((mappingDataColumnAddress + (mappingDataRowAddress * playfieldBlockSizeX)) * renderSettings.blockMappingEntryByteSize);
+//
+//	//Read target layer mapping data
+//	mappingDataEntry1 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+1);
+//	mappingDataEntry2 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+3);
+//}
+//
+////----------------------------------------------------------------------------------------
+//void S315_5313::ReadPatternDataRow(const LineRenderSettings& renderSettings, Data& patternData, const Data& mappingData, unsigned int patternRowNumber) const
+//{
+//	//Calculate the final address for the pattern row, applying vertical flip if it is
+//	//specified in the block mapping. Note that we grab the entire mapping data block as
+//	//the block number when calculating the address. This is because the resulting address
+//	//is wrapped to keep it within the VRAM boundaries. Due to this wrapping, in reality
+//	//only the lower 11 bits of the mapping data are effective when determining the block
+//	//number, or the lower 10 bits in the case of interlace mode 2.
+//	//##TODO## Use low-level bit operations here, and provide a comment showing the
+//	//structure of the calculated address value.
+//	unsigned int patternRowNumberWithFlip = mappingData.GetBit(12)? (renderSettings.blockPatternSizeY - 1) - patternRowNumber: patternRowNumber;
+//	unsigned int patternDataAddress = ((mappingData.GetData() * renderSettings.blockPatternByteSize) + (patternRowNumberWithFlip * renderSettings.blockPatternRowByteSize)) % vramSize;
+//
+//	//Read the target pattern row
+//	patternData = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
+//}
+//
+////----------------------------------------------------------------------------------------
+//void S315_5313::RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const
+//{
+//	//Extract the individual palette index values from the block pattern data, accounting
+//	//for the horizontal flip flag in the block mappings.
+//	std::vector<unsigned int> patternEntryArray(16);
+//	if(mappingDataCell1.GetBit(11))
+//	{
+//		patternEntryArray[0] = patternDataCell1.GetDataSegment(0, 4);
+//		patternEntryArray[1] = patternDataCell1.GetDataSegment(4, 4);
+//		patternEntryArray[2] = patternDataCell1.GetDataSegment(8, 4);
+//		patternEntryArray[3] = patternDataCell1.GetDataSegment(12, 4);
+//		patternEntryArray[4] = patternDataCell1.GetDataSegment(16, 4);
+//		patternEntryArray[5] = patternDataCell1.GetDataSegment(20, 4);
+//		patternEntryArray[6] = patternDataCell1.GetDataSegment(24, 4);
+//		patternEntryArray[7] = patternDataCell1.GetDataSegment(28, 4);
+//	}
+//	else
+//	{
+//		patternEntryArray[0] = patternDataCell1.GetDataSegment(28, 4);
+//		patternEntryArray[1] = patternDataCell1.GetDataSegment(24, 4);
+//		patternEntryArray[2] = patternDataCell1.GetDataSegment(20, 4);
+//		patternEntryArray[3] = patternDataCell1.GetDataSegment(16, 4);
+//		patternEntryArray[4] = patternDataCell1.GetDataSegment(12, 4);
+//		patternEntryArray[5] = patternDataCell1.GetDataSegment(8, 4);
+//		patternEntryArray[6] = patternDataCell1.GetDataSegment(4, 4);
+//		patternEntryArray[7] = patternDataCell1.GetDataSegment(0, 4);
+//	}
+//	if(mappingDataCell2.GetBit(11))
+//	{
+//		patternEntryArray[8] = patternDataCell2.GetDataSegment(0, 4);
+//		patternEntryArray[9] = patternDataCell2.GetDataSegment(4, 4);
+//		patternEntryArray[10] = patternDataCell2.GetDataSegment(8, 4);
+//		patternEntryArray[11] = patternDataCell2.GetDataSegment(12, 4);
+//		patternEntryArray[12] = patternDataCell2.GetDataSegment(16, 4);
+//		patternEntryArray[13] = patternDataCell2.GetDataSegment(20, 4);
+//		patternEntryArray[14] = patternDataCell2.GetDataSegment(24, 4);
+//		patternEntryArray[15] = patternDataCell2.GetDataSegment(28, 4);
+//	}
+//	else
+//	{
+//		patternEntryArray[8] = patternDataCell2.GetDataSegment(28, 4);
+//		patternEntryArray[9] = patternDataCell2.GetDataSegment(24, 4);
+//		patternEntryArray[10] = patternDataCell2.GetDataSegment(20, 4);
+//		patternEntryArray[11] = patternDataCell2.GetDataSegment(16, 4);
+//		patternEntryArray[12] = patternDataCell2.GetDataSegment(12, 4);
+//		patternEntryArray[13] = patternDataCell2.GetDataSegment(8, 4);
+//		patternEntryArray[14] = patternDataCell2.GetDataSegment(4, 4);
+//		patternEntryArray[15] = patternDataCell2.GetDataSegment(0, 4);
+//	}
+//
+//	//Extract the palette line numbers from the block mappings
+//	unsigned int paletteLineCell1 = mappingDataCell1.GetDataSegment(13, 2);
+//	unsigned int paletteLineCell2 = mappingDataCell2.GetDataSegment(13, 2);
+//
+//	//##TODO## Make a comment about the window distortion bug
+//	//Calculate the number of pixels to output for this column, and the initial pixel
+//	//entry in the pattern buffer to output.
+//	unsigned int columnPixelEndPosLayerA = (((columnNumber + 1) << 4) + scrollValueDisplacement) & 0x3FF;
+//	unsigned int pixelsToOutputLayerA = columnPixelEndPosLayerA - currentRenderPixel;
+//	unsigned int pixelIndexStartValueLayerA = 0x10 - (pixelsToOutputLayerA & 0x0F);
+//
+//	//Output each pixel for this column
+//	for(unsigned int i = 0; i < pixelsToOutputLayerA; ++i)
+//	{
+//		unsigned int patternEntryBufferIndex = (pixelIndexStartValueLayerA + i) % 0x10;
+//		outputPaletteEntries[currentRenderPixel] = patternEntryArray[patternEntryBufferIndex];
+//		outputPaletteLines[currentRenderPixel] = (patternEntryBufferIndex < 8)? paletteLineCell1: paletteLineCell2;
+//		++currentRenderPixel;
+//	}
+//}
 
 //----------------------------------------------------------------------------------------
 void S315_5313::DMAWorkerThread()
@@ -2469,56 +3862,81 @@ void S315_5313::DMAWorkerThread()
 		if(!busGranted)
 		{
 			//##DEBUG##
-	//		std::wcout << L"DMAWorkerThread going idle\t" << GetProcessorStateTime() << '\n';
-	//		std::wcout << '\t' << workerThreadActive << '\t' << workerThreadPaused << '\t' << busGranted << '\n';
+//			std::wcout << L"DMAWorkerThread going idle\t" << GetProcessorStateTime() << '\n';
+//			std::wcout << '\t' << workerThreadActive << '\t' << workerThreadPaused << '\t' << busGranted << '\n';
 
 			//If we don't currently have the bus, go idle until a DMA work request comes
 			//through.
+			GetDeviceContext()->SetTransientExecutionActive(false);
 			workerThreadIdle.notify_all();
 			workerThreadUpdate.wait(lock);
+			GetDeviceContext()->SetTransientExecutionActive(busGranted);
 
 			//##DEBUG##
-	//		std::wcout << L"DMAWorkerThread going active\t" << GetProcessorStateTime() << '\n';
+//			std::wcout << L"DMAWorkerThread going active\t" << GetProcessorStateTime() << '\n';
 		}
 		else
 		{
-			//If we currently have the bus, advance the processor state until the DMA
-			//operation is complete, or we reach the end of the current timeslice.
-			//##FIX## This is incorrect. We know from testing that the FIFO can read as
-			//full after a DMA transfer operation has completed, but currently, we advance
-			//until the FIFO reads as not full. We need a new kind of parameter for the
-			//UpdateInternalState function that will allow us to stop when the DMA
-			//transfer is actually completed.
-			//##FIX## This is actually seriously breaking stuff. Currently, the FIFO is
-			//advanced after DMA operations are advanced. This can mean a new DMA transfer
-			//operation, on its first step, can result in no pending data writes in the
-			//FIFO after executing the first data transfer. This means we really do need
-			//to add that new flag, which is stopWhenNoDMAOperationInProgress.
-			double lastTimesliceTotalExecuteTime = currentTimesliceLength + lastTimesliceRemainingTime;
-			if((lastTimesliceTotalExecuteTime > 0) && (lastTimesliceTotalExecuteTime > GetProcessorStateTime()))
+			//##DEBUG##
+			if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
 			{
-				//##DEBUG##
-//				std::wcout << "VDP - DMAWorkerThread: " << lastTimesliceTotalExecuteTime << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << "\n";
-
-				UpdateInternalState(ConvertAccessTimeToMclkCount(lastTimesliceTotalExecuteTime), true, false, false, false, false, true, false);
+				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+				std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+				std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+				std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+				std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+				std::wcout << "busGranted:\t" << busGranted << "\n";
+				std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+				std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+				std::wcout << "status:\t" << status.GetData() << "\n";
+				std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+				std::wcout << "dmd1:\t" << dmd1 << "\n";
+				std::wcout << "dmd0:\t" << dmd1 << "\n";
+				std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 			}
 
-			//If the DMA transfer has been completed, negate BR to release the bus.
-			if(!GetStatusFlagDMA())
+			//If a DMA transfer is currently in progress and we currently have the bus,
+			//advance the processor state until the DMA operation is complete, or we reach
+			//the end of the current timeslice.
+			if(dmaTransferActive && busGranted)
 			{
-				//##DEBUG##
-	//			std::wcout << "SetLine - VDP_LINE_BR:\t" << false << '\n';
+				//If we currently have the bus, advance the processor state until the DMA
+				//operation is complete, or we reach the end of the current timeslice.
+				double lastTimesliceTotalExecuteTime = currentTimesliceLength + lastTimesliceRemainingTime;
+				if((lastTimesliceTotalExecuteTime > 0) && (lastTimesliceTotalExecuteTime > GetProcessorStateTime()))
+				{
+					//##DEBUG##
+	//				std::wcout << "VDP - DMAWorkerThread: " << lastTimesliceTotalExecuteTime << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << "\n";
 
-				//Note that by negating BR, the M68000 should negate BG in response, which
-				//will clear the busGranted flag before this call returns.
-				memoryBus->SetLine(LINE_BR, Data(GetLineWidth(LINE_BR), 0), GetDeviceContext(), GetDeviceContext(), GetProcessorStateTime());
+					UpdateInternalState(ConvertAccessTimeToMclkCount(lastTimesliceTotalExecuteTime), true, false, false, false, false, true, false);
+				}
 
-				//##DEBUG##
-	//			std::wcout << "DMA Transfer complete\n";
+				//If the DMA transfer has been completed, negate BR to release the bus.
+				if(!GetStatusFlagDMA())
+				{
+					//##DEBUG##
+	//				if(outputTestDebugMessages)
+	//				{
+	//					std::wcout << "SetLine - VDP_LINE_BR:\t" << false << '\t' << GetProcessorStateTime() << '\t' << GetProcessorStateMclkCurrent() << '\n';
+	//				}
+
+					//Note that by negating BR, the M68000 should negate BG in response. This
+					//may not occur immediately however. In this case, 
+					//will clear the busGranted flag before this call returns.
+					//##FIX## We're changing this behaviour. The M68000 may no longer directly
+					//negate BG while the BR line is being negated. The call may occur at a
+					//future period of time.
+					memoryBus->SetLine(LINE_BR, Data(GetLineWidth(LINE_BR), 0), GetDeviceContext(), GetDeviceContext(), GetProcessorStateTime());
+
+					//##DEBUG##
+		//			std::wcout << "DMA Transfer complete\n";
+				}
 			}
 
-			//If the VDP still has the bus, but we've reached the end of the current
-			//timeslice, suspend the worker thread until the next timeslice is received.
+			//If the VDP still has the bus, but we've negated BR or reached the end of the
+			//current timeslice, suspend the worker thread until the next timeslice is
+			//received, or the BR line state changes.
 			if(busGranted)
 			{
 				//##DEBUG##
@@ -2527,14 +3945,15 @@ void S315_5313::DMAWorkerThread()
 
 				//Suspend the DMA worker thread until a new timeslice is received.
 				workerThreadPaused = true;
+				GetDeviceContext()->SetTransientExecutionActive(false);
 				workerThreadIdle.notify_all();
 				workerThreadUpdate.wait(lock);
+				GetDeviceContext()->SetTransientExecutionActive(busGranted);
 				workerThreadPaused = false;
 
 				//##DEBUG##
 	//			std::wcout << L"DMAWorkerThread resuming\t" << GetProcessorStateTime() << '\n';
 			}
-
 		}
 	}
 
@@ -2804,6 +4223,25 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		eventProcessingCompleted.wait(lock);
 	}
 
+	//##DEBUG##
+	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+	{
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		std::wcout << "busGranted:\t" << busGranted << "\n";
+		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+		std::wcout << "status:\t" << status.GetData() << "\n";
+		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+		std::wcout << "dmd1:\t" << dmd1 << "\n";
+		std::wcout << "dmd0:\t" << dmd1 << "\n";
+		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+	}
+
 	//Convert the access time into a cycle count relative to MCLK, rounding up the result
 	//to the nearest MCLK cycle.
 	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceRemainingTime);
@@ -2813,24 +4251,58 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		accessMclkCycle += 1;
 	}
 
-	//##DEBUG##
-	if(busGranted)
-	{
-		std::wcout << "######################################################\n";
-		std::wcout << "VDP ReadInterface called when busGranted was set!\n";
-		std::wcout << "accessTime:\t" << accessTime << "\n";
-		std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "######################################################\n";
-	}
-
-	//##DEBUG##
-//	std::wcout << "VDPReadInterface:\t" << std::hex << std::uppercase << location << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceRemainingTime << '\n';
-
 	//Check that the access is targeting the VDP, not the embedded PSG.
 	if((location & 0xC) != 0x8)
 	{
+		//##DEBUG##
+		if(outputTestDebugMessages)
+		{
+			std::wcout << "VDPReadInterface:\t" << std::hex << std::uppercase << location << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceRemainingTime << '\n';
+		}
+
+		//##DEBUG##
+		if(dmaEnabled && !dmd1 && commandCode.GetBit(5))
+		{
+			std::wcout << "######################################################\n";
+			std::wcout << "VDP ReadInterface called when a DMA transfer was in progress!\n";
+			std::wcout << "location:\t" << location << "\n";
+			std::wcout << "accessTime:\t" << accessTime << "\n";
+			std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+			std::wcout << "busGranted:\t" << busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+			std::wcout << "dmd1:\t" << dmd1 << "\n";
+			std::wcout << "dmd0:\t" << dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "######################################################\n";
+		}
+
+		//##DEBUG##
+		if(busGranted)
+		{
+			//outputTestDebugMessages = true;
+			std::wcout << "######################################################\n";
+			std::wcout << "VDP ReadInterface called when busGranted was set!\n";
+			std::wcout << "location:\t" << location << "\n";
+			std::wcout << "accessTime:\t" << accessTime << "\n";
+			std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+			std::wcout << "busGranted:\t" << busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+			std::wcout << "dmd1:\t" << dmd1 << "\n";
+			std::wcout << "dmd0:\t" << dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "######################################################\n";
+		}
+
 		//Trigger a system rollback if the device has been accessed out of order
 		if(lastAccessTime > accessTime)
 		{
@@ -2959,6 +4431,25 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		eventProcessingCompleted.wait(lock);
 	}
 
+	//##DEBUG##
+	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+	{
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		std::wcout << "busGranted:\t" << busGranted << "\n";
+		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+		std::wcout << "status:\t" << status.GetData() << "\n";
+		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+		std::wcout << "dmd1:\t" << dmd1 << "\n";
+		std::wcout << "dmd0:\t" << dmd1 << "\n";
+		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+	}
+
 	//Convert the access time into a cycle count relative to MCLK, rounding up the result
 	//to the nearest MCLK cycle.
 	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceRemainingTime);
@@ -2968,25 +4459,61 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		accessMclkCycle += 1;
 	}
 
-	//##DEBUG##
-	if(busGranted)
-	{
-		std::wcout << "######################################################\n";
-		std::wcout << "VDP ReadInterface called when busGranted was set!\n";
-		std::wcout << "accessTime:\t" << accessTime << "\n";
-		std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "######################################################\n";
-	}
-
-	//##DEBUG##
-//	std::wcout << "VDPWriteInterface: " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceRemainingTime << '\n';
-
 	//Check that the access is targeting the VDP, not the embedded PSG.
 	//##TODO## Find a neater way to implement this
 	if((location & 0xC) != 0x8)
 	{
+		//##DEBUG##
+		if(outputTestDebugMessages)
+		{
+			std::wcout << "VDPWriteInterface: " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceRemainingTime << '\n';
+		}
+
+		//##DEBUG##
+		if(dmaEnabled && !dmd1 && commandCode.GetBit(5))
+		{
+			std::wcout << "######################################################\n";
+			std::wcout << "VDP WriteInterface called when a DMA transfer was in progress!\n";
+			std::wcout << "location:\t" << location << "\n";
+			std::wcout << "data:\t" << data.GetData() << "\n";
+			std::wcout << "accessTime:\t" << accessTime << "\n";
+			std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+			std::wcout << "busGranted:\t" << busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+			std::wcout << "dmd1:\t" << dmd1 << "\n";
+			std::wcout << "dmd0:\t" << dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "######################################################\n";
+		}
+
+		//##DEBUG##
+		if(busGranted)
+		{
+			//outputTestDebugMessages = true;
+			std::wcout << "######################################################\n";
+			std::wcout << "VDP WriteInterface called when busGranted was set!\n";
+			std::wcout << "location:\t" << location << "\n";
+			std::wcout << "data:\t" << data.GetData() << "\n";
+			std::wcout << "accessTime:\t" << accessTime << "\n";
+			std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+			std::wcout << "busGranted:\t" << busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+			std::wcout << "dmd1:\t" << dmd1 << "\n";
+			std::wcout << "dmd0:\t" << dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "######################################################\n";
+		}
+
 		//Trigger a system rollback if the device has been accessed out of order
 		if(lastAccessTime > accessTime)
 		{
@@ -3179,6 +4706,25 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		}
 		else
 		{
+			//##DEBUG##
+			if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+			{
+				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+				std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+				std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+				std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+				std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+				std::wcout << "busGranted:\t" << busGranted << "\n";
+				std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+				std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+				std::wcout << "status:\t" << status.GetData() << "\n";
+				std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+				std::wcout << "dmd1:\t" << dmd1 << "\n";
+				std::wcout << "dmd0:\t" << dmd1 << "\n";
+				std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+			}
+
 			ProcessCommandDataWriteSecondHalf(data);
 
 			//Hardware tests have shown that when the DMA enable bit is cleared, the state
@@ -3203,6 +4749,25 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 			//keep the two separated in our core for maximum efficiency on status register
 			//reads, and keep them manually in sync whenever the CD5 bit is modified.
 			SetStatusFlagDMA(commandCode.GetBit(5));
+
+			//##DEBUG##
+			if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+			{
+				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+				std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+				std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+				std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+				std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+				std::wcout << "busGranted:\t" << busGranted << "\n";
+				std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+				std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+				std::wcout << "status:\t" << status.GetData() << "\n";
+				std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+				std::wcout << "dmd1:\t" << dmd1 << "\n";
+				std::wcout << "dmd0:\t" << dmd1 << "\n";
+				std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+			}
 
 			//Check if we need to obtain the bus due to an external DMA transfer operation
 			if(dmaEnabled             //DMA is enabled
@@ -3238,7 +4803,10 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				dmaTransferLastTimesliceUnusedMclkCycles = 0;
 
 				//##DEBUG##
-		//		std::wcout << "SetLine - VDP_LINE_BR:\t" << true << '\n';
+//				if(outputTestDebugMessages)
+//				{
+//					std::wcout << "SetLine - VDP_LINE_BR:\t" << true << '\t' << GetProcessorStateTime() << '\t' << GetProcessorStateMclkCurrent() << '\n';
+//				}
 			}
 		}
 
@@ -3329,7 +4897,7 @@ Data S315_5313::GetHVCounter() const
 		externalVCounter.SetBit(0, currentVCounter.GetBit(8));
 	}
 
-	//Build and return the combined 16-bit external hv counter
+	//Build and return the combined 16-bit external HV counter
 	//-----------------------------------------------------------------
 	//| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 	//|-------------------------------|-------------------------------|
@@ -3462,9 +5030,24 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 		}
 		break;
 	case 12:
-		screenModeH40Cached = data.GetBit(0);
-		interlaceEnabledCached = data.GetBit(1);
+		if(screenModeRS0Cached != data.GetBit(7))
+		{
+			screenModeRS0Cached = data.GetBit(7);
+			//If the RS0 bit has changed, we need to trigger a rollback, since any change
+			//to this register will almost certainly affect when the next VDP timing point
+			//event occurs.
+			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		}
+		if(screenModeRS1Cached != data.GetBit(0))
+		{
+			screenModeRS1Cached = data.GetBit(0);
+			//If the RS1 bit has changed, we need to trigger a rollback, since any change
+			//to this register will almost certainly affect when the next VDP timing point
+			//event occurs.
+			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		}
 		interlaceDoubleCached = data.GetBit(2);
+		interlaceEnabledCached = data.GetBit(1);
 		break;
 	case 15:
 		autoIncrementData = data.GetData();
@@ -3520,13 +5103,70 @@ unsigned int S315_5313::VCounterValueFromLinearToVDPInternal(const VScanSettings
 //----------------------------------------------------------------------------------------
 //Video scan settings functions
 //----------------------------------------------------------------------------------------
-const S315_5313::HScanSettings& S315_5313::GetHScanSettings(bool screenModeH40Active)
+const S315_5313::HScanSettings& S315_5313::GetHScanSettings(bool screenModeRS0Active, bool screenModeRS1Active)
 {
+	//Analog screen sections in relation to HCounter (H32 mode):
+	//-----------------------------------------------------------------
+	//| Screen section | HCounter  |Pixel| Pixel |Serial|Serial |MCLK |
+	//| (PAL/NTSC H32) |  value    |clock| clock |clock |clock  |ticks|
+	//|                |           |ticks|divider|ticks |divider|     |
+	//|----------------|-----------|-----|-------|------|-------|-----|
+	//|Left border     |0x00B-0x017|  13 |SCLK/2 |   26 |MCLK/5 | 130 |
+	//|----------------|-----------|-----|-------|------|-------|-----|
+	//|Active display  |0x018-0x117| 256 |SCLK/2 |  512 |MCLK/5 |2560 |
+	//|----------------|-----------|-----|-------|------|-------|-----|
+	//|Right border    |0x118-0x125|  14 |SCLK/2 |   28 |MCLK/5 | 140 |
+	//|----------------|-----------|-----|-------|------|-------|-----|
+	//|Back porch      |0x126-0x127|   9 |SCLK/2 |   18 |MCLK/5 |  90 |
+	//|(Right Blanking)|0x1D2-0x1D8|     |       |      |       |     |
+	//|----------------|-----------|-----|-------|------|-------|-----|
+	//|Horizontal sync |0x1D9-0x1F2|  26 |SCLK/2 |   52 |MCLK/5 | 260 |
+	//|----------------|-----------|-----|-------|------|-------|-----|
+	//|Front porch     |0x1F3-0x00A|  24 |SCLK/2 |   48 |MCLK/5 | 240 |
+	//|(Left Blanking) |           |     |       |      |       |     |
+	//|----------------|-----------|-----|-------|------|-------|-----|
+	//|TOTALS          |           | 342 |       |  684 |       |3420 |
+	//-----------------------------------------------------------------
+
+	//Analog screen sections in relation to HCounter (H40 mode):
+	//--------------------------------------------------------------------
+	//| Screen section |   HCounter    |Pixel| Pixel |EDCLK| EDCLK |MCLK |
+	//| (PAL/NTSC H40) |    value      |clock| clock |ticks|divider|ticks|
+	//|                |               |ticks|divider|     |       |     |
+	//|----------------|---------------|-----|-------|-----|-------|-----|
+	//|Left border     |0x00D-0x019    |  13 |EDCLK/2|  26 |MCLK/4 | 104 |
+	//|----------------|---------------|-----|-------|-----|-------|-----|
+	//|Active display  |0x01A-0x159    | 320 |EDCLK/2| 640 |MCLK/4 |2560 |
+	//|----------------|---------------|-----|-------|-----|-------|-----|
+	//|Right border    |0x15A-0x167    |  14 |EDCLK/2|  28 |MCLK/4 | 112 |
+	//|----------------|---------------|-----|-------|-----|-------|-----|
+	//|Back porch      |0x168-0x16C    |   9 |EDCLK/2|  18 |MCLK/4 |  72 |
+	//|(Right Blanking)|0x1C9-0x1CC    |     |       |     |       |     |
+	//|----------------|---------------|-----|-------|-----|-------|-----|
+	//|Horizontal sync |0x1CD.0-0x1D4.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+	//|                |0x1D4.5-0x1D5.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+	//|                |0x1D5.5-0x1DC.0| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+	//|                |0x1DD.0        |   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+	//|                |0x1DE.0-0x1E5.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+	//|                |0x1E5.5-0x1E6.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+	//|                |0x1E6.5-0x1EC.0| 6.5 |EDCLK/2|  13 |MCLK/5 |  65 |
+	//|                |===============|=====|=======|=====|=======|=====|
+	//|        Subtotal|0x1CD-0x1EC    | (32)|       | (64)|       |(314)|
+	//|----------------|---------------|-----|-------|-----|-------|-----|
+	//|Front porch     |0x1ED          |   1 |EDCLK/2|   2 |MCLK/5 |  10 |
+	//|(Left Blanking) |0x1EE-0x00C    |  31 |EDCLK/2|  62 |MCLK/4 | 248 |
+	//|                |===============|=====|=======|=====|=======|=====|
+	//|        Subtotal|0x1ED-0x00C    | (32)|       | (64)|       |(258)|
+	//|----------------|---------------|-----|-------|-----|-------|-----|
+	//|TOTALS          |               | 420 |       | 840 |       |3420 |
+	//--------------------------------------------------------------------
+
+	//Digital render events in relation to HCounter:
 	//----------------------------------------------------
 	//|        Video |PAL/NTSC         |PAL/NTSC         |
 	//|         Mode |H32     (RSx=00) |H40     (RSx=11) |
 	//|              |V28/V30 (M2=*)   |V28/V30 (M2=*)   |
-	//| Test         |Int any (LSMx=**)|Int any (LSMx=**)|
+	//| Event        |Int any (LSMx=**)|Int any (LSMx=**)|
 	//|--------------------------------------------------|
 	//|HCounter      |[1]0x000-0x127   |[1]0x000-0x16C   |
 	//|progression   |[2]0x1D2-0x1FF   |[2]0x1C9-0x1FF   |
@@ -3574,53 +5214,60 @@ const S315_5313::HScanSettings& S315_5313::GetHScanSettings(bool screenModeH40Ac
 	//real hardware to determine the true 9-bit values.
 	//##TODO## The values for HINT flagged are based on an educated guess. Confirm them
 	//through hardware tests.
-	static const HScanSettings h32ScanSettings(0x127, 0x1D2, 0x10A, 0x126, 0x00A, 0x001, 0x002, 0x1FF, 0x0EF, 0x000, 0x1D9, 0x1F3, 13, 256, 14);
-	static const HScanSettings h40ScanSettings(0x16C, 0x1C9, 0x14A, 0x166, 0x00B, 0x001, 0x002, 0x1FF, 0x12F, 0x000, 0x1CD, 0x1ED, 13, 320, 14);
-	return (screenModeH40Active)? h40ScanSettings: h32ScanSettings; 
+	static const HScanSettings h32ScanSettings(0x127, 0x1D2, 0x10A, 0x126, 0x00A, 0x001, 0x002, 0x1FF, 0x0EF, 0x000, 0x1D9, 0x1F3, 0x018, 0x117, 256, 0x00B, 0x017, 13, 0x118, 0x125, 14);
+	static const HScanSettings h40ScanSettings(0x16C, 0x1C9, 0x14A, 0x166, 0x00B, 0x001, 0x002, 0x1FF, 0x12F, 0x000, 0x1CD, 0x1ED, 0x01A, 0x159, 320, 0x00D, 0x019, 13, 0x15A, 0x167, 14);
+	return (screenModeRS1Active)? h40ScanSettings: h32ScanSettings;
 }
 
 //----------------------------------------------------------------------------------------
 const S315_5313::VScanSettings& S315_5313::GetVScanSettings(bool screenModeV30Active, bool palModeActive, bool interlaceActive)
 {
-	//----------------------------------------------------------------------------------------
-	//|        Video |PAL              |PAL              |PAL              |PAL              |
-	//|         Mode |H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|
-	//|              |V28     (M2=0)   |V28     (M2=0)   |V30     (M2=1)   |V30     (M2=1)   |
-	//| Test         |Int none(LSMx=*0)|Int both(LSMx=*1)|Int none(LSMx=*0)|Int both(LSMx=*1)|
-	//|--------------------------------------------------------------------------------------|
-	//|VCounter      |[1]0x000-0x102   |[1]0x000-0x101   |[1]0x000-0x10A   |[1]0x000-0x109   |
-	//|progression   |[2]0x1CA-0x1FF   |[2]0x1C9(#ODD)   |[2]0x1D2-0x1FF   |[2]0x1D1(#ODD)   |
-	//|9-bit internal|                 |[3]0x1CA-0x1FF   |                 |[3]0x1D2-0x1FF   |
-	//|--------------------------------------------------------------------------------------|
-	//|VBlank set    |Vcounter changes |                 |Vcounter changes |                 |
-	//|              |from 0x0DF to    |     <Same>      |from 0x0EF to    |     <Same>      |
-	//|              |0x0E0 in [1].    |                 |0x0F0 in [1].    |                 |
-	//|--------------------------------------------------------------------------------------|
-	//|VBlank cleared|Vcounter changes |                 |Vcounter changes |                 |
-	//|              |from 0x1FE to    |     <Same>      |from 0x1FE to    |     <Same>      |
-	//|              |0x1FF in [2].    |                 |0x1FF in [2].    |                 |
-	//|--------------------------------------------------------------------------------------|
-	//|F flag set    |while VCounter is|                 |while VCounter is|                 |
-	//|              |set to 0x0E0 in  |     <Same>      |set to 0x0F0 in  |     <Same>      |
-	//|              |[1].             |                 |[1].             |                 |
-	//|--------------------------------------------------------------------------------------|
-	//|VSYNC asserted|Vcounter changes |                 |Vcounter changes |                 |
-	//|              |from 0x0FF to    |     <Same>      |from 0x107 to    |     <Same>      |
-	//|              |0x100 in [1].    |                 |0x108 in [1].    |                 |
-	//|--------------------------------------------------------------------------------------|
-	//|VSYNC cleared |Vcounter changes |                 |Vcounter changes |                 |
-	//|              |from 0x1D9 to    |     <Same>      |from 0x1E1 to    |     <Same>      |
-	//|              |0x1DA in [1].    |                 |0x1E2 in [1].    |                 |
-	//|--------------------------------------------------------------------------------------|
-	//|ODD flag      |while VCounter is|                 |while VCounter is|                 |
-	//|toggled       |set to 0x0E0 in  |     <Same>      |set to 0x0F0 in  |     <Same>      |
-	//|              |[1].             |                 |[1].             |                 |
-	//----------------------------------------------------------------------------------------
+	//Analog screen sections in relation to VCounter:
+	//-------------------------------------------------------------------------------------------
+	//|           Video |NTSC             |NTSC             |PAL              |PAL              |
+	//|            Mode |H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|
+	//|                 |V28     (M2=0)   |V30     (M2=1)   |V28     (M2=0)   |V30     (M2=1)   |
+	//|                 |Int none(LSMx=*0)|Int none(LSMx=*0)|Int none(LSMx=*0)|Int none(LSMx=*0)|
+	//|                 |------------------------------------------------------------------------
+	//|                 | VCounter  |Line | VCounter  |Line | VCounter  |Line | VCounter  |Line |
+	//| Screen section  |  value    |count|  value    |count|  value    |count|  value    |count|
+	//|-----------------|-----------|-----|-----------|-----|-----------|-----|-----------|-----|
+	//|Active display   |0x000-0x0DF| 224 |0x000-0x1FF| 240*|0x000-0x0DF| 224 |0x000-0x0EF| 240 |
+	//|-----------------|-----------|-----|-----------|-----|-----------|-----|-----------|-----|
+	//|Bottom border    |0x0E0-0x0E7|   8 |           |   0 |0x0E0-0x0FF|  32 |0x0F0-0x107|  24 |
+	//|-----------------|-----------|-----|-----------|-----|-----------|-----|-----------|-----|
+	//|Bottom blanking  |0x0E8-0x0EA|   3 |           |   0 |0x100-0x102|   3 |0x108-0x10A|   3 |
+	//|-----------------|-----------|-----|-----------|-----|-----------|-----|-----------|-----|
+	//|Vertical sync    |0x1E5-0x1E7|   3 |           |   0 |0x1CA-0x1CC|   3 |0x1D2-0x1D4|   3 |
+	//|-----------------|-----------|-----|-----------|-----|-----------|-----|-----------|-----|
+	//|Top blanking     |0x1E8-0x1F4|  13 |           |   0 |0x1CD-0x1D9|  13 |0x1D5-0x1E1|  13 |
+	//|-----------------|-----------|-----|-----------|-----|-----------|-----|-----------|-----|
+	//|Top border       |0x1F5-0x1FF|  11 |           |   0 |0x1DA-0x1FF|  38 |0x1E2-0x1FF|  30 |
+	//|-----------------|-----------|-----|-----------|-----|-----------|-----|-----------|-----|
+	//|TOTALS           |           | 262 |           | 240*|           | 313 |           | 313 |
+	//-------------------------------------------------------------------------------------------
+	//*When V30 mode and NTSC mode are both active, no border, blanking, or retrace
+	//occurs. A 30-row display is setup and rendered, however, immediately following the
+	//end of the 30th row, the 1st row starts again. In addition, the VCounter is never
+	//reset, which usually happens at the beginning of vertical blanking. Instead, the
+	//VCounter continuously counts from 0x000-0x1FF, then wraps around back to 0x000 and
+	//begins again. Since there are only 240 lines output as part of the display, this
+	//means the actual line being rendered is desynchronized from the VCounter. Digital
+	//events such as vblank flags being set/cleared, VInt being triggered, the odd flag
+	//being toggled, and so forth, still occur at the correct VCounter positions they
+	//would occur in (IE, the same as PAL mode V30), however, since the VCounter has 512
+	//lines per cycle, this means VInt is triggered at a slower rate than normal.
+	//##TODO## Confirm on the hardware that the rendering row is desynchronized from the
+	//VCounter. This would seem unlikely, since a separate render line counter would have
+	//to be maintained apart from VCounter for this to occur.
+
+	//Digital render events in relation to VCounter under NTSC mode:
+	//#ODD - Runs only when the ODD flag is set
 	//----------------------------------------------------------------------------------------
 	//|        Video |NTSC             |NTSC             |NTSC             |NTSC             |
 	//|         Mode |H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|
 	//|              |V28     (M2=0)   |V28     (M2=0)   |V30     (M2=1)   |V30     (M2=1)   |
-	//| Test         |Int none(LSMx=*0)|Int both(LSMx=*1)|Int none(LSMx=*0)|Int both(LSMx=*1)|
+	//| Event        |Int none(LSMx=*0)|Int both(LSMx=*1)|Int none(LSMx=*0)|Int both(LSMx=*1)|
 	//|--------------------------------------------------------------------------------------|
 	//|VCounter      |[1]0x000-0x0EA   |[1]0x000-0x0EA   |[1]0x000-0x1FF   |[1]0x000-0x1FF   |
 	//|progression   |[2]0x1E5-0x1FF   |[2]0x1E4(#ODD)   |                 |                 |
@@ -3644,25 +5291,62 @@ const S315_5313::VScanSettings& S315_5313::GetVScanSettings(bool screenModeV30Ac
 	//|--------------------------------------------------------------------------------------|
 	//|VSYNC cleared |Vcounter changes |                 |      Never      |                 |
 	//|              |from 0x1F4 to    |     <Same>      |                 |     <Same>      |
-	//|              |0x1F5 in [1].    |                 |                 |                 |
+	//|              |0x1F5 in [2].    |                 |                 |                 |
 	//|--------------------------------------------------------------------------------------|
 	//|ODD flag      |while VCounter is|                 |while VCounter is|                 |
 	//|toggled       |set to 0x0E0 in  |     <Same>      |set to 0x0F0 in  |     <Same>      |
 	//|              |[1].             |                 |[1].             |                 |
 	//----------------------------------------------------------------------------------------
+
+	//Digital render events in relation to VCounter under PAL mode:
 	//#ODD - Runs only when the ODD flag is set
+	//----------------------------------------------------------------------------------------
+	//|        Video |PAL              |PAL              |PAL              |PAL              |
+	//|         Mode |H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|
+	//|              |V28     (M2=0)   |V28     (M2=0)   |V30     (M2=1)   |V30     (M2=1)   |
+	//| Event        |Int none(LSMx=*0)|Int both(LSMx=*1)|Int none(LSMx=*0)|Int both(LSMx=*1)|
+	//|--------------------------------------------------------------------------------------|
+	//|VCounter      |[1]0x000-0x102   |[1]0x000-0x101   |[1]0x000-0x10A   |[1]0x000-0x109   |
+	//|progression   |[2]0x1CA-0x1FF   |[2]0x1C9(#ODD)   |[2]0x1D2-0x1FF   |[2]0x1D1(#ODD)   |
+	//|9-bit internal|                 |[3]0x1CA-0x1FF   |                 |[3]0x1D2-0x1FF   |
+	//|--------------------------------------------------------------------------------------|
+	//|VBlank set    |Vcounter changes |                 |Vcounter changes |                 |
+	//|              |from 0x0DF to    |     <Same>      |from 0x0EF to    |     <Same>      |
+	//|              |0x0E0 in [1].    |                 |0x0F0 in [1].    |                 |
+	//|--------------------------------------------------------------------------------------|
+	//|VBlank cleared|Vcounter changes |                 |Vcounter changes |                 |
+	//|              |from 0x1FE to    |     <Same>      |from 0x1FE to    |     <Same>      |
+	//|              |0x1FF in [2].    |                 |0x1FF in [2].    |                 |
+	//|--------------------------------------------------------------------------------------|
+	//|F flag set    |while VCounter is|                 |while VCounter is|                 |
+	//|              |set to 0x0E0 in  |     <Same>      |set to 0x0F0 in  |     <Same>      |
+	//|              |[1].             |                 |[1].             |                 |
+	//|--------------------------------------------------------------------------------------|
+	//|VSYNC asserted|Vcounter changes |                 |Vcounter changes |                 |
+	//|              |from 0x0FF to    |     <Same>      |from 0x107 to    |     <Same>      |
+	//|              |0x100 in [1].    |                 |0x108 in [1].    |                 |
+	//|--------------------------------------------------------------------------------------|
+	//|VSYNC cleared |Vcounter changes |                 |Vcounter changes |                 |
+	//|              |from 0x1D9 to    |     <Same>      |from 0x1E1 to    |     <Same>      |
+	//|              |0x1DA in [2].    |                 |0x1E2 in [2].    |                 |
+	//|--------------------------------------------------------------------------------------|
+	//|ODD flag      |while VCounter is|                 |while VCounter is|                 |
+	//|toggled       |set to 0x0E0 in  |     <Same>      |set to 0x0F0 in  |     <Same>      |
+	//|              |[1].             |                 |[1].             |                 |
+	//----------------------------------------------------------------------------------------
+
 	//##TODO## Evaluate the way we're using the first parameter vcounterActiveScanMaxValue
 	//in code. Note that we subtract 1 from this value for the interlace values in PAL
 	//mode, but we use the same values for both interlace and non-interlace modes in NTSC.
 	//Confirm if this is correct.
-	static const VScanSettings v28PalNoIntScanSettings(0x102, 0x1CA, 0x1C9, 0x0E0, 0x1FF, 0x1FF, 0x100, 0x1DA, 313);
-	static const VScanSettings v28PalIntEnScanSettings(0x101, 0x1CA, 0x1C9, 0x0E0, 0x1FF, 0x1FF, 0x100, 0x1DA, 313);
-	static const VScanSettings v30PalNoIntScanSettings(0x10A, 0x1D2, 0x1D1, 0x0F0, 0x1FF, 0x1FF, 0x108, 0x1E2, 313);
-	static const VScanSettings v30PalIntEnScanSettings(0x109, 0x1D2, 0x1D1, 0x0F0, 0x1FF, 0x1FF, 0x108, 0x1E2, 313);
-	static const VScanSettings v28NtscNoIntScanSettings(0x0EA, 0x1E5, 0x1E4, 0x0E0, 0x1FF, 0x1FF, 0x0E8, 0x1F5, 262);
-	static const VScanSettings v28NtscIntEnScanSettings(0x0EA, 0x1E5, 0x1E4, 0x0E0, 0x1FF, 0x1FF, 0x0E8, 0x1F5, 262);
-	static const VScanSettings v30NtscNoIntScanSettings(0x1FF, 0x200, 0x200, 0x0F0, 0x1FF, 0x1FF, 0x1FF, 0x1FF, 262);
-	static const VScanSettings v30NtscIntEnScanSettings(0x1FF, 0x200, 0x200, 0x0F0, 0x1FF, 0x1FF, 0x1FF, 0x1FF, 262);
+	static const VScanSettings v28PalNoIntScanSettings( 0x102, 0x1CA, 0x1C9, 0x0E0, 0x1FF, 0x1FF, 0x100, 0x1DA, 313, 0x000, 0x0DF, 224, 0x1DA, 0x1FF, 38, 0x0E0, 0x0FF, 32);
+	static const VScanSettings v28PalIntEnScanSettings( 0x101, 0x1CA, 0x1C9, 0x0E0, 0x1FF, 0x1FF, 0x100, 0x1DA, 313, 0x000, 0x0DF, 224, 0x1DA, 0x1FF, 38, 0x0E0, 0x0FF, 32);
+	static const VScanSettings v30PalNoIntScanSettings( 0x10A, 0x1D2, 0x1D1, 0x0F0, 0x1FF, 0x1FF, 0x108, 0x1E2, 313, 0x000, 0x0EF, 240, 0x1E2, 0x1FF, 30, 0x0F0, 0x107, 24);
+	static const VScanSettings v30PalIntEnScanSettings( 0x109, 0x1D2, 0x1D1, 0x0F0, 0x1FF, 0x1FF, 0x108, 0x1E2, 313, 0x000, 0x0EF, 240, 0x1E2, 0x1FF, 30, 0x0F0, 0x107, 24);
+	static const VScanSettings v28NtscNoIntScanSettings(0x0EA, 0x1E5, 0x1E4, 0x0E0, 0x1FF, 0x1FF, 0x0E8, 0x1F5, 262, 0x000, 0x0DF, 224, 0x1F5, 0x1FF, 11, 0x0E0, 0x0E7,  8);
+	static const VScanSettings v28NtscIntEnScanSettings(0x0EA, 0x1E5, 0x1E4, 0x0E0, 0x1FF, 0x1FF, 0x0E8, 0x1F5, 262, 0x000, 0x0DF, 224, 0x1F5, 0x1FF, 11, 0x0E0, 0x0E7,  8);
+	static const VScanSettings v30NtscNoIntScanSettings(0x1FF, 0x200, 0x200, 0x0F0, 0x1FF, 0x1FF, 0x1FF, 0x1FF, 262, 0x000, 0x0EF, 240, 0x200, 0x200,  0, 0x200, 0x200,  0);
+	static const VScanSettings v30NtscIntEnScanSettings(0x1FF, 0x200, 0x200, 0x0F0, 0x1FF, 0x1FF, 0x1FF, 0x1FF, 262, 0x000, 0x0EF, 240, 0x200, 0x200,  0, 0x200, 0x200,  0);
 
 	//Select the scan settings which correspond with the current screen mode
 	if(palModeActive)
@@ -3929,12 +5613,8 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 //----------------------------------------------------------------------------------------
 //Pixel clock functions
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(unsigned int hcounterCurrent, bool screenModeH40Current, unsigned int vcounterCurrent, bool screenModeV30Current, bool palModeCurrent, bool interlaceEnabledCurrent)
+unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vcounterCurrent)
 {
-	//Obtain the current hscan and vscan settings
-	const HScanSettings& hscanSettings = GetHScanSettings(screenModeH40Current);
-	const VScanSettings& vscanSettings = GetVScanSettings(screenModeV30Current, palModeCurrent, interlaceEnabledCurrent);
-
 	//Check if the current line, and the line following, are within the active display
 	//region. Active display lines only allow external VRAM access at specific access
 	//slots, while non-active display lines allow free access to VRAM, except where memory
@@ -3945,8 +5625,8 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(unsigned int hcoun
 	//actually first asserted at vcounter=0x1FF, meaning there is one additional line at
 	//the start of the display. This extra line is probably where sprite mapping and
 	//pattern data is latched for the first line of the display. Test this on hardware.
-	bool currentLineActiveDisplayRegion = (vcounterCurrent == 0x1FF) || (vcounterCurrent < vscanSettings.vblankSetPoint);
-	bool nextLineActiveDisplayRegion = (vcounterCurrent == 0x1FF) || (vcounterCurrent+1 == 0x1FF) || (vcounterCurrent+1 < vscanSettings.vblankSetPoint);
+	bool currentLineActiveDisplayRegion = (vcounterCurrent >= vscanSettings.activeDisplayVCounterFirstValue) && (vcounterCurrent <= vscanSettings.activeDisplayVCounterLastValue);
+	bool nextLineActiveDisplayRegion = (vcounterCurrent+1 >= vscanSettings.activeDisplayVCounterFirstValue) && (vcounterCurrent+1 <= vscanSettings.activeDisplayVCounterLastValue);
 
 	//Determine when the next access slot will occur, based on the hcounter position and
 	//the current screen mode settings. Note that we can safely assume the horizontal
@@ -3955,7 +5635,7 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(unsigned int hcoun
 	unsigned int nextAccessSlotHCounter = 0;
 	if(!currentLineActiveDisplayRegion)
 	{
-		if(!screenModeH40Current)
+		if(!screenModeRS1Current)
 		{
 			//Refresh cycle slots (H32):
 			//---------------
@@ -4049,7 +5729,7 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(unsigned int hcoun
 	}
 	else
 	{
-		if(!screenModeH40Current)
+		if(!screenModeRS1Current)
 		{
 			//##TODO## Confirm the point at which vcounter is incremented
 			//External access slots (H32):
@@ -4272,482 +5952,915 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(unsigned int hcoun
 }
 
 //----------------------------------------------------------------------------------------
-//##TODO## Modify this function to support irregular horizontal modes. In particular, we
-//need to support the case where H40 mode is enabled, without setting the corresponding
-//bit to enable the external dot clock. In this case, the VDP uses an internally generated
-//clock signal of MCLK/4 for the entire line, resulting in 3360 MCLK ticks per line
-//instead of 3420, which produces a sync rate too fast for a normal TV. We want our VDP
-//core to support output of this invalid display mode. Since all VRAM and register writes
-//are stored relative to MCLK, it should be possible.
-unsigned int S315_5313::GetPixelClockTicksForMclkTicks(unsigned int mclkTicks, unsigned int hcounterCurrent, bool screenModeH40Active, unsigned int& mclkTicksUnused)
+unsigned int S315_5313::GetPixelClockTicksForMclkTicks(const HScanSettings& hscanSettings, unsigned int mclkTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active, unsigned int& mclkTicksUnused)
 {
 	//Calculate the total number of pixel clock ticks which will execute after the given
 	//number of mclk ticks, based on the current screen mode.
+	const unsigned int pixelClockDivider = 2;
 	unsigned int pixelClockTicks;
-	if(!screenModeH40Active)
+	if(!screenModeRS0Active)
 	{
-		//In H32 mode, the serial clock is calculated as MCLK/5. The relation of hcounter
-		//to the various clock signals, and the alignment of hcounter with the analog
-		//video output, is shown below. This information has been determined through
-		//extensive and precise hardware tests.
-		//-----------------------------------------------------------------
-		//| Screen section | HCounter  |Pixel| Pixel |Serial|Serial |MCLK |
-		//| (PAL/NTSC H32) |  value    |clock| clock |clock |clock  |ticks|
-		//|                |           |ticks|divider|ticks |divider|     |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Left border     |0x00B-0x017|  13 |SCLK/2 |   26 |MCLK/5 | 130 |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Active display  |0x018-0x117| 256 |SCLK/2 |  512 |MCLK/5 |2560 |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Right border    |0x118-0x125|  14 |SCLK/2 |   28 |MCLK/5 | 140 |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Back porch      |0x126-0x127|   9 |SCLK/2 |   18 |MCLK/5 |  90 |
-		//|(Right Blanking)|0x1D2-0x1D8|     |       |      |       |     |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Horizontal sync |0x1D9-0x1F2|  26 |SCLK/2 |   52 |MCLK/5 | 260 |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Front porch     |0x1F3-0x00A|  24 |SCLK/2 |   48 |MCLK/5 | 240 |
-		//|(Left Blanking) |           |     |       |      |       |     |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|TOTALS          |           | 342 |       |  684 |       |3420 |
-		//-----------------------------------------------------------------
-		pixelClockTicks = mclkTicks / 10;
-		mclkTicksUnused = mclkTicks % 10;
+		//If the RS0 bit is clear, the serial clock is generated internally, using a
+		//divider from the MCLK input. If the RS1 bit is clear, selecting a H32 screen
+		//mode, the serial clock is calculated as MCLK/5. If the RS1 bit is set, selecting
+		//a H40 screen mode, the serial clock is calculated as MCLK/4.
+		unsigned int serialClockDivider;
+		if(!screenModeRS1Active)
+		{
+			//In H32 mode, if the RS0 bit is not set, the serial clock is calculated as
+			//MCLK/5. The relation of hcounter to the various clock signals, and the
+			//alignment of hcounter with the analog video output, is shown below. This
+			//information has been determined through extensive and precise hardware
+			//tests.
+			//-----------------------------------------------------------------
+			//| Screen section | HCounter  |Pixel| Pixel |Serial|Serial |MCLK |
+			//| (PAL/NTSC H32) |  value    |clock| clock |clock |clock  |ticks|
+			//|                |           |ticks|divider|ticks |divider|     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Left border     |0x00B-0x017|  13 |SCLK/2 |   26 |MCLK/5 | 130 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Active display  |0x018-0x117| 256 |SCLK/2 |  512 |MCLK/5 |2560 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Right border    |0x118-0x125|  14 |SCLK/2 |   28 |MCLK/5 | 140 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Back porch      |0x126-0x127|   9 |SCLK/2 |   18 |MCLK/5 |  90 |
+			//|(Right Blanking)|0x1D2-0x1D8|     |       |      |       |     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Horizontal sync |0x1D9-0x1F2|  26 |SCLK/2 |   52 |MCLK/5 | 260 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Front porch     |0x1F3-0x00A|  24 |SCLK/2 |   48 |MCLK/5 | 240 |
+			//|(Left Blanking) |           |     |       |      |       |     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|TOTALS          |           | 342 |       |  684 |       |3420 |
+			//-----------------------------------------------------------------
+			serialClockDivider = 5;
+		}
+		else
+		{
+			//In H40 mode, if the RS0 bit is not set, the serial clock is calculated as
+			//MCLK/4. The relation of hcounter to the various clock signals, and the
+			//alignment of hcounter with the analog video output, is shown below. This
+			//information has been determined through extensive and precise hardware
+			//tests. Note that on the Sega Mega Drive, this video mode does not produce a
+			//valid video signal for PAL or NTSC screens. The horizontal sync period is
+			//too short, and the line is too fast overall. The external EDCLK input needs
+			//to be enabled by setting the RS0 bit, which supplies a modified pixel clock
+			//input that slows down the horizontal sync period, to keep the number of MCLK
+			//ticks required per line to 3420.
+			//-----------------------------------------------------------------
+			//| Screen section | HCounter  |Pixel| Pixel |Serial|Serial |MCLK |
+			//| (PAL/NTSC H40) |  value    |clock| clock |clock |clock  |ticks|
+			//|                |           |ticks|divider|ticks |divider|     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Left border     |0x00D-0x019|  13 |EDCLK/2|   26 |MCLK/4 | 104 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Active display  |0x01A-0x159| 320 |EDCLK/2|  640 |MCLK/4 |2560 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Right border    |0x15A-0x167|  14 |EDCLK/2|   28 |MCLK/4 | 112 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Back porch      |0x168-0x16C|   9 |EDCLK/2|   18 |MCLK/4 |  72 |
+			//|(Right Blanking)|0x1C9-0x1CC|     |       |      |       |     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Horizontal sync |0x1CD-0x1EC|  32 |EDCLK/2|   64 |MCLK/4 | 256 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Front porch     |0x1ED-0x00C|  32 |EDCLK/2|   64 |MCLK/4 | 256 |
+			//|(Left Blanking) |           |     |       |      |       |     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|TOTALS          |           | 420 |       |  840 |       |3360 |
+			//-----------------------------------------------------------------
+			serialClockDivider = 4;
+		}
+		pixelClockTicks = mclkTicks / (serialClockDivider * pixelClockDivider);
+		mclkTicksUnused = mclkTicks % (serialClockDivider * pixelClockDivider);
 	}
 	else
 	{
-		//In H40 mode, the serial clock is provided through the external EDCLK input line.
-		//The relation of hcounter to the various clock signals, and the alignment of
-		//hcounter with the analog video output, is shown below. This information has been
-		//determined through extensive and precise hardware tests.
-		//##NOTE## Our own testing as well as tests done by Jorge Nuno confirm that in H40
-		//mode, the left border starts being displayed 64SC cycles after the end of HSYNC.
-		//We know from VRAM snooping that HSYNC ends when the HCounter advances to 0x1ED
-		//in H40 mode, and there are 2 SC cycles to every pixel clock cycle, which is what
-		//advances the HCounter and outputs a pixel to the screen, so when the left border
-		//is about to start being drawn to the screen, our internal 9-bit HCounter has a
-		//value of 0x00D, so at 0x00E, one border pixel will have been drawn.
-		//-In H40 mode, the pixel clock is calculated as EDCLK/2. EDCLK is the external
-		//dot clock, and on the real VDP, this is an input line to the VDP, with EDCLK
-		//generated by an external circuit. We emulate EDCLK internally here, assuming
-		//that any other system will use the same EDCLK generation pattern. This should be
-		//generally true, since the altered EDCLK signal must maintain 3420 MCLK cycles
-		//per line, with an input of MCLK/4 during active scan, in order to generate a
-		//valid video signal which is compatible with PAL/NTSC standards. If the VDP is
-		//used in a system which has an unusual video sync rate, EDCLK could be different
-		//however.
-		//-EDCLK is a complex signal, it is not a regular clock pulse. When the external
-		//HSYNC line has not been asserted, EDCLK is simply MCLK/4. As soon as HSYNC is
-		//asserted however, EDCLK starts outputting an alternating pattern, which lasts
-		//for 66 EDCLK ticks after hcounter has been asserted. In this pattern, EDCLK
-		//switches to MCLK/5 for 15 ticks, then switches back to, MCLK/4 for 2 ticks, then
-		//back to MCLK/5 for 15 ticks, and so on. This continues until 4 complete periods
-		//of MCLK/5 being output for 15 ticks have been completed, with 2 blocks of MCLK/4
-		//separating each one.
-		//--------------------------------------------------------------------
-		//| Screen section |   HCounter    |Pixel| Pixel |EDCLK| EDCLK |MCLK |
-		//| (PAL/NTSC H40) |    value      |clock| clock |ticks|divider|ticks|
-		//|                |               |ticks|divider|     |       |     |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Left border     |0x00D-0x019    |  13 |EDCLK/2|  26 |MCLK/4 | 104 |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Active display  |0x01A-0x159    | 320 |EDCLK/2| 640 |MCLK/4 |2560 |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Right border    |0x15A-0x167    |  14 |EDCLK/2|  28 |MCLK/4 | 112 |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Back porch      |0x168-0x16C    |   9 |EDCLK/2|  18 |MCLK/4 |  72 |
-		//|(Right Blanking)|0x1C9-0x1CC    |     |       |     |       |     |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Horizontal sync |0x1CD.0-0x1D4.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
-		//|                |0x1D4.5-0x1D5.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
-		//|                |0x1D5.5-0x1DC.0| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
-		//|                |0x1DD.0        |   1 |EDCLK/2|   2 |MCLK/4 |   8 |
-		//|                |0x1DE.0-0x1E5.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
-		//|                |0x1E5.5-0x1E6.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
-		//|                |0x1E6.5-0x1EC.0| 6.5 |EDCLK/2|  13 |MCLK/5 |  65 |
-		//|                |===============|=====|=======|=====|=======|=====|
-		//|        Subtotal|0x1CD-0x1EC    | (32)|       | (64)|       |(314)|
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Front porch     |0x1ED          |   1 |EDCLK/2|   2 |MCLK/5 |  10 |
-		//|(Left Blanking) |0x1EE-0x00C    |  31 |EDCLK/2|  62 |MCLK/4 | 248 |
-		//|                |===============|=====|=======|=====|=======|=====|
-		//|        Subtotal|0x1ED-0x00C    | (32)|       | (64)|       |(258)|
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|TOTALS          |               | 420 |       | 840 |       |3420 |
-		//--------------------------------------------------------------------
-
-		//Get the current hscan settings
-		const HScanSettings* hscanSettings = &GetHScanSettings(screenModeH40Active);
-
-		//Calculate the number of complete hcounter lines which were advanced over the
-		//time period, and the number of pixel clock ticks used to advance that number of
-		//lines.
-		const unsigned int mclkTicksPerLine = 3420;
-		unsigned int completeLinesAdvanced = mclkTicks / mclkTicksPerLine;
-		unsigned int mclkTicksUsed = (completeLinesAdvanced * mclkTicksPerLine);
-		unsigned int mclkTicksRemaining = mclkTicks - mclkTicksUsed;
-		pixelClockTicks = completeLinesAdvanced * hscanSettings->hcounterStepsPerIteration;
-
-		//Using the above information, the table below shows the number of MCLK cycles
-		//that hcounter values around the affected blanking area remain set for.
-		//--------------------------
-		//|Hcounter|Hcounter| MCLK |
-		//| value  | linear |cycles|
-		//|internal| value  |      |
-		//|--------|--------|------|
-		//|...     |...     |8     |
-		//|0x1CB   |0x16F   |8     |
-		//|0x1CC   |0x170   |8     |
-		//|0x1CD   |0x171   |10    |
-		//|0x1CE   |0x172   |10    |
-		//|0x1CF   |0x173   |10    |
-		//|0x1D0   |0x174   |10    |
-		//|0x1D1   |0x175   |10    |
-		//|0x1D2   |0x176   |10    |
-		//|0x1D3   |0x177   |10    |
-		//|0x1D4   |0x178   |9     |
-		//|0x1D5   |0x179   |9     |
-		//|0x1D6   |0x17A   |10    |
-		//|0x1D7   |0x17B   |10    |
-		//|0x1D8   |0x17C   |10    |
-		//|0x1D9   |0x17D   |10    |
-		//|0x1DA   |0x17E   |10    |
-		//|0x1DB   |0x17F   |10    |
-		//|0x1DC   |0x180   |10    |
-		//|0x1DD   |0x181   |8     |
-		//|0x1DE   |0x182   |10    |
-		//|0x1DF   |0x183   |10    |
-		//|0x1E0   |0x184   |10    |
-		//|0x1E1   |0x185   |10    |
-		//|0x1E2   |0x186   |10    |
-		//|0x1E3   |0x187   |10    |
-		//|0x1E4   |0x188   |10    |
-		//|0x1E5   |0x189   |9     |
-		//|0x1E6   |0x18A   |9     |
-		//|0x1E7   |0x18B   |10    |
-		//|0x1E8   |0x18C   |10    |
-		//|0x1E9   |0x18D   |10    |
-		//|0x1EA   |0x18E   |10    |
-		//|0x1EB   |0x18F   |10    |
-		//|0x1EC   |0x190   |10    |
-		//|0x1ED   |0x191   |10    |
-		//|0x1EE   |0x192   |8     |
-		//|0x1EF   |0x193   |8     |
-		//|...     |...     |8     |
-		//--------------------------
-		//We use this information below to accurately calculate the number of mclk cycles
-		//used to advance the hcounter.
-		while(mclkTicksRemaining > 0)
+		//If the RS0 bit is set, the serial clock is provided through the external EDCLK
+		//input. We emulate the external EDCLK input present on the Mega Drive system here
+		//as if it was an internally generated clock signal. In reality, the generation of
+		//this clock signal is external to the VDP itself, and this should eventually be
+		//separated from the VDP core itself, so that a different EDCLK input signal can
+		//be supplied if another system has different video sync requirements.
+		if(!screenModeRS1Active)
 		{
-			//Determine the current clock rate, and the number of steps we can advance the
-			//pixel clock until the clock rate changes.
-			unsigned int nextHCounterTargetStep;
-			unsigned int currentMclksPerStep;
-			if(hcounterCurrent < 0x1CD)
+			//The external EDCLK input is not designed to be used with H32 mode. Selecting
+			//the EDCLK input without enabling H40 mode produces a video signal with a far
+			//too quick horizontal sync rate to be compatible with PAL or NTSC video
+			//signals. This video mode could be displayed however, with a monitor that is
+			//capable of syncing at the correct rate to display the image.
+			//--------------------------------------------------------------------
+			//| Screen section |   HCounter    |Pixel| Pixel |EDCLK| EDCLK |MCLK |
+			//| (PAL/NTSC H32) |    value      |clock| clock |ticks|divider|ticks|
+			//| (EDCLK Input)  |               |ticks|divider|     |       |     |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Left border     |0x00B-0x017    |  13 |EDCLK/2|  26 |MCLK/4 | 104 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Active display  |0x018-0x117    | 256 |EDCLK/2| 512 |MCLK/4 |2048 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Right border    |0x118-0x125    |  14 |EDCLK/2|  28 |MCLK/4 | 112 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Back porch      |0x126-0x127    |   9 |EDCLK/2|  18 |MCLK/4 |  72 |
+			//|(Right Blanking)|0x1D2-0x1D8    |     |       |     |       |     |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Horizontal sync |0x1D9.0-0x1E0.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1E0.5-0x1E1.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1E1.5-0x1E9.0| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1E9.0        |   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1EA.0-0x1F1.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1F1.5-0x1F2.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1F2.5-0x1F3.0| 0.5 |EDCLK/2|   1 |MCLK/5 |   4 |
+			//|                |===============|=====|=======|=====|=======|=====|
+			//|        Subtotal|0x1D9-0x1F2    | (26)|       | (52)|       |(253)|
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Front porch     |0x1F3-0x1FA    |   7 |EDCLK/2|  14 |MCLK/5 |  70 |
+			//|(Left Blanking) |0x1FA-0x00A    |  17 |EDCLK/2|  34 |MCLK/4 | 136 |
+			//|                |===============|=====|=======|=====|=======|=====|
+			//|        Subtotal|0x1ED-0x00C    | (24)|       | (48)|       |(206)|
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|TOTALS          |               | 342 |       | 684 |       |2795 |
+			//--------------------------------------------------------------------
+
+			//Calculate the number of complete hcounter lines which were advanced over the
+			//time period, and the number of pixel clock ticks used to advance that number
+			//of lines.
+			const unsigned int mclkTicksPerLine = 2795;
+			unsigned int completeLinesAdvanced = mclkTicks / mclkTicksPerLine;
+			unsigned int mclkTicksUsed = (completeLinesAdvanced * mclkTicksPerLine);
+			unsigned int mclkTicksRemaining = mclkTicks - mclkTicksUsed;
+			pixelClockTicks = completeLinesAdvanced * hscanSettings.hcounterStepsPerIteration;
+
+			//Using the above information, the table below shows the number of MCLK cycles
+			//that hcounter values around the affected blanking area remain set for.
+			//--------------------------
+			//|Hcounter|Hcounter| MCLK |
+			//| value  | linear |cycles|
+			//|internal| value  |      |
+			//|--------|--------|------|
+			//|...     |...     |8     |
+			//|0x1D7   |0x12D   |8     |
+			//|0x1D8   |0x12E   |8     |
+			//|0x1D9   |0x12F   |10    |
+			//|0x1DA   |0x130   |10    |
+			//|0x1DB   |0x131   |10    |
+			//|0x1DC   |0x132   |10    |
+			//|0x1DD   |0x133   |10    |
+			//|0x1DE   |0x134   |10    |
+			//|0x1DF   |0x135   |10    |
+			//|0x1E0   |0x136   |9     |
+			//|0x1E1   |0x137   |9     |
+			//|0x1E2   |0x138   |10    |
+			//|0x1E3   |0x139   |10    |
+			//|0x1E4   |0x13A   |10    |
+			//|0x1E5   |0x13B   |10    |
+			//|0x1E6   |0x13C   |10    |
+			//|0x1E7   |0x13D   |10    |
+			//|0x1E8   |0x13E   |10    |
+			//|0x1E9   |0x13F   |8     |
+			//|0x1EA   |0x140   |10    |
+			//|0x1EB   |0x141   |10    |
+			//|0x1EC   |0x142   |10    |
+			//|0x1ED   |0x143   |10    |
+			//|0x1EE   |0x144   |10    |
+			//|0x1EF   |0x145   |10    |
+			//|0x1F0   |0x146   |10    |
+			//|0x1F1   |0x147   |9     |
+			//|0x1F2   |0x148   |9     |
+			//|0x1F3   |0x149   |10    |
+			//|0x1F4   |0x14A   |10    |
+			//|0x1F5   |0x14B   |10    |
+			//|0x1F6   |0x14C   |10    |
+			//|0x1F7   |0x14D   |10    |
+			//|0x1F8   |0x14E   |10    |
+			//|0x1F9   |0x14F   |10    |
+			//|0x1FA   |0x150   |8     |
+			//|0x1FB   |0x151   |8     |
+			//|...     |...     |8     |
+			//--------------------------
+			//We use this information below to accurately calculate the number of mclk
+			//cycles used to advance the hcounter.
+			while(mclkTicksRemaining > 0)
 			{
-				nextHCounterTargetStep = 0x1CD;
-				currentMclksPerStep = 8;
-			}
-			else if(hcounterCurrent < 0x1D4)
-			{
-				nextHCounterTargetStep = 0x1D4;
-				currentMclksPerStep = 10;
-			}
-			else if(hcounterCurrent < 0x1D6)
-			{
-				nextHCounterTargetStep = 0x1D6;
-				currentMclksPerStep = 9;
-			}
-			else if(hcounterCurrent < 0x1DD)
-			{
-				nextHCounterTargetStep = 0x1DD;
-				currentMclksPerStep = 10;
-			}
-			else if(hcounterCurrent < 0x1DE)
-			{
-				nextHCounterTargetStep = 0x1DE;
-				currentMclksPerStep = 8;
-			}
-			else if(hcounterCurrent < 0x1E5)
-			{
-				nextHCounterTargetStep = 0x1E5;
-				currentMclksPerStep = 10;
-			}
-			else if(hcounterCurrent < 0x1E7)
-			{
-				nextHCounterTargetStep = 0x1E7;
-				currentMclksPerStep = 9;
-			}
-			else if(hcounterCurrent < 0x1EE)
-			{
-				nextHCounterTargetStep = 0x1EE;
-				currentMclksPerStep = 10;
-			}
-			else
-			{
-				nextHCounterTargetStep = 0x1CD;
-				currentMclksPerStep = 8;
+				//Determine the current clock rate, and the number of steps we can advance
+				//the pixel clock until the clock rate changes.
+				unsigned int nextHCounterTargetStep;
+				unsigned int currentMclksPerStep;
+				if(hcounterCurrent < 0x1D9)
+				{
+					nextHCounterTargetStep = 0x1D9;
+					currentMclksPerStep = 8;
+				}
+				else if(hcounterCurrent < 0x1E0)
+				{
+					nextHCounterTargetStep = 0x1E0;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1E2)
+				{
+					nextHCounterTargetStep = 0x1E2;
+					currentMclksPerStep = 9;
+				}
+				else if(hcounterCurrent < 0x1E9)
+				{
+					nextHCounterTargetStep = 0x1E9;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1EA)
+				{
+					nextHCounterTargetStep = 0x1EA;
+					currentMclksPerStep = 8;
+				}
+				else if(hcounterCurrent < 0x1F1)
+				{
+					nextHCounterTargetStep = 0x1F1;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1F3)
+				{
+					nextHCounterTargetStep = 0x1F3;
+					currentMclksPerStep = 9;
+				}
+				else if(hcounterCurrent < 0x1FA)
+				{
+					nextHCounterTargetStep = 0x1FA;
+					currentMclksPerStep = 10;
+				}
+				else
+				{
+					nextHCounterTargetStep = 0x1D9;
+					currentMclksPerStep = 8;
+				}
+
+				//Calculate the number of pixel clock steps, and mclk ticks, which are
+				//required to reach the next target hcounter value.
+				unsigned int hcounterStepsToTarget = GetPixelClockStepsBetweenHCounterValues(hscanSettings, hcounterCurrent, nextHCounterTargetStep);
+				unsigned int mclkTicksToTarget = hcounterStepsToTarget * currentMclksPerStep;
+
+				//Calculate the number of mclk ticks we can actually advance in the time
+				//we have.
+				unsigned int mclkTicksToAdvance = (mclkTicksRemaining < mclkTicksToTarget)? mclkTicksRemaining: mclkTicksToTarget;
+
+				//Calculate the number of pixel clock ticks we can advance
+				unsigned int pixelClockTicksToAdvance = (mclkTicksToAdvance / currentMclksPerStep);
+				pixelClockTicks += pixelClockTicksToAdvance;
+
+				//Calculate the number of useful mclk cycles in the step we're advancing.
+				//If some mclk ticks are left over, we still allow them to be deducted
+				//from mclkTicksRemaining in order to indicate we have consumed all
+				//available mclk ticks. The correct number of mclk ticks which were
+				//actually used to advance the pixel clock is reflected in mclkTicksUsed.
+				mclkTicksUsed += pixelClockTicksToAdvance * currentMclksPerStep;
+
+				//Update hcounter to the position we've just advanced to
+				hcounterCurrent = nextHCounterTargetStep;
+
+				//Update the remaining count of mclk cycles
+				mclkTicksRemaining -= mclkTicksToAdvance;
 			}
 
-			//Calculate the number of pixel clock steps, and mclk ticks, which are
-			//required to reach the next target hcounter value.
-			unsigned int hcounterStepsToTarget = GetPixelClockStepsBetweenHCounterValues(*hscanSettings, hcounterCurrent, nextHCounterTargetStep);
-			unsigned int mclkTicksToTarget = hcounterStepsToTarget * currentMclksPerStep;
-
-			//Calculate the number of mclk ticks we can actually advance in the time we
-			//have.
-			unsigned int mclkTicksToAdvance = (mclkTicksRemaining < mclkTicksToTarget)? mclkTicksRemaining: mclkTicksToTarget;
-
-			//Calculate the number of pixel clock ticks we can advance
-			unsigned int pixelClockTicksToAdvance = (mclkTicksToAdvance / currentMclksPerStep);
-			pixelClockTicks += pixelClockTicksToAdvance;
-
-			//Calculate the number of useful mclk cycles in the step we're advancing. If
-			//some mclk ticks are left over, we still allow them to be deducted from
-			//mclkTicksRemaining in order to indicate we have consumed all available mclk
-			//ticks. The correct number of mclk ticks which were actually used to advance
-			//the pixel clock is reflected in mclkTicksUsed.
-			mclkTicksUsed += pixelClockTicksToAdvance * currentMclksPerStep;
-
-			//Update hcounter to the position we've just advanced to
-			hcounterCurrent = nextHCounterTargetStep;
-
-			//Update the remaining count of mclk cycles
-			mclkTicksRemaining -= mclkTicksToAdvance;
+			//Calculate the amount of time remaining
+			mclkTicksUnused = mclkTicks - mclkTicksUsed;
 		}
+		else
+		{
+			//In H40 mode on the Mega Drive, the EDCLK input needs to be used in order to
+			//produce a valid video signal. EDCLK is a complex signal, it is not a regular
+			//clock pulse. When the external HSYNC line has not been asserted, EDCLK is
+			//simply MCLK/4. As soon as HSYNC is asserted however, EDCLK starts outputting
+			//an alternating pattern, which lasts for 66 EDCLK ticks after HSYNC has been
+			//asserted. In this pattern, EDCLK switches to MCLK/5 for 15 ticks, then
+			//switches back to, MCLK/4 for 2 ticks, then back to MCLK/5 for 15 ticks, and
+			//so on. This continues until 4 complete periods of MCLK/5 being output for 15
+			//ticks have been completed, with 2 blocks of MCLK/4 separating each one. The
+			//relation of hcounter to the various clock signals, and the alignment of
+			//hcounter with the analog video output, is shown below. This information has
+			//been determined through extensive and precise hardware tests.
+			//##NOTE## Our own testing as well as tests done by Jorge Nuno confirm that in
+			//H40 mode, the left border starts being displayed 64SC cycles after the end
+			//of HSYNC. We know from VRAM snooping that HSYNC ends when the HCounter
+			//advances to 0x1ED in H40 mode, and there are 2 SC cycles to every pixel
+			//clock cycle, which is what advances the HCounter and outputs a pixel to the
+			//screen, so when the left border is about to start being drawn to the screen,
+			//our internal 9-bit HCounter has a value of 0x00D, so at 0x00E, one border
+			//pixel will have been drawn.
+			//--------------------------------------------------------------------
+			//| Screen section |   HCounter    |Pixel| Pixel |EDCLK| EDCLK |MCLK |
+			//| (PAL/NTSC H40) |    value      |clock| clock |ticks|divider|ticks|
+			//|                |               |ticks|divider|     |       |     |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Left border     |0x00D-0x019    |  13 |EDCLK/2|  26 |MCLK/4 | 104 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Active display  |0x01A-0x159    | 320 |EDCLK/2| 640 |MCLK/4 |2560 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Right border    |0x15A-0x167    |  14 |EDCLK/2|  28 |MCLK/4 | 112 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Back porch      |0x168-0x16C    |   9 |EDCLK/2|  18 |MCLK/4 |  72 |
+			//|(Right Blanking)|0x1C9-0x1CC    |     |       |     |       |     |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Horizontal sync |0x1CD.0-0x1D4.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1D4.5-0x1D5.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1D5.5-0x1DC.0| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1DD.0        |   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1DE.0-0x1E5.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1E5.5-0x1E6.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1E6.5-0x1EC.0| 6.5 |EDCLK/2|  13 |MCLK/5 |  65 |
+			//|                |===============|=====|=======|=====|=======|=====|
+			//|        Subtotal|0x1CD-0x1EC    | (32)|       | (64)|       |(314)|
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Front porch     |0x1ED          |   1 |EDCLK/2|   2 |MCLK/5 |  10 |
+			//|(Left Blanking) |0x1EE-0x00C    |  31 |EDCLK/2|  62 |MCLK/4 | 248 |
+			//|                |===============|=====|=======|=====|=======|=====|
+			//|        Subtotal|0x1ED-0x00C    | (32)|       | (64)|       |(258)|
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|TOTALS          |               | 420 |       | 840 |       |3420 |
+			//--------------------------------------------------------------------
 
-		//Calculate the amount of time remaining
-		mclkTicksUnused = mclkTicks - mclkTicksUsed;
+			//Calculate the number of complete hcounter lines which were advanced over the
+			//time period, and the number of pixel clock ticks used to advance that number
+			//of lines.
+			const unsigned int mclkTicksPerLine = 3420;
+			unsigned int completeLinesAdvanced = mclkTicks / mclkTicksPerLine;
+			unsigned int mclkTicksUsed = (completeLinesAdvanced * mclkTicksPerLine);
+			unsigned int mclkTicksRemaining = mclkTicks - mclkTicksUsed;
+			pixelClockTicks = completeLinesAdvanced * hscanSettings.hcounterStepsPerIteration;
+
+			//Using the above information, the table below shows the number of MCLK cycles
+			//that hcounter values around the affected blanking area remain set for.
+			//--------------------------
+			//|Hcounter|Hcounter| MCLK |
+			//| value  | linear |cycles|
+			//|internal| value  |      |
+			//|--------|--------|------|
+			//|...     |...     |8     |
+			//|0x1CB   |0x16F   |8     |
+			//|0x1CC   |0x170   |8     |
+			//|0x1CD   |0x171   |10    |
+			//|0x1CE   |0x172   |10    |
+			//|0x1CF   |0x173   |10    |
+			//|0x1D0   |0x174   |10    |
+			//|0x1D1   |0x175   |10    |
+			//|0x1D2   |0x176   |10    |
+			//|0x1D3   |0x177   |10    |
+			//|0x1D4   |0x178   |9     |
+			//|0x1D5   |0x179   |9     |
+			//|0x1D6   |0x17A   |10    |
+			//|0x1D7   |0x17B   |10    |
+			//|0x1D8   |0x17C   |10    |
+			//|0x1D9   |0x17D   |10    |
+			//|0x1DA   |0x17E   |10    |
+			//|0x1DB   |0x17F   |10    |
+			//|0x1DC   |0x180   |10    |
+			//|0x1DD   |0x181   |8     |
+			//|0x1DE   |0x182   |10    |
+			//|0x1DF   |0x183   |10    |
+			//|0x1E0   |0x184   |10    |
+			//|0x1E1   |0x185   |10    |
+			//|0x1E2   |0x186   |10    |
+			//|0x1E3   |0x187   |10    |
+			//|0x1E4   |0x188   |10    |
+			//|0x1E5   |0x189   |9     |
+			//|0x1E6   |0x18A   |9     |
+			//|0x1E7   |0x18B   |10    |
+			//|0x1E8   |0x18C   |10    |
+			//|0x1E9   |0x18D   |10    |
+			//|0x1EA   |0x18E   |10    |
+			//|0x1EB   |0x18F   |10    |
+			//|0x1EC   |0x190   |10    |
+			//|0x1ED   |0x191   |10    |
+			//|0x1EE   |0x192   |8     |
+			//|0x1EF   |0x193   |8     |
+			//|...     |...     |8     |
+			//--------------------------
+			//We use this information below to accurately calculate the number of mclk
+			//cycles used to advance the hcounter.
+			while(mclkTicksRemaining > 0)
+			{
+				//Determine the current clock rate, and the number of steps we can advance
+				//the pixel clock until the clock rate changes.
+				unsigned int nextHCounterTargetStep;
+				unsigned int currentMclksPerStep;
+				if(hcounterCurrent < 0x1CD)
+				{
+					nextHCounterTargetStep = 0x1CD;
+					currentMclksPerStep = 8;
+				}
+				else if(hcounterCurrent < 0x1D4)
+				{
+					nextHCounterTargetStep = 0x1D4;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1D6)
+				{
+					nextHCounterTargetStep = 0x1D6;
+					currentMclksPerStep = 9;
+				}
+				else if(hcounterCurrent < 0x1DD)
+				{
+					nextHCounterTargetStep = 0x1DD;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1DE)
+				{
+					nextHCounterTargetStep = 0x1DE;
+					currentMclksPerStep = 8;
+				}
+				else if(hcounterCurrent < 0x1E5)
+				{
+					nextHCounterTargetStep = 0x1E5;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1E7)
+				{
+					nextHCounterTargetStep = 0x1E7;
+					currentMclksPerStep = 9;
+				}
+				else if(hcounterCurrent < 0x1EE)
+				{
+					nextHCounterTargetStep = 0x1EE;
+					currentMclksPerStep = 10;
+				}
+				else
+				{
+					nextHCounterTargetStep = 0x1CD;
+					currentMclksPerStep = 8;
+				}
+
+				//Calculate the number of pixel clock steps, and mclk ticks, which are
+				//required to reach the next target hcounter value.
+				unsigned int hcounterStepsToTarget = GetPixelClockStepsBetweenHCounterValues(hscanSettings, hcounterCurrent, nextHCounterTargetStep);
+				unsigned int mclkTicksToTarget = hcounterStepsToTarget * currentMclksPerStep;
+
+				//Calculate the number of mclk ticks we can actually advance in the time
+				//we have.
+				unsigned int mclkTicksToAdvance = (mclkTicksRemaining < mclkTicksToTarget)? mclkTicksRemaining: mclkTicksToTarget;
+
+				//Calculate the number of pixel clock ticks we can advance
+				unsigned int pixelClockTicksToAdvance = (mclkTicksToAdvance / currentMclksPerStep);
+				pixelClockTicks += pixelClockTicksToAdvance;
+
+				//Calculate the number of useful mclk cycles in the step we're advancing.
+				//If some mclk ticks are left over, we still allow them to be deducted
+				//from mclkTicksRemaining in order to indicate we have consumed all
+				//available mclk ticks. The correct number of mclk ticks which were
+				//actually used to advance the pixel clock is reflected in mclkTicksUsed.
+				mclkTicksUsed += pixelClockTicksToAdvance * currentMclksPerStep;
+
+				//Update hcounter to the position we've just advanced to
+				hcounterCurrent = nextHCounterTargetStep;
+
+				//Update the remaining count of mclk cycles
+				mclkTicksRemaining -= mclkTicksToAdvance;
+			}
+
+			//Calculate the amount of time remaining
+			mclkTicksUnused = mclkTicks - mclkTicksUsed;
+		}
 	}
 
 	return pixelClockTicks;
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::GetMclkTicksForPixelClockTicks(unsigned int pixelClockTicks, unsigned int hcounterCurrent, bool screenModeH40Active)
+unsigned int S315_5313::GetMclkTicksForPixelClockTicks(const HScanSettings& hscanSettings, unsigned int pixelClockTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active)
 {
 	//Calculate the total number of mclk ticks which will be consumed in order to advance
 	//the given number of pixel clock ticks, based on the given position in the current
 	//scanline, and the current screen mode settings.
+	const unsigned int pixelClockDivider = 2;
 	unsigned int mclkTicks;
-	if(!screenModeH40Active)
+	if(!screenModeRS0Active)
 	{
-		//In H32 mode, the serial clock is calculated as MCLK/5. The relation of hcounter
-		//to the various clock signals, and the alignment of hcounter with the analog
-		//video output, is shown below. This information has been determined through
-		//extensive and precise hardware tests.
-		//-----------------------------------------------------------------
-		//| Screen section | HCounter  |Pixel| Pixel |Serial|Serial |MCLK |
-		//| (PAL/NTSC H32) |  value    |clock| clock |clock |clock  |ticks|
-		//|                |           |ticks|divider|ticks |divider|     |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Left border     |0x00B-0x017|  13 |SCLK/2 |   26 |MCLK/5 | 130 |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Active display  |0x018-0x117| 256 |SCLK/2 |  512 |MCLK/5 |2560 |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Right border    |0x118-0x125|  14 |SCLK/2 |   28 |MCLK/5 | 140 |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Back porch      |0x126-0x127|   9 |SCLK/2 |   18 |MCLK/5 |  90 |
-		//|(Right Blanking)|0x1D2-0x1D8|     |       |      |       |     |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Horizontal sync |0x1D9-0x1F2|  26 |SCLK/2 |   52 |MCLK/5 | 260 |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|Front porch     |0x1F3-0x00A|  24 |SCLK/2 |   48 |MCLK/5 | 240 |
-		//|(Left Blanking) |           |     |       |      |       |     |
-		//|----------------|-----------|-----|-------|------|-------|-----|
-		//|TOTALS          |           | 342 |       |  684 |       |3420 |
-		//-----------------------------------------------------------------
-		mclkTicks = pixelClockTicks * 10;
+		//If the RS0 bit is clear, the serial clock is generated internally, using a
+		//divider from the MCLK input. If the RS1 bit is clear, selecting a H32 screen
+		//mode, the serial clock is calculated as MCLK/5. If the RS1 bit is set, selecting
+		//a H40 screen mode, the serial clock is calculated as MCLK/4.
+		unsigned int serialClockDivider;
+		if(!screenModeRS1Active)
+		{
+			//In H32 mode, if the RS0 bit is not set, the serial clock is calculated as
+			//MCLK/5. The relation of hcounter to the various clock signals, and the
+			//alignment of hcounter with the analog video output, is shown below. This
+			//information has been determined through extensive and precise hardware
+			//tests.
+			//-----------------------------------------------------------------
+			//| Screen section | HCounter  |Pixel| Pixel |Serial|Serial |MCLK |
+			//| (PAL/NTSC H32) |  value    |clock| clock |clock |clock  |ticks|
+			//|                |           |ticks|divider|ticks |divider|     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Left border     |0x00B-0x017|  13 |SCLK/2 |   26 |MCLK/5 | 130 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Active display  |0x018-0x117| 256 |SCLK/2 |  512 |MCLK/5 |2560 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Right border    |0x118-0x125|  14 |SCLK/2 |   28 |MCLK/5 | 140 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Back porch      |0x126-0x127|   9 |SCLK/2 |   18 |MCLK/5 |  90 |
+			//|(Right Blanking)|0x1D2-0x1D8|     |       |      |       |     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Horizontal sync |0x1D9-0x1F2|  26 |SCLK/2 |   52 |MCLK/5 | 260 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Front porch     |0x1F3-0x00A|  24 |SCLK/2 |   48 |MCLK/5 | 240 |
+			//|(Left Blanking) |           |     |       |      |       |     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|TOTALS          |           | 342 |       |  684 |       |3420 |
+			//-----------------------------------------------------------------
+			serialClockDivider = 5;
+		}
+		else
+		{
+			//In H40 mode, if the RS0 bit is not set, the serial clock is calculated as
+			//MCLK/4. The relation of hcounter to the various clock signals, and the
+			//alignment of hcounter with the analog video output, is shown below. This
+			//information has been determined through extensive and precise hardware
+			//tests. Note that on the Sega Mega Drive, this video mode does not produce a
+			//valid video signal for PAL or NTSC screens. The horizontal sync period is
+			//too short, and the line is too fast overall. The external EDCLK input needs
+			//to be enabled by setting the RS0 bit, which supplies a modified pixel clock
+			//input that slows down the horizontal sync period, to keep the number of MCLK
+			//ticks required per line to 3420.
+			//-----------------------------------------------------------------
+			//| Screen section | HCounter  |Pixel| Pixel |Serial|Serial |MCLK |
+			//| (PAL/NTSC H40) |  value    |clock| clock |clock |clock  |ticks|
+			//|                |           |ticks|divider|ticks |divider|     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Left border     |0x00D-0x019|  13 |EDCLK/2|   26 |MCLK/4 | 104 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Active display  |0x01A-0x159| 320 |EDCLK/2|  640 |MCLK/4 |2560 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Right border    |0x15A-0x167|  14 |EDCLK/2|   28 |MCLK/4 | 112 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Back porch      |0x168-0x16C|   9 |EDCLK/2|   18 |MCLK/4 |  72 |
+			//|(Right Blanking)|0x1C9-0x1CC|     |       |      |       |     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Horizontal sync |0x1CD-0x1EC|  32 |EDCLK/2|   64 |MCLK/4 | 256 |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|Front porch     |0x1ED-0x00C|  32 |EDCLK/2|   64 |MCLK/4 | 256 |
+			//|(Left Blanking) |           |     |       |      |       |     |
+			//|----------------|-----------|-----|-------|------|-------|-----|
+			//|TOTALS          |           | 420 |       |  840 |       |3360 |
+			//-----------------------------------------------------------------
+			serialClockDivider = 4;
+		}
+		mclkTicks = pixelClockTicks * (serialClockDivider * pixelClockDivider);
 	}
 	else
 	{
-		//In H40 mode, the serial clock is provided through the external EDCLK input line.
-		//The relation of hcounter to the various clock signals, and the alignment of
-		//hcounter with the analog video output, is shown below. This information has been
-		//determined through extensive and precise hardware tests.
-		//##NOTE## Our own testing as well as tests done by Jorge Nuno confirm that in H40
-		//mode, the left border starts being displayed 64SC cycles after the end of HSYNC.
-		//We know from VRAM snooping that HSYNC ends when the HCounter advances to 0x1ED
-		//in H40 mode, and there are 2 SC cycles to every pixel clock cycle, which is what
-		//advances the HCounter and outputs a pixel to the screen, so when the left border
-		//is about to start being drawn to the screen, our internal 9-bit HCounter has a
-		//value of 0x00D, so at 0x00E, one border pixel will have been drawn.
-		//-In H40 mode, the pixel clock is calculated as EDCLK/2. EDCLK is the external
-		//dot clock, and on the real VDP, this is an input line to the VDP, with EDCLK
-		//generated by an external circuit. We emulate EDCLK internally here, assuming
-		//that any other system will use the same EDCLK generation pattern. This should be
-		//generally true, since the altered EDCLK signal must maintain 3420 MCLK cycles
-		//per line, with an input of MCLK/4 during active scan, in order to generate a
-		//valid video signal which is compatible with PAL/NTSC standards. If the VDP is
-		//used in a system which has an unusual video sync rate, EDCLK could be different
-		//however.
-		//-EDCLK is a complex signal, it is not a regular clock pulse. When the external
-		//HSYNC line has not been asserted, EDCLK is simply MCLK/4. As soon as HSYNC is
-		//asserted however, EDCLK starts outputting an alternating pattern, which lasts
-		//for 66 EDCLK ticks after hcounter has been asserted. In this pattern, EDCLK
-		//switches to MCLK/5 for 15 ticks, then switches back to, MCLK/4 for 2 ticks, then
-		//back to MCLK/5 for 15 ticks, and so on. This continues until 4 complete periods
-		//of MCLK/5 being output for 15 ticks have been completed, with 2 blocks of MCLK/4
-		//separating each one.
-		//--------------------------------------------------------------------
-		//| Screen section |   HCounter    |Pixel| Pixel |EDCLK| EDCLK |MCLK |
-		//| (PAL/NTSC H40) |    value      |clock| clock |ticks|divider|ticks|
-		//|                |               |ticks|divider|     |       |     |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Left border     |0x00D-0x019    |  13 |EDCLK/2|  26 |MCLK/4 | 104 |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Active display  |0x01A-0x159    | 320 |EDCLK/2| 640 |MCLK/4 |2560 |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Right border    |0x15A-0x167    |  14 |EDCLK/2|  28 |MCLK/4 | 112 |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Back porch      |0x168-0x16C    |   9 |EDCLK/2|  18 |MCLK/4 |  72 |
-		//|(Right Blanking)|0x1C9-0x1CC    |     |       |     |       |     |
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Horizontal sync |0x1CD.0-0x1D4.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
-		//|                |0x1D4.5-0x1D5.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
-		//|                |0x1D5.5-0x1DC.0| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
-		//|                |0x1DD.0        |   1 |EDCLK/2|   2 |MCLK/4 |   8 |
-		//|                |0x1DE.0-0x1E5.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
-		//|                |0x1E5.5-0x1E6.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
-		//|                |0x1E6.5-0x1EC.0| 6.5 |EDCLK/2|  13 |MCLK/5 |  65 |
-		//|                |===============|=====|=======|=====|=======|=====|
-		//|        Subtotal|0x1CD-0x1EC    | (32)|       | (64)|       |(314)|
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|Front porch     |0x1ED          |   1 |EDCLK/2|   2 |MCLK/5 |  10 |
-		//|(Left Blanking) |0x1EE-0x00C    |  31 |EDCLK/2|  62 |MCLK/4 | 248 |
-		//|                |===============|=====|=======|=====|=======|=====|
-		//|        Subtotal|0x1ED-0x00C    | (32)|       | (64)|       |(258)|
-		//|----------------|---------------|-----|-------|-----|-------|-----|
-		//|TOTALS          |               | 420 |       | 840 |       |3420 |
-		//--------------------------------------------------------------------
-
-		//Get the current hscan settings
-		const HScanSettings* hscanSettings = &GetHScanSettings(screenModeH40Active);
-
-		//Calculate the number of complete hcounter lines which were advanced over the
-		//time period, and the number of mclk ticks used to advance that number of lines.
-		const unsigned int mclkTicksPerLine = 3420;
-		unsigned int completeLinesAdvanced = pixelClockTicks / hscanSettings->hcounterStepsPerIteration;
-		unsigned int pixelClockTicksUsed = (completeLinesAdvanced * hscanSettings->hcounterStepsPerIteration);
-		unsigned int pixelClockTicksRemaining = pixelClockTicks - pixelClockTicksUsed;
-		mclkTicks = completeLinesAdvanced * mclkTicksPerLine;
-
-		//Using the above information, the table below shows the number of MCLK cycles
-		//that hcounter values around the affected blanking area remain set for.
-		//--------------------------
-		//|Hcounter|Hcounter| MCLK |
-		//| value  | linear |cycles|
-		//|internal| value  |      |
-		//|--------|--------|------|
-		//|...     |...     |8     |
-		//|0x1CB   |0x16F   |8     |
-		//|0x1CC   |0x170   |8     |
-		//|0x1CD   |0x171   |10    |
-		//|0x1CE   |0x172   |10    |
-		//|0x1CF   |0x173   |10    |
-		//|0x1D0   |0x174   |10    |
-		//|0x1D1   |0x175   |10    |
-		//|0x1D2   |0x176   |10    |
-		//|0x1D3   |0x177   |10    |
-		//|0x1D4   |0x178   |9     |
-		//|0x1D5   |0x179   |9     |
-		//|0x1D6   |0x17A   |10    |
-		//|0x1D7   |0x17B   |10    |
-		//|0x1D8   |0x17C   |10    |
-		//|0x1D9   |0x17D   |10    |
-		//|0x1DA   |0x17E   |10    |
-		//|0x1DB   |0x17F   |10    |
-		//|0x1DC   |0x180   |10    |
-		//|0x1DD   |0x181   |8     |
-		//|0x1DE   |0x182   |10    |
-		//|0x1DF   |0x183   |10    |
-		//|0x1E0   |0x184   |10    |
-		//|0x1E1   |0x185   |10    |
-		//|0x1E2   |0x186   |10    |
-		//|0x1E3   |0x187   |10    |
-		//|0x1E4   |0x188   |10    |
-		//|0x1E5   |0x189   |9     |
-		//|0x1E6   |0x18A   |9     |
-		//|0x1E7   |0x18B   |10    |
-		//|0x1E8   |0x18C   |10    |
-		//|0x1E9   |0x18D   |10    |
-		//|0x1EA   |0x18E   |10    |
-		//|0x1EB   |0x18F   |10    |
-		//|0x1EC   |0x190   |10    |
-		//|0x1ED   |0x191   |10    |
-		//|0x1EE   |0x192   |8     |
-		//|0x1EF   |0x193   |8     |
-		//|...     |...     |8     |
-		//--------------------------
-		//We use this information below to accurately calculate the number of mclk cycles
-		//used to advance the hcounter.
-		while(pixelClockTicksRemaining > 0)
+		//If the RS0 bit is set, the serial clock is provided through the external EDCLK
+		//input. We emulate the external EDCLK input present on the Mega Drive system here
+		//as if it was an internally generated clock signal. In reality, the generation of
+		//this clock signal is external to the VDP itself, and this should eventually be
+		//separated from the VDP core itself, so that a different EDCLK input signal can
+		//be supplied if another system has different video sync requirements.
+		if(!screenModeRS1Active)
 		{
-			//Determine the current clock rate, and the number of steps we can advance the
-			//pixel clock until the clock rate changes.
-			unsigned int nextHCounterTargetStep;
-			unsigned int currentMclksPerStep;
-			if(hcounterCurrent < 0x1CD)
-			{
-				nextHCounterTargetStep = 0x1CD;
-				currentMclksPerStep = 8;
-			}
-			else if(hcounterCurrent < 0x1D4)
-			{
-				nextHCounterTargetStep = 0x1D4;
-				currentMclksPerStep = 10;
-			}
-			else if(hcounterCurrent < 0x1D6)
-			{
-				nextHCounterTargetStep = 0x1D6;
-				currentMclksPerStep = 9;
-			}
-			else if(hcounterCurrent < 0x1DD)
-			{
-				nextHCounterTargetStep = 0x1DD;
-				currentMclksPerStep = 10;
-			}
-			else if(hcounterCurrent < 0x1DE)
-			{
-				nextHCounterTargetStep = 0x1DE;
-				currentMclksPerStep = 8;
-			}
-			else if(hcounterCurrent < 0x1E5)
-			{
-				nextHCounterTargetStep = 0x1E5;
-				currentMclksPerStep = 10;
-			}
-			else if(hcounterCurrent < 0x1E7)
-			{
-				nextHCounterTargetStep = 0x1E7;
-				currentMclksPerStep = 9;
-			}
-			else if(hcounterCurrent < 0x1EE)
-			{
-				nextHCounterTargetStep = 0x1EE;
-				currentMclksPerStep = 10;
-			}
-			else
-			{
-				nextHCounterTargetStep = 0x1CD;
-				currentMclksPerStep = 8;
-			}
+			//The external EDCLK input is not designed to be used with H32 mode. Selecting
+			//the EDCLK input without enabling H40 mode produces a video signal with a far
+			//too quick horizontal sync rate to be compatible with PAL or NTSC video
+			//signals. This video mode could be displayed however, with a monitor that is
+			//capable of syncing at the correct rate to display the image.
+			//--------------------------------------------------------------------
+			//| Screen section |   HCounter    |Pixel| Pixel |EDCLK| EDCLK |MCLK |
+			//| (PAL/NTSC H32) |    value      |clock| clock |ticks|divider|ticks|
+			//| (EDCLK Input)  |               |ticks|divider|     |       |     |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Left border     |0x00B-0x017    |  13 |EDCLK/2|  26 |MCLK/4 | 104 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Active display  |0x018-0x117    | 256 |EDCLK/2| 512 |MCLK/4 |2048 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Right border    |0x118-0x125    |  14 |EDCLK/2|  28 |MCLK/4 | 112 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Back porch      |0x126-0x127    |   9 |EDCLK/2|  18 |MCLK/4 |  72 |
+			//|(Right Blanking)|0x1D2-0x1D8    |     |       |     |       |     |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Horizontal sync |0x1D9.0-0x1E0.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1E0.5-0x1E1.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1E1.5-0x1E9.0| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1E9.0        |   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1EA.0-0x1F1.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1F1.5-0x1F2.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1F2.5-0x1F3.0| 0.5 |EDCLK/2|   1 |MCLK/5 |   4 |
+			//|                |===============|=====|=======|=====|=======|=====|
+			//|        Subtotal|0x1D9-0x1F2    | (26)|       | (52)|       |(253)|
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Front porch     |0x1F3-0x1FA    |   7 |EDCLK/2|  14 |MCLK/5 |  70 |
+			//|(Left Blanking) |0x1FA-0x00A    |  17 |EDCLK/2|  34 |MCLK/4 | 136 |
+			//|                |===============|=====|=======|=====|=======|=====|
+			//|        Subtotal|0x1ED-0x00C    | (24)|       | (48)|       |(206)|
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|TOTALS          |               | 342 |       | 684 |       |2795 |
+			//--------------------------------------------------------------------
 
-			//Calculate the number of pixel clock steps which are required to reach the
-			//next target hcounter value.
-			unsigned int hcounterStepsToTarget = GetPixelClockStepsBetweenHCounterValues(*hscanSettings, hcounterCurrent, nextHCounterTargetStep);
+			//Calculate the number of complete hcounter lines which were advanced over the
+			//time period, and the number of mclk ticks used to advance that number of
+			//lines.
+			const unsigned int mclkTicksPerLine = 2795;
+			unsigned int completeLinesAdvanced = pixelClockTicks / hscanSettings.hcounterStepsPerIteration;
+			unsigned int pixelClockTicksUsed = (completeLinesAdvanced * hscanSettings.hcounterStepsPerIteration);
+			unsigned int pixelClockTicksRemaining = pixelClockTicks - pixelClockTicksUsed;
+			mclkTicks = completeLinesAdvanced * mclkTicksPerLine;
 
-			//Calculate the number of pixel clock ticks we can advance
-			unsigned int pixelClockTicksToAdvance = (hcounterStepsToTarget <= pixelClockTicksRemaining)? hcounterStepsToTarget: pixelClockTicksRemaining;
+			//Using the above information, the table below shows the number of MCLK cycles
+			//that hcounter values around the affected blanking area remain set for.
+			//--------------------------
+			//|Hcounter|Hcounter| MCLK |
+			//| value  | linear |cycles|
+			//|internal| value  |      |
+			//|--------|--------|------|
+			//|...     |...     |8     |
+			//|0x1D7   |0x12D   |8     |
+			//|0x1D8   |0x12E   |8     |
+			//|0x1D9   |0x12F   |10    |
+			//|0x1DA   |0x130   |10    |
+			//|0x1DB   |0x131   |10    |
+			//|0x1DC   |0x132   |10    |
+			//|0x1DD   |0x133   |10    |
+			//|0x1DE   |0x134   |10    |
+			//|0x1DF   |0x135   |10    |
+			//|0x1E0   |0x136   |9     |
+			//|0x1E1   |0x137   |9     |
+			//|0x1E2   |0x138   |10    |
+			//|0x1E3   |0x139   |10    |
+			//|0x1E4   |0x13A   |10    |
+			//|0x1E5   |0x13B   |10    |
+			//|0x1E6   |0x13C   |10    |
+			//|0x1E7   |0x13D   |10    |
+			//|0x1E8   |0x13E   |10    |
+			//|0x1E9   |0x13F   |8     |
+			//|0x1EA   |0x140   |10    |
+			//|0x1EB   |0x141   |10    |
+			//|0x1EC   |0x142   |10    |
+			//|0x1ED   |0x143   |10    |
+			//|0x1EE   |0x144   |10    |
+			//|0x1EF   |0x145   |10    |
+			//|0x1F0   |0x146   |10    |
+			//|0x1F1   |0x147   |9     |
+			//|0x1F2   |0x148   |9     |
+			//|0x1F3   |0x149   |10    |
+			//|0x1F4   |0x14A   |10    |
+			//|0x1F5   |0x14B   |10    |
+			//|0x1F6   |0x14C   |10    |
+			//|0x1F7   |0x14D   |10    |
+			//|0x1F8   |0x14E   |10    |
+			//|0x1F9   |0x14F   |10    |
+			//|0x1FA   |0x150   |8     |
+			//|0x1FB   |0x151   |8     |
+			//|...     |...     |8     |
+			//--------------------------
+			//We use this information below to accurately calculate the number of mclk
+			//cycles used to advance the hcounter.
+			while(pixelClockTicksRemaining > 0)
+			{
+				//Determine the current clock rate, and the number of steps we can advance
+				//the pixel clock until the clock rate changes.
+				unsigned int nextHCounterTargetStep;
+				unsigned int currentMclksPerStep;
+				if(hcounterCurrent < 0x1D9)
+				{
+					nextHCounterTargetStep = 0x1D9;
+					currentMclksPerStep = 8;
+				}
+				else if(hcounterCurrent < 0x1E0)
+				{
+					nextHCounterTargetStep = 0x1E0;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1E2)
+				{
+					nextHCounterTargetStep = 0x1E2;
+					currentMclksPerStep = 9;
+				}
+				else if(hcounterCurrent < 0x1E9)
+				{
+					nextHCounterTargetStep = 0x1E9;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1EA)
+				{
+					nextHCounterTargetStep = 0x1EA;
+					currentMclksPerStep = 8;
+				}
+				else if(hcounterCurrent < 0x1F1)
+				{
+					nextHCounterTargetStep = 0x1F1;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1F3)
+				{
+					nextHCounterTargetStep = 0x1F3;
+					currentMclksPerStep = 9;
+				}
+				else if(hcounterCurrent < 0x1FA)
+				{
+					nextHCounterTargetStep = 0x1FA;
+					currentMclksPerStep = 10;
+				}
+				else
+				{
+					nextHCounterTargetStep = 0x1D9;
+					currentMclksPerStep = 8;
+				}
 
-			//Increment the number of mclk ticks advanced
-			mclkTicks += pixelClockTicksToAdvance * currentMclksPerStep;
+				//Calculate the number of pixel clock steps which are required to reach
+				//the next target hcounter value.
+				unsigned int hcounterStepsToTarget = GetPixelClockStepsBetweenHCounterValues(hscanSettings, hcounterCurrent, nextHCounterTargetStep);
 
-			//Update hcounter to the position we've just advanced to
-			hcounterCurrent = nextHCounterTargetStep;
+				//Calculate the number of pixel clock ticks we can advance
+				unsigned int pixelClockTicksToAdvance = (hcounterStepsToTarget <= pixelClockTicksRemaining)? hcounterStepsToTarget: pixelClockTicksRemaining;
 
-			//Update the remaining pixel clock ticks
-			pixelClockTicksRemaining -= pixelClockTicksToAdvance;
+				//Increment the number of mclk ticks advanced
+				mclkTicks += pixelClockTicksToAdvance * currentMclksPerStep;
+
+				//Update hcounter to the position we've just advanced to. This result is
+				//only valid if we didn't run out of pixel clock ticks before the target
+				//was reached. If we didn't manage to reach the target, hcounterCurrent is
+				//no longer required, so it doesn't matter that this gets set incorrectly.
+				hcounterCurrent = nextHCounterTargetStep;
+
+				//Update the remaining pixel clock ticks
+				pixelClockTicksRemaining -= pixelClockTicksToAdvance;
+			}
+		}
+		else
+		{
+			//In H40 mode on the Mega Drive, the EDCLK input needs to be used in order to
+			//produce a valid video signal. EDCLK is a complex signal, it is not a regular
+			//clock pulse. When the external HSYNC line has not been asserted, EDCLK is
+			//simply MCLK/4. As soon as HSYNC is asserted however, EDCLK starts outputting
+			//an alternating pattern, which lasts for 66 EDCLK ticks after HSYNC has been
+			//asserted. In this pattern, EDCLK switches to MCLK/5 for 15 ticks, then
+			//switches back to, MCLK/4 for 2 ticks, then back to MCLK/5 for 15 ticks, and
+			//so on. This continues until 4 complete periods of MCLK/5 being output for 15
+			//ticks have been completed, with 2 blocks of MCLK/4 separating each one. The
+			//relation of hcounter to the various clock signals, and the alignment of
+			//hcounter with the analog video output, is shown below. This information has
+			//been determined through extensive and precise hardware tests.
+			//##NOTE## Our own testing as well as tests done by Jorge Nuno confirm that in
+			//H40 mode, the left border starts being displayed 64SC cycles after the end
+			//of HSYNC. We know from VRAM snooping that HSYNC ends when the HCounter
+			//advances to 0x1ED in H40 mode, and there are 2 SC cycles to every pixel
+			//clock cycle, which is what advances the HCounter and outputs a pixel to the
+			//screen, so when the left border is about to start being drawn to the screen,
+			//our internal 9-bit HCounter has a value of 0x00D, so at 0x00E, one border
+			//pixel will have been drawn.
+			//--------------------------------------------------------------------
+			//| Screen section |   HCounter    |Pixel| Pixel |EDCLK| EDCLK |MCLK |
+			//| (PAL/NTSC H40) |    value      |clock| clock |ticks|divider|ticks|
+			//|                |               |ticks|divider|     |       |     |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Left border     |0x00D-0x019    |  13 |EDCLK/2|  26 |MCLK/4 | 104 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Active display  |0x01A-0x159    | 320 |EDCLK/2| 640 |MCLK/4 |2560 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Right border    |0x15A-0x167    |  14 |EDCLK/2|  28 |MCLK/4 | 112 |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Back porch      |0x168-0x16C    |   9 |EDCLK/2|  18 |MCLK/4 |  72 |
+			//|(Right Blanking)|0x1C9-0x1CC    |     |       |     |       |     |
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Horizontal sync |0x1CD.0-0x1D4.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1D4.5-0x1D5.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1D5.5-0x1DC.0| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1DD.0        |   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1DE.0-0x1E5.5| 7.5 |EDCLK/2|  15 |MCLK/5 |  75 |
+			//|                |0x1E5.5-0x1E6.5|   1 |EDCLK/2|   2 |MCLK/4 |   8 |
+			//|                |0x1E6.5-0x1EC.0| 6.5 |EDCLK/2|  13 |MCLK/5 |  65 |
+			//|                |===============|=====|=======|=====|=======|=====|
+			//|        Subtotal|0x1CD-0x1EC    | (32)|       | (64)|       |(314)|
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|Front porch     |0x1ED          |   1 |EDCLK/2|   2 |MCLK/5 |  10 |
+			//|(Left Blanking) |0x1EE-0x00C    |  31 |EDCLK/2|  62 |MCLK/4 | 248 |
+			//|                |===============|=====|=======|=====|=======|=====|
+			//|        Subtotal|0x1ED-0x00C    | (32)|       | (64)|       |(258)|
+			//|----------------|---------------|-----|-------|-----|-------|-----|
+			//|TOTALS          |               | 420 |       | 840 |       |3420 |
+			//--------------------------------------------------------------------
+
+			//Calculate the number of complete hcounter lines which were advanced over the
+			//time period, and the number of mclk ticks used to advance that number of
+			//lines.
+			const unsigned int mclkTicksPerLine = 3420;
+			unsigned int completeLinesAdvanced = pixelClockTicks / hscanSettings.hcounterStepsPerIteration;
+			unsigned int pixelClockTicksUsed = (completeLinesAdvanced * hscanSettings.hcounterStepsPerIteration);
+			unsigned int pixelClockTicksRemaining = pixelClockTicks - pixelClockTicksUsed;
+			mclkTicks = completeLinesAdvanced * mclkTicksPerLine;
+
+			//Using the above information, the table below shows the number of MCLK cycles
+			//that hcounter values around the affected blanking area remain set for.
+			//--------------------------
+			//|Hcounter|Hcounter| MCLK |
+			//| value  | linear |cycles|
+			//|internal| value  |      |
+			//|--------|--------|------|
+			//|...     |...     |8     |
+			//|0x1CB   |0x16F   |8     |
+			//|0x1CC   |0x170   |8     |
+			//|0x1CD   |0x171   |10    |
+			//|0x1CE   |0x172   |10    |
+			//|0x1CF   |0x173   |10    |
+			//|0x1D0   |0x174   |10    |
+			//|0x1D1   |0x175   |10    |
+			//|0x1D2   |0x176   |10    |
+			//|0x1D3   |0x177   |10    |
+			//|0x1D4   |0x178   |9     |
+			//|0x1D5   |0x179   |9     |
+			//|0x1D6   |0x17A   |10    |
+			//|0x1D7   |0x17B   |10    |
+			//|0x1D8   |0x17C   |10    |
+			//|0x1D9   |0x17D   |10    |
+			//|0x1DA   |0x17E   |10    |
+			//|0x1DB   |0x17F   |10    |
+			//|0x1DC   |0x180   |10    |
+			//|0x1DD   |0x181   |8     |
+			//|0x1DE   |0x182   |10    |
+			//|0x1DF   |0x183   |10    |
+			//|0x1E0   |0x184   |10    |
+			//|0x1E1   |0x185   |10    |
+			//|0x1E2   |0x186   |10    |
+			//|0x1E3   |0x187   |10    |
+			//|0x1E4   |0x188   |10    |
+			//|0x1E5   |0x189   |9     |
+			//|0x1E6   |0x18A   |9     |
+			//|0x1E7   |0x18B   |10    |
+			//|0x1E8   |0x18C   |10    |
+			//|0x1E9   |0x18D   |10    |
+			//|0x1EA   |0x18E   |10    |
+			//|0x1EB   |0x18F   |10    |
+			//|0x1EC   |0x190   |10    |
+			//|0x1ED   |0x191   |10    |
+			//|0x1EE   |0x192   |8     |
+			//|0x1EF   |0x193   |8     |
+			//|...     |...     |8     |
+			//--------------------------
+			//We use this information below to accurately calculate the number of mclk
+			//cycles used to advance the hcounter.
+			while(pixelClockTicksRemaining > 0)
+			{
+				//Determine the current clock rate, and the number of steps we can advance
+				//the pixel clock until the clock rate changes.
+				unsigned int nextHCounterTargetStep;
+				unsigned int currentMclksPerStep;
+				if(hcounterCurrent < 0x1CD)
+				{
+					nextHCounterTargetStep = 0x1CD;
+					currentMclksPerStep = 8;
+				}
+				else if(hcounterCurrent < 0x1D4)
+				{
+					nextHCounterTargetStep = 0x1D4;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1D6)
+				{
+					nextHCounterTargetStep = 0x1D6;
+					currentMclksPerStep = 9;
+				}
+				else if(hcounterCurrent < 0x1DD)
+				{
+					nextHCounterTargetStep = 0x1DD;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1DE)
+				{
+					nextHCounterTargetStep = 0x1DE;
+					currentMclksPerStep = 8;
+				}
+				else if(hcounterCurrent < 0x1E5)
+				{
+					nextHCounterTargetStep = 0x1E5;
+					currentMclksPerStep = 10;
+				}
+				else if(hcounterCurrent < 0x1E7)
+				{
+					nextHCounterTargetStep = 0x1E7;
+					currentMclksPerStep = 9;
+				}
+				else if(hcounterCurrent < 0x1EE)
+				{
+					nextHCounterTargetStep = 0x1EE;
+					currentMclksPerStep = 10;
+				}
+				else
+				{
+					nextHCounterTargetStep = 0x1CD;
+					currentMclksPerStep = 8;
+				}
+
+				//Calculate the number of pixel clock steps which are required to reach
+				//the next target hcounter value.
+				unsigned int hcounterStepsToTarget = GetPixelClockStepsBetweenHCounterValues(hscanSettings, hcounterCurrent, nextHCounterTargetStep);
+
+				//Calculate the number of pixel clock ticks we can advance
+				unsigned int pixelClockTicksToAdvance = (hcounterStepsToTarget <= pixelClockTicksRemaining)? hcounterStepsToTarget: pixelClockTicksRemaining;
+
+				//Increment the number of mclk ticks advanced
+				mclkTicks += pixelClockTicksToAdvance * currentMclksPerStep;
+
+				//Update hcounter to the position we've just advanced to. This result is
+				//only valid if we didn't run out of pixel clock ticks before the target
+				//was reached. If we didn't manage to reach the target, hcounterCurrent is
+				//no longer required, so it doesn't matter that this gets set incorrectly.
+				hcounterCurrent = nextHCounterTargetStep;
+
+				//Update the remaining pixel clock ticks
+				pixelClockTicksRemaining -= pixelClockTicksToAdvance;
+			}
 		}
 	}
 	return mclkTicks;
@@ -4904,6 +7017,25 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 	bool writeOperationWillRun = !IsWriteFIFOEmpty();
 
 	//##DEBUG##
+	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+	{
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		std::wcout << "busGranted:\t" << busGranted << "\n";
+		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+		std::wcout << "status:\t" << status.GetData() << "\n";
+		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+		std::wcout << "dmd1:\t" << dmd1 << "\n";
+		std::wcout << "dmd0:\t" << dmd1 << "\n";
+		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+	}
+
+	//##DEBUG##
 	if(stopWhenNoDMAOperationInProgress && !dmaOperationWillRun)
 	{
 		std::wcout << "######################################################\n";
@@ -4911,6 +7043,14 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		std::wcout << "mclkCyclesTarget:\t" << mclkCyclesTarget << "\n";
 		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
 		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		std::wcout << "busGranted:\t" << busGranted << "\n";
+		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+		std::wcout << "status:\t" << status.GetData() << "\n";
+		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+		std::wcout << "dmd1:\t" << dmd1 << "\n";
+		std::wcout << "dmd0:\t" << dmd1 << "\n";
+		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
 		std::wcout << "######################################################\n";
 	}
 
@@ -5617,6 +7757,25 @@ void S315_5313::AdvanceDMAState()
 	dmaSourceAddressByte1 = incrementedDMASourceAddress & 0xFF;
 	dmaSourceAddressByte2 = (incrementedDMASourceAddress >> 8) & 0xFF;
 
+	//##DEBUG##
+	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+	{
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		std::wcout << "busGranted:\t" << busGranted << "\n";
+		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+		std::wcout << "status:\t" << status.GetData() << "\n";
+		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+		std::wcout << "dmd1:\t" << dmd1 << "\n";
+		std::wcout << "dmd0:\t" << dmd1 << "\n";
+		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+	}
+
 	//If the DMA length counter is 0 after a DMA operation has been advanced,
 	//we've reached the end of the DMA operation. In this case, we clear CD5.
 	//This flags the DMA operation as completed. If we're in a DMA transfer
@@ -5631,6 +7790,25 @@ void S315_5313::AdvanceDMAState()
 		//now completed.
 		dmaFillOperationRunning = false;
 		dmaTransferActive = false;
+	}
+
+	//##DEBUG##
+	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+	{
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		std::wcout << "busGranted:\t" << busGranted << "\n";
+		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+		std::wcout << "status:\t" << status.GetData() << "\n";
+		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+		std::wcout << "dmd1:\t" << dmd1 << "\n";
+		std::wcout << "dmd0:\t" << dmd1 << "\n";
+		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
 
 	//Flag that the cached DMA settings have been modified
@@ -5766,10 +7944,12 @@ bool S315_5313::TargetProcessorStateReached(bool stopWhenFifoEmpty, bool stopWhe
 bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool stopAtNextAccessSlot, bool allowAdvancePastTargetForAccessSlot)
 {
 	//Ensure that we aren't trying to trigger an update out of order
-	if((!stopAtNextAccessSlot || !allowAdvancePastTargetForAccessSlot) && (mclkCyclesTarget < (stateLastUpdateMclk + stateLastUpdateMclkUnused)))
+//	if((!stopAtNextAccessSlot || !allowAdvancePastTargetForAccessSlot) && (mclkCyclesTarget < (stateLastUpdateMclk + stateLastUpdateMclkUnused)))
+	if((mclkCyclesTarget < (stateLastUpdateMclk + stateLastUpdateMclkUnused)) && (!stopAtNextAccessSlot || !allowAdvancePastTargetForAccessSlot))
 	{
 		//##TODO## Raise an assert if this occurs
 		//##DEBUG##
+		//outputTestDebugMessages = true;
 		std::wcout << "######################################################\n";
 		std::wcout << "VDP AdvanceProcessorStateNew called out of order!\n";
 		std::wcout << "mclkCyclesTarget:\t" << mclkCyclesTarget << "\n";
@@ -5785,13 +7965,25 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 	//been made need to be applied the next time those settings are latched.
 	bool interlaceEnabledNew = interlaceEnabledCached;
 	bool interlaceDoubleNew = interlaceDoubleCached;
-	bool screenModeH40New = screenModeH40Cached;
+	bool screenModeRS0New = screenModeRS0Cached;
+	bool screenModeRS1New = screenModeRS1Cached;
 	bool screenModeV30New = screenModeV30Cached;
 	bool palModeNew = palModeLineState;
 
 	//Check whether any of the relevant video mode settings have changed since they were
 	//latched.
-	bool hscanSettingsChanged = (screenModeH40 != screenModeH40New);
+	//##NOTE## We used to latch changes to the H40 screen mode at hblank. While we know
+	//this was incorrect, we haven't totally mapped out the behaviour of the VDP when this
+	//register setting is toggled mid-line. I believe changes to the H40 screen mode
+	//setting do take effect immediately, however, we're keeping the old code intact below
+	//to hold off the change until hblank, in case it comes in handy for further testing
+	//or develoment.
+	//##TODO## Determine exactly how the VDP reacts to the H40 screen mode state being
+	//changed at all the various points during a line.
+//	bool hscanSettingsChanged = (screenModeRS0 != screenModeRS0New) || (screenModeRS1 != screenModeRS1New);
+	bool hscanSettingsChanged = false;
+	screenModeRS0 = screenModeRS0New;
+	screenModeRS1 = screenModeRS1New;
 	//##TODO## Currently, changes to the palMode flag are applied at vblank. Test how the
 	//real hardware deals with changes to this line by toggling the line state at runtime.
 	bool vscanSettingsChanged = (screenModeV30 != screenModeV30New) || (palMode != palModeNew) || (interlaceEnabled != interlaceEnabledNew);
@@ -5805,10 +7997,8 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 	while(((mclkCyclesAdvanced < mclkCyclesToExecute) && (!stopAtNextAccessSlot || !stoppedAtAccessSlot)) || (allowAdvancePastTargetForAccessSlot && stopAtNextAccessSlot && !stoppedAtAccessSlot))
 	{
 		//Obtain the current hscan and vscan settings
-		const HScanSettings* hscanSettings;
-		const VScanSettings* vscanSettings;
-		hscanSettings = &GetHScanSettings(screenModeH40);
-		vscanSettings = &GetVScanSettings(screenModeV30, palMode, interlaceEnabled);
+		const HScanSettings& hscanSettings = GetHScanSettings(screenModeRS0, screenModeRS1);
+		const VScanSettings& vscanSettings = GetVScanSettings(screenModeV30, palMode, interlaceEnabled);
 
 		//Calculate the number of mclk cycles to advance in this next step in order to
 		//reach the target mclk cycle count.
@@ -5826,12 +8016,12 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 			unsigned int pixelClockStepsBeforeHBlank = 0;
 			if(hscanSettingsChanged)
 			{
-				pixelClockStepsBeforeHBlank = GetPixelClockStepsBetweenHCounterValues(*hscanSettings, hcounter.GetData(), hscanSettings->hblankSetPoint);
+				pixelClockStepsBeforeHBlank = GetPixelClockStepsBetweenHCounterValues(hscanSettings, hcounter.GetData(), hscanSettings.hblankSetPoint);
 			}
 			unsigned int pixelClockStepsBeforeVBlank = 0;
 			if(vscanSettingsChanged)
 			{
-				pixelClockStepsBeforeVBlank = GetPixelClockStepsBetweenVCounterValues(*hscanSettings, hcounter.GetData(), *vscanSettings, interlaceEnabled, GetStatusFlagOddInterlaceFrame(), vcounter.GetData(), vscanSettings->vblankSetPoint);
+				pixelClockStepsBeforeVBlank = GetPixelClockStepsBetweenVCounterValues(hscanSettings, hcounter.GetData(), vscanSettings, interlaceEnabled, GetStatusFlagOddInterlaceFrame(), vcounter.GetData(), vscanSettings.vblankSetPoint);
 			}
 
 			//Check whether the next update step occurs at hblank or vblank. If both hscan
@@ -5845,7 +8035,7 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 
 			//If a screen mode change is going to occur before the target mclk cycle
 			//count, only advance up to the screen mode change in this step.
-			unsigned int mclkTicksBeforeScreenModeChange = GetMclkTicksForPixelClockTicks(pixelClockTicksBeforeScreenModeChange, hcounter.GetData(), screenModeH40);
+			unsigned int mclkTicksBeforeScreenModeChange = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockTicksBeforeScreenModeChange, hcounter.GetData(), screenModeRS0, screenModeRS1);
 			if((mclkTicksBeforeScreenModeChange < mclkCyclesToAdvanceThisStep) || allowAdvancePastTargetForAccessSlot)
 			{
 				mclkCyclesToAdvanceThisStep = mclkTicksBeforeScreenModeChange;
@@ -5860,7 +8050,7 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 			//Calculate the number of pixel clock cycles until the next available access
 			//slot
 			unsigned int totalPixelClockCyclesUntilAccessSlot;
-			totalPixelClockCyclesUntilAccessSlot = GetPixelClockTicksUntilNextAccessSlot(hcounter.GetData(), screenModeH40, vcounter.GetData(), screenModeV30, palMode, interlaceEnabled);
+			totalPixelClockCyclesUntilAccessSlot = GetPixelClockTicksUntilNextAccessSlot(hscanSettings, vscanSettings, hcounter.GetData(), screenModeRS0, screenModeRS1, vcounter.GetData());
 
 			//If an access slot occurs within the update region, stop the update at the
 			//access slot.
@@ -5869,7 +8059,7 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 			//slot lies exactly on the target MCLK cycle count, that an access slot is
 			//actually allowed at that location. We return false here in this case, so it's
 			//possible the calling code doesn't actually allow access when false is returned.
-			unsigned int mclkTicksBeforeAccessSlot = GetMclkTicksForPixelClockTicks(totalPixelClockCyclesUntilAccessSlot, hcounter.GetData(), screenModeH40);
+			unsigned int mclkTicksBeforeAccessSlot = GetMclkTicksForPixelClockTicks(hscanSettings, totalPixelClockCyclesUntilAccessSlot, hcounter.GetData(), screenModeRS0, screenModeRS1);
 			if((mclkTicksBeforeAccessSlot < mclkCyclesToAdvanceThisStep) //The access slot occurs before the end of the update time
 			|| (allowAdvancePastTargetForAccessSlot && (!screenModeSettingsChangeRequired || (mclkTicksBeforeAccessSlot < mclkCyclesToAdvanceThisStep)))) //The access slot is allowed to pass the end of the update time, and no screen mode settings changes are required, or they occur after the slot.
 			{
@@ -5889,13 +8079,11 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 		//timeslice, but we have a timing point to run at the end of this timeslice to
 		//execute an event. We latch the screen mode settings at the time of the event in
 		//this case, so we can correctly handle the event later during the timing point.
-		//##FIX## What about where changes to screen mode settings, such as the H40 mode,
-		//affect the timing of the next event? Are we catching this when the registers are
-		//modified?
 		if((nextEventToExecute.mclkCycleCounter >= (stateLastUpdateMclk + stateLastUpdateMclkUnused)) //The event occurs at or after the current time
 		&& (nextEventToExecute.mclkCycleCounter < (stateLastUpdateMclk + stateLastUpdateMclkUnused + mclkCyclesToAdvanceThisStep))) //The event occurs during the next update step we're about to make
 		{
-			eventSnapshotScreenModeH40 = screenModeH40;
+			eventSnapshotScreenModeRS0 = screenModeRS0;
+			eventSnapshotScreenModeRS1 = screenModeRS1;
 			eventSnapshotScreenModeV30 = screenModeV30;
 			eventSnapshotPalMode = palMode;
 			eventSnapshotInterlaceEnabled = interlaceEnabled;
@@ -5906,7 +8094,26 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 		//advanced the target number of mclk cycles.
 		unsigned int mclkRemainingCycles;
 		unsigned int totalPixelClockCyclesToExecute;
-		totalPixelClockCyclesToExecute = GetPixelClockTicksForMclkTicks(stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused + mclkCyclesToAdvanceThisStep, hcounter.GetData(), screenModeH40, mclkRemainingCycles);
+		totalPixelClockCyclesToExecute = GetPixelClockTicksForMclkTicks(hscanSettings, stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused + mclkCyclesToAdvanceThisStep, hcounter.GetData(), screenModeRS0, screenModeRS1, mclkRemainingCycles);
+
+		//##DEBUG##
+		//##FIX## This check is wrong.
+		//if(mclkCyclesToAdvanceThisStep <= 0)
+		//{
+		//	std::wcout << "######################################################\n";
+		//	std::wcout << "VDP AdvanceProcessorStateNew stalled!\n";
+		//	std::wcout << "mclkCyclesTarget:\t" << mclkCyclesTarget << "\n";
+		//	std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+		//	std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+		//	std::wcout << "totalPixelClockCyclesToExecute:\t" << totalPixelClockCyclesToExecute << "\n";
+		//	std::wcout << "mclkRemainingCycles:\t" << mclkRemainingCycles << "\n";
+		//	std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
+		//	std::wcout << "mclkCyclesToAdvanceThisStep:\t" << mclkCyclesToAdvanceThisStep << "\n";
+		//	std::wcout << "mclkCyclesAdvanced:\t" << mclkCyclesAdvanced << "\n";
+		//	std::wcout << "hcounter:\t" << hcounter.GetData() << "\n";
+		//	std::wcout << "vcounter:\t" << vcounter.GetData() << "\n";
+		//	std::wcout << "######################################################\n";
+		//}
 
 		//Advance the required number of pixel clock steps to reach the target
 		AdvanceStatusRegisterAndHVCounterWithCurrentSettings(totalPixelClockCyclesToExecute);
@@ -5944,8 +8151,9 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 		//latch the new screen mode settings.
 		if(screenModeSettingsChangeRequired && updateStepIsHBlank)
 		{
-			//##TODO## Verify that H32/H40 screen mode changes are processed at hblank
-			screenModeH40 = screenModeH40New;
+			//##FIX## These settings changes are supposed to take effect immediately
+			screenModeRS0 = screenModeRS0New;
+			screenModeRS1 = screenModeRS1New;
 		}
 
 		//Update the total number of mclk cycles advanced so far
@@ -6066,7 +8274,7 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 void S315_5313::AdvanceStatusRegisterAndHVCounterWithCurrentSettings(unsigned int pixelClockSteps)
 {
 	//Obtain the current hscan and vscan settings
-	const HScanSettings* hscanSettings = &GetHScanSettings(screenModeH40);
+	const HScanSettings* hscanSettings = &GetHScanSettings(screenModeRS0, screenModeRS1);
 	const VScanSettings* vscanSettings = &GetVScanSettings(screenModeV30, palMode, interlaceEnabled);
 
 	//Advance the HV counter

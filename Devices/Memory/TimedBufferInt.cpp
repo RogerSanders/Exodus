@@ -124,6 +124,12 @@ void TimedBufferInt::Initialize()
 }
 
 //----------------------------------------------------------------------------------------
+bool TimedBufferInt::DoesLatestTimesliceExist() const
+{
+	return memory.DoesLatestTimesliceExist();
+}
+
+//----------------------------------------------------------------------------------------
 TimedBufferInt::Timeslice* TimedBufferInt::GetLatestTimesliceReference()
 {
 	return new TimedBufferTimeslice<DataType, TimesliceType>(memory.GetLatestTimeslice());
