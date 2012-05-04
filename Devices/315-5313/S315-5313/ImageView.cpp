@@ -9,7 +9,7 @@ S315_5313::ImageView::ImageView(S315_5313* adevice)
 {
 	glrc = NULL;
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Image");
-	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 320, 272, false);
+	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 420, 313, false);
 }
 
 //----------------------------------------------------------------------------------------
@@ -39,8 +39,8 @@ LRESULT S315_5313::ImageView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, 
 LRESULT S315_5313::ImageView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//OpenGL Initialization code
-	int width = 320;
-	int height = 272;
+	int width = 420;
+	int height = 313;
 	glrc = CreateOpenGLWindow(hwnd);
 	if(glrc != NULL)
 	{
@@ -63,7 +63,7 @@ LRESULT S315_5313::ImageView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lpar
 	//message to our image window when a new frame is ready to draw. This will eliminate
 	//any drawing delays, and update at the correct rate regardless of how quickly new
 	//frames are being rendered.
-	SetTimer(hwnd, 1, 1000/50, NULL);
+	SetTimer(hwnd, 1, 1000/110, NULL);
 
 	return 0;
 }

@@ -24,8 +24,49 @@ enum S315_5313::Layer
 //----------------------------------------------------------------------------------------
 struct S315_5313::HScanSettings
 {
-	HScanSettings(unsigned int ahcounterActiveScanMaxValue, unsigned int ahcounterBlankingInitialValue, unsigned int avcounterIncrementPoint, unsigned int ahblankSetPoint, unsigned int ahblankClearedPoint, unsigned int afflagSetPoint, unsigned int aoddFlagTogglePoint, unsigned int ahcounterMaxValue, unsigned int ahintTriggerPoint, unsigned int avintFlagged, unsigned int ahsyncAsserted, unsigned int ahsyncNegated, unsigned int aleftBorderPixelCount, unsigned int aactiveDisplayPixelCount, unsigned int arightBorderPixelCount)
-	:hcounterActiveScanMaxValue(ahcounterActiveScanMaxValue), hcounterBlankingInitialValue(ahcounterBlankingInitialValue), vcounterIncrementPoint(avcounterIncrementPoint), hblankSetPoint(ahblankSetPoint), hblankClearedPoint(ahblankClearedPoint), fflagSetPoint(afflagSetPoint), oddFlagTogglePoint(aoddFlagTogglePoint), hcounterMaxValue(ahcounterMaxValue), hcounterStepsPerIteration(ahcounterActiveScanMaxValue + 1 + ((ahcounterMaxValue + 1) - ahcounterBlankingInitialValue)), hintTriggerPoint(ahintTriggerPoint), vintFlagged(avintFlagged), hsyncAsserted(ahsyncAsserted), hsyncNegated(ahsyncNegated), leftBorderPixelCount(aleftBorderPixelCount), activeDisplayPixelCount(aactiveDisplayPixelCount), rightBorderPixelCount(arightBorderPixelCount)
+	HScanSettings(unsigned int ahcounterActiveScanMaxValue,
+	              unsigned int ahcounterBlankingInitialValue,
+	              unsigned int avcounterIncrementPoint,
+	              unsigned int ahblankSetPoint,
+	              unsigned int ahblankClearedPoint,
+	              unsigned int afflagSetPoint,
+	              unsigned int aoddFlagTogglePoint,
+	              unsigned int ahcounterMaxValue,
+	              unsigned int ahintTriggerPoint,
+	              unsigned int avintFlagged,
+	              unsigned int ahsyncAsserted,
+	              unsigned int ahsyncNegated,
+	              unsigned int aactiveDisplayHCounterFirstValue,
+	              unsigned int aactiveDisplayHCounterLastValue,
+				  unsigned int aactiveDisplayPixelCount,
+	              unsigned int aleftBorderHCounterFirstValue,
+	              unsigned int aleftBorderHCounterLastValue,
+				  unsigned int aleftBorderPixelCount,
+	              unsigned int arightBorderHCounterFirstValue,
+	              unsigned int arightBorderHCounterLastValue,
+				  unsigned int arightBorderPixelCount)
+	:hcounterActiveScanMaxValue(ahcounterActiveScanMaxValue),
+	 hcounterBlankingInitialValue(ahcounterBlankingInitialValue),
+	 vcounterIncrementPoint(avcounterIncrementPoint),
+	 hblankSetPoint(ahblankSetPoint),
+	 hblankClearedPoint(ahblankClearedPoint),
+	 fflagSetPoint(afflagSetPoint),
+	 oddFlagTogglePoint(aoddFlagTogglePoint),
+	 hcounterMaxValue(ahcounterMaxValue),
+	 hintTriggerPoint(ahintTriggerPoint),
+	 vintFlagged(avintFlagged),
+	 hsyncAsserted(ahsyncAsserted),
+	 hsyncNegated(ahsyncNegated),
+	 activeDisplayHCounterFirstValue(aactiveDisplayHCounterFirstValue),
+	 activeDisplayHCounterLastValue(aactiveDisplayHCounterLastValue),
+	 activeDisplayPixelCount(aactiveDisplayPixelCount),
+	 leftBorderHCounterFirstValue(aleftBorderHCounterFirstValue),
+	 leftBorderHCounterLastValue(aleftBorderHCounterLastValue),
+	 leftBorderPixelCount(aleftBorderPixelCount),
+	 rightBorderHCounterFirstValue(arightBorderHCounterFirstValue),
+	 rightBorderHCounterLastValue(arightBorderHCounterLastValue),
+	 rightBorderPixelCount(arightBorderPixelCount),
+	 hcounterStepsPerIteration(ahcounterActiveScanMaxValue + 1 + ((ahcounterMaxValue + 1) - ahcounterBlankingInitialValue))
 	{}
 
 	unsigned int hcounterActiveScanMaxValue;
@@ -42,16 +83,58 @@ struct S315_5313::HScanSettings
 	unsigned int hsyncAsserted;
 	unsigned int hsyncNegated;
 
-	unsigned int leftBorderPixelCount;
 	unsigned int activeDisplayPixelCount;
+	unsigned int leftBorderPixelCount;
 	unsigned int rightBorderPixelCount;
+	unsigned int activeDisplayHCounterFirstValue;
+	unsigned int activeDisplayHCounterLastValue;
+	unsigned int leftBorderHCounterFirstValue;
+	unsigned int leftBorderHCounterLastValue;
+	unsigned int rightBorderHCounterFirstValue;
+	unsigned int rightBorderHCounterLastValue;
 };
 
 //----------------------------------------------------------------------------------------
 struct S315_5313::VScanSettings
 {
-	VScanSettings(unsigned int avcounterActiveScanMaxValue, unsigned int avcounterBlankingInitialValue, unsigned int avcounterBlankingInitialValueOddFlag, unsigned int avblankSetPoint, unsigned int avblankClearedPoint, unsigned int avcounterMaxValue, unsigned int avsyncAssertedPoint, unsigned int avsyncClearedPoint, unsigned int alinesPerFrame)
-	:vcounterActiveScanMaxValue(avcounterActiveScanMaxValue), vcounterBlankingInitialValue(avcounterBlankingInitialValue), vcounterBlankingInitialValueOddFlag(avcounterBlankingInitialValueOddFlag), vblankSetPoint(avblankSetPoint), vblankClearedPoint(avblankClearedPoint), vcounterMaxValue(avcounterMaxValue), vcounterStepsPerIteration(avcounterActiveScanMaxValue + 1 + ((avcounterMaxValue + 1) - avcounterBlankingInitialValue)), vcounterStepsPerIterationOddFlag(avcounterActiveScanMaxValue + 1 + ((avcounterMaxValue + 1) - avcounterBlankingInitialValueOddFlag)), vsyncAssertedPoint(avsyncAssertedPoint), vsyncClearedPoint(avsyncClearedPoint), linesPerFrame(alinesPerFrame)
+	VScanSettings(unsigned int avcounterActiveScanMaxValue,
+	              unsigned int avcounterBlankingInitialValue,
+	              unsigned int avcounterBlankingInitialValueOddFlag,
+	              unsigned int avblankSetPoint,
+	              unsigned int avblankClearedPoint,
+	              unsigned int avcounterMaxValue,
+	              unsigned int avsyncAssertedPoint,
+	              unsigned int avsyncClearedPoint,
+	              unsigned int alinesPerFrame,
+	              unsigned int aactiveDisplayVCounterFirstValue,
+	              unsigned int aactiveDisplayVCounterLastValue,
+				  unsigned int aactiveDisplayLineCount,
+	              unsigned int atopBorderVCounterFirstValue,
+	              unsigned int atopBorderVCounterLastValue,
+				  unsigned int atopBorderLineCount,
+	              unsigned int abottomBorderVCounterFirstValue,
+	              unsigned int abottomBorderVCounterLastValue,
+	              unsigned int abottomBorderLineCount)
+	:vcounterActiveScanMaxValue(avcounterActiveScanMaxValue),
+	 vcounterBlankingInitialValue(avcounterBlankingInitialValue),
+	 vcounterBlankingInitialValueOddFlag(avcounterBlankingInitialValueOddFlag),
+	 vblankSetPoint(avblankSetPoint),
+	 vblankClearedPoint(avblankClearedPoint),
+	 vcounterMaxValue(avcounterMaxValue),
+	 vsyncAssertedPoint(avsyncAssertedPoint),
+	 vsyncClearedPoint(avsyncClearedPoint),
+	 linesPerFrame(alinesPerFrame),
+	 activeDisplayVCounterFirstValue(aactiveDisplayVCounterFirstValue),
+	 activeDisplayVCounterLastValue(aactiveDisplayVCounterLastValue),
+	 activeDisplayLineCount(aactiveDisplayLineCount),
+	 topBorderVCounterFirstValue(atopBorderVCounterFirstValue),
+	 topBorderVCounterLastValue(atopBorderVCounterLastValue),
+	 topBorderLineCount(atopBorderLineCount),
+	 bottomBorderVCounterFirstValue(abottomBorderVCounterFirstValue),
+	 bottomBorderVCounterLastValue(abottomBorderVCounterLastValue),
+	 bottomBorderLineCount(abottomBorderLineCount),
+	 vcounterStepsPerIteration(avcounterActiveScanMaxValue + 1 + ((avcounterMaxValue + 1) - avcounterBlankingInitialValue)),
+	 vcounterStepsPerIterationOddFlag(avcounterActiveScanMaxValue + 1 + ((avcounterMaxValue + 1) - avcounterBlankingInitialValueOddFlag))
 	{}
 
 	unsigned int vcounterActiveScanMaxValue;
@@ -65,6 +148,16 @@ struct S315_5313::VScanSettings
 	unsigned int vsyncAssertedPoint;
 	unsigned int vsyncClearedPoint;
 	unsigned int linesPerFrame;
+
+	unsigned int activeDisplayVCounterFirstValue;
+	unsigned int activeDisplayVCounterLastValue;
+	unsigned int activeDisplayLineCount;
+	unsigned int topBorderVCounterFirstValue;
+	unsigned int topBorderVCounterLastValue;
+	unsigned int topBorderLineCount;
+	unsigned int bottomBorderVCounterFirstValue;
+	unsigned int bottomBorderVCounterLastValue;
+	unsigned int bottomBorderLineCount;
 };
 
 //----------------------------------------------------------------------------------------
@@ -91,6 +184,28 @@ struct S315_5313::LineRenderSettings
 
 	unsigned int activePixelY;
 	unsigned int activeBlockY;
+};
+
+//----------------------------------------------------------------------------------------
+//##TODO## Finish implementing this
+struct S315_5313::RenderOp
+{
+	enum Op
+	{
+		NONE,
+		HSCROLL,
+		MAPPING_A,
+		PATTERN_A,
+		MAPPING_B,
+		PATTERN_B,
+		MAPPING_S,
+		PATTERN_S,
+		ACC_SLOT,
+		REFRESH
+	};
+
+	Op operation;
+	unsigned int index;
 };
 
 //----------------------------------------------------------------------------------------
@@ -764,6 +879,12 @@ void S315_5313::M5SetMode5Enabled(const AccessTarget& accessTarget, bool data)
 //         |       |--------------|           |
 //         |       |SA15|SA14|SA13|           |
 //         ------------------------------------
+//##NOTE## Reportedly, if bit 7 of this register is clear, the VDP VRAM is 128KB in size,
+//not 64KB in size, meaning it is accessible in the range 0x00000-0x1FFFF, not just
+//0x0000-0xFFFF as is the case in the Mega Drive. If this bit is set to 1, the VRAM size
+//is limited by the VDP to 64KB. Looking at the specs, there's no reason this couldn't be
+//the case. See the "Super Mega Drive Manual", page 3, for a description of this
+//behaviour.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M5GetNameTableBaseScrollA(const AccessTarget& accessTarget) const
 {
@@ -956,33 +1077,6 @@ void S315_5313::M5SetLSCR(const AccessTarget& accessTarget, bool data)
 //0x0C(12) |----------------------------------|
 //         |*RS0|*U1|*U2|*U3|STE|LSM1|LSM0|RS1|
 //         ------------------------------------
-//##OLD##
-//*RS0:	I suspect that either RS0 or RS1, probably RS0, affects the analog output signals
-//		such as HSYNC, while the other flag affects the digital operation of the chip and
-//		selects the actual cells which are drawn, and when. This is supported by the
-//		information in genvdp.txt, which states that setting RS0/1 to 01 does activate a
-//		40-cell display (see "Populous"), but that the display is "distorted a bit".
-//      Follow-up: It seems likely that when RS0 is set, it switches the analog hardware
-//      from using the internal pixel clock, to using the external dot clock. In fact, all
-//      four upper bits of this register affect the analog chip state.
-//*U1:	When this bit is set, it causes the VSYNC pin to output the internal pixel clock
-//		(dot clock) instead of the VSYNC signal. The HSYNC signal is reportedly forced to
-//		the asserted state, but this is disputed. See:
-//		http://gendev.spritesmind.net/forum/viewtopic.php?p=7189#7189
-//*U2:	An undocumented mode flag. According to genvdp:
-//      "Bit 5 seems to affect the display when used in conjunction with RS0, but only in
-//       the same way as the display appears when using a setting of 01b"
-//*U3:	Reportedly, when this bit it set, HSYNC is forced to 1 constantly. See:
-//		http://gendev.spritesmind.net/forum/viewtopic.php?p=8245#8245
-//STE:  Shadow/highlight mode enable. When set, shadow/highlight mode is active.
-//LSM1: Interlace double flag. When set, double interlace mode is active if the interlace
-//      enable bit is set. If interlacing is enabled and this bit is not set, normal
-//      interlace mode is active.
-//LSM0: Interlace enable flag. When set, interlacing is active. Whether normal or double
-//      interlace mode is active depends on the state of LSM1.
-//RS1:  When set, appears to change the digital operation of the VDP to enable H40 mode
-//      instead of the default H32 mode.
-//##NEW##:
 //*RS0:	When set, the VDP uses the EDCLK input to drive SC directly. When clear, the VDP
 //      calculates SC internally, as either MCLK/5 or MCLK/4, depending on the state of
 //      the RS1 bit.
@@ -1010,6 +1104,32 @@ void S315_5313::M5SetLSCR(const AccessTarget& accessTarget, bool data)
 //      varying clock rate which increases the clock rate for active scan, while slowing
 //      it during HSYNC to keep the overall drawing time of a line in H40 mode the same as
 //      in H32 mode, which allows a normal TV to lock onto the signal.
+//##OLD##
+//*RS0:	I suspect that either RS0 or RS1, probably RS0, affects the analog output signals
+//		such as HSYNC, while the other flag affects the digital operation of the chip and
+//		selects the actual cells which are drawn, and when. This is supported by the
+//		information in genvdp.txt, which states that setting RS0/1 to 01 does activate a
+//		40-cell display (see "Populous"), but that the display is "distorted a bit".
+//      Follow-up: It seems likely that when RS0 is set, it switches the analog hardware
+//      from using the internal pixel clock, to using the external dot clock. In fact, all
+//      four upper bits of this register affect the analog chip state.
+//*U1:	When this bit is set, it causes the VSYNC pin to output the internal pixel clock
+//		(dot clock) instead of the VSYNC signal. The HSYNC signal is reportedly forced to
+//		the asserted state, but this is disputed. See:
+//		http://gendev.spritesmind.net/forum/viewtopic.php?p=7189#7189
+//*U2:	An undocumented mode flag. According to genvdp:
+//      "Bit 5 seems to affect the display when used in conjunction with RS0, but only in
+//       the same way as the display appears when using a setting of 01b"
+//*U3:	Reportedly, when this bit it set, HSYNC is forced to 1 constantly. See:
+//		http://gendev.spritesmind.net/forum/viewtopic.php?p=8245#8245
+//STE:  Shadow/highlight mode enable. When set, shadow/highlight mode is active.
+//LSM1: Interlace double flag. When set, double interlace mode is active if the interlace
+//      enable bit is set. If interlacing is enabled and this bit is not set, normal
+//      interlace mode is active.
+//LSM0: Interlace enable flag. When set, interlacing is active. Whether normal or double
+//      interlace mode is active depends on the state of LSM1.
+//RS1:  When set, appears to change the digital operation of the VDP to enable H40 mode
+//      instead of the default H32 mode.
 //----------------------------------------------------------------------------------------
 bool S315_5313::M5GetRS0(const AccessTarget& accessTarget) const
 {

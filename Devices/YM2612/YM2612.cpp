@@ -586,22 +586,29 @@ void YM2612::ExecuteCommit()
 		//Clear the pendingRenderOperation flag now that we've processed it
 		pendingRenderOperation = false;
 
-		//Obtain a timeslice lock so we can update the data we feed to the render thread
-		boost::mutex::scoped_lock lock(timesliceMutex);
+		//Ensure that a valid latest timeslice exists in all our buffers. We need this
+		//check here, because if rollbacks occur at certain points in time, it's possible
+		//for our buffers to be entirely advanced through all pending timeslices and
+		//sitting on the committed state when ExecuteCommit() is called.
+		if(reg.DoesLatestTimesliceExist() && timerAOverflowTimes.DoesLatestTimesliceExist())
+		{
+			//Obtain a timeslice lock so we can update the data we feed to the render thread
+			boost::mutex::scoped_lock lock(timesliceMutex);
 
-		//Increment the number of pending render operations. This is used to track if the
-		//render thread is lagging.
-		++pendingRenderOperationCount;
+			//Increment the number of pending render operations. This is used to track if the
+			//render thread is lagging.
+			++pendingRenderOperationCount;
 
-		//Grab copies of the timeslice periods for the timed buffers the render thread
-		//will need to work with. We haven't been notified about any new timeslices yet
-		//since the last execution cycle, so these timeslice periods represent the point
-		//we want the render thread to execute up to.
-		regTimesliceList.push_back(reg.GetLatestTimeslice());
-		timerATimesliceList.push_back(timerAOverflowTimes.GetLatestTimeslice());
+			//Grab copies of the timeslice periods for the timed buffers the render thread
+			//will need to work with. We haven't been notified about any new timeslices yet
+			//since the last execution cycle, so these timeslice periods represent the point
+			//we want the render thread to execute up to.
+			regTimesliceList.push_back(reg.GetLatestTimeslice());
+			timerATimesliceList.push_back(timerAOverflowTimes.GetLatestTimeslice());
 
-		//Notify the render thread that it's got more work to do
-		renderThreadUpdate.notify_all();
+			//Notify the render thread that it's got more work to do
+			renderThreadUpdate.notify_all();
+		}
 	}
 
 	//Take a backup of the accumulated pending render time
