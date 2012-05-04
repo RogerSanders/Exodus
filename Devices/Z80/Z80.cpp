@@ -570,6 +570,10 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 		++i;
 	}
 	lineAccessBuffer.insert(i.base(), LineAccess(targetLine, lineData, accessTime));
+
+	//Resume the main execution thread if it is currently suspended waiting for a line
+	//state change to be received.
+	GetDeviceContext()->ResumeTimesliceExecution();
 }
 
 //----------------------------------------------------------------------------------------
