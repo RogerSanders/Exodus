@@ -26,10 +26,13 @@ public:
 	virtual IDeviceContext* GetDeviceContext() const;
 	virtual double GetCurrentTimesliceProgress() const;
 
+	//Suspend functions
+	virtual bool UsesExecuteSuspend() const;
+	virtual bool UsesTransientExecution() const;
+
 	//Execute functions
 	virtual void BeginExecution();
 	virtual void SuspendExecution();
-	virtual void NotifyUpcomingTimeslice(double nanoseconds);
 	virtual double ExecuteStep();
 	virtual void ExecuteTimeslice(double nanoseconds);
 	virtual double GetNextTimingPointInDeviceTime() const;
@@ -37,10 +40,11 @@ public:
 	virtual void ExecuteCommit();
 	virtual UpdateMethod GetUpdateMethod() const;
 	virtual bool SendNotifyUpcomingTimeslice() const;
-	virtual void NotifyBeforeExecuteCalled();
+	virtual void NotifyUpcomingTimeslice(double nanoseconds);
 	virtual bool SendNotifyBeforeExecuteCalled() const;
-	virtual void NotifyAfterExecuteCalled();
+	virtual void NotifyBeforeExecuteCalled();
 	virtual bool SendNotifyAfterExecuteCalled() const;
+	virtual void NotifyAfterExecuteCalled();
 
 	//Name functions
 	virtual unsigned int GetDeviceModuleID() const;

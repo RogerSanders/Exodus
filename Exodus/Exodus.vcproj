@@ -1727,6 +1727,30 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="ExecutionManager"
+				>
+				<File
+					RelativePath=".\ExecutionManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ExecutionManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ExecutionManager.inl"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="IExecutionSuspendManager"
+				>
+				<File
+					RelativePath=".\IExecutionSuspendManager.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="View System"

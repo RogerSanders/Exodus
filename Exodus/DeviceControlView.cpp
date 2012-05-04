@@ -43,10 +43,14 @@ INT_PTR System::DeviceControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LP
 	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETTOPINDEX, 0, 0);
 	LRESULT selected = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, 0);
 	SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_RESETCONTENT, 0, NULL);
-	for(DeviceArray::iterator i = system->activeDevices.begin(); i != system->activeDevices.end(); ++i)
+	for(DeviceArray::iterator i = system->devices.begin(); i != system->devices.end(); ++i)
 	{
-		LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_ADDSTRING, 0, (LPARAM)(*i)->GetTargetDevice()->GetDeviceInstanceName().c_str());
-		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)*i);
+		DeviceContext* device = *i;
+		if(device->ActiveDevice())
+		{
+			LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_ADDSTRING, 0, (LPARAM)device->GetTargetDevice()->GetDeviceInstanceName().c_str());
+			SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)device);
+		}
 	}
 	SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETCURSEL, selected, 0);
 	SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETTOPINDEX, top, 0);

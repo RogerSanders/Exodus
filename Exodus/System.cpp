@@ -1001,23 +1001,13 @@ void System::RunSystem()
 //----------------------------------------------------------------------------------------
 void System::ExecuteThread()
 {
-	size_t deviceCount;
-
 	//Start active device threads
-	deviceCount = activeDevices.size();
-	for(size_t i = 0; i < deviceCount; ++i)
-	{
-		activeDevices[i]->BeginExecution();
-	}
+	executionManager.BeginExecution();
 
 	//Commit the current state of each device. We perform this task here to ensure that
 	//manual changes made through the debug interface while the system was idle are not
 	//lost in the event of a rollback.
-	deviceCount = devices.size();
-	for(size_t i = 0; i < deviceCount; ++i)
-	{
-		devices[i]->Commit();
-	}
+	executionManager.Commit();
 
 	//Boost the system thread priority. This thread is always on the critical path. We
 	//don't want secondary threads from various devices in the system preventing this
@@ -1032,18 +1022,22 @@ void System::ExecuteThread()
 	PerformanceTimer timer;
 	while(!stopSystem)
 	{
+		//Initialize all devices if it has been requested
 		if(initialize)
 		{
-			deviceCount = devices.size();
-			for(size_t i = 0; i < deviceCount; ++i)
-			{
-				devices[i]->Initialize();
-			}
-			deviceCount = devices.size();
-			for(size_t i = 0; i < deviceCount; ++i)
-			{
-				devices[i]->Commit();
-			}
+			//Stop active device threads
+			executionManager.SuspendExecution();
+
+			//Initialize the devices
+			executionManager.Initialize();
+
+			//Start active device threads
+			executionManager.BeginExecution();
+
+			//Commit changes from initialization
+			executionManager.Commit();
+
+			//Clear the initialize flag
 			initialize = false;
 		}
 
@@ -1067,11 +1061,7 @@ void System::ExecuteThread()
 	}
 
 	//Stop active device threads
-	deviceCount = activeDevices.size();
-	for(size_t i = 0; i < deviceCount; ++i)
-	{
-		activeDevices[i]->SuspendExecution();
-	}
+	executionManager.SuspendExecution();
 
 	SignalSystemStopped();
 }
@@ -1079,22 +1069,10 @@ void System::ExecuteThread()
 //----------------------------------------------------------------------------------------
 double System::ExecuteSystemStep(double maximumTimeslice)
 {
-	size_t deviceCount;
-
 	//Determine the maximum length of time all devices can run unsynchronized before the
 	//next timing point
-	double timeslice = maximumTimeslice;
 	DeviceContext* nextDeviceStep = 0;
-	deviceCount = activeDevices.size();
-	for(size_t i = 0; i < deviceCount; ++i)
-	{
-		double deviceTimingPoint = activeDevices[i]->GetNextTimingPoint();
-		if((deviceTimingPoint < timeslice) && (deviceTimingPoint >= 0))
-		{
-			timeslice = deviceTimingPoint;
-			nextDeviceStep = activeDevices[i];
-		}
-	}
+	double timeslice = executionManager.GetNextTimingPoint(maximumTimeslice, nextDeviceStep);
 
 	bool callbackStep = false;
 	void (*callbackFunction)(void*) = 0;
@@ -1104,11 +1082,7 @@ double System::ExecuteSystemStep(double maximumTimeslice)
 		rollback = false;
 
 		//Notify upcoming timeslice
-		deviceCount = notifyDevices.size();
-		for(size_t i = 0; i < deviceCount; ++i)
-		{
-			notifyDevices[i]->NotifyUpcomingTimeslice(timeslice);
-		}
+		executionManager.NotifyUpcomingTimeslice(timeslice);
 
 		//Send any buffered input events
 		SendStoredInputEvents();
@@ -1117,43 +1091,53 @@ double System::ExecuteSystemStep(double maximumTimeslice)
 //		std::wcout << "Timeslice\t" << timeslice << '\n';
 
 		//Notify after execute called
-		deviceCount = notifyBeforeExecuteDevices.size();
-		for(size_t i = 0; i < deviceCount; ++i)
-		{
-			notifyBeforeExecuteDevices[i]->NotifyBeforeExecuteCalled();
-		}
+		executionManager.NotifyBeforeExecuteCalled();
 
 		//Execute next timeslice
-		deviceCount = activeDevices.size();
-		for(size_t i = 0; i < deviceCount; ++i)
-		{
-			activeDevices[i]->ExecuteTimeslice(timeslice);
-		}
+		executionManager.ExecuteTimeslice(timeslice);
 
-		//Wait for all active devices to finish their timeslice
-		deviceCount = activeDevices.size();
-		for(size_t i = 0; i < deviceCount; ++i)
-		{
-			activeDevices[i]->WaitForCompletion();
-		}
-
-		//Notify after execute called
-		deviceCount = notifyAfterExecuteDevices.size();
-		for(size_t i = 0; i < deviceCount; ++i)
-		{
-			notifyAfterExecuteDevices[i]->NotifyAfterExecuteCalled();
-		}
+		//##TODO## Introduce the ability to "suspend" execution of a worker thread, until
+		//all other non-suspended worker threads have completed execution. At this point,
+		//any worker threads which are still suspended are notified all other devices have
+		//finished, and they can perform whatever tasks they need to in order to finalize
+		//the current timeslice.
+		//-In order to implement this, I recommend we introduce a new member function into
+		//the IDevice interface, called NotifyAllDevicesFinishedDuringSuspend() or
+		//something, which the device needs to implement if it uses suspend states.
+		//-I recommend another function in IDevice like UsesExecuteSuspend() or the like,
+		//which can be used to determine if a given device may issue a suspend operation
+		//at any time. This could be useful for optimizing the implementation.
+		//-I recommend we introduce a new class, called an ExecutionManager or the like,
+		//which has its own thread. The purpose of this class is to act as an intermediary
+		//between the system and the DeviceContext instances themselves, forwarding new
+		//timeslices on to the devices, and in this case, managing the issue of
+		//determining when all devices are finished executing in particular. In order to
+		//support suspension, we need the system to simply be able to wait for "all
+		//devices to finish", while the actual execution manager will keep track of how
+		//many devices are executing, how many are finished, and how many are suspended.
+		//When no devices are left executing, any suspended devices will be resumed, then
+		//when all devices are finished, the execution will be flagged as complete.
 
 		//Roll back or commit changes
 		if(rollback)
 		{
+			//Ensure we're actually going to perform a rollback on this step before we
+			//call NotifyAfterExecuteCalled(). If rollback timeslice is 0, we just step
+			//through the target device immediately.
+			//##FIX## This is a bit unusual. We do actually call the Rollback() function
+			//below, so this could have some unintended side-effects. Perhaps we should
+			//handle immediate rollbacks differently? If the device itself which is being
+			//stepped accesses other devices in the system during that step, it will cause
+			//problems if other devices aren't in a valid state to accept interaction.
+			if(rollbackTimeslice > 0)
+			{
+				//Notify after execute called
+				executionManager.NotifyAfterExecuteCalled();
+			}
+
 			//##DEBUG##
 			std::wcout << "Rollback\t" << std::setprecision(16) << rollbackTimeslice << '\n';
-			deviceCount = devices.size();
-			for(size_t i = 0; i < deviceCount; ++i)
-			{
-				devices[i]->Rollback();
-			}
+			executionManager.Rollback();
 
 			//##DEBUG##
 			if(rollbackTimeslice < 0)
@@ -1188,12 +1172,11 @@ double System::ExecuteSystemStep(double maximumTimeslice)
 		}
 	}
 
+	//Notify after execute called
+	executionManager.NotifyAfterExecuteCalled();
+
 	//Commit all changes
-	deviceCount = devices.size();
-	for(size_t i = 0; i < deviceCount; ++i)
-	{
-		devices[i]->Commit();
-	}
+	executionManager.Commit();
 
 	//Clear all input events which have been successfully processed
 	ClearStoredInputEvents();
@@ -1204,33 +1187,20 @@ double System::ExecuteSystemStep(double maximumTimeslice)
 //----------------------------------------------------------------------------------------
 void System::ExecuteDeviceStep(DeviceContext* device)
 {
-	size_t deviceCount;
-
-	//Start active device threads
-	deviceCount = activeDevices.size();
-	for(size_t i = 0; i < deviceCount; ++i)
-	{
-		activeDevices[i]->BeginExecution();
-	}
-
+	//Initialize all devices if it has been requested
 	if(initialize)
 	{
-		deviceCount = devices.size();
-		for(size_t i = 0; i < deviceCount; ++i)
-		{
-			devices[i]->Initialize();
-		}
+		executionManager.Initialize();
 		initialize = false;
 	}
+
+	//Start active device threads
+	executionManager.BeginExecution();
 
 	//Commit the current state of each device. We perform this task here to ensure that
 	//manual changes made through the debug interface while the system was idle, and the
 	//initialize step above, are not lost in the event of a rollback.
-	deviceCount = devices.size();
-	for(size_t i = 0; i < deviceCount; ++i)
-	{
-		devices[i]->Commit();
-	}
+	executionManager.Commit();
 
 	//Step through the target device
 	rollback = false;
@@ -1243,23 +1213,14 @@ void System::ExecuteDeviceStep(DeviceContext* device)
 		//sitting on a timing point using the loop method below, only the device will
 		//advance, and ExecuteSystemStep will correctly return 0. This will leave us in
 		//an infinite loop.
-		deviceCount = devices.size();
-		for(size_t i = 0; i < deviceCount; ++i)
-		{
-			devices[i]->Commit();
-		}
+		executionManager.Commit();
 	}
 	else
 	{
 		//If the device we're trying to step through is not sitting on a timing point,
 		//roll back the execution, and pass the execution time to ExecuteSystemStep to
 		//advance the entire system by the target amount.
-		deviceCount = devices.size();
-		for(size_t i = 0; i < deviceCount; ++i)
-		{
-			std::wstring name = devices[i]->GetTargetDevice()->GetDeviceInstanceName();
-			devices[i]->Rollback();
-		}
+		executionManager.Rollback();
 
 		double totalTimeExecuted = 0;
 		while(totalTimeExecuted < timeslice)
@@ -1269,11 +1230,7 @@ void System::ExecuteDeviceStep(DeviceContext* device)
 	}
 
 	//Stop active device threads
-	deviceCount = activeDevices.size();
-	for(size_t i = 0; i < deviceCount; ++i)
-	{
-		activeDevices[i]->SuspendExecution();
-	}
+	executionManager.SuspendExecution();
 }
 
 //----------------------------------------------------------------------------------------
@@ -1433,7 +1390,7 @@ void System::UnregisterDevice(const std::wstring deviceName)
 //----------------------------------------------------------------------------------------
 //Device creation and deletion
 //----------------------------------------------------------------------------------------
-bool System::AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext, bool active, bool notifyTimeslice, bool notifyBeforeExecuteCalled, bool notifyAfterExecuteCalled)
+bool System::AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext)
 {
 	LoadedDeviceInfo deviceInfo;
 	deviceInfo.moduleID = moduleID;
@@ -1443,22 +1400,8 @@ bool System::AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* de
 	loadedDeviceInfoList.push_back(deviceInfo);
 
 	devices.push_back(deviceContext);
-	if(active)
-	{
-		activeDevices.push_back(deviceContext);
-	}
-	if(notifyTimeslice)
-	{
-		notifyDevices.push_back(deviceContext);
-	}
-	if(notifyBeforeExecuteCalled)
-	{
-		notifyBeforeExecuteDevices.push_back(deviceContext);
-	}
-	if(notifyAfterExecuteCalled)
-	{
-		notifyAfterExecuteDevices.push_back(deviceContext);
-	}
+	executionManager.AddDevice(deviceContext);
+
 	return true;
 }
 
@@ -1498,11 +1441,8 @@ void System::UnloadDevice(IDevice* adevice)
 	}
 
 	//Remove the device itself from the system
+	executionManager.RemoveDevice((DeviceContext*)adevice->GetDeviceContext());
 	RemoveDeviceFromDeviceList(devices, adevice);
-	RemoveDeviceFromDeviceList(activeDevices, adevice);
-	RemoveDeviceFromDeviceList(notifyDevices, adevice);
-	RemoveDeviceFromDeviceList(notifyBeforeExecuteDevices, adevice);
-	RemoveDeviceFromDeviceList(notifyAfterExecuteDevices, adevice);
 
 	//Destroy the device
 	DestroyDevice(adevice->GetDeviceClassName(), adevice);
@@ -2059,7 +1999,7 @@ bool System::UnloadModule(unsigned int moduleID)
 			for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 			{
 				i->device->RemoveReference(currentElement->device);
-				i->deviceContext->RemoveDependentDevice(currentElement->deviceContext);
+				i->deviceContext->RemoveDeviceDependency(currentElement->deviceContext);
 			}
 
 			//Delete the device
@@ -2213,7 +2153,7 @@ bool System::LoadModule_Device(IHeirarchicalStorageNode& node, unsigned int modu
 	}
 
 	//Add the device object to the system
-	if(!AddDevice(moduleID, device, deviceContext, deviceContext->ActiveDevice(), deviceContext->SendNotifyUpcomingTimeslice(), deviceContext->SendNotifyBeforeExecuteCalled(), deviceContext->SendNotifyAfterExecuteCalled()))
+	if(!AddDevice(moduleID, device, deviceContext))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"AddDevice failed for " + instanceName + L"!"));
 		DestroyDevice(deviceName, device);
@@ -2248,7 +2188,7 @@ bool System::LoadModule_Device_SetDependentDevice(IHeirarchicalStorageNode& node
 
 	//Set the target device as a dependent device
 	DeviceContext* deviceContext = (DeviceContext*)device->GetDeviceContext();
-	deviceContext->AddDependentDevice((DeviceContext*)target->GetDeviceContext());
+	deviceContext->AddDeviceDependency((DeviceContext*)target->GetDeviceContext());
 
 	return true;
 }
@@ -3560,11 +3500,8 @@ void System::UnloadAllModules()
 		DestroyDevice(i->device->GetDeviceClassName(), i->device);
 	}
 	loadedDeviceInfoList.clear();
+	executionManager.ClearAllDevices();
 	devices.clear();
-	activeDevices.clear();
-	notifyDevices.clear();
-	notifyBeforeExecuteDevices.clear();
-	notifyAfterExecuteDevices.clear();
 
 	//Remove all loaded modules
 	loadedModuleInfoList.clear();

@@ -18,6 +18,8 @@
 #include "PerformanceLock.h"
 #include "PerformanceMutex.h"
 #include "PerformanceTimer.h"
+#include "ReferenceCounter.h"
+#include "MemoryBarrier.h"
 #endif
 
 #endif

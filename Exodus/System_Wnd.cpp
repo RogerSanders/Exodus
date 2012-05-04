@@ -1,5 +1,4 @@
 #include "System.h"
-#include "DeviceContext.h"
 #include "DebugMenuHandler.h"
 
 //----------------------------------------------------------------------------------------

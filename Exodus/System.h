@@ -25,6 +25,7 @@ should be able to be sent to all devices simultaneously.
 #include "DeviceContext.h"
 #include "DeviceInfo.h"
 #include "ISystemInternal.h"
+#include "ExecutionManager.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -215,7 +216,7 @@ private:
 	bool LoadModule_ProcessViewModelQueue(unsigned int moduleID, const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher);
 
 	//Device creation and deletion
-	bool AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext, bool active, bool notifyTimeslice, bool notifyBeforeExecuteCalled, bool notifyAfterExecuteCalled);
+	bool AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext);
 	IDevice* CreateDevice(const std::wstring& deviceName, const std::wstring& instanceName, unsigned int moduleID) const;
 	void DestroyDevice(const std::wstring& deviceName, IDevice* device) const;
 	void UnloadDevice(IDevice* adevice);
@@ -312,11 +313,8 @@ private:
 	LoadedModuleInfoList loadedModuleInfoList;
 	LoadedDeviceInfoList loadedDeviceInfoList;
 	ImportedDeviceInfoList importedDeviceInfoList;
+	ExecutionManager executionManager;
 	DeviceArray devices;
-	DeviceArray activeDevices;
-	DeviceArray notifyDevices;
-	DeviceArray notifyBeforeExecuteDevices;
-	DeviceArray notifyAfterExecuteDevices;
 
 	//Bus interfaces
 	BusInterfaceList busInterfaces;

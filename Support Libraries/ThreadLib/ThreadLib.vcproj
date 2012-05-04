@@ -597,6 +597,30 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="ReferenceCounter"
+			>
+			<File
+				RelativePath=".\ReferenceCounter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ReferenceCounter.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="MemoryBarrier"
+			>
+			<File
+				RelativePath=".\MemoryBarrier.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MemoryBarrier.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ThreadLib.pkg"
 			>
