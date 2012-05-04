@@ -57,6 +57,9 @@ public:
 	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
 	virtual bool RemoveReference(IBusInterface* target);
 
+	//Suspend functions
+	virtual bool UsesExecuteSuspend() const;
+
 	//Execute functions
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
@@ -323,12 +326,14 @@ private:
 
 	//Line access
 	boost::mutex lineMutex;
-	double lastLineCheckTime;
+	mutable double lastLineCheckTime;
 	bool lineAccessPending;
 	double lastTimesliceLength;
 	double blastTimesliceLength;
 	std::list<LineAccess> lineAccessBuffer;
 	std::list<LineAccess> blineAccessBuffer;
+	bool suspendUntilLineStateChangeReceived;
+	bool bsuspendUntilLineStateChangeReceived;
 
 	bool resetLineState;
 	bool busreqLineState;

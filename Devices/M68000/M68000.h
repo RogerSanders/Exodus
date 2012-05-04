@@ -405,7 +405,7 @@ private:
 
 	//Line access
 	boost::mutex lineMutex;
-	double lastLineCheckTime;
+	mutable double lastLineCheckTime;
 	mutable volatile bool lineAccessPending;
 	double lastTimesliceLength;
 	double blastTimesliceLength;
