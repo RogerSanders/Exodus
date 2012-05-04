@@ -80,6 +80,8 @@ public:
 	virtual bool GetThrottlingState() const;
 	virtual void SetThrottlingState(bool state);
 	virtual bool SystemRunning() const;
+	virtual bool IsSystemRollbackFlagged() const;
+	virtual double SystemRollbackTime() const;
 	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, void (*callbackFunction)(void*), void* callbackParams);
 	virtual void ExecuteDeviceStep(DeviceContext* device);
 
@@ -355,7 +357,7 @@ private:
 	volatile bool clearSystemComplete;
 
 	//Rollback settings
-	double rollbackTimeslice;
+	volatile double rollbackTimeslice;
 	IDeviceContext* rollbackDevice;
 	bool useRollbackFunction;
 	void (*rollbackFunction)(void*);

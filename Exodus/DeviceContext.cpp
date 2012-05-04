@@ -751,6 +751,13 @@ void DeviceContext::ExecuteWorkerThreadStep()
 		while(currentTimesliceProgress < timeslice)
 		{
 			currentTimesliceProgress += device->ExecuteStep();
+			if(systemObject->IsSystemRollbackFlagged())
+			{
+				if(currentTimesliceProgress >= systemObject->SystemRollbackTime())
+				{
+					currentTimesliceProgress = timeslice;
+				}
+			}
 		}
 		remainingTime = currentTimesliceProgress - timeslice;
 		lock.lock();
@@ -783,6 +790,13 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 				}
 			}
 			currentTimesliceProgress += device->ExecuteStep();
+			if(systemObject->IsSystemRollbackFlagged())
+			{
+				if(currentTimesliceProgress >= systemObject->SystemRollbackTime())
+				{
+					currentTimesliceProgress = timeslice;
+				}
+			}
 		}
 		remainingTime = currentTimesliceProgress - timeslice;
 		lock.lock();
