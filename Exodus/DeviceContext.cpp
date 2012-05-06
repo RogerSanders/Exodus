@@ -614,9 +614,6 @@ void DeviceContext::ProcessCommand(size_t deviceIndex, const DeviceContextComman
 	case DeviceContextCommand::TYPE_SUSPENDEXECUTION:
 		SuspendExecution();
 		break;
-	case DeviceContextCommand::TYPE_INITIALIZE:
-		Initialize();
-		break;
 	case DeviceContextCommand::TYPE_COMMIT:
 		Commit();
 		break;

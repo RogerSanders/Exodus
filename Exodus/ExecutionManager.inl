@@ -194,11 +194,17 @@ void ExecutionManager::Rollback()
 //----------------------------------------------------------------------------------------
 void ExecutionManager::Initialize()
 {
-	boost::mutex::scoped_lock lock(commandMutex);
-	command.type = DeviceContext::DeviceContextCommand::TYPE_INITIALIZE;
+	//Note that we only perform initialization on a device when execution for that device
+	//is suspended. This is critical, in order to ensure that the device does not have any
+	//actively running threads, such as render threads, which might be working with the
+	//internal state data we are about to initialize. As the device is currently
+	//suspended, we can't send this command in parallel to each device, as the command
+	//worker thread for each device is also suspended.
 	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	for(size_t i = 0; i < deviceCount; ++i)
+	{
+		deviceArray[i]->Initialize();
+	}
 }
 
 //----------------------------------------------------------------------------------------
