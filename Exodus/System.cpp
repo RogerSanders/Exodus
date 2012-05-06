@@ -1457,7 +1457,7 @@ void System::UnloadDevice(IDevice* adevice)
 	RemoveDeviceFromDeviceList(devices, adevice);
 
 	//Destroy the device
-	DestroyDevice(adevice->GetDeviceClassName(), adevice);
+	DestroyDevice(adevice->GetDeviceInstanceName(), adevice);
 }
 
 //----------------------------------------------------------------------------------------
@@ -3509,7 +3509,7 @@ void System::UnloadAllModules()
 	//Remove all devices
 	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 	{
-		DestroyDevice(i->device->GetDeviceClassName(), i->device);
+		DestroyDevice(i->device->GetDeviceInstanceName(), i->device);
 	}
 	loadedDeviceInfoList.clear();
 	executionManager.ClearAllDevices();
