@@ -461,18 +461,40 @@ void BusInterface::RemoveMapEntryFromPhysicalMap(MapEntry* mapEntry, std::vector
 			{
 				ReleaseAssert(false);
 			}
+
+			//Delete the item from the list structure at this location
 			ThinList<MapEntry*>* nextMapEntry = physicalMap[memoryMapBase + i];
-			while(nextMapEntry != 0)
+			if(nextMapEntry->object == mapEntry)
 			{
-				//Save a reference to the current entry, and advance to the next entry.
+				//If the first entry in the list is the target entry, set the start of the
+				//list to be the next list entry, and delete the item list item.
+				physicalMap[memoryMapBase + i] = nextMapEntry->next;
+				delete nextMapEntry;
+			}
+			else
+			{
+				//If the first entry in the list is not the target entry, search the rest
+				//of the list looking for a matching item to erase.
 				ThinList<MapEntry*>* currentMapEntry = nextMapEntry;
 				nextMapEntry = currentMapEntry->next;
-
-				//Delete the current list item if it references the target mapping
-				if(currentMapEntry->object == mapEntry)
+				while(nextMapEntry != 0)
 				{
-					currentMapEntry->next = 0;
-					delete currentMapEntry;
+					if(nextMapEntry->object == mapEntry)
+					{
+						//If the next map entry is the target object, remove it from the
+						//list.
+						currentMapEntry->next = nextMapEntry->next;
+						delete nextMapEntry;
+					}
+					else
+					{
+						//If the next map entry is not the target object, advance to it,
+						//and continue the search.
+						currentMapEntry = nextMapEntry;
+					}
+
+					//Set the next item in the list as the next map entry to examine
+					nextMapEntry = currentMapEntry->next;
 				}
 			}
 		}
@@ -629,12 +651,14 @@ void BusInterface::UnmapDevice(MapEntry* mapEntry)
 	}
 
 	//Remove the entry from the memory map
+	bool done = false;
 	std::vector<MapEntry*>::iterator i = memoryMap.begin();
-	while(i != memoryMap.end())
+	while(!done && (i != memoryMap.end()))
 	{
 		if(*i == mapEntry)
 		{
 			memoryMap.erase(i);
+			done = true;
 		}
 		else
 		{
@@ -786,12 +810,14 @@ void BusInterface::UnmapPort(MapEntry* mapEntry)
 	}
 
 	//Remove the entry from the memory map
+	bool done = false;
 	std::vector<MapEntry*>::iterator i = portMap.begin();
-	while(i != portMap.end())
+	while(!done && (i != portMap.end()))
 	{
 		if(*i == mapEntry)
 		{
 			portMap.erase(i);
+			done = true;
 		}
 		else
 		{

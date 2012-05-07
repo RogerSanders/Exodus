@@ -90,6 +90,7 @@ public:
 	//Module functions
 	bool LoadModule(const std::wstring& folder);
 	bool LoadModuleFromFile(const std::wstring& fileDir, const std::wstring& fileName);
+	void UnloadModule(unsigned int moduleID);
 	void UnloadAllModules();
 
 	//Global preference functions
@@ -176,6 +177,7 @@ private:
 	bool BuildDebugMenu(HMENU debugMenu);
 
 	//Thread handlers
+	void UnloadModuleThread(unsigned int moduleID);
 	void UnloadSystemThread();
 	void DestroySystemInterfaceThread();
 
@@ -191,6 +193,7 @@ private:
 	static int CALLBACK SetSHBrowseForFolderInitialDir(HWND hwnd, UINT umsg, LPARAM lparam, LPARAM lpData);
 	static INT_PTR CALLBACK LoadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK UnloadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK ModuleUnloaderProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK AboutProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK SettingsProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -207,6 +210,7 @@ private:
 	SystemPrefs prefs;
 	std::wstring romFileName;
 	std::wstring originalWorkingDir;
+	volatile bool moduleCommandComplete;
 	bool systemLoaded;
 	bool systemDestructionInProgress;
 	bool viewEventProcessingPaused;

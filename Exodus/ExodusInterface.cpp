@@ -1054,11 +1054,27 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 }
 
 //----------------------------------------------------------------------------------------
+void ExodusInterface::UnloadModule(unsigned int moduleID)
+{
+	//Spawn a worker thread to perform the module unload
+	moduleCommandComplete = false;
+	boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::UnloadModuleThread), this, moduleID));
+
+	//Open the unload system progress dialog
+	INT_PTR dialogBoxParamResult;
+	dialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), mainWindowHandle, UnloadModuleProc, (LPARAM)this);
+
+	//Initialize the debug menu
+	BuildDebugMenu(debugMenu);
+}
+
+//----------------------------------------------------------------------------------------
 void ExodusInterface::UnloadAllModules()
 {
 	if(systemLoaded)
 	{
 		//Spawn a worker thread to perform the system unload
+		moduleCommandComplete = false;
 		boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::UnloadSystemThread), this));
 
 		//Open the unload system progress dialog
@@ -1069,6 +1085,7 @@ void ExodusInterface::UnloadAllModules()
 		BuildDebugMenu(debugMenu);
 
 		systemLoaded = false;
+		moduleCommandComplete = true;
 	}
 }
 
@@ -1923,6 +1940,18 @@ bool ExodusInterface::BuildDebugMenu(HMENU debugMenu)
 //----------------------------------------------------------------------------------------
 //Thread handlers
 //----------------------------------------------------------------------------------------
+void ExodusInterface::UnloadModuleThread(unsigned int moduleID)
+{
+	//Stop the system if it is currently running
+	system.StopSystem();
+
+	//Unload the specified module
+	system.UnloadModule(moduleID);
+
+	moduleCommandComplete = true;
+}
+
+//----------------------------------------------------------------------------------------
 void ExodusInterface::UnloadSystemThread()
 {
 	if(systemLoaded)
@@ -1935,6 +1964,7 @@ void ExodusInterface::UnloadSystemThread()
 	}
 
 	systemLoaded = false;
+	moduleCommandComplete = true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2552,7 +2582,7 @@ INT_PTR CALLBACK ExodusInterface::UnloadModuleProc(HWND hwnd, UINT Message, WPAR
 	switch(Message)
 	{
 	case WM_TIMER:{
-		if(!state->systemLoaded)
+		if(state->moduleCommandComplete)
 		{
 			KillTimer(hwnd, 1);
 			EndDialog(hwnd, 0);
@@ -2575,6 +2605,93 @@ INT_PTR CALLBACK ExodusInterface::UnloadModuleProc(HWND hwnd, UINT Message, WPAR
 			SetWindowLongPtr(progressWindowHandle, GWL_STYLE, windowStyles);
 			SendMessage(progressWindowHandle, PBM_SETMARQUEE, (WPARAM)TRUE, (LPARAM)50);
 		}
+		break;}
+	default:
+		return FALSE;
+		break;
+	}
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR CALLBACK ExodusInterface::ModuleUnloaderProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+	//Obtain the object pointer
+	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+	switch(Message)
+	{
+	case WM_CLOSE:
+		DestroyWindow(hwnd);
+		break;
+	case WM_COMMAND:{
+		if(HIWORD(wParam) == BN_CLICKED)
+		{
+			switch(LOWORD(wParam))
+			{
+			case IDC_MODULEUNLOADER_REFRESH:
+				//Refresh the module list
+				SendMessage(hwnd, WM_USER, 0, 0);
+				break;
+			case IDC_MODULEUNLOADER_UNLOADSELECTED:{
+				//Retrieve the selected list item
+				LRESULT selectedListItem = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_GETCURSEL, 0, 0);
+				if(selectedListItem != LB_ERR)
+				{
+					//Retrieve the module ID number of the selected module
+					LRESULT listItemData = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_GETITEMDATA, selectedListItem, NULL);
+					if(listItemData != LB_ERR)
+					{
+						//Unload the selected module
+						unsigned int targetModuleID = (unsigned int)listItemData;
+						state->UnloadModule(targetModuleID);
+
+						//Refresh the module list
+						SendMessage(hwnd, WM_USER, 0, 0);
+					}
+				}
+				break;}
+			case IDC_MODULEUNLOADER_UNLOADALL:
+				//Clear all loaded modules
+				state->UnloadAllModules();
+
+				//Refresh the module list
+				SendMessage(hwnd, WM_USER, 0, 0);
+				break;
+			}
+		}
+		break;}
+	case WM_INITDIALOG:
+		//Set the object pointer
+		state = (ExodusInterface*)lParam;
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
+
+		//Refresh the module list
+		SendMessage(hwnd, WM_USER, 0, 0);
+		break;
+	case WM_USER:{
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), WM_SETREDRAW, FALSE, 0);
+
+		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_GETTOPINDEX, 0, 0);
+		LRESULT selected = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_GETCURSEL, 0, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_RESETCONTENT, 0, NULL);
+		std::list<unsigned int> loadedModuleIDs = state->system.GetLoadedModuleIDs();
+		for(std::list<unsigned int>::iterator i = loadedModuleIDs.begin(); i != loadedModuleIDs.end(); ++i)
+		{
+			ISystemExternal::LoadedModuleInfo moduleInfo;
+			if(state->system.GetLoadedModuleInfo(*i, moduleInfo))
+			{
+				std::wstringstream text;
+				text << moduleInfo.displayName << " (" << moduleInfo.className << ")";
+				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_ADDSTRING, 0, (LPARAM)text.str().c_str());
+				SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)moduleInfo.moduleID);
+			}
+		}
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_SETCURSEL, selected, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_SETTOPINDEX, top, 0);
+
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), WM_SETREDRAW, TRUE, 0);
+		InvalidateRect(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), NULL, FALSE);
 		break;}
 	default:
 		return FALSE;
@@ -2964,10 +3081,11 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 				state->system.RunSystem();
 			}
 			break;}
-		case ID_FILE_UNLOADMODULE:
-			//##TODO## Display a list of the currently loaded modules, and allow the user
-			//to select modules to unload.
-			break;
+		case ID_FILE_UNLOADMODULE:{
+			HWND dialog = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULESELECTOR), hwnd, ExodusInterface::ModuleUnloaderProc, (LPARAM)state);
+			ShowWindow(dialog, SW_SHOWNORMAL);
+			UpdateWindow(dialog);
+			break;}
 		case ID_FILE_UNLOADALLMODULES:
 			state->UnloadAllModules();
 			break;
@@ -3054,7 +3172,7 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			UpdateWindow(settings);
 			break;}
 		case ID_HELP_ABOUT:{
-			HWND about = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUT), hwnd, ExodusInterface::AboutProc, 0);
+			HWND about = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUT), hwnd, ExodusInterface::AboutProc, (LPARAM)state);
 			ShowWindow(about, SW_SHOWNORMAL);
 			UpdateWindow(about);
 			break;}
