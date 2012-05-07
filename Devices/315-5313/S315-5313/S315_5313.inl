@@ -942,22 +942,23 @@ void S315_5313::M5SetNameTableBaseScrollB(const AccessTarget& accessTarget, unsi
 //         ----------------------------------------
 //         | 7 | 6  | 5  | 4  | 3  | 2  |  1  | 0 |
 //         |--------------------------------------|
-//         |   |Sprite Attribute Table Address|   |
-//0x05(5)  | / |------------------------------| / |
-//         |   |AT15|AT14|AT13|AT12|AT11|AT10 |   |
+//         |   |  Sprite Attribute Table Address  |
+//0x05(5)  | / |----------------------------------|
+//         |   |AT15|AT14|AT13|AT12|AT11|AT10 |AT9|
 //         ----------------------------------------
-//##FIX## According to genvdp.txt and the official docs, AT9 is valid in H32 mode. It is
-//always forced to 0 in H40 mode, but in H32 mode it should be used.
+//##TODO## According to the official docs, AT9 is valid in H32 mode, but in H40 mode, it
+//is always forced to 0. This should be tested on the hardware. Note that the "Traveller's
+//Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being valid in H32 mode.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M5GetNameTableBaseSprite(const AccessTarget& accessTarget) const
 {
-	return GetRegisterData(0x05, accessTarget).GetDataSegment(1, 6) << 10;
+	return GetRegisterData(0x05, accessTarget).GetDataSegment(0, 7) << 9;
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::M5SetNameTableBaseSprite(const AccessTarget& accessTarget, unsigned int data)
 {
-	SetRegisterData(0x05, accessTarget, GetRegisterData(0x05, accessTarget).SetDataSegment(1, 6, data >> 10));
+	SetRegisterData(0x05, accessTarget, GetRegisterData(0x05, accessTarget).SetDataSegment(0, 7, data >> 9));
 }
 
 //----------------------------------------------------------------------------------------
