@@ -8021,7 +8021,7 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 			unsigned int pixelClockStepsBeforeVBlank = 0;
 			if(vscanSettingsChanged)
 			{
-				pixelClockStepsBeforeVBlank = GetPixelClockStepsBetweenVCounterValues(hscanSettings, hcounter.GetData(), vscanSettings, interlaceEnabled, GetStatusFlagOddInterlaceFrame(), vcounter.GetData(), vscanSettings.vblankSetPoint);
+				pixelClockStepsBeforeVBlank = GetPixelClockStepsBetweenHVCounterValues(hscanSettings, hcounter.GetData(), hscanSettings.vcounterIncrementPoint, vscanSettings, interlaceEnabled, GetStatusFlagOddInterlaceFrame(), vcounter.GetData(), vscanSettings.vblankSetPoint);
 			}
 
 			//Check whether the next update step occurs at hblank or vblank. If both hscan
@@ -8145,6 +8145,10 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 			palMode = palModeLineState;
 			//##TODO## Verify that the V28/V30 mode change is latched at vblank
 			screenModeV30 = screenModeV30New;
+
+			//Now that we've processed this screen mode settings change, flag that no
+			//settings change is required.
+			vscanSettingsChanged = false;
 		}
 
 		//If horizontal scan information has changed, and we've just advanced to hblank,
@@ -8154,6 +8158,10 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 			//##FIX## These settings changes are supposed to take effect immediately
 			screenModeRS0 = screenModeRS0New;
 			screenModeRS1 = screenModeRS1New;
+
+			//Now that we've processed this screen mode settings change, flag that no
+			//settings change is required.
+			hscanSettingsChanged = false;
 		}
 
 		//Update the total number of mclk cycles advanced so far
