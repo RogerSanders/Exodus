@@ -141,6 +141,7 @@ regSession(Data(8)),
 vramSession(0),
 cramSession(0),
 vsramSession(0),
+spriteCacheSession(0),
 renderMappingDataCacheLayerA(maxCellsPerRow, Data(16)),
 renderMappingDataCacheLayerB(maxCellsPerRow, Data(16)),
 renderMappingDataCacheSprite(maxCellsPerRow, Data(16)),
@@ -159,6 +160,7 @@ renderPatternDataCacheSprite(maxCellsPerRow, Data(32))
 	vram = 0;
 	cram = 0;
 	vsram = 0;
+	spriteCache = 0;
 	psg = 0;
 
 	//Initialize our CE line state
@@ -350,7 +352,7 @@ bool S315_5313::BuildDevice()
 //----------------------------------------------------------------------------------------
 bool S315_5313::ValidateDevice()
 {
-	return (memoryBus != 0) && (vram != 0) && (cram != 0) && (vsram != 0);
+	return (memoryBus != 0) && (vram != 0) && (cram != 0) && (vsram != 0) && (spriteCache != 0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -398,6 +400,16 @@ void S315_5313::Initialize()
 	vsram->WriteLatest(0x01, 0xDF);
 	vsram->WriteLatest(0x22, 0x07);
 	vsram->WriteLatest(0x23, 0xFB);
+
+	//We have no idea how the sprite cache should be initialized. Most likely, it is not
+	//initialized to 0 on the real hardware, but that's what we do here currently.
+	//##TODO## Perform hardware tests to determine how the sprite cache is initialized
+	//after power-on.
+	spriteCache->Initialize();
+	for(unsigned int i = 0; i < spriteCacheSize; i += 2)
+	{
+		spriteCache->WriteLatest(i, 0x00);
+	}
 
 	currentTimesliceLength = 0;
 	currentTimesliceMclkCyclesRemainingTime = 0;
@@ -473,10 +485,16 @@ void S315_5313::Reset()
 	screenModeRS0Cached = false;
 	screenModeRS1Cached = false;
 	screenModeV30Cached = false;
+	spriteAttributeTableBaseAddressDecoded = 0;
 	cachedDMASettingsChanged = false;
 
 	//##TODO## Check if we need to clear these here
 	status = 0;
+	//##FIX## We know for a fact that real VDP powers on with what is essentially a random
+	//hcounter and vcounter value. Some Mega Drive games are known to rely on this
+	//behaviour, as they use the hcounter as a random seed. Examples given include "X-Men
+	//2 Clone Wars" for character assignment, and Eternal Champions and Bonkers for the
+	//Sega logo.
 	hcounter = 0;
 	vcounter = 0;
 	hvCounterLatched = false;
@@ -622,6 +640,14 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
 			vsram = device->GetTimedBuffer();
 		}
 	}
+	else if(referenceNameString == L"SpriteCache")
+	{
+		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
+		if(device != 0)
+		{
+			spriteCache = device->GetTimedBuffer();
+		}
+	}
 	else if(referenceNameString == L"PSG")
 	{
 		psg = target;
@@ -661,6 +687,14 @@ bool S315_5313::RemoveReference(IDevice* target)
 	else if((IDevice*)vsram == target)
 	{
 		vsram = 0;
+	}
+	else if((IDevice*)spriteCache == target)
+	{
+		spriteCache = 0;
+	}
+	else if(psg == target)
+	{
+		psg = 0;
 	}
 	else
 	{
@@ -766,6 +800,7 @@ void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 	vram->AddTimeslice(currentTimesliceTotalMclkCycles);
 	cram->AddTimeslice(currentTimesliceTotalMclkCycles);
 	vsram->AddTimeslice(currentTimesliceTotalMclkCycles);
+	spriteCache->AddTimeslice(currentTimesliceTotalMclkCycles);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1409,6 +1444,7 @@ void S315_5313::ExecuteRollback()
 	vram->Rollback();
 	cram->Rollback();
 	vsram->Rollback();
+	spriteCache->Rollback();
 	status = bstatus;
 	hcounter = bhcounter;
 	vcounter = bvcounter;
@@ -1449,6 +1485,7 @@ void S315_5313::ExecuteRollback()
 	screenModeRS0Cached = bscreenModeRS0Cached;
 	screenModeRS1Cached = bscreenModeRS1Cached;
 	screenModeV30Cached = bscreenModeV30Cached;
+	spriteAttributeTableBaseAddressDecoded = bspriteAttributeTableBaseAddressDecoded;
 
 	//FIFO buffer registers
 	for(unsigned int i = 0; i < fifoBufferSize; ++i)
@@ -1531,6 +1568,7 @@ void S315_5313::ExecuteCommit()
 	vram->Commit();
 	cram->Commit();
 	vsram->Commit();
+	spriteCache->Commit();
 	bstatus = status;
 	bhcounter = hcounter;
 	bvcounter = vcounter;
@@ -1571,6 +1609,7 @@ void S315_5313::ExecuteCommit()
 	bscreenModeRS0Cached = screenModeRS0Cached;
 	bscreenModeRS1Cached = screenModeRS1Cached;
 	bscreenModeV30Cached = screenModeV30Cached;
+	bspriteAttributeTableBaseAddressDecoded = spriteAttributeTableBaseAddressDecoded;
 
 	//Propagate any changes to the cached DMA settings back into the reg buffer. This
 	//makes changes to DMA settings visible to the debugger.
@@ -1634,7 +1673,7 @@ void S315_5313::ExecuteCommit()
 		//check here, because if rollbacks occur at certain points in time, it's possible
 		//for our buffers to be entirely advanced through all pending timeslices and
 		//sitting on the committed state when ExecuteCommit() is called.
-		if(reg.DoesLatestTimesliceExist() && vram->DoesLatestTimesliceExist() && cram->DoesLatestTimesliceExist() && vsram->DoesLatestTimesliceExist())
+		if(reg.DoesLatestTimesliceExist() && vram->DoesLatestTimesliceExist() && cram->DoesLatestTimesliceExist() && vsram->DoesLatestTimesliceExist() && spriteCache->DoesLatestTimesliceExist())
 		{
 			//Obtain a timeslice lock so we can update the data we feed to the render
 			//thread
@@ -1652,6 +1691,7 @@ void S315_5313::ExecuteCommit()
 			vramTimesliceList.push_back(vram->GetLatestTimesliceReference());
 			cramTimesliceList.push_back(cram->GetLatestTimesliceReference());
 			vsramTimesliceList.push_back(vsram->GetLatestTimesliceReference());
+			spriteCacheTimesliceList.push_back(spriteCache->GetLatestTimesliceReference());
 
 			//##FIX## This is old code, related to the frame-based render method. Remove
 			//it once our new render code is online.
@@ -1762,10 +1802,12 @@ void S315_5313::RenderThreadNew()
 				vramTimesliceCopy = *vramTimesliceList.begin();
 				cramTimesliceCopy = *cramTimesliceList.begin();
 				vsramTimesliceCopy = *vsramTimesliceList.begin();
+				spriteCacheTimesliceCopy = *spriteCacheTimesliceList.begin();
 				regTimesliceList.pop_front();
 				vramTimesliceList.pop_front();
 				cramTimesliceList.pop_front();
 				vsramTimesliceList.pop_front();
+				spriteCacheTimesliceList.pop_front();
 
 				//Flag that we managed to obtain a render timeslice
 				renderTimesliceObtained = true;
@@ -1805,6 +1847,7 @@ void S315_5313::RenderThreadNew()
 		vram->BeginAdvanceSession(vramSession, vramTimesliceCopy, false);
 		cram->BeginAdvanceSession(cramSession, cramTimesliceCopy, true);
 		vsram->BeginAdvanceSession(vsramSession, vsramTimesliceCopy, false);
+		spriteCache->BeginAdvanceSession(spriteCacheSession, spriteCacheTimesliceCopy, false);
 
 		//Calculate the number of cycles to advance in this update step, and reset the
 		//current advance progress through this timeslice.
@@ -1861,9 +1904,11 @@ void S315_5313::RenderThreadNew()
 			vram->AdvancePastTimeslice(vramTimesliceCopy);
 			cram->AdvancePastTimeslice(cramTimesliceCopy);
 			vsram->AdvancePastTimeslice(vsramTimesliceCopy);
+			spriteCache->AdvancePastTimeslice(spriteCacheTimesliceCopy);
 			vram->FreeTimesliceReference(vramTimesliceCopy);
 			cram->FreeTimesliceReference(cramTimesliceCopy);
 			vsram->FreeTimesliceReference(vsramTimesliceCopy);
+			spriteCache->FreeTimesliceReference(spriteCacheTimesliceCopy);
 		}
 	}
 	renderThreadStopped.notify_all();
@@ -2503,7 +2548,6 @@ void S315_5313::AdvanceRenderProcess(unsigned int mclkCyclesRemainingToAdvance)
 			//line. We need to store history information for this line, so that the
 			//correct line state can be set here.
 			renderDigitalPalModeActive = palMode;
-			//##TODO## renderDigitalOddFlagSet
 
 			//Latch updated screen mode settings
 			vscanSettings = &GetVScanSettings(renderDigitalScreenModeV30Active, renderDigitalPalModeActive, renderDigitalInterlaceEnabledActive);
@@ -2586,19 +2630,19 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 	unsigned int hcounterLinear = HCounterValueFromVDPInternalToLinear(hscanSettings, renderDigitalHCounterPos);
 	RenderOp nextOperation = operationArray[(hcounterLinear >> 1) % operationArraySize];
 
-	//Read the display enable register. If this register is cleared, the output for
-	//this update step is forced to the background colour, and free access to VRAM is
+	//Read the display enable register. If this register is cleared, the output for this
+	//update step is forced to the background colour, and free access to VRAM is
 	//permitted. Any read operations that would have been performed from VRAM are not
-	//performed in this case. If this occurs during the active region of the display,
-	//it corrupts the output, due to mapping and pattern data not being read at the
-	//appropriate time. It is safe to disable the display during the portion of a
-	//scanline that lies outside the active display area, however, this reduces the
-	//number of sprite pattern blocks which can be read, creating a lower sprite limit
-	//on the following scanline. A sprite overflow is flagged if not all the sprite
-	//pixels could be read due to the display being disabled, even if there would
-	//normally be enough time to read all the pattern data had the display not been
-	//disabled. The only game which is known to rely on this is "Mickey Mania" for the
-	//Mega Drive. See http://gendev.spritesmind.net/forum/viewtopic.php?t=541
+	//performed in this case. If this occurs during the active region of the display, it
+	//corrupts the output, due to mapping and pattern data not being read at the
+	//appropriate time. It is safe to disable the display during the portion of a scanline
+	//that lies outside the active display area, however, this reduces the number of
+	//sprite pattern blocks which can be read, creating a lower sprite limit on the
+	//following scanline. A sprite overflow is flagged if not all the sprite pixels could
+	//be read due to the display being disabled, even if there would normally be enough
+	//time to read all the pattern data had the display not been disabled. The only game
+	//which is known to rely on this is "Mickey Mania" for the Mega Drive. See
+	//http://gendev.spritesmind.net/forum/viewtopic.php?t=541
 	//##TODO## Determine if the display enable bit is effective when the VDP test
 	//register has been set to one of the modes that disables the blanking of the
 	//display in the border regions.
@@ -2617,18 +2661,18 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 	unsigned int renderDigitalCurrentRow = 0;
 	if((renderDigitalVCounterPos >= vscanSettings.activeDisplayVCounterFirstValue) && (renderDigitalVCounterPos <= vscanSettings.activeDisplayVCounterLastValue))
 	{
-		//We're inside the active display region. Calculate the playfield row number
-		//for the current line.
+		//We're inside the active display region. Calculate the playfield row number for
+		//the current line.
 		insideActiveScanRow = true;
 		renderDigitalCurrentRow = renderDigitalVCounterPos - vscanSettings.activeDisplayVCounterFirstValue;
 	}
 	else
 	{
-		//If this line is outside the active display area, IE, in the top or bottom
-		//border areas, or in vblank, free access is permitted to VRAM, except during
-		//the memory refresh slots. In this case, we force the next operation to an
-		//external access slot, unless a refresh slot has been selected, or no
-		//operation is set to be performed.
+		//If this line is outside the active display area, IE, in the top or bottom border
+		//areas, or in vblank, free access is permitted to VRAM, except during the memory
+		//refresh slots. In this case, we force the next operation to an external access
+		//slot, unless a refresh slot has been selected, or no operation is set to be
+		//performed.
 		if((nextOperation.operation != RenderOp::REFRESH) && (nextOperation.operation != RenderOp::NONE))
 		{
 			nextOperation.operation = RenderOp::ACC_SLOT;
@@ -2693,6 +2737,7 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		break;
 	case RenderOp::MAPPING_S:
 		//##TODO##
+		//++renderSpriteMappingEntriesRead;
 		break;
 	case RenderOp::PATTERN_S:
 		//##TODO##
@@ -2705,11 +2750,12 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		//running index of the sprite pattern data we're up to.
 		break;
 	case RenderOp::ACC_SLOT:
-		//Since we've reached an external access slot, changes may now be made to VRAM
-		//or VSRAM, so we need to advance the VRAM and VSRAM buffers up to this time
-		//so any changes which occur at this access slot can take effect.
+		//Since we've reached an external access slot, changes may now be made to VRAM or
+		//VSRAM, so we need to advance the VRAM and VSRAM buffers up to this time so any
+		//changes which occur at this access slot can take effect.
 		vram->AdvanceBySession(renderDigitalMclkCycleProgress, vramSession, vramTimesliceCopy);
 		vsram->AdvanceBySession(renderDigitalMclkCycleProgress, vsramSession, vsramTimesliceCopy);
+		spriteCache->AdvanceBySession(renderDigitalMclkCycleProgress, spriteCacheSession, spriteCacheTimesliceCopy);
 		break;
 	case RenderOp::REFRESH:
 		//Nothing to do on a memory refresh cycle
@@ -4997,6 +5043,30 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 			//changed. We always generate a timing point for the VINT event, since the Z80
 			//INT line always generates a VINT, even when the VINT enable bit isn't set.
 		}
+		break;
+	case 5:
+		//Handle changes to the sprite attribute (mapping) table base address register
+		//affecting which data is written to the sprite cache.
+		//##TODO## Perform hardware tests to confirm how we should be handling the AT9 bit
+		//from the attribute table address. Apparently, this bit "should be 0 in H40 cell
+		//mode", according to the official documentation, but there's a lot of room for
+		//interpretation as to what should happen with that. If AT9 is set in H40 mode,
+		//is the sprite cache centered around the address as if AT9 is set, or if it is
+		//cleared? Is the sprite data from VRAM read as if AT9 is set, or cleared? Can a
+		//register change to the sprite attribute table address cause pending writes in
+		//the FIFO to miss being written to the sprite cache, or does the sprite cache
+		//grab writes from the FIFO before they are written to VRAM? Does a H32/H40 screen
+		//mode change have the same effect as changing the sprite table base address
+		//register? If the screen mode is H32, are writes past the end of the maximum
+		//sprite table size in H32 mode (0x200 bytes), but below the maximum table size in
+		//H40 mode (0x280) stored in the cache, or are they ignored? If they're ignored,
+		//does that mean that writing a H40 sprite table in H32 mode, then enabling H40
+		//mode results in the sprite cache retaining whatever data it previously held in
+		//the upper region of the cache? Does switching from H40 mode to H32 mode, then
+		//back to H40 mode, result in the upper bytes of the sprite cache being cleared,
+		//or do they retain their previous values? Hardware tests are definitely required
+		//here.
+		spriteAttributeTableBaseAddressDecoded = (data.GetDataSegment(0, 7) << 9);
 		break;
 	case 10:
 		if(hintCounterReloadValue != data.GetData())
@@ -7328,8 +7398,6 @@ void S315_5313::PerformReadCacheOperation()
 void S315_5313::PerformFIFOWriteOperation()
 {
 	//##TODO## Update all the comments here
-	//##TODO## Completely update this section of code to use our new FIFO
-	//structure
 	FIFOBufferEntry& fifoBufferEntry = fifoBuffer[fifoNextReadEntry];
 
 	//Move the pending write through the physical 4-word FIFO. The physical FIFO
@@ -7357,36 +7425,62 @@ void S315_5313::PerformFIFOWriteOperation()
 	switch(fifoBufferEntry.codeRegData.GetDataSegment(0, 4))
 	{
 	case 0x01:{ //??0001 VRAM Write
-		//-Hardware tests have verified that if the LSB of the address is set, it is ignored
-		//when determining the target VRAM address, but it acts as a special flag causing the
-		//data to be byteswapped for writes to VRAM. This is true for any write to VRAM,
-		//including writes performed as part of a DMA transfer. The LSB of the address is
-		//ignored for reads from VRAM, IE, no byteswapping is ever performed on reads.
-		//-It should be noted that the real VDP actually stores all VRAM data byteswapped in
-		//the physical memory. This has been confirmed by using a logic analyzer to snoop on
-		//the VRAM bus during operation. This means that in reality, byteswapping on VRAM
-		//writes really occurs when the LSB is unset, while the data is byteswapped if the LSB
-		//is set, and all reads are byteswapped. We don't byteswap the actual VRAM data in our
-		//emulator, as not only is this byteswapping virtually transparent to the caller
-		//except in the case of DMA fills and copies (refer to the implementation for further
-		//info), it would be slower for us to byteswap everything on every read and write to
-		//VRAM. Since it's faster for us, and more convenient and logical for the user
-		//therefore for the data to be stored sequentially, we don't store data as byteswapped
-		//in VRAM.
-		//-Note that the real VDP also stores the VRAM data in a non-linear fashion, with data
-		//within each 0x400 byte block stored in an interleaved format. The byteswapped data
-		//is striped in 4-byte groups within each 0x400 byte block, with all the first bytes
-		//of each 4-byte set at 0x000-0x100, then the second bytes at 0x100-0x200, and so on
-		//within each 0x400 byte block. This is necessary in order to support the serial
-		//access mode used to read data from VRAM. We also don't implement this interleaved
-		//VRAM in our emulator, as it is an implementation detail that has no effect on the
-		//logical operation of the VDP.
+		//-Hardware tests have verified that if the LSB of the address is set, it is
+		//ignored when determining the target VRAM address, but it acts as a special flag
+		//causing the data to be byteswapped for writes to VRAM. This is true for any
+		//write to VRAM, including writes performed as part of a DMA transfer. The LSB of
+		//the address is ignored for reads from VRAM, IE, no byteswapping is ever
+		//performed on reads.
+		//-It should be noted that the real VDP actually stores all VRAM data byteswapped
+		//in the physical memory. This has been confirmed by using a logic analyzer to
+		//snoop on the VRAM bus during operation. This means that in reality, byteswapping
+		//on VRAM writes really occurs when the LSB is unset, while the data is
+		//byteswapped if the LSB is set, and all reads are byteswapped. We don't byteswap
+		//the actual VRAM data in our emulator, as not only is this byteswapping virtually
+		//transparent to the caller except in the case of DMA fills and copies (refer to
+		//the implementation for further info), it would be slower for us to byteswap
+		//everything on every read and write to VRAM. Since it's faster for us, and more
+		//convenient and logical for the user therefore for the data to be stored
+		//sequentially, we don't store data as byteswapped in VRAM.
+		//-Note that the real VDP also stores the VRAM data in a non-linear fashion, with
+		//data within each 0x400 byte block stored in an interleaved format. The
+		//byteswapped data is striped in 4-byte groups within each 0x400 byte block, with
+		//all the first bytes of each 4-byte set at 0x000-0x100, then the second bytes at
+		//0x100-0x200, and so on within each 0x400 byte block. This is necessary in order
+		//to support the serial access mode used to read data from VRAM. We also don't
+		//implement this interleaved VRAM in our emulator, as it is an implementation
+		//detail that has no effect on the logical operation of the VDP.
+
+		//Calculate the VRAM address to read from. Note that the LSB of the address data
+		//is discarded, and instead, it is set based on whether we're writing the first or
+		//the second byte in a word-wide write operation. This is as per the confirmed
+		//behaviour of the real hardware. 16-bit writes to VRAM are always aligned to a
+		//16-bit boundary.
 		Data tempAddress(fifoBufferEntry.addressRegData);
-		//##TODO## Comment this
-		unsigned int dataByteToRead = (tempAddress.GetBit(0) ^ fifoBufferEntry.dataWriteHalfWritten)? 1: 0;
 		tempAddress.SetBit(0, fifoBufferEntry.dataWriteHalfWritten);
+
+		//Calculate the data to be written to VRAM. Note that the LSB of the original
+		//VRAM write address specified by the caller is used here to select which byte of
+		//the 16-bit data to write to VRAM first. If the bit is clear, the lower byte of
+		//the 16-bit value is written first, otherwise, the upper byte of the 16-bit value
+		//is written. Note that this is as per the observed behaviour of the real
+		//hardware. The apparent lower byte of each 16-bit value is written before the
+		//upper byte, IE, if a 16-bit write was occurring at VRAM address 0x20, the byte
+		//at address 0x21 would first be written, followed by address 0x20. This is how it
+		//appears to the user, however, since the real VRAM data is byteswapped, it's
+		//actually writing the data sequentially. Note that we pass a sequential address
+		//to our 8-bit VRAM write function below, however, this function inverts the LSB
+		//of the target address internally, so the target address will be byteswapped
+		//before the write occurs.
+		unsigned int dataByteToRead = (fifoBufferEntry.addressRegData.GetBit(0) ^ fifoBufferEntry.dataWriteHalfWritten)? 1: 0;
 		Data writeData(8, fifoBufferEntry.dataPortWriteData.GetByte(dataByteToRead));
+
+		//Perform the VRAM write
 		M5WriteVRAM8Bit(tempAddress, writeData, ramAccessTarget);
+
+		//If we've just written the first half of the word-wide write operation, flag that
+		//the first half has been completed, and that the second half of the write is
+		//still pending, otherwise flag that the write has been completed.
 		fifoBufferEntry.dataWriteHalfWritten = !fifoBufferEntry.dataWriteHalfWritten;
 		fifoBufferEntry.pendingDataWrite = fifoBufferEntry.dataWriteHalfWritten;
 		break;}
@@ -8600,9 +8694,33 @@ void S315_5313::M5WriteVRAM8Bit(const Data& address, const Data& data, const RAM
 	//real hardware.
 	Data tempAddress(address);
 	tempAddress.SetBit(0, !tempAddress.GetBit(0));
+	unsigned int tempAddressData = tempAddress.GetData();
+
+	//Update the sprite cache if required. The sprite cache is an internal memory buffer
+	//which is designed to maintain a mirror of a portion of the sprite attribute table.
+	//The first 4 bytes of each 8-byte table entry are stored in the cache. Since the
+	//sprite cache is not reloaded when the sprite attribute table address is changed,
+	//correct emulation of the cache is required in order to correctly emulate VDP sprite
+	//support. Level 6-3 of "Castlevania Bloodlines" on the Mega Drive is known to rely on
+	//the sprite cache not being invalidated by a table address change, in order to
+	//implement an "upside down" effect.
+	if((tempAddressData >= spriteAttributeTableBaseAddressDecoded) //Target address is at or above the start of the sprite table
+	&& (tempAddressData < (spriteAttributeTableBaseAddressDecoded + (spriteCacheSize * 2))) //Target address is before the end of the sprite table
+	&& ((tempAddressData & 0x4) == 0)) //Target address is within the first 4 bytes of a sprite table entry
+	{
+		//Calculate the address of this write in the sprite cache. We first convert the
+		//target address into a relative byte index into the sprite attribute table, then
+		//we strip out bit 2 from the address, to discard addresses in the upper 4 bytes
+		//of each table entry, which we filtered out above.
+		unsigned int spriteCacheAddress = (tempAddressData - spriteAttributeTableBaseAddressDecoded);
+		spriteCacheAddress = ((spriteCacheAddress >> 1) & ~0x3) | (spriteCacheAddress & 0x3);
+
+		//Perform the write to the sprite cache
+		spriteCache->Write(spriteCacheAddress, data.GetByte(0), accessTarget);
+	}
 
 	//Write the data
-	vram->Write(tempAddress.GetData(), data.GetByte(0), accessTarget);
+	vram->Write(tempAddressData, data.GetByte(0), accessTarget);
 }
 
 ////----------------------------------------------------------------------------------------

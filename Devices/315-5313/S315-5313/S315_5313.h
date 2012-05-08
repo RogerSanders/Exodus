@@ -266,6 +266,7 @@ private:
 	static const unsigned int vramSize = 0x10000;
 	static const unsigned int cramSize = 0x80;
 	static const unsigned int vsramSize = 0x50;
+	static const unsigned int spriteCacheSize = 0x140; //4 bytes cached per sprite, with 80 sprites max in H40 mode.
 	static const unsigned int fifoBufferSize = 4;
 	static const unsigned int statusRegisterMask = 0x03FF;
 
@@ -596,6 +597,7 @@ private:
 	ITimedBufferInt* vram;
 	ITimedBufferInt* cram;
 	ITimedBufferInt* vsram;
+	ITimedBufferInt* spriteCache;
 	Data status;
 	Data bstatus;
 	Data hcounter;
@@ -666,6 +668,8 @@ private:
 	bool bscreenModeRS1Cached;
 	bool screenModeV30Cached;
 	bool bscreenModeV30Cached;
+	unsigned int spriteAttributeTableBaseAddressDecoded;
+	unsigned int bspriteAttributeTableBaseAddressDecoded;
 	bool cachedDMASettingsChanged;
 
 	//FIFO buffer registers
@@ -740,15 +744,18 @@ private:
 	ITimedBufferInt::Timeslice* vramTimeslice;
 	ITimedBufferInt::Timeslice* cramTimeslice;
 	ITimedBufferInt::Timeslice* vsramTimeslice;
+	ITimedBufferInt::Timeslice* spriteCacheTimeslice;
 	double remainingRenderTime;
 	RegBuffer::Timeslice regTimesliceCopy;
 	ITimedBufferInt::Timeslice* vramTimesliceCopy;
 	ITimedBufferInt::Timeslice* cramTimesliceCopy;
 	ITimedBufferInt::Timeslice* vsramTimesliceCopy;
+	ITimedBufferInt::Timeslice* spriteCacheTimesliceCopy;
 	RegBuffer::AdvanceSession regSession;
 	ITimedBufferInt::AdvanceSession vramSession;
 	ITimedBufferInt::AdvanceSession cramSession;
 	ITimedBufferInt::AdvanceSession vsramSession;
+	ITimedBufferInt::AdvanceSession spriteCacheSession;
 	unsigned int mclkCycleRenderProgress;
 	static const unsigned int layerPriorityLookupTableSize = 0x200;
 	std::vector<unsigned int> layerPriorityLookupTable;
@@ -761,6 +768,7 @@ private:
 	std::list<ITimedBufferInt::Timeslice*> vramTimesliceList;
 	std::list<ITimedBufferInt::Timeslice*> cramTimesliceList;
 	std::list<ITimedBufferInt::Timeslice*> vsramTimesliceList;
+	std::list<ITimedBufferInt::Timeslice*> spriteCacheTimesliceList;
 
 	//Digital render data buffers
 	//##TODO## Separate the analog and digital renderers into their own classes. Our
@@ -794,6 +802,17 @@ private:
 	std::vector<Data> renderPatternDataCacheLayerA;
 	std::vector<Data> renderPatternDataCacheLayerB;
 	std::vector<Data> renderPatternDataCacheSprite;
+	//##TODO## Implement these members
+	unsigned int renderNextSpriteMappingNo;
+	unsigned int renderNextSpritePatternNo;
+	unsigned int renderSpriteMappingEntriesRead;
+	struct SpriteBlockCacheEntry
+	{
+		Data mappingData;
+		Data patternData;
+		Data hpos;
+	};
+	std::list<SpriteBlockCacheEntry> renderSpriteMappingCache;
 
 	//Analog render data buffers
 	//##TODO## Complete this list, and implement these buffers.
