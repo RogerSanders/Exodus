@@ -153,22 +153,19 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 				//otherwise other threads will deadlock. We also need to re-obtain the
 				//execute mutex, so that we can safely trigger the condition below without
 				//opening up potential deadlock cases due to other threads missing the
-				//condition.
-				commandLock.unlock();
+				//condition. We need to obtain the execute lock first however, since we
+				//need to ensure that no devices change their suspended state until we
+				//re-obtain the execute lock for this device, otherwise we would have to
+				//re-evaluate whether all devices are suspended before we can enter a wait
+				//state here.
 				executeLock.lock();
-				//##FIX## At this point, we would need to test for all devices being
-				//suspended again in order to avoid deadlocks, and this problem would
-				//persist recursively. We need to change our locking structure so that we
-				//can guarantee that our test above for all devices being suspended is
-				//still valid at this point, otherwise we would have to avoid the lock
-				//here and actively loop until this timeslice leaves the suspended state,
-				//consuming valuble CPU cycles.
+				commandLock.unlock();
 				if(!timesliceCompleted)
 				{
 					executeCompletionStateChanged.wait(executeLock);
 				}
-				executeLock.unlock();
 				commandLock.lock();
+				executeLock.unlock();
 			}
 
 			//Re-obtain the execute lock so that we can test the loop condition again
