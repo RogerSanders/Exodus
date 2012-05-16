@@ -161,38 +161,75 @@ struct S315_5313::VScanSettings
 };
 
 //----------------------------------------------------------------------------------------
-struct S315_5313::LineRenderSettings
+//##TODO## Remove this old render structure
+//struct S315_5313::LineRenderSettings
+//{
+//	//Fixed constant settings
+//	static const unsigned int blockPixelSizeX = 8;
+//	static const unsigned int blockPixelSizeY = 8;
+//	static const unsigned int blockPatternSizeX = 8;
+//	static const unsigned int blockMappingEntryByteSize = 2;
+//	static const unsigned int blockPatternRowByteSize = 4;
+//	static const unsigned int scCyclesPerLogicStep = 4;
+//
+//	//Settings which can change for each line
+//	//##TODO## Review which non-const data members we host in this structure
+//	bool interlaceMode2Active;
+//	bool renderWithH40Mode;
+//
+//	unsigned int blockPatternSizeY;
+//	unsigned int blockPatternByteSize;
+//	unsigned int cellBlockSetsToRead;
+//	unsigned int mclkCyclesPerSCCycle;
+//	unsigned int mclkCyclesPerLogicStep;
+//
+//	unsigned int activePixelY;
+//	unsigned int activeBlockY;
+//};
+
+//----------------------------------------------------------------------------------------
+struct S315_5313::SpriteDisplayCacheEntry
 {
-	//Fixed constant settings
-	static const unsigned int blockPixelSizeX = 8;
-	static const unsigned int blockPixelSizeY = 8;
-	static const unsigned int blockPatternSizeX = 8;
-	static const unsigned int blockMappingEntryByteSize = 2;
-	static const unsigned int blockPatternRowByteSize = 4;
-	static const unsigned int scCyclesPerLogicStep = 4;
+	SpriteDisplayCacheEntry()
+	:vpos(16, 0), sizeAndLinkData(16, 0), mappingData(16, 0), hpos(16, 0)
+	{}
 
-	//Settings which can change for each line
-	//##TODO## Review which non-const data members we host in this structure
-	bool interlaceMode2Active;
-	bool renderWithH40Mode;
-
-	unsigned int blockPatternSizeY;
-	unsigned int blockPatternByteSize;
-	unsigned int cellBlockSetsToRead;
-	unsigned int mclkCyclesPerSCCycle;
-	unsigned int mclkCyclesPerLogicStep;
-
-	unsigned int activePixelY;
-	unsigned int activeBlockY;
+	unsigned int spriteTableIndex;
+	unsigned int spriteRowIndex;
+	Data vpos;
+	Data sizeAndLinkData;
+	Data mappingData;
+	Data hpos;
 };
 
 //----------------------------------------------------------------------------------------
-//##TODO## Finish implementing this
+struct S315_5313::SpriteCellDisplayCacheEntry
+{
+	SpriteCellDisplayCacheEntry()
+	:patternData(32, 0)
+	{}
+
+	unsigned int spriteDisplayCacheIndex;
+	unsigned int spriteCellColumnNo;
+	unsigned int patternCellOffset;
+	unsigned int patternRowOffset;
+	Data patternData;
+};
+
+//----------------------------------------------------------------------------------------
+struct S315_5313::SpritePixelBufferEntry
+{
+	unsigned int paletteLine;
+	unsigned int paletteIndex;
+	bool layerPriority;
+	bool entryWritten;
+};
+
+//----------------------------------------------------------------------------------------
 struct S315_5313::RenderOp
 {
 	enum Op
 	{
-		NONE,
 		HSCROLL,
 		MAPPING_A,
 		PATTERN_A,

@@ -245,7 +245,8 @@ private:
 	//Structures
 	struct HScanSettings;
 	struct VScanSettings;
-	struct LineRenderSettings;
+	//##TODO## Remove this old render structure
+	//struct LineRenderSettings;
 	struct EventProperties
 	{
 		Event event;
@@ -253,6 +254,9 @@ private:
 		unsigned int hcounter;
 		unsigned int vcounter;
 	};
+	struct SpriteDisplayCacheEntry;
+	struct SpriteCellDisplayCacheEntry;
+	struct SpritePixelBufferEntry;
 	struct RenderOp;
 	struct FIFOBufferEntry;
 
@@ -313,7 +317,9 @@ private:
 	void DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const;
 	void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerAVscrollPatternDisplacement, unsigned int& layerBVscrollPatternDisplacement, unsigned int& layerAVscrollMappingDisplacement, unsigned int& layerBVscrollMappingDisplacement) const;
 	void DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const;
-	void DigitalRenderReadPatternDataRow(unsigned int screenRowNumber, unsigned int patternRowDisplacement, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const;
+	void DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const;
+	void DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool interlaceMode2Active, bool screenModeRS1Active, unsigned int& nextTableEntryToRead, bool& spriteSearchComplete, bool& spriteOverflow, unsigned int& spriteDisplayCacheEntryCount, std::vector<SpriteDisplayCacheEntry>& spriteDisplayCache) const;
+	void DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const;
 	unsigned int DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const;
 //	void RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const;
 
@@ -347,7 +353,7 @@ private:
 	static unsigned int VCounterValueFromLinearToVDPInternal(const VScanSettings& vscanSettings, unsigned int vcounterCurrent, bool oddFlagSet);
 
 	//Video scan settings functions
-	//##TODO## Remove the RS0 parameter here. We only need the RS1 bit.
+	//##TODO## Consider removing the RS0 parameter here. We only need the RS1 bit.
 	static const HScanSettings& GetHScanSettings(bool screenModeRS0Active, bool screenModeRS1Active);
 	static const VScanSettings& GetVScanSettings(bool screenModeV30Active, bool palModeActive, bool interlaceActive);
 
@@ -775,18 +781,35 @@ private:
 	//single VDP superclass is getting too large to be manageable.
 	//##TODO## Initialize all these registers correctly, and store/load them during the
 	//savestate process.
+	static const unsigned int maxCellsPerRow = 42;
+	static const unsigned int maxSpriteDisplayCacheSize = 20;
+	static const unsigned int maxSpriteDisplayCellCacheSize = 40;
+	static const unsigned int spritePixelBufferSize = maxCellsPerRow*8;
+	static const unsigned int renderSpritePixelBufferPlaneCount = 2;
 	unsigned int renderDigitalHCounterPos;
+	unsigned int brenderDigitalHCounterPos;
 	unsigned int renderDigitalVCounterPos;
+	unsigned int brenderDigitalVCounterPos;
 	unsigned int renderDigitalVCounterPosPreviousLine;
+	unsigned int brenderDigitalVCounterPosPreviousLine;
 	unsigned int renderDigitalRemainingMclkCycles;
+	unsigned int brenderDigitalRemainingMclkCycles;
 	bool renderDigitalScreenModeRS0Active;
+	bool brenderDigitalScreenModeRS0Active;
 	bool renderDigitalScreenModeRS1Active;
+	bool brenderDigitalScreenModeRS1Active;
 	bool renderDigitalScreenModeV30Active;
+	bool brenderDigitalScreenModeV30Active;
 	bool renderDigitalInterlaceEnabledActive;
+	bool brenderDigitalInterlaceEnabledActive;
 	bool renderDigitalInterlaceDoubleActive;
+	bool brenderDigitalInterlaceDoubleActive;
 	bool renderDigitalPalModeActive;
+	bool brenderDigitalPalModeActive;
 	bool renderDigitalOddFlagSet;
-	unsigned int renderDigitalMclkCycleProgress;
+	bool brenderDigitalOddFlagSet;
+	unsigned int renderDigitalMclkCycleProgress; //No backup needed
+	//##TODO## Implement rollback/commit for the following render variables
 	unsigned int renderLayerAHscrollPatternDisplacement;
 	unsigned int renderLayerBHscrollPatternDisplacement;
 	unsigned int renderLayerAHscrollMappingDisplacement;
@@ -795,24 +818,30 @@ private:
 	unsigned int renderLayerBVscrollPatternDisplacement;
 	unsigned int renderLayerAVscrollMappingDisplacement;
 	unsigned int renderLayerBVscrollMappingDisplacement;
-	static const unsigned int maxCellsPerRow = 42;
 	std::vector<Data> renderMappingDataCacheLayerA;
 	std::vector<Data> renderMappingDataCacheLayerB;
 	std::vector<Data> renderMappingDataCacheSprite;
 	std::vector<Data> renderPatternDataCacheLayerA;
 	std::vector<Data> renderPatternDataCacheLayerB;
 	std::vector<Data> renderPatternDataCacheSprite;
-	//##TODO## Implement these members
-	unsigned int renderNextSpriteMappingNo;
-	unsigned int renderNextSpritePatternNo;
-	unsigned int renderSpriteMappingEntriesRead;
-	struct SpriteBlockCacheEntry
-	{
-		Data mappingData;
-		Data patternData;
-		Data hpos;
-	};
-	std::list<SpriteBlockCacheEntry> renderSpriteMappingCache;
+	std::vector<SpriteDisplayCacheEntry> renderSpriteDisplayCache;
+	unsigned int renderSpriteDisplayCacheEntryCount;
+	unsigned int renderSpriteDisplayCacheCurrentIndex;
+	bool renderSpriteSearchComplete;
+	bool renderSpriteOverflow;
+	unsigned int renderSpriteNextAttributeTableEntryToRead;
+	std::vector<SpriteCellDisplayCacheEntry> renderSpriteDisplayCellCache;
+	unsigned int renderSpriteDisplayCellCacheEntryCount;
+	unsigned int renderSpriteDisplayCellCacheCurrentIndex;
+	bool renderSpriteDotOverflow;
+	bool renderSpriteDotOverflowPreviousLine;
+	unsigned int renderSpritePixelBufferDigitalRenderPlane;
+	unsigned int renderSpritePixelBufferAnalogRenderPlane;
+	std::vector<SpritePixelBufferEntry> spritePixelBuffer[renderSpritePixelBufferPlaneCount];
+	bool nonSpriteMaskCellEncountered;
+	bool renderSpriteMaskActive;
+	bool renderSpriteCollision;
+	unsigned int renderSpriteNextSpriteRow;
 
 	//Analog render data buffers
 	//##TODO## Complete this list, and implement these buffers.
