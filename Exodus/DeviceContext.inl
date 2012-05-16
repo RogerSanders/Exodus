@@ -156,7 +156,17 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 				//condition.
 				commandLock.unlock();
 				executeLock.lock();
-				executeCompletionStateChanged.wait(executeLock);
+				//##FIX## At this point, we would need to test for all devices being
+				//suspended again in order to avoid deadlocks, and this problem would
+				//persist recursively. We need to change our locking structure so that we
+				//can guarantee that our test above for all devices being suspended is
+				//still valid at this point, otherwise we would have to avoid the lock
+				//here and actively loop until this timeslice leaves the suspended state,
+				//consuming valuble CPU cycles.
+				if(!timesliceCompleted)
+				{
+					executeCompletionStateChanged.wait(executeLock);
+				}
 				executeLock.unlock();
 				commandLock.lock();
 			}

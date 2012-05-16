@@ -108,6 +108,9 @@ IBusInterface::AccessResult A06000::ReadInterface(unsigned int interfaceNumber, 
 	//RAM, we need to determine where this value is coming from, whether internally or
 	//from another device. We also need to determine if it's possible to lock up the
 	//system by attempting to access unmapped areas.
+	//##TODO## New tests performed on spritesmind indicate that the Z80 can reliably read
+	//and write to and from M68000 RAM. This makes more sense, but needs to be confirmed
+	//through hardware tests.
 	if(interfaceNumber == 1)
 	{
 		data = 0xFFFF;
@@ -133,6 +136,8 @@ IBusInterface::AccessResult A06000::WriteInterface(unsigned int interfaceNumber,
 		//viewed and modified.
 		//##TODO## Add a logging option which allows all changes to the mapping window to
 		//be logged and viewed.
+		//##TODO## Make newMappingPos use the Data class, and restructure this code to use
+		//the GetBit and SetBit functions.
 		newMappingPos |= (data.GetDataSegment(0, 1) << (15 + bitsWritten));
 		++bitsWritten;
 		if(bitsWritten == 9)

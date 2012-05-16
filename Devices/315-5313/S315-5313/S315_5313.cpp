@@ -11,7 +11,7 @@ const S315_5313::RenderOp S315_5313::operationsH32[] = {
 	{S315_5313::RenderOp::PATTERN_B, 1},
 
 	//Cell block 1
-	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
+	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  2}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
 	{S315_5313::RenderOp::MAPPING_A, 4}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 4}, {S315_5313::RenderOp::PATTERN_A, 5}, {S315_5313::RenderOp::MAPPING_B, 4}, {S315_5313::RenderOp::MAPPING_S, 1}, {S315_5313::RenderOp::PATTERN_B, 4}, {S315_5313::RenderOp::PATTERN_B, 5},
 	{S315_5313::RenderOp::MAPPING_A, 6}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 6}, {S315_5313::RenderOp::PATTERN_A, 7}, {S315_5313::RenderOp::MAPPING_B, 6}, {S315_5313::RenderOp::MAPPING_S, 2}, {S315_5313::RenderOp::PATTERN_B, 6}, {S315_5313::RenderOp::PATTERN_B, 7},
 	{S315_5313::RenderOp::MAPPING_A, 8}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A, 8}, {S315_5313::RenderOp::PATTERN_A, 9}, {S315_5313::RenderOp::MAPPING_B, 8}, {S315_5313::RenderOp::MAPPING_S, 3}, {S315_5313::RenderOp::PATTERN_B, 8}, {S315_5313::RenderOp::PATTERN_B, 9},
@@ -35,7 +35,7 @@ const S315_5313::RenderOp S315_5313::operationsH32[] = {
 	{S315_5313::RenderOp::MAPPING_A,32}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,32}, {S315_5313::RenderOp::PATTERN_A,33}, {S315_5313::RenderOp::MAPPING_B,32}, {S315_5313::RenderOp::MAPPING_S,15}, {S315_5313::RenderOp::PATTERN_B,32}, {S315_5313::RenderOp::PATTERN_B,33},
 
 	//End of line
-	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  0},
+	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  1},
 	{S315_5313::RenderOp::PATTERN_S, 0}, {S315_5313::RenderOp::PATTERN_S, 1}, {S315_5313::RenderOp::PATTERN_S, 2}, {S315_5313::RenderOp::PATTERN_S, 3}, {S315_5313::RenderOp::PATTERN_S, 4},
 	{S315_5313::RenderOp::PATTERN_S, 5}, {S315_5313::RenderOp::PATTERN_S, 6}, {S315_5313::RenderOp::PATTERN_S, 7}, {S315_5313::RenderOp::PATTERN_S, 8}, {S315_5313::RenderOp::PATTERN_S, 9},
 	{S315_5313::RenderOp::PATTERN_S,10}, {S315_5313::RenderOp::PATTERN_S,11}, {S315_5313::RenderOp::PATTERN_S,12},
@@ -58,7 +58,7 @@ const S315_5313::RenderOp S315_5313::operationsH32[] = {
 //----------------------------------------------------------------------------------------
 const S315_5313::RenderOp S315_5313::operationsH40[] = {
 	//Cell block 1
-	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
+	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  2}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
 	{S315_5313::RenderOp::MAPPING_A, 4}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 4}, {S315_5313::RenderOp::PATTERN_A, 5}, {S315_5313::RenderOp::MAPPING_B, 4}, {S315_5313::RenderOp::MAPPING_S, 1}, {S315_5313::RenderOp::PATTERN_B, 4}, {S315_5313::RenderOp::PATTERN_B, 5},
 	{S315_5313::RenderOp::MAPPING_A, 6}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 6}, {S315_5313::RenderOp::PATTERN_A, 7}, {S315_5313::RenderOp::MAPPING_B, 6}, {S315_5313::RenderOp::MAPPING_S, 2}, {S315_5313::RenderOp::PATTERN_B, 6}, {S315_5313::RenderOp::PATTERN_B, 7},
 	{S315_5313::RenderOp::MAPPING_A, 8}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A, 8}, {S315_5313::RenderOp::PATTERN_A, 9}, {S315_5313::RenderOp::MAPPING_B, 8}, {S315_5313::RenderOp::MAPPING_S, 3}, {S315_5313::RenderOp::PATTERN_B, 8}, {S315_5313::RenderOp::PATTERN_B, 9},
@@ -88,7 +88,7 @@ const S315_5313::RenderOp S315_5313::operationsH40[] = {
 	{S315_5313::RenderOp::MAPPING_A,40}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,40}, {S315_5313::RenderOp::PATTERN_A,41}, {S315_5313::RenderOp::MAPPING_B,40}, {S315_5313::RenderOp::MAPPING_S,19}, {S315_5313::RenderOp::PATTERN_B,40}, {S315_5313::RenderOp::PATTERN_B,41},
 
 	//End of line
-	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  0},
+	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  1},
 	{S315_5313::RenderOp::PATTERN_S, 0}, {S315_5313::RenderOp::PATTERN_S, 1}, {S315_5313::RenderOp::PATTERN_S, 2}, {S315_5313::RenderOp::PATTERN_S, 3}, {S315_5313::RenderOp::PATTERN_S, 4},
 	{S315_5313::RenderOp::PATTERN_S, 5}, {S315_5313::RenderOp::PATTERN_S, 6}, {S315_5313::RenderOp::PATTERN_S, 7}, {S315_5313::RenderOp::PATTERN_S, 8}, {S315_5313::RenderOp::PATTERN_S, 9},
 	{S315_5313::RenderOp::PATTERN_S,10}, {S315_5313::RenderOp::PATTERN_S,11}, {S315_5313::RenderOp::PATTERN_S,12}, {S315_5313::RenderOp::PATTERN_S,13}, {S315_5313::RenderOp::PATTERN_S,14},
@@ -147,7 +147,9 @@ renderMappingDataCacheLayerB(maxCellsPerRow, Data(16)),
 renderMappingDataCacheSprite(maxCellsPerRow, Data(16)),
 renderPatternDataCacheLayerA(maxCellsPerRow, Data(32)),
 renderPatternDataCacheLayerB(maxCellsPerRow, Data(32)),
-renderPatternDataCacheSprite(maxCellsPerRow, Data(32))
+renderPatternDataCacheSprite(maxCellsPerRow, Data(32)),
+renderSpriteDisplayCache(maxSpriteDisplayCacheSize),
+renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 {
 	//Create the menu handler
 	menuHandler = new DebugMenuHandler(this);
@@ -187,6 +189,14 @@ renderPatternDataCacheSprite(maxCellsPerRow, Data(32))
 	renderTimeslicePending = false;
 	drawingImageBufferPlane = 0;
 	imageBuffer.resize(imageBufferHeight * imageBufferWidth);
+
+	//Initialize the sprite pixel buffer
+	for(unsigned int i = 0; i < renderSpritePixelBufferPlaneCount; ++i)
+	{
+		spritePixelBuffer[i].resize(spritePixelBufferSize);
+	}
+	renderSpritePixelBufferAnalogRenderPlane = 0;
+	renderSpritePixelBufferDigitalRenderPlane = (renderSpritePixelBufferAnalogRenderPlane + 1) % renderSpritePixelBufferPlaneCount;
 
 	busGranted = false;
 	palModeLineState = false;
@@ -1523,6 +1533,19 @@ void S315_5313::ExecuteRollback()
 	eventSnapshotScreenModeV30 = beventSnapshotScreenModeV30;
 	eventSnapshotPalMode = beventSnapshotPalMode;
 	eventSnapshotInterlaceEnabled = beventSnapshotInterlaceEnabled;
+
+	//Digital render data buffers
+	renderDigitalHCounterPos = brenderDigitalHCounterPos;
+	renderDigitalVCounterPos = brenderDigitalVCounterPos;
+	renderDigitalVCounterPosPreviousLine = brenderDigitalVCounterPosPreviousLine;
+	renderDigitalRemainingMclkCycles = brenderDigitalRemainingMclkCycles;
+	renderDigitalScreenModeRS0Active = brenderDigitalScreenModeRS0Active;
+	renderDigitalScreenModeRS1Active = brenderDigitalScreenModeRS1Active;
+	renderDigitalScreenModeV30Active = brenderDigitalScreenModeV30Active;
+	renderDigitalInterlaceEnabledActive = brenderDigitalInterlaceEnabledActive;
+	renderDigitalInterlaceDoubleActive = brenderDigitalInterlaceDoubleActive;
+	renderDigitalPalModeActive = brenderDigitalPalModeActive;
+	renderDigitalOddFlagSet = brenderDigitalOddFlagSet;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1661,6 +1684,19 @@ void S315_5313::ExecuteCommit()
 	beventSnapshotScreenModeV30 = eventSnapshotScreenModeV30;
 	beventSnapshotPalMode = eventSnapshotPalMode;
 	beventSnapshotInterlaceEnabled = eventSnapshotInterlaceEnabled;
+
+	//Digital render data buffers
+	brenderDigitalHCounterPos = renderDigitalHCounterPos;
+	brenderDigitalVCounterPos = renderDigitalVCounterPos;
+	brenderDigitalVCounterPosPreviousLine = renderDigitalVCounterPosPreviousLine;
+	brenderDigitalRemainingMclkCycles = brenderDigitalRemainingMclkCycles;
+	brenderDigitalScreenModeRS0Active = renderDigitalScreenModeRS0Active;
+	brenderDigitalScreenModeRS1Active = renderDigitalScreenModeRS1Active;
+	brenderDigitalScreenModeV30Active = renderDigitalScreenModeV30Active;
+	brenderDigitalInterlaceEnabledActive = renderDigitalInterlaceEnabledActive;
+	brenderDigitalInterlaceDoubleActive = renderDigitalInterlaceDoubleActive;
+	brenderDigitalPalModeActive = renderDigitalPalModeActive;
+	brenderDigitalOddFlagSet = renderDigitalOddFlagSet;
 
 	//If we're committing a timeslice which has triggered a render operation, pass the
 	//render operation on to the render thread.
@@ -2630,6 +2666,21 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 	unsigned int hcounterLinear = HCounterValueFromVDPInternalToLinear(hscanSettings, renderDigitalHCounterPos);
 	RenderOp nextOperation = operationArray[(hcounterLinear >> 1) % operationArraySize];
 
+	//Use the current VCounter data to determine whether we are rendering an active line
+	//of the display, which active line number we're up to, based on the current screen
+	//mode settings.
+	bool insideActiveScanRow = false;
+	unsigned int renderDigitalCurrentRow = 0;
+	unsigned int renderDigitalRowCount = 0;
+	if((renderDigitalVCounterPos >= vscanSettings.activeDisplayVCounterFirstValue) && (renderDigitalVCounterPos <= vscanSettings.activeDisplayVCounterLastValue))
+	{
+		//We're inside the active display region. Calculate the playfield row number for
+		//the current line, and the total number of rows in the active display region.
+		insideActiveScanRow = true;
+		renderDigitalCurrentRow = renderDigitalVCounterPos - vscanSettings.activeDisplayVCounterFirstValue;
+		renderDigitalRowCount = vscanSettings.activeDisplayVCounterLastValue - vscanSettings.activeDisplayVCounterFirstValue;
+	}
+
 	//Read the display enable register. If this register is cleared, the output for this
 	//update step is forced to the background colour, and free access to VRAM is
 	//permitted. Any read operations that would have been performed from VRAM are not
@@ -2647,35 +2698,18 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 	//register has been set to one of the modes that disables the blanking of the
 	//display in the border regions.
 	bool displayEnabled = M5GetDisplayEnabled(accessTarget);
-	if(!displayEnabled)
-	{
-		if((nextOperation.operation != RenderOp::REFRESH) && (nextOperation.operation != RenderOp::NONE))
-		{
-			nextOperation.operation = RenderOp::ACC_SLOT;
-		}
-	}
 
-	//Use the current VCounter data to determine which data is being displayed on this
-	//row, based on the current screen mode settings.
-	bool insideActiveScanRow = false;
-	unsigned int renderDigitalCurrentRow = 0;
-	if((renderDigitalVCounterPos >= vscanSettings.activeDisplayVCounterFirstValue) && (renderDigitalVCounterPos <= vscanSettings.activeDisplayVCounterLastValue))
+	//If this line is outside the active display area, IE, in the top or bottom border
+	//areas or in vblank, or if the display is currently disabled, free access is
+	//permitted to VRAM, except during the memory refresh slots. To emulate this, we force
+	//the next operation to an external access slot under these conditions, unless we're
+	//up to a memory refresh slot.
+	if(!insideActiveScanRow || !displayEnabled)
 	{
-		//We're inside the active display region. Calculate the playfield row number for
-		//the current line.
-		insideActiveScanRow = true;
-		renderDigitalCurrentRow = renderDigitalVCounterPos - vscanSettings.activeDisplayVCounterFirstValue;
-	}
-	else
-	{
-		//If this line is outside the active display area, IE, in the top or bottom border
-		//areas, or in vblank, free access is permitted to VRAM, except during the memory
-		//refresh slots. In this case, we force the next operation to an external access
-		//slot, unless a refresh slot has been selected, or no operation is set to be
-		//performed.
-		if((nextOperation.operation != RenderOp::REFRESH) && (nextOperation.operation != RenderOp::NONE))
+		if((nextOperation.operation != RenderOp::REFRESH) && (nextOperation.operation != RenderOp::ACC_SLOT))
 		{
 			nextOperation.operation = RenderOp::ACC_SLOT;
+			nextOperation.index = 0;
 		}
 	}
 
@@ -2712,10 +2746,26 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		//Read layer A mapping data
 		DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
 		break;}
-	case RenderOp::PATTERN_A:
+	case RenderOp::PATTERN_A:{
+		//Calculate the pattern row number to read for the selected pattern, based on the
+		//current row being drawn on the screen, and the vertical pattern displacement due
+		//to vscroll. We also factor in interlace mode 2 support here, by doubling the
+		//pattern row number where interlace mode 2 is active, and setting the LSB of the
+		//row number based on the current state of the odd flag.
+		const unsigned int rowsToDisplayPerTile = 8;
+		unsigned int patternRowNumberNoFlip = (renderDigitalCurrentRow + renderLayerAVscrollPatternDisplacement) % rowsToDisplayPerTile;
+		if(interlaceMode2Active)
+		{
+			patternRowNumberNoFlip *= 2;
+			if(renderDigitalOddFlagSet)
+			{
+				patternRowNumberNoFlip += 1;
+			}
+		}
+
 		//Read layer A pattern row
-		DigitalRenderReadPatternDataRow(renderDigitalCurrentRow, renderLayerAVscrollPatternDisplacement, interlaceMode2Active, renderMappingDataCacheLayerA[nextOperation.index], renderPatternDataCacheLayerA[nextOperation.index]);
-		break;
+		DigitalRenderReadPatternDataRow(patternRowNumberNoFlip, 0, interlaceMode2Active, renderMappingDataCacheLayerA[nextOperation.index], renderPatternDataCacheLayerA[nextOperation.index]);
+		break;}
 	case RenderOp::MAPPING_B:{
 		//Calculate the index number of the current 2-cell column that's being rendered.
 		//Note that we subtract 1 from the index number specified in the operation table.
@@ -2731,16 +2781,67 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		//Read layer B mapping data
 		DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, renderLayerBHscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement, renderLayerBVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerB[nextOperation.index], renderMappingDataCacheLayerB[nextOperation.index+1]);
 		break;}
-	case RenderOp::PATTERN_B:
+	case RenderOp::PATTERN_B:{
+		//Calculate the pattern row number to read for the selected pattern, based on the
+		//current row being drawn on the screen, and the vertical pattern displacement due
+		//to vscroll. We also factor in interlace mode 2 support here, by doubling the
+		//pattern row number where interlace mode 2 is active, and setting the LSB of the
+		//row number based on the current state of the odd flag.
+		const unsigned int rowsToDisplayPerTile = 8;
+		unsigned int patternRowNumberNoFlip = (renderDigitalCurrentRow + renderLayerBVscrollPatternDisplacement) % rowsToDisplayPerTile;
+		if(interlaceMode2Active)
+		{
+			patternRowNumberNoFlip *= 2;
+			if(renderDigitalOddFlagSet)
+			{
+				patternRowNumberNoFlip += 1;
+			}
+		}
+
 		//Read layer B pattern row
-		DigitalRenderReadPatternDataRow(renderDigitalCurrentRow, renderLayerBVscrollPatternDisplacement, interlaceMode2Active, renderMappingDataCacheLayerB[nextOperation.index], renderPatternDataCacheLayerB[nextOperation.index]);
-		break;
-	case RenderOp::MAPPING_S:
-		//##TODO##
-		//++renderSpriteMappingEntriesRead;
-		break;
-	case RenderOp::PATTERN_S:
-		//##TODO##
+		DigitalRenderReadPatternDataRow(patternRowNumberNoFlip, 0, interlaceMode2Active, renderMappingDataCacheLayerB[nextOperation.index], renderPatternDataCacheLayerB[nextOperation.index]);
+		break;}
+	case RenderOp::MAPPING_S:{
+		//Read sprite mapping data and decode sprite cells for the next sprite to display
+		//on the current scanline.
+		if(renderSpriteDisplayCacheCurrentIndex < renderSpriteDisplayCacheEntryCount)
+		{
+			//Read the sprite table base address register
+			unsigned int spriteTableBaseAddress = M5GetNameTableBaseSprite(accessTarget);
+
+			//Obtain a reference to the corresponding sprite display cache entry for this
+			//sprite.
+			SpriteDisplayCacheEntry& spriteDisplayCacheEntry = renderSpriteDisplayCache[renderSpriteDisplayCacheCurrentIndex];
+
+			//Build a sprite cell list for the current sprite
+			DigitalRenderBuildSpriteCellList(renderSpriteDisplayCacheCurrentIndex, spriteTableBaseAddress, interlaceMode2Active, renderDigitalScreenModeRS1Active, renderSpriteDotOverflow, spriteDisplayCacheEntry, renderSpriteDisplayCellCacheEntryCount, renderSpriteDisplayCellCache);
+
+			//Advance to the next sprite mapping entry
+			++renderSpriteDisplayCacheCurrentIndex;
+		}
+		break;}
+	case RenderOp::PATTERN_S:{
+		//##TODO## We theorize that the sprite cache is traversed here, during the sprite
+		//pattern read steps, to generate the list of sprite numbers that are active on
+		//the next line. This makes sense for a number of reasons, namely, that it seems
+		//that the sprite list must have been fully traversed before the active cells are
+		//rendered, otherwise the sprite mapping reads may begin before a single sprite is
+		//encountered in the sprite cache, eg, consider the case where all sprites for a
+		//given line appear at the very end of the sprite list. In order for the VDP to
+		//reliably know the first sprite for a given line, it must have parsed the full
+		//list of sprites previously.
+		//##FIX## Note that if the sprite cache is traversed here, two entries from the
+		//cache must be processed for every one sprite pattern block read. This means one
+		//value is read for each pixel clock cycle, while we currently only advance the
+		//digital render process once every two pixel clock cycles. We process two sprite
+		//cache entries per pattern read slot to make up for that here.
+		DigitalRenderBuildSpriteList(renderSpriteNextSpriteRow, interlaceMode2Active, renderDigitalScreenModeRS1Active, renderSpriteNextAttributeTableEntryToRead, renderSpriteSearchComplete, renderSpriteOverflow, renderSpriteDisplayCacheEntryCount, renderSpriteDisplayCache);
+		DigitalRenderBuildSpriteList(renderSpriteNextSpriteRow, interlaceMode2Active, renderDigitalScreenModeRS1Active, renderSpriteNextAttributeTableEntryToRead, renderSpriteSearchComplete, renderSpriteOverflow, renderSpriteDisplayCacheEntryCount, renderSpriteDisplayCache);
+
+		//Read sprite pattern data for the next sprite cell to display on the current
+		//scanline.
+		//##TODO## Check if the sprite collision flag is still set for sprite pixels that
+		//are masked.
 		//##TODO## We know that if the display is disabled during active scan, sprite
 		//pattern data which was supposed to be read during the disabled region isn't
 		//skipped, but rather, the entire sprite pattern data load queue remains in its
@@ -2748,7 +2849,89 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		//the queue when a slot becomes available. This means we can't use a simple index
 		//number to determine which sprite data to read, but rather, we need to keep a
 		//running index of the sprite pattern data we're up to.
-		break;
+		if(renderSpriteDisplayCellCacheCurrentIndex < renderSpriteDisplayCellCacheEntryCount)
+		{
+			//Obtain a reference to the corresponding sprite cell and sprite display cache
+			//entries for this sprite cell.
+			SpriteCellDisplayCacheEntry& spriteCellDisplayCacheEntry = renderSpriteDisplayCellCache[renderSpriteDisplayCellCacheCurrentIndex];
+			SpriteDisplayCacheEntry& spriteDisplayCacheEntry = renderSpriteDisplayCache[spriteCellDisplayCacheEntry.spriteDisplayCacheIndex];
+
+			//Read pattern data for the sprite cell
+			DigitalRenderReadPatternDataRow(spriteCellDisplayCacheEntry.patternRowOffset, spriteCellDisplayCacheEntry.patternCellOffset, interlaceMode2Active, spriteDisplayCacheEntry.mappingData, spriteCellDisplayCacheEntry.patternData);
+
+			//Read all used bits of the horizontal position data for this sprite
+			Data spritePosH(9);
+			spritePosH = spriteDisplayCacheEntry.hpos;
+
+			//Take into account sprite masking
+			//##TODO## Add a much longer comment here
+			if(spritePosH == 0)
+			{
+				if(nonSpriteMaskCellEncountered || renderSpriteDotOverflowPreviousLine)
+				{
+					renderSpriteMaskActive = true;
+				}
+			}
+			else
+			{
+				//Since we've now encountered at least one sprite pattern cell which was
+				//not a mask sprite cell, set a flag indicating that that we've
+				//encountered a non mask cell. This is required in order to correctly
+				//support sprite masking.
+				nonSpriteMaskCellEncountered = true;
+			}
+
+			//If this sprite cell was not masked, load visible pixel information into the
+			//sprite pixel buffer.
+			//##TODO## Greatly improve commenting here.
+			if(!renderSpriteMaskActive)
+			{
+				const unsigned int spritePosScreenStartH = 0x80;
+				const unsigned int cellPixelWidth = 8;
+				for(unsigned int cellPixelIndex = 0; cellPixelIndex < cellPixelWidth; ++cellPixelIndex)
+				{
+					//Check that this sprite pixel is within the visible screen boundaries
+					unsigned int spritePixelH = spritePosH.GetData() + (spriteCellDisplayCacheEntry.spriteCellColumnNo * cellPixelWidth) + cellPixelIndex;
+					if((spritePixelH >= spritePosScreenStartH) && ((spritePixelH - spritePosScreenStartH) < spritePixelBufferSize))
+					{
+						//Check that a non-transparent sprite pixel has not already been
+						//written to this pixel location. Higher priority sprites are
+						//listed first, with lower priority sprites appearing under higher
+						//priority sprites, so if a non-transparent sprite pixel has
+						//already been output to this location, the lower priority sprite
+						//pixel is discarded, and the sprite collision flag is set in the
+						//status register.
+						unsigned int spritePixelBufferIndex = (spritePixelH - spritePosScreenStartH);
+						SpritePixelBufferEntry& spritePixelBufferEntry = spritePixelBuffer[renderSpritePixelBufferDigitalRenderPlane][spritePixelBufferIndex];
+						if(!spritePixelBufferEntry.entryWritten || (spritePixelBufferEntry.paletteIndex == 0))
+						{
+							//Mapping (Pattern Name) data format:
+							//-----------------------------------------------------------------
+							//|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+							//|---------------------------------------------------------------|
+							//|Pri|PalRow |VF |HF |              Pattern Number               |
+							//-----------------------------------------------------------------
+							//Pri:    Priority Bit
+							//PalRow: The palette row number to use when displaying the pattern data
+							//VF:     Vertical Flip
+							//HF:     Horizontal Flip
+							spritePixelBufferEntry.entryWritten = true;
+							spritePixelBufferEntry.layerPriority = spriteDisplayCacheEntry.mappingData.GetBit(15);
+							spritePixelBufferEntry.paletteLine = spriteDisplayCacheEntry.mappingData.GetDataSegment(13, 2);
+							spritePixelBufferEntry.paletteIndex = DigitalRenderReadPixelIndex(spriteCellDisplayCacheEntry.patternData, spriteDisplayCacheEntry.mappingData.GetBit(11), cellPixelIndex);
+						}
+						else
+						{
+							renderSpriteCollision = true;
+						}
+					}
+				}
+			}
+
+			//Advance to the next sprite cell entry
+			++renderSpriteDisplayCellCacheCurrentIndex;
+		}
+		break;}
 	case RenderOp::ACC_SLOT:
 		//Since we've reached an external access slot, changes may now be made to VRAM or
 		//VSRAM, so we need to advance the VRAM and VSRAM buffers up to this time so any
@@ -2756,6 +2939,58 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		vram->AdvanceBySession(renderDigitalMclkCycleProgress, vramSession, vramTimesliceCopy);
 		vsram->AdvanceBySession(renderDigitalMclkCycleProgress, vsramSession, vsramTimesliceCopy);
 		spriteCache->AdvanceBySession(renderDigitalMclkCycleProgress, spriteCacheSession, spriteCacheTimesliceCopy);
+
+		//We use some special flags in the external access slots to indicate the point at
+		//which to clear the internal state data for sprites, and initialize the
+		//structures to begin reading sprite data for the next line.
+		//##TODO## Ensure that on a reset, this data is initialized correctly
+		if(nextOperation.index == 1)
+		{
+			renderSpriteSearchComplete = false;
+			renderSpriteOverflow = false;
+			renderSpriteNextAttributeTableEntryToRead = 0;
+			renderSpriteDisplayCacheEntryCount = 0;
+			renderSpriteDisplayCellCacheCurrentIndex = 0;
+			renderSpriteDisplayCacheCurrentIndex = 0;
+			//Calculate the row number of the next line of sprite data to fetch. Note that
+			//we calculate the row number by adding 2 to the current row. We add a value
+			//of 1 to the current row number because sprites are first parsed one line
+			//before the line on which they are displayed, since there are three separate
+			//rendering phases for sprites, the first of which is a full traversal of the
+			//cached sprite attribute table data, which occurs on the row before the row
+			//at which we're searching for sprites to render for. We add another 1 to the
+			//row number because at the point where this access slot occurs, the vcounter
+			//is about to be incremented in just a few cycles.
+			if(!insideActiveScanRow)
+			{
+				renderSpriteNextSpriteRow = 1;
+			}
+			else
+			{
+				renderSpriteNextSpriteRow = renderDigitalCurrentRow + 2;
+				if(renderSpriteNextSpriteRow >= renderDigitalRowCount)
+				{
+					renderSpriteNextSpriteRow = 0;
+				}
+			}
+		}
+		else if(nextOperation.index == 2)
+		{
+			//##TODO## Test if the first line of the display always acts like a dot
+			//overflow didn't occur on the previous line, or if the VDP remembers if a dot
+			//overflow occurred on the very last line of the display when loading sprites
+			//for the first line of the display.
+			renderSpriteDotOverflowPreviousLine = renderSpriteDotOverflow;
+			renderSpriteDotOverflow = false;
+			renderSpriteDisplayCellCacheEntryCount = 0;
+			nonSpriteMaskCellEncountered = false;
+			renderSpriteMaskActive = false;
+			renderSpriteCollision = false;
+
+			//Advance the sprite pixel buffer plane
+			renderSpritePixelBufferAnalogRenderPlane = (renderSpritePixelBufferAnalogRenderPlane + 1) % renderSpritePixelBufferPlaneCount;
+			renderSpritePixelBufferDigitalRenderPlane = (renderSpritePixelBufferDigitalRenderPlane + 1) % renderSpritePixelBufferPlaneCount;
+		}
 		break;
 	case RenderOp::REFRESH:
 		//Nothing to do on a memory refresh cycle
@@ -2911,14 +3146,18 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		unsigned int paletteIndexData[4];
 		bool layerPriority[4];
 
-		//##TODO## Decode the sprite mapping and pattern data
+		//Decode the sprite mapping and pattern data
 		layerPriority[LAYER_SPRITE] = false;
-		paletteLineData[LAYER_SPRITE] = 0;
 		paletteIndexData[LAYER_SPRITE] = 0;
+		if(spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex].entryWritten)
+		{
+			const SpritePixelBufferEntry& spritePixelBufferEntry = spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex];
+			layerPriority[LAYER_SPRITE] = spritePixelBufferEntry.layerPriority;
+			paletteLineData[LAYER_SPRITE] = spritePixelBufferEntry.paletteLine;
+			paletteIndexData[LAYER_SPRITE] = spritePixelBufferEntry.paletteIndex;
+		}
 
 		//Decode the layer A mapping and pattern data
-		//##FIX## The horizontal scrolling within a column goes the wrong direction
-		//currently.
 		unsigned int scrolledMappingNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) / cellBlockSizeH;
 		unsigned int scrolledPixelNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) % cellBlockSizeH;
 		const Data& layerAMappingData = renderMappingDataCacheLayerA[scrolledMappingNumberLayerA];
@@ -2997,6 +3236,14 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		//Read the palette line and index to use for the selected layer
 		paletteLine = paletteLineData[layerIndex];
 		paletteIndex = paletteIndexData[layerIndex];
+	}
+
+	//If we just determined the palette line and index for a pixel within the active scan
+	//region of the screen, initialize the sprite pixel buffer at the corresponding pixel
+	//location, so that it is clear and ready to receive new sprite data on the next line.
+	if(insideActiveScanVertically && insideActiveScanHorizontally)
+	{
+		spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex].entryWritten = false;
 	}
 
 	//##TODO## Write a much longer comment here
@@ -3297,22 +3544,8 @@ void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, u
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::DigitalRenderReadPatternDataRow(unsigned int screenRowNumber, unsigned int patternRowDisplacement, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const
+void S315_5313::DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const
 {
-	//Calculate the pattern row number to read for the selected pattern, based on the
-	//current row being drawn on the screen, and the vertical pattern displacement due to
-	//vscroll.
-	const unsigned int rowsToDisplayPerTile = 8;
-	unsigned int patternRowNumberNoFlip = (screenRowNumber + patternRowDisplacement) % rowsToDisplayPerTile;
-
-	//Note that we grab the entire mapping data block as
-	//the block number when calculating the address. This is because the resulting address
-	//is wrapped to keep it within the VRAM boundaries. Due to this wrapping, in reality
-	//only the lower 11 bits of the mapping data are effective when determining the block
-	//number, or the lower 10 bits in the case of interlace mode 2.
-	//##TODO## Use low-level bit operations here, and provide a comment showing the
-	//structure of the calculated address value.
-
 	//Calculate the final number of the pattern row to read, taking into account vertical
 	//flip if it is specified in the block mapping.
 	//Mapping (Pattern Name) data format:
@@ -3344,12 +3577,196 @@ void S315_5313::DigitalRenderReadPatternDataRow(unsigned int screenRowNumber, un
 	//|---------------------------------------------------------------|
 	//|            Pattern Number             |  Pattern Row  | 0 | 0 |
 	//-----------------------------------------------------------------
+	//Note that we grab the entire mapping data block as the block number when calculating
+	//the address. This is because the resulting address is wrapped to keep it within the
+	//VRAM boundaries. Due to this wrapping, in reality only the lower 11 bits of the
+	//mapping data are effective when determining the block number, or the lower 10 bits
+	//in the case of interlace mode 2.
+	//##TODO## Test the above assertion on the TeraDrive with the larger VRAM mode active
 	const unsigned int patternDataRowByteSize = 4;
 	const unsigned int blockPatternByteSize = rowsPerTile * patternDataRowByteSize;
-	unsigned int patternDataAddress = ((mappingData.GetData() * blockPatternByteSize) + (patternRowNumber * patternDataRowByteSize)) % vramSize;
+	unsigned int patternDataAddress = (((mappingData.GetData() + patternCellOffset) * blockPatternByteSize) + (patternRowNumber * patternDataRowByteSize)) % vramSize;
 
 	//Read the target pattern row
 	patternData = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool interlaceMode2Active, bool screenModeRS1Active, unsigned int& nextTableEntryToRead, bool& spriteSearchComplete, bool& spriteOverflow, unsigned int& spriteDisplayCacheEntryCount, std::vector<SpriteDisplayCacheEntry>& spriteDisplayCache) const
+{
+	if(!spriteSearchComplete && !spriteOverflow)
+	{
+		const unsigned int spriteCacheEntrySize = 4;
+		const unsigned int spriteAttributeTableSize = (screenModeRS1Active)? 80: 64;
+		const unsigned int spritePosScreenStartH = 0x80;
+		const unsigned int spritePosScreenStartV = (interlaceMode2Active)? 0x100: 0x80;
+		const unsigned int spritePosBitCountV = (interlaceMode2Active)? 10: 9;
+		const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
+		const unsigned int renderSpriteDisplayCacheSize = (screenModeRS1Active)? 20: 16;
+		const unsigned int renderSpriteCellDisplayCacheSize = (screenModeRS1Active)? 40: 32;
+
+		//Calculate the address in the sprite cache of the next sprite to read data for
+		unsigned int spriteCacheAddress = (nextTableEntryToRead * spriteCacheEntrySize);
+
+		//Read all available data on the next sprite from the sprite cache
+		Data spriteVPosData(16);
+		Data spriteSizeAndLinkData(16);
+		spriteVPosData = ((unsigned int)spriteCache->ReadCommitted(spriteCacheAddress+0) << 8) | (unsigned int)spriteCache->ReadCommitted(spriteCacheAddress+1);
+		spriteSizeAndLinkData = ((unsigned int)spriteCache->ReadCommitted(spriteCacheAddress+2) << 8) | (unsigned int)spriteCache->ReadCommitted(spriteCacheAddress+3);
+
+		//Calculate the width and height of this sprite in cells
+		unsigned int spriteHeightInCells = spriteSizeAndLinkData.GetDataSegment(8, 2) + 1;
+
+		//Calculate the relative position of the current active display line in sprite
+		//space.
+		//##TODO## Lay this code out better, and provide more comments on what's being
+		//done to support interlace mode 2.
+		//##TODO## Handle interlace mode 2 properly. In interlace mode 2, the current
+		//screen row number is effectively doubled, with the current state of the odd flag
+		//used as the LSB of the line number. We need to do that here.
+		unsigned int currentScreenRowInSpriteSpace = screenRowNumber + spritePosScreenStartV;
+		if(interlaceMode2Active)
+		{
+			currentScreenRowInSpriteSpace = (screenRowNumber * 2) + spritePosScreenStartV;
+			if(renderDigitalOddFlagSet)
+			{
+				currentScreenRowInSpriteSpace += 1;
+			}
+		}
+
+		//Calculate the vertical position of the sprite, discarding any unused bits.
+		Data spriteVPos(spritePosBitCountV);
+		spriteVPos = spriteVPosData;
+
+		//If this next sprite is within the current display row, add it to the list of
+		//sprites to display on this line.
+		unsigned int spriteHeightInPixels = spriteHeightInCells * rowsPerTile;
+		if((spriteVPos <= currentScreenRowInSpriteSpace) && ((spriteVPos + spriteHeightInPixels) > currentScreenRowInSpriteSpace))
+		{
+			//We perform a check for a sprite overflow here. If we exceed the maximum
+			//number of sprites for this line, we set the sprite overflow flag, otherwise
+			//we load all the sprite data from the sprite cache for this sprite.
+			if(spriteDisplayCacheEntryCount < renderSpriteDisplayCacheSize)
+			{
+				spriteDisplayCache[spriteDisplayCacheEntryCount].spriteTableIndex = nextTableEntryToRead;
+				spriteDisplayCache[spriteDisplayCacheEntryCount].spriteRowIndex = (currentScreenRowInSpriteSpace - spriteVPos.GetData());
+				spriteDisplayCache[spriteDisplayCacheEntryCount].vpos = spriteVPosData;
+				spriteDisplayCache[spriteDisplayCacheEntryCount].sizeAndLinkData = spriteSizeAndLinkData;
+				++spriteDisplayCacheEntryCount;
+			}
+			else
+			{
+				spriteOverflow = true;
+			}
+		}
+
+		//Use the link data to determine which sprite table entry to read data for next.
+		//The sprite search is terminated if we encounter a sprite with a link data value
+		//of 0, or if a link data value is specified which is outside the bounds of the
+		//sprite table, based on the current screen mode settings.
+		nextTableEntryToRead = spriteSizeAndLinkData.GetDataSegment(0, 7);
+		if((nextTableEntryToRead == 0) || (nextTableEntryToRead >= spriteAttributeTableSize))
+		{
+			spriteSearchComplete = true;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const
+{
+	if(!spriteDotOverflow)
+	{
+		const unsigned int spriteCacheEntrySize = 4;
+		const unsigned int spriteTableEntrySize = 8;
+		const unsigned int spriteAttributeTableSize = (screenModeRS1Active)? 80: 64;
+		const unsigned int spritePosScreenStartH = 0x80;
+		const unsigned int spritePosScreenStartV = (interlaceMode2Active)? 0x100: 0x80;
+		const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
+		const unsigned int renderSpriteDisplayCacheSize = (screenModeRS1Active)? 20: 16;
+		const unsigned int renderSpriteCellDisplayCacheSize = (screenModeRS1Active)? 40: 32;
+
+		//Calculate the address in VRAM of this sprite table entry
+		unsigned int spriteTableEntryAddress = spriteTableBaseAddress + (spriteDisplayCacheEntry.spriteTableIndex * spriteTableEntrySize);
+
+		//Read all remaining data for the sprite from the sprite attribute table in VRAM.
+		//The first 4 bytes of the sprite attribute entry have already been loaded from
+		//the internal sprite cache.
+		//##TODO## Perform hardware tests, to confirm if the data from the sprite cache is
+		//buffered after it is read the first time while parsing the sprite table to
+		//determine the list of sprites on the current line, or if the data is read again
+		//from the cache during the mapping decoding.
+		Data spriteMappingData(16);
+		Data spriteHPosData(16);
+		spriteMappingData = ((unsigned int)vram->ReadCommitted(spriteTableEntryAddress+4) << 8) | (unsigned int)vram->ReadCommitted(spriteTableEntryAddress+5);
+		spriteHPosData = ((unsigned int)vram->ReadCommitted(spriteTableEntryAddress+6) << 8) | (unsigned int)vram->ReadCommitted(spriteTableEntryAddress+7);
+
+		//Load the remaining data into the sprite display cache
+		spriteDisplayCacheEntry.mappingData = spriteMappingData;
+		spriteDisplayCacheEntry.hpos = spriteHPosData;
+
+		//Calculate the width and height of this sprite in cells
+		unsigned int spriteWidthInCells = spriteDisplayCacheEntry.sizeAndLinkData.GetDataSegment(10, 2) + 1;
+		unsigned int spriteHeightInCells = spriteDisplayCacheEntry.sizeAndLinkData.GetDataSegment(8, 2) + 1;
+
+		//Extract the vertical flip and horizontal flip flags from the sprite mapping.
+		//Unlike vertical and horizontal flip for normal pattern cells in the scroll
+		//layers, when horizontal flip or vertical flip is applied to a sprite, the entire
+		//sprite is flipped, so that the cell order itself is reversed, as well as the
+		//order of the pixels within each cell. We extract the vertical flip and
+		//horizontal flip flags here so we can emulate that behaviour.
+		bool hflip = spriteMappingData.GetBit(11);
+		bool vflip = spriteMappingData.GetBit(12);
+
+		//Calculate the cell row number, and pattern row number within the cell, which
+		//fall on the current display line for this sprite.
+		unsigned int spriteCellRowNumber = spriteDisplayCacheEntry.spriteRowIndex / rowsPerTile;
+		unsigned int spriteCellPatternRowNumber = spriteDisplayCacheEntry.spriteRowIndex % rowsPerTile;
+
+		//Apply vertical flip to the sprite cell number if vertical flip is active. Note
+		//that we do not invert the pattern row number here, just the cell row number. All
+		//we're doing at this stage of sprite processing is decoding the cells within the
+		//sprite that fall on the current display line. Vertical flip is applied to the
+		//pattern row within a cell at a later stage of sprite processing.
+		if(vflip)
+		{
+			spriteCellRowNumber = ((spriteHeightInCells - 1) - spriteCellRowNumber);
+		}
+
+		//Add details of each cell in this sprite on the current display line to the
+		//internal sprite pattern render list.
+		for(unsigned int i = 0; i < spriteWidthInCells; ++i)
+		{
+			//We perform a check for a sprite dot overflow here. If each sprite is 2 cells
+			//wide, and the maximum number of sprites for a line are present, we generate
+			//the exact maximum number of sprite dots per line. If sprite widths are 3
+			//cells or wider, we can exceed the maximum sprite dot count at this point.
+			if(spriteCellDisplayCacheEntryCount < renderSpriteCellDisplayCacheSize)
+			{
+				//Record the reference from this individual sprite cell back to the sprite
+				//display cache entry that holds the mapping data for the cell.
+				spriteCellDisplayCache[spriteCellDisplayCacheEntryCount].spriteDisplayCacheIndex = spriteDisplayCacheIndex;
+
+				//Calculate the cell offset into the sprite pattern data for this cell,
+				//taking into account horizontal flip. Note that pattern cells for sprites
+				//are ordered in columns, not rows. The pattern data for the top left cell
+				//appears first, followed by the pattern data for the second row on the
+				//leftmost column, and so forth to the end of that column, followed by the
+				//pattern data for the topmost cell in the second column, and so on.
+				unsigned int spriteCellHorizontalOffset = (hflip)? (spriteWidthInCells - 1) - i: i;
+				spriteCellDisplayCache[spriteCellDisplayCacheEntryCount].patternCellOffset = (spriteCellHorizontalOffset * spriteHeightInCells) + spriteCellRowNumber;
+				spriteCellDisplayCache[spriteCellDisplayCacheEntryCount].patternRowOffset = spriteCellPatternRowNumber;
+				spriteCellDisplayCache[spriteCellDisplayCacheEntryCount].spriteCellColumnNo = i;
+
+				//Advance to the next available entry in the sprite cell cache
+				++spriteCellDisplayCacheEntryCount;
+			}
+			else
+			{
+				spriteDotOverflow = true;
+			}
+		}
+	}
 }
 
 //----------------------------------------------------------------------------------------
