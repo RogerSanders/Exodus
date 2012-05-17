@@ -781,6 +781,8 @@ private:
 	//single VDP superclass is getting too large to be manageable.
 	//##TODO## Initialize all these registers correctly, and store/load them during the
 	//savestate process.
+	static const unsigned int cellBlockSizeH = 8;
+	static const unsigned int cellsPerColumn = 2;
 	static const unsigned int maxCellsPerRow = 42;
 	static const unsigned int maxSpriteDisplayCacheSize = 20;
 	static const unsigned int maxSpriteDisplayCellCacheSize = 40;
@@ -818,6 +820,7 @@ private:
 	unsigned int renderLayerBVscrollPatternDisplacement;
 	unsigned int renderLayerAVscrollMappingDisplacement;
 	unsigned int renderLayerBVscrollMappingDisplacement;
+	std::vector<bool> renderWindowActiveCache;
 	std::vector<Data> renderMappingDataCacheLayerA;
 	std::vector<Data> renderMappingDataCacheLayerB;
 	std::vector<Data> renderMappingDataCacheSprite;

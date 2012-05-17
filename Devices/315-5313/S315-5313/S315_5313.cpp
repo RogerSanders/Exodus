@@ -142,6 +142,7 @@ vramSession(0),
 cramSession(0),
 vsramSession(0),
 spriteCacheSession(0),
+renderWindowActiveCache(maxCellsPerRow / cellsPerColumn),
 renderMappingDataCacheLayerA(maxCellsPerRow, Data(16)),
 renderMappingDataCacheLayerB(maxCellsPerRow, Data(16)),
 renderMappingDataCacheSprite(maxCellsPerRow, Data(16)),
@@ -1689,7 +1690,7 @@ void S315_5313::ExecuteCommit()
 	brenderDigitalHCounterPos = renderDigitalHCounterPos;
 	brenderDigitalVCounterPos = renderDigitalVCounterPos;
 	brenderDigitalVCounterPosPreviousLine = renderDigitalVCounterPosPreviousLine;
-	brenderDigitalRemainingMclkCycles = brenderDigitalRemainingMclkCycles;
+	brenderDigitalRemainingMclkCycles = renderDigitalRemainingMclkCycles;
 	brenderDigitalScreenModeRS0Active = renderDigitalScreenModeRS0Active;
 	brenderDigitalScreenModeRS1Active = renderDigitalScreenModeRS1Active;
 	brenderDigitalScreenModeV30Active = renderDigitalScreenModeV30Active;
@@ -2640,7 +2641,6 @@ void S315_5313::AdvanceRenderProcess(unsigned int mclkCyclesRemainingToAdvance)
 //----------------------------------------------------------------------------------------
 void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings)
 {
-	const unsigned int cellsPerColumn = 2;
 	bool interlaceMode2Active = renderDigitalInterlaceEnabledActive && renderDigitalInterlaceDoubleActive;
 
 	//Obtain the set of update steps for the current screen mode settings
@@ -2738,22 +2738,87 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		//Read vscroll data for layers A and B
 		DigitalRenderReadVscrollData(renderDigitalCurrentColumn, vscrState, interlaceMode2Active, renderLayerAVscrollPatternDisplacement, renderLayerBVscrollPatternDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement);
 
-		//Read register settings which affect which mapping data is loaded
-		unsigned int nameTableBase = M5GetNameTableBaseScrollA(accessTarget);
-		unsigned int hszState = M5GetHSZ(accessTarget);
-		unsigned int vszState = M5GetVSZ(accessTarget);
+		//Read the current window register settings
+		bool windowAlignedRight = M5GetWindowRightAligned(accessTarget);
+		bool windowAlignedBottom = M5GetWindowBottomAligned(accessTarget);
+		unsigned int windowBasePointX = M5GetWindowBasePointX(accessTarget);
+		unsigned int windowBasePointY = M5GetWindowBasePointY(accessTarget);
 
-		//Read layer A mapping data
-		DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
+		//Calculate the screen position of the window layer
+		unsigned int windowStartCellX = (windowAlignedRight)? windowBasePointX: 0;
+		unsigned int windowEndCellX = (windowAlignedRight)? 9999: windowBasePointX;
+		unsigned int windowStartCellY = (windowAlignedBottom)? windowBasePointY: 0;
+		unsigned int windowEndCellY = (windowAlignedBottom)? 9999: windowBasePointY;
+
+		//Determine if the window is active in the current column and row
+		//##TODO## Perform hardware tests on changing the window register state mid-line.
+		//We need to determine how the VDP responds, in particular, how the window
+		//distortion bug behaves when the window is enabled or disabled mid-line.
+		const unsigned int rowsToDisplayPerCell = 8;
+		unsigned int currentCellRow = renderDigitalCurrentRow / rowsToDisplayPerCell;
+		bool windowActiveInThisColumn = false;
+		if(nextOperation.index > 0)
+		{
+			windowActiveInThisColumn = ((renderDigitalCurrentColumn >= windowStartCellX) && (renderDigitalCurrentColumn < windowEndCellX))
+			                        || ((currentCellRow >= windowStartCellY) && (currentCellRow < windowEndCellY));
+			renderWindowActiveCache[renderDigitalCurrentColumn] = windowActiveInThisColumn;
+		}
+
+		//Read the correct mapping data for this column, taking into account whether that
+		//mapping data should be read from the window mapping table or the layer A mapping
+		//table.
+		if(windowActiveInThisColumn)
+		{
+			//Read register settings which affect which mapping data is loaded
+			unsigned int nameTableBase = M5GetNameTableBaseWindow(accessTarget);
+
+			//The window mapping table dimensions are determined based on the H40 screen
+			//mode state. If H40 mode is active, the window mapping table is 64 cells
+			//wide, otherwise, it is 32 cells wide. We emulate that here by calculating
+			//the mapping table dimensions ourselves and passing this data in when reading
+			//the window layer mapping data.
+			unsigned int hszState = (renderDigitalScreenModeRS1Active)? 0x1: 0x0;
+			unsigned int vszState = 0x0;
+
+			//Read window mapping data
+			DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, 0, 0, 0, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
+		}
+		else
+		{
+			//Read register settings which affect which mapping data is loaded
+			unsigned int nameTableBase = M5GetNameTableBaseScrollA(accessTarget);
+			unsigned int hszState = M5GetHSZ(accessTarget);
+			unsigned int vszState = M5GetVSZ(accessTarget);
+
+			//Read layer A mapping data
+			DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
+		}
+
 		break;}
 	case RenderOp::PATTERN_A:{
+		//Calculate the vertical pattern displacement value to use to calculate the row of
+		//the pattern data to read. The only purpose of this code is to handle window
+		//layer support. In regions where the window layer is active, we need to disable
+		//vertical scrolling, so if this cell number is within the window region of the
+		//display, we force the vertical pattern displacement to 0, otherwise, we use the
+		//calculated vertical pattern displacement based on the layer A vscroll data.
+		unsigned int verticalPatternDisplacement = renderLayerAVscrollPatternDisplacement;
+		if(nextOperation.index >= 2)
+		{
+			unsigned int renderDigitalCurrentColumn = (nextOperation.index - 2) / cellsPerColumn;
+			if(renderWindowActiveCache[renderDigitalCurrentColumn])
+			{
+				verticalPatternDisplacement = 0;
+			}
+		}
+
 		//Calculate the pattern row number to read for the selected pattern, based on the
 		//current row being drawn on the screen, and the vertical pattern displacement due
 		//to vscroll. We also factor in interlace mode 2 support here, by doubling the
 		//pattern row number where interlace mode 2 is active, and setting the LSB of the
 		//row number based on the current state of the odd flag.
 		const unsigned int rowsToDisplayPerTile = 8;
-		unsigned int patternRowNumberNoFlip = (renderDigitalCurrentRow + renderLayerAVscrollPatternDisplacement) % rowsToDisplayPerTile;
+		unsigned int patternRowNumberNoFlip = (renderDigitalCurrentRow + verticalPatternDisplacement) % rowsToDisplayPerTile;
 		if(interlaceMode2Active)
 		{
 			patternRowNumberNoFlip *= 2;
@@ -3127,8 +3192,6 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	{
 		//If we're displaying a pixel in the active display region, determine the correct
 		//palette index for this pixel.
-		const unsigned int cellBlockSizeH = 8;
-		const unsigned int cellsPerColumn = 2;
 
 		//Collect the pattern and priority data for this pixel from each of the various
 		//layers.
@@ -3158,12 +3221,54 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		}
 
 		//Decode the layer A mapping and pattern data
-		unsigned int scrolledMappingNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) / cellBlockSizeH;
-		unsigned int scrolledPixelNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) % cellBlockSizeH;
-		const Data& layerAMappingData = renderMappingDataCacheLayerA[scrolledMappingNumberLayerA];
-		layerPriority[LAYER_LAYERA] = layerAMappingData.GetBit(15);
-		paletteLineData[LAYER_LAYERA] = layerAMappingData.GetDataSegment(13, 2);
-		paletteIndexData[LAYER_LAYERA] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerA[scrolledMappingNumberLayerA], layerAMappingData.GetBit(11), scrolledPixelNumberLayerA);
+		unsigned int screenCellNo = activeScanPixelIndex / (cellBlockSizeH);
+		unsigned int screenColumnNo = screenCellNo / cellsPerColumn;
+		bool windowEnabledAtCell = renderWindowActiveCache[screenColumnNo];
+		if(windowEnabledAtCell)
+		{
+			//Read the pixel data from the window plane
+			unsigned int mappingNumberWindow = ((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) / cellBlockSizeH;
+			unsigned int pixelNumberWindow = ((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) % cellBlockSizeH;
+			const Data& windowMappingData = renderMappingDataCacheLayerA[mappingNumberWindow];
+			layerPriority[LAYER_LAYERA] = windowMappingData.GetBit(15);
+			paletteLineData[LAYER_LAYERA] = windowMappingData.GetDataSegment(13, 2);
+			paletteIndexData[LAYER_LAYERA] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerA[mappingNumberWindow], windowMappingData.GetBit(11), pixelNumberWindow);
+		}
+		else
+		{
+			//Calculate the mapping number and pixel number within the layer
+			unsigned int scrolledMappingNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) / cellBlockSizeH;
+			unsigned int scrolledPixelNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) % cellBlockSizeH;
+
+			//Take the window distortion bug into account. Due to an implementation quirk,
+			//the real VDP apparently reads the window mapping and pattern data at the
+			//start of the normal cell block reads, and doesn't use the left scrolled
+			//2-cell block to read window data. As a result, the VDP doesn't have enough
+			//VRAM access slots left to handle a scrolled playfield when transitioning
+			//from a left-aligned window to the scrolled layer A plane. As a result of
+			//their implementation, the partially visible 2-cell region immediately
+			//following the end of the window uses the mapping and pattern data of the
+			//column that follows it. Our implementation here has a similar effect, except
+			//that we would fetch the mapping and pattern data for the 2-cell block
+			//immediately before it, IE from the last column of the window region. We
+			//adjust the mapping number here to correctly fetch the next column mapping
+			//data instead when a partially visible column follows a left-aligned window,
+			//as would the real hardware.
+			//##TODO## Confirm through hardware tests that window mapping and pattern data
+			//is read after the left scrolled 2-cell block.
+			unsigned int currentScreenColumnPixelIndex = activeScanPixelIndex - (cellBlockSizeH * cellsPerColumn * screenColumnNo);
+			unsigned int distortedPixelCount = renderLayerAHscrollPatternDisplacement + ((scrolledMappingNumberLayerA & 0x1) * cellBlockSizeH);
+			if((screenColumnNo > 0) && renderWindowActiveCache[screenColumnNo-1] && (currentScreenColumnPixelIndex < distortedPixelCount))
+			{
+				scrolledMappingNumberLayerA += cellsPerColumn;
+			}
+
+			//Read the pixel data from the layer A plane
+			const Data& layerAMappingData = renderMappingDataCacheLayerA[scrolledMappingNumberLayerA];
+			layerPriority[LAYER_LAYERA] = layerAMappingData.GetBit(15);
+			paletteLineData[LAYER_LAYERA] = layerAMappingData.GetDataSegment(13, 2);
+			paletteIndexData[LAYER_LAYERA] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerA[scrolledMappingNumberLayerA], layerAMappingData.GetBit(11), scrolledPixelNumberLayerA);
+		}
 
 		//Decode the layer B mapping and pattern data
 		unsigned int scrolledMappingNumberLayerB = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerBHscrollPatternDisplacement) / cellBlockSizeH;
@@ -3513,7 +3618,6 @@ void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, u
 	//##TODO## Document why we add the horizontal scroll value, but subtract the vertical
 	//scroll value.
 	const unsigned int rowsToDisplayPerTile = 8;
-	const unsigned int cellsPerColumn = 2;
 	unsigned int mappingDataRowNumber = ((screenRowNumber + layerVscrollPatternDisplacement) / rowsToDisplayPerTile + layerVscrollMappingDisplacement) & playfieldBlockMaskY;
 	unsigned int mappingDataColumnNumber = ((screenColumnNumber - layerHscrollMappingDisplacement) * cellsPerColumn) & playfieldBlockMaskX;
 
@@ -3772,7 +3876,6 @@ void S315_5313::DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCache
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const
 {
-	const unsigned int cellBlockSizeH = 8;
 	const unsigned int patternDataPixelEntryBitCount = 4;
 
 	if(!horizontalFlip)
