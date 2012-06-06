@@ -72,36 +72,36 @@ public:
 	virtual unsigned int GetLineID(const wchar_t* lineName) const;
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
-	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime);
+	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
 
 	//Memory interface functions
-	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime);
-	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime);
+	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
 	virtual void GetState(IHeirarchicalStorageNode& node) const;
 
 	//Data register access
-	inline Data ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const;
-	inline void WriteDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data);
+	inline Data ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
+	inline void WriteDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
 
 	//Control register access
-	inline Data ReadControlRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const;
-	inline void WriteControlRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data);
+	inline Data ReadControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
+	inline void WriteControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
 
 	//Serial control register access
-	inline Data ReadSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const;
-	inline void WriteSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data);
+	inline Data ReadSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
+	inline void WriteSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
 
 	//TxData register access
-	inline Data ReadTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const;
-	inline void WriteTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data);
+	inline Data ReadTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
+	inline void WriteTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
 
 	//RxData register access
-	inline Data ReadRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const;
-	inline void WriteRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data);
+	inline Data ReadRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
+	inline void WriteRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
 
 	//Raw register functions
 	inline Data GetVersionRegister() const;
@@ -180,7 +180,7 @@ public:
 	inline void SetTxDataBufferFull(unsigned int portNo, bool state);
 
 	//Interrupt functions
-	void UpdateHLInterruptState(IDeviceContext* caller, double accessTime);
+	void UpdateHLInterruptState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 private:
 	enum Ports

@@ -141,7 +141,19 @@ void Device::ExecuteTimeslice(double nanoseconds)
 }
 
 //----------------------------------------------------------------------------------------
-double Device::GetNextTimingPointInDeviceTime() const
+void Device::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
+{
+	//##TODO## Replace this with an error logging event.
+	//##TODO## Implement a critical error system abort option, which instructs the system
+	//to halt execution when it is raised, and instruct the user to check the event log to
+	//determine the cause of the critical error. Note that it should be possible to
+	//disable the halt feature in the system options.
+	//##DEBUG##
+	std::wcout << "WARNING! Called ExecuteTimesliceTimingPointStep on a device which has not defined this function.\n";
+}
+
+//----------------------------------------------------------------------------------------
+double Device::GetNextTimingPointInDeviceTime(unsigned int& accessContext) const
 {
 	return -1;
 }
@@ -294,45 +306,45 @@ unsigned int Device::CalculateCELineStatePortTransparent(unsigned int location, 
 //----------------------------------------------------------------------------------------
 //Memory functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult Device::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult Device::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult Device::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult Device::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-void Device::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller)
+void Device::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller)
+void Device::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {}
 
 //----------------------------------------------------------------------------------------
 //Port functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult Device::ReadPort(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult Device::ReadPort(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult Device::WritePort(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult Device::WritePort(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-void Device::TransparentReadPort(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller)
+void Device::TransparentReadPort(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::TransparentWritePort(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller)
+void Device::TransparentWritePort(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -356,7 +368,7 @@ unsigned int Device::GetLineWidth(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-void Device::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime)
+void Device::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {}
 
 //----------------------------------------------------------------------------------------

@@ -543,7 +543,7 @@ unsigned int Z80::GetLineWidth(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime)
+void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(lineMutex);
 
@@ -559,7 +559,7 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 	//already passed that time.
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//Insert the line access into the buffer. Note that entries in the buffer are sorted
@@ -1081,13 +1081,13 @@ double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent) co
 				PerformanceLock lock(ceLineStateMutex);
 				memoryAccessTransparentRD = true;
 				memoryAccessTransparentWR = false;
-				memoryBus->TransparentReadMemory(location.GetData(), temp, GetDeviceContext());
+				memoryBus->TransparentReadMemory(location.GetData(), temp, GetDeviceContext(), 0);
 			}
 			else
 			{
 				memoryAccessRD = true;
 				memoryAccessWR = false;
-				result = memoryBus->ReadMemory(location.GetData(), temp, GetDeviceContext(), GetCurrentTimesliceProgress());
+				result = memoryBus->ReadMemory(location.GetData(), temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 			}
 			data = temp;
 			break;
@@ -1101,16 +1101,16 @@ double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent) co
 				PerformanceLock lock(ceLineStateMutex);
 				memoryAccessTransparentRD = true;
 				memoryAccessTransparentWR = false;
-				memoryBus->TransparentReadMemory(location.GetData(), byteLow, GetDeviceContext());
-				memoryBus->TransparentReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext());
+				memoryBus->TransparentReadMemory(location.GetData(), byteLow, GetDeviceContext(), 0);
+				memoryBus->TransparentReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), 0);
 			}
 			else
 			{
 				IBusInterface::AccessResult result2;
 				memoryAccessRD = true;
 				memoryAccessWR = false;
-				result = memoryBus->ReadMemory(location.GetData(), byteLow, GetDeviceContext(), GetCurrentTimesliceProgress());
-				result2 = memoryBus->ReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), GetCurrentTimesliceProgress());
+				result = memoryBus->ReadMemory(location.GetData(), byteLow, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+				result2 = memoryBus->ReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 				result.executionTime += result2.executionTime;
 			}
 			data.SetLowerBits(byteLow);
@@ -1141,13 +1141,13 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 				PerformanceLock lock(ceLineStateMutex);
 				memoryAccessTransparentRD = false;
 				memoryAccessTransparentWR = true;
-				memoryBus->TransparentWriteMemory(location.GetData(), data, GetDeviceContext());
+				memoryBus->TransparentWriteMemory(location.GetData(), data, GetDeviceContext(), 0);
 			}
 			else
 			{
 				memoryAccessRD = false;
 				memoryAccessWR = true;
-				result = memoryBus->WriteMemory(location.GetData(), data, GetDeviceContext(), GetCurrentTimesliceProgress());
+				result = memoryBus->WriteMemory(location.GetData(), data, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 			}
 			break;
 		}
@@ -1160,8 +1160,8 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 				Z80Byte byte2(data.GetUpperBits(BITCOUNT_BYTE));
 				memoryAccessTransparentRD = false;
 				memoryAccessTransparentWR = true;
-				memoryBus->TransparentWriteMemory(location.GetData(), byte1, GetDeviceContext());
-				memoryBus->TransparentWriteMemory((location + 1).GetData(), byte2, GetDeviceContext());
+				memoryBus->TransparentWriteMemory(location.GetData(), byte1, GetDeviceContext(), 0);
+				memoryBus->TransparentWriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), 0);
 			}
 			else
 			{
@@ -1170,8 +1170,8 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 				Z80Byte byte2(data.GetUpperBits(BITCOUNT_BYTE));
 				memoryAccessRD = false;
 				memoryAccessWR = true;
-				result = memoryBus->WriteMemory(location.GetData(), byte1, GetDeviceContext(), GetCurrentTimesliceProgress());
-				result2 = memoryBus->WriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), GetCurrentTimesliceProgress());
+				result = memoryBus->WriteMemory(location.GetData(), byte1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+				result2 = memoryBus->WriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 				result.executionTime += result2.executionTime;
 			}
 			break;

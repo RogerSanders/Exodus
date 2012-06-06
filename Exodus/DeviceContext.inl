@@ -26,14 +26,25 @@ public:
 	Type type;
 	double timeslice;
 	mutable std::vector<double> timesliceResult;
+	mutable std::vector<unsigned int> contextResult;
 };
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
 DeviceContext::DeviceContext(IDevice* adevice)
-:device(adevice), systemObject(0), executeWorkerThreadActive(false), commandWorkerThreadActive(false), deviceEnabled(true), deviceDependencies(0), suspendedThreadCountPointer(0), remainingThreadCountPointer(0), commandMutexPointer(0), suspendManager(0), transientExecutionActive(false)
-{}
+:device(adevice), systemObject(0), deviceDependencies(0), suspendedThreadCountPointer(0), remainingThreadCountPointer(0), commandMutexPointer(0), suspendManager(0)
+{
+	deviceEnabled = true;
+	commandWorkerThreadActive = false;
+	executeWorkerThreadActive = false;
+	executingWaitForCompletionCommand = false;
+
+	timesliceCompleted = false;
+	timesliceSuspended = false;
+	timesliceSuspensionDisable = false;
+	transientExecutionActive = false;
+}
 
 //----------------------------------------------------------------------------------------
 //Execute functions
@@ -72,7 +83,6 @@ void DeviceContext::ExecuteTimeslice(double nanoseconds)
 {
 	timeslice = nanoseconds;
 	timesliceCompleted = false;
-	timesliceSuspended = false;
 	executeTaskSent.notify_all();
 }
 
@@ -86,9 +96,23 @@ double DeviceContext::ExecuteStep()
 		remainingTime += device->ExecuteStep();
 		additionalTime = remainingTime;
 	}
+
+	return additionalTime;
+}
+
+//----------------------------------------------------------------------------------------
+double DeviceContext::ExecuteStep(unsigned int accessContext)
+{
+	double additionalTime = 0;
+
+	if(device->GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+	{
+		remainingTime += device->ExecuteStep();
+		additionalTime = remainingTime;
+	}
 	else if(device->GetUpdateMethod() == IDevice::UPDATEMETHOD_TIMESLICE)
 	{
-		device->ExecuteTimeslice(0);
+		device->ExecuteTimesliceTimingPointStep(accessContext);
 	}
 
 	return additionalTime;
@@ -149,7 +173,7 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 			{
 				//Note that we need to release the command lock here, since the execute
 				//completion state of this device may never change until we disable
-				//execute suspension. We can't hold command mutex that whole time,
+				//execute suspension. We can't hold the command mutex that whole time,
 				//otherwise other threads will deadlock. We also need to re-obtain the
 				//execute mutex, so that we can safely trigger the condition below without
 				//opening up potential deadlock cases due to other threads missing the
@@ -164,8 +188,12 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 				{
 					executeCompletionStateChanged.wait(executeLock);
 				}
-				commandLock.lock();
+				//Note that we release the execute mutex here before obtaining the command
+				//mutex again, then re-acquire the execute mutex below. This is essential
+				//in order to ensure the locks are taken in the correct order, to avoid
+				//deadlock cases.
 				executeLock.unlock();
+				commandLock.lock();
 			}
 
 			//Re-obtain the execute lock so that we can test the loop condition again
@@ -199,13 +227,13 @@ void DeviceContext::Initialize()
 //----------------------------------------------------------------------------------------
 //Timing functions
 //----------------------------------------------------------------------------------------
-double DeviceContext::GetNextTimingPoint() const
+double DeviceContext::GetNextTimingPoint(unsigned int& accessContext) const
 {
 	double result = -1;
 
 	if(device->GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
 	{
-		result = device->GetNextTimingPointInDeviceTime();
+		result = device->GetNextTimingPointInDeviceTime(accessContext);
 		if(result >= 0)
 		{
 			result += remainingTime;
@@ -213,7 +241,7 @@ double DeviceContext::GetNextTimingPoint() const
 	}
 	else if(device->GetUpdateMethod() == IDevice::UPDATEMETHOD_TIMESLICE)
 	{
-		result = device->GetNextTimingPointInDeviceTime();
+		result = device->GetNextTimingPointInDeviceTime(accessContext);
 	}
 
 	return result;

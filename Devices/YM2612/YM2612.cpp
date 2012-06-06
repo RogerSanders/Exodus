@@ -302,10 +302,9 @@ void YM2612::Initialize()
 	timerBLoad = false;
 
 	//Initialize the render thread properties
-	pendingRenderOperation = false;
-	pendingRenderTimesliceLength = 0;
 	remainingRenderTime = 0;
 	egRemainingRenderCycles = 0;
+	outputBuffer.clear();
 
 	//Clear all register latch data
 	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
@@ -470,26 +469,21 @@ void YM2612::NotifyUpcomingTimeslice(double nanoseconds)
 	timersLastUpdateTime = 0;
 
 	lastTimesliceLength = nanoseconds;
-
 	lastAccessTime = 0;
+
+	//Add the new timeslice to all our timed buffers
 	reg.AddTimeslice(nanoseconds);
 	timerAOverflowTimes.AddTimeslice(nanoseconds);
+
+	//Add references to the new timeslice entry from our timed buffers to the uncommitted
+	//timeslice lists for the buffers
+	regTimesliceListUncommitted.push_back(reg.GetLatestTimeslice());
+	timerATimesliceListUncommitted.push_back(timerAOverflowTimes.GetLatestTimeslice());
 }
 
 //----------------------------------------------------------------------------------------
 void YM2612::ExecuteTimeslice(double nanoseconds)
 {
-	//Add this timeslice to the amount of time the render thread needs to execute. If
-	//there's enough render time queued up to trigger a new rendering operation, flag a
-	//new render operation to start at the next commit.
-	const double minimumRenderBlockSize = (1000000000.0 / 50);
-	pendingRenderTimesliceLength += nanoseconds;
-	if(pendingRenderTimesliceLength >= minimumRenderBlockSize)
-	{
-		pendingRenderTimesliceLength -= (unsigned int)(pendingRenderTimesliceLength / minimumRenderBlockSize) * minimumRenderBlockSize;
-		pendingRenderOperation = true;
-	}
-
 	//If the render thread is lagging, pause here until it has caught up, so we don't
 	//leave the render thread behind with an ever-increasing workload it will never be
 	//able to complete.
@@ -539,9 +533,9 @@ void YM2612::ExecuteRollback()
 	timerALoad = btimerALoad;
 	timerBLoad = btimerBLoad;
 
-	//Rollback the pending render state
-	pendingRenderOperation = false;
-	pendingRenderTimesliceLength = bpendingRenderTimesliceLength;
+	//Clear any uncommitted timeslices from our render timeslice buffers
+	regTimesliceListUncommitted.clear();
+	timerATimesliceListUncommitted.clear();
 }
 
 //----------------------------------------------------------------------------------------
@@ -580,39 +574,27 @@ void YM2612::ExecuteCommit()
 	btimerALoad = timerALoad;
 	btimerBLoad = timerBLoad;
 
-	//Trigger a new render operation if there's enough accumulated time to start one
-	if(pendingRenderOperation)
+	//Ensure that a valid latest timeslice exists in all our buffers. We need this
+	//check here, because commits can be triggered by the system at potentially any
+	//point in time, whether a timeslice has been issued or not.
+	if(!regTimesliceListUncommitted.empty() && !timerATimesliceListUncommitted.empty())
 	{
-		//Clear the pendingRenderOperation flag now that we've processed it
-		pendingRenderOperation = false;
+		//Obtain a timeslice lock so we can update the data we feed to the render
+		//thread
+		boost::mutex::scoped_lock lock(timesliceMutex);
 
-		//Ensure that a valid latest timeslice exists in all our buffers. We need this
-		//check here, because if rollbacks occur at certain points in time, it's possible
-		//for our buffers to be entirely advanced through all pending timeslices and
-		//sitting on the committed state when ExecuteCommit() is called.
-		if(reg.DoesLatestTimesliceExist() && timerAOverflowTimes.DoesLatestTimesliceExist())
-		{
-			//Obtain a timeslice lock so we can update the data we feed to the render thread
-			boost::mutex::scoped_lock lock(timesliceMutex);
+		//Add the number of timeslices we are about to commit to the count of pending
+		//render operations. This is used to track if the render thread is lagging.
+		pendingRenderOperationCount += (unsigned int)regTimesliceListUncommitted.size();
 
-			//Increment the number of pending render operations. This is used to track if the
-			//render thread is lagging.
-			++pendingRenderOperationCount;
+		//Move all timeslices in our uncommitted timeslice lists over to the committed
+		//timeslice lists, for processing by the render thread.
+		regTimesliceList.splice(regTimesliceList.end(), regTimesliceListUncommitted);
+		timerATimesliceList.splice(timerATimesliceList.end(), timerATimesliceListUncommitted);
 
-			//Grab copies of the timeslice periods for the timed buffers the render thread
-			//will need to work with. We haven't been notified about any new timeslices yet
-			//since the last execution cycle, so these timeslice periods represent the point
-			//we want the render thread to execute up to.
-			regTimesliceList.push_back(reg.GetLatestTimeslice());
-			timerATimesliceList.push_back(timerAOverflowTimes.GetLatestTimeslice());
-
-			//Notify the render thread that it's got more work to do
-			renderThreadUpdate.notify_all();
-		}
+		//Notify the render thread that it's got more work to do
+		renderThreadUpdate.notify_all();
 	}
-
-	//Take a backup of the accumulated pending render time
-	bpendingRenderTimesliceLength = pendingRenderTimesliceLength;
 }
 
 //----------------------------------------------------------------------------------------
@@ -622,14 +604,15 @@ void YM2612::RenderThread()
 	boost::mutex::scoped_lock lock(renderThreadMutex);
 
 	//Start the render loop
-	while(renderThreadActive)
+	bool done = false;
+	while(!done)
 	{
 		//Obtain a copy of the latest completed timeslice period
 		RandomTimeAccessBuffer<Data, double>::Timeslice regTimesliceCopy;
 		RandomTimeAccessValue<bool, double>::Timeslice timerATimesliceCopy;
 		bool renderTimesliceObtained = false;
 		{
-			boost::mutex::scoped_lock lock(timesliceMutex);
+			boost::mutex::scoped_lock timesliceLock(timesliceMutex);
 
 			//If there is at least one render timeslice pending, grab it from the queue.
 			if(!regTimesliceList.empty() && !timerATimesliceList.empty())
@@ -650,12 +633,23 @@ void YM2612::RenderThread()
 			}
 		}
 
-		//If no render timeslice was available, suspend this thread until a timeslice
-		//becomes available, or this thread is instructed to stop, then begin the loop
-		//again.
+		//If no render timeslice was available, we need to wait for a thread suspension
+		//request or a new timeslice to be received, then begin the loop again.
 		if(!renderTimesliceObtained)
 		{
-			renderThreadUpdate.wait(lock);
+			//If the render thread has not already been instructed to stop, suspend this
+			//thread until a timeslice becomes available or this thread is instructed to
+			//stop.
+			if(renderThreadActive)
+			{
+				renderThreadUpdate.wait(lock);
+			}
+
+			//If the render thread has been suspended, flag that we need to exit this
+			//render loop.
+			done = !renderThreadActive;
+
+			//Begin the loop again
 			continue;
 		}
 
@@ -667,8 +661,7 @@ void YM2612::RenderThread()
 		double fmClockPeriod = 1000000000 / fmClock;
 
 		//Render the YM2612 output
-		unsigned int outputBufferPos = 0;
-		std::vector<short> outputBuffer(0);
+		size_t outputBufferPos = outputBuffer.size();
 //		unsigned int outputBufferMultiplexedPos = 0;
 //		std::vector<short> outputBufferMultiplexed(0);
 		bool moreSamplesRemaining = true;
@@ -1156,10 +1149,13 @@ void YM2612::RenderThread()
 			moreSamplesRemaining = reg.AdvanceByStep(regTimesliceCopy);
 		}
 
-		//Play the output audio stream
-		if(!outputBuffer.empty())
+		//Play the mixed audio stream. Note that we fold samples from successive render
+		//operations together, ensuring that we only send data to the output audio stream
+		//when we have a significant number of samples to send.
+		unsigned int outputFrequency = (unsigned int)fmClock;
+		size_t minimumSamplesToOutput = (size_t)(outputFrequency / 10);
+		if(outputBuffer.size() >= minimumSamplesToOutput)
 		{
-			unsigned int outputFrequency = (unsigned int)fmClock;
 			unsigned int internalSampleCount = (unsigned int)outputBuffer.size() / 2;
 			unsigned int outputSampleCount = (unsigned int)((double)internalSampleCount * ((double)outputSampleRate / (double)outputFrequency));
 			AudioStream::AudioBuffer* outputBufferFinal = outputStream.CreateAudioBuffer(outputSampleCount, 2);
@@ -1168,6 +1164,7 @@ void YM2612::RenderThread()
 				outputStream.ConvertSampleRate(outputBuffer, internalSampleCount, 2, outputBufferFinal->buffer, outputSampleCount);
 				outputStream.PlayBuffer(outputBufferFinal);
 			}
+			outputBuffer.clear();
 		}
 
 		//Play the multiplexed output audio stream
@@ -1995,7 +1992,7 @@ int YM2612::CalculateOperator(unsigned int phase, int phaseModulation, unsigned 
 //----------------------------------------------------------------------------------------
 //Memory interface functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult YM2612::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult YM2612::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(accessMutex);
 
@@ -2004,7 +2001,7 @@ IBusInterface::AccessResult YM2612::ReadInterface(unsigned int interfaceNumber, 
 	//occurs.
 	if(accessTime < lastAccessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastAccessTime = accessTime;
 
@@ -2015,7 +2012,7 @@ IBusInterface::AccessResult YM2612::ReadInterface(unsigned int interfaceNumber, 
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult YM2612::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult YM2612::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(accessMutex);
 	AccessTarget accessTarget;
@@ -2026,7 +2023,7 @@ IBusInterface::AccessResult YM2612::WriteInterface(unsigned int interfaceNumber,
 	//write occurs.
 	if(accessTime < lastAccessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastAccessTime = accessTime;
 
@@ -2051,7 +2048,7 @@ IBusInterface::AccessResult YM2612::WriteInterface(unsigned int interfaceNumber,
 		if(!CheckForLatchedWrite(currentReg, data, accessTime))
 		{
 			//Write to the selected register
-			RegisterSpecialUpdateFunction(currentReg, data, accessTime);
+			RegisterSpecialUpdateFunction(currentReg, data, accessTime, caller, accessContext);
 			SetRegisterData(currentReg, data, accessTarget);
 		}
 	}
@@ -2070,7 +2067,7 @@ IBusInterface::AccessResult YM2612::WriteInterface(unsigned int interfaceNumber,
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& data, double accessTime)
+void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& data, double accessTime, IDeviceContext* caller, unsigned int accessContext)
 {
 	//Note that the only register changes which currently require special handling at the
 	//time they are written are registers which relate to the timers. Writes to all other
@@ -2181,7 +2178,7 @@ void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& da
 		{
 			if(memoryBus != 0)
 			{
-				memoryBus->SetLine(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 0), GetDeviceContext(), GetDeviceContext(), accessTime);
+				memoryBus->SetLine(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 		break;
@@ -2359,7 +2356,7 @@ void YM2612::UpdateTimers(double timesliceProgress)
 				{
 					if(memoryBus != 0)
 					{
-						memoryBus->SetLine(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime);
+						memoryBus->SetLine(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
 					}
 				}
 				//Update the overflow flag
@@ -2397,7 +2394,7 @@ void YM2612::UpdateTimers(double timesliceProgress)
 				{
 					if(memoryBus != 0)
 					{
-						memoryBus->SetLine(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime);
+						memoryBus->SetLine(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
 					}
 				}
 				//Update the overflow flag

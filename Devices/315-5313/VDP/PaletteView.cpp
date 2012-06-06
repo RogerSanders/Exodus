@@ -99,7 +99,7 @@ void VDP::PaletteView::UpdatePalette()
 		for(unsigned int paletteEntry = 0; paletteEntry < 16; ++paletteEntry)
 		{
 			Data paletteData(16);
-			device->cram->TransparentReadInterface(0, (((paletteLine * 16) + paletteEntry) * 2), paletteData, device->GetDeviceContext());
+			device->cram->TransparentReadInterface(0, (((paletteLine * 16) + paletteEntry) * 2), paletteData, device->GetDeviceContext(), 0);
 			float r = (float)paletteData.GetDataSegment(1, 3) / 7;
 			float g = (float)paletteData.GetDataSegment(5, 3) / 7;
 			float b = (float)paletteData.GetDataSegment(9, 3) / 7;

@@ -26,10 +26,11 @@ public:
 	virtual void ExecuteCommit();
 	virtual UpdateMethod GetUpdateMethod() const;
 	virtual void ExecuteTimeslice(double nanoseconds);
+	virtual void ExecuteTimesliceTimingPointStep(unsigned int accessContext);
 
 	//Memory interface functions
-	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime);
-	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime);
+	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Line functions
 	virtual unsigned int GetLineID(const wchar_t* lineName) const;

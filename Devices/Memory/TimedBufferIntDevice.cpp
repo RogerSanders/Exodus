@@ -22,7 +22,7 @@ bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 //Memory interface functions
 //----------------------------------------------------------------------------------------
-void TimedBufferIntDevice::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller)
+void TimedBufferIntDevice::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	unsigned int memorySize = GetInterfaceSize();
 	unsigned int dataByteSize = data.GetByteSize();
@@ -33,7 +33,7 @@ void TimedBufferIntDevice::TransparentReadInterface(unsigned int interfaceNumber
 }
 
 //----------------------------------------------------------------------------------------
-void TimedBufferIntDevice::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller)
+void TimedBufferIntDevice::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	unsigned int memorySize = GetInterfaceSize();
 	unsigned int dataByteSize = data.GetByteSize();

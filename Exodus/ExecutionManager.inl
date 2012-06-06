@@ -29,6 +29,7 @@ void ExecutionManager::AddDevice(DeviceContext* device)
 
 	//Resize the message results array
 	command.timesliceResult.resize(deviceCount);
+	command.contextResult.resize(deviceCount);
 }
 
 //----------------------------------------------------------------------------------------
@@ -93,6 +94,7 @@ void ExecutionManager::RemoveDevice(DeviceContext* device)
 
 	//Resize the message results array
 	command.timesliceResult.resize(deviceCount);
+	command.contextResult.resize(deviceCount);
 }
 
 //----------------------------------------------------------------------------------------
@@ -103,6 +105,7 @@ void ExecutionManager::ClearAllDevices()
 	suspendDeviceArray.clear();
 	transientDeviceArray.clear();
 	command.timesliceResult.clear();
+	command.contextResult.clear();
 
 	//Initialize the device counts
 	deviceCount = 0;
@@ -210,7 +213,7 @@ void ExecutionManager::Initialize()
 //----------------------------------------------------------------------------------------
 //Timing functions
 //----------------------------------------------------------------------------------------
-double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceContext*& nextDeviceStep)
+double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceContext*& nextDeviceStep, unsigned int& nextDeviceStepContext)
 {
 	boost::mutex::scoped_lock lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_GETNEXTTIMINGPOINT;
@@ -229,6 +232,7 @@ double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceConte
 		{
 			timeslice = deviceTimingPoint;
 			nextDeviceStep = deviceArray[i];
+			nextDeviceStepContext = command.contextResult[i];
 		}
 	}
 

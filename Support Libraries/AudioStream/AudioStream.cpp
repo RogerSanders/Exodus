@@ -124,7 +124,7 @@ void AudioStream::Close()
 //----------------------------------------------------------------------------------------
 AudioStream::AudioBuffer* AudioStream::CreateAudioBuffer(unsigned int sampleCount, unsigned int achannelCount)
 {
-	if(!workerThreadRunning)
+	if(!workerThreadRunning || (sampleCount <= 0) || (achannelCount <= 0))
 	{
 		return 0;
 	}

@@ -1072,7 +1072,8 @@ double System::ExecuteSystemStep(double maximumTimeslice)
 	//Determine the maximum length of time all devices can run unsynchronized before the
 	//next timing point
 	DeviceContext* nextDeviceStep = 0;
-	double timeslice = executionManager.GetNextTimingPoint(maximumTimeslice, nextDeviceStep);
+	unsigned int nextDeviceStepContext = 0;
+	double timeslice = executionManager.GetNextTimingPoint(maximumTimeslice, nextDeviceStep, nextDeviceStepContext);
 
 	bool callbackStep = false;
 	void (*callbackFunction)(void*) = 0;
@@ -1090,11 +1091,14 @@ double System::ExecuteSystemStep(double maximumTimeslice)
 		//##DEBUG##
 //		std::wcout << "Timeslice\t" << timeslice << '\n';
 
-		//Notify after execute called
+		//Notify before execute called
 		executionManager.NotifyBeforeExecuteCalled();
 
 		//Execute next timeslice
 		executionManager.ExecuteTimeslice(timeslice);
+
+		//Notify after execute called
+		executionManager.NotifyAfterExecuteCalled();
 
 		//##TODO## Introduce the ability to "suspend" execution of a worker thread, until
 		//all other non-suspended worker threads have completed execution. At this point,
@@ -1121,20 +1125,6 @@ double System::ExecuteSystemStep(double maximumTimeslice)
 		//Roll back or commit changes
 		if(rollback)
 		{
-			//Ensure we're actually going to perform a rollback on this step before we
-			//call NotifyAfterExecuteCalled(). If rollback timeslice is 0, we just step
-			//through the target device immediately.
-			//##FIX## This is a bit unusual. We do actually call the Rollback() function
-			//below, so this could have some unintended side-effects. Perhaps we should
-			//handle immediate rollbacks differently? If the device itself which is being
-			//stepped accesses other devices in the system during that step, it will cause
-			//problems if other devices aren't in a valid state to accept interaction.
-			if(rollbackTimeslice > 0)
-			{
-				//Notify after execute called
-				executionManager.NotifyAfterExecuteCalled();
-			}
-
 			//##DEBUG##
 			std::wcout << "Rollback\t" << std::setprecision(16) << rollbackTimeslice << '\n';
 			executionManager.Rollback();
@@ -1148,6 +1138,7 @@ double System::ExecuteSystemStep(double maximumTimeslice)
 
 			timeslice = rollbackTimeslice;
 			nextDeviceStep = (DeviceContext*)rollbackDevice;
+			nextDeviceStepContext = rollbackContext;
 			callbackStep = useRollbackFunction;
 			if(callbackStep)
 			{
@@ -1162,24 +1153,30 @@ double System::ExecuteSystemStep(double maximumTimeslice)
 	//If we are currently sitting on a timing point for a device, step through it.
 	if(nextDeviceStep != 0)
 	{
+		//Notify upcoming timeslice
+		executionManager.NotifyUpcomingTimeslice(0.0);
+
+		//Notify before execute called
+		executionManager.NotifyBeforeExecuteCalled();
+
 		if(!callbackStep)
 		{
-			nextDeviceStep->ExecuteStep();
+			nextDeviceStep->ExecuteStep(nextDeviceStepContext);
 		}
 		else
 		{
 			callbackFunction(callbackParams);
 		}
-	}
 
-	//Notify after execute called
-	executionManager.NotifyAfterExecuteCalled();
+		//Notify after execute called
+		executionManager.NotifyAfterExecuteCalled();
+	}
 
 	//Commit all changes
 	executionManager.Commit();
 
 	//Clear all input events which have been successfully processed
-	ClearStoredInputEvents();
+	ClearSentStoredInputEvents();
 
 	return timeslice;
 }
@@ -1202,17 +1199,27 @@ void System::ExecuteDeviceStep(DeviceContext* device)
 	//initialize step above, are not lost in the event of a rollback.
 	executionManager.Commit();
 
+	//Notify upcoming timeslice
+	executionManager.NotifyUpcomingTimeslice(0.0);
+
+	//Notify before execute called
+	executionManager.NotifyBeforeExecuteCalled();
+
 	//Step through the target device
 	rollback = false;
 	double timeslice = device->ExecuteStep();
+
+	//Notify after execute called
+	executionManager.NotifyAfterExecuteCalled();
+
 	if(rollback)
 	{
-		//If the device we're trying to step through is sitting on a timing point,
-		//commit now, since we've just advanced it through its timing point in lock step.
-		//We need to perform this operation here, as if we try and step through a device
-		//sitting on a timing point using the loop method below, only the device will
-		//advance, and ExecuteSystemStep will correctly return 0. This will leave us in
-		//an infinite loop.
+		//If the device we're trying to step through is sitting on a timing point, commit
+		//now, since we've just advanced it through its timing point in lock step. We need
+		//to perform this operation here, as if we try and step through a device sitting
+		//on a timing point using the loop method below, only the device will advance, and
+		//ExecuteSystemStep will correctly return 0. This will leave us in an infinite
+		//loop.
 		executionManager.Commit();
 	}
 	else
@@ -1293,7 +1300,7 @@ double System::SystemRollbackTime() const
 }
 
 //----------------------------------------------------------------------------------------
-void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, void (*callbackFunction)(void*), void* callbackParams)
+void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams)
 {
 	//##DEBUG##
 	std::wstringstream message;
@@ -1310,6 +1317,7 @@ void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* a
 	{
 		rollback = true;
 		rollbackTimeslice = timeslice;
+		rollbackContext = accessContext;
 		rollbackDevice = arollbackDevice;
 		useRollbackFunction = false;
 		if(callbackFunction != 0)
@@ -3801,7 +3809,7 @@ void System::SendStoredInputEvents()
 }
 
 //----------------------------------------------------------------------------------------
-void System::ClearStoredInputEvents()
+void System::ClearSentStoredInputEvents()
 {
 	boost::mutex::scoped_lock lock(inputMutex);
 	std::list<InputEventEntry>::iterator i = inputEvents.begin();

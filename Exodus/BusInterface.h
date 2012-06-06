@@ -96,19 +96,19 @@ public:
 	bool BindCELineMappings();
 
 	//Memory interface functions
-	virtual AccessResult ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime);
-	virtual AccessResult WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime);
-	virtual void TransparentReadMemory(unsigned int location, Data& data, IDeviceContext* caller) const;
-	virtual void TransparentWriteMemory(unsigned int location, const Data& data, IDeviceContext* caller) const;
+	virtual AccessResult ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual AccessResult WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentReadMemory(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) const;
+	virtual void TransparentWriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) const;
 
 	//Port interface functions
-	virtual AccessResult ReadPort(unsigned int location, Data& data, IDeviceContext* caller, double accessTime);
-	virtual AccessResult WritePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime);
-	virtual void TransparentReadPort(unsigned int location, Data& data, IDeviceContext* caller) const;
-	virtual void TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller) const;
+	virtual AccessResult ReadPort(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual AccessResult WritePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentReadPort(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) const;
+	virtual void TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) const;
 
 	//Line interface functions
-	virtual bool SetLine(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime);
+	virtual bool SetLine(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 
 private:
 	//Structures

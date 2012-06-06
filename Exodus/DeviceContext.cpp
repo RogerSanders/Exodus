@@ -35,9 +35,9 @@ IDevice* DeviceContext::GetTargetDevice() const
 //----------------------------------------------------------------------------------------
 //System message functions
 //----------------------------------------------------------------------------------------
-void DeviceContext::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, void (*callbackFunction)(void*), void* callbackParams)
+void DeviceContext::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams)
 {
-	systemObject->SetSystemRollback(atriggerDevice, arollbackDevice, timeslice, callbackFunction, callbackParams);
+	systemObject->SetSystemRollback(atriggerDevice, arollbackDevice, timeslice, accessContext, callbackFunction, callbackParams);
 }
 
 //----------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ void DeviceContext::SuspendTimesliceExecution()
 	//suspend feature. Failure to do this may cause deadlocks.
 	ReleaseAssert(device->UsesExecuteSuspend());
 
-	if(!timesliceSuspended)
+	if(!timesliceSuspended && !timesliceSuspensionDisable)
 	{
 		if((commandMutexPointer != 0) && (suspendedThreadCountPointer != 0))
 		{
@@ -524,6 +524,10 @@ void DeviceContext::StopCommandWorkerThread()
 //----------------------------------------------------------------------------------------
 void DeviceContext::CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command)
 {
+	//Set the name of this thread for the debugger
+	std::wstring debuggerThreadName = L"DCCommand - " + device->GetDeviceInstanceName();
+	SetCallingThreadName(debuggerThreadName);
+
 	//Flag that we need to notify the calling thread when this thread is ready, since this
 	//worker thread has just been started.
 	bool notifyThreadReady = true;
@@ -620,9 +624,11 @@ void DeviceContext::ProcessCommand(size_t deviceIndex, const DeviceContextComman
 	case DeviceContextCommand::TYPE_ROLLBACK:
 		Rollback();
 		break;
-	case DeviceContextCommand::TYPE_GETNEXTTIMINGPOINT:
-		command.timesliceResult[deviceIndex] = GetNextTimingPoint();
-		break;
+	case DeviceContextCommand::TYPE_GETNEXTTIMINGPOINT:{
+		unsigned int accessContext = 0;
+		command.timesliceResult[deviceIndex] = GetNextTimingPoint(accessContext);
+		command.contextResult[deviceIndex] = accessContext;
+		break;}
 	case DeviceContextCommand::TYPE_NOTIFYUPCOMINGTIMESLICE:
 		NotifyUpcomingTimeslice(command.timeslice);
 		break;
@@ -711,6 +717,10 @@ void DeviceContext::StopExecuteWorkerThread()
 //----------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThread()
 {
+	//Set the name of this thread for the debugger
+	std::wstring debuggerThreadName = L"DCExecute - " + device->GetDeviceInstanceName();
+	SetCallingThreadName(debuggerThreadName);
+
 	if(device->GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
 	{
 		if(deviceDependencies.empty())
@@ -759,6 +769,7 @@ void DeviceContext::ExecuteWorkerThreadStep()
 		remainingTime = currentTimesliceProgress - timeslice;
 		lock.lock();
 
+		timesliceSuspended = false;
 		timesliceCompleted = true;
 		executeCompletionStateChanged.notify_all();
 		executeTaskSent.wait(lock);
@@ -798,6 +809,7 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 		remainingTime = currentTimesliceProgress - timeslice;
 		lock.lock();
 
+		timesliceSuspended = false;
 		timesliceCompleted = true;
 		executeCompletionStateChanged.notify_all();
 		executeTaskSent.wait(lock);
@@ -820,6 +832,7 @@ void DeviceContext::ExecuteWorkerThreadTimeslice()
 		currentTimesliceProgress = timeslice;
 		lock.lock();
 
+		timesliceSuspended = false;
 		timesliceCompleted = true;
 		executeCompletionStateChanged.notify_all();
 		executeTaskSent.wait(lock);
@@ -848,6 +861,7 @@ void DeviceContext::ExecuteWorkerThreadTimesliceWithDependencies()
 			deviceDependencies[i]->WaitForCompletion();
 		}
 
+		timesliceSuspended = false;
 		timesliceCompleted = true;
 		executeCompletionStateChanged.notify_all();
 		executeTaskSent.wait(lock);

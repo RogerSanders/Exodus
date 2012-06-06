@@ -2102,7 +2102,7 @@ BusInterface::MapEntry* BusInterface::ResolveMemoryAddress(unsigned int ce, unsi
 }
 
 //----------------------------------------------------------------------------------------
-BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	AccessResult accessResult(false, true, 0);
 	location &= addressBusMask;
@@ -2126,7 +2126,7 @@ BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data&
 			//Remap data lines
 			Data tempData(mapEntry->dataLineRemapTable.GetBitCountConverted());
 			tempData = mapEntry->dataLineRemapTable.ConvertTo(data.GetData());
-			accessResult = mapEntry->device->ReadInterface(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessTime);
+			accessResult = mapEntry->device->ReadInterface(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessTime, accessContext);
 			data = mapEntry->dataLineRemapTable.ConvertFrom(tempData.GetData());
 
 			//Generate the access mask for the data lines
@@ -2148,14 +2148,14 @@ BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data&
 		}
 		else
 		{
-			accessResult = mapEntry->device->ReadInterface(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessTime);
+			accessResult = mapEntry->device->ReadInterface(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessTime, accessContext);
 		}
 	}
 	return accessResult;
 }
 
 //----------------------------------------------------------------------------------------
-BusInterface::AccessResult BusInterface::WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+BusInterface::AccessResult BusInterface::WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	AccessResult accessResult(false);
 	location &= addressBusMask;
@@ -2179,18 +2179,18 @@ BusInterface::AccessResult BusInterface::WriteMemory(unsigned int location, cons
 			//Remap data lines
 			Data tempData(mapEntry->dataLineRemapTable.GetBitCountConverted());
 			tempData = mapEntry->dataLineRemapTable.ConvertTo(data.GetData());
-			accessResult = mapEntry->device->WriteInterface(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessTime);
+			accessResult = mapEntry->device->WriteInterface(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessTime, accessContext);
 		}
 		else
 		{
-			accessResult = mapEntry->device->WriteInterface(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessTime);
+			accessResult = mapEntry->device->WriteInterface(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessTime, accessContext);
 		}
 	}
 	return accessResult;
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::TransparentReadMemory(unsigned int location, Data& data, IDeviceContext* caller) const
+void BusInterface::TransparentReadMemory(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) const
 {
 	location &= addressBusMask;
 	unsigned int ce = CalculateCELineStateMemoryTransparent(location, data, caller);
@@ -2212,18 +2212,18 @@ void BusInterface::TransparentReadMemory(unsigned int location, Data& data, IDev
 		{
 			//Remap data lines
 			Data tempData(mapEntry->dataLineRemapTable.GetBitCountConverted());
-			mapEntry->device->TransparentReadInterface(mapEntry->interfaceNumber, interfaceOffset, tempData, caller);
+			mapEntry->device->TransparentReadInterface(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessContext);
 			data = mapEntry->dataLineRemapTable.ConvertFrom(tempData.GetData());
 		}
 		else
 		{
-			mapEntry->device->TransparentReadInterface(mapEntry->interfaceNumber, interfaceOffset, data, caller);
+			mapEntry->device->TransparentReadInterface(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessContext);
 		}
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::TransparentWriteMemory(unsigned int location, const Data& data, IDeviceContext* caller) const
+void BusInterface::TransparentWriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) const
 {
 	location &= addressBusMask;
 	unsigned int ce = CalculateCELineStateMemoryTransparent(location, data, caller);
@@ -2246,11 +2246,11 @@ void BusInterface::TransparentWriteMemory(unsigned int location, const Data& dat
 			//Remap data lines
 			Data tempData(mapEntry->dataLineRemapTable.GetBitCountConverted());
 			tempData = mapEntry->dataLineRemapTable.ConvertTo(data.GetData());
-			mapEntry->device->TransparentWriteInterface(mapEntry->interfaceNumber, interfaceOffset, tempData, caller);
+			mapEntry->device->TransparentWriteInterface(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessContext);
 		}
 		else
 		{
-			mapEntry->device->TransparentWriteInterface(mapEntry->interfaceNumber, interfaceOffset, data, caller);
+			mapEntry->device->TransparentWriteInterface(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessContext);
 		}
 	}
 }
@@ -2291,7 +2291,7 @@ BusInterface::MapEntry* BusInterface::ResolvePortAddress(unsigned int ce, unsign
 }
 
 //----------------------------------------------------------------------------------------
-BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	AccessResult accessResult(false, true, 0);
 	location &= portAddressBusMask;
@@ -2315,7 +2315,7 @@ BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& d
 			//Remap data lines
 			Data tempData(mapEntry->dataLineRemapTable.GetBitCountConverted());
 			tempData = mapEntry->dataLineRemapTable.ConvertTo(data.GetData());
-			accessResult = mapEntry->device->ReadPort(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessTime);
+			accessResult = mapEntry->device->ReadPort(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessTime, accessContext);
 			data = mapEntry->dataLineRemapTable.ConvertFrom(tempData.GetData());
 
 			//Generate the access mask for the data lines
@@ -2337,14 +2337,14 @@ BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& d
 		}
 		else
 		{
-			accessResult = mapEntry->device->ReadPort(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessTime);
+			accessResult = mapEntry->device->ReadPort(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessTime, accessContext);
 		}
 	}
 	return accessResult;
 }
 
 //----------------------------------------------------------------------------------------
-BusInterface::AccessResult BusInterface::WritePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+BusInterface::AccessResult BusInterface::WritePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	AccessResult accessResult(false);
 	location &= portAddressBusMask;
@@ -2368,18 +2368,18 @@ BusInterface::AccessResult BusInterface::WritePort(unsigned int location, const 
 			//Remap data lines
 			Data tempData(mapEntry->dataLineRemapTable.GetBitCountConverted());
 			tempData = mapEntry->dataLineRemapTable.ConvertTo(data.GetData());
-			accessResult = mapEntry->device->WritePort(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessTime);
+			accessResult = mapEntry->device->WritePort(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessTime, accessContext);
 		}
 		else
 		{
-			accessResult = mapEntry->device->WritePort(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessTime);
+			accessResult = mapEntry->device->WritePort(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessTime, accessContext);
 		}
 	}
 	return accessResult;
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::TransparentReadPort(unsigned int location, Data& data, IDeviceContext* caller) const
+void BusInterface::TransparentReadPort(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) const
 {
 	location &= portAddressBusMask;
 	unsigned int ce = CalculateCELineStatePortTransparent(location, data, caller);
@@ -2401,18 +2401,18 @@ void BusInterface::TransparentReadPort(unsigned int location, Data& data, IDevic
 		{
 			//Remap data lines
 			Data tempData(mapEntry->dataLineRemapTable.GetBitCountConverted());
-			mapEntry->device->TransparentReadPort(mapEntry->interfaceNumber, interfaceOffset, tempData, caller);
+			mapEntry->device->TransparentReadPort(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessContext);
 			data = mapEntry->dataLineRemapTable.ConvertFrom(tempData.GetData());
 		}
 		else
 		{
-			mapEntry->device->TransparentReadPort(mapEntry->interfaceNumber, interfaceOffset, data, caller);
+			mapEntry->device->TransparentReadPort(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessContext);
 		}
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller) const
+void BusInterface::TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) const
 {
 	location &= portAddressBusMask;
 	unsigned int ce = CalculateCELineStatePortTransparent(location, data, caller);
@@ -2435,11 +2435,11 @@ void BusInterface::TransparentWritePort(unsigned int location, const Data& data,
 			//Remap data lines
 			Data tempData(mapEntry->dataLineRemapTable.GetBitCountConverted());
 			tempData = mapEntry->dataLineRemapTable.ConvertTo(data.GetData());
-			mapEntry->device->TransparentWritePort(mapEntry->interfaceNumber, interfaceOffset, tempData, caller);
+			mapEntry->device->TransparentWritePort(mapEntry->interfaceNumber, interfaceOffset, tempData, caller, accessContext);
 		}
 		else
 		{
-			mapEntry->device->TransparentWritePort(mapEntry->interfaceNumber, interfaceOffset, data, caller);
+			mapEntry->device->TransparentWritePort(mapEntry->interfaceNumber, interfaceOffset, data, caller, accessContext);
 		}
 	}
 }
@@ -2447,7 +2447,7 @@ void BusInterface::TransparentWritePort(unsigned int location, const Data& data,
 //----------------------------------------------------------------------------------------
 //Line interface functions
 //----------------------------------------------------------------------------------------
-bool BusInterface::SetLine(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime)
+bool BusInterface::SetLine(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext)
 {
 	//##DEBUG##
 //	std::wcout << "SetLineBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
@@ -2464,7 +2464,7 @@ bool BusInterface::SetLine(unsigned int sourceLine, const Data& lineData, IDevic
 				//Remap lines
 				tempData = lineEntry->lineRemapTable.ConvertTo(lineData.GetData());
 			}
-			lineEntry->targetDevice->SetLineState(lineEntry->targetLine, tempData, callingDevice, accessTime);
+			lineEntry->targetDevice->SetLineState(lineEntry->targetLine, tempData, callingDevice, accessTime, accessContext);
 		}
 	}
 	//##DEBUG##

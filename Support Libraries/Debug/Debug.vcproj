@@ -573,6 +573,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Threading"
+			>
+			<File
+				RelativePath=".\Threading.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Threading.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Debug.pkg"
 			>

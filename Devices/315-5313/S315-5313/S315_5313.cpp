@@ -133,10 +133,12 @@ originalCommandAddress(16),
 boriginalCommandAddress(16),
 commandAddress(16),
 bcommandAddress(16),
-commandCode(16),
-bcommandCode(16),
+commandCode(6),
+bcommandCode(6),
 dmaTransferReadCache(16),
 bdmaTransferReadCache(16),
+dmaTransferInvalidPortWriteDataCache(16),
+bdmaTransferInvalidDataCache(16),
 regSession(Data(8)),
 vramSession(0),
 cramSession(0),
@@ -204,6 +206,7 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 
 	//##DEBUG##
 	outputTestDebugMessages = false;
+	outputTimingDebugMessages = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -290,15 +293,15 @@ unsigned int S315_5313::GetLineWidth(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime)
+void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	if(targetLine == LINE_INTAK)
 	{
 		//##DEBUG##
 //		std::wcout << "SetLineState - VDP_LINE_INTAK:\t" << lineData.LSB() << '\n';
 
-		memoryBus->SetLine(LINE_INTAK, Data(GetLineWidth(LINE_INTAK), 1), GetDeviceContext(), GetDeviceContext(), accessTime);
-		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), GetDeviceContext(), accessTime);
+		memoryBus->SetLine(LINE_INTAK, Data(GetLineWidth(LINE_INTAK), 1), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), caller, accessTime, accessContext);
 		//Since the interrupt has been acknowledged, clear the VINT occurrence flag.
 		SetStatusFlagF(false);
 	}
@@ -307,9 +310,19 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		//##DEBUG##
 //		std::wcout << "SetLineState - VDP_LINE_BG:\t" << lineData.LSB() << '\n';
 
+		//Convert the access time into a cycle count relative to MCLK, rounding up the result
+		//to the nearest MCLK cycle.
+		unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
+		double accessMclkCycleInAccessTime = ConvertMclkCountToAccessTime(accessMclkCycle);
+		if(accessMclkCycleInAccessTime < accessTime)
+		{
+			accessMclkCycle += 1;
+		}
+
 		boost::mutex::scoped_lock lock(workerThreadMutex);
 		busGranted = lineData.LSB();
-		busGrantTime = accessTime;
+		dmaTransferNextReadMclk = accessMclkCycle;
+		dmaTransferLastTimesliceUsedReadDelay = 0;
 		GetDeviceContext()->SetTransientExecutionActive(busGranted);
 		workerThreadUpdate.notify_all();
 	}
@@ -381,8 +394,13 @@ void S315_5313::Initialize()
 	for(unsigned int i = 0; i < vramSize; i += 2)
 	{
 		//##FIX## This is just a random value, not what the system actually has.
-		vram->WriteLatest(i, 0xDE);
-		vram->WriteLatest(i+1, 0xAD);
+//		vram->WriteLatest(i, 0xDE);
+//		vram->WriteLatest(i+1, 0xAD);
+		//##FIX## Reverted to just zero-filling VRAM, due to some test roms which don't
+		//correctly initialize used VRAM areas. Perform some hardware tests to determine
+		//an appropriate fill pattern for VRAM.
+		vram->WriteLatest(i, 0x00);
+		vram->WriteLatest(i+1, 0x00);
 	}
 
 	//The CRAM is initialized to 0x0EEE in all slots, except for the second entry in the
@@ -422,14 +440,29 @@ void S315_5313::Initialize()
 		spriteCache->WriteLatest(i, 0x00);
 	}
 
+	//Clear all the uncommitted render timeslice buffers. We don't need to clear the
+	//committed buffers, since the render thread always fully processes all committed
+	//pending timeslices before entering the suspended state, but we need to clear the
+	//uncommitted buffers here to ensure bad data isn't passed across to the render thread
+	//if the system is initialized while there are uncommitted 
+	//##FIX## Actually, I don't think we should have to clear these here. The system is
+	//never allowed to be suspended until it reaches a consistent state, and the
+	//initialize function is only called when the system is at a consistent state, so it
+	//seems like these buffers should always be empty at this point anyway.
+	//timesliceRenderInfoListUncommitted.clear();
+	//regTimesliceListUncommitted.clear();
+	//vramTimesliceListUncommitted.clear();
+	//cramTimesliceListUncommitted.clear();
+	//vsramTimesliceListUncommitted.clear();
+	//spriteCacheTimesliceListUncommitted.clear();
+
 	currentTimesliceLength = 0;
 	currentTimesliceMclkCyclesRemainingTime = 0;
+	lastTimesliceMclkCyclesOverrun = 0;
 	stateLastUpdateTime = 0;
-	lastTimesliceRemainingTime = 0;
 	stateLastUpdateMclk = 0;
 	stateLastUpdateMclkUnused = 0;
 	stateLastUpdateMclkUnusedFromLastTimeslice = 0;
-	eventLastUpdateMclk = 0;
 
 	externalInterruptPending = false;
 
@@ -456,6 +489,7 @@ void S315_5313::Initialize()
 
 	workerThreadPaused = false;
 	dmaTransferActive = false;
+	dmaTransferInvalidPortWriteCached = false;
 	busGranted = false;
 	palModeLineState = true;
 	interlaceEnabled = false;
@@ -496,6 +530,7 @@ void S315_5313::Reset()
 	screenModeRS0Cached = false;
 	screenModeRS1Cached = false;
 	screenModeV30Cached = false;
+	displayEnabledCached = false;
 	spriteAttributeTableBaseAddressDecoded = 0;
 	cachedDMASettingsChanged = false;
 
@@ -758,21 +793,23 @@ void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
 
-	stateLastUpdateTime = 0;
-	stateLastUpdateMclk = 0;
+	stateLastUpdateMclk = lastTimesliceMclkCyclesOverrun;
 	stateLastUpdateMclkUnused = 0;
+	stateLastUpdateTime = ConvertMclkCountToAccessTime(lastTimesliceMclkCyclesOverrun);
+	//##DEBUG## Restore old timing behaviour for testing
+//	stateLastUpdateTime = 0;
+//	stateLastUpdateMclk = 0;
+//	stateLastUpdateMclkUnused = 0;
 
 	currentTimesliceLength = nanoseconds;
-	eventsProcessedForTimeslice = false;
-	eventLastUpdateMclk = 0;
+	eventsProcessedForTimeslice = (nanoseconds <= 0.0);
 
 	lastAccessTime = 0;
 
-	//##DEBUG##
-	double currentTimesliceMclkCyclesRemainingTimeOriginal = currentTimesliceMclkCyclesRemainingTime;
-	currentTimesliceTotalMclkCycles = ConvertAccessTimeToMclkCount(currentTimesliceLength + currentTimesliceMclkCyclesRemainingTimeOriginal);
+	lastTimesliceMclkCyclesRemainingTime = currentTimesliceMclkCyclesRemainingTime;
+	currentTimesliceTotalMclkCycles = ConvertAccessTimeToMclkCount(currentTimesliceLength + lastTimesliceMclkCyclesRemainingTime);
 	double mclkCyclesToAddInAccessTime = ConvertMclkCountToAccessTime(currentTimesliceTotalMclkCycles);
-	currentTimesliceMclkCyclesRemainingTime = (currentTimesliceLength + currentTimesliceMclkCyclesRemainingTimeOriginal) - mclkCyclesToAddInAccessTime;
+	currentTimesliceMclkCyclesRemainingTime = (currentTimesliceLength + lastTimesliceMclkCyclesRemainingTime) - mclkCyclesToAddInAccessTime;
 
 	//Round off error adjustment code in ConvertAccessTimeToMclkCount can result in
 	//currentTimesliceTotalMclkCycles being rounded up. In this case, our
@@ -791,27 +828,40 @@ void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 //		std::wcout << "currentTimesliceTotalMclkCycles:\t" << currentTimesliceTotalMclkCycles << "\n";
 //		std::wcout << "mclkCyclesToAddInAccessTime:\t" << mclkCyclesToAddInAccessTime << "\n";
 //		std::wcout << "currentTimesliceMclkCyclesRemainingTime:\t" << currentTimesliceMclkCyclesRemainingTime << "\n";
-//		std::wcout << "currentTimesliceMclkCyclesRemainingTimeOriginal:\t" << currentTimesliceMclkCyclesRemainingTimeOriginal << "\n";
+//		std::wcout << "lastTimesliceMclkCyclesRemainingTime:\t" << lastTimesliceMclkCyclesRemainingTime << "\n";
 //		std::wcout << "######################################################\n";
 		if(currentTimesliceTotalMclkCycles > 0)
 		{
 			currentTimesliceTotalMclkCycles -= 1;
 			mclkCyclesToAddInAccessTime = ConvertMclkCountToAccessTime(currentTimesliceTotalMclkCycles);
 		}
-		currentTimesliceMclkCyclesRemainingTime = (currentTimesliceLength + currentTimesliceMclkCyclesRemainingTimeOriginal) - mclkCyclesToAddInAccessTime;
+		currentTimesliceMclkCyclesRemainingTime = (currentTimesliceLength + lastTimesliceMclkCyclesRemainingTime) - mclkCyclesToAddInAccessTime;
 	}
 
 	//##DEBUG##
-//	std::wcout << "VDPNotifyUpcomingTimeslice:\t" << currentTimesliceLength << '\t' << currentTimesliceTotalMclkCycles << '\t' << mclkCyclesToAddInAccessTime << '\t' << currentTimesliceMclkCyclesRemainingTime << '\n';
+	if(outputTimingDebugMessages)
+	{
+		std::wcout << "VDPNotifyUpcomingTimeslice:\t" << currentTimesliceLength << '\t' << currentTimesliceTotalMclkCycles << '\t' << mclkCyclesToAddInAccessTime << '\t' << currentTimesliceMclkCyclesRemainingTime << '\n';
+	}
 
 	//Flag a new render operation to start at the next commit
 	pendingRenderOperation = true;
 
+	//Add the new timeslice to all our timed buffers
 	reg.AddTimeslice(currentTimesliceTotalMclkCycles);
 	vram->AddTimeslice(currentTimesliceTotalMclkCycles);
 	cram->AddTimeslice(currentTimesliceTotalMclkCycles);
 	vsram->AddTimeslice(currentTimesliceTotalMclkCycles);
 	spriteCache->AddTimeslice(currentTimesliceTotalMclkCycles);
+
+	//Add references to the new timeslice entry from our timed buffers to the uncommitted
+	//timeslice lists for the buffers
+	regTimesliceListUncommitted.push_back(reg.GetLatestTimeslice());
+	vramTimesliceListUncommitted.push_back(vram->GetLatestTimesliceReference());
+	cramTimesliceListUncommitted.push_back(cram->GetLatestTimesliceReference());
+	vsramTimesliceListUncommitted.push_back(vsram->GetLatestTimesliceReference());
+	spriteCacheTimesliceListUncommitted.push_back(spriteCache->GetLatestTimesliceReference());
+	timesliceRenderInfoListUncommitted.push_back(TimesliceRenderInfo(lastTimesliceMclkCyclesOverrun));
 }
 
 //----------------------------------------------------------------------------------------
@@ -855,19 +905,23 @@ void S315_5313::NotifyAfterExecuteCalled()
 	}
 
 	//##DEBUG##
-//	std::wcout << "VDP - NotifyAfterExecuteCalled(Before): " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << '\t' << std::setprecision(16) << stateLastUpdateTime << '\n';
+	if(outputTimingDebugMessages)
+	{
+		std::wcout << "VDP - NotifyAfterExecuteCalled(Before): " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << '\t' << std::setprecision(16) << stateLastUpdateTime << '\n';
+	}
 
 	//Ensure the VDP is advanced up to the end of its timeslice
-	double lastTimesliceTotalExecuteTime = currentTimesliceLength + lastTimesliceRemainingTime;
-	if((lastTimesliceTotalExecuteTime > 0) && (lastTimesliceTotalExecuteTime > GetProcessorStateTime()))
+	if((currentTimesliceTotalMclkCycles > 0) && (currentTimesliceTotalMclkCycles > GetProcessorStateMclkCurrent()))
 	{
-		UpdateInternalState(ConvertAccessTimeToMclkCount(lastTimesliceTotalExecuteTime), false, false, false, false, false, false, false);
+		UpdateInternalState(currentTimesliceTotalMclkCycles, false, false, false, false, false, false, false);
 	}
-	//##TODO## Remove this old code
-	//if((currentTimesliceTotalMclkCycles > 0) && (currentTimesliceTotalMclkCycles > GetProcessorStateMclkCurrent()))
-	//{
-	//	UpdateInternalState(currentTimesliceTotalMclkCycles, false, false, false, false, false, false);
-	//}
+
+	//Calculate the number of mclk cycles we ran over the end of the last timeslice
+	lastTimesliceMclkCyclesOverrun = 0;
+	if(GetProcessorStateMclkCurrent() > currentTimesliceTotalMclkCycles)
+	{
+		lastTimesliceMclkCyclesOverrun = GetProcessorStateMclkCurrent() - currentTimesliceTotalMclkCycles;
+	}
 
 	//##DEBUG##
 //	std::wcout << "VDP - NotifyAfterExecuteCalled(After): " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << '\t' << std::setprecision(16) << stateLastUpdateTime << '\n';
@@ -890,46 +944,51 @@ void S315_5313::NotifyAfterExecuteCalled()
 	//ensure that the device step is always called before this function.
 	//-Note that we just moved this code back, and fixed the system code.
 	//####################################################################################
-	//##DEBUG##
-//	double lastTimesliceRemainingTimeOriginal = lastTimesliceRemainingTime;
 
 	//Record any unused mclk cycles from this timeslice, so we can pass them over into the
 	//next timeslice.
 	stateLastUpdateMclkUnusedFromLastTimeslice += stateLastUpdateMclkUnused;
 
-	//Record the unused portion of the last timeslice which needs to be added to the next
-	//timeslice, and factored in when predicting the next timing point.
-//	lastTimesliceRemainingTime = lastTimesliceTotalExecuteTime - GetProcessorStateTime();
-	lastTimesliceRemainingTime = (currentTimesliceLength + lastTimesliceRemainingTime) - GetProcessorStateTime();
-
-	//If a DMA transfer is in progress, update the number of remaining mclk cycles from
-	//the end of this timeslice which need to be factored in on the next update step for
-	//the DMA transfer operation, and reset the last read time to 0. This is necessary, in
-	//order to ensure the next read operation for the DMA transfer operation takes place
-	//at the correct time.
+	//If a DMA transfer is in progress, calculate the number of mclk cycles which have
+	//already been consumed out of the delay time before the next external bus read
+	//operation, and reset the next read time to 0. This will allow the result of the DMA
+	//read operation to be processed at the correct mclk cycle in the next timeslice.
 	if(dmaTransferActive)
 	{
-		dmaTransferLastTimesliceUnusedMclkCycles = GetProcessorStateMclkCurrent() - dmaTransferNextReadMclk;
+		//Calculate the number of mclk wait cycles that have already been served out of
+		//the delay before the next read operation is complete.
+		unsigned int dmaTransferNextReadCompleteTime = (dmaTransferNextReadMclk + (dmaTransferReadTimeInMclkCycles - dmaTransferLastTimesliceUsedReadDelay));
+		if(dmaTransferNextReadCompleteTime > GetProcessorStateMclkCurrent())
+		{
+			//Calculate the number of mclk cycles that have already been advanced from the
+			//point at which the DMA read operation began, to the point we're up to now.
+			//Note that this is safe, as dmaTransferNextReadMclk is never greater than the
+			//current state time. Also note that we add the calculated value together with
+			//any existing value in this variable, so that extremely small timeslices that
+			//don't consume all the used read delay from the last timeslice will roll any
+			//remaining used delay into the next timeslice.
+			dmaTransferLastTimesliceUsedReadDelay += GetProcessorStateMclkCurrent() - dmaTransferNextReadMclk;
+		}
+		else
+		{
+			//Since we've already advanced up to or past the point at which the next DMA
+			//read operation would have completed, record that the entire read delay time
+			//has been consumed.
+			dmaTransferLastTimesliceUsedReadDelay = dmaTransferReadTimeInMclkCycles;
+		}
+
+		//Reset the next DMA transfer read time to 0. The used read delay, calculated
+		//above, will be used to preserve the relative displacement of this value from the
+		//current processor state time into the next timeslice.
 		dmaTransferNextReadMclk = 0;
 	}
 
-	//##DEBUG##
-	//##NOTE## This isn't actually an error. The currentTimesliceMclkCyclesRemainingTime
-	//variable will actually always be less than or equal to 0, since we always advance to
-	//at least the end of the current timeslice, but we may advance past it, if for
-	//example an accessing device tries to write to the data port when the FIFO is full,
-	//and needs to block waiting for a slot to open up.
-//	if(lastTimesliceRemainingTime < 0)
-//	{
-//		std::wcout << "######################################################\n";
-//		std::wcout << "VDP lastTimesliceRemainingTime < 0!\n";
-//		std::wcout << "lastTimesliceRemainingTimeOriginal:\t" << lastTimesliceRemainingTimeOriginal << "\n";
-//		std::wcout << "lastTimesliceRemainingTime:\t" << lastTimesliceRemainingTime << "\n";
-//		std::wcout << "currentTimesliceLength:\t" << currentTimesliceLength << "\n";
-//		std::wcout << "GetProcessorStateTime:\t" << GetProcessorStateTime() << "\n";
-//		std::wcout << "######################################################\n";
-//	}
-	//####################################################################################
+	//Record the final position we advanced to in this timeslice. Note that this may be
+	//past the end of the timeslice itself, as other devices may access the VDP before or
+	//at the end of the timeslice, but may be stalled until a later point in time after
+	//the end of the timeslice. This is compensated for by beginning the next timeslice
+	//with an offset into that timeslice period.
+	timesliceRenderInfoListUncommitted.rbegin()->timesliceEndPosition = GetProcessorStateMclkCurrent();
 }
 
 //----------------------------------------------------------------------------------------
@@ -939,112 +998,41 @@ void S315_5313::ExecuteTimeslice(double nanoseconds)
 	//operation.
 	boost::mutex::scoped_lock lock(accessMutex);
 
-	//##FIX## Since we changed the order of execution between stepping through a timing
-	//point and calling NotifyAfterExecuteCalled(), timing points generated by the VDP now
-	//cause ExecuteTimeslice() to be called twice in succession, with no call to the
-	//NotifyAfterExecuteCalled() function in between. We need to correct the logic of our
-	//functions to handle this case.
-
-	//##FIX## This magic condition here is to detect when ExecuteTimeslice has been called
-	//in order to step through a timing point, as opposed to a normal execute step. I
-	//think we should modify our emulation platform to call a separate function for a
-	//timing point event than for a normal execute event.
-	if((eventLastUpdateMclk > 0) && (nanoseconds == 0))
+	//##DEBUG##
+	if(outputTimingDebugMessages)
 	{
-		//Ensure that the DMA worker thread has finished executing
-		boost::mutex::scoped_lock lock(workerThreadMutex);
-		if(workerThreadActive && !workerThreadPaused && busGranted)
-		{
-			//##DEBUG##
-//			std::wcout << L"ExecuteTimeslice is on a timing point waiting for DMA worker thread to pause\n";
-//			std::wcout << '\t' << workerThreadActive << '\t' << workerThreadPaused << '\t' << busGranted << '\n';
+		std::wcout << "VDP - ExecuteTimeslice: " << nanoseconds << '\t' << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.hcounter << '\t' << nextEventToExecute.vcounter << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
+	}
 
-			workerThreadIdle.wait(lock);
-		}
+	//Load the initial screen mode settings for the event search
+	bool eventOddFlagSet = GetStatusFlagOddInterlaceFrame();
+	bool eventInterlaceEnabled = interlaceEnabled;
+	bool eventInterlaceDouble = interlaceDouble;
+	bool eventPalMode = palMode;
+	bool eventScreenModeV30 = screenModeV30;
+	bool eventScreenModeRS0 = screenModeRS0;
+	bool eventScreenModeRS1 = screenModeRS1;
 
-		//Ensure the VDP is advanced up to the end of its timeslice
-		double lastTimesliceTotalExecuteTime = currentTimesliceLength + lastTimesliceRemainingTime;
-		if((lastTimesliceTotalExecuteTime > 0) && (lastTimesliceTotalExecuteTime > GetProcessorStateTime()))
-		{
-			UpdateInternalState(ConvertAccessTimeToMclkCount(lastTimesliceTotalExecuteTime), false, false, false, false, false, false, false);
-		}
+	//While an event is pending from this timeslice, process it.
+	EventProperties nextEvent;
+	GetNextEvent(lastTimesliceMclkCyclesOverrun, false, hintCounter, hcounter.GetData(), vcounter.GetData(), nextEvent, eventOddFlagSet, eventInterlaceEnabled, eventInterlaceDouble, eventPalMode, eventScreenModeV30, eventScreenModeRS0, eventScreenModeRS1, interlaceEnabledCached, interlaceDoubleCached, palModeLineState, screenModeV30Cached, screenModeRS0Cached, screenModeRS1Cached);
+	while((nextEvent.mclkCycleCounter <= currentTimesliceTotalMclkCycles) && (nextEvent.mclkCycleCounter < nextEventToExecute.mclkCycleCounter))
+	{
+		//Calculate the time of this event. Note that we subtract the
+		//lastTimesliceMclkCyclesRemainingTime variable here, while we add this value on
+		//port access. This is because here we want to convert an internal time value
+		//which is relative to the device, into an external time relative to the system,
+		//which is the opposite of what we do on port access.
+		double eventTime = ConvertMclkCountToAccessTime(nextEvent.mclkCycleCounter) - lastTimesliceMclkCyclesRemainingTime;
 
 		//##DEBUG##
-//		std::wcout << "VDP - ExecuteOnTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.hcounter << '\t' << nextEventToExecute.vcounter << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
+		//std::wcout << "NextEvent: " << eventMclkCounter << '\t' << nextEvent.event << '\t' << nextEvent.mclkCycleCounter << '\t' << std::setprecision(16) << eventTime << '\t' << std::setprecision(16) << nanoseconds << '\n';
 
-		if(eventSnapshotSaved)
-		{
-			ExecuteEvent(nextEventToExecute, nextEventToExecuteTime, nextEventToExecute.hcounter, nextEventToExecute.vcounter, eventSnapshotScreenModeRS0, eventSnapshotScreenModeRS1, eventSnapshotScreenModeV30, eventSnapshotPalMode, eventSnapshotInterlaceEnabled);
-			eventSnapshotSaved = false;
-		}
-		else if((hcounter.GetData() == nextEventToExecute.hcounter) && (vcounter.GetData() == nextEventToExecute.vcounter))
-		{
-			ExecuteEvent(nextEventToExecute, nextEventToExecuteTime, nextEventToExecute.hcounter, nextEventToExecute.vcounter, screenModeRS0, screenModeRS1, screenModeV30, palMode, interlaceEnabled);
-		}
-		else
-		{
-			//##FIX## We have a major problem with our timing system. Timing points can be
-			//missed, because a calling device may access the VDP just before the end of
-			//the current timeslice, with the VDP having a timing point at the end of the
-			//timeslice, and the call itself may need to be blocked for a period of time
-			//that moves past the timing point. In our current execution model, we will
-			//allow the call to proceed, and advance the VDP to the end of that call, even
-			//if the call passes the end of the current timeslice. This works fine for
-			//devices which can only be accessed by a single device at a time, however, it
-			//creates a problem with our timing points, because the VDP is essentially
-			//multi-threaded, and while the calling device would be stalled at the time
-			//the timing point occurs, that timing point should still execute on time.
-			//##TODO## What we need to do to fix our update dilemma, is detect the case
-			//where we would skip a timing point due to an access call, and during the
-			//update process, stop at that timing point, and snapshot all the state data
-			//we need to capture at that point in order to execute the timing point. With
-			//that state data captured, we then proceed as normal, but when the timing
-			//point is executed here, we should retrieve the saved state information we
-			//need for that event, and process it using the saved state information. This
-			//will solve our threading problem perfectly. Note that we should still keep a
-			//debug check like the one below for the case where no event information was
-			//latched and saved. This could occur if we actually failed to reach a timing
-			//point, rather than advancing past it.
-			//##DEBUG##
-			std::wcout << "######################################################\n";
-			std::wcout << "VDP Didn't reach timing point!!:\n";
-			std::wcout << "           Actual\tTarget\n";
-			std::wcout << "HCounter   " << hcounter.GetData() << "\t\t" << nextEventToExecute.hcounter << '\n';
-			std::wcout << "VCounter   " << vcounter.GetData() << "\t\t" << nextEventToExecute.vcounter << '\n';
-			std::wcout << "######################################################\n";
-		}
-	}
-	else
-	{
-		//Add in any unused time from the previous timeslice
-		//##TODO## This seems to be wrong? Compare how we treat remaining time between
-		//this and the nextEventToExecuteTime variable. It seems that the
-		//nextEventToExecuteTime variable is in system time, while this is in device time?
-		nanoseconds += lastTimesliceRemainingTime;
+		//Execute the event
+		ExecuteEvent(nextEvent, eventTime, nextEvent.hcounter, nextEvent.vcounter, screenModeRS0, screenModeRS1, screenModeV30, palMode, interlaceEnabled);
 
-		//While an interrupt event is pending from this timeslice, process it.
-		EventProperties nextEvent;
-		GetNextEvent(eventLastUpdateMclk, false, hintCounter, hcounter.GetData(), vcounter.GetData(), nextEvent);
-		double nextEventTime;
-		nextEventTime = ConvertMclkCountToAccessTime(nextEvent.mclkCycleCounter);
-		while((nextEventTime < nanoseconds) && (nextEvent.mclkCycleCounter < nextEventToExecute.mclkCycleCounter))
-		{
-			//##DEBUG##
-//			std::wcout << "NextEvent: " << eventLastUpdateMclk << '\t' << nanoseconds << '\t' << nextEvent << '\t' << nextEventTime << '\n';
-//			std::wcout << "NextEvent: " << eventLastUpdateMclk << '\t' << nextEvent.event << '\t' << nextEvent.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventTime << '\t' << std::setprecision(16) << nanoseconds << '\n';
-
-			ExecuteEvent(nextEvent, nextEventTime, nextEvent.hcounter, nextEvent.vcounter, screenModeRS0, screenModeRS1, screenModeV30, palMode, interlaceEnabled);
-
-			eventLastUpdateMclk = nextEvent.mclkCycleCounter;
-			GetNextEvent(eventLastUpdateMclk+1, false, hintCounter, nextEvent.hcounter, nextEvent.vcounter, nextEvent);
-			nextEventTime = ConvertMclkCountToAccessTime(nextEvent.mclkCycleCounter);
-		}
-		//std::wcout << "NextEvent: " << nextEventFound << '\t' << eventLastUpdateMclk << '\t' << nextEvent << '\t' << nextEventMclkCounter << '\t' << nextEventTime << '\t' << nanoseconds << '\n';
-
-		//##FIX## What time should we record when we stop before the indicated timeslice
-		//due to round off error, when the nextEventToExecuteMclkCounter value aborts the
-		//search?
-		eventLastUpdateMclk = ConvertAccessTimeToMclkCount(nanoseconds);
+		//Find the next event
+		GetNextEvent(nextEvent.mclkCycleCounter, false, hintCounter, nextEvent.hcounter, nextEvent.vcounter, nextEvent, eventOddFlagSet, eventInterlaceEnabled, eventInterlaceDouble, eventPalMode, eventScreenModeV30, eventScreenModeRS0, eventScreenModeRS1, interlaceEnabledCached, interlaceDoubleCached, palModeLineState, screenModeV30Cached, screenModeRS0Cached, screenModeRS1Cached);
 	}
 
 	//Release the block on port access now that events have been processed. This locking
@@ -1068,27 +1056,261 @@ void S315_5313::ExecuteTimeslice(double nanoseconds)
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent) const
+//##FIX## A timing point can occur when the VDP accesses other devices, in particular,
+//when the VDP asserts the BR line. Currently, this function is called when this occurs,
+//however we have no way of determining whether we got here because we triggered a
+//rollback from external access, or if we actually reached the target timeslice. We need
+//to implement a system where we can handle unexpected timing points generated by this
+//core, even when the timing points are raised by another device.
+void S315_5313::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
+{
+	//Ensure that the DMA worker thread has finished executing
+	boost::mutex::scoped_lock lock(workerThreadMutex);
+	if(workerThreadActive && !workerThreadPaused && busGranted)
+	{
+		//##DEBUG##
+		//			std::wcout << L"ExecuteTimeslice is on a timing point waiting for DMA worker thread to pause\n";
+		//			std::wcout << '\t' << workerThreadActive << '\t' << workerThreadPaused << '\t' << busGranted << '\n';
+
+		workerThreadIdle.wait(lock);
+	}
+
+	//Ensure the VDP is advanced up to the end of its timeslice
+	if((currentTimesliceTotalMclkCycles > 0) && (currentTimesliceTotalMclkCycles > GetProcessorStateMclkCurrent()))
+	{
+		UpdateInternalState(currentTimesliceTotalMclkCycles, false, false, false, false, false, false, false);
+	}
+
+	//##DEBUG##
+	if(accessContext == ACCESSCONTEXT_TIMINGPOINT)
+	{
+		if(outputTimingDebugMessages)
+		{
+			std::wcout << "VDP - ExecuteOnTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.hcounter << '\t' << nextEventToExecute.vcounter << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
+		}
+	}
+
+	//Set the time at which this event is occurring. With recent changes to the way the
+	//system handles timeslices, this is simply 0, since every device will receive a new
+	//timeslice to handle this timing point.
+	double eventTime = 0.0;
+
+	//Execute the event
+	if(eventSnapshotSaved)
+	{
+		ExecuteEvent(nextEventToExecute, eventTime, nextEventToExecute.hcounter, nextEventToExecute.vcounter, eventSnapshotScreenModeRS0, eventSnapshotScreenModeRS1, eventSnapshotScreenModeV30, eventSnapshotPalMode, eventSnapshotInterlaceEnabled);
+		eventSnapshotSaved = false;
+	}
+	else if((hcounter.GetData() == nextEventToExecute.hcounter) && (vcounter.GetData() == nextEventToExecute.vcounter))
+	{
+		ExecuteEvent(nextEventToExecute, eventTime, nextEventToExecute.hcounter, nextEventToExecute.vcounter, screenModeRS0, screenModeRS1, screenModeV30, palMode, interlaceEnabled);
+	}
+	else if(accessContext == ACCESSCONTEXT_TIMINGPOINT)
+	{
+		//##FIX## We have a major problem with our timing system. Timing points can be
+		//missed, because a calling device may access the VDP just before the end of
+		//the current timeslice, with the VDP having a timing point at the end of the
+		//timeslice, and the call itself may need to be blocked for a period of time
+		//that moves past the timing point. In our current execution model, we will
+		//allow the call to proceed, and advance the VDP to the end of that call, even
+		//if the call passes the end of the current timeslice. This works fine for
+		//devices which can only be accessed by a single device at a time, however, it
+		//creates a problem with our timing points, because the VDP is essentially
+		//multi-threaded, and while the calling device would be stalled at the time
+		//the timing point occurs, that timing point should still execute on time.
+		//##TODO## What we need to do to fix our update dilemma, is detect the case
+		//where we would skip a timing point due to an access call, and during the
+		//update process, stop at that timing point, and snapshot all the state data
+		//we need to capture at that point in order to execute the timing point. With
+		//that state data captured, we then proceed as normal, but when the timing
+		//point is executed here, we should retrieve the saved state information we
+		//need for that event, and process it using the saved state information. This
+		//will solve our threading problem perfectly. Note that we should still keep a
+		//debug check like the one below for the case where no event information was
+		//latched and saved. This could occur if we actually failed to reach a timing
+		//point, rather than advancing past it.
+		//##DEBUG##
+		std::wcout << "######################################################\n";
+		std::wcout << "VDP Didn't reach timing point!!:\n";
+		std::wcout << "           Actual\tTarget\n";
+		std::wcout << "HCounter   " << hcounter.GetData() << "\t\t" << nextEventToExecute.hcounter << '\n';
+		std::wcout << "VCounter   " << vcounter.GetData() << "\t\t" << nextEventToExecute.vcounter << '\n';
+		std::wcout << currentTimesliceTotalMclkCycles << "\t" << stateLastUpdateMclk << "\t" << stateLastUpdateMclkUnused << "\t" << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
+		std::wcout << "######################################################\n";
+	}
+}
+
+////----------------------------------------------------------------------------------------
+//void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent) const
+//{
+//	//Adjust the cycle count to factor in unused state mclk update cycles
+//	//##NOTE## We've shifted responsibility for this to the caller
+//	currentMclkCycleCounter += stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused;
+//
+//	//Obtain information on the current processor state
+//	const HScanSettings& hscanSettings = GetHScanSettings(screenModeRS0, screenModeRS1);
+//	const VScanSettings& vscanSettings = GetVScanSettings(screenModeV30, palMode, interlaceEnabled);
+//
+//	//Start a search for the next event
+//	bool skippedEvent = false;
+//	unsigned int skippedMclkCycles = 0;
+//	do
+//	{
+//		Event nextEventToOccur;
+//		unsigned int eventPosHCounter;
+//		unsigned int eventPosVCounter;
+//		bool eventGeneratesTimingPoint;
+//
+//		bool oddFlagSet = GetStatusFlagOddInterlaceFrame();
+//
+//		//Start with hint counter advance as the next event
+//		unsigned int hintCounterAdvanceEventPosHCounter = hscanSettings.hintTriggerPoint;
+//		unsigned int hintCounterAdvanceEventPosVCounter = currentPosVCounter;
+//		if((currentPosHCounter >= hscanSettings.hintTriggerPoint) && (currentPosHCounter < hscanSettings.vcounterIncrementPoint))
+//		{
+//			//The hint trigger point is before the vcounter increment point on a line. If
+//			//the current hcounter position indicates that the hint trigger point will not
+//			//be hit until the next vcounter value, calculate the incremented vcounter
+//			//value where the next hint trigger point will occur.
+//			hintCounterAdvanceEventPosVCounter = AddStepsToVCounter(hscanSettings, currentPosHCounter, vscanSettings, interlaceEnabled, oddFlagSet, currentPosVCounter, 1);
+//		}
+//		nextEventToOccur = NEXTUPDATESTEP_HINTCOUNTERADVANCE;
+//		eventPosHCounter = hintCounterAdvanceEventPosHCounter;
+//		eventPosVCounter = hintCounterAdvanceEventPosVCounter;
+//
+//		//Determine if we should generate a timing point for this hint counter advance
+//		//step
+//		if(hintCounterAdvanceEventPosVCounter == vscanSettings.vcounterMaxValue)
+//		{
+//			//Generate a timing point if the hcounter is about to be reloaded for the last
+//			//time before the beginning of active scan, when the hint counter will start
+//			//being decremented.
+//			eventGeneratesTimingPoint = true;
+//		}
+//		else if(hintEnabled && (currentHIntCounter == 0) && (hintCounterAdvanceEventPosVCounter < vscanSettings.vblankSetPoint))
+//		{
+//			//Generate a timing point here if hint is enabled, the counter is going to
+//			//expire if it is advanced one more slot, and the line on which the update
+//			//will occur is in the active scan area.
+//			eventGeneratesTimingPoint = true;
+//		}
+//		else
+//		{
+//			eventGeneratesTimingPoint = false;
+//		}
+//
+//		//Check if VINT is going to occur before the earliest event found
+//		unsigned int vintEventPosHCounter = hscanSettings.fflagSetPoint;
+//		unsigned int vintEventPosVCounter = vscanSettings.vblankSetPoint;
+//		if(((vintEventPosHCounter != currentPosHCounter) || (vintEventPosVCounter != currentPosVCounter))
+//		&& EventOccursWithinCounterRange(hscanSettings, currentPosHCounter, currentPosVCounter, eventPosHCounter, eventPosVCounter, vintEventPosHCounter, vintEventPosVCounter))
+//		{
+//			//VINT is the next event
+//			nextEventToOccur = NEXTUPDATESTEP_VINT;
+//			eventPosHCounter = vintEventPosHCounter;
+//			eventPosVCounter = vintEventPosVCounter;
+//			eventGeneratesTimingPoint = true;
+//		}
+//
+//		////Check if vsync is going to occur before the earliest event found
+//		//unsigned int vsyncEventPosHCounter = hscanSettings.vcounterIncrementPoint;
+//		//unsigned int vsyncEventPosVCounter = vscanSettings.vsyncAssertedPoint;
+//		//if(((vsyncEventPosHCounter != currentPosHCounter) || (vsyncEventPosVCounter != currentPosVCounter))
+//		//&& EventOccursWithinCounterRange(hscanSettings, currentPosHCounter, currentPosVCounter, eventPosHCounter, eventPosVCounter, vsyncEventPosHCounter, vsyncEventPosVCounter))
+//		//{
+//		//	//VSYNC is the next event
+//		//	nextEventToOccur = NEXTUPDATESTEP_VSYNC;
+//		//	eventPosHCounter = vsyncEventPosHCounter;
+//		//	eventPosVCounter = vsyncEventPosVCounter;
+//		//	eventGeneratesTimingPoint = true;
+//		//}
+//
+//		//Calculate the number of pixel clock steps between now and the target event
+//		unsigned int pixelClockStepsUntilNextEvent = 0;
+//		pixelClockStepsUntilNextEvent = GetPixelClockStepsBetweenHVCounterValues(hscanSettings, currentPosHCounter, eventPosHCounter, vscanSettings, interlaceEnabled, oddFlagSet, currentPosVCounter, eventPosVCounter);
+//
+//		//Calculate the number of mclk cycles which correspond to the number of pixel
+//		//clock cycles until the next event.
+//		unsigned int mclkStepsUntilNextEvent = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockStepsUntilNextEvent, currentPosHCounter, screenModeRS0, screenModeRS1);
+//
+//		//Calculate the final mclk cycle counter value when the target event is reached
+//		unsigned int mclkCounterAtNextEvent = currentMclkCycleCounter + mclkStepsUntilNextEvent + skippedMclkCycles;
+//
+//		//If the next event we've found occurs before the start position for the event
+//		//search, or we're looking for timing point events and the next event doesn't
+//		//generate a timing point, skip it and look for the next event after this one.
+//		if((mclkCounterAtNextEvent < currentMclkCycleCounter) || (timingPointsOnly && !eventGeneratesTimingPoint))
+//		{
+//			//If we're about to skip a hintcounter advance step, advance the hint counter
+//			//first, so we can correctly determine when the counter expires.
+//			if((nextEventToOccur == NEXTUPDATESTEP_HINTCOUNTERADVANCE) && (mclkCounterAtNextEvent > currentMclkCycleCounter))
+//			{
+//				if((eventPosVCounter >= vscanSettings.vblankSetPoint) || (currentHIntCounter == 0))
+//				{
+//					currentHIntCounter = hintCounterReloadValue;
+//				}
+//				else
+//				{
+//					--currentHIntCounter;
+//				}
+//			}
+//			skippedEvent = true;
+//			currentPosHCounter = eventPosHCounter;
+//			currentPosVCounter = eventPosVCounter;
+//			skippedMclkCycles += mclkStepsUntilNextEvent;
+//			continue;
+//		}
+//
+//		//Return the event info
+//		skippedEvent = false;
+//		nextEvent.event = nextEventToOccur;
+//		nextEvent.mclkCycleCounter = mclkCounterAtNextEvent;
+//		nextEvent.hcounter = eventPosHCounter;
+//		nextEvent.vcounter = eventPosVCounter;
+//
+//		//Adjust the cycle count to factor in unused state mclk update cycles
+//		nextEvent.mclkCycleCounter -= stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused;
+//
+//		//##DEBUG##
+////		if(timingPointsOnly && !skippedEvent)
+////		{
+////			std::wcout << "VDP - GetNextEvent: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << eventPosHCounter << '\t' << eventPosVCounter << '\n';
+////		}
+//	}
+//	while(skippedEvent);
+//}
+
+//----------------------------------------------------------------------------------------
+//##FIX## We need to toggle eventOddFlagSet at the appropriate time. Right now, this value
+//is never modified.
+void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent, bool& eventOddFlagSet, bool& eventInterlaceEnabled, bool& eventInterlaceDouble, bool& eventPalMode, bool& eventScreenModeV30, bool& eventScreenModeRS0, bool& eventScreenModeRS1, bool eventInterlaceEnabledNew, bool eventInterlaceDoubleNew, bool eventPalModeNew, bool eventScreenModeV30New, bool eventScreenModeRS0New, bool eventScreenModeRS1New) const
 {
 	//Adjust the cycle count to factor in unused state mclk update cycles
+	//##TODO## Update the comment below
 	//##NOTE## We've shifted responsibility for this to the caller
-	currentMclkCycleCounter += stateLastUpdateMclkUnused;
+	currentMclkCycleCounter += stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused;
 
-	//Obtain information on the current processor state
-	const HScanSettings& hscanSettings = GetHScanSettings(screenModeRS0, screenModeRS1);
-	const VScanSettings& vscanSettings = GetVScanSettings(screenModeV30, palMode, interlaceEnabled);
+	//Check whether any of the relevant video mode settings have changed since they were
+	//latched.
+	bool hscanSettingsChanged = (eventScreenModeRS0 != eventScreenModeRS0New) || (eventScreenModeRS1 != eventScreenModeRS1New);
+	bool vscanSettingsChanged = (eventScreenModeV30 != eventScreenModeV30New) || (eventPalMode != eventPalModeNew) || (eventInterlaceEnabled != eventInterlaceEnabledNew);
 
 	//Start a search for the next event
 	bool skippedEvent = false;
 	unsigned int skippedMclkCycles = 0;
 	do
 	{
+		//Obtain the current hscan and vscan settings
+		//##TODO## Only latch these at the start of the search, and when they change, to
+		//improve performance.
+		const HScanSettings& hscanSettings = GetHScanSettings(eventScreenModeRS0, eventScreenModeRS1);
+		const VScanSettings& vscanSettings = GetVScanSettings(eventScreenModeV30, eventPalMode, eventInterlaceEnabled);
+
 		Event nextEventToOccur;
 		unsigned int eventPosHCounter;
 		unsigned int eventPosVCounter;
 		bool eventGeneratesTimingPoint;
-
-		bool oddFlagSet = GetStatusFlagOddInterlaceFrame();
+		bool forceSkipEvent;
 
 		//Start with hint counter advance as the next event
 		unsigned int hintCounterAdvanceEventPosHCounter = hscanSettings.hintTriggerPoint;
@@ -1099,72 +1321,126 @@ void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPo
 			//the current hcounter position indicates that the hint trigger point will not
 			//be hit until the next vcounter value, calculate the incremented vcounter
 			//value where the next hint trigger point will occur.
-			hintCounterAdvanceEventPosVCounter = AddStepsToVCounter(hscanSettings, currentPosHCounter, vscanSettings, interlaceEnabled, oddFlagSet, currentPosVCounter, 1);
+			hintCounterAdvanceEventPosVCounter = AddStepsToVCounter(hscanSettings, currentPosHCounter, vscanSettings, eventInterlaceEnabled, eventOddFlagSet, currentPosVCounter, 1);
 		}
 		nextEventToOccur = NEXTUPDATESTEP_HINTCOUNTERADVANCE;
 		eventPosHCounter = hintCounterAdvanceEventPosHCounter;
 		eventPosVCounter = hintCounterAdvanceEventPosVCounter;
+		forceSkipEvent = false;
 
-		//Only generate a timing point here if hint is enabled, the counter is going to
-		//expire if it is advanced one more slot, and the line on which the update will
-		//occur is in the active scan area.
-		if(hintEnabled && (currentHIntCounter == 0) && (hintCounterAdvanceEventPosVCounter < vscanSettings.vblankSetPoint))
+		//Determine if we should generate a timing point for this hint counter advance
+		//step
+		if(hintCounterAdvanceEventPosVCounter == vscanSettings.vcounterMaxValue)
 		{
+			//Generate a timing point if the hcounter is about to be reloaded for the last
+			//time before the beginning of active scan, when the hint counter will start
+			//being decremented.
 			eventGeneratesTimingPoint = true;
-			currentHIntCounter = hintCounterReloadValue;
+		}
+		else if(hintEnabled && (currentHIntCounter == 0) && (hintCounterAdvanceEventPosVCounter < vscanSettings.vblankSetPoint))
+		{
+			//Generate a timing point here if hint is enabled, the counter is going to
+			//expire if it is advanced one more slot, and the line on which the update
+			//will occur is in the active scan area.
+			eventGeneratesTimingPoint = true;
 		}
 		else
 		{
 			eventGeneratesTimingPoint = false;
 		}
 
+		//##TODO## Comment this
+		if(hscanSettingsChanged)
+		{
+			unsigned int hblankEventPosHCounter = hscanSettings.hblankSetPoint;
+			unsigned int hblankEventPosVCounter = currentPosVCounter;
+			if(currentPosHCounter >= hscanSettings.hblankSetPoint)
+			{
+				//The hint trigger point is after the vcounter increment point on a line.
+				//If the current hcounter position indicates that the hint trigger point
+				//will not be hit until the next vcounter value, calculate the incremented
+				//vcounter value where the next hint trigger point will occur.
+				hblankEventPosVCounter = AddStepsToVCounter(hscanSettings, currentPosHCounter, vscanSettings, eventInterlaceEnabled, eventOddFlagSet, currentPosVCounter, 1);
+			}
+
+			if(((hblankEventPosHCounter != currentPosHCounter) || (hblankEventPosVCounter != currentPosVCounter))
+			   && EventOccursWithinCounterRange(hscanSettings, currentPosHCounter, currentPosVCounter, eventPosHCounter, eventPosVCounter, hblankEventPosHCounter, hblankEventPosVCounter))
+			{
+				nextEventToOccur = NEXTUPDATESTEP_HBLANK;
+				eventPosHCounter = hblankEventPosHCounter;
+				eventPosVCounter = hblankEventPosVCounter;
+				eventGeneratesTimingPoint = false;
+				forceSkipEvent = true;
+			}
+		}
+
+		//##TODO## Comment this
+		if(vscanSettingsChanged)
+		{
+			unsigned int vblankEventPosHCounter = hscanSettings.vcounterIncrementPoint;
+			unsigned int vblankEventPosVCounter = vscanSettings.vblankSetPoint;
+			if(((vblankEventPosHCounter != currentPosHCounter) || (vblankEventPosVCounter != currentPosVCounter))
+			   && EventOccursWithinCounterRange(hscanSettings, currentPosHCounter, currentPosVCounter, eventPosHCounter, eventPosVCounter, vblankEventPosHCounter, vblankEventPosVCounter))
+			{
+				nextEventToOccur = NEXTUPDATESTEP_VBLANK;
+				eventPosHCounter = vblankEventPosHCounter;
+				eventPosVCounter = vblankEventPosVCounter;
+				eventGeneratesTimingPoint = false;
+				forceSkipEvent = true;
+			}
+		}
+
 		//Check if VINT is going to occur before the earliest event found
 		unsigned int vintEventPosHCounter = hscanSettings.fflagSetPoint;
 		unsigned int vintEventPosVCounter = vscanSettings.vblankSetPoint;
 		if(((vintEventPosHCounter != currentPosHCounter) || (vintEventPosVCounter != currentPosVCounter))
-		&& EventOccursWithinCounterRange(hscanSettings, currentPosHCounter, currentPosVCounter, eventPosHCounter, eventPosVCounter, vintEventPosHCounter, vintEventPosVCounter))
+		   && EventOccursWithinCounterRange(hscanSettings, currentPosHCounter, currentPosVCounter, eventPosHCounter, eventPosVCounter, vintEventPosHCounter, vintEventPosVCounter))
 		{
 			//VINT is the next event
 			nextEventToOccur = NEXTUPDATESTEP_VINT;
 			eventPosHCounter = vintEventPosHCounter;
 			eventPosVCounter = vintEventPosVCounter;
 			eventGeneratesTimingPoint = true;
+			forceSkipEvent = false;
 		}
 
-		//Check if vsync is going to occur before the earliest event found
-		unsigned int vsyncEventPosHCounter = hscanSettings.vcounterIncrementPoint;
-		unsigned int vsyncEventPosVCounter = vscanSettings.vsyncAssertedPoint;
-		if(((vsyncEventPosHCounter != currentPosHCounter) || (vsyncEventPosVCounter != currentPosVCounter))
-		&& EventOccursWithinCounterRange(hscanSettings, currentPosHCounter, currentPosVCounter, eventPosHCounter, eventPosVCounter, vsyncEventPosHCounter, vsyncEventPosVCounter))
-		{
-			//VSYNC is the next event
-			nextEventToOccur = NEXTUPDATESTEP_VSYNC;
-			eventPosHCounter = vsyncEventPosHCounter;
-			eventPosVCounter = vsyncEventPosVCounter;
-			eventGeneratesTimingPoint = true;
-		}
+		////Check if vsync is going to occur before the earliest event found
+		//unsigned int vsyncEventPosHCounter = hscanSettings.vcounterIncrementPoint;
+		//unsigned int vsyncEventPosVCounter = vscanSettings.vsyncAssertedPoint;
+		//if(((vsyncEventPosHCounter != currentPosHCounter) || (vsyncEventPosVCounter != currentPosVCounter))
+		//&& EventOccursWithinCounterRange(hscanSettings, currentPosHCounter, currentPosVCounter, eventPosHCounter, eventPosVCounter, vsyncEventPosHCounter, vsyncEventPosVCounter))
+		//{
+		//	//VSYNC is the next event
+		//	nextEventToOccur = NEXTUPDATESTEP_VSYNC;
+		//	eventPosHCounter = vsyncEventPosHCounter;
+		//	eventPosVCounter = vsyncEventPosVCounter;
+		//	eventGeneratesTimingPoint = true;
+		//	forceSkipEvent = false;
+		//}
 
 		//Calculate the number of pixel clock steps between now and the target event
 		unsigned int pixelClockStepsUntilNextEvent = 0;
-		pixelClockStepsUntilNextEvent = GetPixelClockStepsBetweenHVCounterValues(hscanSettings, currentPosHCounter, eventPosHCounter, vscanSettings, interlaceEnabled, oddFlagSet, currentPosVCounter, eventPosVCounter);
+		pixelClockStepsUntilNextEvent = GetPixelClockStepsBetweenHVCounterValues(hscanSettings, currentPosHCounter, eventPosHCounter, vscanSettings, eventInterlaceEnabled, eventOddFlagSet, currentPosVCounter, eventPosVCounter);
 
 		//Calculate the number of mclk cycles which correspond to the number of pixel
 		//clock cycles until the next event.
-		unsigned int mclkStepsUntilNextEvent = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockStepsUntilNextEvent, currentPosHCounter, screenModeRS0, screenModeRS1);
+		unsigned int mclkStepsUntilNextEvent = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockStepsUntilNextEvent, currentPosHCounter, eventScreenModeRS0, eventScreenModeRS1);
 
 		//Calculate the final mclk cycle counter value when the target event is reached
 		unsigned int mclkCounterAtNextEvent = currentMclkCycleCounter + mclkStepsUntilNextEvent + skippedMclkCycles;
 
 		//If the next event we've found occurs before the start position for the event
 		//search, or we're looking for timing point events and the next event doesn't
-		//generate a timing point, skip it and look for the next event after this one.
-		if((mclkCounterAtNextEvent < currentMclkCycleCounter) || (timingPointsOnly && !eventGeneratesTimingPoint))
+		//generate a timing point, or this event is marked to always be skipped, skip
+		//it and look for the next event after this one.
+		if((mclkCounterAtNextEvent < currentMclkCycleCounter) || (timingPointsOnly && !eventGeneratesTimingPoint) || forceSkipEvent)
 		{
-			//If we're about to skip a hintcounter advance step, advance the hint counter
-			//first, so we can correctly determine when the counter expires.
+			//Determine if any special processing is required for this skipped event
 			if((nextEventToOccur == NEXTUPDATESTEP_HINTCOUNTERADVANCE) && (mclkCounterAtNextEvent > currentMclkCycleCounter))
 			{
-				if(eventPosVCounter >= vscanSettings.vblankSetPoint)
+				//If we're about to skip a hintcounter advance step, advance the hint counter
+				//first, so we can correctly determine when the counter expires.
+				if((eventPosVCounter >= vscanSettings.vblankSetPoint) || (currentHIntCounter == 0))
 				{
 					currentHIntCounter = hintCounterReloadValue;
 				}
@@ -1173,10 +1449,51 @@ void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPo
 					--currentHIntCounter;
 				}
 			}
+			else if(hscanSettingsChanged && (nextEventToOccur == NEXTUPDATESTEP_HBLANK))
+			{
+				//If vertical scan information has changed, and we've just advanced to vblank,
+				//latch the new screen mode settings.
+
+				//If the interlace mode has changed, the new setting is latched when the
+				//vblank set event occurs. This has been verified in all video modes through
+				//hardware tests.
+				eventInterlaceEnabled = eventInterlaceEnabledNew;
+				eventInterlaceDouble = eventInterlaceDoubleNew;
+				//##TODO## Verify that changes to the PAL line state are latched at vblank
+				eventPalMode = eventPalModeNew;
+				//##TODO## Verify that the V28/V30 mode change is latched at vblank
+				eventScreenModeV30 = eventScreenModeV30New;
+
+				//Now that we've processed this screen mode settings change, flag that no
+				//settings change is required.
+				vscanSettingsChanged = false;
+			}
+			else if(vscanSettingsChanged && (nextEventToOccur == NEXTUPDATESTEP_VBLANK))
+			{
+				//If horizontal scan information has changed, and we've just advanced to hblank,
+				//latch the new screen mode settings.
+
+				//##FIX## These settings changes are supposed to take effect immediately
+				eventScreenModeRS0 = eventScreenModeRS0New;
+				eventScreenModeRS1 = eventScreenModeRS1New;
+
+				//Now that we've processed this screen mode settings change, flag that no
+				//settings change is required.
+				hscanSettingsChanged = false;
+			}
+
+			//Flag that we've skipped the next event, and add the number of mclk cycles
+			//consumed by this event to the skipped mclk cycle count.
 			skippedEvent = true;
-			currentPosHCounter = eventPosHCounter;
-			currentPosVCounter = eventPosVCounter;
 			skippedMclkCycles += mclkStepsUntilNextEvent;
+
+			//Advance the current HV counters to the event position. Note that we use the
+			//function below to perform this task rather than simply assigning the new
+			//HV counter position, as this function handles the odd flag toggle and extra
+			//scanline that occurs when interlacing is active.
+			AdvanceHVCounters(hscanSettings, currentPosHCounter, vscanSettings, eventInterlaceEnabled, eventOddFlagSet, currentPosVCounter, pixelClockStepsUntilNextEvent);
+
+			//Since this event has been skipped, begin the event search again.
 			continue;
 		}
 
@@ -1188,9 +1505,9 @@ void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPo
 		nextEvent.vcounter = eventPosVCounter;
 
 		//Adjust the cycle count to factor in unused state mclk update cycles
-		nextEvent.mclkCycleCounter -= stateLastUpdateMclkUnused;
+		nextEvent.mclkCycleCounter -= stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused;
 
-		//##DEBUG##
+//##DEBUG##
 //		if(timingPointsOnly && !skippedEvent)
 //		{
 //			std::wcout << "VDP - GetNextEvent: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << eventPosHCounter << '\t' << eventPosVCounter << '\n';
@@ -1263,10 +1580,10 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 		if(vintEnabled && vintPending)
 		{
 			//##DEBUG##
-//			std::wcout << "VDP - VINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << eventProperties.hcounter << '\t' << eventProperties.vcounter << '\n';
+			//std::wcout << "VDP - VINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << eventProperties.hcounter << '\t' << eventProperties.vcounter << '\n';
 
 			//Trigger VInt for M68000
-			memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime);
+			memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_VINT);
 			vintPending = false;
 		}
 
@@ -1275,8 +1592,8 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 		//##NOTE## According to Eke, the Z80 INT line is asserted for one scanline, and is
 		//cleared at the same point in the following line.
 		double intLineAssertedLength = ConvertMclkCountToAccessTime(mclkCyclesPerLine);
-		memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), accessTime);
-		memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), accessTime + intLineAssertedLength);
+		memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_INT_ASSERT);
+		memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), accessTime + intLineAssertedLength, ACCESSCONTEXT_INT_RELEASE);
 		break;}
 	//External interrupt
 	case NEXTUPDATESTEP_EXINT:{
@@ -1315,7 +1632,7 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 //			std::wcout << "VDP - EXINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\n';
 
 			//Trigger EXInt for M68000
-			memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime);
+			memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_EXINT);
 			exintPending = false;
 		}
 		break;}
@@ -1334,6 +1651,13 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 		break;}
 	//Hint counter advance
 	case NEXTUPDATESTEP_HINTCOUNTERADVANCE:{
+		//##DEBUG##
+		if(eventProperties.vcounter == 0x1FF)
+		{
+			//##DEBUG##
+			//std::wcout << "VDP - Latching HCounter data for new frame: " << hintCounterReloadValue << '\n';
+		}
+
 		if(eventProperties.vcounter >= vscanSettings.vblankSetPoint)
 		{
 			//Latch the initial hintCounter value for the frame
@@ -1364,10 +1688,10 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 			if(hintEnabled && hintPending)
 			{
 				//##DEBUG##
-//				std::wcout << "VDP - HINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << eventProperties.hcounter << '\t' << eventProperties.vcounter << '\t' << hintCounterReloadValue << '\n';
+				//std::wcout << "VDP - HINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << eventProperties.hcounter << '\t' << eventProperties.vcounter << '\t' << hintCounterReloadValue << '\n';
 
 				//Trigger HInt for M68000
-				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime);
+				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_HINT);
 				hintPending = false;
 			}
 		}
@@ -1383,31 +1707,38 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 }
 
 //----------------------------------------------------------------------------------------
-double S315_5313::GetNextTimingPointInDeviceTime() const
+double S315_5313::GetNextTimingPointInDeviceTime(unsigned int& accessContext) const
 {
+	//Set the access context data for this timing point to a special value, so we can
+	//differentiate between rollback events and timing point events.
+	accessContext = ACCESSCONTEXT_TIMINGPOINT;
+
+	//Load the initial screen mode settings for the event search
+	bool eventOddFlagSet = GetStatusFlagOddInterlaceFrame();
+	bool eventInterlaceEnabled = interlaceEnabled;
+	bool eventInterlaceDouble = interlaceDouble;
+	bool eventPalMode = palMode;
+	bool eventScreenModeV30 = screenModeV30;
+	bool eventScreenModeRS0 = screenModeRS0;
+	bool eventScreenModeRS1 = screenModeRS1;
+
 	//Determine the details of the next timing point event
-	GetNextEvent(0, true, hintCounter, hcounter.GetData(), vcounter.GetData(), nextEventToExecute);
+	GetNextEvent(0, true, hintCounter, hcounter.GetData(), vcounter.GetData(), nextEventToExecute, eventOddFlagSet, eventInterlaceEnabled, eventInterlaceDouble, eventPalMode, eventScreenModeV30, eventScreenModeRS0, eventScreenModeRS1, interlaceEnabledCached, interlaceDoubleCached, palModeLineState, screenModeV30Cached, screenModeRS0Cached, screenModeRS1Cached);
 
-	//##FIX## I think this comment is misleading. lastTimesliceRemainingTime gives us the
-	//total amount of time our state update function ran over or under on the previous
-	//timeslice.
-	//Calculate the next timing point. Note that while the GetNextEvent() function has
-	//taken care of unused, complete mclk cycle counts which have been passed to the
-	//AdvanceProcessorState() function, we still need to factor in unused time from the
-	//previous timeslice which wasn't long enough to form a complete mclk cycle. That
-	//additional time is time this device still has waiting to be consumed, so we need to
-	//subtract this time from our calculation of when the next timing point will occur. We
-	//also need to factor in the difference between system time and device time.
-	//##TODO## Figure out which way is right, and clean this up.
-//	nextEventToExecuteTime = (ConvertMclkCountToAccessTime(nextEventToExecute.mclkCycleCounter) - (currentTimesliceMclkCyclesRemainingTime + lastTimesliceRemainingTime));
-	nextEventToExecuteTime = (ConvertMclkCountToAccessTime(nextEventToExecute.mclkCycleCounter) - lastTimesliceRemainingTime);
-
-	//##FIX## If nextEventToExecute.mclkCycleCounter reads 5, with stateLastUpdateMclkUnused
-	//reading 3, it means we need to execute 5 steps, not 2. Currently, we seem to be
-	//executing 2 in NotifyAfterExecuteCalled.
+	//This timing code is rather hard to understand from the code alone. The best way to
+	//visualize it is with a diagram. Basically, all we're doing here is converting the
+	//time of the next event from a time which is relative to the current VDP state, which
+	//may be either before or after the end of the last timeslice, to a time which is
+	//relative to the end of the last timeslice, which is what the system needs here.
+	unsigned int mclkCyclesUntilNextEventInDeviceTime = nextEventToExecute.mclkCycleCounter;
+	unsigned int mclkCyclesUntilNextEventFromLastTimesliceMclkCycleEnd = lastTimesliceMclkCyclesOverrun + mclkCyclesUntilNextEventInDeviceTime;
+	double extraTimeBetweenLastTimesliceMclkCycleEndAndActualTimesliceEnd = currentTimesliceMclkCyclesRemainingTime;
+	double timeUntilNextEventFromLastTimesliceMclkCycleEnd = ConvertMclkCountToAccessTime(mclkCyclesUntilNextEventFromLastTimesliceMclkCycleEnd);
+	double timeFromEndOfLastTimesliceToNextEventInSystemTime = timeUntilNextEventFromLastTimesliceMclkCycleEnd - extraTimeBetweenLastTimesliceMclkCycleEndAndActualTimesliceEnd;
+	nextEventToExecuteTime = timeFromEndOfLastTimesliceToNextEventInSystemTime;
 
 	//##DEBUG##
-//	std::wcout << "VDP - GetTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclkUnused << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.hcounter << '\t' << nextEventToExecute.vcounter << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
+//	std::wcout << "VDP - GetTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << lastTimesliceMclkCyclesOverrun << '\t' << currentTimesliceMclkCyclesRemainingTime << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.hcounter << '\t' << nextEventToExecute.vcounter << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
 
 	return nextEventToExecuteTime;
 }
@@ -1436,7 +1767,7 @@ void S315_5313::ExecuteRollback()
 
 	//Update state
 	currentTimesliceMclkCyclesRemainingTime = bcurrentTimesliceMclkCyclesRemainingTime;
-	lastTimesliceRemainingTime = blastTimesliceRemainingTime;
+	lastTimesliceMclkCyclesOverrun = blastTimesliceMclkCyclesOverrun;
 	stateLastUpdateMclkUnusedFromLastTimeslice = bstateLastUpdateMclkUnusedFromLastTimeslice;
 
 	//Bus interface
@@ -1496,6 +1827,7 @@ void S315_5313::ExecuteRollback()
 	screenModeRS0Cached = bscreenModeRS0Cached;
 	screenModeRS1Cached = bscreenModeRS1Cached;
 	screenModeV30Cached = bscreenModeV30Cached;
+	displayEnabledCached = bdisplayEnabledCached;
 	spriteAttributeTableBaseAddressDecoded = bspriteAttributeTableBaseAddressDecoded;
 
 	//FIFO buffer registers
@@ -1516,14 +1848,16 @@ void S315_5313::ExecuteRollback()
 
 	//DMA worker thread properties
 	workerThreadPaused = bworkerThreadPaused;
-	busGrantTime = bbusGrantTime;
 
 	//DMA transfer registers
 	dmaTransferActive = bdmaTransferActive;
 	dmaTransferReadDataCached = bdmaTransferReadDataCached;
 	dmaTransferReadCache = bdmaTransferReadCache;
 	dmaTransferNextReadMclk = bdmaTransferNextReadMclk;
-	dmaTransferLastTimesliceUnusedMclkCycles = bdmaTransferLastTimesliceUnusedMclkCycles;
+	dmaTransferLastTimesliceUsedReadDelay = bdmaTransferLastTimesliceUsedReadDelay;
+	dmaTransferInvalidPortWriteCached = bdmaTransferInvalidPortWriteCached;
+	dmaTransferInvalidPortWriteAddressCache = bdmaTransferInvalidAddressCache;
+	dmaTransferInvalidPortWriteDataCache = bdmaTransferInvalidDataCache;
 
 	//Event handling
 	nextEventToExecute = bnextEventToExecute;
@@ -1535,18 +1869,45 @@ void S315_5313::ExecuteRollback()
 	eventSnapshotPalMode = beventSnapshotPalMode;
 	eventSnapshotInterlaceEnabled = beventSnapshotInterlaceEnabled;
 
-	//Digital render data buffers
-	renderDigitalHCounterPos = brenderDigitalHCounterPos;
-	renderDigitalVCounterPos = brenderDigitalVCounterPos;
-	renderDigitalVCounterPosPreviousLine = brenderDigitalVCounterPosPreviousLine;
-	renderDigitalRemainingMclkCycles = brenderDigitalRemainingMclkCycles;
-	renderDigitalScreenModeRS0Active = brenderDigitalScreenModeRS0Active;
-	renderDigitalScreenModeRS1Active = brenderDigitalScreenModeRS1Active;
-	renderDigitalScreenModeV30Active = brenderDigitalScreenModeV30Active;
-	renderDigitalInterlaceEnabledActive = brenderDigitalInterlaceEnabledActive;
-	renderDigitalInterlaceDoubleActive = brenderDigitalInterlaceDoubleActive;
-	renderDigitalPalModeActive = brenderDigitalPalModeActive;
-	renderDigitalOddFlagSet = brenderDigitalOddFlagSet;
+	//Clear any uncommitted timeslices from our render timeslice buffers
+	timesliceRenderInfoListUncommitted.clear();
+	regTimesliceListUncommitted.clear();
+	for(std::list<ITimedBufferInt::Timeslice*>::const_iterator i = vramTimesliceListUncommitted.begin(); i != vramTimesliceListUncommitted.end(); ++i)
+	{
+		vram->FreeTimesliceReference(*i);
+	}
+	vramTimesliceListUncommitted.clear();
+	for(std::list<ITimedBufferInt::Timeslice*>::const_iterator i = cramTimesliceListUncommitted.begin(); i != cramTimesliceListUncommitted.end(); ++i)
+	{
+		cram->FreeTimesliceReference(*i);
+	}
+	cramTimesliceListUncommitted.clear();
+	for(std::list<ITimedBufferInt::Timeslice*>::const_iterator i = vsramTimesliceListUncommitted.begin(); i != vsramTimesliceListUncommitted.end(); ++i)
+	{
+		vsram->FreeTimesliceReference(*i);
+	}
+	vsramTimesliceListUncommitted.clear();
+	for(std::list<ITimedBufferInt::Timeslice*>::const_iterator i = spriteCacheTimesliceListUncommitted.begin(); i != spriteCacheTimesliceListUncommitted.end(); ++i)
+	{
+		spriteCache->FreeTimesliceReference(*i);
+	}
+	spriteCacheTimesliceListUncommitted.clear();
+
+	//##DEBUG##
+	if(outputTimingDebugMessages)
+	{
+		//Wait for the render thread to complete its work
+		boost::mutex::scoped_lock lock(renderThreadMutex);
+		while(pendingRenderOperationCount > 0)
+		{
+			renderThreadLaggingStateChange.wait(lock);
+		}
+
+		//Print out render thread synchronization info
+		std::wcout << "VDP Synchronization - Rollback:\n"
+		           << "-Digital:\t" << hcounter.GetData() << '\t' << vcounter.GetData() << '\n'
+		           << "-Render:\t" << renderDigitalHCounterPos << '\t' << renderDigitalVCounterPos << '\n';
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -1573,7 +1934,7 @@ void S315_5313::ExecuteCommit()
 
 	//Update state
 	bcurrentTimesliceMclkCyclesRemainingTime = currentTimesliceMclkCyclesRemainingTime;
-	blastTimesliceRemainingTime = lastTimesliceRemainingTime;
+	blastTimesliceMclkCyclesOverrun = lastTimesliceMclkCyclesOverrun;
 	bstateLastUpdateMclkUnusedFromLastTimeslice = stateLastUpdateMclkUnusedFromLastTimeslice;
 
 	//Bus interface
@@ -1633,6 +1994,7 @@ void S315_5313::ExecuteCommit()
 	bscreenModeRS0Cached = screenModeRS0Cached;
 	bscreenModeRS1Cached = screenModeRS1Cached;
 	bscreenModeV30Cached = screenModeV30Cached;
+	bdisplayEnabledCached = displayEnabledCached;
 	bspriteAttributeTableBaseAddressDecoded = spriteAttributeTableBaseAddressDecoded;
 
 	//Propagate any changes to the cached DMA settings back into the reg buffer. This
@@ -1667,14 +2029,16 @@ void S315_5313::ExecuteCommit()
 
 	//DMA worker thread properties
 	bworkerThreadPaused = workerThreadPaused;
-	bbusGrantTime = busGrantTime;
 
 	//DMA transfer registers
 	bdmaTransferActive = dmaTransferActive;
 	bdmaTransferReadDataCached = dmaTransferReadDataCached;
 	bdmaTransferReadCache = dmaTransferReadCache;
 	bdmaTransferNextReadMclk = dmaTransferNextReadMclk;
-	bdmaTransferLastTimesliceUnusedMclkCycles = dmaTransferLastTimesliceUnusedMclkCycles;
+	bdmaTransferLastTimesliceUsedReadDelay = dmaTransferLastTimesliceUsedReadDelay;
+	dmaTransferInvalidPortWriteCached = bdmaTransferInvalidPortWriteCached;
+	dmaTransferInvalidPortWriteAddressCache = bdmaTransferInvalidAddressCache;
+	dmaTransferInvalidPortWriteDataCache = bdmaTransferInvalidDataCache;
 
 	//Event handling
 	bnextEventToExecute = nextEventToExecute;
@@ -1686,67 +2050,45 @@ void S315_5313::ExecuteCommit()
 	beventSnapshotPalMode = eventSnapshotPalMode;
 	beventSnapshotInterlaceEnabled = eventSnapshotInterlaceEnabled;
 
-	//Digital render data buffers
-	brenderDigitalHCounterPos = renderDigitalHCounterPos;
-	brenderDigitalVCounterPos = renderDigitalVCounterPos;
-	brenderDigitalVCounterPosPreviousLine = renderDigitalVCounterPosPreviousLine;
-	brenderDigitalRemainingMclkCycles = renderDigitalRemainingMclkCycles;
-	brenderDigitalScreenModeRS0Active = renderDigitalScreenModeRS0Active;
-	brenderDigitalScreenModeRS1Active = renderDigitalScreenModeRS1Active;
-	brenderDigitalScreenModeV30Active = renderDigitalScreenModeV30Active;
-	brenderDigitalInterlaceEnabledActive = renderDigitalInterlaceEnabledActive;
-	brenderDigitalInterlaceDoubleActive = renderDigitalInterlaceDoubleActive;
-	brenderDigitalPalModeActive = renderDigitalPalModeActive;
-	brenderDigitalOddFlagSet = renderDigitalOddFlagSet;
-
-	//If we're committing a timeslice which has triggered a render operation, pass the
-	//render operation on to the render thread.
-	if(pendingRenderOperation)
+	//Ensure that a valid latest timeslice exists in all our buffers. We need this check
+	//here, because commits can be triggered by the system at potentially any point in
+	//time, whether a timeslice has been issued or not.
+	if(!regTimesliceListUncommitted.empty() && !vramTimesliceListUncommitted.empty() && !cramTimesliceListUncommitted.empty() && !vsramTimesliceListUncommitted.empty() && !spriteCacheTimesliceListUncommitted.empty())
 	{
-		//Clear the pendingRenderOperation flag now that we've processed it
-		pendingRenderOperation = false;
+		//Obtain a timeslice lock so we can update the data we feed to the render thread
+		boost::mutex::scoped_lock lock(timesliceMutex);
 
-		//Ensure that a valid latest timeslice exists in all our buffers. We need this
-		//check here, because if rollbacks occur at certain points in time, it's possible
-		//for our buffers to be entirely advanced through all pending timeslices and
-		//sitting on the committed state when ExecuteCommit() is called.
-		if(reg.DoesLatestTimesliceExist() && vram->DoesLatestTimesliceExist() && cram->DoesLatestTimesliceExist() && vsram->DoesLatestTimesliceExist() && spriteCache->DoesLatestTimesliceExist())
+		//Add the number of timeslices we are about to commit to the count of pending
+		//render operations. This is used to track if the render thread is lagging.
+		pendingRenderOperationCount += (unsigned int)regTimesliceListUncommitted.size();
+
+		//Move all timeslices in our uncommitted timeslice lists over to the committed
+		//timeslice lists, for processing by the render thread.
+		timesliceRenderInfoList.splice(timesliceRenderInfoList.end(), timesliceRenderInfoListUncommitted);
+		regTimesliceList.splice(regTimesliceList.end(), regTimesliceListUncommitted);
+		vramTimesliceList.splice(vramTimesliceList.end(), vramTimesliceListUncommitted);
+		cramTimesliceList.splice(cramTimesliceList.end(), cramTimesliceListUncommitted);
+		vsramTimesliceList.splice(vsramTimesliceList.end(), vsramTimesliceListUncommitted);
+		spriteCacheTimesliceList.splice(spriteCacheTimesliceList.end(), spriteCacheTimesliceListUncommitted);
+
+		//Notify the render thread that it's got more work to do
+		renderThreadUpdate.notify_all();
+	}
+
+	//##DEBUG##
+	if(outputTimingDebugMessages)
+	{
+		//Wait for the render thread to complete its work
+		boost::mutex::scoped_lock lock(renderThreadMutex);
+		while(pendingRenderOperationCount > 0)
 		{
-			//Obtain a timeslice lock so we can update the data we feed to the render
-			//thread
-			boost::mutex::scoped_lock lock(timesliceMutex);
-
-			//Increment the number of pending render operations. This is used to track if
-			//the render thread is lagging.
-			++pendingRenderOperationCount;
-
-			//Grab copies of the timeslice periods for the timed buffers the render thread
-			//will need to work with. We haven't been notified about any new timeslices
-			//yet since the last execution cycle, so these timeslice periods represent the
-			//point we want the render thread to execute up to.
-			regTimesliceList.push_back(reg.GetLatestTimeslice());
-			vramTimesliceList.push_back(vram->GetLatestTimesliceReference());
-			cramTimesliceList.push_back(cram->GetLatestTimesliceReference());
-			vsramTimesliceList.push_back(vsram->GetLatestTimesliceReference());
-			spriteCacheTimesliceList.push_back(spriteCache->GetLatestTimesliceReference());
-
-			//##FIX## This is old code, related to the frame-based render method. Remove
-			//it once our new render code is online.
-			//if(renderTimeslicePending)
-			//{
-			//	vram->FreeTimesliceReference(vramTimeslice);
-			//	cram->FreeTimesliceReference(cramTimeslice);
-			//	vsram->FreeTimesliceReference(vsramTimeslice);
-			//}
-			//regTimeslice = reg.GetLatestTimeslice();
-			//vramTimeslice = vram->GetLatestTimesliceReference();
-			//cramTimeslice = cram->GetLatestTimesliceReference();
-			//vsramTimeslice = vsram->GetLatestTimesliceReference();
-			//renderTimeslicePending = true;
-
-			//Notify the render thread that it's got more work to do
-			renderThreadUpdate.notify_all();
+			renderThreadLaggingStateChange.wait(lock);
 		}
+
+		//Print out render thread synchronization info
+		std::wcout << "VDP Synchronization - Commit:\n"
+		           << "-Digital:\t" << hcounter.GetData() << '\t' << vcounter.GetData() << '\n'
+		           << "-Render:\t" << renderDigitalHCounterPos << '\t' << renderDigitalVCounterPos << '\n';
 	}
 }
 
@@ -1819,14 +2161,24 @@ void S315_5313::RenderThreadNew()
 	boost::mutex::scoped_lock lock(renderThreadMutex);
 
 	//Start the render loop
-	while(renderThreadActive)
+	bool done = false;
+	while(!done)
 	{
 		//Obtain a copy of the latest completed timeslice period
 		bool renderTimesliceObtained = false;
+		TimesliceRenderInfo timesliceRenderInfo;
 		{
-			boost::mutex::scoped_lock lock(timesliceMutex);
+			boost::mutex::scoped_lock timesliceLock(timesliceMutex);
 
 			//If there is at least one render timeslice pending, grab it from the queue.
+			//##FIX## Our pendingRenderOperationCount doesn't really work the way we want.
+			//Currently, here in the render thread, we decrement it once for each
+			//timeslice received, but we don't increment it once for each timeslice.
+			//##FIX## This problem with pendingRenderOperationCount is now breaking our
+			//PSG and YM2612 cores, since the render thread marks itself as lagging when
+			//it's not, and the execute thread waits forever for it to fix itself. We need
+			//to get this working, and replicate it in the PSG and YM2612 cores.
+//			if((pendingRenderOperationCount > 0) && !regTimesliceList.empty() && !vramTimesliceList.empty() && !cramTimesliceList.empty() && !vsramTimesliceList.empty())
 			if(!regTimesliceList.empty() && !vramTimesliceList.empty() && !cramTimesliceList.empty() && !vsramTimesliceList.empty())
 			{
 				//Update the lagging state for the render thread
@@ -1835,11 +2187,13 @@ void S315_5313::RenderThreadNew()
 				renderThreadLaggingStateChange.notify_all();
 
 				//Grab the next completed timeslice from the timeslice list
+				timesliceRenderInfo = *timesliceRenderInfoList.begin();
 				regTimesliceCopy = *regTimesliceList.begin();
 				vramTimesliceCopy = *vramTimesliceList.begin();
 				cramTimesliceCopy = *cramTimesliceList.begin();
 				vsramTimesliceCopy = *vsramTimesliceList.begin();
 				spriteCacheTimesliceCopy = *spriteCacheTimesliceList.begin();
+				timesliceRenderInfoList.pop_front();
 				regTimesliceList.pop_front();
 				vramTimesliceList.pop_front();
 				cramTimesliceList.pop_front();
@@ -1851,12 +2205,23 @@ void S315_5313::RenderThreadNew()
 			}
 		}
 
-		//If no render timeslice was available, suspend this thread until a timeslice
-		//becomes available, or this thread is instructed to stop, then begin the loop
-		//again.
+		//If no render timeslice was available, we need to wait for a thread suspension
+		//request or a new timeslice to be received, then begin the loop again.
 		if(!renderTimesliceObtained)
 		{
-			renderThreadUpdate.wait(lock);
+			//If the render thread has not already been instructed to stop, suspend this
+			//thread until a timeslice becomes available or this thread is instructed to
+			//stop.
+			if(renderThreadActive)
+			{
+				renderThreadUpdate.wait(lock);
+			}
+
+			//If the render thread has been suspended, flag that we need to exit this
+			//render loop.
+			done = !renderThreadActive;
+
+			//Begin the loop again
 			continue;
 		}
 
@@ -1888,8 +2253,11 @@ void S315_5313::RenderThreadNew()
 
 		//Calculate the number of cycles to advance in this update step, and reset the
 		//current advance progress through this timeslice.
-		unsigned int mclkCyclesToAdvance = regTimesliceCopy->timesliceLength;
-		renderDigitalMclkCycleProgress = 0;
+		unsigned int mclkCyclesToAdvance = timesliceRenderInfo.timesliceEndPosition - timesliceRenderInfo.timesliceStartPosition;
+		renderDigitalMclkCycleProgress = timesliceRenderInfo.timesliceStartPosition;
+		//##DEBUG## Restore old timing behaviour for testing
+//		unsigned int mclkCyclesToAdvance = regTimesliceCopy->timesliceLength;
+//		renderDigitalMclkCycleProgress = 0;
 
 		//##DEBUG##
 		if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
@@ -2764,6 +3132,23 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 			renderWindowActiveCache[renderDigitalCurrentColumn] = windowActiveInThisColumn;
 		}
 
+		//Calculate the effective screen row number to use when calculating the mapping
+		//data row for this line. Note that the screen row number is just used directly
+		//under normal circumstances, but when interlace mode 2 is active, there are
+		//effectively double the number of vertical screen rows, with all the odd rows in
+		//one frame, and all the even rows in another frame, so if interlace mode 2 is
+		//active we double the screen row number and select either odd or even rows based
+		//on the current state of the odd flag.
+		unsigned int screenRowIndex = renderDigitalCurrentRow;
+		if(interlaceMode2Active)
+		{
+			screenRowIndex *= 2;
+			if(renderDigitalOddFlagSet)
+			{
+				++screenRowIndex;
+			}
+		}
+
 		//Read the correct mapping data for this column, taking into account whether that
 		//mapping data should be read from the window mapping table or the layer A mapping
 		//table.
@@ -2781,7 +3166,7 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 			unsigned int vszState = 0x0;
 
 			//Read window mapping data
-			DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, 0, 0, 0, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
+			DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, 0, 0, 0, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
 		}
 		else
 		{
@@ -2791,7 +3176,7 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 			unsigned int vszState = M5GetVSZ(accessTarget);
 
 			//Read layer A mapping data
-			DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
+			DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
 		}
 
 		break;}
@@ -2808,25 +3193,27 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 			unsigned int renderDigitalCurrentColumn = (nextOperation.index - 2) / cellsPerColumn;
 			if(renderWindowActiveCache[renderDigitalCurrentColumn])
 			{
-				verticalPatternDisplacement = 0;
+				verticalPatternDisplacement = (interlaceMode2Active && renderDigitalOddFlagSet)? 1: 0;
 			}
 		}
 
 		//Calculate the pattern row number to read for the selected pattern, based on the
 		//current row being drawn on the screen, and the vertical pattern displacement due
-		//to vscroll. We also factor in interlace mode 2 support here, by doubling the
-		//pattern row number where interlace mode 2 is active, and setting the LSB of the
-		//row number based on the current state of the odd flag.
+		//to vscroll. We also factor in interlace mode 2 support here by doubling the
+		//screen row number where interlace mode 2 is active. The state of the odd flag is
+		//factored in when the vscroll data is read.
 		const unsigned int rowsToDisplayPerTile = 8;
-		unsigned int patternRowNumberNoFlip = (renderDigitalCurrentRow + verticalPatternDisplacement) % rowsToDisplayPerTile;
+		unsigned int screenPatternRowIndex = renderDigitalCurrentRow % rowsToDisplayPerTile;
 		if(interlaceMode2Active)
 		{
-			patternRowNumberNoFlip *= 2;
+			screenPatternRowIndex *= 2;
 			if(renderDigitalOddFlagSet)
 			{
-				patternRowNumberNoFlip += 1;
+				++screenPatternRowIndex;
 			}
 		}
+		const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
+		unsigned int patternRowNumberNoFlip = (screenPatternRowIndex + verticalPatternDisplacement) % rowsPerTile;
 
 		//Read layer A pattern row
 		DigitalRenderReadPatternDataRow(patternRowNumberNoFlip, 0, interlaceMode2Active, renderMappingDataCacheLayerA[nextOperation.index], renderPatternDataCacheLayerA[nextOperation.index]);
@@ -2838,30 +3225,49 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		//reads its mapping data from cell block -1.
 		unsigned int renderDigitalCurrentColumn = (nextOperation.index - 1) / cellsPerColumn;
 
+		//Calculate the effective screen row number to use when calculating the mapping
+		//data row for this line. Note that the screen row number is just used directly
+		//under normal circumstances, but when interlace mode 2 is active, there are
+		//effectively double the number of vertical screen rows, with all the odd rows in
+		//one frame, and all the even rows in another frame, so if interlace mode 2 is
+		//active we double the screen row number and select either odd or even rows based
+		//on the current state of the odd flag.
+		unsigned int screenRowIndex = renderDigitalCurrentRow;
+		if(interlaceMode2Active)
+		{
+			screenRowIndex *= 2;
+			if(renderDigitalOddFlagSet)
+			{
+				++screenRowIndex;
+			}
+		}
+
 		//Read register settings which affect which mapping data is loaded
 		unsigned int nameTableBase = M5GetNameTableBaseScrollB(accessTarget);
 		unsigned int hszState = M5GetHSZ(accessTarget);
 		unsigned int vszState = M5GetVSZ(accessTarget);
 
 		//Read layer B mapping data
-		DigitalRenderReadMappingDataPair(renderDigitalCurrentRow, renderDigitalCurrentColumn, nameTableBase, renderLayerBHscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement, renderLayerBVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerB[nextOperation.index], renderMappingDataCacheLayerB[nextOperation.index+1]);
+		DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerBHscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement, renderLayerBVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerB[nextOperation.index], renderMappingDataCacheLayerB[nextOperation.index+1]);
 		break;}
 	case RenderOp::PATTERN_B:{
 		//Calculate the pattern row number to read for the selected pattern, based on the
 		//current row being drawn on the screen, and the vertical pattern displacement due
-		//to vscroll. We also factor in interlace mode 2 support here, by doubling the
-		//pattern row number where interlace mode 2 is active, and setting the LSB of the
-		//row number based on the current state of the odd flag.
+		//to vscroll. We also factor in interlace mode 2 support here by doubling the
+		//screen row number where interlace mode 2 is active. The state of the odd flag is
+		//factored in when the vscroll data is read.
 		const unsigned int rowsToDisplayPerTile = 8;
-		unsigned int patternRowNumberNoFlip = (renderDigitalCurrentRow + renderLayerBVscrollPatternDisplacement) % rowsToDisplayPerTile;
+		unsigned int screenPatternRowIndex = renderDigitalCurrentRow % rowsToDisplayPerTile;
 		if(interlaceMode2Active)
 		{
-			patternRowNumberNoFlip *= 2;
+			screenPatternRowIndex *= 2;
 			if(renderDigitalOddFlagSet)
 			{
-				patternRowNumberNoFlip += 1;
+				++screenPatternRowIndex;
 			}
 		}
+		const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
+		unsigned int patternRowNumberNoFlip = (screenPatternRowIndex + renderLayerBVscrollPatternDisplacement) % rowsPerTile;
 
 		//Read layer B pattern row
 		DigitalRenderReadPatternDataRow(patternRowNumberNoFlip, 0, interlaceMode2Active, renderMappingDataCacheLayerB[nextOperation.index], renderPatternDataCacheLayerB[nextOperation.index]);
@@ -3358,6 +3764,18 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	//##TODO## Consider only advancing the CRAM buffer if we're passing the next write
 	//time in this step. If we're not, there's no point doing the advance, since it
 	//contains the same test we're doing here to decide if any work needs to be done.
+	//##FIX## Correct a timing problem with all our buffers. Currently, writes to our
+	//buffers are performed relative to the state update time, which factors in extra time
+	//we may have rendered past the end of the timeslice in the last step. If we move past
+	//the end of a timeslice, the following timeslice is shortened, and writes in that
+	//timeslice are offset by the amount we ran over the last timeslice. We need to ensure
+	//that the digital renderer knows about, and uses, these "stateLastUpdateMclk" values
+	//to advance each timeslice, not the indicated timeslice length. This will ensure that
+	//during the render process, values in the buffer will be committed at the same
+	//relative time at which they were written.
+	//##TODO## As part of the above, consider solving this issue more permanently, with an
+	//upgrade to our timed buffers to roll writes past the end of a timeslice into the
+	//next timeslice.
 	if(cramSession.writeInfo.exists && (cramSession.nextWriteTime <= renderDigitalMclkCycleProgress))
 	{
 		const unsigned int paletteEntriesPerLine = 16;
@@ -3571,7 +3989,7 @@ void S315_5313::DigitalRenderReadVscrollData(unsigned int screenColumnNumber, bo
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const
+void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const
 {
 	//The existence and contents of this table have been determined through analysis of
 	//the behaviour of the VDP when invalid field size settings are selected. In
@@ -3617,8 +4035,8 @@ void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, u
 	//##TODO## Update these comments
 	//##TODO## Document why we add the horizontal scroll value, but subtract the vertical
 	//scroll value.
-	const unsigned int rowsToDisplayPerTile = 8;
-	unsigned int mappingDataRowNumber = ((screenRowNumber + layerVscrollPatternDisplacement) / rowsToDisplayPerTile + layerVscrollMappingDisplacement) & playfieldBlockMaskY;
+	const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
+	unsigned int mappingDataRowNumber = (((screenRowNumber + layerVscrollPatternDisplacement) / rowsPerTile) + layerVscrollMappingDisplacement) & playfieldBlockMaskY;
 	unsigned int mappingDataColumnNumber = ((screenColumnNumber - layerHscrollMappingDisplacement) * cellsPerColumn) & playfieldBlockMaskX;
 
 	//Based on the horizontal playfield mode, lookup the row shift count to use when
@@ -4467,19 +4885,31 @@ void S315_5313::DMAWorkerThread()
 			//the end of the current timeslice.
 			if(dmaTransferActive && busGranted)
 			{
+				//Delay execution of the DMA worker thread until events have been
+				//processed for this timeslice. This is required when resuming a paused
+				//DMA operation for example, when we need to wait for the ExecuteTimeslice
+				//method to be called and to fully process events before we can safely
+				//modify the processor state.
+				{
+					boost::mutex::scoped_lock lock(accessMutex);
+					while(!eventsProcessedForTimeslice)
+					{
+						eventProcessingCompleted.wait(lock);
+					}
+				}
+
 				//If we currently have the bus, advance the processor state until the DMA
 				//operation is complete, or we reach the end of the current timeslice.
-				double lastTimesliceTotalExecuteTime = currentTimesliceLength + lastTimesliceRemainingTime;
-				if((lastTimesliceTotalExecuteTime > 0) && (lastTimesliceTotalExecuteTime > GetProcessorStateTime()))
+				if(GetProcessorStateMclkCurrent() < currentTimesliceTotalMclkCycles)
 				{
 					//##DEBUG##
 	//				std::wcout << "VDP - DMAWorkerThread: " << lastTimesliceTotalExecuteTime << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << "\n";
 
-					UpdateInternalState(ConvertAccessTimeToMclkCount(lastTimesliceTotalExecuteTime), true, false, false, false, false, true, false);
+					UpdateInternalState(currentTimesliceTotalMclkCycles, true, false, false, false, false, true, false);
 				}
 
 				//If the DMA transfer has been completed, negate BR to release the bus.
-				if(!GetStatusFlagDMA())
+				if(!dmaTransferActive)
 				{
 					//##DEBUG##
 	//				if(outputTestDebugMessages)
@@ -4487,13 +4917,42 @@ void S315_5313::DMAWorkerThread()
 	//					std::wcout << "SetLine - VDP_LINE_BR:\t" << false << '\t' << GetProcessorStateTime() << '\t' << GetProcessorStateMclkCurrent() << '\n';
 	//				}
 
-					//Note that by negating BR, the M68000 should negate BG in response. This
-					//may not occur immediately however. In this case, 
-					//will clear the busGranted flag before this call returns.
-					//##FIX## We're changing this behaviour. The M68000 may no longer directly
-					//negate BG while the BR line is being negated. The call may occur at a
-					//future period of time.
-					memoryBus->SetLine(LINE_BR, Data(GetLineWidth(LINE_BR), 0), GetDeviceContext(), GetDeviceContext(), GetProcessorStateTime());
+					//Calculate the time at which the line access change will occur, in
+					//system time.
+					double accessTime = GetProcessorStateTime() - lastTimesliceMclkCyclesRemainingTime;
+
+					//This is a hack to handle VDP port access while a DMA transfer
+					//operation is pending, but the bus hasn't yet been granted. This is
+					//probably not the correct way the hardware would handle this kind of
+					//event. We have this hack in place to work around a limitation in our
+					//current M68000 core, which isn't able to grant the bus between two
+					//halves of a long-word operation. Until we have a microcode level
+					//M68000 core online, we cache these invalid reads, and process them
+					//when the DMA operation is complete.
+					if(dmaTransferInvalidPortWriteCached)
+					{
+						//##DEBUG##
+						if(outputTestDebugMessages)
+						{
+							std::wcout << "VDP Performing a cached write!\n";
+						}
+
+						//##FIX## This is insufficient. We are having timing problems with Mickey
+						//Mania, the main test case for this DMA issue. In this case, they are tagging
+						//a display enable write as the second half of a long-word write. This is
+						//timing sensitive, so we need to ensure that this write is correctly
+						//processed immediately after the DMA operation is complete, not at the time
+						//of the next port write, as we do currently.
+						dmaTransferInvalidPortWriteCached = false;
+						WriteInterface(0, dmaTransferInvalidPortWriteAddressCache, dmaTransferInvalidPortWriteDataCache, GetDeviceContext(), accessTime, 0);
+					}
+
+					//Note that by negating BR, the M68000 should negate BG in response.
+					//This may not occur immediately however. In this case, we will have
+					//already cleared the dmaTransferActive flag, so our worker thread
+					//will continue to run without advancing the processor state until the
+					//bus is released.
+					memoryBus->SetLine(LINE_BR, Data(GetLineWidth(LINE_BR), 0), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_BR_RELEASE);
 
 					//##DEBUG##
 		//			std::wcout << "DMA Transfer complete\n";
@@ -4780,7 +5239,7 @@ unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource
 //register decoding assumes the lower 4 bits of the target address correspond with
 //CA3-CA0.
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	IBusInterface::AccessResult accessResult(true);
 	boost::mutex::scoped_lock lock(accessMutex);
@@ -4810,7 +5269,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 
 	//Convert the access time into a cycle count relative to MCLK, rounding up the result
 	//to the nearest MCLK cycle.
-	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceRemainingTime);
+	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
 	double accessMclkCycleInAccessTime = ConvertMclkCountToAccessTime(accessMclkCycle);
 	if(accessMclkCycleInAccessTime < accessTime)
 	{
@@ -4823,7 +5282,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		//##DEBUG##
 		if(outputTestDebugMessages)
 		{
-			std::wcout << "VDPReadInterface:\t" << std::hex << std::uppercase << location << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceRemainingTime << '\n';
+			std::wcout << "VDPReadInterface:\t" << std::hex << std::uppercase << location << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceMclkCyclesRemainingTime << '\n';
 		}
 
 		//##DEBUG##
@@ -4872,7 +5331,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		//Trigger a system rollback if the device has been accessed out of order
 		if(lastAccessTime > accessTime)
 		{
-			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		lastAccessTime = accessTime;
 
@@ -4905,11 +5364,11 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 
 			//Calculate any delay which occurred in processing this operation, and return
 			//the delay time to the caller.
-			accessResult.executionTime += (GetProcessorStateTime() - lastTimesliceRemainingTime) - accessTime;
+			accessResult.executionTime += ((lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime()) - accessTime);
 			if(accessResult.executionTime < 0.0)
 			{
 				//##DEBUG##
-				std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << lastTimesliceRemainingTime << '\t' << accessTime << '\n';
+				std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << lastTimesliceMclkCyclesRemainingTime << '\t' << accessTime << '\n';
 			}
 		}
 
@@ -4970,14 +5429,20 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 	case 5:
 		if(psg != 0)
 		{
-			return psg->ReadInterface(0, (location >> 1) & 0x1, data, caller, accessTime);
+			return psg->ReadInterface(0, (location >> 1) & 0x1, data, caller, accessTime, accessContext);
 		}
 		break;
 	case 6: //110 - Unused
+		//##TODO## Perform hardware tests to confirm reads from this unused register
+		//location don't assert any data lines.
+		accessResult.accessMaskUsed = true;
+		accessResult.accessMask = 0;
 		break;
 	case 7: //111 - Test Register
 		//##TODO## Perform hardware tests to determine if reads from the test register
 		//return valid data.
+		accessResult.accessMaskUsed = true;
+		accessResult.accessMask = 0;
 		break;
 	}
 
@@ -4988,7 +5453,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	IBusInterface::AccessResult accessResult(true);
 	boost::mutex::scoped_lock lock(accessMutex);
@@ -4997,28 +5462,9 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		eventProcessingCompleted.wait(lock);
 	}
 
-	//##DEBUG##
-	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-	{
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "busGranted:\t" << busGranted << "\n";
-		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-		std::wcout << "status:\t" << status.GetData() << "\n";
-		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-		std::wcout << "dmd1:\t" << dmd1 << "\n";
-		std::wcout << "dmd0:\t" << dmd1 << "\n";
-		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-	}
-
 	//Convert the access time into a cycle count relative to MCLK, rounding up the result
 	//to the nearest MCLK cycle.
-	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceRemainingTime);
+	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
 	double accessMclkCycleInAccessTime = ConvertMclkCountToAccessTime(accessMclkCycle);
 	if(accessMclkCycleInAccessTime < accessTime)
 	{
@@ -5032,7 +5478,56 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//##DEBUG##
 		if(outputTestDebugMessages)
 		{
-			std::wcout << "VDPWriteInterface: " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceRemainingTime << '\n';
+			std::wcout << "VDPWriteInterface: " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceMclkCyclesRemainingTime << '\n';
+		}
+
+		//This is a hack to handle VDP port access while a DMA transfer operation is
+		//pending, but the bus hasn't yet been granted. This is probably not the correct
+		//way the hardware would handle this kind of event. We have this hack in place to
+		//work around a limitation in our current M68000 core, which isn't able to grant
+		//the bus between two halves of a long-word operation. Until we have a microcode
+		//level M68000 core online, we cache these invalid reads, and process them when
+		//the DMA operation is complete.
+		if(dmaEnabled && !dmd1 && commandCode.GetBit(5) && !busGranted)
+		{
+			//##DEBUG##
+			if(outputTestDebugMessages)
+			{
+				std::wcout << "VDP WriteInterface called while a bus request was pending! Caching the write.\n";
+			}
+
+			if((location & 0xE) == 0)
+			{
+				dmaTransferInvalidPortWriteCached = true;
+				dmaTransferInvalidPortWriteAddressCache = location;
+				dmaTransferInvalidPortWriteDataCache = data;
+			}
+			else if((location & 0xE) == 2)
+			{
+				dmaTransferInvalidPortWriteCached = true;
+				dmaTransferInvalidPortWriteAddressCache = location;
+				dmaTransferInvalidPortWriteDataCache = data;
+			}
+			return accessResult;
+		}
+
+		//##DEBUG##
+		if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+		{
+			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+			std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
+			std::wcout << "__LINE__:\t" << __LINE__ << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
+			std::wcout << "busGranted:\t" << busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
+			std::wcout << "dmd1:\t" << dmd1 << "\n";
+			std::wcout << "dmd0:\t" << dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 		}
 
 		//##DEBUG##
@@ -5058,7 +5553,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		}
 
 		//##DEBUG##
-		if(busGranted)
+		if(busGranted && (caller != GetDeviceContext()))
 		{
 			//outputTestDebugMessages = true;
 			std::wcout << "######################################################\n";
@@ -5083,7 +5578,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//Trigger a system rollback if the device has been accessed out of order
 		if(lastAccessTime > accessTime)
 		{
-			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		lastAccessTime = accessTime;
 
@@ -5107,11 +5602,11 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 
 		//Calculate any delay which occurred in processing this operation, and return the
 		//delay time to the caller.
-		accessResult.executionTime += (GetProcessorStateTime() - lastTimesliceRemainingTime) - accessTime;
+		accessResult.executionTime += ((lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime()) - accessTime);
 		if(accessResult.executionTime < 0.0)
 		{
 			//##DEBUG##
-			std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << lastTimesliceRemainingTime << '\t' << accessTime << '\n';
+			std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << lastTimesliceMclkCyclesRemainingTime << '\t' << accessTime << '\n';
 		}
 
 		//Save the code and address register data for this data port write
@@ -5199,11 +5694,11 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 
 		//Calculate any delay which occurred in processing this operation, and return the
 		//delay time to the caller.
-		accessResult.executionTime += (GetProcessorStateTime() - lastTimesliceRemainingTime) - accessTime;
+		accessResult.executionTime += ((lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime()) - accessTime);
 		if(accessResult.executionTime < 0.0)
 		{
 			//##DEBUG##
-			std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << lastTimesliceRemainingTime << '\t' << accessTime << '\n';
+			std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << lastTimesliceMclkCyclesRemainingTime << '\t' << accessTime << '\n';
 		}
 
 		//Calculate the number of mclk cycles that this operation was delayed
@@ -5259,7 +5754,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				Data registerData(8, originalCommandAddress.GetDataSegment(0, 8));
 				if(registerNo < registerCount)
 				{
-					RegisterSpecialUpdateFunction(accessMclkCycle + accessMclkCycleDelay, accessTime, accessResult.executionTime, caller, registerNo, registerData);
+					RegisterSpecialUpdateFunction(accessMclkCycle + accessMclkCycleDelay, accessTime, accessResult.executionTime, caller, accessContext, registerNo, registerData);
 					AccessTarget accessTarget;
 					accessTarget.AccessTime(accessMclkCycle + accessMclkCycleDelay);
 					SetRegisterData(registerNo, accessTarget, registerData);
@@ -5360,13 +5855,17 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				//word of a long-word write to the control port. Find a way to implement
 				//support for the behaviour we need.
 				boost::mutex::scoped_lock lock(workerThreadMutex);
-				memoryBus->SetLine(LINE_BR, Data(GetLineWidth(LINE_BR), 1), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime);
+				memoryBus->SetLine(LINE_BR, Data(GetLineWidth(LINE_BR), 1), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime, ACCESSCONTEXT_BR_ASSERT);
 
 				//Set the initial DMA transfer register settings
 				dmaTransferActive = true;
 				dmaTransferReadDataCached = false;
+				//Note that we technically don't need to set these here, as they are only
+				//correctly initialized once the bus request is granted, but we set them
+				//here anyway as it can be useful for debugging purposes to know when the
+				//DMA operation was triggered relative to when the bus was granted.
 				dmaTransferNextReadMclk = accessMclkCycle;
-				dmaTransferLastTimesliceUnusedMclkCycles = 0;
+				dmaTransferLastTimesliceUsedReadDelay = 0;
 
 				//##DEBUG##
 //				if(outputTestDebugMessages)
@@ -5409,7 +5908,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 	case 5:
 		if(psg != 0)
 		{
-			return psg->WriteInterface(0, (location >> 1) & 0x1, data, caller, accessTime);
+			return psg->WriteInterface(0, (location >> 1) & 0x1, data, caller, accessTime, accessContext);
 		}
 		break;
 	case 6: //110 - Unused
@@ -5516,7 +6015,7 @@ void S315_5313::ProcessCommandDataWriteSecondHalf(const Data& data)
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int registerNo, const Data& data)
+void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int accessContext, unsigned int registerNo, const Data& data)
 {
 	switch(registerNo)
 	{
@@ -5530,7 +6029,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 				if(hintPending)
 				{
 					//Trigger HInt for M68000
-					memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay);
+					memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay, accessContext);
 					hintPending = false;
 				}
 				else
@@ -5541,7 +6040,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 					//not be flagged at the correct time, since the GetNextEvent function
 					//might not have generated a timing point for the hint counter
 					//expiring.
-					GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+					GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 				}
 			}
 		}
@@ -5549,6 +6048,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 	case 1:
 		screenModeV30Cached = data.GetBit(3);
 		dmaEnabled = data.GetBit(4);
+		displayEnabledCached = data.GetBit(6);
 
 		if(vintEnabled != data.GetBit(5))
 		{
@@ -5556,7 +6056,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 			if(vintEnabled && vintPending)
 			{
 				//Trigger VInt for M68000
-				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime + accessDelay);
+				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay, accessContext);
 				vintPending = false;
 			}
 			//Note that we never need to generate a rollback if the VINT pending state is
@@ -5591,12 +6091,15 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 	case 10:
 		if(hintCounterReloadValue != data.GetData())
 		{
+			//##DEBUG##
+			//std::wcout << "VDP - HCounter data changed: " << hintCounterReloadValue << '\t' << data.GetData() << '\n';
+
 			hintCounterReloadValue = data.GetData();
 			//If the HINT counter data has been modified while hint is disabled, trigger a
 			//rollback.
 			if(!hintEnabled)
 			{
-				GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+				GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 		break;
@@ -5607,7 +6110,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 			if(exintEnabled && exintPending)
 			{
 				//Trigger EXInt for M68000
-				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay);
+				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay, accessContext);
 				exintPending = false;
 			}
 			else
@@ -5615,7 +6118,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 				//##TODO## Figure out what we really need to do here. Since external
 				//interrupts aren't implemented yet, it's a bit hard to be sure.
 //				//If external interrupts have changed from disabled to enabled, trigger a rollback.
-//				GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+//				GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 		break;
@@ -5626,7 +6129,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 			//If the RS0 bit has changed, we need to trigger a rollback, since any change
 			//to this register will almost certainly affect when the next VDP timing point
 			//event occurs.
-			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(screenModeRS1Cached != data.GetBit(0))
 		{
@@ -5634,7 +6137,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 			//If the RS1 bit has changed, we need to trigger a rollback, since any change
 			//to this register will almost certainly affect when the next VDP timing point
 			//event occurs.
-			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		interlaceDoubleCached = data.GetBit(2);
 		interlaceEnabledCached = data.GetBit(1);
@@ -6149,7 +6652,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 
 	//While there's enough cycles remaining to reach the odd flag toggle point, advance to
 	//that point, and update the odd flag.
-	while(pixelClockStepsUntilOddFlagToggle < pixelClockSteps)
+	while(pixelClockStepsUntilOddFlagToggle <= pixelClockSteps)
 	{
 		//Advance the hcounter and vcounter to the odd flag toggle point
 		hcounterCurrent = (hcounterCurrent + hcounterIncrementStepsUntilOddFlagToggle) % hscanSettings.hcounterStepsPerIteration;
@@ -6203,7 +6706,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 //----------------------------------------------------------------------------------------
 //Pixel clock functions
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vcounterCurrent)
+unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, bool displayEnabled, unsigned int vcounterCurrent)
 {
 	//Check if the current line, and the line following, are within the active display
 	//region. Active display lines only allow external VRAM access at specific access
@@ -6223,7 +6726,7 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 	//screen mode doesn't change when making these calculations.
 	//##TODO## Consider using table lookups here to eliminate branching.
 	unsigned int nextAccessSlotHCounter = 0;
-	if(!currentLineActiveDisplayRegion)
+	if(!currentLineActiveDisplayRegion || !displayEnabled)
 	{
 		if(!screenModeRS1Current)
 		{
@@ -7467,7 +7970,7 @@ unsigned int S315_5313::ConvertAccessTimeToMclkCount(double accessTime) const
 		std::wcout << "######################################################\n";
 		std::wcout << "VDP ConvertAccessTimeToMclkCount accessTime < 0!\n";
 		std::wcout << "accessTime:\t" << accessTime << "\n";
-		std::wcout << "lastTimesliceRemainingTime:\t" << lastTimesliceRemainingTime << "\n";
+		std::wcout << "lastTimesliceMclkCyclesRemainingTime:\t" << lastTimesliceMclkCyclesRemainingTime << "\n";
 		std::wcout << "currentTimesliceLength:\t" << currentTimesliceLength << "\n";
 		std::wcout << "GetProcessorStateTime:\t" << GetProcessorStateTime() << "\n";
 		std::wcout << "######################################################\n";
@@ -7671,8 +8174,8 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		//write then gets moved into the FIFO, and a new read operation begins
 		//immediately. Do some hardware tests to confirm this is the way the real VDP
 		//behaves, and confirm the timing of everything.
-		while(dmaEnabled && commandCode.GetBit(5) && !dmd1 && (!dmaTransferReadDataCached || !IsWriteFIFOFull())
-		  && ((dmaTransferNextReadMclk + dmaTransferReadTimeInMclkCycles) < (GetProcessorStateMclkCurrent() + dmaTransferLastTimesliceUnusedMclkCycles)))
+		while(dmaEnabled && commandCode.GetBit(5) && !dmd1 && busGranted && (!dmaTransferReadDataCached || !IsWriteFIFOFull())
+		  && ((dmaTransferNextReadMclk + (dmaTransferReadTimeInMclkCycles - dmaTransferLastTimesliceUsedReadDelay)) <= GetProcessorStateMclkCurrent()))
 		{
 			//If there is space in the DMA transfer read cache, read a new data value into
 			//the read cache.
@@ -7681,22 +8184,10 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 				CacheDMATransferReadData(dmaTransferNextReadMclk);
 			}
 
-			//Advance the dmaTransferLastReadMclk counter, taking into account any unused
-			//mclk cycles from the last timeslice which were not consumed by the DMA
-			//transfer operation.
-			if(dmaTransferLastTimesliceUnusedMclkCycles == 0)
-			{
-				dmaTransferNextReadMclk += dmaTransferReadTimeInMclkCycles;
-			}
-			else if(dmaTransferLastTimesliceUnusedMclkCycles >= dmaTransferReadTimeInMclkCycles)
-			{
-				dmaTransferLastTimesliceUnusedMclkCycles -= dmaTransferReadTimeInMclkCycles;
-			}
-			else
-			{
-				dmaTransferNextReadMclk += (dmaTransferReadTimeInMclkCycles - dmaTransferLastTimesliceUnusedMclkCycles);
-				dmaTransferLastTimesliceUnusedMclkCycles = 0;
-			}
+			//Advance the dmaTransferLastReadMclk counter, and clear the count of used
+			//read delay cycles from the last timeslice, which have just been consumed.
+			dmaTransferNextReadMclk += (dmaTransferReadTimeInMclkCycles - dmaTransferLastTimesliceUsedReadDelay);
+			dmaTransferLastTimesliceUsedReadDelay = 0;
 
 			//If there is space in the write FIFO to store another write value, empty the
 			//DMA transfer read cache data into the FIFO.
@@ -8048,19 +8539,19 @@ void S315_5313::PerformFIFOWriteOperation()
 		if(dmaEnabled && commandCode.GetBit(5) && !dmd1 && dmaTransferReadDataCached)
 		{
 			unsigned int processorStateMclkCurrent = GetProcessorStateMclkCurrent();
-			if(dmaTransferLastTimesliceUnusedMclkCycles == 0)
+			if(dmaTransferLastTimesliceUsedReadDelay == 0)
 			{
 				dmaTransferNextReadMclk = processorStateMclkCurrent;
 			}
-			else if(dmaTransferLastTimesliceUnusedMclkCycles >= processorStateMclkCurrent)
+			else if(dmaTransferLastTimesliceUsedReadDelay >= processorStateMclkCurrent)
 			{
 				dmaTransferNextReadMclk = 0;
-				dmaTransferLastTimesliceUnusedMclkCycles -= processorStateMclkCurrent;
+				dmaTransferLastTimesliceUsedReadDelay -= processorStateMclkCurrent;
 			}
 			else
 			{
-				dmaTransferNextReadMclk = (processorStateMclkCurrent - dmaTransferLastTimesliceUnusedMclkCycles);
-				dmaTransferLastTimesliceUnusedMclkCycles = 0;
+				dmaTransferNextReadMclk = (processorStateMclkCurrent - dmaTransferLastTimesliceUsedReadDelay);
+				dmaTransferLastTimesliceUsedReadDelay = 0;
 			}
 		}
 	}
@@ -8291,7 +8782,7 @@ void S315_5313::CacheDMATransferReadData(unsigned int mclkTime)
 	unsigned int sourceAddress = (dmaSourceAddressByte1 << 1) | (dmaSourceAddressByte2 << 9) | (dmaSourceAddressByte3 << 17);
 
 	//Read the next data word to transfer from the source
-	memoryBus->ReadMemory(sourceAddress, dmaTransferReadCache, GetDeviceContext(), dmaTransferNextReadMclk);
+	memoryBus->ReadMemory(sourceAddress, dmaTransferReadCache, GetDeviceContext(), dmaTransferNextReadMclk, ACCESSCONTEXT_DMAREAD);
 
 	//Flag that data has been cached for the DMA transfer operation
 	dmaTransferReadDataCached = true;
@@ -8573,6 +9064,9 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 		return true;
 	}
 
+	//##DEBUG##
+	//std::wcout << "-VDP AdvanceProcessorStateNew called: " << currentTimesliceTotalMclkCycles << "\t" << mclkCyclesTarget << "\t" << stateLastUpdateMclk << "\t" << stateLastUpdateMclkUnused << "\t" << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
+
 	//Grab the latest settings for any registers which affect the video mode. Note that we
 	//only advance the VDP state between register writes, so we know the currently latched
 	//video mode settings are valid, and that any video mode register changes which have
@@ -8594,10 +9088,14 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 	//or develoment.
 	//##TODO## Determine exactly how the VDP reacts to the H40 screen mode state being
 	//changed at all the various points during a line.
-//	bool hscanSettingsChanged = (screenModeRS0 != screenModeRS0New) || (screenModeRS1 != screenModeRS1New);
-	bool hscanSettingsChanged = false;
-	screenModeRS0 = screenModeRS0New;
-	screenModeRS1 = screenModeRS1New;
+	//##FIX## We've re-enabled the old behaviour. A number of changes need to occur to
+	//ensure that these settings can safely be changed mid-line, and since we still don't
+	//fully know the correct behaviour of the hardware, we're going to keep these settings
+	//being latched at hblank for the time being.
+	bool hscanSettingsChanged = (screenModeRS0 != screenModeRS0New) || (screenModeRS1 != screenModeRS1New);
+//	bool hscanSettingsChanged = false;
+//	screenModeRS0 = screenModeRS0New;
+//	screenModeRS1 = screenModeRS1New;
 	//##TODO## Currently, changes to the palMode flag are applied at vblank. Test how the
 	//real hardware deals with changes to this line by toggling the line state at runtime.
 	bool vscanSettingsChanged = (screenModeV30 != screenModeV30New) || (palMode != palModeNew) || (interlaceEnabled != interlaceEnabledNew);
@@ -8664,7 +9162,7 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 			//Calculate the number of pixel clock cycles until the next available access
 			//slot
 			unsigned int totalPixelClockCyclesUntilAccessSlot;
-			totalPixelClockCyclesUntilAccessSlot = GetPixelClockTicksUntilNextAccessSlot(hscanSettings, vscanSettings, hcounter.GetData(), screenModeRS0, screenModeRS1, vcounter.GetData());
+			totalPixelClockCyclesUntilAccessSlot = GetPixelClockTicksUntilNextAccessSlot(hscanSettings, vscanSettings, hcounter.GetData(), screenModeRS0, screenModeRS1, displayEnabledCached, vcounter.GetData());
 
 			//If an access slot occurs within the update region, stop the update at the
 			//access slot.
@@ -8674,16 +9172,25 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 			//actually allowed at that location. We return false here in this case, so it's
 			//possible the calling code doesn't actually allow access when false is returned.
 			unsigned int mclkTicksBeforeAccessSlot = GetMclkTicksForPixelClockTicks(hscanSettings, totalPixelClockCyclesUntilAccessSlot, hcounter.GetData(), screenModeRS0, screenModeRS1);
-			if((mclkTicksBeforeAccessSlot < mclkCyclesToAdvanceThisStep) //The access slot occurs before the end of the update time
-			|| (allowAdvancePastTargetForAccessSlot && (!screenModeSettingsChangeRequired || (mclkTicksBeforeAccessSlot < mclkCyclesToAdvanceThisStep)))) //The access slot is allowed to pass the end of the update time, and no screen mode settings changes are required, or they occur after the slot.
+			if((mclkTicksBeforeAccessSlot <= mclkCyclesToAdvanceThisStep) //The access slot occurs on or before the end of the update time
+			|| allowAdvancePastTargetForAccessSlot) //The access slot is allowed to pass the end of the update time, and no screen mode settings changes are required, or they occur on or after the slot.
 			{
+				//If a screen mode settings change needs to be applied and the access slot
+				//occurs before the point where the settings change is applied, clear the
+				//flag indicating we need to apply a settings change in this step. If the
+				//access slot occurs at the same time as the settings change however,
+				//apply the settings change in this step, and return the access slot.
+				if(screenModeSettingsChangeRequired && (mclkTicksBeforeAccessSlot < mclkCyclesToAdvanceThisStep))
+				{
+					screenModeSettingsChangeRequired = false;
+				}
+
 				//Since we are stopping at an access slot, set the number of mclk cycles
 				//to execute as the number of cycles until the access slot occurs, and
 				//flag that the update cycle was stopped at an access slot before the
 				//target was reached.
 				mclkCyclesToAdvanceThisStep = mclkTicksBeforeAccessSlot;
 				stoppedAtAccessSlot = true;
-				screenModeSettingsChangeRequired = false;
 			}
 		}
 
@@ -8693,8 +9200,8 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 		//timeslice, but we have a timing point to run at the end of this timeslice to
 		//execute an event. We latch the screen mode settings at the time of the event in
 		//this case, so we can correctly handle the event later during the timing point.
-		if((nextEventToExecute.mclkCycleCounter >= (stateLastUpdateMclk + stateLastUpdateMclkUnused)) //The event occurs at or after the current time
-		&& (nextEventToExecute.mclkCycleCounter < (stateLastUpdateMclk + stateLastUpdateMclkUnused + mclkCyclesToAdvanceThisStep))) //The event occurs during the next update step we're about to make
+		if((nextEventToExecute.mclkCycleCounter >= (stateLastUpdateMclk + stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused)) //The event occurs at or after the current time
+		&& (nextEventToExecute.mclkCycleCounter < (stateLastUpdateMclk + stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused + mclkCyclesToAdvanceThisStep))) //The event occurs during the next update step we're about to make
 		{
 			eventSnapshotScreenModeRS0 = screenModeRS0;
 			eventSnapshotScreenModeRS1 = screenModeRS1;

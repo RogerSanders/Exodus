@@ -55,7 +55,7 @@ void SharedRAM::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 //Memory interface functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(accessLock);
 
@@ -66,7 +66,7 @@ IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumbe
 		if(bufferEntryIterator == buffer.end())
 		{
 			//If the location hasn't been tagged, mark it
-			buffer.insert(MemoryAccessBufferEntry(location + i, MemoryWriteStatus(false, memory[(location + i) % memory.size()], caller, accessTime)));
+			buffer.insert(MemoryAccessBufferEntry(location + i, MemoryWriteStatus(false, memory[(location + i) % memory.size()], caller, accessTime, accessContext)));
 		}
 		else
 		{
@@ -81,7 +81,7 @@ IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumbe
 			if(bufferEntry->written && bufferEntry->shared)
 			{
 				//If the value has been written to, and the address is shared, roll back
-				GetDeviceContext()->SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice);
+				GetDeviceContext()->SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
 			}
 		}
 		data.SetByte((dataByteSize - 1) - i, memory[(location + i) % memory.size()]);
@@ -91,7 +91,7 @@ IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumbe
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(accessLock);
 
@@ -105,7 +105,7 @@ IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumb
 			if(bufferEntryIterator == buffer.end())
 			{
 				//If the location hasn't been tagged, mark it
-				buffer.insert(MemoryAccessBufferEntry(bytePos, MemoryWriteStatus(true, memory[bytePos], caller, accessTime)));
+				buffer.insert(MemoryAccessBufferEntry(bytePos, MemoryWriteStatus(true, memory[bytePos], caller, accessTime, accessContext)));
 			}
 			else
 			{
@@ -121,7 +121,7 @@ IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumb
 				//If the address is shared, roll back
 				if(bufferEntry->shared)
 				{
-					GetDeviceContext()->SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice);
+					GetDeviceContext()->SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
 				}
 			}
 			memory[bytePos] = data.GetByte((dataByteSize - 1) - i);
@@ -132,7 +132,7 @@ IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumb
 }
 
 //----------------------------------------------------------------------------------------
-void SharedRAM::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller)
+void SharedRAM::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
@@ -142,7 +142,7 @@ void SharedRAM::TransparentReadInterface(unsigned int interfaceNumber, unsigned 
 }
 
 //----------------------------------------------------------------------------------------
-void SharedRAM::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller)
+void SharedRAM::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
