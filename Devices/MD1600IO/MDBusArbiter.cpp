@@ -100,7 +100,7 @@ void MDBusArbiter::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 //Memory interface functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult MDBusArbiter::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult MDBusArbiter::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//If the M68000 is performing an interrupt acknowledge cycle, assert VPA to instruct
 	//it to autovector the interrupt, and assert the INTAK line to instruct the VDP to
@@ -109,8 +109,8 @@ IBusInterface::AccessResult MDBusArbiter::ReadInterface(unsigned int interfaceNu
 	//but we asserted VPA instead, which also terminates this bus cycle.
 	if(interfaceNumber == 1)
 	{
-		m68kMemoryBus->SetLine(LINE_VPA, Data(1, 1), GetDeviceContext(), caller, accessTime);
-		m68kMemoryBus->SetLine(LINE_INTAK, Data(1, 1), GetDeviceContext(), caller, accessTime);
+		m68kMemoryBus->SetLine(LINE_VPA, Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
+		m68kMemoryBus->SetLine(LINE_INTAK, Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
 		return false;
 	}
 	return true;
@@ -395,7 +395,7 @@ unsigned int MDBusArbiter::GetLineWidth(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime)
+void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(lineMutex);
 
@@ -403,7 +403,7 @@ void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, I
 	//already passed that time.
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//##TODO## Implement this function

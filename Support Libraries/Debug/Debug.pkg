@@ -33,6 +33,7 @@
 #ifndef PACKAGE_LINK_LIBS_ONLY
 #include "CrashReport.h"
 #include "Assertion.h"
+#include "Threading.h"
 #endif
 
 //Automatically link library dependencies

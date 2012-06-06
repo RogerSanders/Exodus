@@ -5,6 +5,7 @@
 	Name="PGOOptimize"
 	OutputDirectory="$(SolutionDir)$(PlatformName)\Output\ReleaseOptimized\$(ProjectName)"
 	IntermediateDirectory="$(SolutionDir)$(PlatformName)\Intermediate\ReleaseOptimized\$(ProjectName)"
+	DeleteExtensionsOnClean=""
 	>
 	<Tool
 		Name="VCLinkerTool"

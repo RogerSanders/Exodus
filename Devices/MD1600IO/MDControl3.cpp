@@ -176,7 +176,7 @@ unsigned int MDControl3::GetLineWidth(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime)
+void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(lineMutex);
 
@@ -184,7 +184,7 @@ void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 	//device has been accessed out of order.
 	if(lastLineAccessTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastLineAccessTime = accessTime;
 
@@ -194,7 +194,7 @@ void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 		secondBankEnabled = lineData.GetBit(0);
 	}
 
-	UpdateLineState(caller, accessTime);
+	UpdateLineState(caller, accessTime, accessContext);
 }
 
 //----------------------------------------------------------------------------------------
@@ -262,18 +262,18 @@ unsigned int MDControl3::GetKeyCodeID(const wchar_t* keyCodeName) const
 void MDControl3::HandleInputKeyDown(unsigned int keyCode)
 {
 	buttonPressed[keyCode] = true;
-	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress());
+	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }
 
 //----------------------------------------------------------------------------------------
 void MDControl3::HandleInputKeyUp(unsigned int keyCode)
 {
 	buttonPressed[keyCode] = false;
-	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress());
+	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }
 
 //----------------------------------------------------------------------------------------
-void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime)
+void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	if(!secondBankEnabled)
 	{
@@ -288,37 +288,37 @@ void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime)
 		if(lineAssertedD0 != !buttonPressed[BUTTON_UP])
 		{
 			lineAssertedD0 = !buttonPressed[BUTTON_UP];
-			memoryBus->SetLine(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedD1 != !buttonPressed[BUTTON_DOWN])
 		{
 			lineAssertedD1 = !buttonPressed[BUTTON_DOWN];
-			memoryBus->SetLine(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedD2 != false)
 		{
 			lineAssertedD2 = false;
-			memoryBus->SetLine(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedD3 != false)
 		{
 			lineAssertedD3 = false;
-			memoryBus->SetLine(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedTL != !buttonPressed[BUTTON_A])
 		{
 			lineAssertedTL = !buttonPressed[BUTTON_A];
-			memoryBus->SetLine(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedTR != !buttonPressed[BUTTON_START])
 		{
 			lineAssertedTR = !buttonPressed[BUTTON_START];
-			memoryBus->SetLine(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedTH != true)
 		{
 			lineAssertedTH = true;
-			memoryBus->SetLine(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 	}
 	else
@@ -334,37 +334,37 @@ void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime)
 		if(lineAssertedD0 != !buttonPressed[BUTTON_UP])
 		{
 			lineAssertedD0 = !buttonPressed[BUTTON_UP];
-			memoryBus->SetLine(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedD1 != !buttonPressed[BUTTON_DOWN])
 		{
 			lineAssertedD1 = !buttonPressed[BUTTON_DOWN];
-			memoryBus->SetLine(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedD2 != !buttonPressed[BUTTON_LEFT])
 		{
 			lineAssertedD2 = !buttonPressed[BUTTON_LEFT];
-			memoryBus->SetLine(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedD3 != !buttonPressed[BUTTON_RIGHT])
 		{
 			lineAssertedD3 = !buttonPressed[BUTTON_RIGHT];
-			memoryBus->SetLine(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedTL != !buttonPressed[BUTTON_B])
 		{
 			lineAssertedTL = !buttonPressed[BUTTON_B];
-			memoryBus->SetLine(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedTR != !buttonPressed[BUTTON_C])
 		{
 			lineAssertedTR = !buttonPressed[BUTTON_C];
-			memoryBus->SetLine(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		if(lineAssertedTH != true)
 		{
 			lineAssertedTH = true;
-			memoryBus->SetLine(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime);
+			memoryBus->SetLine(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 	}
 }

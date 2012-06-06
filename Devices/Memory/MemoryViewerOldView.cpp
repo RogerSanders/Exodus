@@ -97,7 +97,7 @@ INT_PTR MemoryRead::MemoryViewerOldView::msgWM_TIMER(HWND hwnd, WPARAM wparam, L
 			for(unsigned int k = 0; (k < displayWidth) && ((memoryLocation + i + j + k) < device->GetInterfaceSize()); ++k)
 			{
 				Data data(8);
-				device->TransparentReadInterface(0, memoryLocation + i + j + k, data, device->GetDeviceContext());
+				device->TransparentReadInterface(0, memoryLocation + i + j + k, data, device->GetDeviceContext(), 0);
 				text << std::setw(2) << std::setfill(L'0') << std::hex << std::uppercase << data.GetData();
 			}
 		}

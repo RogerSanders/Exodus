@@ -7,7 +7,9 @@ enum S315_5313::Event
 	NEXTUPDATESTEP_VINT,
 	NEXTUPDATESTEP_EXINT,
 	NEXTUPDATESTEP_VSYNC,
-	NEXTUPDATESTEP_HINTCOUNTERADVANCE
+	NEXTUPDATESTEP_HINTCOUNTERADVANCE,
+	NEXTUPDATESTEP_HBLANK,
+	NEXTUPDATESTEP_VBLANK
 };
 
 //----------------------------------------------------------------------------------------
@@ -17,6 +19,20 @@ enum S315_5313::Layer
 	LAYER_LAYERA = 1,
 	LAYER_LAYERB = 2,
 	LAYER_BACKGROUND = 3
+};
+
+//----------------------------------------------------------------------------------------
+enum S315_5313::AccessContext
+{
+	ACCESSCONTEXT_VINT,
+	ACCESSCONTEXT_INT_ASSERT,
+	ACCESSCONTEXT_INT_RELEASE,
+	ACCESSCONTEXT_EXINT,
+	ACCESSCONTEXT_HINT,
+	ACCESSCONTEXT_BR_ASSERT,
+	ACCESSCONTEXT_BR_RELEASE,
+	ACCESSCONTEXT_DMAREAD,
+	ACCESSCONTEXT_TIMINGPOINT
 };
 
 //----------------------------------------------------------------------------------------
@@ -38,13 +54,13 @@ struct S315_5313::HScanSettings
 	              unsigned int ahsyncNegated,
 	              unsigned int aactiveDisplayHCounterFirstValue,
 	              unsigned int aactiveDisplayHCounterLastValue,
-				  unsigned int aactiveDisplayPixelCount,
+	              unsigned int aactiveDisplayPixelCount,
 	              unsigned int aleftBorderHCounterFirstValue,
 	              unsigned int aleftBorderHCounterLastValue,
-				  unsigned int aleftBorderPixelCount,
+	              unsigned int aleftBorderPixelCount,
 	              unsigned int arightBorderHCounterFirstValue,
 	              unsigned int arightBorderHCounterLastValue,
-				  unsigned int arightBorderPixelCount)
+	              unsigned int arightBorderPixelCount)
 	:hcounterActiveScanMaxValue(ahcounterActiveScanMaxValue),
 	 hcounterBlankingInitialValue(ahcounterBlankingInitialValue),
 	 vcounterIncrementPoint(avcounterIncrementPoint),
@@ -108,10 +124,10 @@ struct S315_5313::VScanSettings
 	              unsigned int alinesPerFrame,
 	              unsigned int aactiveDisplayVCounterFirstValue,
 	              unsigned int aactiveDisplayVCounterLastValue,
-				  unsigned int aactiveDisplayLineCount,
+	              unsigned int aactiveDisplayLineCount,
 	              unsigned int atopBorderVCounterFirstValue,
 	              unsigned int atopBorderVCounterLastValue,
-				  unsigned int atopBorderLineCount,
+	              unsigned int atopBorderLineCount,
 	              unsigned int abottomBorderVCounterFirstValue,
 	              unsigned int abottomBorderVCounterLastValue,
 	              unsigned int abottomBorderLineCount)
@@ -186,6 +202,19 @@ struct S315_5313::VScanSettings
 //	unsigned int activePixelY;
 //	unsigned int activeBlockY;
 //};
+
+//----------------------------------------------------------------------------------------
+struct S315_5313::TimesliceRenderInfo
+{
+	TimesliceRenderInfo()
+	{}
+	TimesliceRenderInfo(unsigned int atimesliceStartPosition)
+	:timesliceStartPosition(atimesliceStartPosition)
+	{}
+
+	unsigned int timesliceStartPosition;
+	unsigned int timesliceEndPosition;
+};
 
 //----------------------------------------------------------------------------------------
 struct S315_5313::SpriteDisplayCacheEntry
@@ -454,11 +483,11 @@ void S315_5313::SetRegisterData(unsigned int location, const AccessTarget& acces
 //0x00(0)  |----------------------------------|
 //         |*VSI|*HSI|*LCB|IE1|*SS|M4 |M2 |*ES|
 //         ------------------------------------
-//*VSI:	Vertical Scroll Inhibit. Disable vertical scrolling for columns 24-31.
-//*HSI:	Horizontal Scroll Inhibit. Disable horizontal scrolling for rows 0-1.
-//*LCB:	Left Column Blank. Mask column 0.
-//*SS:	Sprite Shift. Shift all sprites 8 pixels to the left.
-//*ES:	External Sync.
+//*VSI: Vertical Scroll Inhibit. Disable vertical scrolling for columns 24-31.
+//*HSI: Horizontal Scroll Inhibit. Disable horizontal scrolling for rows 0-1.
+//*LCB: Left Column Blank. Mask column 0.
+//*SS:  Sprite Shift. Shift all sprites 8 pixels to the left.
+//*ES:  External Sync.
 //----------------------------------------------------------------------------------------
 bool S315_5313::M4GetVScrollingDisabled(const AccessTarget& accessTarget) const
 {
@@ -561,8 +590,8 @@ void S315_5313::M4SetReg0Bit0(const AccessTarget& accessTarget, bool data)
 //0x01(1)  |--------------------------------|
 //         | / |DIS|IE |M1 |M3 | / |*SZ|*MAG|
 //         ----------------------------------
-//*SZ:	Sprite Size. All sprites are 8x16 instead of 8x8.
-//*MAG:	Sprite Zooming. Sprites are double the width and height. Each pixel is 2x2.
+//*SZ:  Sprite Size. All sprites are 8x16 instead of 8x8.
+//*MAG: Sprite Zooming. Sprites are double the width and height. Each pixel is 2x2.
 //----------------------------------------------------------------------------------------
 bool S315_5313::M4GetDisplayEnabled(const AccessTarget& accessTarget) const
 {
@@ -683,7 +712,7 @@ void S315_5313::M4SetAttributeTableBaseSprite(const AccessTarget& accessTarget, 
 //0x06(6)  |-------------------------------|
 //         | /   /   /   /   / |B13| /   / |
 //         ---------------------------------
-//*B13:	Sprite Pattern Generator Base Address - Bit 13.
+//*B13: Sprite Pattern Generator Base Address - Bit 13.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M4GetPatternBaseSprite(const AccessTarget& accessTarget) const
 {
@@ -778,14 +807,14 @@ void S315_5313::M4SetLineCounter(const AccessTarget& accessTarget, unsigned int 
 //         | /   /   / |IE1|*U1|*PS|M3 |*U2|
 //         ---------------------------------
 //IE1:  Horizontal interrupt enable
-//*U1:	An undocumented mode flag which is mentioned in genvdp.txt
-//*PS:	Palette Select. When 0, enables an undocumented mode where only bits 1, 5, and 9
-//		of the CRAM data are used to generate colours.
+//*U1:  An undocumented mode flag which is mentioned in genvdp.txt
+//*PS:  Palette Select. When 0, enables an undocumented mode where only bits 1, 5, and 9
+//      of the CRAM data are used to generate colours.
 //M3:   Enables hv counter latching on an external interrupt
-//*U2:	According to genvdp.txt, setting this bit selects a state where all video output
-//		from the VDP is disabled. The normal "Display Enable" flag in register 0x01
-//		simply forces the output to the backdrop colour, while this bit disables all
-//		output.
+//*U2:  According to genvdp.txt, setting this bit selects a state where all video output
+//      from the VDP is disabled. The normal "Display Enable" flag in register 0x01
+//      simply forces the output to the backdrop colour, while this bit disables all
+//      output.
 //----------------------------------------------------------------------------------------
 bool S315_5313::M5GetHInterruptEnabled(const AccessTarget& accessTarget) const
 {
@@ -828,7 +857,7 @@ void S315_5313::M5SetHVCounterLatchEnabled(const AccessTarget& accessTarget, boo
 //0x01(1)  |--------------------------------|
 //         |*U1|DISP|IE0|M1 |M2 |*M5| / |*U2|
 //         ----------------------------------
-//*U1:	Enables an undocumented TMS9918 text display mode
+//*U1:  Enables an undocumented TMS9918 text display mode
 //DISP: Display enable. If this bit is cleared, the entire display is filled with the
 //      backdrop colour. During this time, the VDP can be accessed at any time without
 //      having to wait. Changing this bit takes effect immediately, and it can be toggled
@@ -838,8 +867,8 @@ void S315_5313::M5SetHVCounterLatchEnabled(const AccessTarget& accessTarget, boo
 //M1:   DMA enable
 //M2:   V30 mode enable. When set, display is 30 columns high, when cleared it's 28
 //      columns high.
-//*M5:	Enables Mode 5. When cleared, mode 4 is active.
-//*U2:	An undocumented mode flag, notes from genvdp.txt are as follows:
+//*M5:  Enables Mode 5. When cleared, mode 4 is active.
+//*U2:  An undocumented mode flag, notes from genvdp.txt are as follows:
 //      "Bit 0 has an interesting effect; horizontal scrolling is disabled, and it would
 //       almost seem like the horizontal scroll value modifies the horizontal retrace /
 //       blanking / sync start and end positions around; the middle of the display is
@@ -1115,16 +1144,16 @@ void S315_5313::M5SetLSCR(const AccessTarget& accessTarget, bool data)
 //0x0C(12) |----------------------------------|
 //         |*RS0|*U1|*U2|*U3|STE|LSM1|LSM0|RS1|
 //         ------------------------------------
-//*RS0:	When set, the VDP uses the EDCLK input to drive SC directly. When clear, the VDP
+//*RS0: When set, the VDP uses the EDCLK input to drive SC directly. When clear, the VDP
 //      calculates SC internally, as either MCLK/5 or MCLK/4, depending on the state of
 //      the RS1 bit.
-//*U1:	When this bit is set, it causes the VSYNC pin to output the internal pixel clock
-//		(dot clock) instead of the VSYNC signal.
-//*U2:	When this bit is set, the HSYNC line is never asserted. Effectively, the HSYNC
+//*U1:  When this bit is set, it causes the VSYNC pin to output the internal pixel clock
+//      (dot clock) instead of the VSYNC signal.
+//*U2:  When this bit is set, the HSYNC line is never asserted. Effectively, the HSYNC
 //      line is disabled. It is possible that this is actually causing the HSYNC line to
 //      output some other kind of information, which under the circumstances that have
 //      been tested so far is always false.
-//*U3:	When set, the sprite/layer plane output line (SPA/B) is enabled. This causes that
+//*U3:  When set, the sprite/layer plane output line (SPA/B) is enabled. This causes that
 //      pin to be asserted if the current pixel is a sprite pixel, and negated if it is
 //      not.
 //STE:  Shadow/highlight mode enable. When set, shadow/highlight mode is active.
@@ -1143,23 +1172,23 @@ void S315_5313::M5SetLSCR(const AccessTarget& accessTarget, bool data)
 //      it during HSYNC to keep the overall drawing time of a line in H40 mode the same as
 //      in H32 mode, which allows a normal TV to lock onto the signal.
 //##OLD##
-//*RS0:	I suspect that either RS0 or RS1, probably RS0, affects the analog output signals
-//		such as HSYNC, while the other flag affects the digital operation of the chip and
-//		selects the actual cells which are drawn, and when. This is supported by the
-//		information in genvdp.txt, which states that setting RS0/1 to 01 does activate a
-//		40-cell display (see "Populous"), but that the display is "distorted a bit".
+//*RS0: I suspect that either RS0 or RS1, probably RS0, affects the analog output signals
+//      such as HSYNC, while the other flag affects the digital operation of the chip and
+//      selects the actual cells which are drawn, and when. This is supported by the
+//      information in genvdp.txt, which states that setting RS0/1 to 01 does activate a
+//      40-cell display (see "Populous"), but that the display is "distorted a bit".
 //      Follow-up: It seems likely that when RS0 is set, it switches the analog hardware
 //      from using the internal pixel clock, to using the external dot clock. In fact, all
 //      four upper bits of this register affect the analog chip state.
-//*U1:	When this bit is set, it causes the VSYNC pin to output the internal pixel clock
-//		(dot clock) instead of the VSYNC signal. The HSYNC signal is reportedly forced to
-//		the asserted state, but this is disputed. See:
-//		http://gendev.spritesmind.net/forum/viewtopic.php?p=7189#7189
-//*U2:	An undocumented mode flag. According to genvdp:
+//*U1:  When this bit is set, it causes the VSYNC pin to output the internal pixel clock
+//      (dot clock) instead of the VSYNC signal. The HSYNC signal is reportedly forced to
+//      the asserted state, but this is disputed. See:
+//      http://gendev.spritesmind.net/forum/viewtopic.php?p=7189#7189
+//*U2:  An undocumented mode flag. According to genvdp:
 //      "Bit 5 seems to affect the display when used in conjunction with RS0, but only in
 //       the same way as the display appears when using a setting of 01b"
-//*U3:	Reportedly, when this bit it set, HSYNC is forced to 1 constantly. See:
-//		http://gendev.spritesmind.net/forum/viewtopic.php?p=8245#8245
+//*U3:  Reportedly, when this bit it set, HSYNC is forced to 1 constantly. See:
+//      http://gendev.spritesmind.net/forum/viewtopic.php?p=8245#8245
 //STE:  Shadow/highlight mode enable. When set, shadow/highlight mode is active.
 //LSM1: Interlace double flag. When set, double interlace mode is active if the interlace
 //      enable bit is set. If interlacing is enabled and this bit is not set, normal
@@ -1447,8 +1476,8 @@ void S315_5313::M5SetDMALengthCounter(const AccessTarget& accessTarget, unsigned
 //         |DMD1|*DMD0|SA22|SA21|SA20|SA19|SA18|SA17|
 //         |    | SA23|    |    |    |    |    |    |
 //         ------------------------------------------
-//*DMD0:	DMD0 acts as both DMD0 and SA23, so there's deliberate overlap in the access
-//			functions to these registers.
+//*DMD0:  DMD0 acts as both DMD0 and SA23, so there's deliberate overlap in the access
+//        functions to these registers.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M5GetDMASourceAddress(const AccessTarget& accessTarget) const
 {

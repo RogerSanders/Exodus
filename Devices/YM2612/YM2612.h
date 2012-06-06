@@ -93,8 +93,8 @@ public:
 	virtual void ExecuteCommit();
 
 	//Memory interface functions
-	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime);
-	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime);
+	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
@@ -108,6 +108,7 @@ public:
 private:
 	//Enumerations
 	enum LineID;
+	enum AccessContext;
 	enum LockedRegisterKey;
 	enum TimerParam;
 	enum Channels;
@@ -195,7 +196,7 @@ private:
 	int CalculateOperator(unsigned int phase, int phaseModulation, unsigned int attenuation) const;
 
 	//Memory interface functions
-	void RegisterSpecialUpdateFunction(unsigned int location, const Data& data, double accessTime);
+	void RegisterSpecialUpdateFunction(unsigned int location, const Data& data, double accessTime, IDeviceContext* caller, unsigned int accessContext);
 	bool CheckForLatchedWrite(unsigned int location, const Data& data, double accessTime);
 
 	//Timer management functions
@@ -416,19 +417,19 @@ private:
 	boost::condition renderThreadUpdate;
 	boost::condition renderThreadStopped;
 	bool renderThreadActive;
-	bool pendingRenderOperation;
-	static const unsigned int maxPendingRenderOperationCount = 2;
+	static const unsigned int maxPendingRenderOperationCount = 4;
 	bool renderThreadLagging;
 	boost::condition renderThreadLaggingStateChange;
 	unsigned int pendingRenderOperationCount;
-	double pendingRenderTimesliceLength;
-	double bpendingRenderTimesliceLength;
 	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceList;
 	std::list<RandomTimeAccessValue<bool, double>::Timeslice> timerATimesliceList;
+	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceListUncommitted;
+	std::list<RandomTimeAccessValue<bool, double>::Timeslice> timerATimesliceListUncommitted;
 	double remainingRenderTime;
 	int egRemainingRenderCycles;
 	unsigned int outputSampleRate;
 	AudioStream outputStream;
+	std::vector<short> outputBuffer;
 
 	//Render data
 	unsigned int envelopeCycleCounter;

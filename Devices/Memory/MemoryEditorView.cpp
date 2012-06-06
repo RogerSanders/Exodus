@@ -120,7 +120,7 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPAR
 		for(unsigned int i = 0; (i < windowSize) && (windowPos + i < totalMemorySize); ++i)
 		{
 			Data data(8);
-			device->TransparentReadInterface(0, windowPos + i, data, device->GetDeviceContext());
+			device->TransparentReadInterface(0, windowPos + i, data, device->GetDeviceContext(), 0);
 			bufferSegment[i] = (unsigned char)data.GetData();
 			markBufferSegment[i] = device->IsByteLocked(windowPos + i)? 1: 0;
 		}
@@ -143,14 +143,14 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 		{
 			WC_HexEdit::Hex_ReadDataInfo* readDataInfo = (WC_HexEdit::Hex_ReadDataInfo*)lparam;
 			Data data(8);
-			device->TransparentReadInterface(0, readDataInfo->offset, data, device->GetDeviceContext());
+			device->TransparentReadInterface(0, readDataInfo->offset, data, device->GetDeviceContext(), 0);
 			readDataInfo->data = (unsigned char)data.GetData();
 			readDataInfo->processed = true;
 		}
 		else if(HIWORD(wparam) == WC_HexEdit::HEX_WRITEDATA)
 		{
 			WC_HexEdit::Hex_WriteDataInfo* writeDataInfo = (WC_HexEdit::Hex_WriteDataInfo*)lparam;
-			device->TransparentWriteInterface(0, writeDataInfo->offset, Data(8, writeDataInfo->data), device->GetDeviceContext());
+			device->TransparentWriteInterface(0, writeDataInfo->offset, Data(8, writeDataInfo->data), device->GetDeviceContext(), 0);
 		}
 		else if(HIWORD(wparam) == WC_HexEdit::HEX_READDATABLOCK)
 		{
@@ -158,7 +158,7 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 			Data data(8);
 			for(unsigned int i = 0; i < readDataBlockInfo->size; ++i)
 			{
-				device->TransparentReadInterface(0, readDataBlockInfo->offset + i, data, device->GetDeviceContext());
+				device->TransparentReadInterface(0, readDataBlockInfo->offset + i, data, device->GetDeviceContext(), 0);
 				readDataBlockInfo->buffer[i] = (unsigned char)data.GetData();
 			}
 			readDataBlockInfo->processed = true;
@@ -168,7 +168,7 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 			WC_HexEdit::Hex_WriteDataBlockInfo* writeDataBlockInfo = (WC_HexEdit::Hex_WriteDataBlockInfo*)lparam;
 			for(unsigned int i = 0; i < writeDataBlockInfo->size; ++i)
 			{
-				device->TransparentWriteInterface(0, writeDataBlockInfo->offset + i, Data(8, writeDataBlockInfo->buffer[i]), device->GetDeviceContext());
+				device->TransparentWriteInterface(0, writeDataBlockInfo->offset + i, Data(8, writeDataBlockInfo->buffer[i]), device->GetDeviceContext(), 0);
 			}
 			writeDataBlockInfo->processed = true;
 		}
@@ -186,7 +186,7 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 				for(unsigned int i = 0; (i < windowSize) && (windowPos + i < totalMemorySize); ++i)
 				{
 					Data data(8);
-					device->TransparentReadInterface(0, windowPos + i, data, device->GetDeviceContext());
+					device->TransparentReadInterface(0, windowPos + i, data, device->GetDeviceContext(), 0);
 					bufferSegment[i] = (unsigned char)data.GetData();
 					markBufferSegment[i] = device->IsByteLocked(windowPos + i)? 1: 0;
 				}

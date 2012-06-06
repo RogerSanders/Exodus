@@ -340,7 +340,7 @@ void Processor::TriggerBreakpoint(Breakpoint* breakpoint) const
 	BreakpointCallbackParams* params = new BreakpointCallbackParams();
 	params->object = (Processor*)this;
 	params->breakpoint = breakpoint;
-	GetDeviceContext()->SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), BreakpointCallbackRaw, params);
+	GetDeviceContext()->SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0, BreakpointCallbackRaw, params);
 
 //		GetDeviceContext()->SetSystemRollback(0, GetCurrentTimesliceProgress());
 //		GetDeviceContext()->GetSystem()->FlagStopSystem();

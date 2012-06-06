@@ -74,7 +74,7 @@ public:
 	virtual void ExecuteCommit();
 
 	//Memory interface functions
-	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime);
+	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
@@ -157,17 +157,16 @@ private:
 	boost::condition renderThreadUpdate;
 	boost::condition renderThreadStopped;
 	bool renderThreadActive;
-	bool pendingRenderOperation;
-	static const unsigned int maxPendingRenderOperationCount = 2;
+	static const unsigned int maxPendingRenderOperationCount = 4;
 	bool renderThreadLagging;
 	boost::condition renderThreadLaggingStateChange;
 	unsigned int pendingRenderOperationCount;
-	double pendingRenderTimesliceLength;
-	double bpendingRenderTimesliceLength;
 	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceList;
+	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceListUncommitted;
 	double remainingRenderTime;
 	unsigned int outputSampleRate;
 	AudioStream outputStream;
+	std::vector<short> outputBuffer;
 
 	//Render data
 	ChannelRenderData channelRenderData[channelCount];

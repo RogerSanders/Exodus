@@ -159,7 +159,7 @@ public:
 	virtual unsigned int GetLineID(const wchar_t* lineName) const;
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
-	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime);
+	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Initialization functions
 	virtual bool BuildDevice();
@@ -192,7 +192,8 @@ public:
 	virtual bool SendNotifyAfterExecuteCalled() const;
 	virtual void NotifyAfterExecuteCalled();
 	virtual void ExecuteTimeslice(double nanoseconds);
-	virtual double GetNextTimingPointInDeviceTime() const;
+	virtual void ExecuteTimesliceTimingPointStep(unsigned int accessContext);
+	virtual double GetNextTimingPointInDeviceTime(unsigned int& accessContext) const;
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
@@ -205,8 +206,8 @@ public:
 	unsigned int BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
 
 	//Memory interface functions
-	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime);
-	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime);
+	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 protected:
 	//Window functions
@@ -241,6 +242,7 @@ private:
 	};
 	enum Event;
 	enum Layer;
+	enum AccessContext;
 
 	//Structures
 	struct HScanSettings;
@@ -254,6 +256,7 @@ private:
 		unsigned int hcounter;
 		unsigned int vcounter;
 	};
+	struct TimesliceRenderInfo;
 	struct SpriteDisplayCacheEntry;
 	struct SpriteCellDisplayCacheEntry;
 	struct SpritePixelBufferEntry;
@@ -316,7 +319,7 @@ private:
 	void UpdateAnalogRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
 	void DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const;
 	void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerAVscrollPatternDisplacement, unsigned int& layerBVscrollPatternDisplacement, unsigned int& layerAVscrollMappingDisplacement, unsigned int& layerBVscrollMappingDisplacement) const;
-	void DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const;
+	void DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const;
 	void DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const;
 	void DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool interlaceMode2Active, bool screenModeRS1Active, unsigned int& nextTableEntryToRead, bool& spriteSearchComplete, bool& spriteOverflow, unsigned int& spriteDisplayCacheEntryCount, std::vector<SpriteDisplayCacheEntry>& spriteDisplayCache) const;
 	void DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const;
@@ -333,14 +336,15 @@ private:
 
 	//Event functions
 	void ExecuteEvent(EventProperties event, double accessTime, unsigned int ahcounter, unsigned int avcounter, bool ascreenModeRS0, bool ascreenModeRS1, bool ascreenModeV30, bool apalMode, bool ainterlaceEnabled);
-	void GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent) const;
+//	void GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent) const;
+	void GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent, bool& eventOddFlagSet, bool& eventInterlaceEnabled, bool& eventInterlaceDouble, bool& eventPalMode, bool& eventScreenModeV30, bool& eventScreenModeRS0, bool& eventScreenModeRS1, bool eventInterlaceEnabledNew, bool eventInterlaceDoubleNew, bool eventPalModeNew, bool eventScreenModeV30New, bool eventScreenModeRS0New, bool eventScreenModeRS1New) const;
 	bool EventOccursWithinCounterRange(const HScanSettings& hscanSettings, unsigned int hcounterStart, unsigned int vcounterStart, unsigned int hcounterEnd, unsigned int vcounterEnd, unsigned int hcounterEventPos, unsigned int vcounterEventPos) const;
 
 	//Port functions
 	Data GetHVCounter() const;
 	void ProcessCommandDataWriteFirstHalf(const Data& data);
 	void ProcessCommandDataWriteSecondHalf(const Data& data);
-	void RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int registerNo, const Data& data);
+	void RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int accessContext, unsigned int registerNo, const Data& data);
 
 	bool ValidReadTargetInCommandCode() const;
 //	bool ReadVideoMemory(unsigned int mclkCycle, Data& data);
@@ -368,7 +372,7 @@ private:
 	static void AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned int& hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool& oddFlagSet, unsigned int& vcounterCurrent, unsigned int pixelClockSteps);
 
 	//Pixel clock functions
-	static unsigned int GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vcounterCurrent);
+	static unsigned int GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, bool displayEnabled, unsigned int vcounterCurrent);
 	static unsigned int GetPixelClockTicksForMclkTicks(const HScanSettings& hscanSettings, unsigned int mclkTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active, unsigned int& mclkTicksUnused);
 	static unsigned int GetMclkTicksForPixelClockTicks(const HScanSettings& hscanSettings, unsigned int pixelClockTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active);
 
@@ -582,15 +586,16 @@ private:
 private:
 	//##DEBUG##
 	bool outputTestDebugMessages;
+	bool outputTimingDebugMessages;
 
 	//Menu handling
 	DebugMenuHandler* menuHandler;
 
 	//Bus interface
 	IBusInterface* memoryBus;
-	bool busGranted;
+	volatile bool busGranted;
 	bool bbusGranted;
-	bool palModeLineState;
+	volatile bool palModeLineState;
 	bool bpalModeLineState;
 
 	//Embedded PSG device
@@ -674,6 +679,8 @@ private:
 	bool bscreenModeRS1Cached;
 	bool screenModeV30Cached;
 	bool bscreenModeV30Cached;
+	bool displayEnabledCached;
+	bool bdisplayEnabledCached;
 	unsigned int spriteAttributeTableBaseAddressDecoded;
 	unsigned int bspriteAttributeTableBaseAddressDecoded;
 	bool cachedDMASettingsChanged;
@@ -707,12 +714,13 @@ private:
 	//4 bytes of each 8-byte sprite entry. Implement that here as a simple data buffer.
 
 	//Update state
-	double lastTimesliceRemainingTime; //Rolling value, the difference between the last timeslice length, and the actual period of time we advanced the state.
-	double blastTimesliceRemainingTime;
 	double currentTimesliceLength; //The length of the current timeslice, as passed to NotifyUpcomingTimeslice().
-	double currentTimesliceMclkCyclesRemainingTime; //Rolling value, the unused portion of the current timeslice which wasn't consumed by an mclk cycle.
+	double lastTimesliceMclkCyclesRemainingTime; //The unused portion of the last timeslice which wasn't be consumed by an mclk cycle. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
+	double currentTimesliceMclkCyclesRemainingTime; //Rolling value, the unused portion of the current timeslice which can't be consumed by an mclk cycle, as predicted during NotifyUpcomingTimeslice().
 	double bcurrentTimesliceMclkCyclesRemainingTime;
-	unsigned int currentTimesliceTotalMclkCycles; //The total number of mclk cycles added by the current timeslice, including the currentTimesliceMclkCyclesRemainingTime value.
+	unsigned int currentTimesliceTotalMclkCycles; //The total number of mclk cycles added by the current timeslice, taking into account free from the last timeslice as included in the currentTimesliceMclkCyclesRemainingTime value. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
+	unsigned int lastTimesliceMclkCyclesOverrun; //The total number of mclk cycles we advanced past the end of the last timeslice
+	unsigned int blastTimesliceMclkCyclesOverrun;
 	double stateLastUpdateTime;
 	unsigned int stateLastUpdateMclk;
 	//##TODO## I think we've solved this issue now. Confirm, and remove these comments.
@@ -766,15 +774,22 @@ private:
 	static const unsigned int layerPriorityLookupTableSize = 0x200;
 	std::vector<unsigned int> layerPriorityLookupTable;
 
-	static const unsigned int maxPendingRenderOperationCount = 2;
+	static const unsigned int maxPendingRenderOperationCount = 4;
 	bool renderThreadLagging;
 	boost::condition renderThreadLaggingStateChange;
 	unsigned int pendingRenderOperationCount;
+	std::list<TimesliceRenderInfo> timesliceRenderInfoList;
 	std::list<RegBuffer::Timeslice> regTimesliceList;
 	std::list<ITimedBufferInt::Timeslice*> vramTimesliceList;
 	std::list<ITimedBufferInt::Timeslice*> cramTimesliceList;
 	std::list<ITimedBufferInt::Timeslice*> vsramTimesliceList;
 	std::list<ITimedBufferInt::Timeslice*> spriteCacheTimesliceList;
+	std::list<TimesliceRenderInfo> timesliceRenderInfoListUncommitted;
+	std::list<RegBuffer::Timeslice> regTimesliceListUncommitted;
+	std::list<ITimedBufferInt::Timeslice*> vramTimesliceListUncommitted;
+	std::list<ITimedBufferInt::Timeslice*> cramTimesliceListUncommitted;
+	std::list<ITimedBufferInt::Timeslice*> vsramTimesliceListUncommitted;
+	std::list<ITimedBufferInt::Timeslice*> spriteCacheTimesliceListUncommitted;
 
 	//Digital render data buffers
 	//##TODO## Separate the analog and digital renderers into their own classes. Our
@@ -789,29 +804,17 @@ private:
 	static const unsigned int spritePixelBufferSize = maxCellsPerRow*8;
 	static const unsigned int renderSpritePixelBufferPlaneCount = 2;
 	unsigned int renderDigitalHCounterPos;
-	unsigned int brenderDigitalHCounterPos;
 	unsigned int renderDigitalVCounterPos;
-	unsigned int brenderDigitalVCounterPos;
 	unsigned int renderDigitalVCounterPosPreviousLine;
-	unsigned int brenderDigitalVCounterPosPreviousLine;
 	unsigned int renderDigitalRemainingMclkCycles;
-	unsigned int brenderDigitalRemainingMclkCycles;
 	bool renderDigitalScreenModeRS0Active;
-	bool brenderDigitalScreenModeRS0Active;
 	bool renderDigitalScreenModeRS1Active;
-	bool brenderDigitalScreenModeRS1Active;
 	bool renderDigitalScreenModeV30Active;
-	bool brenderDigitalScreenModeV30Active;
 	bool renderDigitalInterlaceEnabledActive;
-	bool brenderDigitalInterlaceEnabledActive;
 	bool renderDigitalInterlaceDoubleActive;
-	bool brenderDigitalInterlaceDoubleActive;
 	bool renderDigitalPalModeActive;
-	bool brenderDigitalPalModeActive;
 	bool renderDigitalOddFlagSet;
-	bool brenderDigitalOddFlagSet;
 	unsigned int renderDigitalMclkCycleProgress; //No backup needed
-	//##TODO## Implement rollback/commit for the following render variables
 	unsigned int renderLayerAHscrollPatternDisplacement;
 	unsigned int renderLayerBHscrollPatternDisplacement;
 	unsigned int renderLayerAHscrollMappingDisplacement;
@@ -876,8 +879,6 @@ private:
 	bool workerThreadActive;
 	bool workerThreadPaused;
 	bool bworkerThreadPaused;
-	double busGrantTime;
-	double bbusGrantTime;
 
 	//DMA transfer registers
 	//##TODO## Calculate on the hardware how many mclk cycles it takes a DMA transfer
@@ -886,7 +887,7 @@ private:
 	//disabled. We need to know the actual delay time between successive reads, so
 	//that we don't perform DMA transfers too quickly when the display is disabled, or
 	//not in an active display region.
-	static const unsigned int dmaTransferReadTimeInMclkCycles = 8;
+	static const unsigned int dmaTransferReadTimeInMclkCycles = 8; //The number of mclk cycles required for a DMA operation to read a byte from the external bus
 	bool dmaTransferActive;
 	bool bdmaTransferActive;
 	bool dmaTransferReadDataCached;
@@ -895,8 +896,14 @@ private:
 	Data bdmaTransferReadCache;
 	unsigned int dmaTransferNextReadMclk;
 	unsigned int bdmaTransferNextReadMclk;
-	unsigned int dmaTransferLastTimesliceUnusedMclkCycles;
-	unsigned int bdmaTransferLastTimesliceUnusedMclkCycles;
+	unsigned int dmaTransferLastTimesliceUsedReadDelay;
+	unsigned int bdmaTransferLastTimesliceUsedReadDelay;
+	bool dmaTransferInvalidPortWriteCached;
+	bool bdmaTransferInvalidPortWriteCached;
+	unsigned int dmaTransferInvalidPortWriteAddressCache;
+	unsigned int bdmaTransferInvalidAddressCache;
+	Data dmaTransferInvalidPortWriteDataCache;
+	Data bdmaTransferInvalidDataCache;
 
 	//Interrupt settings
 	//##TODO## Add rollback settings for these values
@@ -907,7 +914,6 @@ private:
 	//Event handling
 	bool eventsProcessedForTimeslice;
 	boost::condition eventProcessingCompleted;
-	unsigned int eventLastUpdateMclk;
 	mutable EventProperties nextEventToExecute;
 	EventProperties bnextEventToExecute;
 	mutable double nextEventToExecuteTime;

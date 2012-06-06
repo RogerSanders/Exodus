@@ -12,8 +12,8 @@ public:
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 
 	//Memory interface functions
-	virtual void TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller);
-	virtual void TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller);
+	virtual void TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext);
+	virtual void TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext);
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);

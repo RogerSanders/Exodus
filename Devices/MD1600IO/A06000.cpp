@@ -99,7 +99,7 @@ void A06000::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 //Memory interface functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult A06000::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult A06000::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//##TODO## Perform comprehensive tests on the hardware to determine exactly how access
 	//is forwarded over the bus, and determine from that which CE lines are asserted. This
@@ -119,14 +119,14 @@ IBusInterface::AccessResult A06000::ReadInterface(unsigned int interfaceNumber, 
 	{
 		if((currentMappingPos + location) < 0x400000)
 		{
-			m68kMemoryBus->ReadMemory(currentMappingPos + location, data, caller, accessTime);
+			m68kMemoryBus->ReadMemory(currentMappingPos + location, data, caller, accessTime, accessContext);
 		}
 	}
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult A06000::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult A06000::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	if(interfaceNumber == 1)
 	{
@@ -153,7 +153,7 @@ IBusInterface::AccessResult A06000::WriteInterface(unsigned int interfaceNumber,
 		if((currentMappingPos + location) < 0x400000)
 		{
 			//##TODO## Figure out why this is disabled
-//			m68kMemoryBus->WriteMemory(currentMappingPos + location, data, caller, accessTime);
+//			m68kMemoryBus->WriteMemory(currentMappingPos + location, data, caller, accessTime, accessContext);
 		}
 	}
 	return true;

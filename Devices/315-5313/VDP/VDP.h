@@ -392,7 +392,7 @@ public:
 	virtual unsigned int GetLineID(const wchar_t* lineName) const;
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
-	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime);
+	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Initialization functions
 	virtual bool ValidateDevice();
@@ -412,7 +412,7 @@ public:
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
 	virtual double ExecuteStep();
-	virtual double GetNextTimingPointInDeviceTime() const;
+	virtual double GetNextTimingPointInDeviceTime(unsigned int& accessContext) const;
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
@@ -425,8 +425,8 @@ public:
 	unsigned int BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
 
 	//Memory interface functions
-	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime);
-	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime);
+	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void UpdateStatusRegister(double timesliceProgress);
 	void UpdateFIFO(double currentTime);
 	double WriteFIFO(const FIFOEntry& fifoEntry);
@@ -700,6 +700,12 @@ private:
 		LINE_IPL = 1,
 		LINE_INT,
 		LINE_INTAK
+	};
+	enum AccessContext
+	{
+		ACCESSCONTEXT_VINT,
+		ACCESSCONTEXT_INT,
+		ACCESSCONTEXT_HINT
 	};
 
 	//Constants

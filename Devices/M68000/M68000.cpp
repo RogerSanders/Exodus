@@ -374,7 +374,7 @@ unsigned int M68000::GetLineWidth(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime)
+void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//If this line state change is not a response to a request, we need to obtain an
 	//exclusive lock. Note that if this is a line state change which we process
@@ -418,7 +418,7 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	//already passed that time.
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//Insert the line access into the buffer. Note that entries in the buffer are sorted
@@ -458,7 +458,7 @@ void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 			if(bgLineState != brLineState)
 			{
 				bgLineState = brLineState;
-				memoryBus->SetLine(LINE_BG, Data(GetLineWidth(LINE_BG), (unsigned int)bgLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress());
+				memoryBus->SetLine(LINE_BG, Data(GetLineWidth(LINE_BG), (unsigned int)bgLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 			}
 		}
 		break;}
@@ -1025,7 +1025,7 @@ double M68000::ExecuteStep()
 		memoryAccessReadHighWriteLow = true;
 		memoryAccessRMWCycleInProgress = false;
 		memoryAccessRMWCycleFirstOperation = false;
-		IBusInterface::AccessResult accessResult = memoryBus->ReadMemory(interruptCycleAddress.GetData(), interruptVectorNumber, GetDeviceContext(), GetCurrentTimesliceProgress());
+		IBusInterface::AccessResult accessResult = memoryBus->ReadMemory(interruptCycleAddress.GetData(), interruptVectorNumber, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 
 		//Mask the resulting interrupt vector number to a single byte. According to the
 		//M68000 users manual, section 5.1.4, the M68000 does perform a 16-bit read for
@@ -1458,8 +1458,8 @@ unsigned int M68000::DisassemblyGetDataRegisterUnmodifiedSize(unsigned int regNo
 void M68000::TriggerExternalReset(double resetTimeBegin, double resetTimeEnd)
 {
 	//Toggle the external RESET line state, to reset external devices.
-	memoryBus->SetLine(M68000::LINE_RESET, Data(1, 1), GetDeviceContext(), GetDeviceContext(), resetTimeBegin);
-	memoryBus->SetLine(M68000::LINE_RESET, Data(1, 0), GetDeviceContext(), GetDeviceContext(), resetTimeEnd);
+	memoryBus->SetLine(M68000::LINE_RESET, Data(1, 1), GetDeviceContext(), GetDeviceContext(), resetTimeBegin, 0);
+	memoryBus->SetLine(M68000::LINE_RESET, Data(1, 0), GetDeviceContext(), GetDeviceContext(), resetTimeEnd, 0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1541,7 +1541,7 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 				memoryAccessReadHighWriteLow = true;
 				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
 				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24) & ~0x1, temp, GetDeviceContext(), GetCurrentTimesliceProgress());
+				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24) & ~0x1, temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 				if(!result.accessMaskUsed)
 				{
 					lastReadBusData = temp;
@@ -1569,7 +1569,7 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 				memoryAccessReadHighWriteLow = true;
 				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
 				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), GetCurrentTimesliceProgress());
+				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 				if(!result.accessMaskUsed)
 				{
 					lastReadBusData = temp;
@@ -1592,8 +1592,8 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 				memoryAccessReadHighWriteLow = true;
 				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
 				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24), temp1, GetDeviceContext(), GetCurrentTimesliceProgress());
-				result2 = memoryBus->ReadMemory((location + 2).GetDataSegment(0, 24), temp2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime);
+				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24), temp1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+				result2 = memoryBus->ReadMemory((location + 2).GetDataSegment(0, 24), temp2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0);
 				if(!result.accessMaskUsed)
 				{
 					lastReadBusData = temp1;
@@ -1658,7 +1658,7 @@ void M68000::ReadMemoryTransparent(const M68000Long& location, Data& data, Funct
 				memoryAccessTransparentReadHighWriteLow = true;
 				memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
 				memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-				memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24) & ~0x1, temp, GetDeviceContext());
+				memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24) & ~0x1, temp, GetDeviceContext(), 0);
 				temp.GetLowerBits(data);
 			}
 			else
@@ -1670,7 +1670,7 @@ void M68000::ReadMemoryTransparent(const M68000Long& location, Data& data, Funct
 				memoryAccessTransparentReadHighWriteLow = true;
 				memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
 				memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-				memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext());
+				memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), 0);
 				temp.GetUpperBits(data);
 			}
 			break;
@@ -1685,7 +1685,7 @@ void M68000::ReadMemoryTransparent(const M68000Long& location, Data& data, Funct
 			memoryAccessTransparentReadHighWriteLow = true;
 			memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
 			memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-			memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext());
+			memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), 0);
 			data = temp;
 			break;
 		}
@@ -1700,8 +1700,8 @@ void M68000::ReadMemoryTransparent(const M68000Long& location, Data& data, Funct
 			memoryAccessTransparentReadHighWriteLow = true;
 			memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
 			memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-			memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp1, GetDeviceContext());
-			memoryBus->TransparentReadMemory((location + 2).GetDataSegment(0, 24), temp2, GetDeviceContext());
+			memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp1, GetDeviceContext(), 0);
+			memoryBus->TransparentReadMemory((location + 2).GetDataSegment(0, 24), temp2, GetDeviceContext(), 0);
 			data = (temp1.GetData() << temp2.GetBitCount()) | temp2.GetData();
 		}
 	}
@@ -1771,7 +1771,7 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 					memoryAccessReadHighWriteLow = false;
 					memoryAccessRMWCycleInProgress = rmwCycleInProgress;
 					memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-					result = memoryBus->WriteMemory(location.GetDataSegment(0, 24) & ~0x1, tempData, GetDeviceContext(), GetCurrentTimesliceProgress());
+					result = memoryBus->WriteMemory(location.GetDataSegment(0, 24) & ~0x1, tempData, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 				}
 				else
 				{
@@ -1781,7 +1781,7 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 					memoryAccessReadHighWriteLow = false;
 					memoryAccessRMWCycleInProgress = rmwCycleInProgress;
 					memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-					result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), tempData, GetDeviceContext(), GetCurrentTimesliceProgress());
+					result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), tempData, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 				}
 				break;
 			}
@@ -1793,7 +1793,7 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 				memoryAccessReadHighWriteLow = false;
 				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
 				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), M68000Word(data), GetDeviceContext(), GetCurrentTimesliceProgress());
+				result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), M68000Word(data), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 				break;
 			}
 		case BITCOUNT_LONG:
@@ -1807,8 +1807,8 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 				memoryAccessReadHighWriteLow = false;
 				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
 				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), word1, GetDeviceContext(), GetCurrentTimesliceProgress());
-				result2 = memoryBus->WriteMemory((location + 2).GetDataSegment(0, 24), word2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime);
+				result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), word1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+				result2 = memoryBus->WriteMemory((location + 2).GetDataSegment(0, 24), word2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0);
 				result.busError |= result2.busError;
 				result.executionTime += result2.executionTime;
 				break;
@@ -1865,7 +1865,7 @@ void M68000::WriteMemoryTransparent(const M68000Long& location, const Data& data
 				memoryAccessTransparentReadHighWriteLow = false;
 				memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
 				memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-				memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24) & ~0x1, tempData, GetDeviceContext());
+				memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24) & ~0x1, tempData, GetDeviceContext(), 0);
 			}
 			else
 			{
@@ -1876,7 +1876,7 @@ void M68000::WriteMemoryTransparent(const M68000Long& location, const Data& data
 				memoryAccessTransparentReadHighWriteLow = false;
 				memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
 				memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-				memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), tempData, GetDeviceContext());
+				memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), tempData, GetDeviceContext(), 0);
 			}
 			break;
 		}
@@ -1889,7 +1889,7 @@ void M68000::WriteMemoryTransparent(const M68000Long& location, const Data& data
 			memoryAccessTransparentReadHighWriteLow = false;
 			memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
 			memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-			memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), M68000Word(data), GetDeviceContext());
+			memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), M68000Word(data), GetDeviceContext(), 0);
 			break;
 		}
 	case BITCOUNT_LONG:
@@ -1903,8 +1903,8 @@ void M68000::WriteMemoryTransparent(const M68000Long& location, const Data& data
 			memoryAccessTransparentReadHighWriteLow = false;
 			memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
 			memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-			memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), word1, GetDeviceContext());
-			memoryBus->TransparentWriteMemory((location + 2).GetDataSegment(0, 24), word2, GetDeviceContext());
+			memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), word1, GetDeviceContext(), 0);
+			memoryBus->TransparentWriteMemory((location + 2).GetDataSegment(0, 24), word2, GetDeviceContext(), 0);
 			break;
 		}
 	}

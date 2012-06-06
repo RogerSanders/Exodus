@@ -113,7 +113,7 @@ INT_PTR MemoryRead::MemoryEditorOldView::msgWM_TIMER(HWND hwnd, WPARAM wparam, L
 		if(currentControlFocus != IDC_MEMORY_DATA_EDIT_0 + i)
 		{
 			Data data(8);
-			device->TransparentReadInterface(0, memoryLocation + i, data, device->GetDeviceContext());
+			device->TransparentReadInterface(0, memoryLocation + i, data, device->GetDeviceContext(), 0);
 			UpdateDlgItemHex(hwnd, IDC_MEMORY_DATA_EDIT_0 + i, 2, data.GetData());
 		}
 	}
@@ -140,7 +140,7 @@ INT_PTR MemoryRead::MemoryEditorOldView::msgWM_COMMAND(HWND hwnd, WPARAM wparam,
 		{
 			if((LOWORD(wparam) >= IDC_MEMORY_DATA_EDIT_0) && (LOWORD(wparam) < (IDC_MEMORY_DATA_EDIT_0 + 0x10)))
 			{
-				device->TransparentWriteInterface(0, memoryLocation + (LOWORD(wparam) - IDC_MEMORY_DATA_EDIT_0), Data(8, GetDlgItemHex(hwnd, LOWORD(wparam))), device->GetDeviceContext());
+				device->TransparentWriteInterface(0, memoryLocation + (LOWORD(wparam) - IDC_MEMORY_DATA_EDIT_0), Data(8, GetDlgItemHex(hwnd, LOWORD(wparam))), device->GetDeviceContext(), 0);
 			}
 			else if((LOWORD(wparam) == IDC_MEMORY_DATA_EDIT_LOCATION))
 			{

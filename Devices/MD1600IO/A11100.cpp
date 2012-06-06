@@ -88,12 +88,24 @@ Device::UpdateMethod A11100::GetUpdateMethod() const
 void A11100::ExecuteTimeslice(double nanoseconds)
 {
 	//This controller needs to power up asserting the RESET line. Since we can't access
-	//another device during initialization, we implement the access here.
+	//another device during initialization, we implement the access here. This is a bit of
+	//a dodgy hack. We really need a way for this device to generate a timing point
+	//immediately after system construction, IE, at time 0, then we won't need an
+	//ExecuteTimeslice function at all.
+	if(!initialized)
+	{
+		ExecuteTimesliceTimingPointStep(0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void A11100::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
+{
 	if(!initialized)
 	{
 		Data lineData(1, 0);
 		lineData.SetBit(0, true);
-		memoryBus->SetLine(LINE_RESET, lineData, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress());
+		memoryBus->SetLine(LINE_RESET, lineData, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		initialized = true;
 	}
 }
@@ -101,7 +113,7 @@ void A11100::ExecuteTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 //Memory interface functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult A11100::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult A11100::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Return true if the Z80 bus is not accessible by the M68000
 	data.SetBit(0, (reset || !busLocked));
@@ -109,7 +121,7 @@ IBusInterface::AccessResult A11100::ReadInterface(unsigned int interfaceNumber, 
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult A11100::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult A11100::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	if(location == 0x100)
 	{
@@ -125,7 +137,7 @@ IBusInterface::AccessResult A11100::WriteInterface(unsigned int interfaceNumber,
 
 		Data lineData(1, 0);
 		lineData.SetBit(0, state);
-		memoryBus->SetLine(LINE_RESET, lineData, GetDeviceContext(), caller, accessTime);
+		memoryBus->SetLine(LINE_RESET, lineData, GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(location == 0)
 	{
@@ -141,7 +153,7 @@ IBusInterface::AccessResult A11100::WriteInterface(unsigned int interfaceNumber,
 
 		Data lineData(1, 0);
 		lineData.SetBit(0, busLocked);
-		memoryBus->SetLine(LINE_BUSREQ, lineData, GetDeviceContext(), caller, accessTime);
+		memoryBus->SetLine(LINE_BUSREQ, lineData, GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	return true;
 }

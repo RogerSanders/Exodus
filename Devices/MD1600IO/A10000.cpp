@@ -381,7 +381,7 @@ unsigned int A10000::GetLineWidth(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime)
+void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(lineMutex);
 
@@ -389,7 +389,7 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	//device has been accessed out of order.
 	if(lastLineAccessTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastLineAccessTime = accessTime;
 
@@ -539,7 +539,7 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 		break;
 	}
 
-	UpdateHLInterruptState(caller, accessTime);
+	UpdateHLInterruptState(caller, accessTime, accessContext);
 }
 
 //----------------------------------------------------------------------------------------
@@ -612,7 +612,7 @@ A10000::LineID A10000::GetLineIDForPort(unsigned int portNo, PortLine portLine)
 //----------------------------------------------------------------------------------------
 //Interrupt functions
 //----------------------------------------------------------------------------------------
-void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime)
+void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Update the HL interrupt line state
 	bool newHLLineState = (!GetControlRegisterTH(PORT1) && GetDataRegisterTH(PORT1))
@@ -620,7 +620,7 @@ void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime)
 		|| (!GetControlRegisterTH(PORT3) && GetDataRegisterTH(PORT3)));
 	if(newHLLineState != currentHLLineState)
 	{
-		memoryBus->SetLine(LINE_HL, Data(1, newHLLineState), GetDeviceContext(), caller, accessTime);
+		memoryBus->SetLine(LINE_HL, Data(1, newHLLineState), GetDeviceContext(), caller, accessTime, accessContext);
 		currentHLLineState = newHLLineState;
 	}
 }
@@ -628,7 +628,7 @@ void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime)
 //----------------------------------------------------------------------------------------
 //Memory interface functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(accessMutex);
 
@@ -638,7 +638,7 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 	//Trigger a system rollback if the device has been accessed out of order
 	if(lastAccessTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastAccessTime = accessTime;
 
@@ -648,49 +648,49 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 		data = GetVersionRegister();
 		break;
 	case 0x01:
-		data = ReadDataRegister(caller, accessTime, PORT1);
+		data = ReadDataRegister(caller, accessTime, accessContext, PORT1);
 		break;
 	case 0x02:
-		data = ReadDataRegister(caller, accessTime, PORT2);
+		data = ReadDataRegister(caller, accessTime, accessContext, PORT2);
 		break;
 	case 0x03:
-		data = ReadDataRegister(caller, accessTime, PORT3);
+		data = ReadDataRegister(caller, accessTime, accessContext, PORT3);
 		break;
 	case 0x04:
-		data = ReadControlRegister(caller, accessTime, PORT1);
+		data = ReadControlRegister(caller, accessTime, accessContext, PORT1);
 		break;
 	case 0x05:
-		data = ReadControlRegister(caller, accessTime, PORT2);
+		data = ReadControlRegister(caller, accessTime, accessContext, PORT2);
 		break;
 	case 0x06:
-		data = ReadControlRegister(caller, accessTime, PORT3);
+		data = ReadControlRegister(caller, accessTime, accessContext, PORT3);
 		break;
 	case 0x07:
-		data = ReadTxDataRegister(caller, accessTime, PORT1);
+		data = ReadTxDataRegister(caller, accessTime, accessContext, PORT1);
 		break;
 	case 0x08:
-		data = ReadRxDataRegister(caller, accessTime, PORT1);
+		data = ReadRxDataRegister(caller, accessTime, accessContext, PORT1);
 		break;
 	case 0x09:
-		data = ReadSerialControlRegister(caller, accessTime, PORT1);
+		data = ReadSerialControlRegister(caller, accessTime, accessContext, PORT1);
 		break;
 	case 0x0A:
-		data = ReadTxDataRegister(caller, accessTime, PORT2);
+		data = ReadTxDataRegister(caller, accessTime, accessContext, PORT2);
 		break;
 	case 0x0B:
-		data = ReadRxDataRegister(caller, accessTime, PORT2);
+		data = ReadRxDataRegister(caller, accessTime, accessContext, PORT2);
 		break;
 	case 0x0C:
-		data = ReadSerialControlRegister(caller, accessTime, PORT2);
+		data = ReadSerialControlRegister(caller, accessTime, accessContext, PORT2);
 		break;
 	case 0x0D:
-		data = ReadTxDataRegister(caller, accessTime, PORT3);
+		data = ReadTxDataRegister(caller, accessTime, accessContext, PORT3);
 		break;
 	case 0x0E:
-		data = ReadRxDataRegister(caller, accessTime, PORT3);
+		data = ReadRxDataRegister(caller, accessTime, accessContext, PORT3);
 		break;
 	case 0x0F:
-		data = ReadSerialControlRegister(caller, accessTime, PORT3);
+		data = ReadSerialControlRegister(caller, accessTime, accessContext, PORT3);
 		break;
 	}
 
@@ -703,7 +703,7 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(accessMutex);
 
@@ -713,7 +713,7 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 	//Trigger a system rollback if the device has been accessed out of order
 	if(lastAccessTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastAccessTime = accessTime;
 
@@ -723,67 +723,67 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 		//Writes to the version register are ignored
 		break;
 	case 0x01:
-		WriteDataRegister(caller, accessTime, PORT1, data);
+		WriteDataRegister(caller, accessTime, accessContext, PORT1, data);
 		break;
 	case 0x02:
-		WriteDataRegister(caller, accessTime, PORT2, data);
+		WriteDataRegister(caller, accessTime, accessContext, PORT2, data);
 		break;
 	case 0x03:
-		WriteDataRegister(caller, accessTime, PORT3, data);
+		WriteDataRegister(caller, accessTime, accessContext, PORT3, data);
 		break;
 	case 0x04:
-		WriteControlRegister(caller, accessTime, PORT1, data);
+		WriteControlRegister(caller, accessTime, accessContext, PORT1, data);
 		break;
 	case 0x05:
-		WriteControlRegister(caller, accessTime, PORT2, data);
+		WriteControlRegister(caller, accessTime, accessContext, PORT2, data);
 		break;
 	case 0x06:
-		WriteControlRegister(caller, accessTime, PORT3, data);
+		WriteControlRegister(caller, accessTime, accessContext, PORT3, data);
 		break;
 	case 0x07:
-		WriteTxDataRegister(caller, accessTime, PORT1, data);
+		WriteTxDataRegister(caller, accessTime, accessContext, PORT1, data);
 		break;
 	case 0x08:
-		WriteRxDataRegister(caller, accessTime, PORT1, data);
+		WriteRxDataRegister(caller, accessTime, accessContext, PORT1, data);
 		break;
 	case 0x09:
-		WriteSerialControlRegister(caller, accessTime, PORT1, data);
+		WriteSerialControlRegister(caller, accessTime, accessContext, PORT1, data);
 		break;
 	case 0x0A:
-		WriteTxDataRegister(caller, accessTime, PORT2, data);
+		WriteTxDataRegister(caller, accessTime, accessContext, PORT2, data);
 		break;
 	case 0x0B:
-		WriteRxDataRegister(caller, accessTime, PORT2, data);
+		WriteRxDataRegister(caller, accessTime, accessContext, PORT2, data);
 		break;
 	case 0x0C:
-		WriteSerialControlRegister(caller, accessTime, PORT2, data);
+		WriteSerialControlRegister(caller, accessTime, accessContext, PORT2, data);
 		break;
 	case 0x0D:
-		WriteTxDataRegister(caller, accessTime, PORT3, data);
+		WriteTxDataRegister(caller, accessTime, accessContext, PORT3, data);
 		break;
 	case 0x0E:
-		WriteRxDataRegister(caller, accessTime, PORT3, data);
+		WriteRxDataRegister(caller, accessTime, accessContext, PORT3, data);
 		break;
 	case 0x0F:
-		WriteSerialControlRegister(caller, accessTime, PORT3, data);
+		WriteSerialControlRegister(caller, accessTime, accessContext, PORT3, data);
 		break;
 	}
 
-	UpdateHLInterruptState(caller, accessTime);
+	UpdateHLInterruptState(caller, accessTime, accessContext);
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
 //Data register access
 //----------------------------------------------------------------------------------------
-Data A10000::ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const
+Data A10000::ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const
 {
 	//Return the current buffered data for each line
 	return GetDataRegister(portNo);
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::WriteDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data)
+void A10000::WriteDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data)
 {
 	//---------------------------------
 	//| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
@@ -793,37 +793,37 @@ void A10000::WriteDataRegister(IDeviceContext* caller, double accessTime, unsign
 	if(GetControlRegisterD0(portNo) && (data.GetBit(0) != GetDataRegisterD0(portNo)))
 	{
 		SetDataRegisterD0(portNo, data.GetBit(0));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D0), Data(1, (unsigned int)data.GetBit(0)), GetDeviceContext(), caller, accessTime);
+		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D0), Data(1, (unsigned int)data.GetBit(0)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterD1(portNo) && (data.GetBit(1) != GetDataRegisterD1(portNo)))
 	{
 		SetDataRegisterD1(portNo, data.GetBit(1));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D1), Data(1, (unsigned int)data.GetBit(1)), GetDeviceContext(), caller, accessTime);
+		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D1), Data(1, (unsigned int)data.GetBit(1)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterD2(portNo) && (data.GetBit(2) != GetDataRegisterD2(portNo)))
 	{
 		SetDataRegisterD2(portNo, data.GetBit(2));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D2), Data(1, (unsigned int)data.GetBit(2)), GetDeviceContext(), caller, accessTime);
+		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D2), Data(1, (unsigned int)data.GetBit(2)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterD3(portNo) && (data.GetBit(3) != GetDataRegisterD3(portNo)))
 	{
 		SetDataRegisterD3(portNo, data.GetBit(3));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D3), Data(1, (unsigned int)data.GetBit(3)), GetDeviceContext(), caller, accessTime);
+		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D3), Data(1, (unsigned int)data.GetBit(3)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterTL(portNo) && (data.GetBit(4) != GetDataRegisterTL(portNo)))
 	{
 		SetDataRegisterTL(portNo, data.GetBit(4));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_TL), Data(1, (unsigned int)data.GetBit(4)), GetDeviceContext(), caller, accessTime);
+		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_TL), Data(1, (unsigned int)data.GetBit(4)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterTR(portNo) && (data.GetBit(5) != GetDataRegisterTR(portNo)))
 	{
 		SetDataRegisterTR(portNo, data.GetBit(5));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_TR), Data(1, (unsigned int)data.GetBit(5)), GetDeviceContext(), caller, accessTime);
+		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_TR), Data(1, (unsigned int)data.GetBit(5)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterTH(portNo) && (data.GetBit(6) != GetDataRegisterTH(portNo)))
 	{
 		SetDataRegisterTH(portNo, data.GetBit(6));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_TH), Data(1, (unsigned int)data.GetBit(6)), GetDeviceContext(), caller, accessTime);
+		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_TH), Data(1, (unsigned int)data.GetBit(6)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	SetDataRegisterHL(portNo, data.GetBit(7));
@@ -832,7 +832,7 @@ void A10000::WriteDataRegister(IDeviceContext* caller, double accessTime, unsign
 //----------------------------------------------------------------------------------------
 //Control register access
 //----------------------------------------------------------------------------------------
-Data A10000::ReadControlRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const
+Data A10000::ReadControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const
 {
 	//Reads from the control register always return 0
 	//##TODO## Verify on hardware
@@ -840,7 +840,7 @@ Data A10000::ReadControlRegister(IDeviceContext* caller, double accessTime, unsi
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data)
+void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data)
 {
 	//---------------------------------
 	//| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
@@ -913,19 +913,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 
 	//Update the HL interrupt state
 	SetControlRegisterHL(portNo, data.GetBit(7));
-	UpdateHLInterruptState(caller, accessTime);
+	UpdateHLInterruptState(caller, accessTime, accessContext);
 }
 
 //----------------------------------------------------------------------------------------
 //Serial control register access
 //----------------------------------------------------------------------------------------
-Data A10000::ReadSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const
+Data A10000::ReadSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const
 {
 	return GetSerialControlRegister(portNo);
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::WriteSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data)
+void A10000::WriteSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data)
 {
 	//Write to the upper 5 bits of the serial control register. The lower 3 bits are
 	//read-only status flags.
@@ -938,7 +938,7 @@ void A10000::WriteSerialControlRegister(IDeviceContext* caller, double accessTim
 //A write to the TxData register will send the written byte over a serial transfer if
 //serial output is enabled.
 //----------------------------------------------------------------------------------------
-Data A10000::ReadTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const
+Data A10000::ReadTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const
 {
 	//According to gen-hw.txt, it would seem that this port returns the last value
 	//written when serial output is not enabled. We have not yet confirmed the correct
@@ -948,7 +948,7 @@ Data A10000::ReadTxDataRegister(IDeviceContext* caller, double accessTime, unsig
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::WriteTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data)
+void A10000::WriteTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data)
 {
 	//##TODO## According to Charles MacDonald, "Writing a byte to this register will make
 	//the I/O chip output the data serially through the TL pin, providing it was
@@ -964,13 +964,13 @@ void A10000::WriteTxDataRegister(IDeviceContext* caller, double accessTime, unsi
 //The RxData register can be read to retrieve the last byte received from a serial
 //transfer.
 //----------------------------------------------------------------------------------------
-Data A10000::ReadRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo) const
+Data A10000::ReadRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const
 {
 	return rxDataRegisters[portNo];
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::WriteRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int portNo, const Data& data)
+void A10000::WriteRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data)
 {
 	//Writes to the RxData register are ignored
 	//##TODO## Verify on hardware

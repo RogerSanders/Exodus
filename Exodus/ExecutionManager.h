@@ -40,7 +40,7 @@ public:
 	void BuildBlockedDependentDeviceSet(const DeviceContext* sourceDevice, std::set<const DeviceContext*>& dependentDeviceSet) const;
 
 	//Timing functions
-	inline double GetNextTimingPoint(double maximumTimeslice, DeviceContext*& nextDeviceStep);
+	inline double GetNextTimingPoint(double maximumTimeslice, DeviceContext*& nextDeviceStep, unsigned int& nextDeviceStepContext);
 
 	//Worker thread control
 	inline void BeginExecution();

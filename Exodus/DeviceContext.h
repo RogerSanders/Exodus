@@ -51,6 +51,7 @@ public:
 	inline void NotifyAfterExecuteCalled();
 	inline void ExecuteTimeslice(double nanoseconds);
 	inline double ExecuteStep();
+	inline double ExecuteStep(unsigned int accessContext);
 	inline void WaitForCompletion();
 	inline void WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, boost::mutex& commandMutex, IExecutionSuspendManager* asuspendManager);
 	inline void Commit();
@@ -59,7 +60,7 @@ public:
 
 	//Timing functions
 	virtual double GetCurrentTimesliceProgress() const;
-	inline double GetNextTimingPoint() const;
+	inline double GetNextTimingPoint(unsigned int& accessContext) const;
 	inline double GetCurrentRemainingTime() const;
 	inline double GetInitialRemainingTime() const;
 	inline void ClearRemainingTime();
@@ -77,7 +78,7 @@ public:
 	inline bool ActiveDevice() const;
 
 	//System message functions
-	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, void (*callbackFunction)(void*) = 0, void* callbackParams = 0);
+	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*) = 0, void* callbackParams = 0);
 	virtual void WriteLogEvent(const ILogEntry& entry);
 	virtual void FlagStopSystem();
 	virtual void StopSystem();

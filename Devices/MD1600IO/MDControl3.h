@@ -38,7 +38,7 @@ public:
 	virtual unsigned int GetLineID(const wchar_t* lineName) const;
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
-	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime);
+	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
 
 	//Initialization functions
@@ -48,7 +48,7 @@ public:
 	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const;
 	virtual void HandleInputKeyDown(unsigned int keyCode);
 	virtual void HandleInputKeyUp(unsigned int keyCode);
-	void UpdateLineState(IDeviceContext* caller, double accessTime);
+	void UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 private:
 	enum Button

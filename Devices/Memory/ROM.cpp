@@ -54,7 +54,7 @@ void ROM::Initialize()
 //----------------------------------------------------------------------------------------
 //Memory interface functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult ROM::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult ROM::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
@@ -65,13 +65,13 @@ IBusInterface::AccessResult ROM::ReadInterface(unsigned int interfaceNumber, uns
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult ROM::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult ROM::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-void ROM::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller)
+void ROM::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
@@ -81,7 +81,7 @@ void ROM::TransparentReadInterface(unsigned int interfaceNumber, unsigned int lo
 }
 
 //----------------------------------------------------------------------------------------
-void ROM::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller)
+void ROM::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)

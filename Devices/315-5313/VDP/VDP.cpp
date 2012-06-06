@@ -126,13 +126,13 @@ unsigned int VDP::GetLineWidth(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-void VDP::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime)
+void VDP::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//##DEBUG##
 //	std::wcout << "VDPSetLineState\t" << targetLine << '\n';
 	if(targetLine == LINE_INTAK)
 	{
-		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), GetDeviceContext(), accessTime);
+		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 }
 
@@ -586,7 +586,7 @@ double VDP::ExecuteStep()
 //We hop from one timing point to the next with our execution method, so we're always
 //sitting on a timing point.
 //----------------------------------------------------------------------------------------
-double VDP::GetNextTimingPointInDeviceTime() const
+double VDP::GetNextTimingPointInDeviceTime(unsigned int& accessContext) const
 {
 	return 0;
 }
@@ -907,7 +907,7 @@ unsigned int VDP::BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool
 //may be ignored when the VDP is executing a DMA operation. Trigger a large DMA fill and
 //check if writes to the VDP registers or memory are accepted during the operation.
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult VDP::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult VDP::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//##NOTE## We've added in the odd address locations to work around issues accessing
 	//the VDP from the Z80. Apparently the bus controller turns all 8-bit reads from the
@@ -932,7 +932,7 @@ IBusInterface::AccessResult VDP::ReadInterface(unsigned int interfaceNumber, uns
 		//Negate the INT line if it's currently asserted
 		if(vintHappened)
 		{
-			memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), accessTime);
+			memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 
 		//New status register read process
@@ -992,7 +992,7 @@ IBusInterface::AccessResult VDP::ReadInterface(unsigned int interfaceNumber, uns
 }
 
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult VDP::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult VDP::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//##TODO## Implement the write FIFO here
 	FIFOEntry fifoEntry;
@@ -1480,7 +1480,7 @@ void VDP::ProcessVInt()
 	//	SetVInterruptHappened(GetVInterruptEnabled(GetCurrentTimesliceProgress()));
 
 		//Trigger VInt for M68000
-		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress());
+		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_VINT);
 	}
 
 	//##TODO## Confirm whether this should be triggered on every frame, or just when VInt
@@ -1495,7 +1495,7 @@ void VDP::ProcessVInt()
 	//and cleared.
 
 	//Trigger VInt for Z80
-	memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress());
+	memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INT);
 
 	//Set the odd interlace frame flag for the status register
 	if(GetInterlaceMode() != INTERLACE_NONE)
@@ -1515,7 +1515,7 @@ void VDP::ProcessHInt()
 {
 	if(GetHInterruptEnabled(GetCurrentTimesliceProgress()))
 	{
-		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress());
+		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_HINT);
 	}
 	//##DEBUG##
 	else
@@ -2303,7 +2303,7 @@ unsigned short VDP::ReadCRAM(unsigned int address, double accessTime, IDeviceCon
 	address %= cramSize;
 
 	Data data(16);
-	cram->ReadInterface(0, address, data, device, accessTime);
+	cram->ReadInterface(0, address, data, device, accessTime, 0);
 	if(byteSwap)
 	{
 		Data tempData(data);
@@ -2321,7 +2321,7 @@ unsigned short VDP::ReadVRAM(unsigned int address, double accessTime, IDeviceCon
 	address %= vramSize;
 
 	Data data(16);
-	vram->ReadInterface(0, address, data, device, accessTime);
+	vram->ReadInterface(0, address, data, device, accessTime, 0);
 	if(byteSwap)
 	{
 		Data tempData(data);
@@ -2339,7 +2339,7 @@ unsigned short VDP::ReadVSRAM(unsigned int address, double accessTime, IDeviceCo
 	address %= vsramSize;
 
 	Data data(16);
-	vsram->ReadInterface(0, address, data, device, accessTime);
+	vsram->ReadInterface(0, address, data, device, accessTime, 0);
 	if(byteSwap)
 	{
 		Data tempData(data);
@@ -2374,7 +2374,7 @@ void VDP::WriteCRAM(unsigned int address, unsigned short data, double accessTime
 			tempData.SetLowerBits(8, (data & 0xFF00) >> 8);
 		}
 
-		cram->WriteInterface(0, address, tempData, device, accessTime);
+		cram->WriteInterface(0, address, tempData, device, accessTime, 0);
 	}
 }
 
@@ -2399,7 +2399,7 @@ void VDP::WriteVRAM(unsigned int address, unsigned short data, double accessTime
 		tempData.SetLowerBits(8, (data & 0xFF00) >> 8);
 	}
 
-	vram->WriteInterface(0, address, tempData, device, accessTime);
+	vram->WriteInterface(0, address, tempData, device, accessTime, 0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -2427,7 +2427,7 @@ void VDP::WriteVSRAM(unsigned int address, unsigned short data, double accessTim
 			tempData.SetLowerBits(8, (data & 0xFF00) >> 8);
 		}
 
-		vsram->WriteInterface(0, address, tempData, device, accessTime);
+		vsram->WriteInterface(0, address, tempData, device, accessTime, 0);
 	}
 }
 
@@ -2450,7 +2450,7 @@ void VDP::DMAWrite(double accessTime, IDeviceContext* device, VDP::Code targetCo
 //##TODO## Change these back to normal memory reads. We've got this in place to prevent
 //bad rollbacks until we implement bus locking for DMA transfers.
 //				memoryBus->ReadMemory(sourceAddress, data, *this);
-				memoryBus->TransparentReadMemory(sourceAddress, data, GetDeviceContext());
+				memoryBus->TransparentReadMemory(sourceAddress, data, GetDeviceContext(), 0);
 				WriteVRAM(targetAddress, (unsigned short)data.GetData(), accessTime, device);
 				sourceAddress += 2;
 				targetAddress += increment;
@@ -2463,7 +2463,7 @@ void VDP::DMAWrite(double accessTime, IDeviceContext* device, VDP::Code targetCo
 			{
 				Data data(16);
 //				memoryBus->ReadMemory(sourceAddress, data, *this);
-				memoryBus->TransparentReadMemory(sourceAddress, data, GetDeviceContext());
+				memoryBus->TransparentReadMemory(sourceAddress, data, GetDeviceContext(), 0);
 				WriteCRAM(targetAddress, (unsigned short)data.GetData(), accessTime, device);
 				sourceAddress += 2;
 				targetAddress += increment;
@@ -2476,7 +2476,7 @@ void VDP::DMAWrite(double accessTime, IDeviceContext* device, VDP::Code targetCo
 			{
 				Data data(16);
 //				memoryBus->ReadMemory(sourceAddress, data, *this);
-				memoryBus->TransparentReadMemory(sourceAddress, data, GetDeviceContext());
+				memoryBus->TransparentReadMemory(sourceAddress, data, GetDeviceContext(), 0);
 				WriteVSRAM(targetAddress, (unsigned short)data.GetData(), accessTime, device);
 				sourceAddress += 2;
 				targetAddress += increment;
@@ -2797,10 +2797,10 @@ void VDP::SetSpriteMapping(unsigned int spriteMappingAddress, const SpriteMappin
 	spriteData3 = (spriteData3.GetData() & ~0x07FF) | (mapping.blockNumber & 0x07FF);
 	spriteData4 = (mapping.xpos % fieldSizeX);
 
-	vram->TransparentWriteInterface(0, spriteMappingAddress + 0, spriteData1, this->GetDeviceContext());
-	vram->TransparentWriteInterface(0, spriteMappingAddress + 2, spriteData2, this->GetDeviceContext());
-	vram->TransparentWriteInterface(0, spriteMappingAddress + 4, spriteData3, this->GetDeviceContext());
-	vram->TransparentWriteInterface(0, spriteMappingAddress + 6, spriteData4, this->GetDeviceContext());
+	vram->TransparentWriteInterface(0, spriteMappingAddress + 0, spriteData1, this->GetDeviceContext(), 0);
+	vram->TransparentWriteInterface(0, spriteMappingAddress + 2, spriteData2, this->GetDeviceContext(), 0);
+	vram->TransparentWriteInterface(0, spriteMappingAddress + 4, spriteData3, this->GetDeviceContext(), 0);
+	vram->TransparentWriteInterface(0, spriteMappingAddress + 6, spriteData4, this->GetDeviceContext(), 0);
 }
 
 //----------------------------------------------------------------------------------------

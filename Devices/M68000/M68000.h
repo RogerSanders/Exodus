@@ -151,7 +151,7 @@ public:
 	virtual unsigned int GetLineID(const wchar_t* lineName) const;
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
-	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime);
+	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
 
 	//Exception functions
@@ -370,12 +370,12 @@ private:
 	mutable bool exceptionDebuggingActive;
 	typedef std::list<ExceptionDebuggingEntry*> ExceptionList;
 	ExceptionList exceptionList;
-	bool exceptionListEmpty;
-	bool logAllExceptions;
-	bool breakOnAllExceptions;
-	bool disableAllExceptions;
-	bool debugExceptionTriggerPending;
-	unsigned int debugExceptionTriggerVector;
+	volatile bool exceptionListEmpty;
+	volatile bool logAllExceptions;
+	volatile bool breakOnAllExceptions;
+	volatile bool disableAllExceptions;
+	volatile bool debugExceptionTriggerPending;
+	volatile unsigned int debugExceptionTriggerVector;
 
 	//CE line masks
 	unsigned int ceLineMaskLowerDataStrobe;

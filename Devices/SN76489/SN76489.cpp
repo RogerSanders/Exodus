@@ -69,8 +69,6 @@ bool SN76489::BuildDevice()
 void SN76489::Initialize()
 {
 	//Initialize the render thread properties
-	pendingRenderOperation = false;
-	pendingRenderTimesliceLength = 0;
 	remainingRenderTime = 0;
 
 	//Initialize the render data
@@ -81,6 +79,7 @@ void SN76489::Initialize()
 	}
 	noiseShiftRegister = shiftRegisterDefaultValue;
 	noiseOutputMasked = true;
+	outputBuffer.clear();
 
 	//Initialize the register block, and set the correct register sizes for each entry.
 	reg.Initialize();
@@ -142,6 +141,7 @@ void SN76489::BeginExecution()
 void SN76489::SuspendExecution()
 {
 	boost::mutex::scoped_lock lock(renderThreadMutex);
+
 	//Suspend the render worker thread
 	if(renderThreadActive)
 	{
@@ -160,8 +160,14 @@ bool SN76489::SendNotifyUpcomingTimeslice() const
 //----------------------------------------------------------------------------------------
 void SN76489::NotifyUpcomingTimeslice(double nanoseconds)
 {
-	reg.AddTimeslice(nanoseconds);
 	lastAccessTime = 0;
+
+	//Add the new timeslice to all our timed buffers
+	reg.AddTimeslice(nanoseconds);
+
+	//Add references to the new timeslice entry from our timed buffers to the uncommitted
+	//timeslice lists for the buffers
+	regTimesliceListUncommitted.push_back(reg.GetLatestTimeslice());
 }
 
 //----------------------------------------------------------------------------------------
@@ -173,17 +179,6 @@ Device::UpdateMethod SN76489::GetUpdateMethod() const
 //----------------------------------------------------------------------------------------
 void SN76489::ExecuteTimeslice(double nanoseconds)
 {
-	//Add this timeslice to the amount of time the render thread needs to execute. If
-	//there's enough render time queued up to trigger a new rendering operation, flag a
-	//new render operation to start at the next commit.
-	const double minimumRenderBlockSize = (1000000000.0 / 50);
-	pendingRenderTimesliceLength += nanoseconds;
-	if(pendingRenderTimesliceLength >= minimumRenderBlockSize)
-	{
-		pendingRenderTimesliceLength -= (unsigned int)(pendingRenderTimesliceLength / minimumRenderBlockSize) * minimumRenderBlockSize;
-		pendingRenderOperation = true;
-	}
-
 	//If the render thread is lagging, pause here until it has caught up, so we don't
 	//leave the render thread behind with an ever-increasing workload it will never be
 	//able to complete.
@@ -200,46 +195,45 @@ void SN76489::ExecuteTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 void SN76489::ExecuteRollback()
 {
+	//Rollback our timed buffers
 	reg.Rollback();
+
 	latchedChannel = blatchedChannel;
 	latchedVolume = blatchedVolume;
 
-	pendingRenderOperation = false;
-	pendingRenderTimesliceLength = bpendingRenderTimesliceLength;
+	//Clear any uncommitted timeslices from our render timeslice buffers
+	regTimesliceListUncommitted.clear();
 }
 
 //----------------------------------------------------------------------------------------
 void SN76489::ExecuteCommit()
 {
+	//Commit our timed buffers
 	reg.Commit();
+
 	blatchedChannel = latchedChannel;
 	blatchedVolume = latchedVolume;
 
-	//Trigger a new render operation if there's enough accumulated time to start one
-	if(pendingRenderOperation)
+	//Ensure that a valid latest timeslice exists in all our buffers. We need this
+	//check here, because commits can be triggered by the system at potentially any
+	//point in time, whether a timeslice has been issued or not.
+	if(!regTimesliceListUncommitted.empty())
 	{
-		//Clear the pendingRenderOperation flag now that we've processed it
-		pendingRenderOperation = false;
-
-		//Obtain a timeslice lock so we can update the data we feed to the render thread
+		//Obtain a timeslice lock so we can update the data we feed to the render
+		//thread
 		boost::mutex::scoped_lock lock(timesliceMutex);
 
-		//Increment the number of pending render operations. This is used to track if the
-		//render thread is lagging.
-		++pendingRenderOperationCount;
+		//Add the number of timeslices we are about to commit to the count of pending
+		//render operations. This is used to track if the render thread is lagging.
+		pendingRenderOperationCount += (unsigned int)regTimesliceListUncommitted.size();
 
-		//Grab copies of the timeslice periods for the timed buffers the render thread
-		//will need to work with. We haven't been notified about any new timeslices yet
-		//since the last execution cycle, so these timeslice periods represent the point
-		//we want the render thread to execute up to.
-		regTimesliceList.push_back(reg.GetLatestTimeslice());
+		//Move all timeslices in our uncommitted timeslice lists over to the committed
+		//timeslice lists, for processing by the render thread.
+		regTimesliceList.splice(regTimesliceList.end(), regTimesliceListUncommitted);
 
 		//Notify the render thread that it's got more work to do
 		renderThreadUpdate.notify_all();
 	}
-
-	//Take a backup of the accumulated pending render time
-	bpendingRenderTimesliceLength = pendingRenderTimesliceLength;
 }
 
 //----------------------------------------------------------------------------------------
@@ -250,13 +244,14 @@ void SN76489::RenderThread()
 	boost::mutex::scoped_lock lock(renderThreadMutex);
 
 	//Start the render loop
-	while(renderThreadActive)
+	bool done = false;
+	while(!done)
 	{
 		//Obtain a copy of the latest completed timeslice period
 		RandomTimeAccessBuffer<Data, double>::Timeslice regTimesliceCopy;
 		bool renderTimesliceObtained = false;
 		{
-			boost::mutex::scoped_lock lock(timesliceMutex);
+			boost::mutex::scoped_lock timesliceLock(timesliceMutex);
 
 			//If there is at least one render timeslice pending, grab it from the queue.
 			if(!regTimesliceList.empty())
@@ -275,18 +270,28 @@ void SN76489::RenderThread()
 			}
 		}
 
-		//If no render timeslice was available, suspend this thread until a timeslice
-		//becomes available, or this thread is instructed to stop, then begin the loop
-		//again.
+		//If no render timeslice was available, we need to wait for a thread suspension
+		//request or a new timeslice to be received, then begin the loop again.
 		if(!renderTimesliceObtained)
 		{
-			renderThreadUpdate.wait(lock);
+			//If the render thread has not already been instructed to stop, suspend this
+			//thread until a timeslice becomes available or this thread is instructed to
+			//stop.
+			if(renderThreadActive)
+			{
+				renderThreadUpdate.wait(lock);
+			}
+
+			//If the render thread has been suspended, flag that we need to exit this
+			//render loop.
+			done = !renderThreadActive;
+
+			//Begin the loop again
 			continue;
 		}
 
 		//Render the audio output
-		unsigned int outputBufferPos = 0;
-		std::vector<short> outputBuffer(0);
+		size_t outputBufferPos = outputBuffer.size();
 		double outputFrequency = externalClockRate / externalClockDivider;
 
 		bool moreSamplesRemaining = true;
@@ -352,8 +357,11 @@ void SN76489::RenderThread()
 			wavLog.WriteData(outputBuffer);
 		}
 
-		//Play the mixed audio stream
-		if(!outputBuffer.empty())
+		//Play the mixed audio stream. Note that we fold samples from successive render
+		//operations together, ensuring that we only send data to the output audio stream
+		//when we have a significant number of samples to send.
+		size_t minimumSamplesToOutput = (size_t)(outputFrequency / 10.0);
+		if(outputBuffer.size() >= minimumSamplesToOutput)
 		{
 			unsigned int internalSampleCount = (unsigned int)outputBuffer.size();
 			unsigned int outputSampleCount = (unsigned int)((double)internalSampleCount * ((double)outputSampleRate / outputFrequency));
@@ -363,6 +371,7 @@ void SN76489::RenderThread()
 				outputStream.ConvertSampleRate(outputBuffer, internalSampleCount, 1, outputBufferFinal->buffer, outputSampleCount);
 				outputStream.PlayBuffer(outputBufferFinal);
 			}
+			outputBuffer.clear();
 		}
 
 		//Advance past the timeslice we've just rendered from
@@ -525,7 +534,7 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 //----------------------------------------------------------------------------------------
 //Memory interface functions
 //----------------------------------------------------------------------------------------
-IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime)
+IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(accessMutex);
 	AccessTarget accessTarget;
@@ -536,7 +545,7 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 	//write occurs.
 	if(accessTime < lastAccessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime);
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastAccessTime = accessTime;
 

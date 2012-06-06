@@ -82,7 +82,7 @@ public:
 	virtual bool SystemRunning() const;
 	virtual bool IsSystemRollbackFlagged() const;
 	virtual double SystemRollbackTime() const;
-	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, void (*callbackFunction)(void*), void* callbackParams);
+	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams);
 	virtual void ExecuteDeviceStep(DeviceContext* device);
 
 	//Device registration
@@ -268,7 +268,7 @@ private:
 	void UnmapKeyCode(IDeviceContext::KeyCode keyCode);
 	void ClearKeyCodeMap();
 	void SendStoredInputEvents();
-	void ClearStoredInputEvents();
+	void ClearSentStoredInputEvents();
 	void UnmapAllKeyCodeMappingsForDevice(IDevice* adevice);
 
 	//Window functions
@@ -358,6 +358,7 @@ private:
 
 	//Rollback settings
 	volatile double rollbackTimeslice;
+	unsigned int rollbackContext;
 	IDeviceContext* rollbackDevice;
 	bool useRollbackFunction;
 	void (*rollbackFunction)(void*);
