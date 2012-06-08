@@ -14,6 +14,7 @@ enum Z80::LineID
 {
 	LINE_RESET = 1,
 	LINE_BUSREQ,
+	LINE_BUSACK,
 	LINE_INT,
 	LINE_NMI
 };

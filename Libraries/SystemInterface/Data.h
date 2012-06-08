@@ -127,10 +127,12 @@ public:
 	inline void SetLowerBits(const Data& target);
 
 	//Data properties
-	inline bool Odd() const;
 	inline bool Even() const;
+	inline bool Odd() const;
 	inline bool Zero() const;
+	inline bool NonZero() const;
 	inline bool Negative() const;
+	inline bool Positive() const;
 	inline bool ParityEven() const;
 	inline bool ParityOdd() const;
 	inline unsigned int GetSetBitCount() const;

@@ -327,12 +327,12 @@ private:
 	//Line access
 	boost::mutex lineMutex;
 	mutable double lastLineCheckTime;
-	bool lineAccessPending;
+	volatile bool lineAccessPending;
 	double lastTimesliceLength;
 	double blastTimesliceLength;
 	std::list<LineAccess> lineAccessBuffer;
 	std::list<LineAccess> blineAccessBuffer;
-	bool suspendUntilLineStateChangeReceived;
+	volatile bool suspendUntilLineStateChangeReceived;
 	bool bsuspendUntilLineStateChangeReceived;
 
 	bool resetLineState;

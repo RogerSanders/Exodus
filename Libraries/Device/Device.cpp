@@ -155,7 +155,7 @@ void Device::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
 //----------------------------------------------------------------------------------------
 double Device::GetNextTimingPointInDeviceTime(unsigned int& accessContext) const
 {
-	return -1;
+	return -1.0;
 }
 
 //----------------------------------------------------------------------------------------
