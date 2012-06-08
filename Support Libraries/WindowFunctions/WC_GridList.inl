@@ -9,6 +9,8 @@ enum WC_GridList::WindowMessages
 	GRID_GETCOLUMNINFO,
 	GRID_SETCOLUMNINFO,
 	GRID_UPDATECOLUMNTEXT,
+	GRID_SETCONTROLCOLOR,
+	GRID_SETROWCOLOR,
 	GRID_GETROWCOUNT,
 	GRID_SETVSCROLLINFO
 };
@@ -66,13 +68,40 @@ struct WC_GridList::Grid_SetVScrollInfo
 	Grid_SetVScrollInfo()
 	{}
 	Grid_SetVScrollInfo(int aminPos, int amaxPos, int acurrentPos, int avaluesPerPage)
-		:minPos(aminPos), maxPos(amaxPos), currentPos(acurrentPos), valuesPerPage(avaluesPerPage)
+	:minPos(aminPos), maxPos(amaxPos), currentPos(acurrentPos), valuesPerPage(avaluesPerPage)
 	{}
 
 	int minPos;
 	int maxPos;
 	int currentPos;
 	int valuesPerPage;
+};
+
+//----------------------------------------------------------------------------------------
+struct WC_GridList::Grid_SetControlColor
+{
+	Grid_SetControlColor()
+	:defined(false)
+	{}
+
+	bool defined;
+	WinColor colorBackground;
+	WinColor colorTextFront;
+	WinColor colorTextBack;
+	WinColor colorLine;
+};
+
+//----------------------------------------------------------------------------------------
+struct WC_GridList::Grid_SetRowColor
+{
+	Grid_SetRowColor()
+	:defined(false)
+	{}
+
+	bool defined;
+	WinColor colorBackground;
+	WinColor colorTextFront;
+	WinColor colorTextBack;
 };
 
 //----------------------------------------------------------------------------------------
@@ -109,4 +138,21 @@ struct WC_GridList::Grid_NewScrollPosition
 	{}
 
 	unsigned int scrollPos;
+};
+
+//----------------------------------------------------------------------------------------
+//Internal structures
+//----------------------------------------------------------------------------------------
+struct WC_GridList::ColumnData
+{
+	ColumnData(const std::wstring& aname, unsigned int acolumnID, unsigned int awidth)
+	:name(aname), columnID(acolumnID), width(awidth)
+	{}
+
+	std::wstring name;
+	unsigned int columnID;
+	unsigned int width;
+	unsigned int order;
+	int index;
+	std::vector<std::wstring> dataBuffer;
 };

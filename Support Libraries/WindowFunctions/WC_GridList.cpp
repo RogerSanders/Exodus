@@ -14,10 +14,11 @@ WC_GridList::WC_GridList(HINSTANCE amoduleHandle, HWND ahwnd)
 	hwndList = NULL;
 	hfont = NULL;
 
-	colorBackground = WinColor(255, 255, 255);
-	colorTextFront = WinColor(0, 0, 0);
-	colorTextBack = colorBackground;
-	colorLine = WinColor(128, 128, 255);
+	userColorData.defined = false;
+	defaultColorData.colorBackground = WinColor(255, 255, 255);
+	defaultColorData.colorTextFront = WinColor(0, 0, 0);
+	defaultColorData.colorTextBack = defaultColorData.colorBackground;
+	defaultColorData.colorLine = WinColor(128, 128, 255);
 
 	controlWidth = 0;
 	controlHeight = 0;
@@ -89,6 +90,10 @@ LRESULT WC_GridList::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgGRID_GETCOLUMNINFO(wParam, lParam);
 	case GRID_UPDATECOLUMNTEXT:
 		return msgGRID_UPDATECOLUMNTEXT(wParam, lParam);
+	case GRID_SETCONTROLCOLOR:
+		return msgGRID_SETCONTROLCOLOR(wParam, lParam);
+	case GRID_SETROWCOLOR:
+		return msgGRID_SETROWCOLOR(wParam, lParam);
 	case GRID_GETROWCOUNT:
 		return msgGRID_GETROWCOUNT(wParam, lParam);
 	case GRID_SETVSCROLLINFO:
@@ -181,6 +186,7 @@ LRESULT WC_GridList::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	//each column.
 	if(newVisibleRows > visibleRows)
 	{
+		rowColorDataArray.resize(newVisibleRows);
 		for(ColumnDataIterator i = columnData.begin(); i != columnData.end(); ++i)
 		{
 			if(newVisibleRows > (unsigned int)i->dataBuffer.size())
@@ -324,8 +330,14 @@ LRESULT WC_GridList::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc = (HDC)wParam;
 
+	//Determine which color values to use for various display elements
+	COLORREF backgroundColor = userColorData.defined? userColorData.colorBackground.GetColorREF(): defaultColorData.colorBackground.GetColorREF();
+	COLORREF textFrontColor = userColorData.defined? userColorData.colorTextFront.GetColorREF(): defaultColorData.colorTextFront.GetColorREF();
+	COLORREF textBackColor = userColorData.defined? userColorData.colorTextBack.GetColorREF(): defaultColorData.colorTextBack.GetColorREF();
+	COLORREF lineColor = userColorData.defined? userColorData.colorLine.GetColorREF(): defaultColorData.colorLine.GetColorREF();
+
 	//Fill the window with the background colour
-	HBRUSH backgroundBrush = CreateSolidBrush(colorBackground.GetColorREF());
+	HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor);
 	HBRUSH backgroundBrushOld = (HBRUSH)SelectObject(hdc, backgroundBrush);
 	PatBlt(hdc, 0, headerHeight, controlWidth, controlHeight, PATCOPY);
 	SelectObject(hdc, backgroundBrushOld);
@@ -340,33 +352,67 @@ LRESULT WC_GridList::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 	int textStartPosY = (int)(headerPosY + headerHeight);
 	for(unsigned int row = 0; row < visibleRows; ++row)
 	{
+		//Determine the color data to use for this row
+		bool useCustomBackgroundColor = false;
+		int customBackgroundColor;
+		CustomColorData& rowColorData = rowColorDataArray[row];
+		if(rowColorData.defined)
+		{
+			SetTextColor(hdc, rowColorData.colorTextFront.GetColorREF());
+			SetBkColor(hdc, rowColorData.colorTextBack.GetColorREF());
+
+			//Check if a background color has been specified which is different from the
+			//default background color
+			if(rowColorData.colorBackground.GetColorREF() != backgroundColor)
+			{
+				useCustomBackgroundColor = true;
+				customBackgroundColor = rowColorData.colorBackground.GetColorREF();
+			}
+		}
+		else
+		{
+			SetTextColor(hdc, textFrontColor);
+			SetBkColor(hdc, textBackColor);
+		}
+
+		//Draw each column in this row
 		int columnStartPos = 0 - currentScrollHOffset;
 		for(ColumnSortIndexIterator i = columnSortIndex.begin(); i != columnSortIndex.end(); ++i)
 		{
+			ColumnData& columnData = *(i->second);
+
+			//Apply a custom background color for this column if one has been specified
+			if(useCustomBackgroundColor)
+			{
+				HBRUSH backgroundBrush = CreateSolidBrush(customBackgroundColor);
+				HBRUSH backgroundBrushOld = (HBRUSH)SelectObject(hdc, backgroundBrush);
+				PatBlt(hdc, textStartPosX + columnStartPos, textStartPosY + (int)(row * fontHeight), (int)columnData.width, (int)fontHeight, PATCOPY);
+				SelectObject(hdc, backgroundBrushOld);
+				DeleteObject(backgroundBrush);
+			}
+
 			//Draw the text for this column, this row
-			SetTextColor(hdc, colorTextFront.GetColorREF());
-			SetBkColor(hdc, colorTextBack.GetColorREF());
-			if(row < i->second->dataBuffer.size())
+			if(row < columnData.dataBuffer.size())
 			{
 				int marginSize = 2;
 				RECT rect;
 				rect.left = textStartPosX + columnStartPos + marginSize;
-				rect.right = (textStartPosX + columnStartPos + (int)i->second->width) - marginSize;
+				rect.right = (textStartPosX + columnStartPos + (int)columnData.width) - marginSize;
 				rect.top = textStartPosY + (int)(row * fontHeight);
 				rect.bottom = textStartPosY + (int)((row + 1) * fontHeight);
-				DrawText(hdc, &i->second->dataBuffer[row][0], (int)i->second->dataBuffer[row].size(), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+				DrawText(hdc, &columnData.dataBuffer[row][0], (int)columnData.dataBuffer[row].size(), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 			}
 
 			//Draw the dividing line marking the end of this column
-			HPEN hpen = CreatePen(PS_SOLID, 0, colorLine.GetColorREF());
+			HPEN hpen = CreatePen(PS_SOLID, 0, lineColor);
 			HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
-			MoveToEx(hdc, columnStartPos + (int)(i->second->width - 1), textStartPosY, NULL);
-			LineTo(hdc, columnStartPos + (int)(i->second->width - 1), textStartPosY + (int)(visibleRows * fontHeight));
+			MoveToEx(hdc, columnStartPos + (int)(columnData.width - 1), textStartPosY, NULL);
+			LineTo(hdc, columnStartPos + (int)(columnData.width - 1), textStartPosY + (int)(visibleRows * fontHeight));
 			SelectObject(hdc, hpenOld);
 			DeleteObject(hpen);
 
 			//Update columnStartPos for the next column
-			columnStartPos += (int)i->second->width;
+			columnStartPos += (int)columnData.width;
 		}
 	}
 
@@ -524,20 +570,20 @@ LRESULT WC_GridList::msgWM_HSCROLL(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_GridList::msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam)
 {
-	Grid_InsertColumn* info = (Grid_InsertColumn*)lParam;
+	const Grid_InsertColumn& info = *((Grid_InsertColumn*)lParam);
 
 	//Insert the new column into our header array
-	columnData.push_back(ColumnData(info->name, info->columnID, info->width));
+	columnData.push_back(ColumnData(info.name, info.columnID, info.width));
 	ColumnData* i = &(*columnData.rbegin());
 
 	//Insert the new column into our ID index
-	columnIDIndex.insert(ColumnIDIndexEntry(info->columnID, i));
+	columnIDIndex.insert(ColumnIDIndexEntry(info.columnID, i));
 
 	//Insert the new column into our header control
 	HDITEM hdItem;
 	hdItem.mask = HDI_FORMAT | HDI_TEXT | HDI_WIDTH;
 	hdItem.fmt = HDF_STRING;
-	hdItem.cchTextMax = (int)info->name.length();
+	hdItem.cchTextMax = (int)info.name.length();
 	hdItem.pszText = &i->name[0];
 	hdItem.cxy = i->width;
 	int itemIndex = (int)SendMessage(hwndHeader, HDM_INSERTITEM, 99999, (LPARAM)&hdItem);
@@ -596,11 +642,11 @@ LRESULT WC_GridList::msgGRID_GETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 	}
 
 	ColumnData* i = columnIterator->second;
-	Grid_GetColumnInfo* info = (Grid_GetColumnInfo*)lParam;
-	info->columnID = i->columnID;
-	info->name = i->name;
-	info->width = i->width;
-	info->order = i->order;
+	Grid_GetColumnInfo& info = *((Grid_GetColumnInfo*)lParam);
+	info.columnID = i->columnID;
+	info.name = i->name;
+	info.width = i->width;
+	info.order = i->order;
 	return 0;
 }
 
@@ -613,10 +659,10 @@ LRESULT WC_GridList::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 	{
 		ColumnData* i = columnIterator->second;
 
-		Grid_SetColumnInfo* info = (Grid_SetColumnInfo*)lParam;
-		i->columnID = info->columnID;
-		i->name = info->name;
-		i->width = info->width;
+		const Grid_SetColumnInfo& info = *((Grid_SetColumnInfo*)lParam);
+		i->columnID = info.columnID;
+		i->name = info.name;
+		i->width = info.width;
 
 		//Insert the new column into our header control
 		HDITEM hdItem;
@@ -634,7 +680,7 @@ LRESULT WC_GridList::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 LRESULT WC_GridList::msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam)
 {
 	unsigned int targetColumnID = (unsigned int)wParam;
-	std::vector<std::wstring>& text = *((std::vector<std::wstring>*)lParam);
+	const std::vector<std::wstring>& text = *((std::vector<std::wstring>*)lParam);
 	ColumnIDIndexIterator columnIterator = columnIDIndex.find(targetColumnID);
 	if(columnIterator == columnIDIndex.end())
 	{
@@ -650,6 +696,36 @@ LRESULT WC_GridList::msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam)
 }
 
 //----------------------------------------------------------------------------------------
+LRESULT WC_GridList::msgGRID_SETCONTROLCOLOR(WPARAM wParam, LPARAM lParam)
+{
+	const Grid_SetControlColor& controlColorInfo = *((Grid_SetControlColor*)lParam);
+	userColorData.defined = controlColorInfo.defined;
+	userColorData.colorBackground = controlColorInfo.colorBackground;
+	userColorData.colorTextFront = controlColorInfo.colorTextFront;
+	userColorData.colorTextBack = controlColorInfo.colorTextBack;
+	userColorData.colorLine = controlColorInfo.colorLine;
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_GridList::msgGRID_SETROWCOLOR(WPARAM wParam, LPARAM lParam)
+{
+	unsigned int targetRowID = (unsigned int)wParam;
+	const Grid_SetRowColor& rowColorInfo = *((Grid_SetRowColor*)lParam);
+	if(targetRowID >= (unsigned int)rowColorDataArray.size())
+	{
+		return 1;
+	}
+
+	CustomColorData& rowColorData = rowColorDataArray[targetRowID];
+	rowColorData.defined = rowColorInfo.defined;
+	rowColorData.colorBackground = rowColorInfo.colorBackground;
+	rowColorData.colorTextFront = rowColorInfo.colorTextFront;
+	rowColorData.colorTextBack = rowColorInfo.colorTextBack;
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
 LRESULT WC_GridList::msgGRID_GETROWCOUNT(WPARAM wParam, LPARAM lParam)
 {
 	return (LRESULT)visibleRows;
@@ -658,11 +734,11 @@ LRESULT WC_GridList::msgGRID_GETROWCOUNT(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_GridList::msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam)
 {
-	Grid_SetVScrollInfo* info = (Grid_SetVScrollInfo*)lParam;
-	vscrollMin = info->minPos;
-	vscrollMax = info->maxPos;
-	vscrollCurrent = info->currentPos;
-	vscrollValuesPerPage = info->valuesPerPage;
+	const Grid_SetVScrollInfo& info = *((Grid_SetVScrollInfo*)lParam);
+	vscrollMin = info.minPos;
+	vscrollMax = info.maxPos;
+	vscrollCurrent = info.currentPos;
+	vscrollValuesPerPage = info.valuesPerPage;
 
 	//Apply the new scrollbar settings
 	SCROLLINFO scrollInfo;

@@ -103,7 +103,7 @@ struct WinColor
 	WinColor()
 	{}
 	WinColor(unsigned char ar, unsigned char ag, unsigned char ab)
-		:r(ar), g(ag), b(ab)
+	:r(ar), g(ag), b(ab)
 	{}
 
 	COLORREF GetColorREF() const
