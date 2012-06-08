@@ -17,7 +17,8 @@ Processor::DisassemblyView::DisassemblyView(Processor* adevice)
 	forcePCSync = false;
 	startLocation = 0;
 	endLocation = 0x10000;
-	currentLocation = 0;
+	firstVisibleValueLocation = 0;
+	lastVisibleValueLocation = 0;
 	readAbove = 0x100;
 	lastBufferedOpcodeSize = 0;
 	firstVisibleOpcodeSize = 0;
@@ -116,38 +117,50 @@ LRESULT Processor::DisassemblyView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM
 //----------------------------------------------------------------------------------------
 LRESULT Processor::DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Check if we need to update the current address
-	if(track || forcePCSync)
+	//Obtain the current PC address, and check if it has changed since it was last
+	//inspected.
+	unsigned int newPC = device->GetCurrentPC();
+	bool pcCounterChanged = (currentPCLocation != newPC);
+	currentPCLocation = newPC;
+
+	//Determine if we need to scroll the window to make the PC location visible
+	if(((pcCounterChanged && track) || forcePCSync)
+	&& ((currentPCLocation < firstVisibleValueLocation) || (currentPCLocation > lastVisibleValueLocation)))
 	{
-		forcePCSync = false;
+		//##TODO## Calculate the new start address of the window region, with one third of
+		//the window showing opcodes above the current PC location.
+		firstVisibleValueLocation = currentPCLocation;
 
-		//Check if the current address has changed
-		unsigned int newPC = device->GetCurrentPC();
-		if(currentLocation != newPC)
+		//Update the vertical scroll settings
+		WC_GridList::Grid_SetVScrollInfo scrollInfo;
+		scrollInfo.minPos = (int)startLocation;
+		scrollInfo.maxPos = (int)endLocation;
+		scrollInfo.currentPos = (int)firstVisibleValueLocation;
+		scrollInfo.valuesPerPage = (int)visibleRows;
+		SendMessage(hwndGridList, WC_GridList::GRID_SETVSCROLLINFO, 0, (LPARAM)&scrollInfo);
+
+		//If the current location is outside the previous start and end location
+		//boundaries, extend the boundaries to include the current address.
+		unsigned int extensionSize = (visibleRows * device->GetMinimumOpcodeByteSize() * 2);
+		if(currentPCLocation > endLocation)
 		{
-			//If the address has changed, store the new address
-			currentLocation = newPC;
-
-			//Update the vertical scroll settings
-			WC_GridList::Grid_SetVScrollInfo scrollInfo;
-			scrollInfo.minPos = (int)startLocation;
-			scrollInfo.maxPos = (int)endLocation;
-			scrollInfo.currentPos = (int)currentLocation;
-			scrollInfo.valuesPerPage = (int)visibleRows;
-			SendMessage(hwndGridList, WC_GridList::GRID_SETVSCROLLINFO, 0, (LPARAM)&scrollInfo);
-
-			//If the current location is outside the previous start and end location
-			//boundaries, extend the boundaries to include the current address.
-			if(currentLocation > endLocation)
+			endLocation = currentPCLocation + extensionSize;
+		}
+		if(currentPCLocation < startLocation)
+		{
+			if(currentPCLocation <= extensionSize)
 			{
-				endLocation = currentLocation;
+				startLocation = 0;
 			}
-			if(currentLocation < startLocation)
+			else
 			{
-				startLocation = currentLocation;
+				startLocation = currentPCLocation - extensionSize;
 			}
 		}
 	}
+
+	//Clear the forcePCSync flag now that it has been processed
+	forcePCSync = false;
 
 	//Update the control panel
 	SendMessage(hwndControlPanel, WM_TIMER, wparam, lparam);
@@ -176,12 +189,12 @@ LRESULT Processor::DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPAR
 			unsigned int shiftCount = 0;
 			while(shiftCount < info->shiftCount)
 			{
-				unsigned int initialPosition = currentLocation;
-				while(((currentLocation + firstVisibleOpcodeSize) > initialPosition) //The first opcode in the window is below or contains the address of the previous first opcode in the window
-					&& (currentLocation >= lastBufferedOpcodeSize) //We're not going to shift above 0
-					&& ((currentLocation - lastBufferedOpcodeSize) >= startLocation)) //We're not going to shift past the start location
+				unsigned int initialPosition = firstVisibleValueLocation;
+				while(((firstVisibleValueLocation + firstVisibleOpcodeSize) > initialPosition) //The first opcode in the window is below or contains the address of the previous first opcode in the window
+					&& (firstVisibleValueLocation >= lastBufferedOpcodeSize) //We're not going to shift above 0
+					&& ((firstVisibleValueLocation - lastBufferedOpcodeSize) >= startLocation)) //We're not going to shift past the start location
 				{
-					currentLocation -= lastBufferedOpcodeSize;
+					firstVisibleValueLocation -= lastBufferedOpcodeSize;
 					UpdateDisassembly();
 				}
 				++shiftCount;
@@ -192,9 +205,9 @@ LRESULT Processor::DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPAR
 			WC_GridList::Grid_ShiftRowsDown* info = (WC_GridList::Grid_ShiftRowsDown*)lparam;
 			unsigned int shiftCount = 0;
 			while((shiftCount < info->shiftCount)
-				&& ((currentLocation + firstVisibleOpcodeSize) < endLocation))
+				&& ((firstVisibleValueLocation + firstVisibleOpcodeSize) < endLocation))
 			{
-				currentLocation += firstVisibleOpcodeSize;
+				firstVisibleValueLocation += firstVisibleOpcodeSize;
 				UpdateDisassembly();
 				++shiftCount;
 			}
@@ -206,7 +219,7 @@ LRESULT Processor::DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPAR
 			//size first, to ensure alignment rules for the processor are respected
 			//when doing a blind scroll.
 			WC_GridList::Grid_NewScrollPosition* info = (WC_GridList::Grid_NewScrollPosition*)lparam;
-			currentLocation = info->scrollPos - (info->scrollPos % device->GetMinimumOpcodeByteSize());
+			firstVisibleValueLocation = info->scrollPos - (info->scrollPos % device->GetMinimumOpcodeByteSize());
 			UpdateDisassembly();
 		}
 
@@ -214,7 +227,7 @@ LRESULT Processor::DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPAR
 		WC_GridList::Grid_SetVScrollInfo scrollInfo;
 		scrollInfo.minPos = (int)startLocation;
 		scrollInfo.maxPos = (int)endLocation;
-		scrollInfo.currentPos = (int)currentLocation;
+		scrollInfo.currentPos = (int)firstVisibleValueLocation;
 		scrollInfo.valuesPerPage = (int)visibleRows;
 		SendMessage(hwndGridList, WC_GridList::GRID_SETVSCROLLINFO, 0, (LPARAM)&scrollInfo);
 	}
@@ -343,7 +356,7 @@ INT_PTR Processor::DisassemblyView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wpar
 
 	//Set the initial state for the controls
 	CheckDlgButton(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_TRACK, (track)? BST_CHECKED: BST_UNCHECKED);
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT, device->GetAddressBusCharWidth(), currentLocation);
+	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT, device->GetAddressBusCharWidth(), firstVisibleValueLocation);
 	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_START, device->GetAddressBusCharWidth(), startLocation);
 	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_END, device->GetAddressBusCharWidth(), endLocation);
 	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_READABOVE, device->GetAddressBusCharWidth(), readAbove);
@@ -363,7 +376,7 @@ INT_PTR Processor::DisassemblyView::msgPanelWM_CLOSE(HWND hwnd, WPARAM wparam, L
 //----------------------------------------------------------------------------------------
 INT_PTR Processor::DisassemblyView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT, device->GetAddressBusCharWidth(), currentLocation);
+	if(currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT, device->GetAddressBusCharWidth(), firstVisibleValueLocation);
 	if(currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_START)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_START, device->GetAddressBusCharWidth(), startLocation);
 	if(currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_END)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_END, device->GetAddressBusCharWidth(), endLocation);
 
@@ -394,8 +407,8 @@ INT_PTR Processor::DisassemblyView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam,
 				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), endLocation);
 				break;
 			case IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT:
-				currentLocation = GetDlgItemHex(hwnd, LOWORD(wparam));
-				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), currentLocation);
+				firstVisibleValueLocation = GetDlgItemHex(hwnd, LOWORD(wparam));
+				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), firstVisibleValueLocation);
 				break;
 			case IDC_PROCESSOR_DISASSEMBLY_PANEL_READABOVE:
 				readAbove = GetDlgItemHex(hwnd, LOWORD(wparam));
@@ -434,15 +447,15 @@ void Processor::DisassemblyView::UpdateDisassembly()
 	unsigned int minimumOpcodeByteSize = device->GetMinimumOpcodeByteSize();
 
 	//Obtain the address of the first opcode in the buffer
-	unsigned int upperReadPosition = currentLocation - readAbove;
-	if((readAbove > currentLocation) || (upperReadPosition < startLocation))
+	unsigned int upperReadPosition = firstVisibleValueLocation - readAbove;
+	if((readAbove > firstVisibleValueLocation) || (upperReadPosition < startLocation))
 	{
-		upperReadPosition = startLocation + (currentLocation % minimumOpcodeByteSize);
+		upperReadPosition = startLocation + (firstVisibleValueLocation % minimumOpcodeByteSize);
 	}
 
 	//Read each opcode stored in the buffer
 	unsigned int offset = 0;
-	while((upperReadPosition + offset) < currentLocation)
+	while((upperReadPosition + offset) < firstVisibleValueLocation)
 	{
 		//Read the opcode info
 		Processor::OpcodeInfo opcodeInfo = device->GetOpcodeInfo(upperReadPosition + offset);
@@ -475,9 +488,46 @@ void Processor::DisassemblyView::UpdateDisassembly()
 	std::vector<std::wstring> columnDataBinary(visibleRows);
 	for(unsigned int i = 0; (i < visibleRows) && ((upperReadPosition + offset) < endLocation); ++i)
 	{
+		unsigned int rowPCLocation = (upperReadPosition + offset);
+
+		//Set the color for this row
+		WC_GridList::Grid_SetRowColor setRowColor;
+		setRowColor.defined = false;
+		if(rowPCLocation == currentPCLocation)
+		{
+			//If this row is the same as the current PC location, shade the location in
+			//green.
+			setRowColor.defined = true;
+			setRowColor.colorBackground = WinColor(128, 255, 128);
+			setRowColor.colorTextFront = WinColor(0, 0, 0);
+			setRowColor.colorTextBack = setRowColor.colorBackground;
+		}
+		else
+		{
+			//Look for any breakpoints which trigger at the target address
+			boost::mutex::scoped_lock lock(device->debugMutex);
+			bool breakpointAtLocation = false;
+			BreakpointList::iterator breakpointIterator = device->breakpoints.begin();
+			while(!breakpointAtLocation && (breakpointIterator != device->breakpoints.end()))
+			{
+				breakpointAtLocation = (*breakpointIterator)->PassesLocationCondition(rowPCLocation);
+				++breakpointIterator;
+			}
+
+			//If a breakpoint triggers at this address, shade the location in red.
+			if(breakpointAtLocation)
+			{
+				setRowColor.defined = true;
+				setRowColor.colorBackground = WinColor(255, 128, 128);
+				setRowColor.colorTextFront = WinColor(0, 0, 0);
+				setRowColor.colorTextBack = setRowColor.colorBackground;
+			}
+		}
+		SendMessage(hwndGridList, WC_GridList::GRID_SETROWCOLOR, i, (LPARAM)&setRowColor);
+
 		//Read the opcode info
 		unsigned int opcodeSize = minimumOpcodeByteSize;
-		Processor::OpcodeInfo opcodeInfo = device->GetOpcodeInfo(upperReadPosition + offset);
+		Processor::OpcodeInfo opcodeInfo = device->GetOpcodeInfo(rowPCLocation);
 		if(!opcodeInfo.valid)
 		{
 			//If the target address doesn't reference a valid opcode, we output a generic
@@ -491,7 +541,7 @@ void Processor::DisassemblyView::UpdateDisassembly()
 
 		//Build the opcode disassembly output
 		std::wstring addressString;
-		IntToStringBase16(upperReadPosition + offset, addressString, device->GetAddressBusCharWidth(), false);
+		IntToStringBase16(rowPCLocation, addressString, device->GetAddressBusCharWidth(), false);
 		columnDataAddress[i] = addressString;
 		columnDataOpcode[i] = opcodeInfo.disassemblyOpcode;
 		columnDataArgs[i] = opcodeInfo.disassemblyArguments;
@@ -504,7 +554,7 @@ void Processor::DisassemblyView::UpdateDisassembly()
 		std::wstring binaryString;
 		for(unsigned int byteNo = 0; byteNo < opcodeInfo.opcodeSize;)
 		{
-			Data rawData(device->GetRawData(upperReadPosition + offset + byteNo));
+			Data rawData(device->GetRawData(rowPCLocation + byteNo));
 
 			if(byteNo > 0)
 			{
@@ -523,6 +573,9 @@ void Processor::DisassemblyView::UpdateDisassembly()
 		{
 			firstVisibleOpcodeSize = opcodeSize;
 		}
+
+		//Update the last visible value location
+		lastVisibleValueLocation = rowPCLocation;
 
 		//Step to the next opcode
 		offset += opcodeSize;

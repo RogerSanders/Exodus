@@ -62,9 +62,11 @@ private:
 	unsigned int visibleRows;
 	bool track;
 	bool forcePCSync;
+	unsigned int currentPCLocation;
 	unsigned int startLocation;
 	unsigned int endLocation;
-	unsigned int currentLocation;
+	unsigned int firstVisibleValueLocation;
+	unsigned int lastVisibleValueLocation;
 	unsigned int readAbove;
 	unsigned int lastBufferedOpcodeSize;
 	unsigned int firstVisibleOpcodeSize;
