@@ -299,7 +299,6 @@ void Z80::Initialize()
 	intLineState = false;
 	nmiLineState = false;
 	lastTimesliceLength = 0;
-	blastTimesliceLength = 0;
 	lineAccessBuffer.clear();
 	suspendUntilLineStateChangeReceived = false;
 
@@ -497,6 +496,10 @@ unsigned int Z80::GetLineID(const wchar_t* lineName) const
 	{
 		return LINE_BUSREQ;
 	}
+	else if(lineNameString == L"BUSACK")
+	{
+		return LINE_BUSACK;
+	}
 	else if(lineNameString == L"INT")
 	{
 		return LINE_INT;
@@ -517,6 +520,8 @@ const wchar_t* Z80::GetLineName(unsigned int lineID) const
 		return L"RESET";
 	case LINE_BUSREQ:
 		return L"BUSREQ";
+	case LINE_BUSACK:
+		return L"BUSACK";
 	case LINE_INT:
 		return L"INT";
 	case LINE_NMI:
@@ -533,6 +538,8 @@ unsigned int Z80::GetLineWidth(unsigned int lineID) const
 	case LINE_RESET:
 		return 1;
 	case LINE_BUSREQ:
+		return 1;
+	case LINE_BUSACK:
 		return 1;
 	case LINE_INT:
 		return 1;
@@ -573,7 +580,10 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 
 	//Resume the main execution thread if it is currently suspended waiting for a line
 	//state change to be received.
-	GetDeviceContext()->ResumeTimesliceExecution();
+	if(suspendUntilLineStateChangeReceived)
+	{
+		GetDeviceContext()->ResumeTimesliceExecution();
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -587,16 +597,24 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 	switch(targetLine)
 	{
 	case LINE_RESET:
-		resetLineState = !lineData.Zero();
+		resetLineState = lineData.NonZero();
 		break;
-	case LINE_BUSREQ:
-		busreqLineState = !lineData.Zero();
-		break;
+	case LINE_BUSREQ:{
+		bool newState = lineData.NonZero();
+		if(busreqLineState != newState)
+		{
+			busreqLineState = newState;
+
+			//If we're processing a change to the busreq line, we need to now change the state
+			//of the BUSACK line to match.
+			memoryBus->SetLine(LINE_BUSACK, lineData, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		}
+		break;}
 	case LINE_INT:
-		intLineState = !lineData.Zero();
+		intLineState = lineData.NonZero();
 		break;
 	case LINE_NMI:
-		nmiLineState = !lineData.Zero();
+		nmiLineState = lineData.NonZero();
 		break;
 	}
 
@@ -630,10 +648,15 @@ double Z80::ExecuteStep()
 		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
 		while(!done && (i != lineAccessBuffer.end()))
 		{
-			//##DEBUG##
-//			std::wcout << i->accessTime << '\t' << currentTimesliceProgress << '\n';
 			if(i->accessTime <= currentTimesliceProgress)
 			{
+				//##DEBUG##
+				//std::wstringstream logMessage;
+				//logMessage << L"Z80 Line state change: " << std::setprecision(16) << i->accessTime << '\t' << currentTimesliceProgress << '\t' << i->lineID << '\t' << i->state.GetData();
+				//LogEntry logEntry(LogEntry::EVENTLEVEL_DEBUG, logMessage.str());
+				//GetDeviceContext()->WriteLogEvent(logEntry);
+//				std::wcout << "Z80 Line state change: " << std::setprecision(16) << i->accessTime << '\t' << currentTimesliceProgress << '\n';
+
 				ApplyLineStateChange(i->lineID, i->state);
 				++i;
 			}
