@@ -29,6 +29,18 @@ File::SizeType File::Size() const
 		if(getFileSizeExReturn != 0)
 		{
 			fileSize = (SizeType)fileSizeWindows.QuadPart;
+
+			//Adjust the reported file size to take into account any unwritten data
+			//currently held in the data buffer.
+			if(bufferInWriteMode)
+			{
+				SizeType virtualFilePos = GetStreamPos();
+				virtualFilePos += (SizeType)bufferPosOffset;
+				if(virtualFilePos > fileSize)
+				{
+					fileSize = virtualFilePos;
+				}
+			}
 		}
 	}
 	return fileSize;
@@ -47,6 +59,17 @@ File::SizeType File::GetStreamPos() const
 		if(setFilePointerExReturn != 0)
 		{
 			streamPos = (SizeType)currentFilePointer.QuadPart;
+
+			//Adjust the reported file position to take into account our position in the
+			//data buffer.
+			if(bufferInWriteMode)
+			{
+				streamPos += (SizeType)bufferPosOffset;
+			}
+			else
+			{
+				streamPos -= (SizeType)(bufferSize - bufferPosOffset);
+			}
 		}
 	}
 	return streamPos;
@@ -57,6 +80,10 @@ void File::SetStreamPos(SizeType position)
 {
 	if(fileOpen)
 	{
+		//Empty the contents of the data buffer before we perform a seek operation
+		EmptyDataBuffer();
+
+		//Set the new file seek position
 		LARGE_INTEGER filePointer;
 		filePointer.QuadPart = (LONGLONG)position;
 		SetFilePointerEx(fileHandle, filePointer, NULL, FILE_BEGIN);

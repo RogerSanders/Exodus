@@ -240,6 +240,7 @@ bool ViewText::ReadTextString(std::string& data, bool stopAtNewline)
 {
 	//Read text from the stream until we hit the end of the stream, or we reach a newline
 	//or null terminator.
+	data.clear();
 	bool done = false;
 	while(!done && !stream.IsAtEnd())
 	{
@@ -264,6 +265,7 @@ bool ViewText::ReadTextString(std::wstring& data, bool stopAtNewline)
 {
 	//Read text from the stream until we hit the end of the stream, or we reach a newline
 	//or null terminator.
+	data.clear();
 	bool done = false;
 	while(!done && !stream.IsAtEnd())
 	{
