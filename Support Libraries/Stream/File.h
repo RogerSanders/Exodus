@@ -8,6 +8,7 @@ a dramatic performance increase.
 #ifndef __FILE_H__
 #define __FILE_H__
 #include <string>
+#include <vector>
 #include "WindowFunctions/WindowFunctions.pkg"
 namespace Stream {
 
@@ -29,8 +30,8 @@ public:
 	virtual ~File();
 
 	//File binding
-	inline bool Open(const std::string& filename, OpenMode openMode, CreateMode createMode);
-	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode);
+	inline bool Open(const std::string& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize = 8192);
+	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize = 8192);
 	inline void Close();
 	inline bool IsOpen() const;
 
@@ -120,10 +121,24 @@ private:
 	//Internal read/write functions
 	inline bool ReadBinary(void* rawData, unsigned int bytesToRead);
 	inline bool WriteBinary(const void* rawData, unsigned int bytesToWrite);
+	inline bool ReadBinaryUnbuffered(void* rawData, unsigned int bytesToRead);
+	inline bool WriteBinaryUnbuffered(const void* rawData, unsigned int bytesToWrite);
+
+	//Data buffer functions
+	inline bool EmptyDataBuffer();
+	inline bool PrepareDataBufferForReads();
+	inline bool PrepareDataBufferForWrites();
 
 private:
+	//File handling
 	bool fileOpen;
 	HANDLE fileHandle;
+
+	//Data buffering
+	std::vector<unsigned char> fileBuffer;
+	unsigned int bufferSize;
+	unsigned int bufferPosOffset;
+	bool bufferInWriteMode;
 };
 
 } //Close namespace Stream
