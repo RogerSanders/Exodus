@@ -46,6 +46,7 @@ public:
 	//Constructors
 	Z80(const std::wstring& ainstanceName, unsigned int amoduleID);
 	~Z80();
+	virtual bool Construct(IHeirarchicalStorageNode& node);
 
 	//Initialization functions
 	virtual bool BuildDevice();
@@ -332,6 +333,7 @@ private:
 	double blastTimesliceLength;
 	std::list<LineAccess> lineAccessBuffer;
 	std::list<LineAccess> blineAccessBuffer;
+	bool suspendWhenBusReleased;
 	volatile bool suspendUntilLineStateChangeReceived;
 	bool bsuspendUntilLineStateChangeReceived;
 

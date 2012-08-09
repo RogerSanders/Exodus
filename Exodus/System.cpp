@@ -1205,6 +1205,14 @@ void System::ExecuteDeviceStep(DeviceContext* device)
 	//Notify before execute called
 	executionManager.NotifyBeforeExecuteCalled();
 
+	//##FIX## This execution model is not only unusual, it now also causes a deadlock, due
+	//to the missed NotifyAfterExecuteStepFinishedTimeslice() event. It could also cause
+	//logic problems for timeslice execution devices, which receive a notification of an
+	//upcoming timeslice, but never receive the timeslice itself. I think perhaps it's
+	//time to unify device stepping with our normal execution model, and just make a
+	//device step execute a system step for a time of 0.0, then step through the device
+	//as a timing point. Actually, looking at our system implementation, it has the exact
+	//same problems and deadlock case. We need to review our execution model here.
 	//Step through the target device
 	rollback = false;
 	double timeslice = device->ExecuteStep();

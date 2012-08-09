@@ -7,6 +7,7 @@
 
 //Note that the 315-5364 acts as this device in the Mega Drive, as it's the device which
 //controls the Z80 RESET(ZRES) and BUSREQ(ZBR) lines.
+//##TODO## Delete this device, as it has now been replaced by MDBusArbiter.
 class A11100 :public Device
 {
 public:

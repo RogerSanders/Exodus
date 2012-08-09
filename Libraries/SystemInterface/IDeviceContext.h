@@ -14,6 +14,7 @@ public:
 
 	//Timing functions
 	virtual double GetCurrentTimesliceProgress() const = 0;
+	virtual void SetCurrentTimesliceProgress(double executionProgress) = 0;
 
 	//Control functions
 	virtual bool DeviceEnabled() const = 0;
@@ -42,11 +43,15 @@ public:
 	virtual bool TimesliceSuspensionDisabled() const = 0;
 	virtual bool TransientExecutionActive() const = 0;
 	virtual void SetTransientExecutionActive(bool state) = 0;
+	virtual bool TimesliceExecutionCompleted() const = 0;
 
 	//Input functions
-	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) = 0;
 	virtual void HandleInputKeyDown(KeyCode keyCode) const = 0;
 	virtual void HandleInputKeyUp(KeyCode keyCode) const = 0;
+	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) = 0;
+
+	//Dependent device functions
+	virtual void SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool state) = 0;
 
 protected:
 	//System message functions

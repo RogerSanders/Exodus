@@ -127,8 +127,7 @@ vcounterLatchedData(9),
 bvcounterLatchedData(9),
 readBuffer(16),
 breadBuffer(16),
-vsramCachedRead(16),
-bvsramCachedRead(16),
+renderVSRAMCachedRead(16),
 originalCommandAddress(16),
 boriginalCommandAddress(16),
 commandAddress(16),
@@ -206,6 +205,7 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 
 	//##DEBUG##
 	outputTestDebugMessages = false;
+	//outputTimingDebugMessages = true;
 	outputTimingDebugMessages = false;
 }
 
@@ -295,23 +295,25 @@ unsigned int S315_5313::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	if(targetLine == LINE_INTAK)
+	boost::mutex::scoped_lock lock(accessMutex);
+	switch(targetLine)
 	{
+	case LINE_INTAK:{
 		//##DEBUG##
-//		std::wcout << "SetLineState - VDP_LINE_INTAK:\t" << lineData.LSB() << '\n';
+		//		std::wcout << "SetLineState - VDP_LINE_INTAK:\t" << lineData.LSB() << '\n';
 
-		memoryBus->SetLine(LINE_INTAK, Data(GetLineWidth(LINE_INTAK), 1), GetDeviceContext(), caller, accessTime, accessContext);
-		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LINE_INTAK, Data(GetLineWidth(LINE_INTAK), 1), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), caller, accessTime, accessContext);
+
 		//Since the interrupt has been acknowledged, clear the VINT occurrence flag.
 		SetStatusFlagF(false);
-	}
-	else if(targetLine == LINE_BG)
-	{
+		break;}
+	case LINE_BG:{
 		//##DEBUG##
-//		std::wcout << "SetLineState - VDP_LINE_BG:\t" << lineData.LSB() << '\n';
+		//		std::wcout << "SetLineState - VDP_LINE_BG:\t" << lineData.LSB() << '\n';
 
-		//Convert the access time into a cycle count relative to MCLK, rounding up the result
-		//to the nearest MCLK cycle.
+		//Convert the access time into a cycle count relative to MCLK, rounding up the
+		//result to the nearest MCLK cycle.
 		unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
 		double accessMclkCycleInAccessTime = ConvertMclkCountToAccessTime(accessMclkCycle);
 		if(accessMclkCycleInAccessTime < accessTime)
@@ -320,19 +322,68 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		}
 
 		boost::mutex::scoped_lock lock(workerThreadMutex);
-		busGranted = lineData.LSB();
-		dmaTransferNextReadMclk = accessMclkCycle;
-		dmaTransferLastTimesliceUsedReadDelay = 0;
-		GetDeviceContext()->SetTransientExecutionActive(busGranted);
-		workerThreadUpdate.notify_all();
-	}
-	else if(targetLine == LINE_PAL)
-	{
+		if(dmaTransferActive || busGranted)
+		{
+			busGranted = lineData.LSB();
+			dmaTransferNextReadMclk = accessMclkCycle;
+			dmaTransferLastTimesliceUsedReadDelay = 0;
+
+			//If the bus has just been granted in response to a DMA transfer operation
+			//initiating a bus request, set the current timeslice progress for the VDP
+			//core to match the time at which the bus was granted. This allows us to set
+			//the device which controls bus ownership as a dependent device on the VDP
+			//core, as the timeslice progress will be valid during a DMA transfer.
+			if(busGranted)
+			{
+				GetDeviceContext()->SetCurrentTimesliceProgress(accessTime);
+			}
+
+			GetDeviceContext()->SetTransientExecutionActive(busGranted);
+			workerThreadUpdate.notify_all();
+		}
+		break;}
+	case LINE_PAL:{
 		//##DEBUG##
-//		std::wcout << "SetLineState - VDP_LINE_PAL:\t" << lineData.LSB() << '\n';
+		//		std::wcout << "SetLineState - VDP_LINE_PAL:\t" << lineData.LSB() << '\n';
 
 		palModeLineState = lineData.LSB();
+		break;}
 	}
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	boost::mutex::scoped_lock lock(accessMutex);
+	switch(targetLine)
+	{
+	case LINE_BR:{
+		boost::mutex::scoped_lock workerLock(workerThreadMutex);
+		bool targetLineState = lineData.GetBit(0);
+		if(dmaTransferActive == targetLineState)
+		{
+			//If the current state of the target line matches the target state, we have
+			//nothing to do.
+			return true;
+		}
+		else if(busGranted && !targetLineState && workerThreadPaused)
+		{
+			//If we currently have the bus, and the caller is requesting that we advance
+			//until the bus request line is negated, we can accurately perform that
+			//operation. In this case, we instruct the DMA worker thread to run the DMA
+			//operation to completion.
+			dmaAdvanceUntilDMAComplete = true;
+			workerThreadUpdate.notify_all();
+			dmaAdvanceUntilDMAComplete = false;
+			workerThreadIdle.wait(workerLock);
+			return true;
+		}
+		break;}
+	case LINE_INT:
+		//##TODO## We don't require this for the Mega Drive, but implement it anyway.
+		break;
+	}
+	return false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -482,7 +533,7 @@ void S315_5313::Initialize()
 		fifoBuffer[i].dataWriteHalfWritten = false;
 		fifoBuffer[i].pendingDataWrite = false;
 	}
-	vsramCachedRead = 0;
+	renderVSRAMCachedRead = 0;
 	readDataAvailable = false;
 	readDataHalfCached = false;
 	dmaFillOperationRunning = false;
@@ -490,6 +541,7 @@ void S315_5313::Initialize()
 	workerThreadPaused = false;
 	dmaTransferActive = false;
 	dmaTransferInvalidPortWriteCached = false;
+	dmaAdvanceUntilDMAComplete = false;
 	busGranted = false;
 	palModeLineState = true;
 	interlaceEnabled = false;
@@ -532,6 +584,7 @@ void S315_5313::Reset()
 	screenModeV30Cached = false;
 	displayEnabledCached = false;
 	spriteAttributeTableBaseAddressDecoded = 0;
+	verticalScrollModeCached = false;
 	cachedDMASettingsChanged = false;
 
 	//##TODO## Check if we need to clear these here
@@ -587,7 +640,7 @@ void S315_5313::Reset()
 		fifoBuffer[i].dataWriteHalfWritten = false;
 		fifoBuffer[i].pendingDataWrite = false;
 	}
-	vsramCachedRead = 0;
+	renderVSRAMCachedRead = 0;
 	readDataAvailable = false;
 	readDataHalfCached = false;
 	dmaFillOperationRunning = false;
@@ -609,6 +662,7 @@ void S315_5313::BeginExecution()
 	vramTimesliceList.clear();
 	cramTimesliceList.clear();
 	vsramTimesliceList.clear();
+	spriteCacheTimesliceList.clear();
 
 	//Start the render worker thread
 	renderThreadActive = true;
@@ -774,25 +828,6 @@ bool S315_5313::SendNotifyUpcomingTimeslice() const
 //----------------------------------------------------------------------------------------
 void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 {
-	//##DEBUG##
-	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-	{
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "busGranted:\t" << busGranted << "\n";
-		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-		std::wcout << "status:\t" << status.GetData() << "\n";
-		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-		std::wcout << "dmd1:\t" << dmd1 << "\n";
-		std::wcout << "dmd0:\t" << dmd1 << "\n";
-		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-	}
-
 	stateLastUpdateMclk = lastTimesliceMclkCyclesOverrun;
 	stateLastUpdateMclkUnused = 0;
 	stateLastUpdateTime = ConvertMclkCountToAccessTime(lastTimesliceMclkCyclesOverrun);
@@ -924,7 +959,10 @@ void S315_5313::NotifyAfterExecuteCalled()
 	}
 
 	//##DEBUG##
-//	std::wcout << "VDP - NotifyAfterExecuteCalled(After): " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << '\t' << std::setprecision(16) << stateLastUpdateTime << '\n';
+	if(outputTimingDebugMessages)
+	{
+		std::wcout << "VDP - NotifyAfterExecuteCalled(After): " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << '\t' << std::setprecision(16) << stateLastUpdateTime << '\n';
+	}
 
 	//##FIX## We just moved the following block from the end of NotifyAfterExecuteCalled()
 	//to fix a problem with an external device calling into the VDP while it is stepping
@@ -1517,7 +1555,9 @@ void S315_5313::GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPo
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::EventOccursWithinCounterRange(const HScanSettings& hscanSettings, unsigned int hcounterStart, unsigned int vcounterStart, unsigned int hcounterEnd, unsigned int vcounterEnd, unsigned int hcounterEventPos, unsigned int vcounterEventPos) const
+//##TODO## Refactor this to make it more readable, and shift it into the general timing
+//calculation code block, separating it from event processing.
+bool S315_5313::EventOccursWithinCounterRange(const HScanSettings& hscanSettings, unsigned int hcounterStart, unsigned int vcounterStart, unsigned int hcounterEnd, unsigned int vcounterEnd, unsigned int hcounterEventPos, unsigned int vcounterEventPos)
 {
 	return (((vcounterStart < vcounterEventPos)
 		  || ((vcounterStart == vcounterEventPos)
@@ -1583,7 +1623,7 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 			//std::wcout << "VDP - VINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << eventProperties.hcounter << '\t' << eventProperties.vcounter << '\n';
 
 			//Trigger VInt for M68000
-			memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_VINT);
+			memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_VINT);
 			vintPending = false;
 		}
 
@@ -1592,8 +1632,8 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 		//##NOTE## According to Eke, the Z80 INT line is asserted for one scanline, and is
 		//cleared at the same point in the following line.
 		double intLineAssertedLength = ConvertMclkCountToAccessTime(mclkCyclesPerLine);
-		memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_INT_ASSERT);
-		memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), accessTime + intLineAssertedLength, ACCESSCONTEXT_INT_RELEASE);
+		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_INT_ASSERT);
+		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), accessTime + intLineAssertedLength, ACCESSCONTEXT_INT_RELEASE);
 		break;}
 	//External interrupt
 	case NEXTUPDATESTEP_EXINT:{
@@ -1632,7 +1672,7 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 //			std::wcout << "VDP - EXINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\n';
 
 			//Trigger EXInt for M68000
-			memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_EXINT);
+			memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_EXINT);
 			exintPending = false;
 		}
 		break;}
@@ -1691,7 +1731,7 @@ void S315_5313::ExecuteEvent(EventProperties eventProperties, double accessTime,
 				//std::wcout << "VDP - HINT: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << eventProperties.hcounter << '\t' << eventProperties.vcounter << '\t' << hintCounterReloadValue << '\n';
 
 				//Trigger HInt for M68000
-				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_HINT);
+				memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_HINT);
 				hintPending = false;
 			}
 		}
@@ -1738,7 +1778,10 @@ double S315_5313::GetNextTimingPointInDeviceTime(unsigned int& accessContext) co
 	nextEventToExecuteTime = timeFromEndOfLastTimesliceToNextEventInSystemTime;
 
 	//##DEBUG##
-//	std::wcout << "VDP - GetTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << lastTimesliceMclkCyclesOverrun << '\t' << currentTimesliceMclkCyclesRemainingTime << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.hcounter << '\t' << nextEventToExecute.vcounter << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
+	if(outputTimingDebugMessages)
+	{
+		std::wcout << "VDP - GetTimingPoint: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << lastTimesliceMclkCyclesOverrun << '\t' << currentTimesliceMclkCyclesRemainingTime << '\t' << nextEventToExecute.event << '\t' << nextEventToExecute.hcounter << '\t' << nextEventToExecute.vcounter << '\t' << nextEventToExecute.mclkCycleCounter << '\t' << std::setprecision(16) << nextEventToExecuteTime << '\n';
+	}
 
 	return nextEventToExecuteTime;
 }
@@ -1746,25 +1789,6 @@ double S315_5313::GetNextTimingPointInDeviceTime(unsigned int& accessContext) co
 //----------------------------------------------------------------------------------------
 void S315_5313::ExecuteRollback()
 {
-	//##DEBUG##
-	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-	{
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "busGranted:\t" << busGranted << "\n";
-		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-		std::wcout << "status:\t" << status.GetData() << "\n";
-		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-		std::wcout << "dmd1:\t" << dmd1 << "\n";
-		std::wcout << "dmd0:\t" << dmd1 << "\n";
-		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-	}
-
 	//Update state
 	currentTimesliceMclkCyclesRemainingTime = bcurrentTimesliceMclkCyclesRemainingTime;
 	lastTimesliceMclkCyclesOverrun = blastTimesliceMclkCyclesOverrun;
@@ -1797,7 +1821,6 @@ void S315_5313::ExecuteRollback()
 	vintPending = bvintPending;
 	hintPending = bhintPending;
 	exintPending = bexintPending;
-	vsramCachedRead = bvsramCachedRead;
 	readDataAvailable = breadDataAvailable;
 	readDataHalfCached = breadDataHalfCached;
 	dmaFillOperationRunning = bdmaFillOperationRunning;
@@ -1829,6 +1852,7 @@ void S315_5313::ExecuteRollback()
 	screenModeV30Cached = bscreenModeV30Cached;
 	displayEnabledCached = bdisplayEnabledCached;
 	spriteAttributeTableBaseAddressDecoded = bspriteAttributeTableBaseAddressDecoded;
+	verticalScrollModeCached = bverticalScrollModeCached;
 
 	//FIFO buffer registers
 	for(unsigned int i = 0; i < fifoBufferSize; ++i)
@@ -1913,25 +1937,6 @@ void S315_5313::ExecuteRollback()
 //----------------------------------------------------------------------------------------
 void S315_5313::ExecuteCommit()
 {
-	//##DEBUG##
-	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-	{
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "busGranted:\t" << busGranted << "\n";
-		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-		std::wcout << "status:\t" << status.GetData() << "\n";
-		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-		std::wcout << "dmd1:\t" << dmd1 << "\n";
-		std::wcout << "dmd0:\t" << dmd1 << "\n";
-		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-	}
-
 	//Update state
 	bcurrentTimesliceMclkCyclesRemainingTime = currentTimesliceMclkCyclesRemainingTime;
 	blastTimesliceMclkCyclesOverrun = lastTimesliceMclkCyclesOverrun;
@@ -1964,7 +1969,6 @@ void S315_5313::ExecuteCommit()
 	bvintPending = vintPending;
 	bhintPending = hintPending;
 	bexintPending = exintPending;
-	bvsramCachedRead = vsramCachedRead;
 	breadDataAvailable = readDataAvailable;
 	breadDataHalfCached = readDataHalfCached;
 	bdmaFillOperationRunning = dmaFillOperationRunning;
@@ -1996,6 +2000,7 @@ void S315_5313::ExecuteCommit()
 	bscreenModeV30Cached = screenModeV30Cached;
 	bdisplayEnabledCached = displayEnabledCached;
 	bspriteAttributeTableBaseAddressDecoded = spriteAttributeTableBaseAddressDecoded;
+	bverticalScrollModeCached = verticalScrollModeCached;
 
 	//Propagate any changes to the cached DMA settings back into the reg buffer. This
 	//makes changes to DMA settings visible to the debugger.
@@ -2179,7 +2184,7 @@ void S315_5313::RenderThreadNew()
 			//it's not, and the execute thread waits forever for it to fix itself. We need
 			//to get this working, and replicate it in the PSG and YM2612 cores.
 //			if((pendingRenderOperationCount > 0) && !regTimesliceList.empty() && !vramTimesliceList.empty() && !cramTimesliceList.empty() && !vsramTimesliceList.empty())
-			if(!regTimesliceList.empty() && !vramTimesliceList.empty() && !cramTimesliceList.empty() && !vsramTimesliceList.empty())
+			if(!regTimesliceList.empty() && !vramTimesliceList.empty() && !cramTimesliceList.empty() && !vsramTimesliceList.empty() && !spriteCacheTimesliceList.empty())
 			{
 				//Update the lagging state for the render thread
 				--pendingRenderOperationCount;
@@ -2225,25 +2230,6 @@ void S315_5313::RenderThreadNew()
 			continue;
 		}
 
-		//##DEBUG##
-		if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-		{
-			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-			std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-			std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-			std::wcout << "busGranted:\t" << busGranted << "\n";
-			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-			std::wcout << "status:\t" << status.GetData() << "\n";
-			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-			std::wcout << "dmd1:\t" << dmd1 << "\n";
-			std::wcout << "dmd0:\t" << dmd1 << "\n";
-			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		}
-
 		//Begin advance sessions for each of our timed buffers
 		reg.BeginAdvanceSession(regSession, regTimesliceCopy, false);
 		vram->BeginAdvanceSession(vramSession, vramTimesliceCopy, false);
@@ -2259,46 +2245,8 @@ void S315_5313::RenderThreadNew()
 //		unsigned int mclkCyclesToAdvance = regTimesliceCopy->timesliceLength;
 //		renderDigitalMclkCycleProgress = 0;
 
-		//##DEBUG##
-		if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-		{
-			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-			std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-			std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-			std::wcout << "busGranted:\t" << busGranted << "\n";
-			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-			std::wcout << "status:\t" << status.GetData() << "\n";
-			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-			std::wcout << "dmd1:\t" << dmd1 << "\n";
-			std::wcout << "dmd0:\t" << dmd1 << "\n";
-			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		}
-
 		//Advance the digital render process
 		AdvanceRenderProcess(mclkCyclesToAdvance);
-
-		//##DEBUG##
-		if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-		{
-			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-			std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-			std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-			std::wcout << "busGranted:\t" << busGranted << "\n";
-			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-			std::wcout << "status:\t" << status.GetData() << "\n";
-			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-			std::wcout << "dmd1:\t" << dmd1 << "\n";
-			std::wcout << "dmd0:\t" << dmd1 << "\n";
-			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		}
 
 		//Advance past the timeslice we've just rendered from
 		{
@@ -3103,8 +3051,11 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		//Read registers which affect the read of vscroll data
 		bool vscrState = M5GetVSCR(accessTarget);
 
-		//Read vscroll data for layers A and B
-		DigitalRenderReadVscrollData(renderDigitalCurrentColumn, vscrState, interlaceMode2Active, renderLayerAVscrollPatternDisplacement, renderLayerBVscrollPatternDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement);
+		////Read vscroll data for layers A and B
+		//DigitalRenderReadVscrollData(renderDigitalCurrentColumn, vscrState, interlaceMode2Active, renderLayerAVscrollPatternDisplacement, renderLayerBVscrollPatternDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement);
+
+		//Read vscroll data for layer A
+		DigitalRenderReadVscrollDataNew(renderDigitalCurrentColumn, 0, vscrState, interlaceMode2Active, renderLayerAVscrollPatternDisplacement, renderLayerAVscrollMappingDisplacement, renderVSRAMCachedRead);
 
 		//Read the current window register settings
 		bool windowAlignedRight = M5GetWindowRightAligned(accessTarget);
@@ -3224,6 +3175,12 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		//The first mapping data we read is for the left-scrolled 2-cell column, which
 		//reads its mapping data from cell block -1.
 		unsigned int renderDigitalCurrentColumn = (nextOperation.index - 1) / cellsPerColumn;
+
+		//Read registers which affect the read of vscroll data
+		bool vscrState = M5GetVSCR(accessTarget);
+
+		//Read vscroll data for layer B
+		DigitalRenderReadVscrollDataNew(renderDigitalCurrentColumn, 1, vscrState, interlaceMode2Active, renderLayerBVscrollPatternDisplacement, renderLayerBVscrollMappingDisplacement, renderVSRAMCachedRead);
 
 		//Calculate the effective screen row number to use when calculating the mapping
 		//data row for this line. Note that the screen row number is just used directly
@@ -3986,6 +3943,59 @@ void S315_5313::DigitalRenderReadVscrollData(unsigned int screenColumnNumber, bo
 	layerAVscrollMappingDisplacement = interlaceMode2Active? (layerAVscrollOffset & 0x7F0) >> 4: (layerAVscrollOffset & 0x3F8) >> 3;
 	layerBVscrollPatternDisplacement = interlaceMode2Active? (layerBVscrollOffset & 0x00F):      (layerBVscrollOffset & 0x007);
 	layerBVscrollMappingDisplacement = interlaceMode2Active? (layerBVscrollOffset & 0x7F0) >> 4: (layerBVscrollOffset & 0x3F8) >> 3;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::DigitalRenderReadVscrollDataNew(unsigned int screenColumnNumber, unsigned int layerNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerVscrollPatternDisplacement, unsigned int& layerVscrollMappingDisplacement, Data& vsramReadCache) const
+{
+	//Calculate the address of the vscroll data to read for this block
+	const unsigned int vscrollDataLayerCount = 2;
+	const unsigned int vscrollDataEntrySize = 2;
+	unsigned int vscrollDataAddress = vscrState? (screenColumnNumber * vscrollDataLayerCount * vscrollDataEntrySize) + (layerNumber * vscrollDataEntrySize): (layerNumber * vscrollDataEntrySize);
+
+	//##NOTE## This implements what appears to be the correct behaviour for handling reads
+	//past the end of the VSRAM buffer during rendering. This can occur when horizontal
+	//scrolling is applied along with vertical scrolling, in which case the leftmost
+	//column can be reading data from a screen column of -1, wrapping around to the end of
+	//the VSRAM buffer. In this case, the last successfully read value from the VSRAM
+	//appears to be used as the read value. This also applies when performing manual reads
+	//from VSRAM externally using the data port. See data port reads from VSRAM for more
+	//info.
+	//##TODO## This needs more through hardware tests, to definitively confirm the correct
+	//behaviour.
+	if(vscrollDataAddress < 0x50)
+	{
+		//Read the vscroll data for this line. Note only the lower 10 bits are
+		//effective, or the lower 11 bits in the case of interlace mode 2, due to the
+		//scrolled address being wrapped to lie within the total field boundaries,
+		//which never exceed 128 blocks.
+		vsramReadCache = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
+	}
+
+	//Break the vscroll data into its two component parts. The format of the vscroll data
+	//varies depending on whether interlace mode 2 is active. When interlace mode 2 is not
+	//active, the vscroll data is interpreted as a 10-bit value, where the lower 3 bits
+	//represent a vertical shift on the pattern line for the selected block mapping, or in
+	//other words, the displacement of the starting row within each pattern, while the
+	//upper 7 bits represent an offset for the mapping data itself, like so:
+	//------------------------------------------
+	//| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0  |
+	//|----------------------------------------|
+	//|    Column Shift Value     |Displacement|
+	//------------------------------------------
+	//Where interlace mode 2 is active, pattern data is 8x16 pixels, not 8x8 pixels. In
+	//this case, the vscroll data is treated as an 11-bit value, where the lower 4 bits
+	//give the row offset, and the upper 7 bits give the mapping offset, like so:
+	//---------------------------------------------
+	//|10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	//|-------------------------------------------|
+	//|    Column Shift Value     | Displacement  |
+	//---------------------------------------------
+	//Note that the unused upper bits in the vscroll data are simply discarded, since they
+	//fall outside the maximum virtual playfield size for the mapping data. Since the
+	//virtual playfield wraps, this means they have no effect.
+	layerVscrollPatternDisplacement = interlaceMode2Active? vsramReadCache.GetDataSegment(0, 4): vsramReadCache.GetDataSegment(0, 3);
+	layerVscrollMappingDisplacement = interlaceMode2Active? vsramReadCache.GetDataSegment(4, 7): vsramReadCache.GetDataSegment(3, 7);
 }
 
 //----------------------------------------------------------------------------------------
@@ -4898,15 +4908,31 @@ void S315_5313::DMAWorkerThread()
 					}
 				}
 
-				//If we currently have the bus, advance the processor state until the DMA
-				//operation is complete, or we reach the end of the current timeslice.
-				if(GetProcessorStateMclkCurrent() < currentTimesliceTotalMclkCycles)
+				//Advance the DMA operation
+				if(dmaAdvanceUntilDMAComplete)
 				{
+					//If we've been requested to advance the current DMA operation until
+					//it is complete, ignore the timeslice length and advance until we
+					//reach the desired state.
+
+					//##DEBUG##
+					//std::wcout << "VDP - DMAWorkerThreadForce: " << lastTimesliceTotalExecuteTime << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << "\n";
+
+					UpdateInternalState(currentTimesliceTotalMclkCycles, true, false, false, false, false, true, true);
+				}
+				else if(GetProcessorStateMclkCurrent() < currentTimesliceTotalMclkCycles)
+				{
+					//If we currently have the bus, advance the processor state until the DMA
+					//operation is complete, or we reach the end of the current timeslice.
+
 					//##DEBUG##
 	//				std::wcout << "VDP - DMAWorkerThread: " << lastTimesliceTotalExecuteTime << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << "\n";
 
 					UpdateInternalState(currentTimesliceTotalMclkCycles, true, false, false, false, false, true, false);
 				}
+
+				//Update the timeslice execution progress for this device
+				GetDeviceContext()->SetCurrentTimesliceProgress(lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime());
 
 				//If the DMA transfer has been completed, negate BR to release the bus.
 				if(!dmaTransferActive)
@@ -4914,7 +4940,7 @@ void S315_5313::DMAWorkerThread()
 					//##DEBUG##
 	//				if(outputTestDebugMessages)
 	//				{
-	//					std::wcout << "SetLine - VDP_LINE_BR:\t" << false << '\t' << GetProcessorStateTime() << '\t' << GetProcessorStateMclkCurrent() << '\n';
+	//					std::wcout << "SetLineState - VDP_LINE_BR:\t" << false << '\t' << GetProcessorStateTime() << '\t' << GetProcessorStateMclkCurrent() << '\n';
 	//				}
 
 					//Calculate the time at which the line access change will occur, in
@@ -4937,22 +4963,20 @@ void S315_5313::DMAWorkerThread()
 							std::wcout << "VDP Performing a cached write!\n";
 						}
 
-						//##FIX## This is insufficient. We are having timing problems with Mickey
-						//Mania, the main test case for this DMA issue. In this case, they are tagging
-						//a display enable write as the second half of a long-word write. This is
-						//timing sensitive, so we need to ensure that this write is correctly
-						//processed immediately after the DMA operation is complete, not at the time
-						//of the next port write, as we do currently.
 						dmaTransferInvalidPortWriteCached = false;
 						WriteInterface(0, dmaTransferInvalidPortWriteAddressCache, dmaTransferInvalidPortWriteDataCache, GetDeviceContext(), accessTime, 0);
 					}
+
+					//Since we've reached the end of this DMA operation, reset the
+					//timeslice execution progress to the end of the timeslice.
+					GetDeviceContext()->SetCurrentTimesliceProgress(currentTimesliceLength);
 
 					//Note that by negating BR, the M68000 should negate BG in response.
 					//This may not occur immediately however. In this case, we will have
 					//already cleared the dmaTransferActive flag, so our worker thread
 					//will continue to run without advancing the processor state until the
 					//bus is released.
-					memoryBus->SetLine(LINE_BR, Data(GetLineWidth(LINE_BR), 0), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_BR_RELEASE);
+					memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), 0), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_BR_RELEASE);
 
 					//##DEBUG##
 		//			std::wcout << "DMA Transfer complete\n";
@@ -5248,25 +5272,6 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		eventProcessingCompleted.wait(lock);
 	}
 
-	//##DEBUG##
-	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-	{
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "busGranted:\t" << busGranted << "\n";
-		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-		std::wcout << "status:\t" << status.GetData() << "\n";
-		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-		std::wcout << "dmd1:\t" << dmd1 << "\n";
-		std::wcout << "dmd0:\t" << dmd1 << "\n";
-		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-	}
-
 	//Convert the access time into a cycle count relative to MCLK, rounding up the result
 	//to the nearest MCLK cycle.
 	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
@@ -5286,7 +5291,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		}
 
 		//##DEBUG##
-		if(dmaEnabled && !dmd1 && commandCode.GetBit(5))
+		if(commandCode.GetBit(5) && !dmd1)
 		{
 			std::wcout << "######################################################\n";
 			std::wcout << "VDP ReadInterface called when a DMA transfer was in progress!\n";
@@ -5488,7 +5493,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//the bus between two halves of a long-word operation. Until we have a microcode
 		//level M68000 core online, we cache these invalid reads, and process them when
 		//the DMA operation is complete.
-		if(dmaEnabled && !dmd1 && commandCode.GetBit(5) && !busGranted)
+		if(commandCode.GetBit(5) && !dmd1 && !busGranted)
 		{
 			//##DEBUG##
 			if(outputTestDebugMessages)
@@ -5531,7 +5536,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		}
 
 		//##DEBUG##
-		if(dmaEnabled && !dmd1 && commandCode.GetBit(5))
+		if(commandCode.GetBit(5) && !dmd1)
 		{
 			std::wcout << "######################################################\n";
 			std::wcout << "VDP WriteInterface called when a DMA transfer was in progress!\n";
@@ -5767,73 +5772,11 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		}
 		else
 		{
-			//##DEBUG##
-			if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-			{
-				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-				std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-				std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-				std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-				std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-				std::wcout << "busGranted:\t" << busGranted << "\n";
-				std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-				std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-				std::wcout << "status:\t" << status.GetData() << "\n";
-				std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-				std::wcout << "dmd1:\t" << dmd1 << "\n";
-				std::wcout << "dmd0:\t" << dmd1 << "\n";
-				std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-			}
-
 			ProcessCommandDataWriteSecondHalf(data);
 
-			//Hardware tests have shown that when the DMA enable bit is cleared, the state
-			//of CD5 is also forced to clear. This prevents DMA operations, for example,
-			//being triggered at the time the DMA enable bit is set, due to a previous
-			//control port write setting CD5.
-			//##TODO## Perform more hardware tests to confirm if CD5 is actually forced to
-			//0 immediately, or if it happens on the next access slot.
-			if(!dmaEnabled)
-			{
-				commandCode.SetBit(5, false);
-			}
-
-			//Keep the state of CD5 and the DMA flag in the status register in sync. On
-			//the real hardware, the DMA flag in the status register is the literal
-			//realtime state of the CD5 bit in the command code register. Note that this
-			//means that the DMA bit in the status register is set when a control port
-			//write has been made to setup a DMA fill operation, but the data port write
-			//has not yet been made to trigger the fill. This is the way the real VDP
-			//behaves, and this has been confirmed though hardware tests. Although the
-			//status register returns the realtime state of CD5 for the DMA busy flag, we
-			//keep the two separated in our core for maximum efficiency on status register
-			//reads, and keep them manually in sync whenever the CD5 bit is modified.
-			SetStatusFlagDMA(commandCode.GetBit(5));
-
-			//##DEBUG##
-			if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-			{
-				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-				std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-				std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-				std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-				std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-				std::wcout << "busGranted:\t" << busGranted << "\n";
-				std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-				std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-				std::wcout << "status:\t" << status.GetData() << "\n";
-				std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-				std::wcout << "dmd1:\t" << dmd1 << "\n";
-				std::wcout << "dmd0:\t" << dmd1 << "\n";
-				std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-			}
-
 			//Check if we need to obtain the bus due to an external DMA transfer operation
-			if(dmaEnabled             //DMA is enabled
-			&& !dmd1                  //DMA is set to perform an external copy operation
-			&& commandCode.GetBit(5)) //The command code has a DMA operation flagged
+			if(commandCode.GetBit(5) //The command code has a DMA operation flagged
+			&& !dmd1)                //DMA is set to perform an external copy operation
 			{
 				//Note that a DMA operation will be triggered regardless of the state of
 				//CD4, as this bit isn't tested when deciding whether to trigger DMA, and
@@ -5855,7 +5798,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				//word of a long-word write to the control port. Find a way to implement
 				//support for the behaviour we need.
 				boost::mutex::scoped_lock lock(workerThreadMutex);
-				memoryBus->SetLine(LINE_BR, Data(GetLineWidth(LINE_BR), 1), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime, ACCESSCONTEXT_BR_ASSERT);
+				memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), 1), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime, ACCESSCONTEXT_BR_ASSERT);
 
 				//Set the initial DMA transfer register settings
 				dmaTransferActive = true;
@@ -5870,7 +5813,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				//##DEBUG##
 //				if(outputTestDebugMessages)
 //				{
-//					std::wcout << "SetLine - VDP_LINE_BR:\t" << true << '\t' << GetProcessorStateTime() << '\t' << GetProcessorStateMclkCurrent() << '\n';
+//					std::wcout << "SetLineState - VDP_LINE_BR:\t" << true << '\t' << GetProcessorStateTime() << '\t' << GetProcessorStateMclkCurrent() << '\n';
 //				}
 			}
 		}
@@ -6009,9 +5952,40 @@ void S315_5313::ProcessCommandDataWriteSecondHalf(const Data& data)
 	//| /   /   /   /   /   /   /   / |---------------| /   / |-------|
 	//|                               |CD5|CD4|CD3|CD2|       |A15|A14|
 	//-----------------------------------------------------------------
+
+	//Hardware tests have shown that when the DMA enable bit is cleared, the state of CD5
+	//is unable to be modified by a control port write. The current state of CD5 is
+	//retained, regardless of the new value of CD5 written in the second command port
+	//write. This has been verified through hardware testing. We can verify that CD5
+	//cannot be changed from clear to set by attempting to setup a valid DMA operation
+	//while DMA is disabled, then enabling DMA operations and observing that the DMA
+	//operation does not trigger. We can verify that CD5 cannot be changed from set to
+	//clear by setting up a DMA fill operation, but not performing the data port write
+	//immediately, but instead doing a register write to disable DMA operations, then
+	//rewriting the first control word for the DMA fill. We can observe that the DMA busy
+	//flag in the status register remains set after disabling DMA operations, and that the
+	//DMA fill is still able to be triggered by writing to the data port. Additionally,
+	//writing a new second command word where CD5 is clear doesn't stop the DMA fill
+	//operation from being triggered when the data port is written to. Also note that this
+	//shows that all the DMA enable bit does is prevent CD5 from being modified, it does
+	//not actually disable DMA operations or affect the way a currently executing DMA
+	//operation advances.
+	unsigned int commandCodeBitsToSet = (dmaEnabled)? 4: 3;
+
 	commandWritePending = false;
-	commandCode.SetDataSegment(2, 4, data.GetDataSegment(4, 4));
+	commandCode.SetDataSegment(2, commandCodeBitsToSet, data.GetDataSegment(4, commandCodeBitsToSet));
 	originalCommandAddress.SetDataSegment(14, 2, data.GetDataSegment(0, 2));
+
+	//Keep the state of CD5 and the DMA flag in the status register in sync. On the real
+	//hardware, the DMA flag in the status register is the literal realtime state of the
+	//CD5 bit in the command code register. Note that this means that the DMA bit in the
+	//status register is set when a control port write has been made to setup a DMA fill
+	//operation, but the data port write has not yet been made to trigger the fill. This
+	//is the way the real VDP behaves, and this has been confirmed though hardware tests.
+	//Although the status register returns the realtime state of CD5 for the DMA busy
+	//flag, we keep the two separated in our core for maximum efficiency on status
+	//register reads, and keep them manually in sync whenever the CD5 bit is modified.
+	SetStatusFlagDMA(commandCode.GetBit(5));
 }
 
 //----------------------------------------------------------------------------------------
@@ -6029,7 +6003,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 				if(hintPending)
 				{
 					//Trigger HInt for M68000
-					memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay, accessContext);
+					memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay, accessContext);
 					hintPending = false;
 				}
 				else
@@ -6056,7 +6030,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 			if(vintEnabled && vintPending)
 			{
 				//Trigger VInt for M68000
-				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay, accessContext);
+				memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay, accessContext);
 				vintPending = false;
 			}
 			//Note that we never need to generate a rollback if the VINT pending state is
@@ -6104,13 +6078,14 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 		}
 		break;
 	case 11:
+		verticalScrollModeCached = data.GetBit(2);
 		if(exintEnabled != data.GetBit(3))
 		{
 			exintEnabled = data.GetBit(3);
 			if(exintEnabled && exintPending)
 			{
 				//Trigger EXInt for M68000
-				memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay, accessContext);
+				memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), caller, accessTime + accessDelay, accessContext);
 				exintPending = false;
 			}
 			else
@@ -6706,6 +6681,249 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 //----------------------------------------------------------------------------------------
 //Pixel clock functions
 //----------------------------------------------------------------------------------------
+unsigned int S315_5313::GetUpdatedVSRAMReadCacheIndex(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int vsramReadCacheIndexCurrent, unsigned int hcounterInitial, unsigned int vcounterInitial, unsigned int hcounterFinal, unsigned int vcounterFinal, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vscrollMode)
+{
+	//If we're advancing through an active scan region, update the VSRAM read cache index
+	//if it passes a point where a new value is latched.
+	unsigned int vsramReadCacheIndexNew = vsramReadCacheIndexCurrent;
+
+	//Calculate the HV counter position of the last VSRAM read to be performed by the
+	//render process prior to the current HV counter position, and the index into VSRAM of
+	//that read operation. Note that hardware tests have shown that the disable display
+	//bit in register 1, as well as bit 0 in register 0, do not prevent the VDP from
+	//reading from VSRAM during active scan. The VSRAM reads occur regardless of the state
+	//of these register settings.
+	//##TODO## Perform hardware tests to determine whether VSRAM data is read on the first
+	//active line of the display at 0x1FF, where the sprite data is read for the upcoming
+	//line, but no actual pattern data is output. We can perform this test by reading the
+	//HV counter data along with reads from VSRAM, and checking where the VSRAM cache data
+	//first starts being modified.
+	//##TODO## Perform hardware tests using a logic analyzer to absolutely confirm the
+	//timing of VSRAM reads.
+	unsigned int vsramLastReadHCounter;
+	unsigned int vsramLastReadVCounter;
+	unsigned int vsramLastReadIndex;
+	if(!screenModeRS1Current)
+	{
+		//VSRAM read operations (H32):
+		//----------------------------------
+		//|Read|Layer|Column|Index|HCounter|
+		//|--------------------------------|
+		//|  1 |  A  |   1  | 0x00|  0x003 |
+		//|  2 |  B  |   1  | 0x02|  0x00B |
+		//|  3 |  A  |   2  | 0x04|  0x013 |
+		//|  4 |  B  |   2  | 0x06|  0x01B |
+		//|  5 |  A  |   3  | 0x08|  0x023 |
+		//|  6 |  B  |   3  | 0x0A|  0x02B |
+		//|  7 |  A  |   4  | 0x0C|  0x033 |
+		//|  8 |  B  |   4  | 0x0E|  0x03B |
+		//|  9 |  A  |   5  | 0x10|  0x043 |
+		//| 10 |  B  |   5  | 0x12|  0x04B |
+		//| 11 |  A  |   6  | 0x14|  0x053 |
+		//| 12 |  B  |   6  | 0x16|  0x05B |
+		//| 13 |  A  |   7  | 0x18|  0x063 |
+		//| 14 |  B  |   7  | 0x1A|  0x06B |
+		//| 15 |  A  |   8  | 0x1C|  0x073 |
+		//| 16 |  B  |   8  | 0x1E|  0x07B |
+		//| 17 |  A  |   9  | 0x20|  0x083 |
+		//| 18 |  B  |   9  | 0x22|  0x08B |
+		//| 19 |  A  |  10  | 0x24|  0x093 |
+		//| 20 |  B  |  10  | 0x26|  0x09B |
+		//| 21 |  A  |  11  | 0x28|  0x0A3 |
+		//| 22 |  B  |  11  | 0x2A|  0x0AB |
+		//| 23 |  A  |  12  | 0x2C|  0x0B3 |
+		//| 24 |  B  |  12  | 0x2E|  0x0BB |
+		//| 25 |  A  |  13  | 0x30|  0x0C3 |
+		//| 26 |  B  |  13  | 0x32|  0x0CB |
+		//| 27 |  A  |  14  | 0x34|  0x0D3 |
+		//| 28 |  B  |  14  | 0x36|  0x0DB |
+		//| 29 |  A  |  15  | 0x38|  0x0E3 |
+		//| 30 |  B  |  15  | 0x3A|  0x0EB |
+		//| 31 |  A  |  16  | 0x3C|  0x0F3 |
+		//| 32 |  B  |  16  | 0x3E|  0x0FB |
+		//----------------------------------
+		vsramLastReadVCounter = vcounterFinal;
+		const unsigned int vsramFirstReadHCounterOnLine = 0x003;
+		if((vcounterFinal > vscanSettings.activeDisplayVCounterLastValue) //VCounter is past the end of the active scan region
+		|| (vcounterFinal < vscanSettings.activeDisplayVCounterFirstValue) //VCounter is before the start of the active scan region
+		|| ((vcounterFinal == vscanSettings.activeDisplayVCounterFirstValue) && ((hcounterFinal < vsramFirstReadHCounterOnLine) || (hcounterFinal >= hscanSettings.vcounterIncrementPoint)))) //VCounter is on the same line as the start of the active scan region, but hasn't reached the first VSRAM read position yet
+		{
+			vsramLastReadVCounter = vscanSettings.activeDisplayVCounterLastValue;
+			vsramLastReadHCounter = 0x0FB;
+			vsramLastReadIndex = 0x3E;
+		}
+		else if(hcounterFinal < 0x003) {vsramLastReadHCounter = 0x0FB; vsramLastReadIndex = 0x3E; vsramLastReadVCounter = vcounterFinal-1;}
+		else if(hcounterFinal < 0x00B) {vsramLastReadHCounter = 0x003; vsramLastReadIndex = 0x00;}
+		else if(hcounterFinal < 0x013) {vsramLastReadHCounter = 0x00B; vsramLastReadIndex = 0x02;}
+		else if(hcounterFinal < 0x01B) {vsramLastReadHCounter = 0x013; vsramLastReadIndex = 0x04;}
+		else if(hcounterFinal < 0x023) {vsramLastReadHCounter = 0x01B; vsramLastReadIndex = 0x06;}
+		else if(hcounterFinal < 0x02B) {vsramLastReadHCounter = 0x023; vsramLastReadIndex = 0x08;}
+		else if(hcounterFinal < 0x033) {vsramLastReadHCounter = 0x02B; vsramLastReadIndex = 0x0A;}
+		else if(hcounterFinal < 0x03B) {vsramLastReadHCounter = 0x033; vsramLastReadIndex = 0x0C;}
+		else if(hcounterFinal < 0x043) {vsramLastReadHCounter = 0x03B; vsramLastReadIndex = 0x0E;}
+		else if(hcounterFinal < 0x04B) {vsramLastReadHCounter = 0x043; vsramLastReadIndex = 0x10;}
+		else if(hcounterFinal < 0x053) {vsramLastReadHCounter = 0x04B; vsramLastReadIndex = 0x12;}
+		else if(hcounterFinal < 0x05B) {vsramLastReadHCounter = 0x053; vsramLastReadIndex = 0x14;}
+		else if(hcounterFinal < 0x063) {vsramLastReadHCounter = 0x05B; vsramLastReadIndex = 0x16;}
+		else if(hcounterFinal < 0x06B) {vsramLastReadHCounter = 0x063; vsramLastReadIndex = 0x18;}
+		else if(hcounterFinal < 0x073) {vsramLastReadHCounter = 0x06B; vsramLastReadIndex = 0x1A;}
+		else if(hcounterFinal < 0x07B) {vsramLastReadHCounter = 0x073; vsramLastReadIndex = 0x1C;}
+		else if(hcounterFinal < 0x083) {vsramLastReadHCounter = 0x07B; vsramLastReadIndex = 0x1E;}
+		else if(hcounterFinal < 0x08B) {vsramLastReadHCounter = 0x083; vsramLastReadIndex = 0x20;}
+		else if(hcounterFinal < 0x093) {vsramLastReadHCounter = 0x08B; vsramLastReadIndex = 0x22;}
+		else if(hcounterFinal < 0x09B) {vsramLastReadHCounter = 0x093; vsramLastReadIndex = 0x24;}
+		else if(hcounterFinal < 0x0A3) {vsramLastReadHCounter = 0x09B; vsramLastReadIndex = 0x26;}
+		else if(hcounterFinal < 0x0AB) {vsramLastReadHCounter = 0x0A3; vsramLastReadIndex = 0x28;}
+		else if(hcounterFinal < 0x0B3) {vsramLastReadHCounter = 0x0AB; vsramLastReadIndex = 0x2A;}
+		else if(hcounterFinal < 0x0BB) {vsramLastReadHCounter = 0x0B3; vsramLastReadIndex = 0x2C;}
+		else if(hcounterFinal < 0x0C3) {vsramLastReadHCounter = 0x0BB; vsramLastReadIndex = 0x2E;}
+		else if(hcounterFinal < 0x0CB) {vsramLastReadHCounter = 0x0C3; vsramLastReadIndex = 0x30;}
+		else if(hcounterFinal < 0x0D3) {vsramLastReadHCounter = 0x0CB; vsramLastReadIndex = 0x32;}
+		else if(hcounterFinal < 0x0DB) {vsramLastReadHCounter = 0x0D3; vsramLastReadIndex = 0x34;}
+		else if(hcounterFinal < 0x0E3) {vsramLastReadHCounter = 0x0DB; vsramLastReadIndex = 0x36;}
+		else if(hcounterFinal < 0x0EB) {vsramLastReadHCounter = 0x0E3; vsramLastReadIndex = 0x38;}
+		else if(hcounterFinal < 0x0F3) {vsramLastReadHCounter = 0x0EB; vsramLastReadIndex = 0x3A;}
+		else if(hcounterFinal < 0x0FB) {vsramLastReadHCounter = 0x0F3; vsramLastReadIndex = 0x3C;}
+		else
+		{
+			vsramLastReadHCounter = 0x0FB;
+			vsramLastReadIndex = 0x3E;
+			//If the hcounter has passed the vcounter increment point, the real vcounter
+			//value to use is one less than the current value.
+			if(hcounterFinal >= hscanSettings.vcounterIncrementPoint)
+			{
+				vsramLastReadVCounter = vcounterFinal-1;
+			}
+		}
+	}
+	else
+	{
+		//VSRAM read operations (H40):
+		//----------------------------------
+		//|Read|Layer|Column|Index|HCounter|
+		//|--------------------------------|
+		//|  1 |  A  |   1  | 0x00|  0x000 |
+		//|  2 |  B  |   1  | 0x02|  0x008 |
+		//|  3 |  A  |   2  | 0x04|  0x010 |
+		//|  4 |  B  |   2  | 0x06|  0x018 |
+		//|  5 |  A  |   3  | 0x08|  0x020 |
+		//|  6 |  B  |   3  | 0x0A|  0x028 |
+		//|  7 |  A  |   4  | 0x0C|  0x030 |
+		//|  8 |  B  |   4  | 0x0E|  0x038 |
+		//|  9 |  A  |   5  | 0x10|  0x040 |
+		//| 10 |  B  |   5  | 0x12|  0x048 |
+		//| 11 |  A  |   6  | 0x14|  0x050 |
+		//| 12 |  B  |   6  | 0x16|  0x058 |
+		//| 13 |  A  |   7  | 0x18|  0x060 |
+		//| 14 |  B  |   7  | 0x1A|  0x068 |
+		//| 15 |  A  |   8  | 0x1C|  0x070 |
+		//| 16 |  B  |   8  | 0x1E|  0x078 |
+		//| 17 |  A  |   9  | 0x20|  0x080 |
+		//| 18 |  B  |   9  | 0x22|  0x088 |
+		//| 19 |  A  |  10  | 0x24|  0x090 |
+		//| 20 |  B  |  10  | 0x26|  0x098 |
+		//| 21 |  A  |  11  | 0x28|  0x0A0 |
+		//| 22 |  B  |  11  | 0x2A|  0x0A8 |
+		//| 23 |  A  |  12  | 0x2C|  0x0B0 |
+		//| 24 |  B  |  12  | 0x2E|  0x0B8 |
+		//| 25 |  A  |  13  | 0x30|  0x0C0 |
+		//| 26 |  B  |  13  | 0x32|  0x0C8 |
+		//| 27 |  A  |  14  | 0x34|  0x0D0 |
+		//| 28 |  B  |  14  | 0x36|  0x0D8 |
+		//| 29 |  A  |  15  | 0x38|  0x0E0 |
+		//| 30 |  B  |  15  | 0x3A|  0x0E8 |
+		//| 31 |  A  |  16  | 0x3C|  0x0F0 |
+		//| 32 |  B  |  16  | 0x3E|  0x0F8 |
+		//| 33 |  A  |  17  | 0x40|  0x100 |
+		//| 34 |  B  |  17  | 0x42|  0x108 |
+		//| 35 |  A  |  18  | 0x44|  0x110 |
+		//| 36 |  B  |  18  | 0x46|  0x118 |
+		//| 37 |  A  |  19  | 0x48|  0x120 |
+		//| 38 |  B  |  19  | 0x4A|  0x128 |
+		//| 39 |  A  |  20  | 0x4C|  0x130 |
+		//| 40 |  B  |  20  | 0x4E|  0x138 |
+		//----------------------------------
+		vsramLastReadVCounter = vcounterFinal;
+		if((vcounterFinal > vscanSettings.activeDisplayVCounterLastValue) //VCounter is past the end of the active scan region
+		|| (vcounterFinal < vscanSettings.activeDisplayVCounterFirstValue) //VCounter is before the start of the active scan region
+		|| ((vcounterFinal == vscanSettings.activeDisplayVCounterFirstValue) && (hcounterFinal >= hscanSettings.vcounterIncrementPoint))) //VCounter is on the same line as the start of the active scan region, but hasn't reached the first VSRAM read position yet
+		{
+			vsramLastReadVCounter = vscanSettings.activeDisplayVCounterLastValue;
+			vsramLastReadHCounter = 0x138;
+			vsramLastReadIndex = 0x4E;
+		}
+		else if(hcounterFinal < 0x008) {vsramLastReadHCounter = 0x000; vsramLastReadIndex = 0x00;}
+		else if(hcounterFinal < 0x010) {vsramLastReadHCounter = 0x008; vsramLastReadIndex = 0x02;}
+		else if(hcounterFinal < 0x018) {vsramLastReadHCounter = 0x010; vsramLastReadIndex = 0x04;}
+		else if(hcounterFinal < 0x020) {vsramLastReadHCounter = 0x018; vsramLastReadIndex = 0x06;}
+		else if(hcounterFinal < 0x028) {vsramLastReadHCounter = 0x020; vsramLastReadIndex = 0x08;}
+		else if(hcounterFinal < 0x030) {vsramLastReadHCounter = 0x028; vsramLastReadIndex = 0x0A;}
+		else if(hcounterFinal < 0x038) {vsramLastReadHCounter = 0x030; vsramLastReadIndex = 0x0C;}
+		else if(hcounterFinal < 0x040) {vsramLastReadHCounter = 0x038; vsramLastReadIndex = 0x0E;}
+		else if(hcounterFinal < 0x048) {vsramLastReadHCounter = 0x040; vsramLastReadIndex = 0x10;}
+		else if(hcounterFinal < 0x050) {vsramLastReadHCounter = 0x048; vsramLastReadIndex = 0x12;}
+		else if(hcounterFinal < 0x058) {vsramLastReadHCounter = 0x050; vsramLastReadIndex = 0x14;}
+		else if(hcounterFinal < 0x060) {vsramLastReadHCounter = 0x058; vsramLastReadIndex = 0x16;}
+		else if(hcounterFinal < 0x068) {vsramLastReadHCounter = 0x060; vsramLastReadIndex = 0x18;}
+		else if(hcounterFinal < 0x070) {vsramLastReadHCounter = 0x068; vsramLastReadIndex = 0x1A;}
+		else if(hcounterFinal < 0x078) {vsramLastReadHCounter = 0x070; vsramLastReadIndex = 0x1C;}
+		else if(hcounterFinal < 0x080) {vsramLastReadHCounter = 0x078; vsramLastReadIndex = 0x1E;}
+		else if(hcounterFinal < 0x088) {vsramLastReadHCounter = 0x080; vsramLastReadIndex = 0x20;}
+		else if(hcounterFinal < 0x090) {vsramLastReadHCounter = 0x088; vsramLastReadIndex = 0x22;}
+		else if(hcounterFinal < 0x098) {vsramLastReadHCounter = 0x090; vsramLastReadIndex = 0x24;}
+		else if(hcounterFinal < 0x0A0) {vsramLastReadHCounter = 0x098; vsramLastReadIndex = 0x26;}
+		else if(hcounterFinal < 0x0A8) {vsramLastReadHCounter = 0x0A0; vsramLastReadIndex = 0x28;}
+		else if(hcounterFinal < 0x0B0) {vsramLastReadHCounter = 0x0A8; vsramLastReadIndex = 0x2A;}
+		else if(hcounterFinal < 0x0B8) {vsramLastReadHCounter = 0x0B0; vsramLastReadIndex = 0x2C;}
+		else if(hcounterFinal < 0x0C0) {vsramLastReadHCounter = 0x0B8; vsramLastReadIndex = 0x2E;}
+		else if(hcounterFinal < 0x0C8) {vsramLastReadHCounter = 0x0C0; vsramLastReadIndex = 0x30;}
+		else if(hcounterFinal < 0x0D0) {vsramLastReadHCounter = 0x0C8; vsramLastReadIndex = 0x32;}
+		else if(hcounterFinal < 0x0D8) {vsramLastReadHCounter = 0x0D0; vsramLastReadIndex = 0x34;}
+		else if(hcounterFinal < 0x0E0) {vsramLastReadHCounter = 0x0D8; vsramLastReadIndex = 0x36;}
+		else if(hcounterFinal < 0x0E8) {vsramLastReadHCounter = 0x0E0; vsramLastReadIndex = 0x38;}
+		else if(hcounterFinal < 0x0F0) {vsramLastReadHCounter = 0x0E8; vsramLastReadIndex = 0x3A;}
+		else if(hcounterFinal < 0x0F8) {vsramLastReadHCounter = 0x0F0; vsramLastReadIndex = 0x3C;}
+		else if(hcounterFinal < 0x100) {vsramLastReadHCounter = 0x0F8; vsramLastReadIndex = 0x3E;}
+		else if(hcounterFinal < 0x108) {vsramLastReadHCounter = 0x100; vsramLastReadIndex = 0x40;}
+		else if(hcounterFinal < 0x110) {vsramLastReadHCounter = 0x108; vsramLastReadIndex = 0x42;}
+		else if(hcounterFinal < 0x118) {vsramLastReadHCounter = 0x110; vsramLastReadIndex = 0x44;}
+		else if(hcounterFinal < 0x120) {vsramLastReadHCounter = 0x118; vsramLastReadIndex = 0x46;}
+		else if(hcounterFinal < 0x128) {vsramLastReadHCounter = 0x120; vsramLastReadIndex = 0x48;}
+		else if(hcounterFinal < 0x130) {vsramLastReadHCounter = 0x128; vsramLastReadIndex = 0x4A;}
+		else if(hcounterFinal < 0x138) {vsramLastReadHCounter = 0x130; vsramLastReadIndex = 0x4C;}
+		else
+		{
+			vsramLastReadHCounter = 0x138;
+			vsramLastReadIndex = 0x4E;
+			//If the hcounter has passed the vcounter increment point, the real vcounter
+			//value to use is one less than the current value.
+			if(hcounterFinal >= hscanSettings.vcounterIncrementPoint)
+			{
+				vsramLastReadVCounter = vcounterFinal-1;
+			}
+		}
+	}
+
+	//Take into account the current vscroll mode, and adjust the last read index
+	//accordingly. If the vscroll mode is set to overall scrolling rather than column
+	//based scrolling, all columns use the scroll value for the first column. We mask the
+	//read index to apply that effect here.
+	if(!vscrollMode)
+	{
+		vsramLastReadIndex &= 0x03;
+	}
+
+	//If we advanced past the last VSRAM read slot in the last advance operation, latch
+	//the last VSRAM read cache index as the new VSRAM read cache index.
+	if(EventOccursWithinCounterRange(hscanSettings, hcounterInitial, vcounterInitial, hcounterFinal, vcounterFinal, vsramLastReadHCounter, vsramLastReadVCounter))
+	{
+		vsramReadCacheIndexNew = vsramLastReadIndex;
+	}
+
+	return vsramReadCacheIndexNew;
+}
+
+//----------------------------------------------------------------------------------------
 unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, bool displayEnabled, unsigned int vcounterCurrent)
 {
 	//Check if the current line, and the line following, are within the active display
@@ -6718,6 +6936,11 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 	//actually first asserted at vcounter=0x1FF, meaning there is one additional line at
 	//the start of the display. This extra line is probably where sprite mapping and
 	//pattern data is latched for the first line of the display. Test this on hardware.
+	//##NOTE## The Sega logo for "Mickey Mania" clearly shows us that sprite data is
+	//definitely not latched on the last line of the display and then used for the first,
+	//since the sprite data is modified during vblank, and the modified data is used for
+	//the first row of sprite data on the display.
+	//##FIX## Define the active display region here to include the extra line at 0x1FF.
 	bool currentLineActiveDisplayRegion = (vcounterCurrent >= vscanSettings.activeDisplayVCounterFirstValue) && (vcounterCurrent <= vscanSettings.activeDisplayVCounterLastValue);
 	bool nextLineActiveDisplayRegion = (vcounterCurrent+1 >= vscanSettings.activeDisplayVCounterFirstValue) && (vcounterCurrent+1 <= vscanSettings.activeDisplayVCounterLastValue);
 
@@ -6734,27 +6957,15 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 			//---------------
 			//|Slot|HCounter|
 			//|-------------|
-			//|  1 | 0x035  |
-			//|  2 | 0x075  |
-			//|  3 | 0x0B5  |
-			//|  4 | 0x0F5  |
+			//|  1 |  0x035 |
+			//|  2 |  0x075 |
+			//|  3 |  0x0B5 |
+			//|  4 |  0x0F5 |
 			//---------------
-			if(hcounterCurrent == 0x34)
-			{
-				nextAccessSlotHCounter = 0x36;
-			}
-			else if(hcounterCurrent == 0x74)
-			{
-				nextAccessSlotHCounter = 0x76;
-			}
-			else if(hcounterCurrent == 0xB4)
-			{
-				nextAccessSlotHCounter = 0xB6;
-			}
-			else if(hcounterCurrent == 0xF4)
-			{
-				nextAccessSlotHCounter = 0xF6;
-			}
+			if     (hcounterCurrent == 0x034) {nextAccessSlotHCounter = 0x036;}
+			else if(hcounterCurrent == 0x074) {nextAccessSlotHCounter = 0x076;}
+			else if(hcounterCurrent == 0x0B4) {nextAccessSlotHCounter = 0x0B6;}
+			else if(hcounterCurrent == 0x0F4) {nextAccessSlotHCounter = 0x0F6;}
 			else if(nextLineActiveDisplayRegion && ((hcounterCurrent + 1) == hscanSettings.vcounterIncrementPoint))
 			{
 				//If we're at the end of a non-display line, and the vcounter is about to
@@ -6777,32 +6988,17 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 			//---------------
 			//|Slot|HCounter|
 			//|-------------|
-			//|  1 | 0x032  |
-			//|  2 | 0x072  |
-			//|  3 | 0x0B2  |
-			//|  4 | 0x0F2  |
-			//|  5 | 0x132  |
+			//|  1 |  0x032 |
+			//|  2 |  0x072 |
+			//|  3 |  0x0B2 |
+			//|  4 |  0x0F2 |
+			//|  5 |  0x132 |
 			//---------------
-			if(hcounterCurrent == 0x31)
-			{
-				nextAccessSlotHCounter = 0x33;
-			}
-			else if(hcounterCurrent == 0x71)
-			{
-				nextAccessSlotHCounter = 0x73;
-			}
-			else if(hcounterCurrent == 0xB1)
-			{
-				nextAccessSlotHCounter = 0xB3;
-			}
-			else if(hcounterCurrent == 0xF1)
-			{
-				nextAccessSlotHCounter = 0xF3;
-			}
-			else if(hcounterCurrent == 0x131)
-			{
-				nextAccessSlotHCounter = 0x133;
-			}
+			if     (hcounterCurrent == 0x031) {nextAccessSlotHCounter = 0x033;}
+			else if(hcounterCurrent == 0x071) {nextAccessSlotHCounter = 0x073;}
+			else if(hcounterCurrent == 0x0B1) {nextAccessSlotHCounter = 0x0B3;}
+			else if(hcounterCurrent == 0x0F1) {nextAccessSlotHCounter = 0x0F3;}
+			else if(hcounterCurrent == 0x131) {nextAccessSlotHCounter = 0x133;}
 			else if(nextLineActiveDisplayRegion && ((hcounterCurrent + 1) == hscanSettings.vcounterIncrementPoint))
 			{
 				//If we're at the end of a non-display line, and the vcounter is about to
@@ -6829,79 +7025,37 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 			//---------------
 			//|Slot|HCounter|
 			//|-------------|
-			//|  1 | 0x005  |
-			//|  2 | 0x015  |
-			//|  3 | 0x025  |
-			//|  4 | 0x045  |
-			//|  5 | 0x055  |
-			//|  6 | 0x065  |
-			//|  7 | 0x085  |
-			//|  8 | 0x095  |
-			//|  9 | 0x0A5  |
-			//| 10 | 0x0C5  |
-			//| 11 | 0x0D5  |
-			//| 12 | 0x0E5  |
-			//| 13 | 0x103  |
-			//| 14 | 0x105  | //Vcounter increments at either 0x10A or 0x10B
-			//| 15 | 0x121  | //Next line
-			//| 16 | 0x1E7  | //Next line
+			//|  1 |  0x005 |
+			//|  2 |  0x015 |
+			//|  3 |  0x025 |
+			//|  4 |  0x045 |
+			//|  5 |  0x055 |
+			//|  6 |  0x065 |
+			//|  7 |  0x085 |
+			//|  8 |  0x095 |
+			//|  9 |  0x0A5 |
+			//| 10 |  0x0C5 |
+			//| 11 |  0x0D5 |
+			//| 12 |  0x0E5 |
+			//| 13 |  0x103 |
+			//| 14 |  0x105 | //Vcounter increments at either 0x10A or 0x10B
+			//| 15 |  0x121 | //Next line
+			//| 16 |  0x1E7 | //Next line
 			//---------------
-			if(hcounterCurrent < 0x005)
-			{
-				nextAccessSlotHCounter = 0x005;
-			}
-			else if(hcounterCurrent < 0x015)
-			{
-				nextAccessSlotHCounter = 0x015;
-			}
-			else if(hcounterCurrent < 0x025)
-			{
-				nextAccessSlotHCounter = 0x025;
-			}
-			else if(hcounterCurrent < 0x045)
-			{
-				nextAccessSlotHCounter = 0x045;
-			}
-			else if(hcounterCurrent < 0x055)
-			{
-				nextAccessSlotHCounter = 0x055;
-			}
-			else if(hcounterCurrent < 0x065)
-			{
-				nextAccessSlotHCounter = 0x065;
-			}
-			else if(hcounterCurrent < 0x085)
-			{
-				nextAccessSlotHCounter = 0x085;
-			}
-			else if(hcounterCurrent < 0x095)
-			{
-				nextAccessSlotHCounter = 0x095;
-			}
-			else if(hcounterCurrent < 0x0A5)
-			{
-				nextAccessSlotHCounter = 0x0A5;
-			}
-			else if(hcounterCurrent < 0x0C5)
-			{
-				nextAccessSlotHCounter = 0x0C5;
-			}
-			else if(hcounterCurrent < 0x0D5)
-			{
-				nextAccessSlotHCounter = 0x0D5;
-			}
-			else if(hcounterCurrent < 0x0E5)
-			{
-				nextAccessSlotHCounter = 0x0E5;
-			}
-			else if(hcounterCurrent < 0x103)
-			{
-				nextAccessSlotHCounter = 0x103;
-			}
-			else if(hcounterCurrent < 0x105)
-			{
-				nextAccessSlotHCounter = 0x105;
-			}
+			if     (hcounterCurrent < 0x005) {nextAccessSlotHCounter = 0x005;}
+			else if(hcounterCurrent < 0x015) {nextAccessSlotHCounter = 0x015;}
+			else if(hcounterCurrent < 0x025) {nextAccessSlotHCounter = 0x025;}
+			else if(hcounterCurrent < 0x045) {nextAccessSlotHCounter = 0x045;}
+			else if(hcounterCurrent < 0x055) {nextAccessSlotHCounter = 0x055;}
+			else if(hcounterCurrent < 0x065) {nextAccessSlotHCounter = 0x065;}
+			else if(hcounterCurrent < 0x085) {nextAccessSlotHCounter = 0x085;}
+			else if(hcounterCurrent < 0x095) {nextAccessSlotHCounter = 0x095;}
+			else if(hcounterCurrent < 0x0A5) {nextAccessSlotHCounter = 0x0A5;}
+			else if(hcounterCurrent < 0x0C5) {nextAccessSlotHCounter = 0x0C5;}
+			else if(hcounterCurrent < 0x0D5) {nextAccessSlotHCounter = 0x0D5;}
+			else if(hcounterCurrent < 0x0E5) {nextAccessSlotHCounter = 0x0E5;}
+			else if(hcounterCurrent < 0x103) {nextAccessSlotHCounter = 0x103;}
+			else if(hcounterCurrent < 0x105) {nextAccessSlotHCounter = 0x105;}
 			else if(!nextLineActiveDisplayRegion && (hcounterCurrent < hscanSettings.vcounterIncrementPoint))
 			{
 				//If we're going to pass from an active line to a non-active line on the
@@ -6910,18 +7064,9 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 				//to occur on the vcounter increment point.
 				nextAccessSlotHCounter = hscanSettings.vcounterIncrementPoint;
 			}
-			else if(hcounterCurrent < 0x121)
-			{
-				nextAccessSlotHCounter = 0x121;
-			}
-			else if(hcounterCurrent < 0x1E7)
-			{
-				nextAccessSlotHCounter = 0x1E7;
-			}
-			else
-			{
-				nextAccessSlotHCounter = 0x005;
-			}
+			else if(hcounterCurrent < 0x121) {nextAccessSlotHCounter = 0x121;}
+			else if(hcounterCurrent < 0x1E7) {nextAccessSlotHCounter = 0x1E7;}
+			else                             {nextAccessSlotHCounter = 0x005;}
 		}
 		else
 		{
@@ -6930,93 +7075,42 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 			//---------------
 			//|Slot|HCounter|
 			//|-------------|
-			//|  1 | 0x002  |
-			//|  2 | 0x012  |
-			//|  3 | 0x022  |
-			//|  4 | 0x042  |
-			//|  5 | 0x052  |
-			//|  6 | 0x062  |
-			//|  7 | 0x082  |
-			//|  8 | 0x092  |
-			//|  9 | 0x0A2  |
-			//| 10 | 0x0C2  |
-			//| 11 | 0x0D2  |
-			//| 12 | 0x0E2  |
-			//| 13 | 0x102  |
-			//| 14 | 0x112  |
-			//| 15 | 0x122  |
-			//| 16 | 0x140  |
-			//| 17 | 0x142  | //Vcounter increments at either 0x14A or 0x14B
-			//| 18 | 0x1CE  | //Next line
+			//|  1 |  0x002 |
+			//|  2 |  0x012 |
+			//|  3 |  0x022 |
+			//|  4 |  0x042 |
+			//|  5 |  0x052 |
+			//|  6 |  0x062 |
+			//|  7 |  0x082 |
+			//|  8 |  0x092 |
+			//|  9 |  0x0A2 |
+			//| 10 |  0x0C2 |
+			//| 11 |  0x0D2 |
+			//| 12 |  0x0E2 |
+			//| 13 |  0x102 |
+			//| 14 |  0x112 |
+			//| 15 |  0x122 |
+			//| 16 |  0x140 |
+			//| 17 |  0x142 | //Vcounter increments at either 0x14A or 0x14B
+			//| 18 |  0x1CE | //Next line
 			//---------------
-			if(hcounterCurrent < 0x002)
-			{
-				nextAccessSlotHCounter = 0x002;
-			}
-			else if(hcounterCurrent < 0x012)
-			{
-				nextAccessSlotHCounter = 0x012;
-			}
-			else if(hcounterCurrent < 0x022)
-			{
-				nextAccessSlotHCounter = 0x022;
-			}
-			else if(hcounterCurrent < 0x042)
-			{
-				nextAccessSlotHCounter = 0x042;
-			}
-			else if(hcounterCurrent < 0x052)
-			{
-				nextAccessSlotHCounter = 0x052;
-			}
-			else if(hcounterCurrent < 0x062)
-			{
-				nextAccessSlotHCounter = 0x062;
-			}
-			else if(hcounterCurrent < 0x082)
-			{
-				nextAccessSlotHCounter = 0x082;
-			}
-			else if(hcounterCurrent < 0x092)
-			{
-				nextAccessSlotHCounter = 0x092;
-			}
-			else if(hcounterCurrent < 0x0A2)
-			{
-				nextAccessSlotHCounter = 0x0A2;
-			}
-			else if(hcounterCurrent < 0x0C2)
-			{
-				nextAccessSlotHCounter = 0x0C2;
-			}
-			else if(hcounterCurrent < 0x0D2)
-			{
-				nextAccessSlotHCounter = 0x0D2;
-			}
-			else if(hcounterCurrent < 0x0E2)
-			{
-				nextAccessSlotHCounter = 0x0E2;
-			}
-			else if(hcounterCurrent < 0x102)
-			{
-				nextAccessSlotHCounter = 0x102;
-			}
-			else if(hcounterCurrent < 0x112)
-			{
-				nextAccessSlotHCounter = 0x112;
-			}
-			else if(hcounterCurrent < 0x122)
-			{
-				nextAccessSlotHCounter = 0x122;
-			}
-			else if(hcounterCurrent < 0x140)
-			{
-				nextAccessSlotHCounter = 0x140;
-			}
-			else if(hcounterCurrent < 0x142)
-			{
-				nextAccessSlotHCounter = 0x142;
-			}
+			if     (hcounterCurrent < 0x002) {nextAccessSlotHCounter = 0x002;}
+			else if(hcounterCurrent < 0x012) {nextAccessSlotHCounter = 0x012;}
+			else if(hcounterCurrent < 0x022) {nextAccessSlotHCounter = 0x022;}
+			else if(hcounterCurrent < 0x042) {nextAccessSlotHCounter = 0x042;}
+			else if(hcounterCurrent < 0x052) {nextAccessSlotHCounter = 0x052;}
+			else if(hcounterCurrent < 0x062) {nextAccessSlotHCounter = 0x062;}
+			else if(hcounterCurrent < 0x082) {nextAccessSlotHCounter = 0x082;}
+			else if(hcounterCurrent < 0x092) {nextAccessSlotHCounter = 0x092;}
+			else if(hcounterCurrent < 0x0A2) {nextAccessSlotHCounter = 0x0A2;}
+			else if(hcounterCurrent < 0x0C2) {nextAccessSlotHCounter = 0x0C2;}
+			else if(hcounterCurrent < 0x0D2) {nextAccessSlotHCounter = 0x0D2;}
+			else if(hcounterCurrent < 0x0E2) {nextAccessSlotHCounter = 0x0E2;}
+			else if(hcounterCurrent < 0x102) {nextAccessSlotHCounter = 0x102;}
+			else if(hcounterCurrent < 0x112) {nextAccessSlotHCounter = 0x112;}
+			else if(hcounterCurrent < 0x122) {nextAccessSlotHCounter = 0x122;}
+			else if(hcounterCurrent < 0x140) {nextAccessSlotHCounter = 0x140;}
+			else if(hcounterCurrent < 0x142) {nextAccessSlotHCounter = 0x142;}
 			else if(!nextLineActiveDisplayRegion && (hcounterCurrent < hscanSettings.vcounterIncrementPoint))
 			{
 				//If we're going to pass from an active line to a non-active line on the
@@ -7025,14 +7119,8 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 				//to occur on the vcounter increment point.
 				nextAccessSlotHCounter = hscanSettings.vcounterIncrementPoint;
 			}
-			else if(hcounterCurrent < 0x1CE)
-			{
-				nextAccessSlotHCounter = 0x1CE;
-			}
-			else
-			{
-				nextAccessSlotHCounter = 0x002;
-			}
+			else if(hcounterCurrent < 0x1CE) {nextAccessSlotHCounter = 0x1CE;}
+			else                             {nextAccessSlotHCounter = 0x002;}
 		}
 	}
 
@@ -8105,28 +8193,9 @@ double S315_5313::ConvertMclkCountToAccessTime(unsigned int mclkCount) const
 void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFifoStateBeforeUpdate, bool stopWhenFifoEmpty, bool stopWhenFifoFull, bool stopWhenFifoNotFull, bool stopWhenReadDataAvailable, bool stopWhenNoDMAOperationInProgress, bool allowAdvancePastCycleTarget)
 {
 	//Gather some info about the current state
-	bool dmaOperationWillRun = dmaEnabled && commandCode.GetBit(5) && (!dmd1 || dmd0 || dmaFillOperationRunning);
+	bool dmaOperationWillRun = commandCode.GetBit(5) && (!dmd1 || dmd0 || dmaFillOperationRunning);
 	bool readOperationWillRun = ValidReadTargetInCommandCode() && !readDataAvailable;
 	bool writeOperationWillRun = !IsWriteFIFOEmpty();
-
-	//##DEBUG##
-	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-	{
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "busGranted:\t" << busGranted << "\n";
-		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-		std::wcout << "status:\t" << status.GetData() << "\n";
-		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-		std::wcout << "dmd1:\t" << dmd1 << "\n";
-		std::wcout << "dmd0:\t" << dmd1 << "\n";
-		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-	}
 
 	//##DEBUG##
 	if(stopWhenNoDMAOperationInProgress && !dmaOperationWillRun)
@@ -8174,7 +8243,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		//write then gets moved into the FIFO, and a new read operation begins
 		//immediately. Do some hardware tests to confirm this is the way the real VDP
 		//behaves, and confirm the timing of everything.
-		while(dmaEnabled && commandCode.GetBit(5) && !dmd1 && busGranted && (!dmaTransferReadDataCached || !IsWriteFIFOFull())
+		while(commandCode.GetBit(5) && !dmd1 && busGranted && (!dmaTransferReadDataCached || !IsWriteFIFOFull())
 		  && ((dmaTransferNextReadMclk + (dmaTransferReadTimeInMclkCycles - dmaTransferLastTimesliceUsedReadDelay)) <= GetProcessorStateMclkCurrent()))
 		{
 			//If there is space in the DMA transfer read cache, read a new data value into
@@ -8202,14 +8271,14 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		//and the write FIFO is empty. If a data port write has been made during an active
 		//DMA fill operation, that data port write is performed first, and we carry on the
 		//fill once the FIFO returns to an empty state.
-		if(dmaEnabled && commandCode.GetBit(5) && dmd1 && !dmd0 && dmaFillOperationRunning && IsWriteFIFOEmpty())
+		if(commandCode.GetBit(5) && dmd1 && !dmd0 && dmaFillOperationRunning && IsWriteFIFOEmpty())
 		{
 			PerformDMAFillOperation();
 			AdvanceDMAState();
 		}
 
 		//Advance a DMA copy operation
-		if(dmaEnabled && commandCode.GetBit(5) && dmd1 && dmd0)
+		if(commandCode.GetBit(5) && dmd1 && dmd0)
 		{
 			PerformDMACopyOperation();
 			AdvanceDMAState();
@@ -8238,7 +8307,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		//more data pending, which is essential in order to ensure that the FIFO full flag
 		//appears as full immediately after a DMA transfer operation has reached the end
 		//of the source data.
-		if(dmaEnabled && commandCode.GetBit(5) && !dmd1 && dmaTransferReadDataCached && !IsWriteFIFOFull())
+		if(commandCode.GetBit(5) && !dmd1 && dmaTransferReadDataCached && !IsWriteFIFOFull())
 		{
 			//If there is space in the write FIFO to store another write value, empty the
 			//DMA transfer read cache data into the FIFO.
@@ -8251,7 +8320,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		SetStatusFlagFIFOFull(IsWriteFIFOFull());
 
 		//Gather some info about the current state
-		dmaOperationWillRun = dmaEnabled && commandCode.GetBit(5) && (!dmd1 || dmd0 || dmaFillOperationRunning);
+		dmaOperationWillRun = commandCode.GetBit(5) && (!dmd1 || dmd0 || dmaFillOperationRunning);
 		readOperationWillRun = ValidReadTargetInCommandCode() && !readDataAvailable;
 		writeOperationWillRun = !IsWriteFIFOEmpty();
 
@@ -8266,64 +8335,59 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 //----------------------------------------------------------------------------------------
 void S315_5313::PerformReadCacheOperation()
 {
-	//Hardware tests have shown that when doing a read from VSRAM or CRAM, not all
-	//the bits in the 16-bit result are set as a result of the read. The bits
-	//which are not set as a result of the read from VSRAM or CRAM, are set based
-	//on the next available entry in the FIFO buffer. There is one interesting and
-	//quite special case to note however. If a write is made to the data port,
-	//immediately followed by a read, and the write itself has not yet been
-	//processed by the time the read is attempted, due to no access slot being
-	//available, the read is processed BEFORE the write. The written data
-	//overwrites the contents of the next available entry in the FIFO buffer, and
-	//uninitialized bits in the read data now get set based on the corresponding
-	//bits in the written data. This can be observed by attempting to write to a
-	//read target, immediately followed by a read. We emulate this behaviour here
-	//by loading the first pending data port write, if one exists, into the FIFO
-	//buffer at the next available entry, then using the next available entry in
-	//the FIFO as the initial value for the read operation. The data port write
-	//will then be processed later, and perform the same write into the FIFO
-	//buffer, resulting in no change, and it will then be processed as normal.
-	//##TODO## I now suspect the above theory is incorrect. We have found from
-	//additional hardware testing that, generally speaking, after writing to a
-	//read target, attempting a read locks up the hardware. I suspect the
-	//exception to this rule, which we have observed, happens when a read
-	//pre-cache is in progress or complete at the time the write occurs. In this
-	//case, the next read works, with the returned value possibly being combined
-	//with the invalid write data rather than the previous FIFO contents. After
-	//this read however, the following read will cause a lock-up. The exact reason
-	//for this lockup is unknown, but for our purposes, we will assume CD4 is set
-	//after a data port write occurs.
+	//Hardware tests have shown that when doing a read from VSRAM or CRAM, not all the
+	//bits in the 16-bit result are set as a result of the read. The bits which are not
+	//set as a result of the read from VSRAM or CRAM, are set based on the next available
+	//entry in the FIFO buffer. There is one interesting and quite special case to note
+	//however. If a write is made to the data port, immediately followed by a read, and
+	//the write itself has not yet been processed by the time the read is attempted, due
+	//to no access slot being available, the read is processed BEFORE the write. The
+	//written data overwrites the contents of the next available entry in the FIFO buffer,
+	//and uninitialized bits in the read data now get set based on the corresponding bits
+	//in the written data. This can be observed by attempting to write to a read target,
+	//immediately followed by a read. We emulate this behaviour here by loading the first
+	//pending data port write, if one exists, into the FIFO buffer at the next available
+	//entry, then using the next available entry in the FIFO as the initial value for the
+	//read operation. The data port write will then be processed later, and perform the
+	//same write into the FIFO buffer, resulting in no change, and it will then be
+	//processed as normal.
+	//##TODO## I now suspect the above theory is incorrect. We have found from additional
+	//hardware testing that, generally speaking, after writing to a read target,
+	//attempting a read locks up the hardware. I suspect the exception to this rule, which
+	//we have observed, happens when a read pre-cache is in progress or complete at the
+	//time the write occurs. In this case, the next read works, with the returned value
+	//possibly being combined with the invalid write data rather than the previous FIFO
+	//contents. After this read however, the following read will cause a lock-up. The
+	//exact reason for this lockup is unknown, but for our purposes, we will assume CD4 is
+	//set after a data port write occurs.
 	//if(!IsWriteFIFOEmpty())
 	//{
 	//	fifoBuffer[fifoNextReadEntry] = *pendingDataPortWrites.begin();
 	//}
 
-	//Note that we have confirmed that a VRAM read operation doesn't use the
-	//actual write FIFO to store the read value. This has been tested on the
-	//hardware by alternating between VRAM, CRAM, and VSRAM read operations, and
-	//observing the resulting values of the uninitialized bits from CRAM and VSRAM
-	//reads. The results of these tests show that the contents of the FIFO is not
-	//modified as a result of a read operation, it is merely the uninitialized
-	//bits in the read data which obtain their value from the next entry in the
-	//FIFO. The fact that reads are processed before writes, as detailed above,
-	//also confirms that the data from the FIFO and the read data is combined at
-	//the time the read occurs, IE, it is not the live state of the FIFO that the
-	//read value is combined with at the time the data is being output over the
-	//data port, as when a write has been combined with a read as described above,
-	//the result is the same, no matter how long after the write has occurred the
-	//user actually then reads the data port to obtain the latched read value.
-	//##TODO## Confirm the above assertion about the live state of the FIFO not
-	//being used at the time the read value is output over the data port.
-	//Re-running our original test with the NOP operations inserted should give us
-	//the answer.
+	//Note that we have confirmed that a VRAM read operation doesn't use the actual write
+	//FIFO to store the read value. This has been tested on the hardware by alternating
+	//between VRAM, CRAM, and VSRAM read operations, and observing the resulting values of
+	//the uninitialized bits from CRAM and VSRAM reads. The results of these tests show
+	//that the contents of the FIFO is not modified as a result of a read operation, it is
+	//merely the uninitialized bits in the read data which obtain their value from the
+	//next entry in the FIFO. The fact that reads are processed before writes, as detailed
+	//above, also confirms that the data from the FIFO and the read data is combined at
+	//the time the read occurs, IE, it is not the live state of the FIFO that the read
+	//value is combined with at the time the data is being output over the data port, as
+	//when a write has been combined with a read as described above, the result is the
+	//same, no matter how long after the write has occurred the user actually then reads
+	//the data port to obtain the latched read value.
+	//##TODO## Confirm the above assertion about the live state of the FIFO not being used
+	//at the time the read value is output over the data port. Re-running our original
+	//test with the NOP operations inserted should give us the answer.
 	if(!readDataHalfCached)
 	{
 		readBuffer = fifoBuffer[fifoNextReadEntry].dataPortWriteData;
 	}
 
-	//All possible combinations of the code flags and data port reads have been
-	//tested on the hardware. Reads are decoded based on the lower 5 bits of the
-	//code data.
+	//All possible combinations of the code flags and data port reads have been tested on
+	//the hardware. Reads are decoded based on the lower 5 bits of the code data.
 	RAMAccessTarget ramAccessTarget;
 	ramAccessTarget.AccessTime(GetProcessorStateMclkCurrent());
 	switch(commandCode.GetDataSegment(0, 5))
@@ -8334,20 +8398,19 @@ void S315_5313::PerformReadCacheOperation()
 		Data tempAddress(commandAddress);
 		tempAddress.SetBit(0, false);
 
-		//##NOTE## Hardware tests have shown that the upper byte of the 16-bit
-		//value is read first. This has been observed by examining the results
-		//when performing reads from odd VRAM addresses. It appears that when data
-		//is read from an odd address, the flag is set indicating that read data
-		//is available, even though the data has actually only been half cached.
-		//If a data port read is then made before the other byte is cached, the
-		//read will return a data value where only the upper byte of the result
-		//comes from the target address, and the lower byte of the result retains
-		//whatever the previous value was from the last read value to successfully
-		//cache a lower byte.
+		//##NOTE## Hardware tests have shown that the upper byte of the 16-bit value is
+		//read first. This has been observed by examining the results when performing
+		//reads from odd VRAM addresses. It appears that when data is read from an odd
+		//address, the flag is set indicating that read data is available, even though the
+		//data has actually only been half cached. If a data port read is then made before
+		//the other byte is cached, the read will return a data value where only the upper
+		//byte of the result comes from the target address, and the lower byte of the
+		//result retains whatever the previous value was from the last read value to
+		//successfully cache a lower byte.
 		//##TODO## Implement these results into the way we perform reads.
 		//##TODO## Comment what's going on here with the read operations. The
-		//M5ReadVRAM8Bit() function inverts the LSB of the address, so this is a
-		//bit confusing.
+		//M5ReadVRAM8Bit() function inverts the LSB of the address, so this is a bit
+		//confusing.
 		if(!readDataHalfCached)
 		{
 			Data tempDataBuffer(8);
@@ -8377,27 +8440,25 @@ void S315_5313::PerformReadCacheOperation()
 		readDataAvailable = true;
 		break;
 	default: //Invalid
-		//##TODO## Update these comments, and the way we handle invalid read
-		//attempts.
+		//##TODO## Update these comments, and the way we handle invalid read attempts.
 		//Any attempts to read from the data port when the lower five bits don't match one
 		//of the above patterns causes the VDP to lock up. A reset is unable to restore
 		//normal operation. Only power cycling the device can bring the VDP back from this
 		//state.
-		//Update cached data for a read operation. Note that on the real VDP,
-		//attempting to read from an invalid target causes the system to lock up when
-		//reading from the data port. The reason this occurs is that the VDP never
-		//successfully fetches a data word for the read request, so the data port read
-		//is waiting for the readDataAvailable flag to be set, which never actually
-		//occurs in this case. We catch cases where this would occur in our emulator
-		//at the time the data port is read, so we can report the error to the user,
-		//and avoid the infinite loop that would otherwise occur.
+		//Update cached data for a read operation. Note that on the real VDP, attempting
+		//to read from an invalid target causes the system to lock up when reading from
+		//the data port. The reason this occurs is that the VDP never successfully fetches
+		//a data word for the read request, so the data port read is waiting for the
+		//readDataAvailable flag to be set, which never actually occurs in this case. We
+		//catch cases where this would occur in our emulator at the time the data port is
+		//read, so we can report the error to the user, and avoid the infinite loop that
+		//would otherwise occur.
 		//##TODO## Raise some kind of hard error when this occurs.
 		break;
 	}
 
-	//##FIX## Is this correct? We need to sort out how we track incremented
-	//address register data for operations such as reads and DMA fill/transfer
-	//operations.
+	//##FIX## Is this correct? We need to sort out how we track incremented address
+	//register data for operations such as reads and DMA fill/transfer operations.
 	//Increment the target address
 	if(!readDataHalfCached)
 	{
@@ -8411,23 +8472,22 @@ void S315_5313::PerformFIFOWriteOperation()
 	//##TODO## Update all the comments here
 	FIFOBufferEntry& fifoBufferEntry = fifoBuffer[fifoNextReadEntry];
 
-	//Move the pending write through the physical 4-word FIFO. The physical FIFO
-	//is only maintained to correctly support old data being combined and blended
-	//with data being read from CRAM or VSRAM in the uninitialized bits.
-	//			fifoBuffer[fifoNextReadEntry] = data;
-	//			fifoNextReadEntry = (fifoNextReadEntry+1) % fifoBufferSize;
+	//Move the pending write through the physical 4-word FIFO. The physical FIFO is only
+	//maintained to correctly support old data being combined and blended with data being
+	//read from CRAM or VSRAM in the uninitialized bits.
+	//fifoBuffer[fifoNextReadEntry] = data;
+	//fifoNextReadEntry = (fifoNextReadEntry+1) % fifoBufferSize;
 
 	//Process the write
-	//##FIX## We know from VRAM snooping as well as the official documentation,
-	//that access to VRAM is byte-wide, while access to CRAM and VSRAM is
-	//word-wide. What this means is it actually takes two access clock cycles to
-	//read a word from VRAM, and it takes two access clock cycles to write a word
-	//to VRAM. We know from hardware tests that only a single FIFO entry is used
-	//to store a full word-wide write to VRAM, so there must be some kind of
-	//internal flag which records whether only one byte has been written to VRAM
-	//from a pending word-wide write. Note that most likely, the lower byte is
-	//written first, owing to the byteswapped layout in VRAM, but this should be
-	//tested in hardware by snooping on the VRAM bus during the write operation.
+	//##FIX## We know from VRAM snooping as well as the official documentation, that
+	//access to VRAM is byte-wide, while access to CRAM and VSRAM is word-wide. What this
+	//means is it actually takes two access clock cycles to read a word from VRAM, and it
+	//takes two access clock cycles to write a word to VRAM. We know from hardware tests
+	//that only a single FIFO entry is used to store a full word-wide write to VRAM, so
+	//there must be some kind of internal flag which records whether only one byte has
+	//been written to VRAM from a pending word-wide write. Note that most likely, the
+	//lower byte is written first, owing to the byteswapped layout in VRAM, but this
+	//should be tested in hardware by snooping on the VRAM bus during the write operation.
 
 	//All possible combinations of the code flags and data port writes have been tested
 	//on the hardware. Writes are decoded based on the lower 4 bits of the code data.
@@ -8504,15 +8564,15 @@ void S315_5313::PerformFIFOWriteOperation()
 		fifoBufferEntry.pendingDataWrite = false;
 		break;
 	default: //Invalid
-		//Any attempts to write to the data port when the lower four bits don't match
-		//one of the above patterns has no effect. The write is discarded, and the
-		//VDP is unaffected.
+		//Any attempts to write to the data port when the lower four bits don't match one
+		//of the above patterns has no effect. The write is discarded, and the VDP is
+		//unaffected.
 		fifoBufferEntry.pendingDataWrite = false;
 		break;
 	}
 
-	//If this pending write has been fully processed, advance to the next entry in
-	//the FIFO buffer.
+	//If this pending write has been fully processed, advance to the next entry in the
+	//FIFO buffer.
 	if(!fifoBufferEntry.pendingDataWrite)
 	{
 		fifoNextReadEntry = (fifoNextReadEntry+1) % fifoBufferSize;
@@ -8524,7 +8584,7 @@ void S315_5313::PerformFIFOWriteOperation()
 		//attempt a read. Actually, this will probably lock up. Bad things happen when you
 		//mix read and write operations. Still, if it locks up, that's enough evidence to
 		//indicate that CD4 is not set as a result of a DMA fill operation.
-		if(dmaEnabled && commandCode.GetBit(5) && dmd1 && !dmd0)
+		if(commandCode.GetBit(5) && dmd1 && !dmd0)
 		{
 			dmaFillOperationRunning = true;
 		}
@@ -8536,7 +8596,7 @@ void S315_5313::PerformFIFOWriteOperation()
 		//just made a write slot available in the FIFO, we set the dmaTransferNextReadMclk
 		//variable to the current processor state time, so that the next external memory
 		//read for the DMA transfer operation will start no sooner than this time.
-		if(dmaEnabled && commandCode.GetBit(5) && !dmd1 && dmaTransferReadDataCached)
+		if(commandCode.GetBit(5) && !dmd1 && dmaTransferReadDataCached)
 		{
 			unsigned int processorStateMclkCurrent = GetProcessorStateMclkCurrent();
 			if(dmaTransferLastTimesliceUsedReadDelay == 0)
@@ -8560,128 +8620,116 @@ void S315_5313::PerformFIFOWriteOperation()
 //----------------------------------------------------------------------------------------
 void S315_5313::PerformDMAFillOperation()
 {
-	//##FIX## We need to determine how the VDP knows a write has been made to
-	//the data port. VSRAM and CRAM fill targets grab the next available entry
-	//in the FIFO, after the write has been made and the FIFO has been
-	//advanced, so they perform the fill operation with the wrong data. A VRAM
-	//fill target uses the correct data, but it appears the write is still
-	//processed first, possibly even both halves of the write. Further testing
-	//is required.
-	//##TODO## Hardware tests have shown that if writes are pending in the
-	//FIFO at the time a control port write sets up a DMA fill operation, the
-	//DMA fill operation will trigger without waiting for a data port write,
-	//and will use an entry from the current FIFO buffer instead. Exactly
-	//which entry is selected, and whether the DMA fill triggers on the next
-	//write or the last write, still needs to be confirmed however.
+	//##FIX## We need to determine how the VDP knows a write has been made to the data
+	//port. VSRAM and CRAM fill targets grab the next available entry in the FIFO, after
+	//the write has been made and the FIFO has been advanced, so they perform the fill
+	//operation with the wrong data. A VRAM fill target uses the correct data, but it
+	//appears the write is still processed first, possibly even both halves of the write.
+	//Further testing is required.
+	//##TODO## Hardware tests have shown that if writes are pending in the FIFO at the
+	//time a control port write sets up a DMA fill operation, the DMA fill operation will
+	//trigger without waiting for a data port write, and will use an entry from the
+	//current FIFO buffer instead. Exactly which entry is selected, and whether the DMA
+	//fill triggers on the next write or the last write, still needs to be confirmed
+	//however.
 	//Only advance a DMA fill operation if the FIFO is not empty
 	//##FIX## The write needs to be processed first
-	//##FIX## Hardware tests have shown that if the data port is written to
-	//while a DMA fill operation is already in progress, the data port write
-	//is processed immediately at the next access slot, before the fill
-	//operation is advanced. The data port write occurs at the current
-	//incremented address that the DMA fill operation was up to, and the DMA
-	//fill operation continues from the incremented address after the write
-	//has been processed. We need to emulate this behaviour. It is also clear
-	//from this that pending write entries in the FIFO need to be processed
-	//before DMA fill update steps.
+	//##FIX## Hardware tests have shown that if the data port is written to while a DMA
+	//fill operation is already in progress, the data port write is processed immediately
+	//at the next access slot, before the fill operation is advanced. The data port write
+	//occurs at the current incremented address that the DMA fill operation was up to, and
+	//the DMA fill operation continues from the incremented address after the write has
+	//been processed. We need to emulate this behaviour. It is also clear from this that
+	//pending write entries in the FIFO need to be processed before DMA fill update steps.
 
 	//Manipulate the source target address for the DMA fill operation.
-	//-Note that on the real hardware, the VDP stores its data in VRAM with
-	//each 16-bit word byteswapped, so a value of 0x1234 would be stored in
-	//the physical memory as 0x3412. This has been confirmed through the use
-	//of a logic analyzer snooping on the VRAM bus during operation. For most
-	//operations, this byteswapping of VRAM memory is transparent to the user,
-	//since the VDP automatically byteswaps all word-wide reads and writes to
-	//and from VRAM, so the data is read and written as if it was not
-	//byteswapped at all. DMA fill and copy operations are the only time where
-	//the byteswapping behaviour of the real hardware is visible to the user,
-	//as the byte-wide VRAM access that occurs as part of these operations
-	//allow reads and writes to and from odd addresses in VRAM. In the real
-	//hardware, these addresses are used directly, without modification, to
-	//read and write the byteswapped data, meaning that reads and writes from
-	//odd addresses actually access the upper byte of a word, and reads and
-	//writes to even addresses actually access to the lower byte of the word.
-	//For our emulator, we store data in VRAM without byteswapping, to
-	//simplify the implementation and present the data to the user in the form
-	//they would expect when using the debugger. In order to correctly
-	//implement the behaviour of a DMA fill or copy however, we therefore have
-	//to swap odd and even addresses when performing byte-wide access, so that
-	//we get the correct result.
-	//-Note that the official documentation from Sega listing the order the
-	//data is written to VRAM during a DMA fill operation is technically
-	//accurate, but is very misleading, since the order and pattern of the
-	//writes that they list shows the actual write pattern to the byteswapped
-	//memory, with the order of all bytes being reversed to what the reader
-	//may expect. At no point in the official documentation is it mentioned
-	//that the data in VRAM is byteswapped.
+	//-Note that on the real hardware, the VDP stores its data in VRAM with each 16-bit
+	//word byteswapped, so a value of 0x1234 would be stored in the physical memory as
+	//0x3412. This has been confirmed through the use of a logic analyzer snooping on the
+	//VRAM bus during operation. For most operations, this byteswapping of VRAM memory is
+	//transparent to the user, since the VDP automatically byteswaps all word-wide reads
+	//and writes to and from VRAM, so the data is read and written as if it was not
+	//byteswapped at all. DMA fill and copy operations are the only time where the
+	//byteswapping behaviour of the real hardware is visible to the user, as the byte-wide
+	//VRAM access that occurs as part of these operations allow reads and writes to and
+	//from odd addresses in VRAM. In the real hardware, these addresses are used directly,
+	//without modification, to read and write the byteswapped data, meaning that reads and
+	//writes from odd addresses actually access the upper byte of a word, and reads and
+	//writes to even addresses actually access to the lower byte of the word. For our
+	//emulator, we store data in VRAM without byteswapping, to simplify the implementation
+	//and present the data to the user in the form they would expect when using the
+	//debugger. In order to correctly implement the behaviour of a DMA fill or copy
+	//however, we therefore have to swap odd and even addresses when performing byte-wide
+	//access, so that we get the correct result.
+	//-Note that the official documentation from Sega listing the order the data is
+	//written to VRAM during a DMA fill operation is technically accurate, but is very
+	//misleading, since the order and pattern of the writes that they list shows the
+	//actual write pattern to the byteswapped memory, with the order of all bytes being
+	//reversed to what the reader may expect. At no point in the official documentation is
+	//it mentioned that the data in VRAM is byteswapped.
 	//Data targetAddressByteswapped(16, commandAddress.GetData());
 	//targetAddressByteswapped.SetBit(0, !targetAddressByteswapped.GetBit(0));
 
-	//Check if this DMA fill operation is targeting VRAM. Right now, we have
-	//special case handling for VRAM write targets as opposed to CRAM or VSRAM
-	//write targets, as there are some implementation quirks in the VDP that
-	//result in different behaviour for CRAM or VSRAM targets.
-	//##TODO## Find a way to unify this code, and end up with a clean
-	//implementation.
+	//Check if this DMA fill operation is targeting VRAM. Right now, we have special case
+	//handling for VRAM write targets as opposed to CRAM or VSRAM write targets, as there
+	//are some implementation quirks in the VDP that result in different behaviour for
+	//CRAM or VSRAM targets.
+	//##TODO## Find a way to unify this code, and end up with a clean implementation.
 	bool fillTargetsVRAM = (commandCode.GetDataSegment(0, 4) == 0x01);
 
 	//Increment the target address for the last entry
 	unsigned int fifoLastReadEntry = (fifoNextReadEntry+(fifoBufferSize-1)) % fifoBufferSize;
 	fifoBuffer[fifoLastReadEntry].addressRegData += autoIncrementData;
 
-	//##TODO## We need to determine exactly how the VDP latches the DMA fill
-	//data. It seems to me, the most likely explanation is that a DMA fill is
-	//triggered after the first half of a data port write is written, and then
-	//kicks in and repeats the second half of that write repeatedly. Since a
-	//write to CRAM or VSRAM is 16-bit, and completes in one step, this
-	//results in the FIFO being advanced, and the entire write being repeated.
+	//##TODO## We need to determine exactly how the VDP latches the DMA fill data. It
+	//seems to me, the most likely explanation is that a DMA fill is triggered after the
+	//first half of a data port write is written, and then kicks in and repeats the second
+	//half of that write repeatedly. Since a write to CRAM or VSRAM is 16-bit, and
+	//completes in one step, this results in the FIFO being advanced, and the entire write
+	//being repeated.
 	Data fillData(16);
 	if(fillTargetsVRAM)
 	{
-		//Extract the upper byte of the written data. This single byte of data is
-		//used to perform the fill. Hardware tests have shown no other data gets
-		//written to the FIFO using a DMA fill operation other than the normal
-		//write that triggers the fill, and the FIFO is not advanced at all during
-		//the fill. Also note that the byteswapping behaviour of VRAM writes has
-		//no impact on which data is used for the fill operation. The upper byte
-		//of the data written to the data port is always used for the fill,
-		//regardless of whether the write is performed to an even or odd VRAM
-		//address.
+		//Extract the upper byte of the written data. This single byte of data is used to
+		//perform the fill. Hardware tests have shown no other data gets written to the
+		//FIFO using a DMA fill operation other than the normal write that triggers the
+		//fill, and the FIFO is not advanced at all during the fill. Also note that the
+		//byteswapping behaviour of VRAM writes has no impact on which data is used for
+		//the fill operation. The upper byte of the data written to the data port is
+		//always used for the fill, regardless of whether the write is performed to an
+		//even or odd VRAM address.
 		fillData = fifoBuffer[fifoLastReadEntry].dataPortWriteData.GetUpperBits(8);
 	}
 	else
 	{
-		//##FIX## Hardware tests have shown that when a DMA fill is being
-		//performed to CRAM or VSRAM, the write to the data port isn't used as the
-		//fill data for the operation. What happens instead is that the data write
-		//is performed as normal, and the FIFO is advanced, then when the DMA fill
-		//operation triggers, it is the data in the next available FIFO slot that
-		//is used for the fill data. This only occurs for DMA fills to CRAM or
-		//VSRAM, and is no doubt due to the fact that VRAM requires two byte-wide
-		//writes to commit a single word-wide write to the VRAM, while CRAM and
-		//VSRAM perform a single word-wide operation.
+		//##FIX## Hardware tests have shown that when a DMA fill is being performed to
+		//CRAM or VSRAM, the write to the data port isn't used as the fill data for the
+		//operation. What happens instead is that the data write is performed as normal,
+		//and the FIFO is advanced, then when the DMA fill operation triggers, it is the
+		//data in the next available FIFO slot that is used for the fill data. This only
+		//occurs for DMA fills to CRAM or VSRAM, and is no doubt due to the fact that VRAM
+		//requires two byte-wide writes to commit a single word-wide write to the VRAM,
+		//while CRAM and VSRAM perform a single word-wide operation.
 		fillData = fifoBuffer[fifoNextReadEntry].dataPortWriteData;
 	}
 
-	//##NOTE## Hardware tests have shown that during a DMA fill operation, the
-	//FIFO flags in the status register remain with the empty flag set, and
-	//the full flag cleared, throughout the fill operation, with of course the
-	//exception of when the data port write occurs to trigger the fill, if
-	//that write is waiting in the FIFO at the time of the control port read.
-	//Note that the DMA busy flag remains set as soon as the control port is
-	//written, even if the data port write to trigger the fill hasn't yet been
-	//made. The DMA busy flag remains set until a data port write has been
-	//made and the DMA fill is complete.
-	//##FIX## Hardware tests have shown that DMA fill operations to CRAM and
-	//VSRAM are possible, and work correctly, with the exception that the
-	//wrong data is used for the fill, as described above. We need to emulate
-	//this by actually using the specified write target when performing the
-	//write below. Also note that a single DMA fill write is a 16-bit
-	//operation to VSRAM and CRAM, with the full 16-bit fill value being used
+	//##NOTE## Hardware tests have shown that during a DMA fill operation, the FIFO flags
+	//in the status register remain with the empty flag set, and the full flag cleared,
+	//throughout the fill operation, with of course the exception of when the data port
+	//write occurs to trigger the fill, if that write is waiting in the FIFO at the time
+	//of the control port read.
+	//Note that the DMA busy flag remains set as soon as the control port is written, even
+	//if the data port write to trigger the fill hasn't yet been made. The DMA busy flag
+	//remains set until a data port write has been made and the DMA fill is complete.
+	//##FIX## Hardware tests have shown that DMA fill operations to CRAM and VSRAM are
+	//possible, and work correctly, with the exception that the wrong data is used for the
+	//fill, as described above. We need to emulate this by actually using the specified
+	//write target when performing the write below. Also note that a single DMA fill write
+	//is a 16-bit operation to VSRAM and CRAM, with the full 16-bit fill value being used
 	//at each target address, and the LSB of the address being masked.
 	//Transfer the next byte of the fill operation
-	//##TODO## Test on hardware to determine what happens when the data port
-	//is written to while a DMA fill operation is in progress.
+	//##TODO## Test on hardware to determine what happens when the data port is written to
+	//while a DMA fill operation is in progress.
 	RAMAccessTarget ramAccessTarget;
 	ramAccessTarget.AccessTime(GetProcessorStateMclkCurrent());
 	switch(commandCode.GetDataSegment(0, 4))
@@ -8697,24 +8745,21 @@ void S315_5313::PerformDMAFillOperation()
 		break;
 	}
 
-	//##FIX## This is incorrect. We know from testing that if a data port
-	//write occurs while a DMA fill operation is in progress, that write
-	//occurs at the currently incremented address that the next fill write
-	//would go to, and the fill operation proceeds at the incremented address
-	//after the write.
+	//##FIX## This is incorrect. We know from testing that if a data port write occurs
+	//while a DMA fill operation is in progress, that write occurs at the currently
+	//incremented address that the next fill write would go to, and the fill operation
+	//proceeds at the incremented address after the write.
 	//##NOTE## Fixing this could be as simple as setting the
-	//codeAndAddressRegistersModifiedSinceLastWrite register to true here,
-	//which should trigger the next data port write to obtain its code and
-	//address register data directly from commandAddress and commandCode,
-	//rather than using the previous FIFO buffer entry contents. This won't
-	//work fully actually, since the DMA fill operation then needs to continue
-	//at the incremented address after the write. It does therefore seem as if
-	//the actual address data that is used and modified actively by the DMA
-	//fill update step is the address data stored in the FIFO entry which
-	//triggered the fill. I just noticed above that this is actually what we
-	//are using. Why are we incrementing commandAddress here then? We don't
-	//actually seem to be using it anywhere. We should update our code, and
-	//our comments.
+	//codeAndAddressRegistersModifiedSinceLastWrite register to true here, which should
+	//trigger the next data port write to obtain its code and address register data
+	//directly from commandAddress and commandCode, rather than using the previous FIFO
+	//buffer entry contents. This won't work fully actually, since the DMA fill operation
+	//then needs to continue at the incremented address after the write. It does therefore
+	//seem as if the actual address data that is used and modified actively by the DMA
+	//fill update step is the address data stored in the FIFO entry which triggered the
+	//fill. I just noticed above that this is actually what we are using. Why are we
+	//incrementing commandAddress here then? We don't actually seem to be using it
+	//anywhere. We should update our code, and our comments.
 	//Increment the target address
 	commandAddress += autoIncrementData;
 }
@@ -8726,43 +8771,39 @@ void S315_5313::PerformDMACopyOperation()
 	unsigned int sourceAddress = (dmaSourceAddressByte1) | (dmaSourceAddressByte2 << 8);
 
 	//Manipulate the source and target addresses for the DMA copy operation.
-	//-Note that on the real hardware, the VDP stores its data in VRAM with
-	//each 16-bit word byteswapped, so a value of 0x1234 would be stored in
-	//the physical memory as 0x3412. This has been confirmed through the use
-	//of a logic analyzer snooping on the VRAM bus during operation. For most
-	//operations, this byteswapping of VRAM memory is transparent to the user,
-	//since the VDP automatically byteswaps all word-wide reads and writes to
-	//and from VRAM, so the data is read and written as if it was not
-	//byteswapped at all. DMA fill and copy operations are the only time where
-	//the byteswapping behaviour of the real hardware is visible to the user,
-	//as the byte-wide VRAM access that occurs as part of these operations
-	//allow reads and writes to and from odd addresses in VRAM. In the real
-	//hardware, these addresses are used directly, without modification, to
-	//read and write the byteswapped data, meaning that reads and writes from
-	//odd addresses actually access the upper byte of a word, and reads and
-	//writes to even addresses actually access to the lower byte of the word.
-	//For our emulator, we store data in VRAM without byteswapping, to
-	//simplify the implementation and present the data to the user in the form
-	//they would expect when using the debugger. In order to correctly
-	//implement the behaviour of a DMA fill or copy however, we therefore have
-	//to swap odd and even addresses when performing byte-wide access, so that
-	//we get the correct result.
+	//-Note that on the real hardware, the VDP stores its data in VRAM with each 16-bit
+	//word byteswapped, so a value of 0x1234 would be stored in the physical memory as
+	//0x3412. This has been confirmed through the use of a logic analyzer snooping on the
+	//VRAM bus during operation. For most operations, this byteswapping of VRAM memory is
+	//transparent to the user, since the VDP automatically byteswaps all word-wide reads
+	//and writes to and from VRAM, so the data is read and written as if it was not
+	//byteswapped at all. DMA fill and copy operations are the only time where the
+	//byteswapping behaviour of the real hardware is visible to the user, as the byte-wide
+	//VRAM access that occurs as part of these operations allow reads and writes to and
+	//from odd addresses in VRAM. In the real hardware, these addresses are used directly,
+	//without modification, to read and write the byteswapped data, meaning that reads and
+	//writes from odd addresses actually access the upper byte of a word, and reads and
+	//writes to even addresses actually access to the lower byte of the word. For our
+	//emulator, we store data in VRAM without byteswapping, to simplify the implementation
+	//and present the data to the user in the form they would expect when using the
+	//debugger. In order to correctly implement the behaviour of a DMA fill or copy
+	//however, we therefore have to swap odd and even addresses when performing byte-wide
+	//access, so that we get the correct result.
 	Data sourceAddressByteswapped(16, sourceAddress);
 	sourceAddressByteswapped.SetBit(0, !sourceAddressByteswapped.GetBit(0));
 	Data targetAddressByteswapped(16, commandAddress.GetData());
 	targetAddressByteswapped.SetBit(0, !targetAddressByteswapped.GetBit(0));
 
-	//Ensure that CD4 is set when performing a DMA copy. Hardware tests have
-	//shown that while the state of CD0-CD3 is completely ignored for DMA copy
-	//operations, CD4 must be set, otherwise the VDP locks up hard when the
-	//DMA operation is triggered.
+	//Ensure that CD4 is set when performing a DMA copy. Hardware tests have shown that
+	//while the state of CD0-CD3 is completely ignored for DMA copy operations, CD4 must
+	//be set, otherwise the VDP locks up hard when the DMA operation is triggered.
 	if(!commandCode.GetBit(4))
 	{
 		//##TODO## Log an error or trigger an assert here
 	}
 
-	//Perform the copy. Note that hardware tests have shown that DMA copy
-	//operations always target VRAM, regardless of the state of CD0-CD3.
+	//Perform the copy. Note that hardware tests have shown that DMA copy operations
+	//always target VRAM, regardless of the state of CD0-CD3.
 	RAMAccessTarget ramAccessTarget;
 	ramAccessTarget.AccessTime(GetProcessorStateMclkCurrent());
 	unsigned char data;
@@ -8792,28 +8833,26 @@ void S315_5313::CacheDMATransferReadData(unsigned int mclkTime)
 void S315_5313::PerformDMATransferOperation()
 {
 	//Add the data write to the FIFO
-	//-Note that we can grab the current working value for the command code
-	//and address register data, since we know we obtained exclusive bus
-	//access when the DMA transfer command word was written.
-	//-Note that a DMA transfer will be triggered regardless of the state of
-	//CD4, as this bit isn't tested when deciding whether to trigger an
-	//external DMA transfer, and write target decoding only looks at the state
-	//of CD3-CD0.
-	//-Note that hardware testing has confirmed that DMA transfers move the
-	//data through the FIFO in the same manner as normal VRAM write
-	//operations, with the same rules for memory wrapping and byte swapping.
-	//Note that genvdp.txt by Charles MacDonald reports that DMA transfers to
-	//CRAM are aborted when the target address passes 0x7F. This is incorrect.
-	//The palette corruption reported in "Batman and Robin" on the Mega Drive
-	//is due to the fact that DMA operations actively update the DMA source
-	//count registers as the operation is being performed, meaning that no
-	//matter what transfer count was used, the DMA length registers should
-	//both be 0 after the DMA operation is completed. Batman and Robin only
-	//writes to the lower transfer count byte when performing some transfers
-	//to CRAM, meaning that unless the upper byte is already 0, too much data
-	//will be transferred to CRAM, corrupting the palette. If the DMA source
-	//and DMA length registers are correctly updated by DMA operations, as
-	//hardware tests have proven does occur, this bug will not occur.
+	//-Note that we can grab the current working value for the command code and address
+	//register data, since we know we obtained exclusive bus access when the DMA transfer
+	//command word was written.
+	//-Note that a DMA transfer will be triggered regardless of the state of CD4, as this
+	//bit isn't tested when deciding whether to trigger an external DMA transfer, and
+	//write target decoding only looks at the state of CD3-CD0.
+	//-Note that hardware testing has confirmed that DMA transfers move the data through
+	//the FIFO in the same manner as normal VRAM write operations, with the same rules for
+	//memory wrapping and byte swapping.
+	//-Note that genvdp.txt by Charles MacDonald reports that DMA transfers to CRAM are
+	//aborted when the target address passes 0x7F. This is incorrect. The palette
+	//corruption reported in "Batman and Robin" on the Mega Drive is due to the fact that
+	//DMA operations actively update the DMA source count registers as the operation is
+	//being performed, meaning that no matter what transfer count was used, the DMA length
+	//registers should both be 0 after the DMA operation is completed. Batman and Robin
+	//only writes to the lower transfer count byte when performing some transfers to CRAM,
+	//meaning that unless the upper byte is already 0, too much data will be transferred
+	//to CRAM, corrupting the palette. If the DMA source and DMA length registers are
+	//correctly updated by DMA operations, as hardware tests have proven does occur, this
+	//bug will not occur.
 	if(codeAndAddressRegistersModifiedSinceLastWrite)
 	{
 		fifoBuffer[fifoNextWriteEntry].codeRegData = commandCode;
@@ -8841,79 +8880,37 @@ void S315_5313::PerformDMATransferOperation()
 //----------------------------------------------------------------------------------------
 void S315_5313::AdvanceDMAState()
 {
-	//Decrement the DMA transfer count registers. Note that the transfer count
-	//is decremented before it is tested against 0, and all DMA operations are
-	//advanced by one step before the transfer counter is decremented, so a
-	//transfer count of 0 is equivalent to a transfer count of 0x10000.
+	//Decrement the DMA transfer count registers. Note that the transfer count is
+	//decremented before it is tested against 0, so a transfer count of 0 is equivalent to
+	//a transfer count of 0x10000.
 	dmaLengthCounter = (dmaLengthCounter - 1) & 0xFFFF;
 
-	//Increment the DMA source address registers. Note that all DMA operations
-	//cause the DMA source address registers to be advanced, including a DMA
-	//fill operation, even though a DMA fill doesn't actually use the source
-	//address. This has been confirmed through hardware tests. Also note that
-	//only the lower two DMA source address registers are modified. Register
-	//0x17, which contains the upper 7 bits, of the source address for a DMA
-	//transfer operation, is not updated, which prevents a DMA transfer
-	//operation from crossing a 0x20000 byte boundary. This behaviour is
-	//undocumented but well known, and has been verified through hardware
-	//tests.
+	//Increment the DMA source address registers. Note that all DMA operations cause the
+	//DMA source address registers to be advanced, including a DMA fill operation, even
+	//though a DMA fill doesn't actually use the source address. This has been confirmed
+	//through hardware tests. Also note that only the lower two DMA source address
+	//registers are modified. Register 0x17, which contains the upper 7 bits, of the
+	//source address for a DMA transfer operation, is not updated, which prevents a DMA
+	//transfer operation from crossing a 0x20000 byte boundary. This behaviour is
+	//undocumented but well known, and has been verified through hardware tests.
 	unsigned int incrementedDMASourceAddress = dmaSourceAddressByte1 | (dmaSourceAddressByte2 << 8);
 	++incrementedDMASourceAddress;
 	dmaSourceAddressByte1 = incrementedDMASourceAddress & 0xFF;
 	dmaSourceAddressByte2 = (incrementedDMASourceAddress >> 8) & 0xFF;
 
-	//##DEBUG##
-	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-	{
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "busGranted:\t" << busGranted << "\n";
-		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-		std::wcout << "status:\t" << status.GetData() << "\n";
-		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-		std::wcout << "dmd1:\t" << dmd1 << "\n";
-		std::wcout << "dmd0:\t" << dmd1 << "\n";
-		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-	}
-
-	//If the DMA length counter is 0 after a DMA operation has been advanced,
-	//we've reached the end of the DMA operation. In this case, we clear CD5.
-	//This flags the DMA operation as completed. If we're in a DMA transfer
-	//operation, this will also cause the bus to be released by the DMA worker
-	//thread.
+	//If the DMA length counter is 0 after a DMA operation has been advanced, we've
+	//reached the end of the DMA operation. In this case, we clear CD5. This flags the DMA
+	//operation as completed. If we're in a DMA transfer operation, this will also cause
+	//the bus to be released by the DMA worker thread.
 	if(dmaLengthCounter == 0)
 	{
 		commandCode.SetBit(5, false);
 		SetStatusFlagDMA(false);
 
-		//If we were running a DMA fill or DMA transfer operation, flag that it is
-		//now completed.
+		//If we were running a DMA fill or DMA transfer operation, flag that it is now
+		//completed.
 		dmaFillOperationRunning = false;
 		dmaTransferActive = false;
-	}
-
-	//##DEBUG##
-	if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
-	{
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-		std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
-		std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-		std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-		std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-		std::wcout << "busGranted:\t" << busGranted << "\n";
-		std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-		std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-		std::wcout << "status:\t" << status.GetData() << "\n";
-		std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-		std::wcout << "dmd1:\t" << dmd1 << "\n";
-		std::wcout << "dmd0:\t" << dmd1 << "\n";
-		std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
-		std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
 
 	//Flag that the cached DMA settings have been modified
@@ -8924,7 +8921,7 @@ void S315_5313::AdvanceDMAState()
 bool S315_5313::TargetProcessorStateReached(bool stopWhenFifoEmpty, bool stopWhenFifoFull, bool stopWhenFifoNotFull, bool stopWhenReadDataAvailable, bool stopWhenNoDMAOperationInProgress)
 {
 	//Check if a DMA operation is currently running
-	bool dmaOperationRunning = dmaEnabled && commandCode.GetBit(5) && (!dmd1 || dmd0 || dmaFillOperationRunning);
+	bool dmaOperationRunning = commandCode.GetBit(5) && (!dmd1 || dmd0 || dmaFillOperationRunning);
 
 	//Check if we've reached one of the target processor states
 	bool targetProcessorStateReached = false;
@@ -9040,12 +9037,6 @@ bool S315_5313::TargetProcessorStateReached(bool stopWhenFifoEmpty, bool stopWhe
 //}
 
 //----------------------------------------------------------------------------------------
-//##TODO## This function needs to populate the vsramCachedRead variable, where the last
-//VSRAM data that would have been read by the render thread is loaded into the variable,
-//taking into account the current vertical scroll mode, screen mode settings, and the
-//display blanking settings. If the render thread has not passed a VSRAM access point
-//since the last update, the current value stored in the vsramCachedRead variable must be
-//retained.
 bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool stopAtNextAccessSlot, bool allowAdvancePastTargetForAccessSlot)
 {
 	//Ensure that we aren't trying to trigger an update out of order
@@ -9085,7 +9076,7 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 	//register setting is toggled mid-line. I believe changes to the H40 screen mode
 	//setting do take effect immediately, however, we're keeping the old code intact below
 	//to hold off the change until hblank, in case it comes in handy for further testing
-	//or develoment.
+	//or development.
 	//##TODO## Determine exactly how the VDP reacts to the H40 screen mode state being
 	//changed at all the various points during a line.
 	//##FIX## We've re-enabled the old behaviour. A number of changes need to occur to
@@ -9200,8 +9191,8 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 		//timeslice, but we have a timing point to run at the end of this timeslice to
 		//execute an event. We latch the screen mode settings at the time of the event in
 		//this case, so we can correctly handle the event later during the timing point.
-		if((nextEventToExecute.mclkCycleCounter >= (stateLastUpdateMclk + stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused)) //The event occurs at or after the current time
-		&& (nextEventToExecute.mclkCycleCounter < (stateLastUpdateMclk + stateLastUpdateMclkUnusedFromLastTimeslice + stateLastUpdateMclkUnused + mclkCyclesToAdvanceThisStep))) //The event occurs during the next update step we're about to make
+		if((nextEventToExecute.mclkCycleCounter >= GetProcessorStateMclkCurrent()) //The event occurs at or after the current time
+		&& (nextEventToExecute.mclkCycleCounter < (GetProcessorStateMclkCurrent() + mclkCyclesToAdvanceThisStep))) //The event occurs during the next update step we're about to make
 		{
 			eventSnapshotScreenModeRS0 = screenModeRS0;
 			eventSnapshotScreenModeRS1 = screenModeRS1;
@@ -9237,6 +9228,8 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 		//}
 
 		//Advance the required number of pixel clock steps to reach the target
+		unsigned int hcounterBeforeAdvance = hcounter.GetData();
+		unsigned int vcounterBeforeAdvance = vcounter.GetData();
 		AdvanceStatusRegisterAndHVCounterWithCurrentSettings(totalPixelClockCyclesToExecute);
 
 		//Update the number of remaining mclk cycles from the previous timeslice
@@ -9252,6 +9245,13 @@ bool S315_5313::AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool sto
 		//Update the current state mclk cycle counter and remaining mclk cycles
 		stateLastUpdateMclk += ((stateLastUpdateMclkUnused + mclkCyclesToAdvanceThisStep) - mclkRemainingCycles);
 		stateLastUpdateMclkUnused = mclkRemainingCycles;
+
+		//Update the index of the last value to be read from VSRAM by the render process,
+		//based on the HV counter position before and after this advance step, and the
+		//current vertical scroll mode. Note that if we weren't in the active scan region
+		//as defined by the vertical counter, the current vsram read cache index will
+		//remain unchanged.
+		vsramReadCacheIndex = GetUpdatedVSRAMReadCacheIndex(hscanSettings, vscanSettings, vsramReadCacheIndex, hcounterBeforeAdvance, vcounterBeforeAdvance, hcounter.GetData(), vcounter.GetData(), screenModeRS0, screenModeRS1, verticalScrollModeCached);
 
 		//If vertical scan information has changed, and we've just advanced to vblank,
 		//latch the new screen mode settings.
@@ -9684,25 +9684,23 @@ void S315_5313::M5ReadVSRAM(const Data& address, Data& data, const RAMAccessTarg
 	//out of the way, so we can read VSRAM without the rendering process affecting the
 	//VSRAM read buffer.
 	unsigned int dataMask = 0x07FF;
-	if(tempAddress < 0x50)
+	if(tempAddress >= 0x50)
 	{
-		//Read the data. Note that not all bits in the 16-bit result are affected by the
-		//read from VSRAM. Hardware tests have shown that VSRAM reads return an 11-bit
-		//value, with the mask 0x07FF. The remaining bits retain their previous value,
-		//corresponding with the existing value in the FIFO buffer that the read data is
-		//being saved into.
-		Data tempData(16);
-		tempData.SetByte(1, vsram->Read(tempAddress, accessTarget));
-		tempData.SetByte(0, vsram->Read(tempAddress+1, accessTarget));
-		data = (data & ~dataMask) | (tempData & dataMask);
+		tempAddress = vsramReadCacheIndex % 0x50;
+	}
 
-		//##TODO## Determine whether this is correct
-		//vsramCachedRead = tempData;
-	}
-	else
-	{
-		data = (data & ~dataMask) | (vsramCachedRead & dataMask);
-	}
+	//Read the data. Note that not all bits in the 16-bit result are affected by the
+	//read from VSRAM. Hardware tests have shown that VSRAM reads return an 11-bit
+	//value, with the mask 0x07FF. The remaining bits retain their previous value,
+	//corresponding with the existing value in the FIFO buffer that the read data is
+	//being saved into.
+	Data tempData(16);
+	tempData.SetByte(1, vsram->Read(tempAddress, accessTarget));
+	tempData.SetByte(0, vsram->Read(tempAddress+1, accessTarget));
+	data = (data & ~dataMask) | (tempData & dataMask);
+
+	//##TODO## Determine whether this is correct
+	vsramReadCacheIndex = tempAddress;
 }
 
 //----------------------------------------------------------------------------------------
@@ -9843,6 +9841,6 @@ void S315_5313::M5WriteVSRAM(const Data& address, const Data& data, const RAMAcc
 		vsram->Write(tempAddress+1, tempData.GetByte(0), accessTarget);
 
 		//##TODO## Determine whether this is correct
-		//vsramCachedRead = tempData;
+		vsramReadCacheIndex = tempAddress;
 	}
 }

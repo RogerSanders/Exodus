@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------------------------*\
 Things to do:
 -Rename the "location" parameter to "address" on all access functions
--Add an access mask to the SetLine() function, to support tri-state line changes, and
+-Add an access mask to the SetLineState() function, to support tri-state line changes, and
 document it in BusInterfaceDoco.txt.
 -Change all parameters to use Data arguments, rather than unsigned int?
 -Implement the concept of a "Clock mapping". We should be able to define a "Clock" device,
@@ -108,7 +108,8 @@ public:
 	virtual void TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) const;
 
 	//Line interface functions
-	virtual bool SetLine(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
+	virtual bool SetLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
+	virtual bool AdvanceToLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 
 private:
 	//Structures

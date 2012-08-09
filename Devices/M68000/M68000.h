@@ -136,6 +136,7 @@ public:
 	//Constructors
 	M68000(const std::wstring& ainstanceName, unsigned int amoduleID);
 	~M68000();
+	virtual bool Construct(IHeirarchicalStorageNode& node);
 
 	//Initialization functions
 	virtual bool BuildDevice();
@@ -152,6 +153,7 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
 
 	//Exception functions
@@ -174,6 +176,7 @@ public:
 	virtual void ExecuteCommit();
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
+	virtual void NotifyAfterExecuteStepFinishedTimeslice();
 	virtual OpcodeInfo GetOpcodeInfo(unsigned int location);
 	virtual Data GetRawData(unsigned int location);
 	virtual unsigned int GetCurrentPC() const;
@@ -405,15 +408,19 @@ private:
 
 	//Line access
 	boost::mutex lineMutex;
-	mutable double lastLineCheckTime;
-	mutable volatile bool lineAccessPending;
+	double lastLineCheckTime;
+	volatile bool lineAccessPending;
 	double lastTimesliceLength;
 	double blastTimesliceLength;
 	std::list<LineAccess> lineAccessBuffer;
 	std::list<LineAccess> blineAccessBuffer;
+	bool suspendWhenBusReleased;
 	bool suspendUntilLineStateChangeReceived;
 	bool bsuspendUntilLineStateChangeReceived;
 	boost::condition lineStateChangeReceived;
+	bool manualDeviceAdvanceInProgress;
+	volatile bool executionReachedEndOfTimeslice;
+	boost::condition advanceToTargetLineStateChanged;
 	mutable bool autoVectorPendingInterrupt;
 	bool resetLineState;
 	bool haltLineState;

@@ -11,6 +11,13 @@ double DeviceContext::GetCurrentTimesliceProgress() const
 }
 
 //----------------------------------------------------------------------------------------
+void DeviceContext::SetCurrentTimesliceProgress(double executionProgress)
+{
+	currentTimesliceProgress = executionProgress;
+	remainingTime = currentTimesliceProgress - timeslice;
+}
+
+//----------------------------------------------------------------------------------------
 //Control functions
 //----------------------------------------------------------------------------------------
 bool DeviceContext::DeviceEnabled() const
@@ -227,11 +234,10 @@ void DeviceContext::SetTransientExecutionActive(bool state)
 			//thread to change.
 			if(suspendManager->AllDevicesSuspended(*suspendedThreadCountPointer, *remainingThreadCountPointer))
 			{
-				//Note that we need to release executeThreadMutex here, since the suspend
-				//manager will call back into this DeviceContext object and call the
-				//DisableTimesliceExecutionSuspend() function in response to the function
-				//call below. Taking the lock again is technically not necessary at this
-				//point, but we do it anyway for the sake of uniformity.
+				//Note that we need to not hold a lock on executeThreadMutex here, since
+				//the suspend manager will call back into this DeviceContext object and
+				//call the DisableTimesliceExecutionSuspend() function in response to the
+				//function call below.
 				suspendManager->DisableTimesliceExecutionSuspend();
 			}
 		}
@@ -280,6 +286,23 @@ void DeviceContext::EnableTimesliceExecutionSuspend()
 //	boost::mutex::scoped_lock lock(executeThreadMutex);
 	timesliceSuspensionDisable = false;
 	executeCompletionStateChanged.notify_all();
+}
+
+//----------------------------------------------------------------------------------------
+//Dependent device functions
+//----------------------------------------------------------------------------------------
+void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool state)
+{
+	unsigned int dependentTargetCount = (unsigned int)deviceDependencies.size();
+	unsigned int i = 0;
+	while(i < dependentTargetCount)
+	{
+		if(deviceDependencies[i].device == targetDevice)
+		{
+			deviceDependencies[i].dependencyEnabled = state;
+		}
+		++i;
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -767,6 +790,7 @@ void DeviceContext::ExecuteWorkerThreadStep()
 			}
 		}
 		remainingTime = currentTimesliceProgress - timeslice;
+		device->NotifyAfterExecuteStepFinishedTimeslice();
 		lock.lock();
 
 		timesliceSuspended = false;
@@ -792,7 +816,7 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 		{
 			for(unsigned int i = 0; i < dependentTargetCount; ++i)
 			{
-				while(currentTimesliceProgress > deviceDependencies[i]->GetCurrentTimesliceProgress())
+				while((currentTimesliceProgress > deviceDependencies[i].device->GetCurrentTimesliceProgress()) && deviceDependencies[i].dependencyEnabled)
 				{
 					Sleep(0);
 				}
@@ -807,6 +831,7 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 			}
 		}
 		remainingTime = currentTimesliceProgress - timeslice;
+		device->NotifyAfterExecuteStepFinishedTimeslice();
 		lock.lock();
 
 		timesliceSuspended = false;
@@ -830,6 +855,7 @@ void DeviceContext::ExecuteWorkerThreadTimeslice()
 		device->ExecuteTimeslice(timeslice);
 		remainingTime = 0;
 		currentTimesliceProgress = timeslice;
+		device->NotifyAfterExecuteStepFinishedTimeslice();
 		lock.lock();
 
 		timesliceSuspended = false;
@@ -853,12 +879,16 @@ void DeviceContext::ExecuteWorkerThreadTimesliceWithDependencies()
 		device->ExecuteTimeslice(timeslice);
 		remainingTime = 0;
 		currentTimesliceProgress = timeslice;
+		device->NotifyAfterExecuteStepFinishedTimeslice();
 		lock.lock();
 
 		unsigned int dependentTargetCount = (unsigned int)deviceDependencies.size();
 		for(unsigned int i = 0; i < dependentTargetCount; ++i)
 		{
-			deviceDependencies[i]->WaitForCompletion();
+			if(deviceDependencies[i].dependencyEnabled)
+			{
+				deviceDependencies[i].device->WaitForCompletion();
+			}
 		}
 
 		timesliceSuspended = false;

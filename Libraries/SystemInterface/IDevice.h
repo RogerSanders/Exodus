@@ -70,6 +70,7 @@ public:
 	virtual void NotifyBeforeExecuteCalled() = 0;
 	virtual bool SendNotifyAfterExecuteCalled() const = 0;
 	virtual void NotifyAfterExecuteCalled() = 0;
+	virtual void NotifyAfterExecuteStepFinishedTimeslice() = 0;
 
 	//Name functions
 	inline std::wstring GetDeviceClassName() const;
@@ -113,6 +114,7 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const = 0;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const = 0;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
+	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 
 	//Clock source functions
 	//##FIX## The devices need a way to detect, and validate, that a clock source has been

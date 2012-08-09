@@ -712,7 +712,7 @@ void S315_5313::M4SetAttributeTableBaseSprite(const AccessTarget& accessTarget, 
 //0x06(6)  |-------------------------------|
 //         | /   /   /   /   / |B13| /   / |
 //         ---------------------------------
-//*B13: Sprite Pattern Generator Base Address - Bit 13.
+//B13: Sprite Pattern Generator Base Address - Bit 13.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M4GetPatternBaseSprite(const AccessTarget& accessTarget) const
 {

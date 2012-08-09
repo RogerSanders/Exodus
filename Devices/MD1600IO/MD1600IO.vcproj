@@ -1320,6 +1320,10 @@
 				RelativePath=".\MDBusArbiter.h"
 				>
 			</File>
+			<File
+				RelativePath=".\MDBusArbiter.inl"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\interface.cpp"

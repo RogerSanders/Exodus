@@ -686,8 +686,12 @@ std::wstring EffectiveAddress::Disassemble() const
 		stream << L",A" << reg << L")";
 		break;
 	case ADDREG_INDIRECT_INDEX_8BIT:
-		stream << L"($" << std::setw(displacement.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << displacement.GetData();
-		stream << L",A" << reg << L",";
+		stream << L"(";
+		if(displacement.NonZero())
+		{
+			stream << L"$" << std::setw(displacement.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << displacement.GetData() << L",";
+		}
+		stream << L"A" << reg << L",";
 		if(!useAddressRegister)
 		{
 			stream << L"D";
@@ -703,8 +707,13 @@ std::wstring EffectiveAddress::Disassemble() const
 		stream << L",PC)";
 		break;
 	case PC_INDIRECT_INDEX_8BIT:
-		stream << L"($" << std::setw(displacement.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << displacement.GetData();
-		stream << L",PC,";
+		stream << L"(";
+		if(displacement.NonZero())
+		{
+			stream << L"$" << std::setw(displacement.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << displacement.GetData() << L",";
+		}
+		stream << L"A" << reg << L",";
+		stream << L"PC,";
 		if(!useAddressRegister)
 		{
 			stream << L"D";

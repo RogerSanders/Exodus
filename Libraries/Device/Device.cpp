@@ -85,6 +85,12 @@ double Device::GetCurrentTimesliceProgress() const
 }
 
 //----------------------------------------------------------------------------------------
+void Device::SetCurrentTimesliceProgress(double executionProgress)
+{
+	deviceContext->SetCurrentTimesliceProgress(executionProgress);
+}
+
+//----------------------------------------------------------------------------------------
 //Suspend functions
 //----------------------------------------------------------------------------------------
 bool Device::UsesExecuteSuspend() const
@@ -210,6 +216,10 @@ bool Device::SendNotifyAfterExecuteCalled() const
 //work before the system advances.
 //----------------------------------------------------------------------------------------
 void Device::NotifyAfterExecuteCalled()
+{}
+
+//----------------------------------------------------------------------------------------
+void Device::NotifyAfterExecuteStepFinishedTimeslice()
 {}
 
 //----------------------------------------------------------------------------------------
@@ -370,6 +380,12 @@ unsigned int Device::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void Device::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {}
+
+//----------------------------------------------------------------------------------------
+bool Device::AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	return false;
+}
 
 //----------------------------------------------------------------------------------------
 //Clock source functions

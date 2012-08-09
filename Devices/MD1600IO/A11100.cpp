@@ -140,7 +140,7 @@ void A11100::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
 {
 	if(!initialized)
 	{
-		memoryBus->SetLine(LINE_RESET, Data(1, (unsigned int)reset), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState(LINE_RESET, Data(1, (unsigned int)reset), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		initialized = true;
 	}
 }
@@ -184,7 +184,7 @@ IBusInterface::AccessResult A11100::WriteInterface(unsigned int interfaceNumber,
 		if(reset != newState)
 		{
 			reset = newState;
-			memoryBus->SetLine(LINE_RESET, Data(1, (unsigned int)reset), GetDeviceContext(), caller, accessTime, accessContext);
+			memoryBus->SetLineState(LINE_RESET, Data(1, (unsigned int)reset), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 	}
 	if(location == 0)
@@ -194,41 +194,10 @@ IBusInterface::AccessResult A11100::WriteInterface(unsigned int interfaceNumber,
 		if(busRequested != newState)
 		{
 			busRequested = newState;
-			memoryBus->SetLine(LINE_BUSREQ, Data(1, (unsigned int)busRequested), GetDeviceContext(), caller, accessTime, accessContext);
+			memoryBus->SetLineState(LINE_BUSREQ, Data(1, (unsigned int)busRequested), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 	}
 	return true;
-}
-
-//----------------------------------------------------------------------------------------
-void A11100::ApplyPendingLineStateChanges(IDeviceContext* caller, double accessTime, unsigned int accessContext)
-{
-	//If we have any pending line state changes waiting, apply any which we have now
-	//reached.
-	if(lineAccessPending)
-	{
-		boost::mutex::scoped_lock lock(lineMutex);
-		double currentTimesliceProgress = accessTime;
-		bool done = false;
-		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
-		while(!done && (i != lineAccessBuffer.end()))
-		{
-			if(i->accessTime <= currentTimesliceProgress)
-			{
-				ApplyLineStateChange(i->lineID, i->state);
-				++i;
-			}
-			else
-			{
-				done = true;
-			}
-		}
-
-		//Clear any completed entries from the list
-		lineAccessBuffer.erase(lineAccessBuffer.begin(), i);
-		lineAccessPending = !lineAccessBuffer.empty();
-	}
-	lastLineCheckTime = accessTime;
 }
 
 //----------------------------------------------------------------------------------------
@@ -321,4 +290,35 @@ void A11100::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 		busGranted = lineData.NonZero();
 		break;
 	}
+}
+
+//----------------------------------------------------------------------------------------
+void A11100::ApplyPendingLineStateChanges(IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	//If we have any pending line state changes waiting, apply any which we have now
+	//reached.
+	if(lineAccessPending)
+	{
+		boost::mutex::scoped_lock lock(lineMutex);
+		double currentTimesliceProgress = accessTime;
+		bool done = false;
+		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
+		while(!done && (i != lineAccessBuffer.end()))
+		{
+			if(i->accessTime <= currentTimesliceProgress)
+			{
+				ApplyLineStateChange(i->lineID, i->state);
+				++i;
+			}
+			else
+			{
+				done = true;
+			}
+		}
+
+		//Clear any completed entries from the list
+		lineAccessBuffer.erase(lineAccessBuffer.begin(), i);
+		lineAccessPending = !lineAccessBuffer.empty();
+	}
+	lastLineCheckTime = accessTime;
 }

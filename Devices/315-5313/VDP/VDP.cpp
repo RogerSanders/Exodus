@@ -132,7 +132,7 @@ void VDP::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 //	std::wcout << "VDPSetLineState\t" << targetLine << '\n';
 	if(targetLine == LINE_INTAK)
 	{
-		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 }
 
@@ -932,7 +932,7 @@ IBusInterface::AccessResult VDP::ReadInterface(unsigned int interfaceNumber, uns
 		//Negate the INT line if it's currently asserted
 		if(vintHappened)
 		{
-			memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), caller, accessTime, accessContext);
+			memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 
 		//New status register read process
@@ -1480,7 +1480,7 @@ void VDP::ProcessVInt()
 	//	SetVInterruptHappened(GetVInterruptEnabled(GetCurrentTimesliceProgress()));
 
 		//Trigger VInt for M68000
-		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_VINT);
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_VINT);
 	}
 
 	//##TODO## Confirm whether this should be triggered on every frame, or just when VInt
@@ -1495,7 +1495,7 @@ void VDP::ProcessVInt()
 	//and cleared.
 
 	//Trigger VInt for Z80
-	memoryBus->SetLine(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INT);
+	memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INT);
 
 	//Set the odd interlace frame flag for the status register
 	if(GetInterlaceMode() != INTERLACE_NONE)
@@ -1515,7 +1515,7 @@ void VDP::ProcessHInt()
 {
 	if(GetHInterruptEnabled(GetCurrentTimesliceProgress()))
 	{
-		memoryBus->SetLine(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_HINT);
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_HINT);
 	}
 	//##DEBUG##
 	else
