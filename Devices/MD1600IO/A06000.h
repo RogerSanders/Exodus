@@ -3,6 +3,7 @@
 #include "SystemInterface/SystemInterface.pkg"
 #include "Device/Device.pkg"
 
+//##TODO## Delete this device, as it has now been replaced by MDBusArbiter.
 class A06000 :public Device
 {
 public:

@@ -2178,7 +2178,7 @@ void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& da
 		{
 			if(memoryBus != 0)
 			{
-				memoryBus->SetLine(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 0), GetDeviceContext(), caller, accessTime, accessContext);
+				memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 		break;
@@ -2356,7 +2356,7 @@ void YM2612::UpdateTimers(double timesliceProgress)
 				{
 					if(memoryBus != 0)
 					{
-						memoryBus->SetLine(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
+						memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
 					}
 				}
 				//Update the overflow flag
@@ -2394,7 +2394,7 @@ void YM2612::UpdateTimers(double timesliceProgress)
 				{
 					if(memoryBus != 0)
 					{
-						memoryBus->SetLine(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
+						memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
 					}
 				}
 				//Update the overflow flag

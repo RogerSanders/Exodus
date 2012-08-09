@@ -620,7 +620,7 @@ void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime, u
 		|| (!GetControlRegisterTH(PORT3) && GetDataRegisterTH(PORT3)));
 	if(newHLLineState != currentHLLineState)
 	{
-		memoryBus->SetLine(LINE_HL, Data(1, newHLLineState), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LINE_HL, Data(1, newHLLineState), GetDeviceContext(), caller, accessTime, accessContext);
 		currentHLLineState = newHLLineState;
 	}
 }
@@ -793,37 +793,37 @@ void A10000::WriteDataRegister(IDeviceContext* caller, double accessTime, unsign
 	if(GetControlRegisterD0(portNo) && (data.GetBit(0) != GetDataRegisterD0(portNo)))
 	{
 		SetDataRegisterD0(portNo, data.GetBit(0));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D0), Data(1, (unsigned int)data.GetBit(0)), GetDeviceContext(), caller, accessTime, accessContext);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D0), Data(1, (unsigned int)data.GetBit(0)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterD1(portNo) && (data.GetBit(1) != GetDataRegisterD1(portNo)))
 	{
 		SetDataRegisterD1(portNo, data.GetBit(1));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D1), Data(1, (unsigned int)data.GetBit(1)), GetDeviceContext(), caller, accessTime, accessContext);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D1), Data(1, (unsigned int)data.GetBit(1)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterD2(portNo) && (data.GetBit(2) != GetDataRegisterD2(portNo)))
 	{
 		SetDataRegisterD2(portNo, data.GetBit(2));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D2), Data(1, (unsigned int)data.GetBit(2)), GetDeviceContext(), caller, accessTime, accessContext);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D2), Data(1, (unsigned int)data.GetBit(2)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterD3(portNo) && (data.GetBit(3) != GetDataRegisterD3(portNo)))
 	{
 		SetDataRegisterD3(portNo, data.GetBit(3));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_D3), Data(1, (unsigned int)data.GetBit(3)), GetDeviceContext(), caller, accessTime, accessContext);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D3), Data(1, (unsigned int)data.GetBit(3)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterTL(portNo) && (data.GetBit(4) != GetDataRegisterTL(portNo)))
 	{
 		SetDataRegisterTL(portNo, data.GetBit(4));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_TL), Data(1, (unsigned int)data.GetBit(4)), GetDeviceContext(), caller, accessTime, accessContext);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TL), Data(1, (unsigned int)data.GetBit(4)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterTR(portNo) && (data.GetBit(5) != GetDataRegisterTR(portNo)))
 	{
 		SetDataRegisterTR(portNo, data.GetBit(5));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_TR), Data(1, (unsigned int)data.GetBit(5)), GetDeviceContext(), caller, accessTime, accessContext);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TR), Data(1, (unsigned int)data.GetBit(5)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	if(GetControlRegisterTH(portNo) && (data.GetBit(6) != GetDataRegisterTH(portNo)))
 	{
 		SetDataRegisterTH(portNo, data.GetBit(6));
-		controlPortBus->SetLine(GetLineIDForPort(portNo, LINE_TH), Data(1, (unsigned int)data.GetBit(6)), GetDeviceContext(), caller, accessTime, accessContext);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TH), Data(1, (unsigned int)data.GetBit(6)), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	SetDataRegisterHL(portNo, data.GetBit(7));

@@ -102,12 +102,20 @@ struct M68000::ExceptionDebuggingEntry
 struct M68000::LineAccess
 {
 	LineAccess(unsigned int alineLD, const Data& astate, double aaccessTime)
-	:lineID(alineLD), state(astate), accessTime(aaccessTime)
+	:lineID(alineLD), state(astate), accessTime(aaccessTime), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0)
 	{}
 
 	unsigned int lineID;
 	Data state;
 	double accessTime;
+	bool notifyWhenApplied;
+	//Note the use of volatile here. Both these pointers are volatile themselves, IE, the
+	//actual address stored in the pointer variables may change at any time from a
+	//separate thread. The appliedFlag variable is the only one of the two where the value
+	//itself is also volatile, IE, the value stored in this boolean flag may change at any
+	//time from a separate thread.
+	volatile bool* volatile appliedFlag;
+	IDeviceContext* volatile waitingDevice;
 };
 
 //----------------------------------------------------------------------------------------

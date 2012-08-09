@@ -246,32 +246,32 @@ private:
 	double lastLineAccessTime;
 	enum LineID
 	{
-		LINE_PORT1_D0 = 1,	//IO
-		LINE_PORT1_D1,		//IO
-		LINE_PORT1_D2,		//IO
-		LINE_PORT1_D3,		//IO
-		LINE_PORT1_TL,		//IO
-		LINE_PORT1_TR,		//IO
-		LINE_PORT1_TH,		//IO
-		LINE_PORT2_D0,		//IO
-		LINE_PORT2_D1,		//IO
-		LINE_PORT2_D2,		//IO
-		LINE_PORT2_D3,		//IO
-		LINE_PORT2_TL,		//IO
-		LINE_PORT2_TR,		//IO
-		LINE_PORT2_TH,		//IO
-		LINE_PORT3_D0,		//IO
-		LINE_PORT3_D1,		//IO
-		LINE_PORT3_D2,		//IO
-		LINE_PORT3_D3,		//IO
-		LINE_PORT3_TL,		//IO
-		LINE_PORT3_TR,		//IO
-		LINE_PORT3_TH,		//IO
+		LINE_PORT1_D0 = 1,  //IO
+		LINE_PORT1_D1,      //IO
+		LINE_PORT1_D2,      //IO
+		LINE_PORT1_D3,      //IO
+		LINE_PORT1_TL,      //IO
+		LINE_PORT1_TR,      //IO
+		LINE_PORT1_TH,      //IO
+		LINE_PORT2_D0,      //IO
+		LINE_PORT2_D1,      //IO
+		LINE_PORT2_D2,      //IO
+		LINE_PORT2_D3,      //IO
+		LINE_PORT2_TL,      //IO
+		LINE_PORT2_TR,      //IO
+		LINE_PORT2_TH,      //IO
+		LINE_PORT3_D0,      //IO
+		LINE_PORT3_D1,      //IO
+		LINE_PORT3_D2,      //IO
+		LINE_PORT3_D3,      //IO
+		LINE_PORT3_TL,      //IO
+		LINE_PORT3_TR,      //IO
+		LINE_PORT3_TH,      //IO
 
-		LINE_REGION,		//I
-		LINE_VIDEO,			//I
-		LINE_SEGACD,		//I
-		LINE_HL				//O
+		LINE_REGION,        //I
+		LINE_VIDEO,         //I
+		LINE_SEGACD,        //I
+		LINE_HL             //O
 	};
 
 	//Line functions

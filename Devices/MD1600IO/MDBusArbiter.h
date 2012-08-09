@@ -21,9 +21,18 @@ public:
 	//Execute functions
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
+	virtual bool SendNotifyUpcomingTimeslice() const;
+	virtual void NotifyUpcomingTimeslice(double nanoseconds);
+	virtual UpdateMethod GetUpdateMethod() const;
+	virtual void ExecuteTimeslice(double nanoseconds);
+	virtual void ExecuteTimesliceTimingPointStep(unsigned int accessContext);
+	virtual double GetNextTimingPointInDeviceTime(unsigned int& accessContext) const;
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	bool ReadZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data& m68kBusData, IDeviceContext* caller, double accessTime, unsigned int accessContext, IBusInterface::AccessResult& m68kBusAccessResult, double& executionTime);
+	bool WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data m68kBusData, IDeviceContext* caller, double accessTime, unsigned int accessContext, IBusInterface::AccessResult& m68kBusAccessResult, double& executionTime);
 
 	//CE line state functions
 	virtual unsigned int GetCELineID(const wchar_t* lineName, bool inputLine) const;
@@ -37,27 +46,18 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, double accessTime);
+	void ApplyPendingLineStateChanges(IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	bool AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int targetLine, Data targetLineState, double& lineStateReachedTime);
 
 private:
 	//Enumerations
-	enum CELineID
-	{
-		CELINE_RW = 1,
-		CELINE_UDS,
-		CELINE_LDS,
-		CELINE_OE0,
-		CELINE_CE0,
-		CELINE_ROM,
-		CELINE_ASEL,
-		CELINE_FDC,
-		CELINE_FDWR,
-		CELINE_TIME,
-		CELINE_IO,
-		CELINE_EOE,
-		CELINE_NOE,
-		CELINE_ZRAM,
-		CELINE_SOUND
-	};
+	enum CELineID;
+	enum LineID;
+	enum MemoryInterface;
+
+	//Structures
+	struct LineAccess;
 
 private:
 	//CE line state functions
@@ -69,19 +69,18 @@ private:
 	IBusInterface* z80MemoryBus;
 	IBusInterface* m68kMemoryBus;
 
-	//Line access
-	enum LineID
-	{
-		LINE_CARTIN = 1,
-		LINE_VPA,
-		LINE_INTAK
-	};
-	boost::mutex lineMutex;
-	double lastLineCheckTime;
+	//Internal state
+	mutable boost::mutex bankswitchAccessMutex;
+	bool initialLineStateSet;
+	bool binitialLineStateSet;
 
-	//Line state
-	bool cartIn;
-	bool bcartIn;
+	//Z80 to M68K memory bankswitch register settings
+	Data z80BankswitchDataCurrent;
+	Data bz80BankswitchDataCurrent;
+	Data z80BankswitchDataNew;
+	Data bz80BankswitchDataNew;
+	unsigned int z80BankswitchBitsWritten;
+	unsigned int bz80BankswitchBitsWritten;
 
 	//CE line masks
 	unsigned int ceLineMaskReadHighWriteLow;
@@ -99,6 +98,41 @@ private:
 	unsigned int ceLineMaskNOE;
 	unsigned int ceLineMaskZRAM;
 	unsigned int ceLineMaskSOUND;
+
+	//Line access
+	boost::mutex lineMutex;
+	mutable double lastLineCheckTime;
+	volatile bool lineAccessPending;
+	double lastTimesliceLength;
+	double blastTimesliceLength;
+	std::list<LineAccess> lineAccessBuffer;
+	std::list<LineAccess> blineAccessBuffer;
+
+	//Line state
+	volatile bool cartInLineState;
+	bool bcartInLineState;
+	volatile bool z80BusRequestLineState;
+	bool bz80BusRequestLineState;
+	volatile bool z80BusGrantLineState;
+	bool bz80BusGrantLineState;
+	volatile bool z80BusResetLineState;
+	bool bz80BusResetLineState;
+	volatile bool m68kBusRequestLineState;
+	bool bm68kBusRequestLineState;
+	volatile bool m68kBusGrantLineState;
+	bool bm68kBusGrantLineState;
+
+	mutable bool z80BusRequestLineStateChangeTimeLatchEnable;
+	mutable bool z80BusGrantLineStateChangeTimeLatchEnable;
+	mutable bool z80BusResetLineStateChangeTimeLatchEnable;
+	mutable bool m68kBusRequestLineStateChangeTimeLatchEnable;
+	mutable bool m68kBusGrantLineStateChangeTimeLatchEnable;
+	mutable double z80BusRequestLineStateChangeTimeLatch;
+	mutable double z80BusGrantLineStateChangeTimeLatch;
+	mutable double z80BusResetLineStateChangeTimeLatch;
+	mutable double m68kBusRequestLineStateChangeTimeLatch;
+	mutable double m68kBusGrantLineStateChangeTimeLatch;
 };
 
+#include "MDBusArbiter.inl"
 #endif

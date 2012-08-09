@@ -30,6 +30,13 @@ public:
 };
 
 //----------------------------------------------------------------------------------------
+struct DeviceContext::DeviceDependency
+{
+	DeviceContext* device;
+	volatile bool dependencyEnabled;
+};
+
+//----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
 DeviceContext::DeviceContext(IDevice* adevice)
@@ -162,11 +169,10 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 			//thread to change.
 			if(asuspendManager->AllDevicesSuspended(suspendedThreadCount, remainingThreadCount))
 			{
-				//Note that we need to release executeThreadMutex here, since the suspend
-				//manager will call back into this DeviceContext object and call the
-				//DisableTimesliceExecutionSuspend() function in response to the function
-				//call below. Taking the lock again is technically not necessary at this
-				//point, but we do it anyway for the sake of uniformity.
+				//Note that we need to not hold a lock on executeThreadMutex here, since
+				//the suspend manager will call back into this DeviceContext object and
+				//call the DisableTimesliceExecutionSuspend() function in response to the
+				//function call below.
 				asuspendManager->DisableTimesliceExecutionSuspend();
 			}
 			else
@@ -289,7 +295,10 @@ void DeviceContext::AddDeviceDependency(DeviceContext* targetDevice)
 	RemoveDeviceDependency(targetDevice);
 
 	//Add the device to the device dependency list
-	deviceDependencies.push_back(targetDevice);
+	DeviceDependency deviceDependency;
+	deviceDependency.device = targetDevice;
+	deviceDependency.dependencyEnabled = true;
+	deviceDependencies.push_back(deviceDependency);
 
 	//Notify the target device that this device has added it as a dependency
 	targetDevice->AddDependentDevice(this);
@@ -299,10 +308,10 @@ void DeviceContext::AddDeviceDependency(DeviceContext* targetDevice)
 void DeviceContext::RemoveDeviceDependency(DeviceContext* targetDevice)
 {
 	bool done = false;
-	std::vector<DeviceContext*>::iterator i = deviceDependencies.begin();
+	std::vector<DeviceDependency>::iterator i = deviceDependencies.begin();
 	while(!done && (i != deviceDependencies.end()))
 	{
-		if(*i == targetDevice)
+		if(i->device == targetDevice)
 		{
 			//Notify the target device that this device has removed it as a dependency
 			targetDevice->RemoveDependentDevice(this);
@@ -342,7 +351,7 @@ void DeviceContext::RemoveDependentDevice(DeviceContext* targetDevice)
 }
 
 //----------------------------------------------------------------------------------------
-const std::vector<DeviceContext*>& DeviceContext::GetDeviceDependencyArray() const
+const std::vector<DeviceContext::DeviceDependency>& DeviceContext::GetDeviceDependencyArray() const
 {
 	return deviceDependencies;
 }

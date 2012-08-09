@@ -11,9 +11,8 @@ namespace M68000 {
 M68000::M68000(const std::wstring& ainstanceName, unsigned int amoduleID)
 :Processor(L"M68000", ainstanceName, amoduleID), opcodeTable(16), opcodeBuffer(0), memoryBus(0)
 {
-	//Create the menu handler
-	menuHandler = new DebugMenuHandler(this);
-	menuHandler->LoadMenuItems();
+	//Set the default state for our device preferences
+	suspendWhenBusReleased = false;
 
 	//Initialize our CE line state
 	ceLineMaskLowerDataStrobe = 0;
@@ -32,6 +31,10 @@ M68000::M68000(const std::wstring& ainstanceName, unsigned int amoduleID)
 	breakOnAllExceptions = false;
 	disableAllExceptions = false;
 	debugExceptionTriggerPending = false;
+
+	//Create the menu handler
+	menuHandler = new DebugMenuHandler(this);
+	menuHandler->LoadMenuItems();
 }
 
 //----------------------------------------------------------------------------------------
@@ -57,6 +60,18 @@ M68000::~M68000()
 	//Delete the menu handler
 	menuHandler->ClearMenuItems();
 	delete menuHandler;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::Construct(IHeirarchicalStorageNode& node)
+{
+	bool result = Processor::Construct(node);
+	IHeirarchicalStorageAttribute* suspendWhenBusReleasedAttribute = node.GetAttribute(L"SuspendWhenBusReleased");
+	if(suspendWhenBusReleasedAttribute != 0)
+	{
+		suspendWhenBusReleased = suspendWhenBusReleasedAttribute->ExtractValue<bool>();
+	}
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -247,6 +262,7 @@ void M68000::Initialize()
 	blastTimesliceLength = 0;
 	lineAccessBuffer.clear();
 	suspendUntilLineStateChangeReceived = false;
+	manualDeviceAdvanceInProgress = false;
 	resetLineState = false;
 	haltLineState = false;
 	brLineState = false;
@@ -436,6 +452,105 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 }
 
 //----------------------------------------------------------------------------------------
+bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	boost::mutex::scoped_lock lock(lineMutex);
+	bool result = false;
+	if(targetLine == LINE_BG)
+	{
+		bool targetLineState = lineData.GetBit(0);
+		if(bgLineState == targetLineState)
+		{
+			//If the current state of the target line matches the target state, we have
+			//nothing to do.
+			return true;
+		}
+
+		//In order to support non-destructive calls to this function, the only advance
+		//requests we can respond to for the bus grant line are ones where a pending
+		//change to the bus request line is sitting in the buffer, but has yet to be
+		//processed.
+
+		//If we don't have a pending line state change in the buffer to change the bus
+		//request line into the required state, return false.
+		volatile bool targetLineStateChangeApplied = false;
+		bool foundTargetStateChange = false;
+		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
+		while(!foundTargetStateChange && (i != lineAccessBuffer.end()))
+		{
+			if((i->lineID == LINE_BR) && (i->state == targetLineState))
+			{
+				foundTargetStateChange = true;
+				i->appliedFlag = &targetLineStateChangeApplied;
+				i->waitingDevice = caller;
+				i->notifyWhenApplied = true;
+			}
+			++i;
+		}
+		if(!foundTargetStateChange)
+		{
+			return false;
+		}
+
+		//Wait for the target line state change to be processed from the line access
+		//buffer, or the end of the current timeslice to be reached. Note that we
+		//suspend a dependency on the calling device if one is active. This is
+		//essential in order to avoid deadlocks in the case where a dependent device
+		//of this processor is the device that is triggering this advance request. In
+		//this case, it's possible that we'll enter an infinite loop, since both
+		//devices could end up waiting for each other to advance. We solve the issue
+		//here by temporarily suspending the device dependency, until the advance
+		//request has been fulfilled. The execute thread will restore the dependency
+		//itself when the state change is applied. It is essential for the execute
+		//thread to restore the dependency rather than us doing it here, otherwise the
+		//execute thread could possibly advance further ahead without the dependency
+		//being active.
+		GetDeviceContext()->SetDeviceDependencyEnable(caller, false);
+		//##FIX## Using TimesliceExecutionCompleted() here is a temporary workaround for
+		//our step through deadlock. Using this flag here is not thread safe, as it's
+		//possible that the M68000 worker thread hasn't picked up the execute command yet.
+		while(!targetLineStateChangeApplied && !executionReachedEndOfTimeslice && !GetDeviceContext()->TimesliceExecutionCompleted())
+		{
+			advanceToTargetLineStateChanged.wait(lock);
+		}
+
+		//If the processor reached the end of the current timeslice without reaching the
+		//target line state change in the buffer, advance the processor until the target
+		//line state is reached.
+		//##FIX## What about when a line state change occurs, but is reversed
+		//within a short enough time period that it is immediately undone? We need
+		//to make sure the M68000 doesn't actually change the BG line state in
+		//this instance, since it only changes the BR line state when the BG line
+		//state is latched, which if the line changes then changes back again
+		//between bus cycles, it will not be.
+		//##FIX## I don't like this execution model. What about the case where we
+		//have dependent devices? This would allow us to execute out of step with
+		//those devices. In our case though, it's a dependent device of the M68000
+		//which is triggering the advance request indirectly, so that dependent
+		//device can't advance any further. This is getting very complex.
+		if(!targetLineStateChangeApplied)
+		{
+			//Since we're about to call ExecuteStep() manually within the context of this
+			//thread, and ExecuteStep() needs to obtain the line mutex, we need to release
+			//our lock here.
+			lock.unlock();
+
+			manualDeviceAdvanceInProgress = true;
+			double adjustedTimesliceExecutionProgress = GetCurrentTimesliceProgress();
+			while(!targetLineStateChangeApplied && !lineAccessBuffer.empty())
+			{
+				adjustedTimesliceExecutionProgress += ExecuteStep();
+				SetCurrentTimesliceProgress(adjustedTimesliceExecutionProgress);
+			}
+			manualDeviceAdvanceInProgress = false;
+		}
+
+		result = true;
+	}
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
 void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 {
 //##DEBUG##
@@ -458,7 +573,7 @@ void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 			if(bgLineState != brLineState)
 			{
 				bgLineState = brLineState;
-				memoryBus->SetLine(LINE_BG, Data(GetLineWidth(LINE_BG), (unsigned int)bgLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+				memoryBus->SetLineState(LINE_BG, Data(GetLineWidth(LINE_BG), (unsigned int)bgLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 			}
 		}
 		break;}
@@ -489,7 +604,7 @@ void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 	//when we expect those events often to be brief. If the M68000 advances too far ahead,
 	//when the bus is released for example, a rollback would need to be generated. This is
 	//an optimization to try and avoid excessive rollbacks.
-	suspendUntilLineStateChangeReceived = haltLineState || resetLineState || bgLineState;
+	suspendUntilLineStateChangeReceived = suspendWhenBusReleased && (haltLineState || resetLineState || bgLineState);
 }
 
 //----------------------------------------------------------------------------------------
@@ -842,7 +957,7 @@ void M68000::TriggerExceptionFromDebugger(unsigned int vector)
 //----------------------------------------------------------------------------------------
 bool M68000::UsesExecuteSuspend() const
 {
-	return true;
+	return suspendWhenBusReleased;
 }
 
 //----------------------------------------------------------------------------------------
@@ -884,7 +999,20 @@ double M68000::ExecuteStep()
 		{
 			if(i->accessTime <= currentTimesliceProgress)
 			{
+				//Apply the line state change
 				ApplyLineStateChange(i->lineID, i->state);
+
+				//If any threads were waiting for this line state change to be processed,
+				//notify them that the change has now been applied.
+				if(i->notifyWhenApplied)
+				{
+					*(i->appliedFlag) = true;
+					if(i->waitingDevice != 0)
+					{
+						GetDeviceContext()->SetDeviceDependencyEnable(i->waitingDevice, true);
+					}
+					advanceToTargetLineStateChanged.notify_all();
+				}
 				++i;
 			}
 			else
@@ -902,7 +1030,7 @@ double M68000::ExecuteStep()
 	//If no line access is pending, and we've decided to suspend until another line state
 	//change is received, suspend execution waiting for another line state change to be
 	//received, unless execution suspension has now been disabled.
-	if(!lineAccessPending && suspendUntilLineStateChangeReceived && !GetDeviceContext()->TimesliceSuspensionDisabled())
+	if(!lineAccessPending && suspendUntilLineStateChangeReceived && !manualDeviceAdvanceInProgress && !GetDeviceContext()->TimesliceSuspensionDisabled())
 	{
 		//Check lineAccessPending again after taking a lock on lineMutex. This will ensure
 		//we never enter a suspend state when there are actually line access events
@@ -936,10 +1064,8 @@ double M68000::ExecuteStep()
 	}
 
 	//If we don't have the bus or the HALT line is asserted, abort any further processing.
-	if(bgLineState || haltLineState)
+	if(bgLineState || haltLineState || !GetDeviceContext()->DeviceEnabled())
 	{
-		//##TODO## If we don't have the bus, suspend execution until a new line state
-		//change is received, or we reach the end of the current timeslice.
 		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 	}
 
@@ -1091,7 +1217,7 @@ double M68000::ExecuteStep()
 		M68000Word opcode = prefetchedWord;
 		if(!wordIsPrefetched || (prefetchedWordAddress != GetPC()))
 		{
-			ReadMemory(GetPC(), opcode, GetFunctionCode(false), GetPC(), false, 0, false, false);
+			additionalTime += ReadMemory(GetPC(), opcode, GetFunctionCode(false), GetPC(), false, 0, false, false);
 		}
 		wordIsPrefetched = false;
 		const M68000Instruction* nextOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
@@ -1148,7 +1274,7 @@ double M68000::ExecuteStep()
 				//stages, as well as correct prefetch support.
 				wordIsPrefetched = true;
 				prefetchedWordAddress = GetPC() + nextOpcode->GetInstructionSize();
-				ReadMemory(prefetchedWordAddress, prefetchedWord, GetFunctionCode(false), GetPC(), false, 0, false, false);
+				additionalTime += ReadMemory(prefetchedWordAddress, prefetchedWord, GetFunctionCode(false), GetPC(), false, 0, false, false);
 
 				//Execute the instruction
 				ExecuteTime opcodeExecuteTime = nextOpcode->M68000Execute(this, GetPC());
@@ -1310,6 +1436,20 @@ void M68000::NotifyUpcomingTimeslice(double nanoseconds)
 		i->accessTime -= lastTimesliceLength;
 	}
 	lastTimesliceLength = nanoseconds;
+
+	//Since a new timeslice is about to be sent, flag that we haven't yet reached the end
+	//of the timeslice.
+	executionReachedEndOfTimeslice = false;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::NotifyAfterExecuteStepFinishedTimeslice()
+{
+	//If any threads were waiting for notifications about line state changes, wake them
+	//now that we've reached the end of the timeslice.
+	boost::mutex::scoped_lock lock(lineMutex);
+	executionReachedEndOfTimeslice = true;
+	advanceToTargetLineStateChanged.notify_all();
 }
 
 //----------------------------------------------------------------------------------------
@@ -1458,8 +1598,8 @@ unsigned int M68000::DisassemblyGetDataRegisterUnmodifiedSize(unsigned int regNo
 void M68000::TriggerExternalReset(double resetTimeBegin, double resetTimeEnd)
 {
 	//Toggle the external RESET line state, to reset external devices.
-	memoryBus->SetLine(M68000::LINE_RESET, Data(1, 1), GetDeviceContext(), GetDeviceContext(), resetTimeBegin, 0);
-	memoryBus->SetLine(M68000::LINE_RESET, Data(1, 0), GetDeviceContext(), GetDeviceContext(), resetTimeEnd, 0);
+	memoryBus->SetLineState(M68000::LINE_RESET, Data(1, 1), GetDeviceContext(), GetDeviceContext(), resetTimeBegin, 0);
+	memoryBus->SetLineState(M68000::LINE_RESET, Data(1, 0), GetDeviceContext(), GetDeviceContext(), resetTimeEnd, 0);
 }
 
 //----------------------------------------------------------------------------------------

@@ -40,6 +40,7 @@ class DeviceContext :public IDeviceContext
 public:
 	//Structures
 	struct DeviceContextCommand;
+	struct DeviceDependency;
 
 public:
 	//Constructors
@@ -60,6 +61,7 @@ public:
 
 	//Timing functions
 	virtual double GetCurrentTimesliceProgress() const;
+	virtual void SetCurrentTimesliceProgress(double executionProgress);
 	inline double GetNextTimingPoint(unsigned int& accessContext) const;
 	inline double GetCurrentRemainingTime() const;
 	inline double GetInitialRemainingTime() const;
@@ -95,20 +97,21 @@ public:
 	virtual bool TimesliceSuspensionDisabled() const;
 	virtual bool TransientExecutionActive() const;
 	virtual void SetTransientExecutionActive(bool state);
-	bool TimesliceExecutionCompleted() const;
+	virtual bool TimesliceExecutionCompleted() const;
 	void DisableTimesliceExecutionSuspend();
 	void EnableTimesliceExecutionSuspend();
 
 	//Dependent device functions
+	virtual void SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool state);
 	inline void AddDeviceDependency(DeviceContext* targetDevice);
 	inline void RemoveDeviceDependency(DeviceContext* targetDevice);
-	inline const std::vector<DeviceContext*>& GetDeviceDependencyArray() const;
+	inline const std::vector<DeviceDependency>& GetDeviceDependencyArray() const;
 	inline const std::vector<DeviceContext*>& GetDependentDeviceArray() const;
 
 	//Input functions
-	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode);
 	virtual void HandleInputKeyDown(KeyCode keyCode) const;
 	virtual void HandleInputKeyUp(KeyCode keyCode) const;
+	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode);
 
 protected:
 	//System message functions
@@ -142,7 +145,7 @@ private:
 	//Device properties
 	IDevice* device;
 	bool deviceEnabled;
-	std::vector<DeviceContext*> deviceDependencies;
+	std::vector<DeviceDependency> deviceDependencies;
 	std::vector<DeviceContext*> dependentDevices;
 
 	//Command worker thread data

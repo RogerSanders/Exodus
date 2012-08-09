@@ -30,6 +30,7 @@ template<class T> void StringToIntBase10(const std::wstring& string, T& data);
 template<class T> void StringToIntBase8(const std::wstring& string, T& data);
 template<class T> void StringToIntBase2(const std::wstring& string, T& data);
 
+std::vector<std::string> TokenizeString(const std::string& str, const std::string& delim);
 std::vector<std::wstring> TokenizeString(const std::wstring& str, const std::wstring& delim);
 
 #include "DataConversion.inl"

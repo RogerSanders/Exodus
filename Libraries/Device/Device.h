@@ -25,6 +25,7 @@ public:
 	//Device context functions
 	virtual IDeviceContext* GetDeviceContext() const;
 	virtual double GetCurrentTimesliceProgress() const;
+	void SetCurrentTimesliceProgress(double executionProgress);
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const;
@@ -46,6 +47,7 @@ public:
 	virtual void NotifyBeforeExecuteCalled();
 	virtual bool SendNotifyAfterExecuteCalled() const;
 	virtual void NotifyAfterExecuteCalled();
+	virtual void NotifyAfterExecuteStepFinishedTimeslice();
 
 	//Name functions
 	virtual unsigned int GetDeviceModuleID() const;
@@ -83,6 +85,7 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Clock source functions
 	virtual unsigned int GetClockSourceID(const wchar_t* lineName) const;

@@ -2447,7 +2447,7 @@ void BusInterface::TransparentWritePort(unsigned int location, const Data& data,
 //----------------------------------------------------------------------------------------
 //Line interface functions
 //----------------------------------------------------------------------------------------
-bool BusInterface::SetLine(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext)
+bool BusInterface::SetLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext)
 {
 	//##DEBUG##
 //	std::wcout << "SetLineBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
@@ -2455,7 +2455,7 @@ bool BusInterface::SetLine(unsigned int sourceLine, const Data& lineData, IDevic
 	{
 		const LineEntry* lineEntry = &(*i);
 		//##DEBUG##
-//		std::wcout << "SetLine:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
+//		std::wcout << "SetLineState:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
 		if((lineEntry->sourceDevice == sourceDevice->GetTargetDevice()) && (lineEntry->sourceLine == sourceLine))
 		{
 			Data tempData(lineEntry->targetLineBitCount, lineData.GetData());
@@ -2470,4 +2470,33 @@ bool BusInterface::SetLine(unsigned int sourceLine, const Data& lineData, IDevic
 	//##DEBUG##
 //	std::wcout << "SetLineEnd\n";
 	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool BusInterface::AdvanceToLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext)
+{
+	//##DEBUG##
+//	std::wcout << "AdvanceToLineStateBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
+	bool result = true;
+	bool foundTargetDevice = false;
+	for(std::list<LineEntry>::const_iterator i = lineMap.begin(); i != lineMap.end(); ++i)
+	{
+		const LineEntry* lineEntry = &(*i);
+		//##DEBUG##
+//		std::wcout << "SetLineState:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
+		if((lineEntry->targetDevice == sourceDevice->GetTargetDevice()) && (lineEntry->targetLine == sourceLine))
+		{
+			foundTargetDevice = true;
+			Data tempData(lineEntry->targetLineBitCount, lineData.GetData());
+			if(lineEntry->remapLines)
+			{
+				//Remap lines
+				tempData = lineEntry->lineRemapTable.ConvertFrom(lineData.GetData());
+			}
+			result &= lineEntry->sourceDevice->AdvanceToLineState(lineEntry->sourceLine, tempData, callingDevice, accessTime, accessContext);
+		}
+	}
+	//##DEBUG##
+//	std::wcout << "AdvanceToLineStateEnd\n";
+	return foundTargetDevice && result;
 }
