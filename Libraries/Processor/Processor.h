@@ -131,8 +131,8 @@ public:
 	virtual UpdateMethod GetUpdateMethod() const;
 
 	//Control functions
-	unsigned int GetClockSpeed() const;
-	void SetClockSpeed(unsigned int aclockSpeed);
+	double GetClockSpeed() const;
+	void SetClockSpeed(double aclockSpeed);
 	void RestoreClockSpeed();
 	double CalculateExecutionTime(unsigned int cycles) const;
 
@@ -250,8 +250,8 @@ private:
 	DebugMenuHandler* menuHandler;
 
 	//Clock speed
-	unsigned int clockSpeed;
-	unsigned int originalClockSpeed;
+	double clockSpeed;
+	double originalClockSpeed;
 
 	//Breakpoints
 	typedef std::list<Breakpoint*> BreakpointList;

@@ -20,15 +20,26 @@ enum Z80::LineID
 };
 
 //----------------------------------------------------------------------------------------
+enum Z80::ClockID
+{
+	CLOCK_CLK = 1
+};
+
+//----------------------------------------------------------------------------------------
 //Structures
 //----------------------------------------------------------------------------------------
 struct Z80::LineAccess
 {
 	LineAccess(unsigned int alineLD, const Data& astate, double aaccessTime)
-	:lineID(alineLD), state(astate), accessTime(aaccessTime)
+	:lineID(alineLD), state(astate), accessTime(aaccessTime), clockRateChange(false)
+	{}
+	LineAccess(unsigned int alineLD, double aclockRate, double aaccessTime)
+	:lineID(alineLD), state(0, 0), clockRate(aclockRate), accessTime(aaccessTime), clockRateChange(true)
 	{}
 
 	unsigned int lineID;
+	bool clockRateChange;
+	double clockRate;
 	Data state;
 	double accessTime;
 };

@@ -6,7 +6,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 MemoryRead::MemoryEditorView::MemoryEditorView(MemoryRead* adevice)
-:device(adevice), initializedDialog(false), currentControlFocus(0)
+:device(adevice)
 {
 	hwndMem = NULL;
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Memory Editor");

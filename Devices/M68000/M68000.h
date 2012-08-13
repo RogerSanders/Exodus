@@ -148,14 +148,6 @@ public:
 	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
 	virtual bool RemoveReference(IBusInterface* target);
 
-	//Line functions
-	virtual unsigned int GetLineID(const wchar_t* lineName) const;
-	virtual const wchar_t* GetLineName(unsigned int lineID) const;
-	virtual unsigned int GetLineWidth(unsigned int lineID) const;
-	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
-
 	//Exception functions
 	void PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool processingInstruction = true);
 	void PushStackFrame(const M68000Long& apc, const M68000Word& asr, const M68000Word& ainstructionRegister, const M68000Long& aaccessAddress, bool aread, bool aprocessingInstruction, FunctionCode afunctionCode);
@@ -184,6 +176,21 @@ public:
 	virtual unsigned int GetAddressBusWidth() const;
 	virtual unsigned int GetDataBusWidth() const;
 	virtual unsigned int GetMinimumOpcodeByteSize() const;
+
+	//Line functions
+	virtual unsigned int GetLineID(const wchar_t* lineName) const;
+	virtual const wchar_t* GetLineName(unsigned int lineID) const;
+	virtual unsigned int GetLineWidth(unsigned int lineID) const;
+	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
+
+	//Clock source functions
+	virtual unsigned int GetClockSourceID(const wchar_t* clockSourceName) const;
+	virtual const wchar_t* GetClockSourceName(unsigned int clockSourceID) const;
+	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
+	void ApplyClockStateChange(unsigned int targetClock, double clockRate);
 
 	//Disassembly functions
 	bool DisassemblyGetAddressRegisterUnmodified(unsigned int regNo, unsigned int& sourceLocation) const;
@@ -276,6 +283,7 @@ private:
 	//Enumerations
 	enum CELineID;
 	enum LineID;
+	enum ClockID;
 
 	//Structures
 	struct ExceptionDebuggingEntry;

@@ -1,13 +1,19 @@
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
+bool IDevice::AddReference(const std::wstring& referenceName, IDevice* target)
+{
+	return AddReference(referenceName.c_str(), target);
+}
+
+//----------------------------------------------------------------------------------------
 bool IDevice::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
 	return AddReference(referenceName.c_str(), target);
 }
 
 //----------------------------------------------------------------------------------------
-bool IDevice::AddReference(const std::wstring& referenceName, IDevice* target)
+bool IDevice::AddReference(const std::wstring& referenceName, IClockSource* target)
 {
 	return AddReference(referenceName.c_str(), target);
 }

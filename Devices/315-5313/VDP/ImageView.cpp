@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 VDP::ImageView::ImageView(VDP* adevice)
-:device(adevice), initializedDialog(false), currentControlFocus(0)
+:device(adevice)
 {
 	glrc = NULL;
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Image");

@@ -55,7 +55,7 @@ INT_PTR Processor::ControlView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lpa
 INT_PTR Processor::ControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	initializedDialog = true;
-	if(currentControlFocus != IDC_PROCESSOR_CONTROL_CLOCK)	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, device->GetClockSpeed());
+	if(currentControlFocus != IDC_PROCESSOR_CONTROL_CLOCK)	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, (unsigned int)device->GetClockSpeed());
 
 	return TRUE;
 }
@@ -76,7 +76,7 @@ INT_PTR Processor::ControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 			switch(LOWORD(wparam))
 			{
 			case IDC_PROCESSOR_CONTROL_CLOCK:
-				device->SetClockSpeed(GetDlgItemBin(hwnd, LOWORD(wparam)));
+				device->SetClockSpeed((double)GetDlgItemBin(hwnd, LOWORD(wparam)));
 				break;
 			}
 		}
@@ -87,7 +87,7 @@ INT_PTR Processor::ControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 		{
 		case IDC_PROCESSOR_RESTORE_CLOCKSPEED:
 			device->RestoreClockSpeed();
-			UpdateDlgItemBin(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, device->GetClockSpeed());
+			UpdateDlgItemBin(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, (unsigned int)device->GetClockSpeed());
 			break;
 		case IDC_PROCESSOR_CONTROL_ENABLED:
 			device->GetDeviceContext()->SetDeviceEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);

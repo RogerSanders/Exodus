@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include "IBusInterface.h"
+#include "IClockSource.h"
 #include "IMenuSubmenu.h"
 #include "ImageInterface/ImageInterface.pkg"
 class IHeirarchicalStorageNode;
@@ -36,15 +37,15 @@ public:
 	virtual void Initialize() = 0;
 
 	//Reference functions
-	inline bool AddReference(const std::wstring& referenceName, IBusInterface* target);
-	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target) = 0;
 	inline bool AddReference(const std::wstring& referenceName, IDevice* target);
 	virtual bool AddReference(const wchar_t* referenceName, IDevice* target) = 0;
-	//##TODO## Implement these functions as part of the new clock system
-//	inline bool AddReference(const std::wstring& referenceName, IClockSource* target);
-//	virtual bool AddReference(const wchar_t* referenceName, IClockSource* target) = 0;
-	virtual bool RemoveReference(IBusInterface* target) = 0;
+	inline bool AddReference(const std::wstring& referenceName, IBusInterface* target);
+	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target) = 0;
+	inline bool AddReference(const std::wstring& referenceName, IClockSource* target);
+	virtual bool AddReference(const wchar_t* referenceName, IClockSource* target) = 0;
 	virtual bool RemoveReference(IDevice* target) = 0;
+	virtual bool RemoveReference(IBusInterface* target) = 0;
+	virtual bool RemoveReference(IClockSource* target) = 0;
 
 	//Device context functions
 	virtual IDeviceContext* GetDeviceContext() const = 0;
@@ -117,22 +118,11 @@ public:
 	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 
 	//Clock source functions
-	//##FIX## The devices need a way to detect, and validate, that a clock source has been
-	//mapped. I would suggest that since 0 is an invalid clock rate, initialize clock
-	//sources to 0 internally in each device, and if a required clock rate is 0, fail
-	//validation.
-	//##FIX## Devices need to be able to programmatically alter clock sources during
-	//execution. This requires an actual interface back to the clock source. Should this
-	//be done through the BusInterface, or directly via a reference to the clock source? I
-	//would suggest it should be done by a reference to the clock source. Lines only go
-	//through the bus because a single line may be mapped to multiple devices. We still
-	//need the kind of interface shown below for propagating clock source rate changes
-	//however, since in this case the clock source needs to be able to notify its
-	//subscribers of changes to the clock rate.
-	inline unsigned int GetClockSourceID(const std::wstring& lineName) const;
-	virtual unsigned int GetClockSourceID(const wchar_t* lineName) const = 0;
-	virtual const wchar_t* GetClockSourceName(unsigned int lineID) const = 0;
-	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime) = 0;
+	inline unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
+	virtual unsigned int GetClockSourceID(const wchar_t* clockSourceName) const = 0;
+	virtual const wchar_t* GetClockSourceName(unsigned int clockSourceID) const = 0;
+	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
+	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate) = 0;
 
 	//Input functions
 	inline unsigned int GetKeyCodeID(const std::wstring& keyCodeName) const;

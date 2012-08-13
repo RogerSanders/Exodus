@@ -402,10 +402,10 @@ public:
 	virtual void SuspendExecution();
 
 	//Reference functions
-	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
 	virtual bool AddReference(const wchar_t* referenceName, IDevice* target);
-	virtual bool RemoveReference(IBusInterface* target);
+	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
 	virtual bool RemoveReference(IDevice* target);
+	virtual bool RemoveReference(IBusInterface* target);
 
 	//Execute functions
 	virtual UpdateMethod GetUpdateMethod() const;

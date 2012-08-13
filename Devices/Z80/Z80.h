@@ -74,6 +74,13 @@ public:
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
 
+	//Clock source functions
+	virtual unsigned int GetClockSourceID(const wchar_t* clockSourceName) const;
+	virtual const wchar_t* GetClockSourceName(unsigned int clockSourceID) const;
+	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
+	void ApplyClockStateChange(unsigned int targetClock, double clockRate);
+
 	//Instruction functions
 	virtual double ExecuteStep();
 	virtual OpcodeInfo GetOpcodeInfo(unsigned int location);
@@ -247,6 +254,7 @@ private:
 	//Enumerations
 	enum CELineID;
 	enum LineID;
+	enum ClockID;
 
 	//Structures
 	struct LineAccess;

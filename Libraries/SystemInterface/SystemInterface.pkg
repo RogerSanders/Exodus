@@ -41,6 +41,7 @@
 #include "InterfaceVersion.h"
 #include "Data.h"
 #include "IBusInterface.h"
+#include "IClockSource.h"
 #include "IDevice.h"
 #include "IDeviceContext.h"
 #include "IDeviceInfo.h"

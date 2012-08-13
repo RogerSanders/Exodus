@@ -234,6 +234,8 @@ INT_PTR YM2612::DebuggerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM 
 
 	SetTimer(hwnd, 1, 100, NULL);
 
+	initializedDialog = true;
+
 	return TRUE;
 }
 

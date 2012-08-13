@@ -67,6 +67,8 @@ INT_PTR MemoryRead::MemoryViewerOldView::msgWM_INITDIALOG(HWND hwnd, WPARAM wpar
 
 	SetTimer(hwnd, 1, 500, NULL);
 
+	initializedDialog = true;
+
 	return TRUE;
 }
 

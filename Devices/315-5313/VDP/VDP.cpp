@@ -219,21 +219,6 @@ void VDP::SuspendExecution()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool VDP::AddReference(const wchar_t* referenceName, IBusInterface* target)
-{
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
-	{
-		memoryBus = target;
-	}
-	else
-	{
-		return false;
-	}
-	return true;
-}
-
-//----------------------------------------------------------------------------------------
 bool VDP::AddReference(const wchar_t* referenceName, IDevice* target)
 {
 	std::wstring referenceNameString = referenceName;
@@ -257,11 +242,12 @@ bool VDP::AddReference(const wchar_t* referenceName, IDevice* target)
 }
 
 //----------------------------------------------------------------------------------------
-bool VDP::RemoveReference(IBusInterface* target)
+bool VDP::AddReference(const wchar_t* referenceName, IBusInterface* target)
 {
-	if(memoryBus == target)
+	std::wstring referenceNameString = referenceName;
+	if(referenceNameString == L"BusInterface")
 	{
-		memoryBus = 0;
+		memoryBus = target;
 	}
 	else
 	{
@@ -284,6 +270,20 @@ bool VDP::RemoveReference(IDevice* target)
 	else if(vsram == target)
 	{
 		vsram = 0;
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool VDP::RemoveReference(IBusInterface* target)
+{
+	if(memoryBus == target)
+	{
+		memoryBus = 0;
 	}
 	else
 	{

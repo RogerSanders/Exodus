@@ -51,6 +51,8 @@ INT_PTR Processor::DisassemblyOldView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam
 	UpdateDisassembly(location, size, hwnd, pcToListIndex);
 	SetTimer(hwnd, 1, 200, NULL);
 
+	initializedDialog = true;
+
 	return TRUE;
 }
 

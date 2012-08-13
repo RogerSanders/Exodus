@@ -142,10 +142,6 @@ private:
 
 private:
 	S315_5313* device;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-
 	HGLRC glrc;
 	bool shadow;
 	bool highlight;

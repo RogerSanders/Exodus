@@ -917,7 +917,7 @@ void System::SetCapturePath(const std::wstring& apath)
 }
 
 //----------------------------------------------------------------------------------------
-//Loaded device and bus interface functions
+//Loaded entity functions
 //----------------------------------------------------------------------------------------
 IDevice* System::GetDevice(unsigned int moduleID, const std::wstring& deviceName) const
 {
@@ -953,6 +953,26 @@ BusInterface* System::GetBusInterface(unsigned int moduleID, const std::wstring&
 		if((i->importingModuleID == moduleID) && (i->importingModuleBusInterfaceName == busInterfaceName))
 		{
 			return i->busInterface;
+		}
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+ClockSource* System::GetClockSource(unsigned int moduleID, const std::wstring& clockSourceName) const
+{
+	for(ClockSourceList::const_iterator i = clockSources.begin(); i != clockSources.end(); ++i)
+	{
+		if((i->moduleID == moduleID) && (i->name == clockSourceName))
+		{
+			return i->clockSource;
+		}
+	}
+	for(ImportedClockSourceList::const_iterator i = importedClockSources.begin(); i != importedClockSources.end(); ++i)
+	{
+		if((i->importingModuleID == moduleID) && (i->importingModuleClockSourceName == clockSourceName))
+		{
+			return i->clockSource;
 		}
 	}
 	return 0;
@@ -1753,13 +1773,17 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		{
 			loadedWithoutErrors &= LoadModule_Device_SetDependentDevice(*(*i), moduleInfo.moduleID);
 		}
+		else if(elementName == L"Device.ReferenceDevice")
+		{
+			loadedWithoutErrors &= LoadModule_Device_ReferenceDevice(*(*i), moduleInfo.moduleID);
+		}
 		else if(elementName == L"Device.ReferenceBus")
 		{
 			loadedWithoutErrors &= LoadModule_Device_ReferenceBus(*(*i), moduleInfo.moduleID);
 		}
-		else if(elementName == L"Device.ReferenceDevice")
+		else if(elementName == L"Device.ReferenceClockSource")
 		{
-			loadedWithoutErrors &= LoadModule_Device_ReferenceDevice(*(*i), moduleInfo.moduleID);
+			loadedWithoutErrors &= LoadModule_Device_ReferenceClockSource(*(*i), moduleInfo.moduleID);
 		}
 		else if(elementName == L"Device.RegisterInput")
 		{
@@ -1809,6 +1833,18 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		{
 			loadedWithoutErrors &= LoadModule_BusInterface_MapLine(*(*i), moduleInfo.moduleID, lineGroupNameToIDMap);
 		}
+		else if(elementName == L"BusInterface.MapClockSource")
+		{
+			loadedWithoutErrors &= LoadModule_BusInterface_MapClockSource(*(*i), moduleInfo.moduleID);
+		}
+		else if(elementName == L"ClockSource")
+		{
+			loadedWithoutErrors &= LoadModule_ClockSource(*(*i), moduleInfo.moduleID);
+		}
+		else if(elementName == L"ClockSource.SetInputClockSource")
+		{
+			loadedWithoutErrors &= LoadModule_ClockSource_SetInputClockSource(*(*i), moduleInfo.moduleID);
+		}
 		else if(elementName == L"System.OpenViewModel")
 		{
 			//Note that we don't process view model open requests immediately when they
@@ -1830,6 +1866,10 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		{
 			loadedWithoutErrors &= LoadModule_System_ExportBusInterface(*(*i), moduleInfo.moduleID, connectorNameToIDMap, lineGroupNameToIDMap);
 		}
+		else if(elementName == L"System.ExportClockSource")
+		{
+			loadedWithoutErrors &= LoadModule_System_ExportClockSource(*(*i), moduleInfo.moduleID, connectorNameToIDMap);
+		}
 		else if(elementName == L"System.ImportConnector")
 		{
 			//Note that we actually need to explicitly instruct the system on every
@@ -1845,6 +1885,10 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		else if(elementName == L"System.ImportBusInterface")
 		{
 			loadedWithoutErrors &= LoadModule_System_ImportBusInterface(*(*i), moduleInfo.moduleID, connectorNameToIDMap, lineGroupNameToIDMap);
+		}
+		else if(elementName == L"System.ImportClockSource")
+		{
+			loadedWithoutErrors &= LoadModule_System_ImportClockSource(*(*i), moduleInfo.moduleID, connectorNameToIDMap);
 		}
 		else
 		{
@@ -1899,6 +1943,21 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		}
 	}
 
+	//Explicitly initialize all devices we just loaded
+	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
+	{
+		if(i->moduleID == moduleInfo.moduleID)
+		{
+			i->deviceContext->Initialize();
+		}
+	}
+
+	//Ensure the initial clock states are set for all devices
+	for(ClockSourceList::const_iterator i = clockSources.begin(); i != clockSources.end(); ++i)
+	{
+		i->clockSource->PublishEffectiveClockFrequency();
+	}
+
 	//Perform any additional construction tasks the devices within the system require
 	if(!ValidateSystem())
 	{
@@ -1918,15 +1977,6 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 
 	//Log the event
 	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Loaded module from file " + fileName + L"."));
-
-	//Explicitly initialize all devices we just loaded
-	for(LoadedDeviceInfoList::iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
-	{
-		if(i->moduleID == moduleInfo.moduleID)
-		{
-			i->deviceContext->Initialize();
-		}
-	}
 
 	//Process any view model open requests we encountered during the system load
 	LoadModule_ProcessViewModelQueue(moduleInfo.moduleID, viewModelOpenRequests, aviewModelLauncher);
@@ -1994,6 +2044,39 @@ bool System::UnloadModule(unsigned int moduleID)
 		}
 	}
 
+	//Remove any clock sources which belong to the module
+	ClockSourceList::iterator nextclockSourceEntry = clockSources.begin();
+	while(nextclockSourceEntry != clockSources.end())
+	{
+		ClockSourceList::iterator currentElement = nextclockSourceEntry;
+		++nextclockSourceEntry;
+		if(currentElement->moduleID == moduleID)
+		{
+			//Remove any references to this clock source, IE, through
+			//ReferenceClockSource.
+			for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
+			{
+				i->device->RemoveReference(currentElement->clockSource);
+			}
+
+			//If this clock source receives an input from another clock source, remove
+			//this clock source as a dependent clock source of the parent.
+			ClockSource* inputClockSource = currentElement->clockSource->GetInputClockSource();
+			if(inputClockSource != 0)
+			{
+				inputClockSource->RemoveDependentClockSource(currentElement->clockSource);
+			}
+
+			//Remove any input references other clock sources may have on this clock
+			//source
+			currentElement->clockSource->RemoveAllDependentClockSources();
+
+			//Delete the clock source
+			delete currentElement->clockSource;
+			clockSources.erase(currentElement);
+		}
+	}
+
 	//Remove any bus interfaces which belong to the module
 	BusInterfaceList::iterator nextBusInterfaceEntry = busInterfaces.begin();
 	while(nextBusInterfaceEntry != busInterfaces.end())
@@ -2033,6 +2116,19 @@ bool System::UnloadModule(unsigned int moduleID)
 			//Delete the device
 			UnloadDevice(currentElement->device);
 			loadedDeviceInfoList.erase(currentElement);
+		}
+	}
+
+	//Remove any clock source import entries which belong to the module
+	ImportedClockSourceList::iterator nextImportedClockSourceEntry = importedClockSources.begin();
+	while(nextImportedClockSourceEntry != importedClockSources.end())
+	{
+		ImportedClockSourceList::iterator currentElement = nextImportedClockSourceEntry;
+		++nextImportedClockSourceEntry;
+		if(currentElement->importingModuleID == moduleID)
+		{
+			//Delete this clock source import entry
+			importedClockSources.erase(currentElement);
 		}
 	}
 
@@ -2222,6 +2318,41 @@ bool System::LoadModule_Device_SetDependentDevice(IHeirarchicalStorageNode& node
 }
 
 //----------------------------------------------------------------------------------------
+bool System::LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID)
+{
+	//Load the device names, and reference name.
+	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHeirarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
+	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	if((deviceInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing source or target device instance name, or reference name, for Device.ReferenceDevice!"));
+		return false;
+	}
+	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
+	std::wstring targetName = targetInstanceNameAttribute->GetValue();
+	std::wstring referenceName = referenceNameAttribute->GetValue();
+
+	//Retrieve the specified devices from the system
+	IDevice* device = GetDevice(moduleID, deviceName);
+	IDevice* target = GetDevice(moduleID, targetName);
+	if((device == 0) || (target == 0))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate source device with name " + deviceName + L" or target device with name " + targetName + L" for Device.ReferenceDevice!"));
+		return false;
+	}
+
+	//Add the specified device reference to the device
+	if(!device->AddReference(referenceName, target))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceDevice failed for reference from " + deviceName + L" to " + targetName + L"!"));
+		return false;
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 bool System::LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the BusInterfaceName attribute
@@ -2273,34 +2404,41 @@ bool System::LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsi
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the device names, and reference name.
+	//Load the clock source name, device name, and reference name.
 	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
+	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
 	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
-	if((deviceInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
+	if((deviceInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing source or target device instance name, or reference name, for Device.ReferenceDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing device instance name, clock source name, or reference name, for Device.ReferenceClockSource!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
-	std::wstring targetName = targetInstanceNameAttribute->GetValue();
+	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
-	//Retrieve the specified devices from the system
+	//Retrieve the specified device from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
-	IDevice* target = GetDevice(moduleID, targetName);
-	if((device == 0) || (target == 0))
+	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate source device with name " + deviceName + L" or target device with name " + targetName + L" for Device.ReferenceDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for Device.ReferenceClockSource!"));
 		return false;
 	}
 
-	//Add the specified device reference to the device
-	if(!device->AddReference(referenceName, target))
+	//Retrieve the specified clock source from the system
+	IClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
+	if(clockSource == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceDevice failed for reference from " + targetName + L" to " + deviceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for Device.ReferenceClockSource!"));
+		return false;
+	}
+
+	//Add the specified clock source reference to the device
+	if(!device->AddReference(referenceName, clockSource))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceClockSource failed for reference from " + deviceName + L" to " + clockSourceName + L"!"));
 		return false;
 	}
 
@@ -2964,6 +3102,165 @@ bool System::LoadModule_BusInterface_MapLine(IHeirarchicalStorageNode& node, uns
 }
 
 //----------------------------------------------------------------------------------------
+bool System::LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID)
+{
+	//Extract the BusInterfaceName attribute
+	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	if(busInterfaceNameAttribute == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.MapClockSource!"));
+		return false;
+	}
+	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
+
+	//Retrieve the referenced bus interface
+	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
+	if(busInterface == 0)
+	{
+		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System");
+		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << moduleID << L" for BusInterface.MapClockSource!";
+		WriteLogEvent(logEntry);
+		return false;
+	}
+
+	//Extract the ClockSourceName attribute
+	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
+	if(clockSourceNameAttribute == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No ClockSourceName attribute specified for BusInterface.MapClockSource!"));
+		return false;
+	}
+	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
+
+	//Retrieve the referenced clock source
+	ClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
+	if(clockSource == 0)
+	{
+		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System");
+		logEntry << L"Could not locate clock source with name " << clockSourceName << L" in module " << moduleID << L" for BusInterface.MapClockSource!";
+		WriteLogEvent(logEntry);
+		return false;
+	}
+
+	//Load the device name
+	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	if(deviceInstanceNameAttribute == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapClockSource!"));
+		return false;
+	}
+	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
+
+	//Retrieve the device object from the system
+	IDevice* device = GetDevice(moduleID, deviceName);
+	if(device == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapClockSource!"));
+		return false;
+	}
+
+	//Add the bus interface mapping
+	if(!busInterface->MapClockSource(clockSource, device, node))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapClockSource failed when mapping clock source with name " + clockSourceName + L" to device with name " + deviceName + L" on bus " + busInterfaceName + L"!"));
+		return false;
+	}
+
+	//Add a reference to the target bus interface to the clock source
+	clockSource->AddReference(busInterface);
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::LoadModule_ClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID)
+{
+	//Load the clock source name
+	IHeirarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
+	if(nameAttribute == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing name for ClockSource!"));
+		return false;
+	}
+	std::wstring clockSourceName = nameAttribute->GetValue();
+
+	//Ensure a clock source object with the specified name doesn't already exist in the
+	//system
+	for(ClockSourceList::const_iterator i = clockSources.begin(); i != clockSources.end(); ++i)
+	{
+		const LoadedClockSourceInfo& clockSourceInfo = *i;
+		if((clockSourceInfo.moduleID == moduleID) && (clockSourceInfo.name == clockSourceName))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"ClockSource with name of " + clockSourceName + L" already exists!"));
+			return false;
+		}
+	}
+
+	//Create and construct a new clock source object
+	ClockSource* clockSource = new ClockSource();
+	if(!clockSource->Construct(node))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Construct failed for ClockSource " + clockSourceName + L"!"));
+		delete clockSource;
+		return false;
+	}
+
+	//Add the clock source object to the system
+	LoadedClockSourceInfo clockSourceInfo;
+	clockSourceInfo.clockSource = clockSource;
+	clockSourceInfo.moduleID = moduleID;
+	clockSourceInfo.name = clockSourceName;
+	clockSources.push_back(clockSourceInfo);
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::LoadModule_ClockSource_SetInputClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID)
+{
+	//Load the source clock source name
+	IHeirarchicalStorageAttribute* inputClockSourceNameAttribute = node.GetAttribute(L"InputClockSourceName");
+	if(inputClockSourceNameAttribute == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing name for input ClockSource!"));
+		return false;
+	}
+	std::wstring inputClockSourceName = inputClockSourceNameAttribute->GetValue();
+
+	//Load the target clock source name
+	IHeirarchicalStorageAttribute* targetClockSourceNameAttribute = node.GetAttribute(L"TargetClockSourceName");
+	if(targetClockSourceNameAttribute == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing name for target ClockSource!"));
+		return false;
+	}
+	std::wstring targetClockSourceName = targetClockSourceNameAttribute->GetValue();
+
+	//Retrieve the referenced input clock source object
+	ClockSource* inputClockSource = GetClockSource(moduleID, inputClockSourceName);
+	if(inputClockSource == 0)
+	{
+		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System");
+		logEntry << L"Could not locate clock source with name " << inputClockSourceName << L" in module " << moduleID << L" for ClockSource.SetInputClockSource!";
+		WriteLogEvent(logEntry);
+		return false;
+	}
+
+	//Retrieve the referenced target clock source object
+	ClockSource* targetClockSource = GetClockSource(moduleID, targetClockSourceName);
+	if(targetClockSource == 0)
+	{
+		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System");
+		logEntry << L"Could not locate clock source with name " << targetClockSourceName << L" in module " << moduleID << L" for ClockSource.SetInputClockSource!";
+		WriteLogEvent(logEntry);
+		return false;
+	}
+
+	//Attempt to add the target clock source as a dependent clock source of the input
+	return inputClockSource->AddDependentClockSource(targetClockSource);
+}
+
+//----------------------------------------------------------------------------------------
 bool System::LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<ViewModelOpenRequest>& viewModelOpenRequests)
 {
 	//Extract the Owner, MenuHandlerName, and ViewID attributes
@@ -3217,6 +3514,59 @@ bool System::LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node
 }
 
 //----------------------------------------------------------------------------------------
+bool System::LoadModule_System_ExportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+{
+	//Extract the ConnectorInstanceName, ClockSourceName, and ImportName attributes
+	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
+	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	if((connectorInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (importNameAttribute == 0))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ExportClockSource!"));
+		return false;
+	}
+	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
+	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
+	std::wstring importName = importNameAttribute->GetValue();
+
+	//Retrieve the referenced clock source
+	ClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
+	if(clockSource == 0)
+	{
+		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System");
+		logEntry << L"Could not locate clock source with name " << clockSourceName << L" in module " << moduleID << L" for System.ExportClockSource!";
+		WriteLogEvent(logEntry);
+		return false;
+	}
+
+	//Retrieve the connector ID for the referenced connector
+	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
+	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportClockSource!"));
+		return false;
+	}
+
+	//Retrieve the details for the referenced connector
+	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorNameToIDMapIterator->second);
+	if(connectorDetailsIterator == connectorDetailsMap.end())
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportClockSource!"));
+		return false;
+	}
+	ConnectorDetails& connectorDetails = connectorDetailsIterator->second;
+
+	//Add details of this exported object to the connector details
+	ExportedClockSourceInfo exportedClockSourceInfo;
+	exportedClockSourceInfo.clockSource = clockSource;
+	exportedClockSourceInfo.exportingModuleClockSourceName = clockSourceName;
+	exportedClockSourceInfo.importName = importName;
+	connectorDetails.exportedClockSourceInfo.insert(std::pair<std::wstring, ExportedClockSourceInfo>(exportedClockSourceInfo.importName, exportedClockSourceInfo));
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 bool System::LoadModule_System_ImportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, const ConnectorMappingList& connectorMappings, NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorClassName and ConnectorInstanceName attributes
@@ -3461,6 +3811,62 @@ bool System::LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node
 }
 
 //----------------------------------------------------------------------------------------
+bool System::LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+{
+	//Extract the ConnectorInstanceName, ClockSourceName, and ImportName attributes
+	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
+	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	if((connectorInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (importNameAttribute == 0))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ImportClockSource!"));
+		return false;
+	}
+	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
+	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
+	std::wstring importName = importNameAttribute->GetValue();
+
+	//Retrieve the connector ID for the referenced connector
+	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
+	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportClockSource!"));
+		return false;
+	}
+	unsigned int connectorID = connectorNameToIDMapIterator->second;
+
+	//Retrieve the details for the referenced connector
+	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorID);
+	if(connectorDetailsIterator == connectorDetailsMap.end())
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportClockSource!"));
+		return false;
+	}
+	const ConnectorDetails& connectorDetails = connectorDetailsIterator->second;
+
+	//Retrieve the details of the target exported clock source
+	std::map<std::wstring, ExportedClockSourceInfo>::const_iterator exportedClockSourceInfoIterator = connectorDetails.exportedClockSourceInfo.find(importName);
+	if(exportedClockSourceInfoIterator == connectorDetails.exportedClockSourceInfo.end())
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find exported clock source with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportClockSource!"));
+		return false;
+	}
+	const ExportedClockSourceInfo& exportedClockSourceInfo = exportedClockSourceInfoIterator->second;
+
+	//Record details of this imported object
+	ImportedClockSourceInfo importedClockSourceInfo;
+	importedClockSourceInfo.clockSource = exportedClockSourceInfo.clockSource;
+	importedClockSourceInfo.exportingModuleClockSourceName = exportedClockSourceInfo.exportingModuleClockSourceName;
+	importedClockSourceInfo.importName = exportedClockSourceInfo.importName;
+	importedClockSourceInfo.importingModuleID = moduleID;
+	importedClockSourceInfo.importingModuleClockSourceName = clockSourceName;
+	importedClockSourceInfo.connectorID = connectorID;
+	importedClockSources.push_back(importedClockSourceInfo);
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 bool System::LoadModule_ProcessViewModelQueue(unsigned int moduleID, const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher)
 {
 	//Process each view model open request
@@ -3514,6 +3920,13 @@ void System::UnloadAllModules()
 
 	//Remove all connector details
 	connectorDetailsMap.clear();
+
+	//Remove all clock sources
+	for(ClockSourceList::iterator i = clockSources.begin(); i != clockSources.end(); ++i)
+	{
+		delete (i->clockSource);
+	}
+	clockSources.clear();
 
 	//Remove all bus interfaces
 	for(BusInterfaceList::iterator i = busInterfaces.begin(); i != busInterfaces.end(); ++i)

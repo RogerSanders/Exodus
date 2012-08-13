@@ -643,6 +643,85 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 }
 
 //----------------------------------------------------------------------------------------
+//Clock source functions
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetClockSourceID(const wchar_t* clockSourceName) const
+{
+	std::wstring lineNameString = clockSourceName;
+	if(lineNameString == L"CLK")
+	{
+		return CLOCK_CLK;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* Z80::GetClockSourceName(unsigned int clockSourceID) const
+{
+	switch(clockSourceID)
+	{
+	case CLOCK_CLK:
+		return L"CLK";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	//We push clock rate changes through the normal line state change tracking system
+	//here, since line state changes and clock changes are basically the same problem.
+	boost::mutex::scoped_lock lock(lineMutex);
+
+	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
+	//locking operation in the active thread for this device when no line changes are
+	//pending. Note that we set this flag before we've actually written the entry into
+	//the buffer, as we want to force the active thread to lock on the beginning of the
+	//next cycle while this function is executing, so that the current timeslice progress
+	//of the device doesn't change after we've read it.
+	lineAccessPending = true;
+
+	//Read the time at which this access is being made, and trigger a rollback if we've
+	//already passed that time.
+	if(lastLineCheckTime > accessTime)
+	{
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	}
+
+	//Insert the line access into the buffer. Note that entries in the buffer are sorted
+	//by access time from lowest to highest.
+	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
+	while((i != lineAccessBuffer.rend()) && (i->accessTime > accessTime))
+	{
+		++i;
+	}
+	lineAccessBuffer.insert(i.base(), LineAccess(clockInput, clockRate, accessTime));
+
+	//Resume the main execution thread if it is currently suspended waiting for a line
+	//state change to be received.
+	if(suspendUntilLineStateChangeReceived)
+	{
+		GetDeviceContext()->ResumeTimesliceExecution();
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
+{
+	ApplyClockStateChange(clockInput, clockRate);
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::ApplyClockStateChange(unsigned int targetClock, double clockRate)
+{
+	//Apply the input clock rate change
+	if(targetClock == CLOCK_CLK)
+	{
+		SetClockSpeed(clockRate);
+	}
+}
+
+//----------------------------------------------------------------------------------------
 //Instruction functions
 //----------------------------------------------------------------------------------------
 double Z80::ExecuteStep()
@@ -672,7 +751,16 @@ double Z80::ExecuteStep()
 				//GetDeviceContext()->WriteLogEvent(logEntry);
 //				std::wcout << "Z80 Line state change: " << std::setprecision(16) << i->accessTime << '\t' << currentTimesliceProgress << '\n';
 
-				ApplyLineStateChange(i->lineID, i->state);
+				//Apply the line state change
+				if(i->clockRateChange)
+				{
+					ApplyClockStateChange(i->lineID, i->clockRate);
+				}
+				else
+				{
+					ApplyLineStateChange(i->lineID, i->state);
+				}
+
 				++i;
 			}
 			else

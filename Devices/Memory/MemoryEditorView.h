@@ -29,10 +29,6 @@ private:
 	static const long long HEXEDITCONTROL = 100;
 
 	MemoryRead* device;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-
 	HWND hwndMem;
 };
 
