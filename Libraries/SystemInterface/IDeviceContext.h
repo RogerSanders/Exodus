@@ -9,6 +9,7 @@ public:
 	//Enumerations
 	enum KeyCode;
 
+public:
 	//Constructors
 	virtual ~IDeviceContext() = 0 {}
 

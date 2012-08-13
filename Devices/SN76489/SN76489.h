@@ -61,7 +61,14 @@ public:
 
 	//Initialization functions
 	virtual bool BuildDevice();
+	virtual bool ValidateDevice();
 	virtual void Initialize();
+
+	//Clock source functions
+	virtual unsigned int GetClockSourceID(const wchar_t* clockSourceName) const;
+	virtual const wchar_t* GetClockSourceName(unsigned int clockSourceID) const;
+	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 
 	//Execute functions
 	virtual void BeginExecution();
@@ -87,6 +94,7 @@ public:
 
 private:
 	//Enumerations
+	enum ClockID;
 	enum LockedRegisterKey;
 	enum DebugWindow;
 

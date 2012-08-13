@@ -166,6 +166,8 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	vsram = 0;
 	spriteCache = 0;
 	psg = 0;
+	clockSourceCLK0 = 0;
+	clockSourceCLK1 = 0;
 
 	//Initialize our CE line state
 	ceLineMaskLowerDataStrobeInput = 0;
@@ -387,6 +389,54 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 }
 
 //----------------------------------------------------------------------------------------
+//Clock source functions
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::GetClockSourceID(const wchar_t* clockSourceName) const
+{
+	std::wstring lineNameString = clockSourceName;
+	if(lineNameString == L"MCLK")
+	{
+		return CLOCK_MCLK;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* S315_5313::GetClockSourceName(unsigned int clockSourceID) const
+{
+	switch(clockSourceID)
+	{
+	case CLOCK_MCLK:
+		return L"MCLK";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	//Apply the input clock rate change
+	if(clockInput == CLOCK_MCLK)
+	{
+		clockMclkCurrent = clockRate;
+	}
+
+	//Since a clock rate change will affect our timing point calculations, trigger a
+	//rollback.
+	GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
+{
+	//Apply the input clock rate change
+	if(clockInput == CLOCK_MCLK)
+	{
+		clockMclkCurrent = clockRate;
+	}
+}
+
+//----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
 bool S315_5313::BuildDevice()
@@ -436,59 +486,84 @@ void S315_5313::Initialize()
 	reg.Initialize();
 	Reset();
 
+	//Initialize the default external clock divider settings
+	//##TODO## Make the clock dividers configurable through the VDP debugger
+	const unsigned int initialClockDividerCLK0 = 15;
+	const unsigned int initialClockDividerCLK1 = 7;
+	if(clockSourceCLK0 != 0)
+	{
+		clockSourceCLK0->TransparentSetClockDivider((double)initialClockDividerCLK0);
+	}
+	if(clockSourceCLK1 != 0)
+	{
+		clockSourceCLK1->TransparentSetClockDivider((double)initialClockDividerCLK1);
+	}
+
 	//Note that further testing has also shown that the VRAM is NOT initialized to all 0.
 	//It appears the VRAM is initialized with a logical, repeating pattern, but further
 	//tests must be carried out to determine what this pattern is. I would suggest reading
 	//the entire contents of VRAM, CRAM, and VSRAM back into RAM for analysis.
 	//##TODO## Confirm the default pattern for the VRAM
-	vram->Initialize();
-	for(unsigned int i = 0; i < vramSize; i += 2)
+	if(vram != 0)
 	{
-		//##FIX## This is just a random value, not what the system actually has.
-//		vram->WriteLatest(i, 0xDE);
-//		vram->WriteLatest(i+1, 0xAD);
-		//##FIX## Reverted to just zero-filling VRAM, due to some test roms which don't
-		//correctly initialize used VRAM areas. Perform some hardware tests to determine
-		//an appropriate fill pattern for VRAM.
-		vram->WriteLatest(i, 0x00);
-		vram->WriteLatest(i+1, 0x00);
+		vram->Initialize();
+		for(unsigned int i = 0; i < vramSize; i += 2)
+		{
+			//##FIX## This is just a random value, not what the system actually has.
+			//		vram->WriteLatest(i, 0xDE);
+			//		vram->WriteLatest(i+1, 0xAD);
+			//##FIX## Reverted to just zero-filling VRAM, due to some test roms which
+			//don't correctly initialize used VRAM areas. Perform some hardware tests to
+			//determine an appropriate fill pattern for VRAM.
+			vram->WriteLatest(i, 0x00);
+			vram->WriteLatest(i+1, 0x00);
+		}
 	}
 
 	//The CRAM is initialized to 0x0EEE in all slots, except for the second entry in the
 	//second palette line, which is initialized to 0x0CEE. This means byte 0x22 in the
 	//CRAM is 0x0C instead of 0x0E.
 	//##TODO## Confirm the default pattern for the CRAM
-	cram->Initialize();
-	for(unsigned int i = 0; i < cramSize; i += 2)
+	if(cram != 0)
 	{
-		cram->WriteLatest(i, 0x0E);
-		cram->WriteLatest(i+1, 0xEE);
+		cram->Initialize();
+		for(unsigned int i = 0; i < cramSize; i += 2)
+		{
+			cram->WriteLatest(i, 0x0E);
+			cram->WriteLatest(i+1, 0xEE);
+		}
+		cram->WriteLatest(0x22, 0x0C);
+		cram->WriteLatest(0x23, 0xEE);
 	}
-	cram->WriteLatest(0x22, 0x0C);
-	cram->WriteLatest(0x23, 0xEE);
 
 	//The VSRAM is initialized to 0x07FF, except for the entry at 0x00, which is 0x07DF,
 	//and the entry at 0x22, which is 0x07FB.
 	//##TODO## Confirm the default pattern for the VSRAM
-	vsram->Initialize();
-	for(unsigned int i = 0; i < vsramSize; i += 2)
+	if(vsram != 0)
 	{
-		vsram->WriteLatest(i, 0x07);
-		vsram->WriteLatest(i+1, 0xFF);
+		vsram->Initialize();
+		for(unsigned int i = 0; i < vsramSize; i += 2)
+		{
+			vsram->WriteLatest(i, 0x07);
+			vsram->WriteLatest(i+1, 0xFF);
+		}
+		vsram->WriteLatest(0x00, 0x07);
+		vsram->WriteLatest(0x01, 0xDF);
+		vsram->WriteLatest(0x22, 0x07);
+		vsram->WriteLatest(0x23, 0xFB);
 	}
-	vsram->WriteLatest(0x00, 0x07);
-	vsram->WriteLatest(0x01, 0xDF);
-	vsram->WriteLatest(0x22, 0x07);
-	vsram->WriteLatest(0x23, 0xFB);
 
 	//We have no idea how the sprite cache should be initialized. Most likely, it is not
 	//initialized to 0 on the real hardware, but that's what we do here currently.
 	//##TODO## Perform hardware tests to determine how the sprite cache is initialized
 	//after power-on.
-	spriteCache->Initialize();
-	for(unsigned int i = 0; i < spriteCacheSize; i += 2)
+	if(spriteCache != 0)
 	{
-		spriteCache->WriteLatest(i, 0x00);
+		spriteCache->Initialize();
+		for(unsigned int i = 0; i < spriteCacheSize; i += 2)
+		{
+			spriteCache->WriteLatest(i, 0x00);
+		}
 	}
 
 	//Clear all the uncommitted render timeslice buffers. We don't need to clear the
@@ -698,21 +773,6 @@ void S315_5313::SuspendExecution()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool S315_5313::AddReference(const wchar_t* referenceName, IBusInterface* target)
-{
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
-	{
-		memoryBus = target;
-	}
-	else
-	{
-		return false;
-	}
-	return true;
-}
-
-//----------------------------------------------------------------------------------------
 bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
 {
 	std::wstring referenceNameString = referenceName;
@@ -760,17 +820,42 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::RemoveReference(IBusInterface* target)
+bool S315_5313::AddReference(const wchar_t* referenceName, IBusInterface* target)
 {
-	if(memoryBus == target)
+	std::wstring referenceNameString = referenceName;
+	if(referenceNameString == L"BusInterface")
 	{
-		memoryBus = 0;
+		memoryBus = target;
 	}
 	else
 	{
 		return false;
 	}
 	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::AddReference(const wchar_t* referenceName, IClockSource* target)
+{
+	bool result = false;
+	std::wstring referenceNameString = referenceName;
+	if(referenceNameString == L"CLK0")
+	{
+		if(target->GetClockType() == IClockSource::CLOCKTYPE_DIVIDER)
+		{
+			clockSourceCLK0 = target;
+			result = true;
+		}
+	}
+	else if(referenceNameString == L"CLK1")
+	{
+		if(target->GetClockType() == IClockSource::CLOCKTYPE_DIVIDER)
+		{
+			clockSourceCLK1 = target;
+			result = true;
+		}
+	}
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -795,6 +880,38 @@ bool S315_5313::RemoveReference(IDevice* target)
 	else if(psg == target)
 	{
 		psg = 0;
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RemoveReference(IBusInterface* target)
+{
+	if(memoryBus == target)
+	{
+		memoryBus = 0;
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RemoveReference(IClockSource* target)
+{
+	if(clockSourceCLK0 == target)
+	{
+		clockSourceCLK0 = 0;
+	}
+	else if(clockSourceCLK1 == target)
+	{
+		clockSourceCLK1 = 0;
 	}
 	else
 	{
@@ -1798,6 +1915,9 @@ void S315_5313::ExecuteRollback()
 	busGranted = bbusGranted;
 	palModeLineState = bpalModeLineState;
 
+	//Clock sources
+	clockMclkCurrent = bclockMclkCurrent;
+
 	//Saved CE line state for Read-Modify-Write cycles
 	lineLWRSavedStateRMW = blineLWRSavedStateRMW;
 	lineUWRSavedStateRMW = blineUWRSavedStateRMW;
@@ -1945,6 +2065,9 @@ void S315_5313::ExecuteCommit()
 	//Bus interface
 	bbusGranted = busGranted;
 	bpalModeLineState = palModeLineState;
+
+	//Clock sources
+	bclockMclkCurrent = clockMclkCurrent;
 
 	//Saved CE line state for Read-Modify-Write cycles
 	blineLWRSavedStateRMW = lineLWRSavedStateRMW;
@@ -8064,41 +8187,17 @@ unsigned int S315_5313::ConvertAccessTimeToMclkCount(double accessTime) const
 		std::wcout << "######################################################\n";
 	}
 
-	//Calculate mclk
-	//##TODO## Define this properly
-	double mclk;
-	if(palMode)
-	{
-		mclk = 53.203400 * 1000000.0;
-	}
-	else
-	{
-		mclk = 53.634165 * 1000000.0;
-	}
-
 	//Calculate the current mclk cycle counter
-	double roundOffAdjustment = 0.1 * (1000000000.0 / mclk);
-	unsigned int mclkCyclesTarget = (unsigned int)((accessTime + roundOffAdjustment) * (mclk / 1000000000.0));
+	double roundOffAdjustment = 0.1 * (1000000000.0 / clockMclkCurrent);
+	unsigned int mclkCyclesTarget = (unsigned int)((accessTime + roundOffAdjustment) * (clockMclkCurrent / 1000000000.0));
 	return mclkCyclesTarget;
 }
 
 //----------------------------------------------------------------------------------------
 double S315_5313::ConvertMclkCountToAccessTime(unsigned int mclkCount) const
 {
-	//Calculate mclk
-	//##TODO## Define this properly
-	double mclk;
-	if(palMode)
-	{
-		mclk = 53.203400 * 1000000.0;
-	}
-	else
-	{
-		mclk = 53.634165 * 1000000.0;
-	}
-
 	//Calculate the access time
-	double accessTime = (double)mclkCount * (1000000000.0 / mclk);
+	double accessTime = (double)mclkCount * (1000000000.0 / clockMclkCurrent);
 	return accessTime;
 }
 

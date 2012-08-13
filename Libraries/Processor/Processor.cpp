@@ -60,16 +60,14 @@ Processor::~Processor()
 bool Processor::Construct(IHeirarchicalStorageNode& node)
 {
 	bool result = Device::Construct(node);
+
 	IHeirarchicalStorageAttribute* clockSpeedAttribute = node.GetAttribute(L"ClockSpeed");
 	if(clockSpeedAttribute != 0)
 	{
-		clockSpeed = clockSpeedAttribute->ExtractValue<unsigned int>();
+		clockSpeed = clockSpeedAttribute->ExtractValue<double>();
 		originalClockSpeed = clockSpeed;
 	}
-	else
-	{
-		result = false;
-	}
+
 	return result;
 }
 
@@ -145,13 +143,13 @@ Processor::UpdateMethod Processor::GetUpdateMethod() const
 //----------------------------------------------------------------------------------------
 //Control functions
 //----------------------------------------------------------------------------------------
-unsigned int Processor::GetClockSpeed() const
+double Processor::GetClockSpeed() const
 {
 	return clockSpeed;
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::SetClockSpeed(unsigned int aclockSpeed)
+void Processor::SetClockSpeed(double aclockSpeed)
 {
 	clockSpeed = aclockSpeed;
 }
@@ -165,7 +163,7 @@ void Processor::RestoreClockSpeed()
 //----------------------------------------------------------------------------------------
 double Processor::CalculateExecutionTime(unsigned int cycles) const
 {
-	return (cycles * (1000000000 / (double)GetClockSpeed()));
+	return ((double)cycles * (1000000000.0 / GetClockSpeed()));
 }
 
 //----------------------------------------------------------------------------------------

@@ -59,6 +59,7 @@ public:
 	struct BusInterfaceParams;
 	struct DeviceMappingParams;
 	struct LineMappingParams;
+	struct ClockSourceMappingParams;
 
 public:
 	//Constructors
@@ -95,6 +96,10 @@ public:
 	bool MapCELineOutputPort(IDevice* device, IHeirarchicalStorageNode& node);
 	bool BindCELineMappings();
 
+	//Clock source mapping functions
+	bool MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, IHeirarchicalStorageNode& node);
+	bool MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, const ClockSourceMappingParams& params);
+
 	//Memory interface functions
 	virtual AccessResult ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual AccessResult WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
@@ -111,6 +116,10 @@ public:
 	virtual bool SetLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 	virtual bool AdvanceToLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 
+	//Clock source functions
+	virtual void SetClockRate(double newClockRate, const IClockSource* sourceClock, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetClockRate(double newClockRate, const IClockSource* sourceClock);
+
 private:
 	//Structures
 	struct MapEntry;
@@ -121,6 +130,7 @@ private:
 	struct CELineDeviceLineInput;
 	struct CELineDeviceLineOutput;
 	struct CELineDeviceEntry;
+	struct ClockSourceEntry;
 
 	//Typedefs
 	typedef std::map<unsigned int, LineGroupMappingInfo> LineGroupMappings;
@@ -156,6 +166,11 @@ private:
 	bool MapCELineOutput(IDevice* device, IHeirarchicalStorageNode& node, bool memoryMapping);
 	bool BindCELineMappings(bool memoryMapping);
 	void UnmapCELinesForDevice(IDevice* device);
+
+	//Clock source mapping functions
+	bool ExtractClockSourceMappingParams(IHeirarchicalStorageNode& node, ClockSourceMappingParams& params) const;
+	bool MapClockSource(const ClockSourceEntry& clockSourceEntry);
+	void UnmapClockSourceForDevice(IDevice* device);
 
 	//CE line state functions
 	unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime) const;
@@ -204,6 +219,9 @@ private:
 	std::vector<CELineDeviceEntry> ceLineDeviceMappingsMemory;
 	unsigned int ceLineDeviceMappingsPortOutputDeviceSize;
 	std::vector<CELineDeviceEntry> ceLineDeviceMappingsPort;
+
+	//Clock source mappings
+	std::list<ClockSourceEntry> clockSourceMap;
 };
 
 #include "BusInterface.inl"

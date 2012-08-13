@@ -642,6 +642,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="IClockSource"
+				>
+				<File
+					RelativePath=".\IClockSource.h"
+					>
+				</File>
+				<File
+					RelativePath=".\IClockSource.inl"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="View System"

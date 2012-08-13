@@ -114,7 +114,7 @@ timerAOverflowTimes(false)
 	menuHandler->LoadMenuItems();
 
 	//Set the default clock rate parameters
-	externalClockRate =	((53.203 * 1000000.0) / 7.0); //7600428.6; //7610000.0;
+	externalClockRate = 0;
 	fmClockDivider = 6;
 	egClockDivider = 3;
 	outputClockDivider = channelCount * operatorCount;	//24
@@ -259,6 +259,12 @@ bool YM2612::BuildDevice()
 	}
 
 	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool YM2612::ValidateDevice()
+{
+	return (externalClockRate != 0.0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -413,6 +419,54 @@ unsigned int YM2612::GetLineWidth(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
+//Clock source functions
+//----------------------------------------------------------------------------------------
+unsigned int YM2612::GetClockSourceID(const wchar_t* clockSourceName) const
+{
+	std::wstring lineNameString = clockSourceName;
+	if(lineNameString == L"0M")
+	{
+		return CLOCK_0M;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* YM2612::GetClockSourceName(unsigned int clockSourceID) const
+{
+	switch(clockSourceID)
+	{
+	case CLOCK_0M:
+		return L"0M";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+void YM2612::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	//Apply the input clock rate change
+	if(clockInput == CLOCK_0M)
+	{
+		externalClockRate = clockRate;
+	}
+
+	//Since a clock rate change will affect our timing point calculations, trigger a
+	//rollback.
+	GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+}
+
+//----------------------------------------------------------------------------------------
+void YM2612::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
+{
+	//Apply the input clock rate change
+	if(clockInput == CLOCK_0M)
+	{
+		externalClockRate = clockRate;
+	}
+}
+
+//----------------------------------------------------------------------------------------
 //Execute functions
 //----------------------------------------------------------------------------------------
 void YM2612::BeginExecution()
@@ -500,6 +554,9 @@ void YM2612::ExecuteTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 void YM2612::ExecuteRollback()
 {
+	//Clock settings
+	externalClockRate = bexternalClockRate;
+
 	//Rollback our timed buffers
 	reg.Rollback();
 	timerAOverflowTimes.Rollback();
@@ -541,6 +598,9 @@ void YM2612::ExecuteRollback()
 //----------------------------------------------------------------------------------------
 void YM2612::ExecuteCommit()
 {
+	//Clock settings
+	bexternalClockRate = externalClockRate;
+
 	//Commit our timed buffers
 	reg.Commit();
 	timerAOverflowTimes.Commit();

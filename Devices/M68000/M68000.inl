@@ -75,6 +75,12 @@ enum M68000::LineID
 };
 
 //----------------------------------------------------------------------------------------
+enum M68000::ClockID
+{
+	CLOCK_CLK = 1
+};
+
+//----------------------------------------------------------------------------------------
 //Structures
 //----------------------------------------------------------------------------------------
 struct M68000::ExceptionDebuggingEntry
@@ -102,10 +108,15 @@ struct M68000::ExceptionDebuggingEntry
 struct M68000::LineAccess
 {
 	LineAccess(unsigned int alineLD, const Data& astate, double aaccessTime)
-	:lineID(alineLD), state(astate), accessTime(aaccessTime), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0)
+	:lineID(alineLD), state(astate), accessTime(aaccessTime), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0), clockRateChange(false)
+	{}
+	LineAccess(unsigned int alineLD, double aclockRate, double aaccessTime)
+	:lineID(alineLD), state(0, 0), clockRate(aclockRate), accessTime(aaccessTime), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0), clockRateChange(true)
 	{}
 
 	unsigned int lineID;
+	bool clockRateChange;
+	double clockRate;
 	Data state;
 	double accessTime;
 	bool notifyWhenApplied;

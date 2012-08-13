@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 Processor::CallStackView::CallStackView(Processor* adevice)
-:device(adevice), initializedDialog(false), currentControlFocus(0)
+:device(adevice)
 {
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Call Stack");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_STACK));

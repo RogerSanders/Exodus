@@ -867,7 +867,7 @@ bool BusInterface::MapLine(IDevice* sourceDevice, IDevice* targetDevice, const L
 	std::wstring sourceLineString = params.sourceLine;
 	lineEntry.sourceLine = sourceDevice->GetLineID(sourceLineString);
 	lineEntry.sourceLineBitCount = sourceDevice->GetLineWidth(lineEntry.sourceLine);
-	if(lineEntry.sourceLineBitCount == 0)
+	if((lineEntry.sourceLine == 0) || (lineEntry.sourceLineBitCount == 0))
 	{
 		return false;
 	}
@@ -876,7 +876,7 @@ bool BusInterface::MapLine(IDevice* sourceDevice, IDevice* targetDevice, const L
 	std::wstring targetLineString = params.targetLine;
 	lineEntry.targetLine = targetDevice->GetLineID(targetLineString);
 	lineEntry.targetLineBitCount = targetDevice->GetLineWidth(lineEntry.targetLine);
-	if(lineEntry.targetLineBitCount == 0)
+	if((lineEntry.targetLine == 0) || (lineEntry.targetLineBitCount == 0))
 	{
 		return false;
 	}
@@ -2001,6 +2001,85 @@ void BusInterface::UnmapCELinesForDevice(IDevice* device)
 }
 
 //----------------------------------------------------------------------------------------
+//Clock source mapping functions
+//----------------------------------------------------------------------------------------
+bool BusInterface::MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, IHeirarchicalStorageNode& node)
+{
+	//Extract all clock source mapping params from the node
+	ClockSourceMappingParams params;
+	if(!ExtractClockSourceMappingParams(node, params))
+	{
+		return false;
+	}
+
+	//Try and map the clock source
+	return MapClockSource(sourceClock, targetDevice, params);
+}
+
+//----------------------------------------------------------------------------------------
+bool BusInterface::MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, const ClockSourceMappingParams& params)
+{
+	//Abort if we don't have all the required parameters
+	if(!params.targetClockLineDefined)
+	{
+		return false;
+	}
+
+	//Begin constructing the clock source mapping
+	ClockSourceEntry clockSourceEntry;
+	clockSourceEntry.inputClockSource = sourceClock;
+	clockSourceEntry.targetDevice = targetDevice;
+
+	//Handle a TargetClockLine parameter
+	std::wstring targetClockLineString = params.targetClockLine;
+	clockSourceEntry.targetClockLine = targetDevice->GetClockSourceID(targetClockLineString);
+	if(clockSourceEntry.targetClockLine == 0)
+	{
+		return false;
+	}
+
+	//Add the new ClockSourceEntry object to the clock source map
+	return MapClockSource(clockSourceEntry);
+}
+
+//----------------------------------------------------------------------------------------
+bool BusInterface::ExtractClockSourceMappingParams(IHeirarchicalStorageNode& node, ClockSourceMappingParams& params) const
+{
+	//Extract all possible parameters from the XMLEntity object
+	IHeirarchicalStorageAttribute* targetClockLineAttribute = node.GetAttribute(L"TargetClockLine");
+	if(targetClockLineAttribute != 0)
+	{
+		params.targetClockLineDefined = true;
+		params.targetClockLine = targetClockLineAttribute->GetValue();
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool BusInterface::MapClockSource(const ClockSourceEntry& clockSourceEntry)
+{
+	clockSourceMap.push_back(clockSourceEntry);
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+void BusInterface::UnmapClockSourceForDevice(IDevice* device)
+{
+	//Remove any references to the device from the clock source map
+	std::list<ClockSourceEntry>::iterator i = clockSourceMap.begin();
+	while(i != clockSourceMap.end())
+	{
+		std::list<ClockSourceEntry>::iterator currentEntry = i;
+		++i;
+		if(currentEntry->targetDevice == device)
+		{
+			clockSourceMap.erase(currentEntry);
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
 unsigned int BusInterface::CalculateCELineStateMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime) const
@@ -2499,4 +2578,32 @@ bool BusInterface::AdvanceToLineState(unsigned int sourceLine, const Data& lineD
 	//##DEBUG##
 //	std::wcout << "AdvanceToLineStateEnd\n";
 	return foundTargetDevice && result;
+}
+
+//----------------------------------------------------------------------------------------
+//Clock source functions
+//----------------------------------------------------------------------------------------
+void BusInterface::SetClockRate(double newClockRate, const IClockSource* sourceClock, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext)
+{
+	for(std::list<ClockSourceEntry>::const_iterator i = clockSourceMap.begin(); i != clockSourceMap.end(); ++i)
+	{
+		const ClockSourceEntry* clockSourceEntry = &(*i);
+		if(clockSourceEntry->inputClockSource == sourceClock)
+		{
+			clockSourceEntry->targetDevice->SetClockSourceRate(clockSourceEntry->targetClockLine, newClockRate, callingDevice, accessTime, accessContext);
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void BusInterface::TransparentSetClockRate(double newClockRate, const IClockSource* sourceClock)
+{
+	for(std::list<ClockSourceEntry>::const_iterator i = clockSourceMap.begin(); i != clockSourceMap.end(); ++i)
+	{
+		const ClockSourceEntry* clockSourceEntry = &(*i);
+		if(clockSourceEntry->inputClockSource == sourceClock)
+		{
+			clockSourceEntry->targetDevice->TransparentSetClockSourceRate(clockSourceEntry->targetClockLine, newClockRate);
+		}
+	}
 }

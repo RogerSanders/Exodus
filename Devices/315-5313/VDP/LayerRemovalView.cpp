@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 VDP::LayerRemovalView::LayerRemovalView(VDP* adevice)
-:device(adevice), initializedDialog(false), currentControlFocus(0)
+:device(adevice)
 {
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Layer Removal");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_LAYERREMOVAL));

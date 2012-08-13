@@ -162,6 +162,12 @@ public:
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
+	//Clock source functions
+	virtual unsigned int GetClockSourceID(const wchar_t* clockSourceName) const;
+	virtual const wchar_t* GetClockSourceName(unsigned int clockSourceID) const;
+	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
+
 	//Initialization functions
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
@@ -176,10 +182,12 @@ public:
 	virtual void SuspendExecution();
 
 	//Reference functions
-	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
 	virtual bool AddReference(const wchar_t* referenceName, IDevice* target);
-	virtual bool RemoveReference(IBusInterface* target);
+	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
+	virtual bool AddReference(const wchar_t* referenceName, IClockSource* target);
 	virtual bool RemoveReference(IDevice* target);
+	virtual bool RemoveReference(IBusInterface* target);
+	virtual bool RemoveReference(IClockSource* target);
 
 	//Suspend functions
 	virtual bool UsesTransientExecution() const;
@@ -240,6 +248,10 @@ private:
 		LINE_BR,
 		LINE_BG,
 		LINE_PAL
+	};
+	enum ClockID
+	{
+		CLOCK_MCLK = 1
 	};
 	enum Event;
 	enum Layer;
@@ -605,6 +617,12 @@ private:
 
 	//Embedded PSG device
 	IDevice* psg;
+
+	//Clock sources
+	IClockSource* clockSourceCLK0;
+	IClockSource* clockSourceCLK1;
+	double clockMclkCurrent;
+	double bclockMclkCurrent;
 
 	//Physical registers and memory buffers
 	mutable boost::mutex accessMutex;

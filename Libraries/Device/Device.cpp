@@ -47,13 +47,25 @@ void Device::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
+bool Device::AddReference(const wchar_t* referenceName, IDevice* target)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
 bool Device::AddReference(const wchar_t* referenceName, IBusInterface* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReference(const wchar_t* referenceName, IDevice* target)
+bool Device::AddReference(const wchar_t* referenceName, IClockSource* target)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Device::RemoveReference(IDevice* target)
 {
 	return false;
 }
@@ -65,7 +77,7 @@ bool Device::RemoveReference(IBusInterface* target)
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::RemoveReference(IDevice* target)
+bool Device::RemoveReference(IClockSource* target)
 {
 	return false;
 }
@@ -402,7 +414,11 @@ const wchar_t* Device::GetClockSourceName(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-void Device::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime)
+void Device::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{}
+
+//----------------------------------------------------------------------------------------
+void Device::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
 {}
 
 //----------------------------------------------------------------------------------------

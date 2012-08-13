@@ -17,10 +17,12 @@ public:
 	virtual void Initialize();
 
 	//Reference functions
-	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
 	virtual bool AddReference(const wchar_t* referenceName, IDevice* target);
-	virtual bool RemoveReference(IBusInterface* target);
+	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
+	virtual bool AddReference(const wchar_t* referenceName, IClockSource* target);
 	virtual bool RemoveReference(IDevice* target);
+	virtual bool RemoveReference(IBusInterface* target);
+	virtual bool RemoveReference(IClockSource* target);
 
 	//Device context functions
 	virtual IDeviceContext* GetDeviceContext() const;
@@ -90,7 +92,8 @@ public:
 	//Clock source functions
 	virtual unsigned int GetClockSourceID(const wchar_t* lineName) const;
 	virtual const wchar_t* GetClockSourceName(unsigned int lineID) const;
-	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime);
+	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 
 	//Input functions
 	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const;

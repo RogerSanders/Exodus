@@ -22,6 +22,7 @@ should be able to be sent to all devices simultaneously.
 #include "WindowFunctions/WindowFunctions.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 #include "BusInterface.h"
+#include "ClockSource.h"
 #include "DeviceContext.h"
 #include "DeviceInfo.h"
 #include "ISystemInternal.h"
@@ -137,6 +138,9 @@ private:
 	struct LoadedBusInfo;
 	struct ExportedBusInfo;
 	struct ImportedBusInfo;
+	struct LoadedClockSourceInfo;
+	struct ExportedClockSourceInfo;
+	struct ImportedClockSourceInfo;
 	struct ExportedLineGroupInfo;
 	struct ImportedLineGroupInfo;
 	struct LineGroupDetails;
@@ -157,6 +161,8 @@ private:
 	typedef std::pair<std::wstring, DeviceLibraryEntry> DeviceLibraryListEntry;
 	typedef std::list<LoadedBusInfo> BusInterfaceList;
 	typedef std::list<ImportedBusInfo> ImportedBusInterfaceList;
+	typedef std::list<LoadedClockSourceInfo> ClockSourceList;
+	typedef std::list<ImportedClockSourceInfo> ImportedClockSourceList;
 	typedef std::map<IDeviceContext::KeyCode, InputMapEntry> InputKeyMap;
 	typedef std::pair<IDeviceContext::KeyCode, InputMapEntry> InputKeyMapEntry;
 	typedef std::map<unsigned int, ConnectorDetails> ConnectorDetailsMap;
@@ -180,9 +186,10 @@ private:
 	friend class DeviceControlView;
 
 private:
-	//Loaded device and bus interface functions
+	//Loaded entity functions
 	IDevice* GetDevice(unsigned int moduleID, const std::wstring& deviceName) const;
 	BusInterface* GetBusInterface(unsigned int moduleID, const std::wstring& busInterfaceName) const;
+	ClockSource* GetClockSource(unsigned int moduleID, const std::wstring& clockSourceName) const;
 
 	//Savestate functions
 	void SaveModuleRelationshipsExportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
@@ -194,8 +201,9 @@ private:
 	unsigned int GenerateFreeLineGroupID() const;
 	bool LoadModule_Device(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_SetDependentDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_BusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_BusInterface_DefineLineGroup(IHeirarchicalStorageNode& node, unsigned int moduleID, NameToIDMap& lineGroupNameToIDMap);
@@ -208,13 +216,18 @@ private:
 	bool LoadModule_BusInterface_MapDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_BusInterface_MapPort(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_BusInterface_MapLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& lineGroupNameToIDMap);
+	bool LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_ClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_ClockSource_SetInputClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<ViewModelOpenRequest>& viewModelOpenRequests);
 	bool LoadModule_System_ExportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ExportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, const NameToIDMap& lineGroupNameToIDMap);
+	bool LoadModule_System_ExportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, const ConnectorMappingList& connectorMappings, NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap);
+	bool LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_ProcessViewModelQueue(unsigned int moduleID, const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher);
 
 	//Device creation and deletion
@@ -321,6 +334,10 @@ private:
 	//Bus interfaces
 	BusInterfaceList busInterfaces;
 	ImportedBusInterfaceList importedBusInterfaces;
+
+	//Clock sources
+	ClockSourceList clockSources;
+	ImportedClockSourceList importedClockSources;
 
 	//Input settings
 	mutable boost::mutex inputMutex;

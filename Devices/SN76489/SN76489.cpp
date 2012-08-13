@@ -19,7 +19,7 @@ SN76489::SN76489(const std::wstring& ainstanceName, unsigned int amoduleID)
 
 	//##TODO## Provide a way for these properties to be defined externally, and provide
 	//debug windows which can modify them on the fly.
-	externalClockRate = ((53.203 * 1000000.0) / 15.0);	//3546893.0;
+	externalClockRate = 0.0;
 	externalClockDivider = 16.0;
 	shiftRegisterBitCount = 16;
 	shiftRegisterDefaultValue = 0x8000;
@@ -66,6 +66,12 @@ bool SN76489::BuildDevice()
 }
 
 //----------------------------------------------------------------------------------------
+bool SN76489::ValidateDevice()
+{
+	return (externalClockRate != 0.0);
+}
+
+//----------------------------------------------------------------------------------------
 void SN76489::Initialize()
 {
 	//Initialize the render thread properties
@@ -106,8 +112,9 @@ void SN76489::Initialize()
 		SetToneRegister(i, Data(toneRegisterBitCount, 0), AccessTarget().AccessLatest());
 	}
 
-	//##NOTE## Hardware tests on a Mega Drive have shown that SEGA integrated versions of
+	//Note that hardware tests on a Mega Drive have shown that SEGA integrated versions of
 	//the PSG are initialized with the volume register of the second channel latched.
+	//##TODO## Make these power-on defaults configurable through the system XML file
 	latchedChannel = 1;
 	latchedVolume = true;
 
@@ -119,6 +126,54 @@ void SN76489::Initialize()
 		//wrappers. Eventually, it will make the function call we saved at the time
 		//the register was locked, with all the correct function arguments.
 		i->second();
+	}
+}
+
+//----------------------------------------------------------------------------------------
+//Clock source functions
+//----------------------------------------------------------------------------------------
+unsigned int SN76489::GetClockSourceID(const wchar_t* clockSourceName) const
+{
+	std::wstring lineNameString = clockSourceName;
+	if(lineNameString == L"CLOCK")
+	{
+		return CLOCK_CLOCK;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* SN76489::GetClockSourceName(unsigned int clockSourceID) const
+{
+	switch(clockSourceID)
+	{
+	case CLOCK_CLOCK:
+		return L"CLOCK";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+void SN76489::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	//Apply the input clock rate change
+	if(clockInput == CLOCK_CLOCK)
+	{
+		externalClockRate = clockRate;
+	}
+
+	//Since a clock rate change will affect our timing point calculations, trigger a
+	//rollback.
+	GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+}
+
+//----------------------------------------------------------------------------------------
+void SN76489::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
+{
+	//Apply the input clock rate change
+	if(clockInput == CLOCK_CLOCK)
+	{
+		externalClockRate = clockRate;
 	}
 }
 

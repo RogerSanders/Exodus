@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 VDP::VRAMView::VRAMView(VDP* adevice)
-:device(adevice), initializedDialog(false), currentControlFocus(0)
+:device(adevice)
 {
 	glrc = 0;
 	blockSize = BLOCKSIZE_AUTO;

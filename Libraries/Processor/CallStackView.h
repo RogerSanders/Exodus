@@ -23,9 +23,6 @@ private:
 
 private:
 	Processor* device;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
 };
 
 #endif

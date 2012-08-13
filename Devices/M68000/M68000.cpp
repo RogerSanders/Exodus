@@ -315,299 +315,6 @@ bool M68000::RemoveReference(IBusInterface* target)
 }
 
 //----------------------------------------------------------------------------------------
-//Line functions
-//----------------------------------------------------------------------------------------
-unsigned int M68000::GetLineID(const wchar_t* lineName) const
-{
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"RESET") //IO
-	{
-		return LINE_RESET;
-	}
-	else if(lineNameString == L"BR") //I
-	{
-		return LINE_BR;
-	}
-	else if(lineNameString == L"BG") //O
-	{
-		return LINE_BG;
-	}
-	else if(lineNameString == L"HALT") //I
-	{
-		return LINE_HALT;
-	}
-	else if(lineNameString == L"IPL") //I
-	{
-		return LINE_IPL;
-	}
-	else if(lineNameString == L"VPA") //I
-	{
-		return LINE_VPA;
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-const wchar_t* M68000::GetLineName(unsigned int lineID) const
-{
-	switch(lineID)
-	{
-	case LINE_RESET:
-		return L"RESET";
-	case LINE_BR:
-		return L"BR";
-	case LINE_BG:
-		return L"BG";
-	case LINE_HALT:
-		return L"HALT";
-	case LINE_IPL:
-		return L"IPL";
-	case LINE_VPA:
-		return L"VPA";
-	}
-	return L"";
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int M68000::GetLineWidth(unsigned int lineID) const
-{
-	switch(lineID)
-	{
-	case LINE_RESET:
-		return 1;
-	case LINE_BR:
-		return 1;
-	case LINE_BG:
-		return 1;
-	case LINE_HALT:
-		return 1;
-	case LINE_IPL:
-		return 3;
-	case LINE_VPA:
-		return 1;
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
-{
-	//If this line state change is not a response to a request, we need to obtain an
-	//exclusive lock. Note that if this is a line state change which we process
-	//immediately, we technically don't need a lock for lineAccessBuffer, but we do need a
-	//memory barrier here, to ensure that changes to any member variables of this object
-	//are visible in other threads. We were getting a real-world issue where a change to
-	//the bgLineState variable was not seen by the M68000 worker thread, and it executed
-	//to the end of its timeslice assuming it was set, when it had actually been modified
-	//by another thread.
-	//##NOTE## Due to some code changes, the above comment about bgLineState no longer
-	//applies.
-	//##TODO## Add some memory barrier functions to our thread library. Boost doesn't have
-	//any way to do just a memory barrier (yet). Wrap the concept up into a function that
-	//can provide a memory barrier we can drop into our code, and use that in place of the
-	//lock here, and shift the full-blown lock back below the immediate line state
-	//changes.
-	boost::mutex::scoped_lock lock(lineMutex);
-
-	//##DEBUG##
-//	std::wcout << "M68000SetLineState\t" << targetLine << '\n';
-
-	//Check if this is a line which we need to process immediately. This would generally
-	//indicate a response to a request which this device is currently asserting.
-	switch(targetLine)
-	{
-	case LINE_VPA:
-		autoVectorPendingInterrupt = true;
-		return;
-	}
-
-	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
-	//locking operation in the active thread for this device when no line changes are
-	//pending. Note that we set this flag before we've actually written the entry into
-	//the buffer so that the execution thread is aware of the line state change as soon as
-	//possible, however the lock we've obtained on our line mutex will prevent the
-	//execution thread from attempting to access the line access buffer until the data has
-	//been written.
-	lineAccessPending = true;
-
-	//Read the time at which this access is being made, and trigger a rollback if we've
-	//already passed that time.
-	if(lastLineCheckTime > accessTime)
-	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
-	}
-
-	//Insert the line access into the buffer. Note that entries in the buffer are sorted
-	//by access time from lowest to highest.
-	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
-	while((i != lineAccessBuffer.rend()) && (i->accessTime > accessTime))
-	{
-		++i;
-	}
-	lineAccessBuffer.insert(i.base(), LineAccess(targetLine, lineData, accessTime));
-
-	//Resume the main execution thread if it is currently suspended waiting for a line
-	//state change to be received.
-	GetDeviceContext()->ResumeTimesliceExecution();
-}
-
-//----------------------------------------------------------------------------------------
-bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
-{
-	boost::mutex::scoped_lock lock(lineMutex);
-	bool result = false;
-	if(targetLine == LINE_BG)
-	{
-		bool targetLineState = lineData.GetBit(0);
-		if(bgLineState == targetLineState)
-		{
-			//If the current state of the target line matches the target state, we have
-			//nothing to do.
-			return true;
-		}
-
-		//In order to support non-destructive calls to this function, the only advance
-		//requests we can respond to for the bus grant line are ones where a pending
-		//change to the bus request line is sitting in the buffer, but has yet to be
-		//processed.
-
-		//If we don't have a pending line state change in the buffer to change the bus
-		//request line into the required state, return false.
-		volatile bool targetLineStateChangeApplied = false;
-		bool foundTargetStateChange = false;
-		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
-		while(!foundTargetStateChange && (i != lineAccessBuffer.end()))
-		{
-			if((i->lineID == LINE_BR) && (i->state == targetLineState))
-			{
-				foundTargetStateChange = true;
-				i->appliedFlag = &targetLineStateChangeApplied;
-				i->waitingDevice = caller;
-				i->notifyWhenApplied = true;
-			}
-			++i;
-		}
-		if(!foundTargetStateChange)
-		{
-			return false;
-		}
-
-		//Wait for the target line state change to be processed from the line access
-		//buffer, or the end of the current timeslice to be reached. Note that we
-		//suspend a dependency on the calling device if one is active. This is
-		//essential in order to avoid deadlocks in the case where a dependent device
-		//of this processor is the device that is triggering this advance request. In
-		//this case, it's possible that we'll enter an infinite loop, since both
-		//devices could end up waiting for each other to advance. We solve the issue
-		//here by temporarily suspending the device dependency, until the advance
-		//request has been fulfilled. The execute thread will restore the dependency
-		//itself when the state change is applied. It is essential for the execute
-		//thread to restore the dependency rather than us doing it here, otherwise the
-		//execute thread could possibly advance further ahead without the dependency
-		//being active.
-		GetDeviceContext()->SetDeviceDependencyEnable(caller, false);
-		//##FIX## Using TimesliceExecutionCompleted() here is a temporary workaround for
-		//our step through deadlock. Using this flag here is not thread safe, as it's
-		//possible that the M68000 worker thread hasn't picked up the execute command yet.
-		while(!targetLineStateChangeApplied && !executionReachedEndOfTimeslice && !GetDeviceContext()->TimesliceExecutionCompleted())
-		{
-			advanceToTargetLineStateChanged.wait(lock);
-		}
-
-		//If the processor reached the end of the current timeslice without reaching the
-		//target line state change in the buffer, advance the processor until the target
-		//line state is reached.
-		//##FIX## What about when a line state change occurs, but is reversed
-		//within a short enough time period that it is immediately undone? We need
-		//to make sure the M68000 doesn't actually change the BG line state in
-		//this instance, since it only changes the BR line state when the BG line
-		//state is latched, which if the line changes then changes back again
-		//between bus cycles, it will not be.
-		//##FIX## I don't like this execution model. What about the case where we
-		//have dependent devices? This would allow us to execute out of step with
-		//those devices. In our case though, it's a dependent device of the M68000
-		//which is triggering the advance request indirectly, so that dependent
-		//device can't advance any further. This is getting very complex.
-		if(!targetLineStateChangeApplied)
-		{
-			//Since we're about to call ExecuteStep() manually within the context of this
-			//thread, and ExecuteStep() needs to obtain the line mutex, we need to release
-			//our lock here.
-			lock.unlock();
-
-			manualDeviceAdvanceInProgress = true;
-			double adjustedTimesliceExecutionProgress = GetCurrentTimesliceProgress();
-			while(!targetLineStateChangeApplied && !lineAccessBuffer.empty())
-			{
-				adjustedTimesliceExecutionProgress += ExecuteStep();
-				SetCurrentTimesliceProgress(adjustedTimesliceExecutionProgress);
-			}
-			manualDeviceAdvanceInProgress = false;
-		}
-
-		result = true;
-	}
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
-{
-//##DEBUG##
-//	std::wstringstream message;
-//	message << "M68000 line state change applied\t" << targetLine << '\t' << lineData.GetData() << "\n";
-//	std::wcout << message.str();
-
-	switch(targetLine)
-	{
-	case LINE_RESET:
-		resetLineState = !lineData.Zero();
-		break;
-	case LINE_BR:{
-		bool brLineStateNew = !lineData.Zero();
-		if(brLineState != brLineStateNew)
-		{
-			//If the BR line has been asserted, grant bus ownership to the external device
-			//requesting the bus. If the BR line has been negated, reclaim bus ownership.
-			brLineState = brLineStateNew;
-			if(bgLineState != brLineState)
-			{
-				bgLineState = brLineState;
-				memoryBus->SetLineState(LINE_BG, Data(GetLineWidth(LINE_BG), (unsigned int)bgLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-			}
-		}
-		break;}
-	case LINE_HALT:
-		haltLineState = !lineData.Zero();
-		break;
-	case LINE_IPL:{
-		//Calculate the new level of the pending interrupt
-		unsigned int newInterruptPendingLevel = lineData.GetData();
-
-		//If IPL has just switched from some lower level to indicate a level 7 interrupt,
-		//we set a flag here to allow us to force the interrupt to be taken. As described
-		//in The M68000 Users Manual, section 6.3.2, "An interrupt is generated each time
-		//the interrupt request level changes from some lower level to level 7". We
-		//detect this case here. This is the only special case handling that exists for
-		//level 7 interrupts.
-		forceInterrupt = ((interruptPendingLevel != 7) && (newInterruptPendingLevel == 7));
-
-		//Update the latched IPL to match the new state
-		interruptPendingLevel = newInterruptPendingLevel;
-
-		break;}
-	}
-
-	//Flag whether we want to suspend until another line state change is received, or we
-	//reach the end of the current timeslice. We do this so that the M68000 doesn't
-	//advance past the state of other devices in response to, for example, bus requests,
-	//when we expect those events often to be brief. If the M68000 advances too far ahead,
-	//when the bus is released for example, a rollback would need to be generated. This is
-	//an optimization to try and avoid excessive rollbacks.
-	suspendUntilLineStateChangeReceived = suspendWhenBusReleased && (haltLineState || resetLineState || bgLineState);
-}
-
-//----------------------------------------------------------------------------------------
 //Exception functions
 //----------------------------------------------------------------------------------------
 void M68000::PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool processingInstruction)
@@ -1000,7 +707,14 @@ double M68000::ExecuteStep()
 			if(i->accessTime <= currentTimesliceProgress)
 			{
 				//Apply the line state change
-				ApplyLineStateChange(i->lineID, i->state);
+				if(i->clockRateChange)
+				{
+					ApplyClockStateChange(i->lineID, i->clockRate);
+				}
+				else
+				{
+					ApplyLineStateChange(i->lineID, i->state);
+				}
 
 				//If any threads were waiting for this line state change to be processed,
 				//notify them that the change has now been applied.
@@ -1524,6 +1238,376 @@ unsigned int M68000::GetDataBusWidth() const
 unsigned int M68000::GetMinimumOpcodeByteSize() const
 {
 	return 2;
+}
+
+//----------------------------------------------------------------------------------------
+//Line functions
+//----------------------------------------------------------------------------------------
+unsigned int M68000::GetLineID(const wchar_t* lineName) const
+{
+	std::wstring lineNameString = lineName;
+	if(lineNameString == L"RESET") //IO
+	{
+		return LINE_RESET;
+	}
+	else if(lineNameString == L"BR") //I
+	{
+		return LINE_BR;
+	}
+	else if(lineNameString == L"BG") //O
+	{
+		return LINE_BG;
+	}
+	else if(lineNameString == L"HALT") //I
+	{
+		return LINE_HALT;
+	}
+	else if(lineNameString == L"IPL") //I
+	{
+		return LINE_IPL;
+	}
+	else if(lineNameString == L"VPA") //I
+	{
+		return LINE_VPA;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* M68000::GetLineName(unsigned int lineID) const
+{
+	switch(lineID)
+	{
+	case LINE_RESET:
+		return L"RESET";
+	case LINE_BR:
+		return L"BR";
+	case LINE_BG:
+		return L"BG";
+	case LINE_HALT:
+		return L"HALT";
+	case LINE_IPL:
+		return L"IPL";
+	case LINE_VPA:
+		return L"VPA";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int M68000::GetLineWidth(unsigned int lineID) const
+{
+	switch(lineID)
+	{
+	case LINE_RESET:
+		return 1;
+	case LINE_BR:
+		return 1;
+	case LINE_BG:
+		return 1;
+	case LINE_HALT:
+		return 1;
+	case LINE_IPL:
+		return 3;
+	case LINE_VPA:
+		return 1;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	//If this line state change is not a response to a request, we need to obtain an
+	//exclusive lock. Note that if this is a line state change which we process
+	//immediately, we technically don't need a lock for lineAccessBuffer, but we do need a
+	//memory barrier here, to ensure that changes to any member variables of this object
+	//are visible in other threads. We were getting a real-world issue where a change to
+	//the bgLineState variable was not seen by the M68000 worker thread, and it executed
+	//to the end of its timeslice assuming it was set, when it had actually been modified
+	//by another thread.
+	//##NOTE## Due to some code changes, the above comment about bgLineState no longer
+	//applies.
+	//##TODO## Add some memory barrier functions to our thread library. Boost doesn't have
+	//any way to do just a memory barrier (yet). Wrap the concept up into a function that
+	//can provide a memory barrier we can drop into our code, and use that in place of the
+	//lock here, and shift the full-blown lock back below the immediate line state
+	//changes.
+	boost::mutex::scoped_lock lock(lineMutex);
+
+	//##DEBUG##
+	//	std::wcout << "M68000SetLineState\t" << targetLine << '\n';
+
+	//Check if this is a line which we need to process immediately. This would generally
+	//indicate a response to a request which this device is currently asserting.
+	switch(targetLine)
+	{
+	case LINE_VPA:
+		autoVectorPendingInterrupt = true;
+		return;
+	}
+
+	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
+	//locking operation in the active thread for this device when no line changes are
+	//pending. Note that we set this flag before we've actually written the entry into
+	//the buffer so that the execution thread is aware of the line state change as soon as
+	//possible, however the lock we've obtained on our line mutex will prevent the
+	//execution thread from attempting to access the line access buffer until the data has
+	//been written.
+	lineAccessPending = true;
+
+	//Read the time at which this access is being made, and trigger a rollback if we've
+	//already passed that time.
+	if(lastLineCheckTime > accessTime)
+	{
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	}
+
+	//Insert the line access into the buffer. Note that entries in the buffer are sorted
+	//by access time from lowest to highest.
+	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
+	while((i != lineAccessBuffer.rend()) && (i->accessTime > accessTime))
+	{
+		++i;
+	}
+	lineAccessBuffer.insert(i.base(), LineAccess(targetLine, lineData, accessTime));
+
+	//Resume the main execution thread if it is currently suspended waiting for a line
+	//state change to be received.
+	GetDeviceContext()->ResumeTimesliceExecution();
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	boost::mutex::scoped_lock lock(lineMutex);
+	bool result = false;
+	if(targetLine == LINE_BG)
+	{
+		bool targetLineState = lineData.GetBit(0);
+		if(bgLineState == targetLineState)
+		{
+			//If the current state of the target line matches the target state, we have
+			//nothing to do.
+			return true;
+		}
+
+		//In order to support non-destructive calls to this function, the only advance
+		//requests we can respond to for the bus grant line are ones where a pending
+		//change to the bus request line is sitting in the buffer, but has yet to be
+		//processed.
+
+		//If we don't have a pending line state change in the buffer to change the bus
+		//request line into the required state, return false.
+		volatile bool targetLineStateChangeApplied = false;
+		bool foundTargetStateChange = false;
+		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
+		while(!foundTargetStateChange && (i != lineAccessBuffer.end()))
+		{
+			if((i->lineID == LINE_BR) && (i->state == targetLineState))
+			{
+				foundTargetStateChange = true;
+				i->appliedFlag = &targetLineStateChangeApplied;
+				i->waitingDevice = caller;
+				i->notifyWhenApplied = true;
+			}
+			++i;
+		}
+		if(!foundTargetStateChange)
+		{
+			return false;
+		}
+
+		//Wait for the target line state change to be processed from the line access
+		//buffer, or the end of the current timeslice to be reached. Note that we
+		//suspend a dependency on the calling device if one is active. This is
+		//essential in order to avoid deadlocks in the case where a dependent device
+		//of this processor is the device that is triggering this advance request. In
+		//this case, it's possible that we'll enter an infinite loop, since both
+		//devices could end up waiting for each other to advance. We solve the issue
+		//here by temporarily suspending the device dependency, until the advance
+		//request has been fulfilled. The execute thread will restore the dependency
+		//itself when the state change is applied. It is essential for the execute
+		//thread to restore the dependency rather than us doing it here, otherwise the
+		//execute thread could possibly advance further ahead without the dependency
+		//being active.
+		GetDeviceContext()->SetDeviceDependencyEnable(caller, false);
+		//##FIX## Using TimesliceExecutionCompleted() here is a temporary workaround for
+		//our step through deadlock. Using this flag here is not thread safe, as it's
+		//possible that the M68000 worker thread hasn't picked up the execute command yet.
+		while(!targetLineStateChangeApplied && !executionReachedEndOfTimeslice && !GetDeviceContext()->TimesliceExecutionCompleted())
+		{
+			advanceToTargetLineStateChanged.wait(lock);
+		}
+
+		//If the processor reached the end of the current timeslice without reaching the
+		//target line state change in the buffer, advance the processor until the target
+		//line state is reached.
+		//##FIX## What about when a line state change occurs, but is reversed
+		//within a short enough time period that it is immediately undone? We need
+		//to make sure the M68000 doesn't actually change the BG line state in
+		//this instance, since it only changes the BR line state when the BG line
+		//state is latched, which if the line changes then changes back again
+		//between bus cycles, it will not be.
+		//##FIX## I don't like this execution model. What about the case where we
+		//have dependent devices? This would allow us to execute out of step with
+		//those devices. In our case though, it's a dependent device of the M68000
+		//which is triggering the advance request indirectly, so that dependent
+		//device can't advance any further. This is getting very complex.
+		if(!targetLineStateChangeApplied)
+		{
+			//Since we're about to call ExecuteStep() manually within the context of this
+			//thread, and ExecuteStep() needs to obtain the line mutex, we need to release
+			//our lock here.
+			lock.unlock();
+
+			manualDeviceAdvanceInProgress = true;
+			double adjustedTimesliceExecutionProgress = GetCurrentTimesliceProgress();
+			while(!targetLineStateChangeApplied && !lineAccessBuffer.empty())
+			{
+				adjustedTimesliceExecutionProgress += ExecuteStep();
+				SetCurrentTimesliceProgress(adjustedTimesliceExecutionProgress);
+			}
+			manualDeviceAdvanceInProgress = false;
+		}
+
+		result = true;
+	}
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
+{
+	//##DEBUG##
+	//	std::wstringstream message;
+	//	message << "M68000 line state change applied\t" << targetLine << '\t' << lineData.GetData() << "\n";
+	//	std::wcout << message.str();
+
+	switch(targetLine)
+	{
+	case LINE_RESET:
+		resetLineState = !lineData.Zero();
+		break;
+	case LINE_BR:{
+		bool brLineStateNew = !lineData.Zero();
+		if(brLineState != brLineStateNew)
+		{
+			//If the BR line has been asserted, grant bus ownership to the external device
+			//requesting the bus. If the BR line has been negated, reclaim bus ownership.
+			brLineState = brLineStateNew;
+			if(bgLineState != brLineState)
+			{
+				bgLineState = brLineState;
+				memoryBus->SetLineState(LINE_BG, Data(GetLineWidth(LINE_BG), (unsigned int)bgLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+			}
+		}
+		break;}
+	case LINE_HALT:
+		haltLineState = !lineData.Zero();
+		break;
+	case LINE_IPL:{
+		//Calculate the new level of the pending interrupt
+		unsigned int newInterruptPendingLevel = lineData.GetData();
+
+		//If IPL has just switched from some lower level to indicate a level 7 interrupt,
+		//we set a flag here to allow us to force the interrupt to be taken. As described
+		//in The M68000 Users Manual, section 6.3.2, "An interrupt is generated each time
+		//the interrupt request level changes from some lower level to level 7". We
+		//detect this case here. This is the only special case handling that exists for
+		//level 7 interrupts.
+		forceInterrupt = ((interruptPendingLevel != 7) && (newInterruptPendingLevel == 7));
+
+		//Update the latched IPL to match the new state
+		interruptPendingLevel = newInterruptPendingLevel;
+
+		break;}
+	}
+
+	//Flag whether we want to suspend until another line state change is received, or we
+	//reach the end of the current timeslice. We do this so that the M68000 doesn't
+	//advance past the state of other devices in response to, for example, bus requests,
+	//when we expect those events often to be brief. If the M68000 advances too far ahead,
+	//when the bus is released for example, a rollback would need to be generated. This is
+	//an optimization to try and avoid excessive rollbacks.
+	suspendUntilLineStateChangeReceived = suspendWhenBusReleased && (haltLineState || resetLineState || bgLineState);
+}
+
+//----------------------------------------------------------------------------------------
+//Clock source functions
+//----------------------------------------------------------------------------------------
+unsigned int M68000::GetClockSourceID(const wchar_t* clockSourceName) const
+{
+	std::wstring lineNameString = clockSourceName;
+	if(lineNameString == L"CLK")
+	{
+		return CLOCK_CLK;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* M68000::GetClockSourceName(unsigned int clockSourceID) const
+{
+	switch(clockSourceID)
+	{
+	case CLOCK_CLK:
+		return L"CLK";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	//We push clock rate changes through the normal line state change tracking system
+	//here, since line state changes and clock changes are basically the same problem.
+	boost::mutex::scoped_lock lock(lineMutex);
+
+	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
+	//locking operation in the active thread for this device when no line changes are
+	//pending. Note that we set this flag before we've actually written the entry into
+	//the buffer so that the execution thread is aware of the line state change as soon as
+	//possible, however the lock we've obtained on our line mutex will prevent the
+	//execution thread from attempting to access the line access buffer until the data has
+	//been written.
+	lineAccessPending = true;
+
+	//Read the time at which this access is being made, and trigger a rollback if we've
+	//already passed that time.
+	if(lastLineCheckTime > accessTime)
+	{
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	}
+
+	//Insert the line access into the buffer. Note that entries in the buffer are sorted
+	//by access time from lowest to highest.
+	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
+	while((i != lineAccessBuffer.rend()) && (i->accessTime > accessTime))
+	{
+		++i;
+	}
+	lineAccessBuffer.insert(i.base(), LineAccess(clockInput, clockRate, accessTime));
+
+	//Resume the main execution thread if it is currently suspended waiting for a line
+	//state change to be received.
+	GetDeviceContext()->ResumeTimesliceExecution();
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
+{
+	ApplyClockStateChange(clockInput, clockRate);
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::ApplyClockStateChange(unsigned int targetClock, double clockRate)
+{
+	//Apply the input clock rate change
+	if(targetClock == CLOCK_CLK)
+	{
+		SetClockSpeed(clockRate);
+	}
 }
 
 //----------------------------------------------------------------------------------------

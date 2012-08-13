@@ -3,6 +3,7 @@
 class IDeviceContext;
 class IDevice;
 class Data;
+class IClockSource;
 
 class IBusInterface
 {
@@ -10,6 +11,7 @@ public:
 	//Structures
 	struct AccessResult;
 
+public:
 	//Constructors
 	virtual ~IBusInterface() = 0 {}
 
@@ -34,13 +36,16 @@ public:
 	//mapped dynamically while the system is running. It is up to the calling device to
 	//cache the result of this function call in order to ensure the best performance.
 	virtual bool SetLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext) = 0;
-
 	//The result of a call to this function must be non-destructive in the case where the
 	//target cannot be reached, IE, if the device which receives this message cannot know
 	//for certain that it is able to reach the target line state, it must not modify any
 	//state data. It must be safe to call this function on a device and have the call fail
 	//without affecting the device in any way.
 	virtual bool AdvanceToLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext) = 0;
+
+	//Clock source functions
+	virtual void SetClockRate(double newClockRate, const IClockSource* sourceClock, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext) = 0;
+	virtual void TransparentSetClockRate(double newClockRate, const IClockSource* sourceClock) = 0;
 };
 
 #include "IBusInterface.inl"

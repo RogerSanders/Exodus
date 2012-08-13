@@ -80,6 +80,17 @@ struct BusInterface::LineMappingParams
 };
 
 //----------------------------------------------------------------------------------------
+struct BusInterface::ClockSourceMappingParams
+{
+	ClockSourceMappingParams()
+	:targetClockLineDefined(false)
+	{}
+
+	bool targetClockLineDefined;
+	std::wstring targetClockLine;
+};
+
+//----------------------------------------------------------------------------------------
 struct BusInterface::MapEntry
 {
 	MapEntry()
@@ -198,4 +209,17 @@ struct BusInterface::CELineDeviceEntry
 	unsigned int outputCELineMask; //This is a binary OR of lineBitmask in all lineOutputs members
 	std::list<CELineDeviceLineInput> lineInputs;
 	std::list<CELineDeviceLineOutput> lineOutputs;
+};
+
+//----------------------------------------------------------------------------------------
+struct BusInterface::ClockSourceEntry
+{
+	ClockSourceEntry()
+		:inputClockSource(0),
+		targetDevice(0)
+	{}
+
+	IClockSource* inputClockSource;
+	IDevice* targetDevice;
+	unsigned int targetClockLine;
 };

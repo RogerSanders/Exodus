@@ -49,6 +49,8 @@ INT_PTR M68000::ExceptionsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARA
 	UpdateExceptionEntry(hwnd, exceptionEntry, device->GetAddressBusCharWidth());
 	exceptionListIndex = -1;
 
+	initializedDialog = true;
+
 	return TRUE;
 }
 

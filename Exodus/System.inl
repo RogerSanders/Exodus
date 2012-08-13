@@ -65,28 +65,6 @@ struct System::LoadedBusInfo
 };
 
 //----------------------------------------------------------------------------------------
-struct System::ConnectorDetails
-{
-	//Internal data
-	unsigned int connectorID;
-
-	//Exporting module info
-	unsigned int exportingModuleID;
-	std::wstring connectorClassName;
-	std::wstring exportingModuleConnectorInstanceName;
-	std::wstring systemClassName;
-
-	//Exported objects
-	std::map<std::wstring, ExportedBusInfo> exportedBusInfo;
-	std::map<std::wstring, ExportedDeviceInfo> exportedDeviceInfo;
-
-	//Importing module info
-	bool connectorUsed;
-	unsigned int importingModuleID;
-	std::wstring importingModuleConnectorInstanceName;
-};
-
-//----------------------------------------------------------------------------------------
 struct System::ExportedBusInfo
 {
 	BusInterface* busInterface;
@@ -106,6 +84,34 @@ struct System::ImportedBusInfo
 	unsigned int importingModuleID;
 	std::wstring importingModuleBusInterfaceName;
 	std::list<ImportedLineGroupInfo> importedLineGroups;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::LoadedClockSourceInfo
+{
+	ClockSource* clockSource;
+	std::wstring name;
+	unsigned int moduleID;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ExportedClockSourceInfo
+{
+	ClockSource* clockSource;
+	std::wstring exportingModuleClockSourceName;
+	std::wstring importName;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ImportedClockSourceInfo
+{
+	ClockSource* clockSource;
+	std::wstring exportingModuleClockSourceName;
+	std::wstring importName;
+	unsigned int connectorID;
+	unsigned int exportingModuleID;
+	unsigned int importingModuleID;
+	std::wstring importingModuleClockSourceName;
 };
 
 //----------------------------------------------------------------------------------------
@@ -130,6 +136,29 @@ struct System::LineGroupDetails
 	BusInterface* busInterface;
 	std::wstring lineGroupName;
 	unsigned int lineGroupID;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ConnectorDetails
+{
+	//Internal data
+	unsigned int connectorID;
+
+	//Exporting module info
+	unsigned int exportingModuleID;
+	std::wstring connectorClassName;
+	std::wstring exportingModuleConnectorInstanceName;
+	std::wstring systemClassName;
+
+	//Exported objects
+	std::map<std::wstring, ExportedDeviceInfo> exportedDeviceInfo;
+	std::map<std::wstring, ExportedBusInfo> exportedBusInfo;
+	std::map<std::wstring, ExportedClockSourceInfo> exportedClockSourceInfo;
+
+	//Importing module info
+	bool connectorUsed;
+	unsigned int importingModuleID;
+	std::wstring importingModuleConnectorInstanceName;
 };
 
 //----------------------------------------------------------------------------------------
