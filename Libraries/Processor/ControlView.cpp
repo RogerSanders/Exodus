@@ -76,7 +76,7 @@ INT_PTR Processor::ControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 			switch(LOWORD(wparam))
 			{
 			case IDC_PROCESSOR_CONTROL_CLOCK:
-				device->SetClockSpeed((double)GetDlgItemBin(hwnd, LOWORD(wparam)));
+				device->OverrideClockSpeed((double)GetDlgItemBin(hwnd, LOWORD(wparam)));
 				break;
 			}
 		}
