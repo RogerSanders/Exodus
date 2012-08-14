@@ -466,6 +466,44 @@ float GetDlgItemFloat(HWND hwnd, int controlID)
 }
 
 //----------------------------------------------------------------------------------------
+void UpdateDlgItemDouble(HWND hwnd, int controlID, double data)
+{
+	const unsigned int maxTextLength = 1024;
+	wchar_t currentTextTemp[maxTextLength];
+	if(GetDlgItemText(hwnd, controlID, currentTextTemp, maxTextLength) == 0)
+	{
+		currentTextTemp[0] = L'\0';
+	}
+	std::wstring currentText = currentTextTemp;
+	std::wstringstream text;
+	//	text << std::fixed << std::setprecision(10);
+	text << std::setprecision(10);
+	text << data;
+	if(text.str() != currentText)
+	{
+		SetDlgItemText(hwnd, controlID, text.str().c_str());
+	}
+}
+
+//----------------------------------------------------------------------------------------
+double GetDlgItemDouble(HWND hwnd, int controlID)
+{
+	double value = 0;
+
+	const unsigned int maxTextLength = 1024;
+	wchar_t currentTextTemp[maxTextLength];
+	if(GetDlgItemText(hwnd, controlID, currentTextTemp, maxTextLength) == 0)
+	{
+		currentTextTemp[0] = L'\0';
+	}
+	std::wstringstream buffer;
+	buffer << currentTextTemp;
+	buffer >> value;
+
+	return value;
+}
+
+//----------------------------------------------------------------------------------------
 void UpdateDlgItemString(HWND hwnd, int controlID, const std::wstring& data)
 {
 	SetDlgItemText(hwnd, controlID, data.c_str());

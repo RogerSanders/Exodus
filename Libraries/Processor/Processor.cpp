@@ -12,7 +12,7 @@
 //----------------------------------------------------------------------------------------
 Processor::Processor(const std::wstring& aclassName, const std::wstring& ainstanceName, unsigned int amoduleID)
 :Device(aclassName, ainstanceName, amoduleID),
-clockSpeed(0), originalClockSpeed(0),
+clockSpeed(0), reportedClockSpeed(0), clockSpeedOverridden(false),
 traceEnabled(false), traceDisassemble(false), traceLength(200), traceCoverageEnabled(false), traceCoverageStart(0), traceCoverageEnd(0),
 stackDisassemble(false), stepOver(false), stepOut(false),
 breakOnNextOpcode(false), breakpointTriggered(false), breakpointExists(false), watchpointExists(false),
@@ -65,7 +65,6 @@ bool Processor::Construct(IHeirarchicalStorageNode& node)
 	if(clockSpeedAttribute != 0)
 	{
 		clockSpeed = clockSpeedAttribute->ExtractValue<double>();
-		originalClockSpeed = clockSpeed;
 	}
 
 	return result;
@@ -77,6 +76,13 @@ bool Processor::Construct(IHeirarchicalStorageNode& node)
 void Processor::ExecuteRollback()
 {
 	boost::mutex::scoped_lock lock(debugMutex);
+
+	//Clock speed
+	clockSpeed = bclockSpeed;
+	if(!clockSpeedOverridden)
+	{
+		reportedClockSpeed = clockSpeed;
+	}
 
 	//Call stack and trace log
 	callStack = bcallStack;
@@ -108,6 +114,9 @@ void Processor::ExecuteRollback()
 void Processor::ExecuteCommit()
 {
 	boost::mutex::scoped_lock lock(debugMutex);
+
+	//Clock speed
+	bclockSpeed = clockSpeed;
 
 	//Call stack and trace log
 	bcallStack = callStack;
@@ -145,19 +154,31 @@ Processor::UpdateMethod Processor::GetUpdateMethod() const
 //----------------------------------------------------------------------------------------
 double Processor::GetClockSpeed() const
 {
-	return clockSpeed;
+	return reportedClockSpeed;
 }
 
 //----------------------------------------------------------------------------------------
 void Processor::SetClockSpeed(double aclockSpeed)
 {
 	clockSpeed = aclockSpeed;
+	if(!clockSpeedOverridden)
+	{
+		reportedClockSpeed = clockSpeed;
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::OverrideClockSpeed(double aclockSpeed)
+{
+	clockSpeedOverridden = true;
+	reportedClockSpeed = aclockSpeed;
 }
 
 //----------------------------------------------------------------------------------------
 void Processor::RestoreClockSpeed()
 {
-	clockSpeed = originalClockSpeed;
+	clockSpeedOverridden = false;
+	reportedClockSpeed = clockSpeed;
 }
 
 //----------------------------------------------------------------------------------------

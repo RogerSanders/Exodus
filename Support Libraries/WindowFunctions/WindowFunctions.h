@@ -61,6 +61,8 @@ void UpdateDlgItemHex(HWND hwnd, int controlID, unsigned int width, unsigned int
 unsigned int GetDlgItemHex(HWND hwnd, int controlID);
 void UpdateDlgItemFloat(HWND hwnd, int controlID, float data);
 float GetDlgItemFloat(HWND hwnd, int controlID);
+void UpdateDlgItemDouble(HWND hwnd, int controlID, double data);
+double GetDlgItemDouble(HWND hwnd, int controlID);
 void UpdateDlgItemString(HWND hwnd, int controlID, const std::wstring& data);
 std::wstring GetDlgItemString(HWND hwnd, int controlID);
 

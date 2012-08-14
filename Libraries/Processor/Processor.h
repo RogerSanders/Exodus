@@ -133,6 +133,7 @@ public:
 	//Control functions
 	double GetClockSpeed() const;
 	void SetClockSpeed(double aclockSpeed);
+	void OverrideClockSpeed(double aclockSpeed);
 	void RestoreClockSpeed();
 	double CalculateExecutionTime(unsigned int cycles) const;
 
@@ -251,7 +252,9 @@ private:
 
 	//Clock speed
 	double clockSpeed;
-	double originalClockSpeed;
+	double bclockSpeed;
+	bool clockSpeedOverridden;
+	double reportedClockSpeed;
 
 	//Breakpoints
 	typedef std::list<Breakpoint*> BreakpointList;
