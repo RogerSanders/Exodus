@@ -4098,7 +4098,52 @@ bool System::GetConnectorInfo(unsigned int connectorID, ConnectorInfo& connector
 //----------------------------------------------------------------------------------------
 IDeviceContext::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 {
-	if(keyCodeName == L"Up")
+	//Control keys
+	if(keyCodeName == L"Esc")
+	{
+		return IDeviceContext::KEYCODE_ESCAPE;
+	}
+	else if(keyCodeName == L"Tab")
+	{
+		return IDeviceContext::KEYCODE_TAB;
+	}
+	else if(keyCodeName == L"Enter")
+	{
+		return IDeviceContext::KEYCODE_ENTER;
+	}
+	else if(keyCodeName == L"Space")
+	{
+		return IDeviceContext::KEYCODE_SPACE;
+	}
+	else if(keyCodeName == L"Backspace")
+	{
+		return IDeviceContext::KEYCODE_BACKSPACE;
+	}
+	else if(keyCodeName == L"Insert")
+	{
+		return IDeviceContext::KEYCODE_INSERT;
+	}
+	else if(keyCodeName == L"Delete")
+	{
+		return IDeviceContext::KEYCODE_DELETE;
+	}
+	else if(keyCodeName == L"PgUp")
+	{
+		return IDeviceContext::KEYCODE_PAGEUP;
+	}
+	else if(keyCodeName == L"PgDn")
+	{
+		return IDeviceContext::KEYCODE_PAGEDOWN;
+	}
+	else if(keyCodeName == L"Home")
+	{
+		return IDeviceContext::KEYCODE_HOME;
+	}
+	else if(keyCodeName == L"End")
+	{
+		return IDeviceContext::KEYCODE_END;
+	}
+	else if(keyCodeName == L"Up")
 	{
 		return IDeviceContext::KEYCODE_UP;
 	}
@@ -4114,22 +4159,205 @@ IDeviceContext::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) co
 	{
 		return IDeviceContext::KEYCODE_RIGHT;
 	}
-	else if(keyCodeName == L"Z")
+
+	//Function keys
+	else if(keyCodeName == L"F1")
 	{
-		return IDeviceContext::KEYCODE_Z;
+		return IDeviceContext::KEYCODE_F1;
 	}
-	else if(keyCodeName == L"X")
+	else if(keyCodeName == L"F2")
 	{
-		return IDeviceContext::KEYCODE_X;
+		return IDeviceContext::KEYCODE_F2;
+	}
+	else if(keyCodeName == L"F3")
+	{
+		return IDeviceContext::KEYCODE_F3;
+	}
+	else if(keyCodeName == L"F4")
+	{
+		return IDeviceContext::KEYCODE_F4;
+	}
+	else if(keyCodeName == L"F5")
+	{
+		return IDeviceContext::KEYCODE_F5;
+	}
+	else if(keyCodeName == L"F6")
+	{
+		return IDeviceContext::KEYCODE_F6;
+	}
+	else if(keyCodeName == L"F7")
+	{
+		return IDeviceContext::KEYCODE_F7;
+	}
+	else if(keyCodeName == L"F8")
+	{
+		return IDeviceContext::KEYCODE_F8;
+	}
+	else if(keyCodeName == L"F9")
+	{
+		return IDeviceContext::KEYCODE_F9;
+	}
+	else if(keyCodeName == L"F10")
+	{
+		return IDeviceContext::KEYCODE_F10;
+	}
+	else if(keyCodeName == L"F11")
+	{
+		return IDeviceContext::KEYCODE_F11;
+	}
+	else if(keyCodeName == L"F12")
+	{
+		return IDeviceContext::KEYCODE_F12;
+	}
+
+	//Numbers
+	else if(keyCodeName == L"0")
+	{
+		return IDeviceContext::KEYCODE_0;
+	}
+	else if(keyCodeName == L"1")
+	{
+		return IDeviceContext::KEYCODE_1;
+	}
+	else if(keyCodeName == L"2")
+	{
+		return IDeviceContext::KEYCODE_2;
+	}
+	else if(keyCodeName == L"3")
+	{
+		return IDeviceContext::KEYCODE_3;
+	}
+	else if(keyCodeName == L"4")
+	{
+		return IDeviceContext::KEYCODE_4;
+	}
+	else if(keyCodeName == L"5")
+	{
+		return IDeviceContext::KEYCODE_5;
+	}
+	else if(keyCodeName == L"6")
+	{
+		return IDeviceContext::KEYCODE_6;
+	}
+	else if(keyCodeName == L"7")
+	{
+		return IDeviceContext::KEYCODE_7;
+	}
+	else if(keyCodeName == L"8")
+	{
+		return IDeviceContext::KEYCODE_8;
+	}
+	else if(keyCodeName == L"9")
+	{
+		return IDeviceContext::KEYCODE_9;
+	}
+
+	//Characters
+	else if(keyCodeName == L"A")
+	{
+		return IDeviceContext::KEYCODE_A;
+	}
+	else if(keyCodeName == L"B")
+	{
+		return IDeviceContext::KEYCODE_B;
 	}
 	else if(keyCodeName == L"C")
 	{
 		return IDeviceContext::KEYCODE_C;
 	}
+	else if(keyCodeName == L"D")
+	{
+		return IDeviceContext::KEYCODE_D;
+	}
+	else if(keyCodeName == L"E")
+	{
+		return IDeviceContext::KEYCODE_E;
+	}
+	else if(keyCodeName == L"F")
+	{
+		return IDeviceContext::KEYCODE_F;
+	}
+	else if(keyCodeName == L"G")
+	{
+		return IDeviceContext::KEYCODE_G;
+	}
+	else if(keyCodeName == L"H")
+	{
+		return IDeviceContext::KEYCODE_H;
+	}
+	else if(keyCodeName == L"I")
+	{
+		return IDeviceContext::KEYCODE_I;
+	}
+	else if(keyCodeName == L"J")
+	{
+		return IDeviceContext::KEYCODE_J;
+	}
+	else if(keyCodeName == L"K")
+	{
+		return IDeviceContext::KEYCODE_K;
+	}
+	else if(keyCodeName == L"L")
+	{
+		return IDeviceContext::KEYCODE_L;
+	}
+	else if(keyCodeName == L"M")
+	{
+		return IDeviceContext::KEYCODE_M;
+	}
+	else if(keyCodeName == L"N")
+	{
+		return IDeviceContext::KEYCODE_N;
+	}
+	else if(keyCodeName == L"O")
+	{
+		return IDeviceContext::KEYCODE_O;
+	}
+	else if(keyCodeName == L"P")
+	{
+		return IDeviceContext::KEYCODE_P;
+	}
+	else if(keyCodeName == L"Q")
+	{
+		return IDeviceContext::KEYCODE_Q;
+	}
+	else if(keyCodeName == L"R")
+	{
+		return IDeviceContext::KEYCODE_R;
+	}
+	else if(keyCodeName == L"S")
+	{
+		return IDeviceContext::KEYCODE_S;
+	}
+	else if(keyCodeName == L"T")
+	{
+		return IDeviceContext::KEYCODE_T;
+	}
+	else if(keyCodeName == L"U")
+	{
+		return IDeviceContext::KEYCODE_U;
+	}
 	else if(keyCodeName == L"V")
 	{
 		return IDeviceContext::KEYCODE_V;
 	}
+	else if(keyCodeName == L"W")
+	{
+		return IDeviceContext::KEYCODE_W;
+	}
+	else if(keyCodeName == L"X")
+	{
+		return IDeviceContext::KEYCODE_X;
+	}
+	else if(keyCodeName == L"Y")
+	{
+		return IDeviceContext::KEYCODE_Y;
+	}
+	else if(keyCodeName == L"Z")
+	{
+		return IDeviceContext::KEYCODE_Z;
+	}
+
 	return (IDeviceContext::KeyCode)0;
 }
 

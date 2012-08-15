@@ -1325,6 +1325,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="MDControl6"
+			>
+			<File
+				RelativePath=".\MDControl6.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MDControl6.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\interface.cpp"
 			>
