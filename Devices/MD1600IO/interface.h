@@ -7,6 +7,7 @@ void GetA04000DeviceInfo(IDeviceInfo& deviceInfo);
 void GetA06000DeviceInfo(IDeviceInfo& deviceInfo);
 void GetA11100DeviceInfo(IDeviceInfo& deviceInfo);
 void GetMDControl3DeviceInfo(IDeviceInfo& deviceInfo);
+void GetMDControl6DeviceInfo(IDeviceInfo& deviceInfo);
 void GetMDBusArbiterDeviceInfo(IDeviceInfo& deviceInfo);
 
 #endif

@@ -4,6 +4,7 @@
 #include "A06000.h"
 #include "A11100.h"
 #include "MDControl3.h"
+#include "MDControl6.h"
 #include "MDBusArbiter.h"
 
 IDevice* GetA10000(const wchar_t* instanceName, unsigned int moduleID)
@@ -56,6 +57,16 @@ void DeleteMDControl3(IDevice* device)
 	delete device;
 }
 
+IDevice* GetMDControl6(const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new MDControl6(instanceName, moduleID);
+}
+
+void DeleteMDControl6(IDevice* device)
+{
+	delete device;
+}
+
 IDevice* GetMDBusArbiter(const wchar_t* instanceName, unsigned int moduleID)
 {
 	return new MDBusArbiter(instanceName, moduleID);
@@ -97,6 +108,9 @@ extern "C" __declspec(dllexport) bool GetLibraryEntry(unsigned int entryNo, IDev
 		entry.SetDeviceSettings(L"MDControl3", GetMDControl3, DeleteMDControl3, 1);
 		return true;
 	case 5:
+		entry.SetDeviceSettings(L"MDControl6", GetMDControl6, DeleteMDControl6, 1);
+		return true;
+	case 6:
 		entry.SetDeviceSettings(L"MDBusArbiter", GetMDBusArbiter, DeleteMDBusArbiter, 1);
 		return true;
 	}

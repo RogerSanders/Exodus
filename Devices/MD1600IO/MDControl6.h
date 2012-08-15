@@ -10,17 +10,18 @@ routines when writing user code.
 References:
 -Sega Genesis I/O Chip and Peripherals, Charles MacDonald
 -Sega Six Button Controller Hardware Info, Charles Rosenberg, v1.0 1996-09-09
+-http://segaretro.org/Six_Button_Control_Pad_(Mega_Drive), retrieved 2012-08-14
 \*--------------------------------------------------------------------------------------*/
-#ifndef __MDCONTROL3_H__
-#define __MDCONTROL3_H__
+#ifndef __MDCONTROL6_H__
+#define __MDCONTROL6_H__
 #include "SystemInterface/SystemInterface.pkg"
 #include "Device/Device.pkg"
 
-class MDControl3 :public Device
+class MDControl6 :public Device
 {
 public:
 	//Constructors
-	MDControl3(const std::wstring& ainstanceName, unsigned int amoduleID);
+	MDControl6(const std::wstring& ainstanceName, unsigned int amoduleID);
 
 	//Initialization functions
 	virtual bool ValidateDevice();
@@ -61,9 +62,14 @@ private:
 		BUTTON_A      = 4,
 		BUTTON_B      = 5,
 		BUTTON_C      = 6,
-		BUTTON_START  = 7
+		BUTTON_START  = 7,
+		BUTTON_X      = 8,
+		BUTTON_Y      = 9,
+		BUTTON_Z      = 10,
+		BUTTON_MODE   = 11
 	};
-	static const unsigned int buttonCount = 8;
+	static const unsigned int buttonCount = 12;
+	static const unsigned int bankswitchCounterResetPoint = 4;
 
 	//Bus interface
 	IBusInterface* memoryBus;
@@ -73,8 +79,16 @@ private:
 	std::vector<bool> bbuttonPressed;
 
 	//Device state
-	bool secondBankEnabled;
-	bool bsecondBankEnabled;
+	double bankswitchTimeoutInterval;
+	double currentTimesliceLength;
+	bool lineInputStateTH;
+	bool blineInputStateTH;
+	bool bankswitchingDisabled;
+	bool bbankswitchingDisabled;
+	unsigned int bankswitchCounter;
+	unsigned int bbankswitchCounter;
+	double bankswitchCounterToggleLastRisingEdge;
+	double bbankswitchCounterToggleLastRisingEdge;
 
 	//Line state
 	bool lineAssertedD0;
