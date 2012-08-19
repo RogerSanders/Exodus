@@ -370,14 +370,19 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 		}
 		else if(busGranted && !targetLineState && workerThreadPaused)
 		{
+			//Release the accessMutex lock. We want this lock initially just to prevent
+			//any issues that could occur with overlapped port access or external line
+			//state changes.
+			lock.unlock();
+
 			//If we currently have the bus, and the caller is requesting that we advance
 			//until the bus request line is negated, we can accurately perform that
 			//operation. In this case, we instruct the DMA worker thread to run the DMA
 			//operation to completion.
 			dmaAdvanceUntilDMAComplete = true;
 			workerThreadUpdate.notify_all();
-			dmaAdvanceUntilDMAComplete = false;
 			workerThreadIdle.wait(workerLock);
+			dmaAdvanceUntilDMAComplete = false;
 			return true;
 		}
 		break;}
@@ -5013,24 +5018,33 @@ void S315_5313::DMAWorkerThread()
 				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 			}
 
+			//Delay execution of the DMA worker thread until events have been processed
+			//for this timeslice. This is required when resuming a paused DMA operation
+			//for example, when we need to wait for the ExecuteTimeslice method to be
+			//called and to fully process events before we can safely modify the processor
+			//state.
+			{
+				//Note that we release our lock on workerThreadMutex here until events
+				//have been processed. In order to prevent deadlocks, we need to ensure we
+				//always take our locks in the correct order, namely, accessMutex must be
+				//locked first, meaning, we need to release our lock on workerThreadMutex
+				//before we can obtain the lock on accessMutex. Since we don't need our
+				//lock on workerThreadMutex again until events have been processed, we
+				//can safely wait until after the loop to reacquire it.
+				lock.unlock();
+				boost::mutex::scoped_lock accessLock(accessMutex);
+				while(!eventsProcessedForTimeslice)
+				{
+					eventProcessingCompleted.wait(accessLock);
+				}
+				lock.lock();
+			}
+
 			//If a DMA transfer is currently in progress and we currently have the bus,
 			//advance the processor state until the DMA operation is complete, or we reach
 			//the end of the current timeslice.
 			if(dmaTransferActive && busGranted)
 			{
-				//Delay execution of the DMA worker thread until events have been
-				//processed for this timeslice. This is required when resuming a paused
-				//DMA operation for example, when we need to wait for the ExecuteTimeslice
-				//method to be called and to fully process events before we can safely
-				//modify the processor state.
-				{
-					boost::mutex::scoped_lock lock(accessMutex);
-					while(!eventsProcessedForTimeslice)
-					{
-						eventProcessingCompleted.wait(lock);
-					}
-				}
-
 				//Advance the DMA operation
 				if(dmaAdvanceUntilDMAComplete)
 				{
