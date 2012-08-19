@@ -1344,9 +1344,27 @@ void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* a
 	if(!rollback || (timeslice < rollbackTimeslice))
 	{
 		rollback = true;
-		rollbackTimeslice = timeslice;
 		rollbackContext = accessContext;
 		rollbackDevice = arollbackDevice;
+
+		//If the device which triggered the rollback uses the step execution method, we
+		//trigger the rollback using the reported current timeslice progress of the device
+		//rather than the actual time at which the access occurred which triggered the
+		//rollback. We need to do this, otherwise devices which have multiple external
+		//access events within a single indivisible operation can trigger a rollback on
+		//a later access, which may occur with an access time past the start of the actual
+		//operation itself, which will then create a rollback target that we can't
+		//actually advance up to without triggering the rollback again. See EX-62 for more
+		//info.
+		if(arollbackDevice->GetTargetDevice()->GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+		{
+			rollbackTimeslice = arollbackDevice->GetCurrentTimesliceProgress();
+		}
+		else
+		{
+			rollbackTimeslice = timeslice;
+		}
+
 		useRollbackFunction = false;
 		if(callbackFunction != 0)
 		{
