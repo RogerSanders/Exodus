@@ -929,7 +929,7 @@ private:
 	unsigned int bdmaTransferInvalidAddressCache;
 	Data dmaTransferInvalidPortWriteDataCache;
 	Data bdmaTransferInvalidDataCache;
-	bool dmaAdvanceUntilDMAComplete;
+	volatile bool dmaAdvanceUntilDMAComplete;
 
 	//Interrupt settings
 	//##TODO## Add rollback settings for these values
