@@ -348,60 +348,75 @@ void SN76489::RenderThread()
 		//Render the audio output
 		size_t outputBufferPos = outputBuffer.size();
 		double outputFrequency = externalClockRate / externalClockDivider;
-
 		bool moreSamplesRemaining = true;
 		while(moreSamplesRemaining)
 		{
-			//Calculate the output sample count
+			//Determine the time of the next write. Note that currently, this may be
+			//negative under certain circumstances, in particular when a write occurs past
+			//the end of a timeslice. Negative times won't cause writes to be processed at
+			//the incorrect time under the current model, but we do need to ensure that
+			//remainingRenderTime isn't negative before attempting to generate an output.
 			remainingRenderTime += reg.GetNextWriteTime(regTimesliceCopy);
+
+			//Calculate the output sample count. Note that remainingRenderTime may be
+			//negative, but we catch that below before using outputSampleCount.
 			unsigned int outputSampleCount = (unsigned int)(remainingRenderTime * (outputFrequency / 1000000000.0));
 
-			//Resize the output buffer to fit the samples we're about to add
-			outputBuffer.resize(outputBuffer.size() + outputSampleCount);
-
-			//For each channel, calculate the output data for the elapsed time
-			std::vector<float> channelBuffer[channelCount];
-			for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+			//If we have one or more output samples to generate before the next settings
+			//change or the end of the target timeslice, generate and output the samples.
+			if((remainingRenderTime > 0) && (outputSampleCount > 0))
 			{
-				channelBuffer[channelNo].resize(outputSampleCount);
-				UpdateChannel(channelNo, outputSampleCount, channelBuffer[channelNo]);
+				//Resize the output buffer to fit the samples we're about to add
+				outputBuffer.resize(outputBuffer.size() + outputSampleCount);
 
-				//Output the channel wave log
-				if(wavLoggingChannelEnabled[channelNo])
-				{
-					boost::mutex::scoped_lock lock(waveLoggingMutex);
-					Stream::ViewBinary wavlogStream(wavLogChannel[channelNo]);
-					for(unsigned int i = 0; i < channelBuffer[channelNo].size(); ++i)
-					{
-						wavlogStream << (short)(channelBuffer[channelNo][i] * (32767.0f/channelCount));
-					}
-				}
-			}
-
-			//Mix the output from each channel into a combined output buffer
-			for(unsigned int sampleNo = 0; sampleNo < outputSampleCount; ++sampleNo)
-			{
-				float mixedSample = 0.0;
+				//For each channel, calculate the output data for the elapsed time
+				std::vector<float> channelBuffer[channelCount];
 				for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
 				{
-					mixedSample += channelBuffer[channelNo][sampleNo];
-				}
-				mixedSample /= channelCount;
-				outputBuffer[outputBufferPos++] = (short)(mixedSample * (32767.0f/6));
-			}
+					channelBuffer[channelNo].resize(outputSampleCount);
+					UpdateChannel(channelNo, outputSampleCount, channelBuffer[channelNo]);
 
-			RandomTimeAccessBuffer<Data, double>::WriteInfo writeInfo = reg.GetWriteInfo(0, regTimesliceCopy);
-			if(writeInfo.exists)
-			{
-				//If the noise register is being modified, we need to reset the LFSR to
-				//the default for value for the next cycle.
-				if(writeInfo.writeAddress == (noiseChannelNo * 2) + 1)
+					//Output the channel wave log
+					if(wavLoggingChannelEnabled[channelNo])
+					{
+						boost::mutex::scoped_lock lock(waveLoggingMutex);
+						Stream::ViewBinary wavlogStream(wavLogChannel[channelNo]);
+						for(unsigned int i = 0; i < channelBuffer[channelNo].size(); ++i)
+						{
+							wavlogStream << (short)(channelBuffer[channelNo][i] * (32767.0f/channelCount));
+						}
+					}
+				}
+
+				//Mix the output from each channel into a combined output buffer
+				for(unsigned int sampleNo = 0; sampleNo < outputSampleCount; ++sampleNo)
 				{
-					noiseShiftRegister = shiftRegisterDefaultValue;
+					float mixedSample = 0.0;
+					for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+					{
+						mixedSample += channelBuffer[channelNo][sampleNo];
+					}
+					mixedSample /= channelCount;
+					outputBuffer[outputBufferPos++] = (short)(mixedSample * (32767.0f / 6.0f));
 				}
+
+				RandomTimeAccessBuffer<Data, double>::WriteInfo writeInfo = reg.GetWriteInfo(0, regTimesliceCopy);
+				if(writeInfo.exists)
+				{
+					//If the noise register is being modified, we need to reset the LFSR
+					//to the default for value for the next cycle.
+					if(writeInfo.writeAddress == (noiseChannelNo * 2) + 1)
+					{
+						noiseShiftRegister = shiftRegisterDefaultValue;
+					}
+				}
+
+				//Adjust the remainingRenderTime variable to remove the time we just
+				//consumed generating the output samples.
+				remainingRenderTime -= (double)outputSampleCount * (1000000000.0 / outputFrequency);
 			}
 
-			remainingRenderTime -= (double)outputSampleCount * (1000000000.0 / outputFrequency);
+			//Advance to the next write operation, or the end of the current timeslice.
 			moreSamplesRemaining = reg.AdvanceByStep(regTimesliceCopy);
 		}
 
@@ -427,6 +442,7 @@ void SN76489::RenderThread()
 				outputStream.PlayBuffer(outputBufferFinal);
 			}
 			outputBuffer.clear();
+			outputBuffer.reserve(minimumSamplesToOutput * 2);
 		}
 
 		//Advance past the timeslice we've just rendered from
