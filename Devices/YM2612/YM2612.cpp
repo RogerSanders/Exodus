@@ -727,401 +727,415 @@ void YM2612::RenderThread()
 		bool moreSamplesRemaining = true;
 		while(moreSamplesRemaining)
 		{
+			//Determine the time of the next write. Note that currently, this may be
+			//negative under certain circumstances, in particular when a write occurs past
+			//the end of a timeslice. Negative times won't cause writes to be processed at
+			//the incorrect time under the current model, but we do need to ensure that
+			//remainingRenderTime isn't negative before attempting to generate an output.
 			remainingRenderTime += reg.GetNextWriteTime(regTimesliceCopy);
 
 			//##DEBUG##
 //			std::wcout << "YM2612 Buffer:\t" << remainingRenderTime << '\t' << outputBuffer.size() << '\t' << ((unsigned int)(remainingRenderTime / fmClockPeriod) * 2) << '\n';
 
-			//Resize the output buffer to fit the samples we're about to add
-			outputBuffer.resize(outputBuffer.size() + ((unsigned int)(remainingRenderTime / fmClockPeriod) * 2));
-//			outputBufferMultiplexed.resize(outputBufferMultiplexed.size() + ((unsigned int)(remainingRenderTime / fmClockPeriod) * channelCount * 2));
+			//Calculate the output sample count. Note that remainingRenderTime may be
+			//negative, but we catch that below before using outputSampleCount.
+			unsigned int outputSampleCount = ((unsigned int)(remainingRenderTime / fmClockPeriod) * 2);
 
-			//##TODO## Change the way we advance the render thread so that the update
-			//steps are driven by integer cycle numbers, rather than timeslice values.
-			//Refer to the timer update function.
-			while(remainingRenderTime >= fmClockPeriod)
+			//If we have one or more output samples to generate before the next settings
+			//change or the end of the target timeslice, generate and output the samples.
+			if((remainingRenderTime > 0) && (outputSampleCount > 0))
 			{
-				//If CSM mode is active, advance the timer A overflow buffer by one step.
-				//We make this conditional as an optimization, to prevent the need to
-				//advance the timer A overflow buffer at such a fine resolution every
-				//update cycle, for such a rarely used feature. We use a larger update
-				//step later on for cases where CSM mode is inactive.
-				if(GetCH3Mode(accessTarget) == 2)
-				{
-					//Reset the committed state. We do this before each update, as we use
-					//the overflow value as a signal line which is only asserted when an
-					//overflow has occurred after the last update. Each write always sets
-					//it to true, and we reset it once that write has been processed.
-					timerAOverflowTimes.WriteCommitted(false);
-					//Advance the buffer
-					timerAOverflowTimes.AdvanceByTime(fmClockPeriod, timerATimesliceCopy);
-				}
+				//Resize the output buffer to fit the samples we're about to add
+				outputBuffer.resize(outputBuffer.size() + outputSampleCount);
+	//			outputBufferMultiplexed.resize(outputBufferMultiplexed.size() + (outputSampleCount * channelCount));
 
-				//Advance the global envelope generator state, and determine whether an
-				//envelope generator update cycle needs to run for each operator on this
-				//update step.
-				bool updateEnvelopeGenerator = false;
-				--egRemainingRenderCycles;
-				if(egRemainingRenderCycles <= 0)
+				//##TODO## Change the way we advance the render thread so that the update
+				//steps are driven by integer cycle numbers, rather than timeslice values.
+				//Refer to the timer update function.
+				while(remainingRenderTime >= fmClockPeriod)
 				{
-					egRemainingRenderCycles = (int)egClockDivider;
-					++envelopeCycleCounter;
-					updateEnvelopeGenerator = true;
-				}
-
-				//Update the state of the envelope and phase generators for each operator
-				for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
-				{
-					for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+					//If CSM mode is active, advance the timer A overflow buffer by one step.
+					//We make this conditional as an optimization, to prevent the need to
+					//advance the timer A overflow buffer at such a fine resolution every
+					//update cycle, for such a rarely used feature. We use a larger update
+					//step later on for cases where CSM mode is inactive.
+					if(GetCH3Mode(accessTarget) == 2)
 					{
-						UpdateOperator(channelNo, operatorNo, updateEnvelopeGenerator);
+						//Reset the committed state. We do this before each update, as we use
+						//the overflow value as a signal line which is only asserted when an
+						//overflow has occurred after the last update. Each write always sets
+						//it to true, and we reset it once that write has been processed.
+						timerAOverflowTimes.WriteCommitted(false);
+						//Advance the buffer
+						timerAOverflowTimes.AdvanceByTime(fmClockPeriod, timerATimesliceCopy);
 					}
-				}
 
-				//Update the LFO
-				if(GetLFOEnabled(accessTarget))
-				{
-					--cyclesUntilLFOIncrement;
-					if(cyclesUntilLFOIncrement <= 0)
+					//Advance the global envelope generator state, and determine whether an
+					//envelope generator update cycle needs to run for each operator on this
+					//update step.
+					bool updateEnvelopeGenerator = false;
+					--egRemainingRenderCycles;
+					if(egRemainingRenderCycles <= 0)
 					{
-						const unsigned int lfoIncrementValues[8] = {108, 77, 71, 67, 62, 44, 8, 5};
-						unsigned int lfoData = GetLFOData(accessTarget);
-						cyclesUntilLFOIncrement = lfoIncrementValues[lfoData];
-						++currentLFOCounter;
+						egRemainingRenderCycles = (int)egClockDivider;
+						++envelopeCycleCounter;
+						updateEnvelopeGenerator = true;
 					}
-				}
-				else
-				{
-					//If the LFO is disabled, the LFO counter is forced to 0
-					currentLFOCounter = 0;
-				}
 
-				//Calculate the FM output for each channel in the YM2612 for this sample
-				int channelOutput[channelCount][2];
-				for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
-				{
-					//Read the current algorithm selection for the channel
-					unsigned int algorithmNo = GetAlgorithmData(channelNo, accessTarget);
-
-					//Calculate the output for each operator in the channel
-					for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+					//Update the state of the envelope and phase generators for each operator
+					for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
 					{
-						//Calculate the phase modulation input for the operator unit
-						int phaseModulation = 0;
-						if((operatorNo == OPERATOR2) && ((algorithmNo == 0) || (algorithmNo == 3) || (algorithmNo == 4) || (algorithmNo == 5) || (algorithmNo == 6)))
+						for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
 						{
-							phaseModulation = operatorOutput[channelNo][OPERATOR1];
+							UpdateOperator(channelNo, operatorNo, updateEnvelopeGenerator);
 						}
-						else if((operatorNo == OPERATOR3) && ((algorithmNo == 0) || (algorithmNo == 2)))
-						{
-							phaseModulation = operatorOutput[channelNo][OPERATOR2];
-						}
-						else if((operatorNo == OPERATOR3) && (algorithmNo == 1))
-						{
-							phaseModulation = operatorOutput[channelNo][OPERATOR1] + operatorOutput[channelNo][OPERATOR2];
-						}
-						else if((operatorNo == OPERATOR3) && (algorithmNo == 5))
-						{
-							phaseModulation = operatorOutput[channelNo][OPERATOR1];
-						}
-						else if((operatorNo == OPERATOR4) && ((algorithmNo == 0) || (algorithmNo == 1) || (algorithmNo == 4)))
-						{
-							phaseModulation = operatorOutput[channelNo][OPERATOR3];
-						}
-						else if((operatorNo == OPERATOR4) && (algorithmNo == 2))
-						{
-							phaseModulation = operatorOutput[channelNo][OPERATOR1] + operatorOutput[channelNo][OPERATOR3];
-						}
-						else if((operatorNo == OPERATOR4) && (algorithmNo == 3))
-						{
-							phaseModulation = operatorOutput[channelNo][OPERATOR2] + operatorOutput[channelNo][OPERATOR3];
-						}
-						else if((operatorNo == OPERATOR4) && (algorithmNo == 5))
-						{
-							phaseModulation = operatorOutput[channelNo][OPERATOR1];
-						}
-						//Convert the 14-bit operator unit output from the modulator into
-						//a 10-bit phase modulation input. Note that the bits are not
-						//mapped quite the way you might expect. The operator output is
-						//shifted down by 1 when it is mapped to the phase modulation
-						//input. The remaining upper 3 bits of the operator output are
-						//discarded.
-						//  ---------------------------------------------------------
-						//  |               Operator Output (14-bit)                |
-						//  |-------------------------------------------------------|
-						//  |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-						//  ------------=========================================----
-						//              |       Modulation Input (10-bit)       |
-						//              |---------------------------------------|
-						//              | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-						//              -----------------------------------------
-						phaseModulation >>= 1;
-						phaseModulation &= ((1 << phaseBitCount) - 1);
+					}
 
-						//If we're updating operator 1, calculate the self-feedback value
-						//for phase modulation.
-						if(operatorNo == OPERATOR1)
+					//Update the LFO
+					if(GetLFOEnabled(accessTarget))
+					{
+						--cyclesUntilLFOIncrement;
+						if(cyclesUntilLFOIncrement <= 0)
 						{
-							unsigned int feedback = GetFeedbackData(channelNo, accessTarget);
-							if(feedback > 0)
+							const unsigned int lfoIncrementValues[8] = {108, 77, 71, 67, 62, 44, 8, 5};
+							unsigned int lfoData = GetLFOData(accessTarget);
+							cyclesUntilLFOIncrement = lfoIncrementValues[lfoData];
+							++currentLFOCounter;
+						}
+					}
+					else
+					{
+						//If the LFO is disabled, the LFO counter is forced to 0
+						currentLFOCounter = 0;
+					}
+
+					//Calculate the FM output for each channel in the YM2612 for this sample
+					int channelOutput[channelCount][2];
+					for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+					{
+						//Read the current algorithm selection for the channel
+						unsigned int algorithmNo = GetAlgorithmData(channelNo, accessTarget);
+
+						//Calculate the output for each operator in the channel
+						for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+						{
+							//Calculate the phase modulation input for the operator unit
+							int phaseModulation = 0;
+							if((operatorNo == OPERATOR2) && ((algorithmNo == 0) || (algorithmNo == 3) || (algorithmNo == 4) || (algorithmNo == 5) || (algorithmNo == 6)))
 							{
-								phaseModulation = feedbackBuffer[channelNo][0] + feedbackBuffer[channelNo][1];
-								phaseModulation >>= (10 - feedback);
+								phaseModulation = operatorOutput[channelNo][OPERATOR1];
+							}
+							else if((operatorNo == OPERATOR3) && ((algorithmNo == 0) || (algorithmNo == 2)))
+							{
+								phaseModulation = operatorOutput[channelNo][OPERATOR2];
+							}
+							else if((operatorNo == OPERATOR3) && (algorithmNo == 1))
+							{
+								phaseModulation = operatorOutput[channelNo][OPERATOR1] + operatorOutput[channelNo][OPERATOR2];
+							}
+							else if((operatorNo == OPERATOR3) && (algorithmNo == 5))
+							{
+								phaseModulation = operatorOutput[channelNo][OPERATOR1];
+							}
+							else if((operatorNo == OPERATOR4) && ((algorithmNo == 0) || (algorithmNo == 1) || (algorithmNo == 4)))
+							{
+								phaseModulation = operatorOutput[channelNo][OPERATOR3];
+							}
+							else if((operatorNo == OPERATOR4) && (algorithmNo == 2))
+							{
+								phaseModulation = operatorOutput[channelNo][OPERATOR1] + operatorOutput[channelNo][OPERATOR3];
+							}
+							else if((operatorNo == OPERATOR4) && (algorithmNo == 3))
+							{
+								phaseModulation = operatorOutput[channelNo][OPERATOR2] + operatorOutput[channelNo][OPERATOR3];
+							}
+							else if((operatorNo == OPERATOR4) && (algorithmNo == 5))
+							{
+								phaseModulation = operatorOutput[channelNo][OPERATOR1];
+							}
+							//Convert the 14-bit operator unit output from the modulator into
+							//a 10-bit phase modulation input. Note that the bits are not
+							//mapped quite the way you might expect. The operator output is
+							//shifted down by 1 when it is mapped to the phase modulation
+							//input. The remaining upper 3 bits of the operator output are
+							//discarded.
+							//  ---------------------------------------------------------
+							//  |               Operator Output (14-bit)                |
+							//  |-------------------------------------------------------|
+							//  |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+							//  ------------=========================================----
+							//              |       Modulation Input (10-bit)       |
+							//              |---------------------------------------|
+							//              | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+							//              -----------------------------------------
+							phaseModulation >>= 1;
+							phaseModulation &= ((1 << phaseBitCount) - 1);
 
-								phaseModulation &= ((1 << phaseBitCount) - 1);
+							//If we're updating operator 1, calculate the self-feedback value
+							//for phase modulation.
+							if(operatorNo == OPERATOR1)
+							{
+								unsigned int feedback = GetFeedbackData(channelNo, accessTarget);
+								if(feedback > 0)
+								{
+									phaseModulation = feedbackBuffer[channelNo][0] + feedbackBuffer[channelNo][1];
+									phaseModulation >>= (10 - feedback);
+
+									phaseModulation &= ((1 << phaseBitCount) - 1);
+								}
+							}
+
+							//Read the current phase value from the phase generator
+							unsigned int phase = GetCurrentPhase(channelNo, operatorNo);
+
+							//Read the current attenuation value from the envelope generator
+							unsigned int attenuation = GetOutputAttenuation(channelNo, operatorNo);
+
+							//Calculate the output from the operator unit
+							int result = CalculateOperator(phase, phaseModulation, attenuation);
+							operatorOutput[channelNo][operatorNo] = result;
+
+							//If we're updating operator 1, add the output sample to the
+							//self-feedback output buffer.
+							if(operatorNo == OPERATOR1)
+							{
+								feedbackBuffer[channelNo][0] = feedbackBuffer[channelNo][1];
+								feedbackBuffer[channelNo][1] = result;
+							}
+
+							//Write to the wav log
+							if(wavLoggingOperatorEnabled[channelNo][operatorNo])
+							{
+								boost::mutex::scoped_lock lock(waveLoggingMutex);
+								short outputSample;
+								float operatorOutputNormalized = (float)operatorOutput[channelNo][operatorNo] / ((1 << (operatorOutputBitCount - 1)) - 1);
+								//We halve the amplitude of the operator output just to
+								//make it a little easier to work with.
+								outputSample = (short)(operatorOutputNormalized * (32767.0f/2));
+								Stream::ViewBinary wavlogStream(wavLogOperator[channelNo][operatorNo]);
+								wavlogStream << outputSample;
 							}
 						}
 
-						//Read the current phase value from the phase generator
-						unsigned int phase = GetCurrentPhase(channelNo, operatorNo);
-
-						//Read the current attenuation value from the envelope generator
-						unsigned int attenuation = GetOutputAttenuation(channelNo, operatorNo);
-
-						//Calculate the output from the operator unit
-						int result = CalculateOperator(phase, phaseModulation, attenuation);
-						operatorOutput[channelNo][operatorNo] = result;
-
-						//If we're updating operator 1, add the output sample to the
-						//self-feedback output buffer.
-						if(operatorNo == OPERATOR1)
+						//The Accumulator
+						//Calculate the combined operator output for this channel
+						int combinedChannelOutput = 0;
+						switch(algorithmNo)
 						{
-							feedbackBuffer[channelNo][0] = feedbackBuffer[channelNo][1];
-							feedbackBuffer[channelNo][1] = result;
+						case 0:
+							//  -----  -----  -----  -----
+							//  | 1 |--| 2 |--| 3 |--| 4 |-
+							//  -----  -----  -----  -----
+						case 1:
+							//  -----
+							//  | 1 |--\
+							//  -----  |  -----  -----
+							//         +--| 3 |--| 4 |-
+							//  -----  |  -----  -----
+							//  | 2 |--/
+							//  -----
+						case 2:
+							//         -----
+							//         | 1 |--\
+							//         -----  |  -----
+							//                +--| 4 |-
+							//  -----  -----  |  -----
+							//  | 2 |--| 3 |--/
+							//  -----  -----
+						case 3:
+							//  -----  -----
+							//  | 1 |--| 2 |--\
+							//  -----  -----  |  -----
+							//                +--| 4 |-
+							//         -----  |  -----
+							//         | 3 |--/
+							//         -----
+							combinedChannelOutput = operatorOutput[channelNo][OPERATOR4];
+							break;
+						case 4:
+							//  -----  -----
+							//  | 1 |--| 2 |--\
+							//  -----  -----  |
+							//                +-
+							//  -----  -----  |
+							//  | 3 |--| 4 |--/
+							//  -----  -----
+							combinedChannelOutput = operatorOutput[channelNo][OPERATOR4] + operatorOutput[channelNo][OPERATOR2];
+							break;
+						case 5:
+							//            -----
+							//         /--| 2 |--\
+							//         |  -----  |
+							//         |         |
+							//  -----  |  -----  |
+							//  | 1 |--+--| 3 |--+-
+							//  -----  |  -----  |
+							//         |         |
+							//         |  -----  |
+							//         \--| 4 |--/
+							//            -----
+						case 6:
+							//  -----
+							//  | 1 |
+							//  -----
+							//    |
+							//  -----   -----   -----
+							//  | 2 |   | 3 |   | 4 |
+							//  -----   -----   -----
+							//    |       |       |
+							//    \-------+-------/
+							//            |
+							combinedChannelOutput = operatorOutput[channelNo][OPERATOR4] + operatorOutput[channelNo][OPERATOR2] + operatorOutput[channelNo][OPERATOR3];
+							break;
+						case 7:
+							//  -----   -----   -----   -----
+							//  | 1 |   | 2 |   | 3 |   | 4 |
+							//  -----   -----   -----   -----
+							//    |       |       |       |
+							//    \-----------+-----------/
+							//                |
+							combinedChannelOutput = operatorOutput[channelNo][OPERATOR4] + operatorOutput[channelNo][OPERATOR2] + operatorOutput[channelNo][OPERATOR3] + operatorOutput[channelNo][OPERATOR1];
+							break;
 						}
 
-						//Write to the wav log
-						if(wavLoggingOperatorEnabled[channelNo][operatorNo])
+						//DAC support
+						if((channelNo == CHANNEL6) && GetDACEnabled(accessTarget))
+						{
+							const unsigned int dacDataBitCount = 8;
+							//The DAC data is written as an unsigned value. We convert it to
+							//a signed value here.
+							//##TODO## It's possible the DAC data uses a primitive sign bit.
+							//Perform a test to determine whether this is the case.
+							unsigned int dacData = GetDACData(accessTarget);
+							int dacResult = (int)dacData - 0x80;
+							//Convert from the 8-bit signed DAC data value to a 14-bit signed
+							//operator output. The DAC data is mapped to the upper 8 bits of
+							//the 14-bit output.
+							dacResult <<= operatorOutputBitCount - dacDataBitCount;
+							//Since DAC is enabled, the specified DAC sample replaces the
+							//calculated FM output for this channel.
+							combinedChannelOutput = dacResult;
+						}
+
+						//The result needs to be shifted up by 2 to correctly convert from
+						//the 14-bit output from the operator unit, to the 16-bit output from
+						//the accumulator.
+						//##TODO## Confirm whether operators are summed before the shift
+						//occurs, or whether the operators are shifted to 16-bit values
+						//first, and then summed.
+						combinedChannelOutput <<= 2;
+
+						//A single operator at max attenuation won't clip, but multiple
+						//operators combined might. We add a limit here to reproduce the
+						//clipping operation.
+						int maxAccumulatorOutput = (int)((1 << (accumulatorOutputBitCount - 1)) - 1);
+						int minAccumulatorOutput = -(int)((1 << (accumulatorOutputBitCount - 1)) - 1);
+						if(combinedChannelOutput > maxAccumulatorOutput)
+						{
+							combinedChannelOutput = maxAccumulatorOutput;
+						}
+						else if(combinedChannelOutput < minAccumulatorOutput)
+						{
+							combinedChannelOutput = minAccumulatorOutput;
+						}
+
+						//Pan Left/Right
+						channelOutput[channelNo][0] = GetOutputLeft(channelNo, accessTarget)? combinedChannelOutput: 0;
+						channelOutput[channelNo][1] = GetOutputRight(channelNo, accessTarget)? combinedChannelOutput: 0;
+
+						//Write to the wave log
+						if(wavLoggingChannelEnabled[channelNo])
 						{
 							boost::mutex::scoped_lock lock(waveLoggingMutex);
-							short outputSample;
-							float operatorOutputNormalized = (float)operatorOutput[channelNo][operatorNo] / ((1 << (operatorOutputBitCount - 1)) - 1);
-							//We halve the amplitude of the operator output just to
+							short outputSampleLeft;
+							short outputSampleRight;
+							float channelOutputLeftNormalized = (float)channelOutput[channelNo][0] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
+							float channelOutputRightNormalized = (float)channelOutput[channelNo][1] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
+							//We halve the amplitude of the channel output just to
 							//make it a little easier to work with.
-							outputSample = (short)(operatorOutputNormalized * (32767.0f/2));
-							Stream::ViewBinary wavlogStream(wavLogOperator[channelNo][operatorNo]);
-							wavlogStream << outputSample;
+							outputSampleLeft = (short)(channelOutputLeftNormalized * (32767.0f/2));
+							outputSampleRight = (short)(channelOutputRightNormalized * (32767.0f/2));
+							Stream::ViewBinary wavlogStream(wavLogChannel[channelNo]);
+							wavlogStream << outputSampleLeft;
+							wavlogStream << outputSampleRight;
 						}
 					}
 
-					//The Accumulator
-					//Calculate the combined operator output for this channel
-					int combinedChannelOutput = 0;
-					switch(algorithmNo)
-					{
-					case 0:
-						//  -----  -----  -----  -----
-						//  | 1 |--| 2 |--| 3 |--| 4 |-
-						//  -----  -----  -----  -----
-					case 1:
-						//  -----
-						//  | 1 |--\
-						//  -----  |  -----  -----
-						//         +--| 3 |--| 4 |-
-						//  -----  |  -----  -----
-						//  | 2 |--/
-						//  -----
-					case 2:
-						//         -----
-						//         | 1 |--\
-						//         -----  |  -----
-						//                +--| 4 |-
-						//  -----  -----  |  -----
-						//  | 2 |--| 3 |--/
-						//  -----  -----
-					case 3:
-						//  -----  -----
-						//  | 1 |--| 2 |--\
-						//  -----  -----  |  -----
-						//                +--| 4 |-
-						//         -----  |  -----
-						//         | 3 |--/
-						//         -----
-						combinedChannelOutput = operatorOutput[channelNo][OPERATOR4];
-						break;
-					case 4:
-						//  -----  -----
-						//  | 1 |--| 2 |--\
-						//  -----  -----  |
-						//                +-
-						//  -----  -----  |
-						//  | 3 |--| 4 |--/
-						//  -----  -----
-						combinedChannelOutput = operatorOutput[channelNo][OPERATOR4] + operatorOutput[channelNo][OPERATOR2];
-						break;
-					case 5:
-						//            -----
-						//         /--| 2 |--\
-						//         |  -----  |
-						//         |         |
-						//  -----  |  -----  |
-						//  | 1 |--+--| 3 |--+-
-						//  -----  |  -----  |
-						//         |         |
-						//         |  -----  |
-						//         \--| 4 |--/
-						//            -----
-					case 6:
-						//  -----
-						//  | 1 |
-						//  -----
-						//    |
-						//  -----   -----   -----
-						//  | 2 |   | 3 |   | 4 |
-						//  -----   -----   -----
-						//    |       |       |
-						//    \-------+-------/
-						//            |
-						combinedChannelOutput = operatorOutput[channelNo][OPERATOR4] + operatorOutput[channelNo][OPERATOR2] + operatorOutput[channelNo][OPERATOR3];
-						break;
-					case 7:
-						//  -----   -----   -----   -----
-						//  | 1 |   | 2 |   | 3 |   | 4 |
-						//  -----   -----   -----   -----
-						//    |       |       |       |
-						//    \-----------+-----------/
-						//                |
-						combinedChannelOutput = operatorOutput[channelNo][OPERATOR4] + operatorOutput[channelNo][OPERATOR2] + operatorOutput[channelNo][OPERATOR3] + operatorOutput[channelNo][OPERATOR1];
-						break;
-					}
+					//##FIX##
+					//Run the combined channel output from the accumulator through the
+					//embedded YM3016 DAC. Note that we perform this calculation in the 2's
+					//compliment mode for the DAC.
+	//				Data channelOutputLeft(16, channelOutput[channelNo][0]);
 
-					//DAC support
-					if((channelNo == CHANNEL6) && GetDACEnabled(accessTarget))
-					{
-						const unsigned int dacDataBitCount = 8;
-						//The DAC data is written as an unsigned value. We convert it to
-						//a signed value here.
-						//##TODO## It's possible the DAC data uses a primitive sign bit.
-						//Perform a test to determine whether this is the case.
-						unsigned int dacData = GetDACData(accessTarget);
-						int dacResult = (int)dacData - 0x80;
-						//Convert from the 8-bit signed DAC data value to a 14-bit signed
-						//operator output. The DAC data is mapped to the upper 8 bits of
-						//the 14-bit output.
-						dacResult <<= operatorOutputBitCount - dacDataBitCount;
-						//Since DAC is enabled, the specified DAC sample replaces the
-						//calculated FM output for this channel.
-						combinedChannelOutput = dacResult;
-					}
+					//Calculate the shift value
+	//				unsigned int shiftLeft = 6;
+	//				for(unsigned int i = 14; i >= 9; --i)
+	//				{
+	//					if(channelOutputLeft.GetBit(i))
+	//					{
+	//						shiftLeft = 14 - i;
+	//						break;
+	//					}
+	//				}
 
-					//The result needs to be shifted up by 2 to correctly convert from
-					//the 14-bit output from the operator unit, to the 16-bit output from
-					//the accumulator.
-					//##TODO## Confirm whether operators are summed before the shift
-					//occurs, or whether the operators are shifted to 16-bit values
-					//first, and then summed.
-					combinedChannelOutput <<= 2;
+					//Calculate the mantissa
+	//				Data mantissaLeft(10);
+	//				mantissaLeft = channelOutputLeft.GetDataSegment(14 - shiftLeft, 9);
+	//				mantissaLeft.SetBit(10, channelOutputLeft.GetBit(15));
 
-					//A single operator at max attenuation won't clip, but multiple
-					//operators combined might. We add a limit here to reproduce the
-					//clipping operation.
-					int maxAccumulatorOutput = (int)((1 << (accumulatorOutputBitCount - 1)) - 1);
-					int minAccumulatorOutput = -(int)((1 << (accumulatorOutputBitCount - 1)) - 1);
-					if(combinedChannelOutput > maxAccumulatorOutput)
+					//Calculate a single combined output for the YM2612. The DAC in the real
+					//YM2612 multiplexes the output from each of the 6 channels, and outputs
+					//at 6 times the output frequency we use here. We combine the output of
+					//each channel here, and calculate the average sample output instead. The
+					//apparent output should basically be the same. The best possible output
+					//would be obtained by generating the true multiplexed output, and
+					//resampling from the true output to the final audio output frequency
+					//we're sending to the sound card.
+					double finalOutputLeft = 0;
+					double finalOutputRight = 0;
+					for(unsigned int i = 0; i < channelCount; ++i)
 					{
-						combinedChannelOutput = maxAccumulatorOutput;
+						float channelOutputLeftNormalized = (float)channelOutput[i][0] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
+						float channelOutputRightNormalized = (float)channelOutput[i][1] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
+						finalOutputLeft += (channelOutputLeftNormalized / channelCount);
+						finalOutputRight += (channelOutputRightNormalized / channelCount);
 					}
-					else if(combinedChannelOutput < minAccumulatorOutput)
-					{
-						combinedChannelOutput = minAccumulatorOutput;
-					}
-
-					//Pan Left/Right
-					channelOutput[channelNo][0] = GetOutputLeft(channelNo, accessTarget)? combinedChannelOutput: 0;
-					channelOutput[channelNo][1] = GetOutputRight(channelNo, accessTarget)? combinedChannelOutput: 0;
+					short outputSampleLeft = (short)(32767.0f * finalOutputLeft);
+					short outputSampleRight = (short)(32767.0f * finalOutputRight);
+					outputBuffer[outputBufferPos++] = outputSampleLeft;
+					outputBuffer[outputBufferPos++] = outputSampleRight;
 
 					//Write to the wave log
-					if(wavLoggingChannelEnabled[channelNo])
+					if(wavLoggingEnabled)
 					{
 						boost::mutex::scoped_lock lock(waveLoggingMutex);
-						short outputSampleLeft;
-						short outputSampleRight;
-						float channelOutputLeftNormalized = (float)channelOutput[channelNo][0] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
-						float channelOutputRightNormalized = (float)channelOutput[channelNo][1] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
-						//We halve the amplitude of the channel output just to
-						//make it a little easier to work with.
-						outputSampleLeft = (short)(channelOutputLeftNormalized * (32767.0f/2));
-						outputSampleRight = (short)(channelOutputRightNormalized * (32767.0f/2));
-						Stream::ViewBinary wavlogStream(wavLogChannel[channelNo]);
+						Stream::ViewBinary wavlogStream(wavLog);
 						wavlogStream << outputSampleLeft;
 						wavlogStream << outputSampleRight;
 					}
+
+					////Calculate the true multiplexed output for the YM2612
+					//for(unsigned int i = 0; i < channelCount; ++i)
+					//{
+					//	float channelOutputLeftNormalized = (float)channelOutput[i][0] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
+					//	float channelOutputRightNormalized = (float)channelOutput[i][1] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
+					//	short outputSampleLeft = (short)(32767.0f * channelOutputLeftNormalized);
+					//	short outputSampleRight = (short)(32767.0f * channelOutputRightNormalized);
+					//	outputBufferMultiplexed[outputBufferMultiplexedPos++] = outputSampleLeft;
+					//	outputBufferMultiplexed[outputBufferMultiplexedPos++] = outputSampleRight;
+
+					//	Write to the wave log
+					//	if(wavLoggingEnabled)
+					//	{
+					//		boost::mutex::scoped_lock lock(waveLoggingMutex);
+					//		Stream::ViewBinary wavlogStream(wavLog.GetStream());
+					//		wavlogStream << outputSampleLeft;
+					//		wavlogStream << outputSampleRight;
+					//	}
+					//}
+
+					remainingRenderTime -= fmClockPeriod;
 				}
-
-				//##FIX##
-				//Run the combined channel output from the accumulator through the
-				//embedded YM3016 DAC. Note that we perform this calculation in the 2's
-				//compliment mode for the DAC.
-//				Data channelOutputLeft(16, channelOutput[channelNo][0]);
-
-				//Calculate the shift value
-//				unsigned int shiftLeft = 6;
-//				for(unsigned int i = 14; i >= 9; --i)
-//				{
-//					if(channelOutputLeft.GetBit(i))
-//					{
-//						shiftLeft = 14 - i;
-//						break;
-//					}
-//				}
-
-				//Calculate the mantissa
-//				Data mantissaLeft(10);
-//				mantissaLeft = channelOutputLeft.GetDataSegment(14 - shiftLeft, 9);
-//				mantissaLeft.SetBit(10, channelOutputLeft.GetBit(15));
-
-				//Calculate a single combined output for the YM2612. The DAC in the real
-				//YM2612 multiplexes the output from each of the 6 channels, and outputs
-				//at 6 times the output frequency we use here. We combine the output of
-				//each channel here, and calculate the average sample output instead. The
-				//apparent output should basically be the same. The best possible output
-				//would be obtained by generating the true multiplexed output, and
-				//resampling from the true output to the final audio output frequency
-				//we're sending to the sound card.
-				double finalOutputLeft = 0;
-				double finalOutputRight = 0;
-				for(unsigned int i = 0; i < channelCount; ++i)
-				{
-					float channelOutputLeftNormalized = (float)channelOutput[i][0] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
-					float channelOutputRightNormalized = (float)channelOutput[i][1] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
-					finalOutputLeft += (channelOutputLeftNormalized / channelCount);
-					finalOutputRight += (channelOutputRightNormalized / channelCount);
-				}
-				short outputSampleLeft = (short)(32767.0f * finalOutputLeft);
-				short outputSampleRight = (short)(32767.0f * finalOutputRight);
-				outputBuffer[outputBufferPos++] = outputSampleLeft;
-				outputBuffer[outputBufferPos++] = outputSampleRight;
-
-				//Write to the wave log
-				if(wavLoggingEnabled)
-				{
-					boost::mutex::scoped_lock lock(waveLoggingMutex);
-					Stream::ViewBinary wavlogStream(wavLog);
-					wavlogStream << outputSampleLeft;
-					wavlogStream << outputSampleRight;
-				}
-
-				////Calculate the true multiplexed output for the YM2612
-				//for(unsigned int i = 0; i < channelCount; ++i)
-				//{
-				//	float channelOutputLeftNormalized = (float)channelOutput[i][0] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
-				//	float channelOutputRightNormalized = (float)channelOutput[i][1] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
-				//	short outputSampleLeft = (short)(32767.0f * channelOutputLeftNormalized);
-				//	short outputSampleRight = (short)(32767.0f * channelOutputRightNormalized);
-				//	outputBufferMultiplexed[outputBufferMultiplexedPos++] = outputSampleLeft;
-				//	outputBufferMultiplexed[outputBufferMultiplexedPos++] = outputSampleRight;
-
-				//	Write to the wave log
-				//	if(wavLoggingEnabled)
-				//	{
-				//		boost::mutex::scoped_lock lock(waveLoggingMutex);
-				//		Stream::ViewBinary wavlogStream(wavLog.GetStream());
-				//		wavlogStream << outputSampleLeft;
-				//		wavlogStream << outputSampleRight;
-				//	}
-				//}
-
-				remainingRenderTime -= fmClockPeriod;
 			}
 
 			RandomTimeAccessBuffer<Data, double>::WriteInfo writeInfo = reg.GetWriteInfo(0, regTimesliceCopy);
@@ -1225,6 +1239,7 @@ void YM2612::RenderThread()
 				outputStream.PlayBuffer(outputBufferFinal);
 			}
 			outputBuffer.clear();
+			outputBuffer.reserve(minimumSamplesToOutput * 2);
 		}
 
 		//Play the multiplexed output audio stream
