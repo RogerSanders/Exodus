@@ -712,7 +712,6 @@ std::wstring EffectiveAddress::Disassemble() const
 		{
 			stream << L"$" << std::setw(displacement.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << displacement.GetData() << L",";
 		}
-		stream << L"A" << reg << L",";
 		stream << L"PC,";
 		if(!useAddressRegister)
 		{

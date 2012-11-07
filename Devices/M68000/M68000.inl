@@ -119,7 +119,7 @@ struct M68000::LineAccess
 	double clockRate;
 	Data state;
 	double accessTime;
-	bool notifyWhenApplied;
+	volatile bool notifyWhenApplied;
 	//Note the use of volatile here. Both these pointers are volatile themselves, IE, the
 	//actual address stored in the pointer variables may change at any time from a
 	//separate thread. The appliedFlag variable is the only one of the two where the value

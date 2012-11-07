@@ -227,17 +227,29 @@ IBusInterface::AccessResult MDBusArbiter::ReadInterface(unsigned int interfaceNu
 
 	switch(interfaceNumber)
 	{
-	case MEMORYINTERFACE_INTERRUPT_ACKNOWLEDGE_CYCLE:
+	case MEMORYINTERFACE_INTERRUPT_ACKNOWLEDGE_CYCLE:{
 		//If the M68000 is performing an interrupt acknowledge cycle, assert VPA to
 		//instruct it to autovector the interrupt, and assert the INTAK line to instruct
 		//the VDP to negate the IPL lines. We return false to this read access, since we
 		//didn't respond to the read request for the interrupt vector number itself
 		//(didn't assert DTACK), but we asserted VPA instead, which also terminates this
 		//bus cycle.
-		m68kMemoryBus->SetLineState(LINE_VPA, Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
-		m68kMemoryBus->SetLineState(LINE_INTAK, Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
+		//##TODO## We believe that there is a delay between when the interrupt acknowledge
+		//cycle begins, and when the bus arbiter asserts VPA. Perform hardware testing to
+		//confirm, and measure the length of the delay for horizontal, vertical, and
+		//external interrupts.
+		//##NOTE## Testing performed on 2012-11-02 indicates there is in fact only a
+		//single clock cycle delay between when the CPU enters the interrupt acknowledge
+		//cycle and when VPA is asserted by the bus arbiter. We had our interrupt timing
+		//wrong on the VDP, which caused our timing issues with HINT triggering.
+		double autoVectorDelayTime = 0.0;
+		//##DEBUG##
+		//autoVectorDelayTime = 4000.0;
+
+		m68kMemoryBus->SetLineState(LINE_VPA, Data(1, 1), GetDeviceContext(), caller, accessTime + autoVectorDelayTime, accessContext);
+		m68kMemoryBus->SetLineState(LINE_INTAK, Data(1, 1), GetDeviceContext(), caller, accessTime + autoVectorDelayTime, accessContext);
 		accessResult.deviceReplied = false;
-		break;
+		break;}
 	case MEMORYINTERFACE_M68K_TO_Z80_MEMORYWINDOW:{
 		if(z80BusResetLineState || !z80BusGrantLineState)
 		{
@@ -596,7 +608,9 @@ bool MDBusArbiter::ReadZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data& 
 	}
 
 	//3. Assert BR
+	lock.unlock();
 	m68kMemoryBus->SetLineState(LINE_BR, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
+	lock.lock();
 
 	//4. Wait for BG to be set (possible infinite delay)
 	if(!m68kBusGrantLineState)
@@ -619,11 +633,12 @@ bool MDBusArbiter::ReadZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data& 
 		lock.lock();
 	}
 
-	//5. Perform the operation
+	//Release lineMutex, now that we've finished working with the current line state.
 	lock.unlock();
+
+	//5. Perform the operation
 	m68kBusAccessResult = m68kMemoryBus->ReadMemory(m68kMemoryAccessLocation, m68kBusData, caller, accessTimeCurrent, accessContext);
 	accessTimeCurrent += m68kBusAccessResult.executionTime;
-	lock.lock();
 
 	//6. Negate BR
 	m68kMemoryBus->SetLineState(LINE_BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
@@ -687,7 +702,9 @@ bool MDBusArbiter::WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data 
 	}
 
 	//3. Assert BR
+	lock.unlock();
 	m68kMemoryBus->SetLineState(LINE_BR, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
+	lock.lock();
 
 	//4. Wait for BG to be set (possible infinite delay)
 	if(!m68kBusGrantLineState)
@@ -710,11 +727,12 @@ bool MDBusArbiter::WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data 
 		lock.lock();
 	}
 
-	//5. Perform the operation
+	//Release lineMutex, now that we've finished working with the current line state.
 	lock.unlock();
+
+	//5. Perform the operation
 	m68kBusAccessResult = m68kMemoryBus->WriteMemory(m68kMemoryAccessLocation, m68kBusData, caller, accessTimeCurrent, accessContext);
 	accessTimeCurrent += m68kBusAccessResult.executionTime;
-	lock.lock();
 
 	//6. Negate BR
 	m68kMemoryBus->SetLineState(LINE_BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext);

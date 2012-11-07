@@ -183,7 +183,7 @@ public:
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
+	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock);
 
 	//Clock source functions
 	virtual unsigned int GetClockSourceID(const wchar_t* clockSourceName) const;
@@ -430,6 +430,7 @@ private:
 	volatile bool executionReachedEndOfTimeslice;
 	boost::condition advanceToTargetLineStateChanged;
 	mutable bool autoVectorPendingInterrupt;
+	mutable double autoVectorPendingInterruptChangeTime;
 	bool resetLineState;
 	bool haltLineState;
 	bool brLineState;
@@ -440,6 +441,7 @@ private:
 	bool bhaltLineState;
 	bool bbrLineState;
 	bool bbgLineState;
+	bool bforceInterrupt;
 	unsigned int binterruptPendingLevel;
 };
 

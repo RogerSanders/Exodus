@@ -446,7 +446,14 @@ ExecuteTime M68000::GetExceptionProcessingTime(unsigned int vector) const
 		return ExecuteTime(30, 3, 3);
 	default:
 		//All other interrupts
-		return ExecuteTime(44, 5, 3);
+		//##FIX## We have reason to believe that this interrupt execution time is too long
+		//for user interrupts on the Mega Drive. Tests with horizontal interrupts on the
+		//last line of the display indicate that horizontal interrupts need to be taken
+		//more quickly by the M68000, so they can process far enough along before vertical
+		//interrupts occur.
+		return ExecuteTime(44, 5, 3); //Assuming the interrupt acknowledge cycle takes 4 clock cycles
+		//##DEBUG##
+		//return ExecuteTime(4, 5, 3);
 	}
 }
 
@@ -701,43 +708,43 @@ double M68000::ExecuteStep()
 		boost::mutex::scoped_lock lock(lineMutex);
 		double currentTimesliceProgress = GetCurrentTimesliceProgress();
 		bool done = false;
-		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
-		while(!done && (i != lineAccessBuffer.end()))
+		while(!done)
 		{
-			if(i->accessTime <= currentTimesliceProgress)
+			//Remove the next line access that we've reached from the front of the line
+			//access buffer. Note that our lineMutex lock may be released while applying
+			//some line state changes, so we can't keep active reference to an iterator.
+			std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
+			if((i == lineAccessBuffer.end()) || (i->accessTime > currentTimesliceProgress))
 			{
-				//Apply the line state change
-				if(i->clockRateChange)
-				{
-					ApplyClockStateChange(i->lineID, i->clockRate);
-				}
-				else
-				{
-					ApplyLineStateChange(i->lineID, i->state);
-				}
+				done = true;
+				continue;
+			}
+			LineAccess lineAccess = *i;
+			lineAccessBuffer.pop_front();
+			lineAccessPending = !lineAccessBuffer.empty();
 
-				//If any threads were waiting for this line state change to be processed,
-				//notify them that the change has now been applied.
-				if(i->notifyWhenApplied)
-				{
-					*(i->appliedFlag) = true;
-					if(i->waitingDevice != 0)
-					{
-						GetDeviceContext()->SetDeviceDependencyEnable(i->waitingDevice, true);
-					}
-					advanceToTargetLineStateChanged.notify_all();
-				}
-				++i;
+			//Apply the line state change
+			if(lineAccess.clockRateChange)
+			{
+				ApplyClockStateChange(lineAccess.lineID, lineAccess.clockRate);
 			}
 			else
 			{
-				done = true;
+				ApplyLineStateChange(lineAccess.lineID, lineAccess.state, lock);
+			}
+
+			//If any threads were waiting for this line state change to be processed,
+			//notify them that the change has now been applied.
+			if(lineAccess.notifyWhenApplied)
+			{
+				*(lineAccess.appliedFlag) = true;
+				if(lineAccess.waitingDevice != 0)
+				{
+					GetDeviceContext()->SetDeviceDependencyEnable(lineAccess.waitingDevice, true);
+				}
+				advanceToTargetLineStateChanged.notify_all();
 			}
 		}
-
-		//Clear any completed entries from the list
-		lineAccessBuffer.erase(lineAccessBuffer.begin(), i);
-		lineAccessPending = !lineAccessBuffer.empty();
 	}
 	lastLineCheckTime = GetCurrentTimesliceProgress();
 
@@ -887,6 +894,11 @@ double M68000::ExecuteStep()
 			//If VPA was asserted during the interrupt acknowledge cycle, autovector the
 			//interrupt.
 			interruptVectorNumber = EX_INTERRUPT_AUTOVECTOR + (interruptPendingLevel - 1);
+
+			//Calculate the delay time between when we began the interrupt acknowledge
+			//cycle, and when the VPA line was asserted, and use this as the execution
+			//delay time.
+			accessResult.executionTime = autoVectorPendingInterruptChangeTime - GetCurrentTimesliceProgress();
 		}
 		else if(!accessResult.deviceReplied)
 		{
@@ -1056,6 +1068,8 @@ void M68000::ExecuteRollback()
 	haltLineState = bhaltLineState;
 	brLineState = bbrLineState;
 	bgLineState = bbgLineState;
+	forceInterrupt = bforceInterrupt;
+	interruptPendingLevel = binterruptPendingLevel;
 
 	group0ExceptionPending = bgroup0ExceptionPending;
 	group0instructionRegister = bgroup0instructionRegister;
@@ -1115,6 +1129,8 @@ void M68000::ExecuteCommit()
 	bhaltLineState = haltLineState;
 	bbrLineState = brLineState;
 	bbgLineState = bgLineState;
+	bforceInterrupt = forceInterrupt;
+	binterruptPendingLevel = interruptPendingLevel;
 
 	bgroup0ExceptionPending = group0ExceptionPending;
 	bgroup0instructionRegister = group0instructionRegister;
@@ -1344,6 +1360,7 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	{
 	case LINE_VPA:
 		autoVectorPendingInterrupt = true;
+		autoVectorPendingInterruptChangeTime = accessTime;
 		return;
 	}
 
@@ -1477,7 +1494,7 @@ bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
+void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock)
 {
 	//##DEBUG##
 	//	std::wstringstream message;
@@ -1499,7 +1516,19 @@ void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 			if(bgLineState != brLineState)
 			{
 				bgLineState = brLineState;
+
+				//Release our lock on lineMutex. This is critical in order to avoid
+				//deadlocks between devices if another device attempts to update the line
+				//state for this device while we are updating the line state for that same
+				//device, either directly or indirectly. There must never be a blocking
+				//mutex held which would prevent a call to SetLineState on this device
+				//succeeding when we are in tern calling SetLineState.
+				lock.unlock();
+
 				memoryBus->SetLineState(LINE_BG, Data(GetLineWidth(LINE_BG), (unsigned int)bgLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+
+				//Re-acquire the lock now that we've completed our external call
+				lock.lock();
 			}
 		}
 		break;}
