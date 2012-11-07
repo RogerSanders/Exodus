@@ -539,6 +539,12 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 		break;
 	}
 
+	//We explicitly release our lock on lineMutex here so that we're not blocking access
+	//to SetLineState() on this class before we modify the line state for other devices in
+	//the code that follows. Adhering to this pattern helps to avoid deadlock cases that
+	//could otherwise arise from valid line mappings.
+	lock.unlock();
+
 	UpdateHLInterruptState(caller, accessTime, accessContext);
 }
 
@@ -614,10 +620,11 @@ A10000::LineID A10000::GetLineIDForPort(unsigned int portNo, PortLine portLine)
 //----------------------------------------------------------------------------------------
 void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
+	//##FIX## Fix the deadlock problems here
 	//Update the HL interrupt line state
-	bool newHLLineState = (!GetControlRegisterTH(PORT1) && GetDataRegisterTH(PORT1))
-		|| (!GetControlRegisterTH(PORT2) && GetDataRegisterTH(PORT2)
-		|| (!GetControlRegisterTH(PORT3) && GetDataRegisterTH(PORT3)));
+	bool newHLLineState = (GetControlRegisterHL(PORT1) && !GetControlRegisterTH(PORT1) && GetDataRegisterTH(PORT1))
+	                   || (GetControlRegisterHL(PORT2) && !GetControlRegisterTH(PORT2) && GetDataRegisterTH(PORT2))
+	                   || (GetControlRegisterHL(PORT3) && !GetControlRegisterTH(PORT3) && GetDataRegisterTH(PORT3));
 	if(newHLLineState != currentHLLineState)
 	{
 		memoryBus->SetLineState(LINE_HL, Data(1, newHLLineState), GetDeviceContext(), caller, accessTime, accessContext);
@@ -635,12 +642,16 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 	//##DEBUG##
 //	std::wcout << "A10000Read:  " << accessTime << '\t' << lastAccessTime << '\n';
 
-	//Trigger a system rollback if the device has been accessed out of order
+	//Trigger a system rollback if the device has been accessed out of order. Note that we
+	//briefly take a lock on the lineMutex here, to coordinate access with the
+	//SetLineState method.
+	boost::mutex::scoped_lock lineLock(lineMutex);
 	if(lastAccessTime > accessTime)
 	{
 		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastAccessTime = accessTime;
+	lineLock.unlock();
 
 	switch(location)
 	{
@@ -710,12 +721,16 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 	//##DEBUG##
 //	std::wcout << "A10000Write: " << accessTime << '\t' << lastAccessTime << '\n';
 
-	//Trigger a system rollback if the device has been accessed out of order
+	//Trigger a system rollback if the device has been accessed out of order. Note that we
+	//briefly take a lock on the lineMutex here, to coordinate access with the
+	//SetLineState method.
+	boost::mutex::scoped_lock lineLock(lineMutex);
 	if(lastAccessTime > accessTime)
 	{
 		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastAccessTime = accessTime;
+	lineLock.unlock();
 
 	switch(location)
 	{
@@ -911,9 +926,8 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		}
 	}
 
-	//Update the HL interrupt state
+	//Update the HL output line enable state
 	SetControlRegisterHL(portNo, data.GetBit(7));
-	UpdateHLInterruptState(caller, accessTime, accessContext);
 }
 
 //----------------------------------------------------------------------------------------

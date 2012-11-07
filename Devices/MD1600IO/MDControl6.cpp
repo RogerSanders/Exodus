@@ -240,6 +240,12 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 		}
 	}
 
+	//We explicitly release our lock on lineMutex here so that we're not blocking access
+	//to SetLineState() on this class before we modify the line state for other devices in
+	//the code that follows. Adhering to this pattern helps to avoid deadlock cases that
+	//could otherwise arise from valid line mappings.
+	lock.unlock();
+
 	//If an input line state has changed, re-evaluate the state of the output lines.
 	UpdateLineState(caller, accessTime, accessContext);
 }

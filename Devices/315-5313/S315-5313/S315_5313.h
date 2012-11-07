@@ -320,6 +320,9 @@ private:
 	friend class RegistersView;
 
 private:
+	//Line functions
+	unsigned int GetNewIPLLineState();
+
 	//Execute functions
 //	void RenderThread();
 //	void RenderFrame();
@@ -604,6 +607,7 @@ private:
 	//##DEBUG##
 	bool outputTestDebugMessages;
 	bool outputTimingDebugMessages;
+	bool outputHINTDebugMessages;
 
 	//Menu handling
 	DebugMenuHandler* menuHandler;
@@ -614,6 +618,14 @@ private:
 	bool bbusGranted;
 	volatile bool palModeLineState;
 	bool bpalModeLineState;
+	volatile unsigned int lineStateIPL;
+	unsigned int blineStateIPL;
+	bool interruptPendingHint;
+	bool binterruptPendingHint;
+	bool interruptPendingVint;
+	bool binterruptPendingVint;
+	bool interruptPendingEXint;
+	bool binterruptPendingEXint;
 
 	//Embedded PSG device
 	IDevice* psg;
@@ -625,7 +637,8 @@ private:
 	double bclockMclkCurrent;
 
 	//Physical registers and memory buffers
-	mutable boost::mutex accessMutex;
+	mutable boost::mutex accessMutex; //Top-level, protects against concurrent interface access.
+	mutable boost::mutex lineMutex; //Top level, must never be held during a blocking operation
 	double lastAccessTime;
 	RegBuffer reg;
 	ITimedBufferInt* vram;
@@ -746,15 +759,11 @@ private:
 	unsigned int lastTimesliceMclkCyclesOverrun; //The total number of mclk cycles we advanced past the end of the last timeslice
 	unsigned int blastTimesliceMclkCyclesOverrun;
 	double stateLastUpdateTime;
+	double bstateLastUpdateTime;
 	unsigned int stateLastUpdateMclk;
-	//##TODO## I think we've solved this issue now. Confirm, and remove these comments.
-	//##FIX## This bleeds across timeslices, and we don't have a backup of it. More than
-	//that, this is causing accuracy problems. Unused mclk cycles from a previous
-	//timeslice are free, and need to be added in on every update step until they are
-	//consumed. They do not count towards the target cycle count. Unused mclk cycles from
-	//the current timeslice are not free, and need to be counted towards the target cycle
-	//count.
+	unsigned int bstateLastUpdateMclk;
 	unsigned int stateLastUpdateMclkUnused;
+	unsigned int bstateLastUpdateMclkUnused;
 	unsigned int stateLastUpdateMclkUnusedFromLastTimeslice;
 	unsigned int bstateLastUpdateMclkUnusedFromLastTimeslice;
 
@@ -771,8 +780,8 @@ private:
 	Data bcommandCode;
 
 	//Render thread properties
-	mutable boost::mutex renderThreadMutex;
-	mutable boost::mutex timesliceMutex;
+	mutable boost::mutex renderThreadMutex; //Top level, timesliceMutex child
+	mutable boost::mutex timesliceMutex; //Child of renderThreadMutex
 	boost::condition renderThreadUpdate;
 	boost::condition renderThreadStopped;
 	bool renderThreadActive;
@@ -889,7 +898,7 @@ private:
 
 	//Image buffer
 	//##TODO## Fix up these dimensions
-	mutable boost::mutex imageBufferMutex;
+	mutable boost::mutex imageBufferMutex; //##TODO## Use this properly
 	static const unsigned int imageWidth = 512;
 	static const unsigned int imageHeight = 512;
 	static const unsigned int imageBufferPlanes = 3;
@@ -897,7 +906,7 @@ private:
 	unsigned int drawingImageBufferPlane;
 
 	//DMA worker thread properties
-	mutable boost::mutex workerThreadMutex;
+	mutable boost::mutex workerThreadMutex; //Top-level, required in order to interact with state affecting DMA worker thread.
 	boost::condition workerThreadUpdate;
 	boost::condition workerThreadStopped;
 	boost::condition workerThreadIdle;
@@ -912,7 +921,13 @@ private:
 	//disabled. We need to know the actual delay time between successive reads, so
 	//that we don't perform DMA transfers too quickly when the display is disabled, or
 	//not in an active display region.
-	static const unsigned int dmaTransferReadTimeInMclkCycles = 8; //The number of mclk cycles required for a DMA operation to read a byte from the external bus
+	//##FIX## Hardware tests have shown it takes 4 SC cycles to perform an external read,
+	//but since the serial clock changes, we need to calculate the read time in SC cycles,
+	//not MCLK cycles.
+	//##TODO## Calculate the relative synchronization of the DMA transfer read slots to
+	//the HCounter. The very fact that the DMA bitmap demos work show that these slots do
+	//in fact exist, otherwise it wouldn't be possible to achieve a stable display.
+	static const unsigned int dmaTransferReadTimeInMclkCycles = 16; //The number of mclk cycles required for a DMA operation to read a byte from the external bus
 	bool dmaTransferActive;
 	bool bdmaTransferActive;
 	bool dmaTransferReadDataCached;

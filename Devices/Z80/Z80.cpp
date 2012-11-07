@@ -602,7 +602,7 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 }
 
 //----------------------------------------------------------------------------------------
-void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
+void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock)
 {
 	//##DEBUG##
 //	std::wstringstream message;
@@ -620,9 +620,20 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 		{
 			busreqLineState = newState;
 
+			//Release our lock on lineMutex. This is critical in order to avoid
+			//deadlocks between devices if another device attempts to update the line
+			//state for this device while we are updating the line state for that same
+			//device, either directly or indirectly. There must never be a blocking
+			//mutex held which would prevent a call to SetLineState on this device
+			//succeeding when we are in tern calling SetLineState.
+			lock.unlock();
+
 			//If we're processing a change to the BUSREQ line, we need to now change the
 			//state of the BUSACK line to match.
 			memoryBus->SetLineState(LINE_BUSACK, lineData, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+
+			//Re-acquire the lock now that we've completed our external call
+			lock.lock();
 		}
 		break;}
 	case LINE_INT:
@@ -739,39 +750,38 @@ double Z80::ExecuteStep()
 		boost::mutex::scoped_lock lock(lineMutex);
 		double currentTimesliceProgress = GetCurrentTimesliceProgress();
 		bool done = false;
-		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
-		while(!done && (i != lineAccessBuffer.end()))
+		while(!done)
 		{
-			if(i->accessTime <= currentTimesliceProgress)
+			//Remove the next line access that we've reached from the front of the line
+			//access buffer. Note that our lineMutex lock may be released while applying
+			//some line state changes, so we can't keep active reference to an iterator.
+			std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
+			if((i == lineAccessBuffer.end()) || (i->accessTime > currentTimesliceProgress))
 			{
-				//##DEBUG##
-				//std::wstringstream logMessage;
-				//logMessage << L"Z80 Line state change: " << std::setprecision(16) << i->accessTime << '\t' << currentTimesliceProgress << '\t' << i->lineID << '\t' << i->state.GetData();
-				//LogEntry logEntry(LogEntry::EVENTLEVEL_DEBUG, logMessage.str());
-				//GetDeviceContext()->WriteLogEvent(logEntry);
-//				std::wcout << "Z80 Line state change: " << std::setprecision(16) << i->accessTime << '\t' << currentTimesliceProgress << '\n';
+				done = true;
+				continue;
+			}
+			LineAccess lineAccess = *i;
+			lineAccessBuffer.pop_front();
+			lineAccessPending = !lineAccessBuffer.empty();
 
-				//Apply the line state change
-				if(i->clockRateChange)
-				{
-					ApplyClockStateChange(i->lineID, i->clockRate);
-				}
-				else
-				{
-					ApplyLineStateChange(i->lineID, i->state);
-				}
+			//##DEBUG##
+			//std::wstringstream logMessage;
+			//logMessage << L"Z80 Line state change: " << std::setprecision(16) << lineaccess.accessTime << '\t' << currentTimesliceProgress << '\t' << lineAccess.lineID << '\t' << i->state.GetData();
+			//LogEntry logEntry(LogEntry::EVENTLEVEL_DEBUG, logMessage.str());
+			//GetDeviceContext()->WriteLogEvent(logEntry);
+			//std::wcout << "Z80 Line state change: " << std::setprecision(16) << lineAccess.accessTime << '\t' << currentTimesliceProgress << '\n';
 
-				++i;
+			//Apply the line state change
+			if(lineAccess.clockRateChange)
+			{
+				ApplyClockStateChange(lineAccess.lineID, lineAccess.clockRate);
 			}
 			else
 			{
-				done = true;
+				ApplyLineStateChange(lineAccess.lineID, lineAccess.state, lock);
 			}
 		}
-
-		//Clear any completed entries from the list
-		lineAccessBuffer.erase(lineAccessBuffer.begin(), i);
-		lineAccessPending = !lineAccessBuffer.empty();
 	}
 	lastLineCheckTime = GetCurrentTimesliceProgress();
 

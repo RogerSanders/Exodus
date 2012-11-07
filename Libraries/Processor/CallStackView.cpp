@@ -39,7 +39,7 @@ INT_PTR Processor::CallStackView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPA
 	int tabsize = 40;
 	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_STACK_STACK), LB_SETTABSTOPS, (WPARAM)1, (LPARAM)&tabsize);
 
-	SetTimer(hwnd, 1, 500, NULL);
+	SetTimer(hwnd, 1, 200, NULL);
 
 	return TRUE;
 }
