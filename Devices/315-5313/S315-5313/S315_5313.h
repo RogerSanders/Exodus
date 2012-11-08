@@ -354,7 +354,7 @@ private:
 	//Event functions
 	void ExecuteEvent(EventProperties event, double accessTime, unsigned int ahcounter, unsigned int avcounter, bool ascreenModeRS0, bool ascreenModeRS1, bool ascreenModeV30, bool apalMode, bool ainterlaceEnabled);
 //	void GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent) const;
-	void GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent, bool& eventOddFlagSet, bool& eventInterlaceEnabled, bool& eventInterlaceDouble, bool& eventPalMode, bool& eventScreenModeV30, bool& eventScreenModeRS0, bool& eventScreenModeRS1, bool eventInterlaceEnabledNew, bool eventInterlaceDoubleNew, bool eventPalModeNew, bool eventScreenModeV30New, bool eventScreenModeRS0New, bool eventScreenModeRS1New) const;
+	void GetNextEvent(bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent, bool& eventOddFlagSet, bool& eventInterlaceEnabled, bool& eventInterlaceDouble, bool& eventPalMode, bool& eventScreenModeV30, bool& eventScreenModeRS0, bool& eventScreenModeRS1, bool eventInterlaceEnabledNew, bool eventInterlaceDoubleNew, bool eventPalModeNew, bool eventScreenModeV30New, bool eventScreenModeRS0New, bool eventScreenModeRS1New) const;
 	static bool EventOccursWithinCounterRange(const HScanSettings& hscanSettings, unsigned int hcounterStart, unsigned int vcounterStart, unsigned int hcounterEnd, unsigned int vcounterEnd, unsigned int hcounterEventPos, unsigned int vcounterEventPos);
 
 	//Port functions
@@ -605,9 +605,10 @@ private:
 
 private:
 	//##DEBUG##
-	bool outputTestDebugMessages;
+	bool outputPortAccessDebugMessages;
 	bool outputTimingDebugMessages;
-	bool outputHINTDebugMessages;
+	bool outputRenderSyncMessages;
+	bool outputInterruptDebugMessages;
 
 	//Menu handling
 	DebugMenuHandler* menuHandler;
