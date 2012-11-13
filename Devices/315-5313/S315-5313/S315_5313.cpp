@@ -11,7 +11,7 @@ const S315_5313::RenderOp S315_5313::operationsH32[] = {
 	{S315_5313::RenderOp::PATTERN_B, 1},
 
 	//Cell block 1
-	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  2}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
+	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
 	{S315_5313::RenderOp::MAPPING_A, 4}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 4}, {S315_5313::RenderOp::PATTERN_A, 5}, {S315_5313::RenderOp::MAPPING_B, 4}, {S315_5313::RenderOp::MAPPING_S, 1}, {S315_5313::RenderOp::PATTERN_B, 4}, {S315_5313::RenderOp::PATTERN_B, 5},
 	{S315_5313::RenderOp::MAPPING_A, 6}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 6}, {S315_5313::RenderOp::PATTERN_A, 7}, {S315_5313::RenderOp::MAPPING_B, 6}, {S315_5313::RenderOp::MAPPING_S, 2}, {S315_5313::RenderOp::PATTERN_B, 6}, {S315_5313::RenderOp::PATTERN_B, 7},
 	{S315_5313::RenderOp::MAPPING_A, 8}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A, 8}, {S315_5313::RenderOp::PATTERN_A, 9}, {S315_5313::RenderOp::MAPPING_B, 8}, {S315_5313::RenderOp::MAPPING_S, 3}, {S315_5313::RenderOp::PATTERN_B, 8}, {S315_5313::RenderOp::PATTERN_B, 9},
@@ -35,7 +35,7 @@ const S315_5313::RenderOp S315_5313::operationsH32[] = {
 	{S315_5313::RenderOp::MAPPING_A,32}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,32}, {S315_5313::RenderOp::PATTERN_A,33}, {S315_5313::RenderOp::MAPPING_B,32}, {S315_5313::RenderOp::MAPPING_S,15}, {S315_5313::RenderOp::PATTERN_B,32}, {S315_5313::RenderOp::PATTERN_B,33},
 
 	//End of line
-	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  1},
+	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  0},
 	{S315_5313::RenderOp::PATTERN_S, 0}, {S315_5313::RenderOp::PATTERN_S, 1}, {S315_5313::RenderOp::PATTERN_S, 2}, {S315_5313::RenderOp::PATTERN_S, 3}, {S315_5313::RenderOp::PATTERN_S, 4},
 	{S315_5313::RenderOp::PATTERN_S, 5}, {S315_5313::RenderOp::PATTERN_S, 6}, {S315_5313::RenderOp::PATTERN_S, 7}, {S315_5313::RenderOp::PATTERN_S, 8}, {S315_5313::RenderOp::PATTERN_S, 9},
 	{S315_5313::RenderOp::PATTERN_S,10}, {S315_5313::RenderOp::PATTERN_S,11}, {S315_5313::RenderOp::PATTERN_S,12},
@@ -58,7 +58,7 @@ const S315_5313::RenderOp S315_5313::operationsH32[] = {
 //----------------------------------------------------------------------------------------
 const S315_5313::RenderOp S315_5313::operationsH40[] = {
 	//Cell block 1
-	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  2}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
+	{S315_5313::RenderOp::MAPPING_A, 2}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 2}, {S315_5313::RenderOp::PATTERN_A, 3}, {S315_5313::RenderOp::MAPPING_B, 2}, {S315_5313::RenderOp::MAPPING_S, 0}, {S315_5313::RenderOp::PATTERN_B, 2}, {S315_5313::RenderOp::PATTERN_B, 3},
 	{S315_5313::RenderOp::MAPPING_A, 4}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 4}, {S315_5313::RenderOp::PATTERN_A, 5}, {S315_5313::RenderOp::MAPPING_B, 4}, {S315_5313::RenderOp::MAPPING_S, 1}, {S315_5313::RenderOp::PATTERN_B, 4}, {S315_5313::RenderOp::PATTERN_B, 5},
 	{S315_5313::RenderOp::MAPPING_A, 6}, {S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::PATTERN_A, 6}, {S315_5313::RenderOp::PATTERN_A, 7}, {S315_5313::RenderOp::MAPPING_B, 6}, {S315_5313::RenderOp::MAPPING_S, 2}, {S315_5313::RenderOp::PATTERN_B, 6}, {S315_5313::RenderOp::PATTERN_B, 7},
 	{S315_5313::RenderOp::MAPPING_A, 8}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A, 8}, {S315_5313::RenderOp::PATTERN_A, 9}, {S315_5313::RenderOp::MAPPING_B, 8}, {S315_5313::RenderOp::MAPPING_S, 3}, {S315_5313::RenderOp::PATTERN_B, 8}, {S315_5313::RenderOp::PATTERN_B, 9},
@@ -88,7 +88,7 @@ const S315_5313::RenderOp S315_5313::operationsH40[] = {
 	{S315_5313::RenderOp::MAPPING_A,40}, {S315_5313::RenderOp::REFRESH,   0}, {S315_5313::RenderOp::PATTERN_A,40}, {S315_5313::RenderOp::PATTERN_A,41}, {S315_5313::RenderOp::MAPPING_B,40}, {S315_5313::RenderOp::MAPPING_S,19}, {S315_5313::RenderOp::PATTERN_B,40}, {S315_5313::RenderOp::PATTERN_B,41},
 
 	//End of line
-	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  1},
+	{S315_5313::RenderOp::ACC_SLOT,  0}, {S315_5313::RenderOp::ACC_SLOT,  0},
 	{S315_5313::RenderOp::PATTERN_S, 0}, {S315_5313::RenderOp::PATTERN_S, 1}, {S315_5313::RenderOp::PATTERN_S, 2}, {S315_5313::RenderOp::PATTERN_S, 3}, {S315_5313::RenderOp::PATTERN_S, 4},
 	{S315_5313::RenderOp::PATTERN_S, 5}, {S315_5313::RenderOp::PATTERN_S, 6}, {S315_5313::RenderOp::PATTERN_S, 7}, {S315_5313::RenderOp::PATTERN_S, 8}, {S315_5313::RenderOp::PATTERN_S, 9},
 	{S315_5313::RenderOp::PATTERN_S,10}, {S315_5313::RenderOp::PATTERN_S,11}, {S315_5313::RenderOp::PATTERN_S,12}, {S315_5313::RenderOp::PATTERN_S,13}, {S315_5313::RenderOp::PATTERN_S,14},
@@ -439,23 +439,84 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 	case LINE_BR:{
 		boost::mutex::scoped_lock workerLock(workerThreadMutex);
 		bool targetLineState = lineData.GetBit(0);
-		if(dmaTransferActive == targetLineState)
+		bool busRequested = dmaTransferActive;
+		if(busRequested == targetLineState)
 		{
 			//If the current state of the target line matches the target state, we have
 			//nothing to do.
 			return true;
 		}
-		else if(busGranted && !targetLineState && workerThreadPaused)
+		else if(!busGranted && busRequested && !targetLineState)
 		{
-			//If we currently have the bus, and the caller is requesting that we advance
-			//until the bus request line is negated, we can accurately perform that
-			//operation. In this case, we instruct the DMA worker thread to run the DMA
-			//operation to completion.
-			dmaAdvanceUntilDMAComplete = true;
-			workerThreadUpdate.notify_all();
-			workerThreadIdle.wait(workerLock);
-			dmaAdvanceUntilDMAComplete = false;
-			return true;
+			//If we've requested the bus, but the M68000 hasn't granted it yet, request
+			//the M68000 to advance until the bus is granted.
+			workerLock.unlock();
+			if(!memoryBus->AdvanceToLineState(LINE_BG, Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext))
+			{
+				//##DEBUG##
+				std::wcout << "VDP failed to advance M68000 to BG line state 1 for target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
+				return false;
+			}
+			workerLock.lock();
+			//We expect that the bus has now been granted, in which case, we proceed now
+			//as if the bus had already been granted, but not reached the target line
+			//state.
+		}
+
+		if(busGranted && busRequested && !targetLineState)
+		{
+			//If the worker thread isn't currently paused, wait for it to go idle. We know
+			//it can't be stopped here, since we have a lock on workerThreadMutex, and the
+			//busGranted flag is set.
+			if(!workerThreadPaused)
+			{
+				workerThreadIdle.wait(workerLock);
+			}
+
+			//If we currently have the bus, but we've reached the end of the current
+			//timeslice before a DMA operation could complete, and the caller is
+			//requesting that we advance until the bus request line is negated, we can
+			//accurately perform that operation. In this case, we instruct the DMA worker
+			//thread to run the DMA operation to completion.
+			//##FIX## When we perform this advancement, how do we ensure that timing
+			//points are not missed? We need to make sure that our interrupts occur at the
+			//correct time for example, since a device listening for an interrupt might
+			//not necessarily be blocked just because the VDP has the M68000 bus. Making
+			//the DMA worker thread execute events should be sufficient to make this work.
+			//Note that there's actually a larger problem here. What happens if a port
+			//access past the end of a timeslice causes multiple events to be reached?
+			//Right now, we only save and defer processing for a single event.
+			if(workerThreadPaused && busGranted)
+			{
+				dmaAdvanceUntilDMAComplete = true;
+				workerThreadUpdate.notify_all();
+				workerThreadIdle.wait(workerLock);
+				dmaAdvanceUntilDMAComplete = false;
+			}
+
+			//If we've released our request on the bus, request the M68000 to advance
+			//until the bus is reclaimed.
+			workerLock.unlock();
+			if(!memoryBus->AdvanceToLineState(LINE_BG, Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext))
+			{
+				//##DEBUG##
+				std::wcout << "VDP failed to advance M68000 to BG line state 0 for target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
+				return false;
+			}
+			workerLock.lock();
+
+			bool advanceSucceeded = (busGranted == targetLineState);
+			//##DEBUG##
+			if(!advanceSucceeded)
+			{
+				std::wcout << "VDP failed to advance DMA worker thread to end of operation for target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
+			}
+			return advanceSucceeded;
+		}
+		//##DEBUG##
+		else
+		{
+			std::wcout << "VDP couldn't advance to target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
 		}
 		break;}
 	case LINE_INT:
@@ -3358,7 +3419,12 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 	//Use the current VCounter data to determine whether we are rendering an active line
 	//of the display, which active line number we're up to, based on the current screen
 	//mode settings.
+	//##FIX## Correctly emulate the sprite cache line at vcounter=0x1FF, where the sprite
+	//list is traversed and sprite mapping data is read for the upcoming line of the
+	//display. No actual pixel data is output for this line, but the same access
+	//restrictions exist for this line as for an active line.
 	bool insideActiveScanRow = false;
+	bool inFirstRowBeforeActiveScan = false;
 	unsigned int renderDigitalCurrentRow = 0;
 	unsigned int renderDigitalRowCount = 0;
 	if((renderDigitalVCounterPos >= vscanSettings.activeDisplayVCounterFirstValue) && (renderDigitalVCounterPos <= vscanSettings.activeDisplayVCounterLastValue))
@@ -3368,6 +3434,30 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		insideActiveScanRow = true;
 		renderDigitalCurrentRow = renderDigitalVCounterPos - vscanSettings.activeDisplayVCounterFirstValue;
 		renderDigitalRowCount = vscanSettings.activeDisplayVCounterLastValue - vscanSettings.activeDisplayVCounterFirstValue;
+	}
+	else if(renderDigitalVCounterPos == vscanSettings.vcounterMaxValue)
+	{
+		//We're in the first line before the active display. On this line, no actual pixel
+		//data is output, but the same access restrictions apply as in an active scan
+		//line. Sprite mapping data is also read during this line, to be used to build up
+		//the sprite data for the following line.
+		//##FIX## Since the first sprite pattern data read slot occurs just before the
+		//vcounter increment point, our current implementation here is causing the first
+		//line of the display to use the sprite data which was read on the last line of
+		//the previous frame, since we miss the critical first slot where initialization
+		//takes place.
+		//##TODO## Since sprite pattern data is read just before the vcounter increment
+		//point, it's actually quite possible that on the first line of the display, the
+		//maximum number of sprites is slightly less, since we believe that the sprite
+		//list for the next line is built during this stage. It's possible that when the
+		//VDP is disabled, this sprite list construction doesn't advance, meaning the
+		//maximum number of sprites on the first line of the display is slightly reduced.
+		//Note however that it's also quite likely that the sprite list construction is
+		//completely separate from the sprite pattern reading process, and just happens to
+		//start at the same point in time. We believe this is actually the case, since the
+		//sprite list is advanced every serial clock cycle, not every pixel clock cycle,
+		//and since no external memory access is required, this is possible.
+		inFirstRowBeforeActiveScan = true;
 	}
 
 	//Read the display enable register. If this register is cleared, the output for this
@@ -3392,12 +3482,23 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 	//areas or in vblank, or if the display is currently disabled, free access is
 	//permitted to VRAM, except during the memory refresh slots. To emulate this, we force
 	//the next operation to an external access slot under these conditions, unless we're
-	//up to a memory refresh slot.
-	if(!insideActiveScanRow || !displayEnabled)
+	//up to a memory refresh slot. We also handle the first line before active scan here,
+	//which has the same access restrictions as an active scan line, but the only data
+	//which is used is the sprite mapping data, to determine which sprites to show on the
+	//first line of the display.
+	if(!displayEnabled || (!insideActiveScanRow && !inFirstRowBeforeActiveScan))
 	{
 		if((nextOperation.operation != RenderOp::REFRESH) && (nextOperation.operation != RenderOp::ACC_SLOT))
 		{
 			nextOperation.operation = RenderOp::ACC_SLOT;
+			nextOperation.index = 0;
+		}
+	}
+	else if(inFirstRowBeforeActiveScan)
+	{
+		if((nextOperation.operation != RenderOp::REFRESH) && (nextOperation.operation != RenderOp::ACC_SLOT) && (nextOperation.operation != RenderOp::MAPPING_S) && (nextOperation.operation != RenderOp::PATTERN_S))
+		{
+			nextOperation.operation = RenderOp::EMPTY;
 			nextOperation.index = 0;
 		}
 	}
@@ -3603,6 +3704,27 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		DigitalRenderReadPatternDataRow(patternRowNumberNoFlip, 0, interlaceMode2Active, renderMappingDataCacheLayerB[nextOperation.index], renderPatternDataCacheLayerB[nextOperation.index]);
 		break;}
 	case RenderOp::MAPPING_S:{
+		//If this is the first sprite mapping on this line, we need to reset some state in
+		//order to begin reading sprite mapping data.
+		//##TODO## Ensure that on a reset, this data is initialized correctly
+		if(nextOperation.index == 0)
+		{
+			//##TODO## Test if the first line of the display always acts like a dot
+			//overflow didn't occur on the previous line, or if the VDP remembers if a dot
+			//overflow occurred on the very last line of the display when loading sprites
+			//for the first line of the display.
+			renderSpriteDotOverflowPreviousLine = renderSpriteDotOverflow;
+			renderSpriteDotOverflow = false;
+			renderSpriteDisplayCellCacheEntryCount = 0;
+			nonSpriteMaskCellEncountered = false;
+			renderSpriteMaskActive = false;
+			renderSpriteCollision = false;
+
+			//Advance the sprite pixel buffer plane
+			renderSpritePixelBufferAnalogRenderPlane = (renderSpritePixelBufferAnalogRenderPlane + 1) % renderSpritePixelBufferPlaneCount;
+			renderSpritePixelBufferDigitalRenderPlane = (renderSpritePixelBufferDigitalRenderPlane + 1) % renderSpritePixelBufferPlaneCount;
+		}
+
 		//Read sprite mapping data and decode sprite cells for the next sprite to display
 		//on the current scanline.
 		if(renderSpriteDisplayCacheCurrentIndex < renderSpriteDisplayCacheEntryCount)
@@ -3622,6 +3744,52 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		}
 		break;}
 	case RenderOp::PATTERN_S:{
+		//If this is the first sprite pattern read slot, reset any necessary state so that
+		//we can correctly start working with the new sprite line.
+		//##TODO## Ensure that on a reset, this data is initialized correctly
+		//##FIX## We've got a hack to work around our problems with building this list.
+		if((nextOperation.index == 0) || (inFirstRowBeforeActiveScan && (nextOperation.index == 3)))
+		{
+			renderSpriteSearchComplete = false;
+			renderSpriteOverflow = false;
+			renderSpriteNextAttributeTableEntryToRead = 0;
+			renderSpriteDisplayCacheEntryCount = 0;
+			renderSpriteDisplayCellCacheCurrentIndex = 0;
+			renderSpriteDisplayCacheCurrentIndex = 0;
+
+			//Calculate an adjusted row number for the following calculations. Note that
+			//the vcounter increment point is just a couple of SC cycles after the first
+			//sprite pattern read slot in both H32 and H40 mode. We need to adjust for
+			//this here, so that we're working with the correct row number, as though the
+			//increment point had already been reached. The real VDP would have to do a
+			//similar task as well.
+			//##FIX## Remove this hack for the current row number too
+			unsigned int currentRowAdjustedForDelayedIncrement = (inFirstRowBeforeActiveScan && (nextOperation.index == 3))? renderDigitalVCounterPos: renderDigitalVCounterPos+1;
+			renderSpriteNextSpriteRow = (currentRowAdjustedForDelayedIncrement+1) % (vscanSettings.vcounterMaxValue+1);
+			//Calculate the row number of the next line of sprite data to fetch. We add a
+			//value of 1 to the current row number because sprites are first parsed one
+			//line before the line on which they are displayed, since there are three
+			//separate rendering phases for sprites, the first of which is a full
+			//traversal of the cached sprite attribute table data, which occurs on the row
+			//before the row at which we're searching for sprites to render for.
+			//if(currentRowAdjustedForDelayedIncrement == vscanSettings.vcounterMaxValue)
+			//{
+			//	renderSpriteNextSpriteRow = 0;
+			//}
+			//else
+			//{
+			//	renderSpriteNextSpriteRow = currentRowAdjustedForDelayedIncrement+1;
+			//}
+
+			//Clear the contents of the sprite pixel buffer for this line. Note that most
+			//likely in the real VDP, the analog render process would do this for us as it
+			//pulls sprite data out of the buffer.
+			for(unsigned int i = 0; i < spritePixelBufferSize; ++i)
+			{
+				spritePixelBuffer[renderSpritePixelBufferDigitalRenderPlane][i].entryWritten = false;
+			}
+		}
+
 		//##TODO## We theorize that the sprite cache is traversed here, during the sprite
 		//pattern read steps, to generate the list of sprite numbers that are active on
 		//the next line. This makes sense for a number of reasons, namely, that it seems
@@ -3740,61 +3908,12 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		vram->AdvanceBySession(renderDigitalMclkCycleProgress, vramSession, vramTimesliceCopy);
 		vsram->AdvanceBySession(renderDigitalMclkCycleProgress, vsramSession, vsramTimesliceCopy);
 		spriteCache->AdvanceBySession(renderDigitalMclkCycleProgress, spriteCacheSession, spriteCacheTimesliceCopy);
-
-		//We use some special flags in the external access slots to indicate the point at
-		//which to clear the internal state data for sprites, and initialize the
-		//structures to begin reading sprite data for the next line.
-		//##TODO## Ensure that on a reset, this data is initialized correctly
-		if(nextOperation.index == 1)
-		{
-			renderSpriteSearchComplete = false;
-			renderSpriteOverflow = false;
-			renderSpriteNextAttributeTableEntryToRead = 0;
-			renderSpriteDisplayCacheEntryCount = 0;
-			renderSpriteDisplayCellCacheCurrentIndex = 0;
-			renderSpriteDisplayCacheCurrentIndex = 0;
-			//Calculate the row number of the next line of sprite data to fetch. Note that
-			//we calculate the row number by adding 2 to the current row. We add a value
-			//of 1 to the current row number because sprites are first parsed one line
-			//before the line on which they are displayed, since there are three separate
-			//rendering phases for sprites, the first of which is a full traversal of the
-			//cached sprite attribute table data, which occurs on the row before the row
-			//at which we're searching for sprites to render for. We add another 1 to the
-			//row number because at the point where this access slot occurs, the vcounter
-			//is about to be incremented in just a few cycles.
-			if(!insideActiveScanRow)
-			{
-				renderSpriteNextSpriteRow = 1;
-			}
-			else
-			{
-				renderSpriteNextSpriteRow = renderDigitalCurrentRow + 2;
-				if(renderSpriteNextSpriteRow >= renderDigitalRowCount)
-				{
-					renderSpriteNextSpriteRow = 0;
-				}
-			}
-		}
-		else if(nextOperation.index == 2)
-		{
-			//##TODO## Test if the first line of the display always acts like a dot
-			//overflow didn't occur on the previous line, or if the VDP remembers if a dot
-			//overflow occurred on the very last line of the display when loading sprites
-			//for the first line of the display.
-			renderSpriteDotOverflowPreviousLine = renderSpriteDotOverflow;
-			renderSpriteDotOverflow = false;
-			renderSpriteDisplayCellCacheEntryCount = 0;
-			nonSpriteMaskCellEncountered = false;
-			renderSpriteMaskActive = false;
-			renderSpriteCollision = false;
-
-			//Advance the sprite pixel buffer plane
-			renderSpritePixelBufferAnalogRenderPlane = (renderSpritePixelBufferAnalogRenderPlane + 1) % renderSpritePixelBufferPlaneCount;
-			renderSpritePixelBufferDigitalRenderPlane = (renderSpritePixelBufferDigitalRenderPlane + 1) % renderSpritePixelBufferPlaneCount;
-		}
 		break;
 	case RenderOp::REFRESH:
 		//Nothing to do on a memory refresh cycle
+		break;
+	case RenderOp::EMPTY:
+		//If this is an empty cycle, don't do anything.
 		break;
 	}
 }
@@ -4082,10 +4201,11 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	//If we just determined the palette line and index for a pixel within the active scan
 	//region of the screen, initialize the sprite pixel buffer at the corresponding pixel
 	//location, so that it is clear and ready to receive new sprite data on the next line.
-	if(insideActiveScanVertically && insideActiveScanHorizontally)
-	{
-		spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex].entryWritten = false;
-	}
+	//##TODO## Remove this old code
+	//if(insideActiveScanVertically && insideActiveScanHorizontally)
+	//{
+	//	spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex].entryWritten = false;
+	//}
 
 	//##TODO## Write a much longer comment here
 	//##FIX## This comment doesn't actually reflect what we do right now
@@ -6823,8 +6943,10 @@ const S315_5313::VScanSettings& S315_5313::GetVScanSettings(bool screenModeV30Ac
 	//|              |from 0x1FE to    |     <Same>      |from 0x1FE to    |     <Same>      |
 	//|              |0x1FF in [2].    |                 |0x1FF in [1].    |                 |
 	//|--------------------------------------------------------------------------------------|
-	//|F flag set    |while VCounter is|                 |while VCounter is|                 |
-	//|              |set to 0x0E0 in  |     <Same>      |set to 0x0F0 in  |     <Same>      |
+	//|F flag set    |At indicated     |                 |At indicated     |                 |
+	//|              |HCounter position|                 |HCounter position|                 |
+	//|              |while VCounter is|     <Same>      |while VCounter is|     <Same>      |
+	//|              |set to 0x0E0 in  |                 |set to 0x0F0 in  |                 |
 	//|              |[1].             |                 |[1].             |                 |
 	//|--------------------------------------------------------------------------------------|
 	//|VSYNC asserted|VCounter changes |                 |      Never      |                 |
@@ -6835,8 +6957,10 @@ const S315_5313::VScanSettings& S315_5313::GetVScanSettings(bool screenModeV30Ac
 	//|              |from 0x1F4 to    |     <Same>      |                 |     <Same>      |
 	//|              |0x1F5 in [2].    |                 |                 |                 |
 	//|--------------------------------------------------------------------------------------|
-	//|ODD flag      |while VCounter is|                 |while VCounter is|                 |
-	//|toggled       |set to 0x0E0 in  |     <Same>      |set to 0x0F0 in  |     <Same>      |
+	//|ODD flag      |At indicated     |                 |At indicated     |                 |
+	//|toggled       |HCounter position|                 |HCounter position|                 |
+	//|              |while VCounter is|     <Same>      |while VCounter is|     <Same>      |
+	//|              |set to 0x0E0 in  |                 |set to 0x0F0 in  |                 |
 	//|              |[1].             |                 |[1].             |                 |
 	//----------------------------------------------------------------------------------------
 
@@ -6860,8 +6984,10 @@ const S315_5313::VScanSettings& S315_5313::GetVScanSettings(bool screenModeV30Ac
 	//|              |from 0x1FE to    |     <Same>      |from 0x1FE to    |     <Same>      |
 	//|              |0x1FF in [2].    |                 |0x1FF in [2].    |                 |
 	//|--------------------------------------------------------------------------------------|
-	//|F flag set    |while VCounter is|                 |while VCounter is|                 |
-	//|              |set to 0x0E0 in  |     <Same>      |set to 0x0F0 in  |     <Same>      |
+	//|F flag set    |At indicated     |                 |At indicated     |                 |
+	//|              |HCounter position|                 |HCounter position|                 |
+	//|              |while VCounter is|     <Same>      |while VCounter is|     <Same>      |
+	//|              |set to 0x0E0 in  |                 |set to 0x0F0 in  |                 |
 	//|              |[1].             |                 |[1].             |                 |
 	//|--------------------------------------------------------------------------------------|
 	//|VSYNC asserted|VCounter changes |                 |VCounter changes |                 |
@@ -6872,8 +6998,10 @@ const S315_5313::VScanSettings& S315_5313::GetVScanSettings(bool screenModeV30Ac
 	//|              |from 0x1D9 to    |     <Same>      |from 0x1E1 to    |     <Same>      |
 	//|              |0x1DA in [2].    |                 |0x1E2 in [2].    |                 |
 	//|--------------------------------------------------------------------------------------|
-	//|ODD flag      |while VCounter is|                 |while VCounter is|                 |
-	//|toggled       |set to 0x0E0 in  |     <Same>      |set to 0x0F0 in  |     <Same>      |
+	//|ODD flag      |At indicated     |                 |At indicated     |                 |
+	//|toggled       |HCounter position|                 |HCounter position|                 |
+	//|              |while VCounter is|     <Same>      |while VCounter is|     <Same>      |
+	//|              |set to 0x0E0 in  |                 |set to 0x0F0 in  |                 |
 	//|              |[1].             |                 |[1].             |                 |
 	//----------------------------------------------------------------------------------------
 
@@ -7428,8 +7556,10 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 	//since the sprite data is modified during vblank, and the modified data is used for
 	//the first row of sprite data on the display.
 	//##FIX## Define the active display region here to include the extra line at 0x1FF.
-	bool currentLineActiveDisplayRegion = (vcounterCurrent >= vscanSettings.activeDisplayVCounterFirstValue) && (vcounterCurrent <= vscanSettings.activeDisplayVCounterLastValue);
-	bool nextLineActiveDisplayRegion = (vcounterCurrent+1 >= vscanSettings.activeDisplayVCounterFirstValue) && (vcounterCurrent+1 <= vscanSettings.activeDisplayVCounterLastValue);
+	//##NOTE## We have now done hardware tests which conclusively prove that the line at
+	//0x1FF is fully restricted, and has the same access slots as normal display lines.
+	bool currentLineActiveDisplayRegion = ((vcounterCurrent >= vscanSettings.activeDisplayVCounterFirstValue) && (vcounterCurrent <= vscanSettings.activeDisplayVCounterLastValue)) || (vcounterCurrent == vscanSettings.vcounterMaxValue);
+	bool nextLineActiveDisplayRegion = ((vcounterCurrent+1 >= vscanSettings.activeDisplayVCounterFirstValue) && (vcounterCurrent+1 <= vscanSettings.activeDisplayVCounterLastValue)) || (vcounterCurrent+1 == vscanSettings.vcounterMaxValue);
 
 	//Determine when the next access slot will occur, based on the hcounter position and
 	//the current screen mode settings. Note that we can safely assume the horizontal
