@@ -1414,19 +1414,30 @@ bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 		//change to the bus request line is sitting in the buffer, but has yet to be
 		//processed.
 
-		//If we don't have a pending line state change in the buffer to change the bus
-		//request line into the required state, return false.
-		volatile bool targetLineStateChangeApplied = false;
+		//Iterate through the line access buffer searching for a line state change which
+		//will place the target line into the requested state. If we've reached the end of
+		//the line access buffer, or we've managed to find a matching line state change,
+		//and we've reached or passed the time at which the target line state was
+		//requested, terminate the loop.
 		bool foundTargetStateChange = false;
+		LineAccess* matchingLineAccess = 0;
 		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
-		while(!foundTargetStateChange && (i != lineAccessBuffer.end()))
+		while((i != lineAccessBuffer.end()) && (!foundTargetStateChange || (i->accessTime <= accessTime)))
 		{
-			if((i->lineID == LINE_BR) && (i->state == targetLineState))
+			//If this line state change modifies the target line, latch the change if it
+			//matches the requested state, otherwise clear any currently latched change.
+			if(i->lineID == LINE_BR)
 			{
-				foundTargetStateChange = true;
-				i->appliedFlag = &targetLineStateChangeApplied;
-				i->waitingDevice = caller;
-				i->notifyWhenApplied = true;
+				if(i->state == targetLineState)
+				{
+					foundTargetStateChange = true;
+					matchingLineAccess = &(*i);
+				}
+				else
+				{
+					foundTargetStateChange = false;
+					matchingLineAccess = 0;
+				}
 			}
 			++i;
 		}
@@ -1434,6 +1445,14 @@ bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 		{
 			return false;
 		}
+
+		//Set this device as a waiting device on this line state change
+		//##FIX## What if multiple devices want to wait on this change? Our implementation
+		//below only allows for one waiting device.
+		volatile bool targetLineStateChangeApplied = false;
+		matchingLineAccess->appliedFlag = &targetLineStateChangeApplied;
+		matchingLineAccess->waitingDevice = caller;
+		matchingLineAccess->notifyWhenApplied = true;
 
 		//Wait for the target line state change to be processed from the line access
 		//buffer, or the end of the current timeslice to be reached. Note that we

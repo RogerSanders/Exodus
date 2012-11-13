@@ -265,7 +265,8 @@ struct S315_5313::RenderOp
 		MAPPING_S,
 		PATTERN_S,
 		ACC_SLOT,
-		REFRESH
+		REFRESH,
+		EMPTY
 	};
 
 	Op operation;

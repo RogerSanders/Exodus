@@ -928,6 +928,12 @@ private:
 	//##TODO## Calculate the relative synchronization of the DMA transfer read slots to
 	//the HCounter. The very fact that the DMA bitmap demos work show that these slots do
 	//in fact exist, otherwise it wouldn't be possible to achieve a stable display.
+	//##NOTE## Hardware tests have been performed. In H40 and H32 modes, at the point
+	//where HSYNC rizes (is negated, IE, leaving HSYNC), the AS line goes from high to
+	//low, which we know means a read is being performed at that point. In other words, a
+	//read occurs at HSYNC, and exactly 4 SC after that point, for the rest of the line.
+	//This means that our sync window is 8 SC cycles wide in H40, and 10 SC cycles wide in
+	//H32 mode.
 	static const unsigned int dmaTransferReadTimeInMclkCycles = 16; //The number of mclk cycles required for a DMA operation to read a byte from the external bus
 	bool dmaTransferActive;
 	bool bdmaTransferActive;
