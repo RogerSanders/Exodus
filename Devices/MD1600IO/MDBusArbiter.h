@@ -13,6 +13,7 @@ public:
 	//Initialization functions
 	virtual bool ValidateDevice();
 	virtual void Initialize();
+	virtual void InitializeExternalConnections();
 
 	//Reference functions
 	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
@@ -23,10 +24,6 @@ public:
 	virtual void ExecuteCommit();
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
-	virtual UpdateMethod GetUpdateMethod() const;
-	virtual void ExecuteTimeslice(double nanoseconds);
-	virtual void ExecuteTimesliceTimingPointStep(unsigned int accessContext);
-	virtual double GetNextTimingPointInDeviceTime(unsigned int& accessContext) const;
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
@@ -69,12 +66,8 @@ private:
 	IBusInterface* z80MemoryBus;
 	IBusInterface* m68kMemoryBus;
 
-	//Internal state
-	mutable boost::mutex bankswitchAccessMutex;
-	bool initialLineStateSet;
-	bool binitialLineStateSet;
-
 	//Z80 to M68K memory bankswitch register settings
+	mutable boost::mutex bankswitchAccessMutex;
 	Data z80BankswitchDataCurrent;
 	Data bz80BankswitchDataCurrent;
 	Data z80BankswitchDataNew;

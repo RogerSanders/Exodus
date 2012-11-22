@@ -1,4 +1,83 @@
 //----------------------------------------------------------------------------------------
+//Enumerations
+//----------------------------------------------------------------------------------------
+enum A10000::Ports
+{
+	PORT1 = 0,
+	PORT2 = 1,
+	PORT3 = 2
+};
+
+//----------------------------------------------------------------------------------------
+enum A10000::PortLine
+{
+	LINE_D0,
+	LINE_D1,
+	LINE_D2,
+	LINE_D3,
+	LINE_TL,
+	LINE_TR,
+	LINE_TH
+};
+
+//----------------------------------------------------------------------------------------
+enum A10000::LineID
+{
+	LINE_PORT1_D0 = 1,  //IO
+	LINE_PORT1_D1,      //IO
+	LINE_PORT1_D2,      //IO
+	LINE_PORT1_D3,      //IO
+	LINE_PORT1_TL,      //IO
+	LINE_PORT1_TR,      //IO
+	LINE_PORT1_TH,      //IO
+	LINE_PORT2_D0,      //IO
+	LINE_PORT2_D1,      //IO
+	LINE_PORT2_D2,      //IO
+	LINE_PORT2_D3,      //IO
+	LINE_PORT2_TL,      //IO
+	LINE_PORT2_TR,      //IO
+	LINE_PORT2_TH,      //IO
+	LINE_PORT3_D0,      //IO
+	LINE_PORT3_D1,      //IO
+	LINE_PORT3_D2,      //IO
+	LINE_PORT3_D3,      //IO
+	LINE_PORT3_TL,      //IO
+	LINE_PORT3_TR,      //IO
+	LINE_PORT3_TH,      //IO
+
+	LINE_REGION,        //I
+	LINE_VIDEO,         //I
+	LINE_SEGACD,        //I
+	LINE_HL             //O
+};
+
+//----------------------------------------------------------------------------------------
+//Structures
+//----------------------------------------------------------------------------------------
+struct A10000::InputLineState
+{
+	bool lineAssertedD0;
+	bool lineAssertedD1;
+	bool lineAssertedD2;
+	bool lineAssertedD3;
+	bool lineAssertedTL;
+	bool lineAssertedTR;
+	bool lineAssertedTH;
+};
+
+//----------------------------------------------------------------------------------------
+struct A10000::LineAccess
+{
+	LineAccess(unsigned int alineLD, const Data& astate, double aaccessTime)
+	:lineID(alineLD), state(astate), accessTime(aaccessTime)
+	{}
+
+	unsigned int lineID;
+	Data state;
+	double accessTime;
+};
+
+//----------------------------------------------------------------------------------------
 //Version register functions
 //----------------------------------
 //| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0  |

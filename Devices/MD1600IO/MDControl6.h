@@ -24,6 +24,8 @@ public:
 	MDControl6(const std::wstring& ainstanceName, unsigned int amoduleID);
 
 	//Initialization functions
+	virtual void Initialize();
+	virtual void InitializeExternalConnections();
 	virtual bool ValidateDevice();
 
 	//Reference functions
@@ -33,6 +35,8 @@ public:
 	//Execute functions
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
+	virtual bool SendNotifyAfterExecuteCalled() const;
+	virtual void NotifyAfterExecuteCalled();
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
@@ -43,16 +47,26 @@ public:
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
 
-	//Initialization functions
-	virtual void Initialize();
-
 	//Input functions
 	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const;
 	virtual void HandleInputKeyDown(unsigned int keyCode);
 	virtual void HandleInputKeyUp(unsigned int keyCode);
-	void UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	void UpdateLineState(bool timeoutSettingsChanged, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	void UpdateOutputLineStateForLine(unsigned int lineID, bool revokeAllTimeoutStateChanges, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	static bool GetDesiredLineState(unsigned int currentBankswitchCounter, unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, unsigned int lineID);
 
 private:
+	//Enumerations
+	enum LineID
+	{
+		LINE_D0 = 1, //IO
+		LINE_D1,     //IO
+		LINE_D2,     //IO
+		LINE_D3,     //IO
+		LINE_TL,     //IO
+		LINE_TR,     //IO
+		LINE_TH      //IO
+	};
 	enum Button
 	{
 		BUTTON_UP     = 0,
@@ -68,8 +82,21 @@ private:
 		BUTTON_Z      = 10,
 		BUTTON_MODE   = 11
 	};
+
+	//Structures
+	struct OutputLineState
+	{
+		bool asserted;
+		bool timeoutFlagged;
+		bool timeoutAssertedState;
+		double timeoutTime;
+	};
+
+private:
+	//Constants
 	static const unsigned int buttonCount = 12;
 	static const unsigned int bankswitchCounterResetPoint = 4;
+	static const unsigned int outputLineCount = 7;
 
 	//Bus interface
 	IBusInterface* memoryBus;
@@ -91,34 +118,12 @@ private:
 	double bbankswitchCounterToggleLastRisingEdge;
 
 	//Line state
-	bool lineAssertedD0;
-	bool blineAssertedD0;
-	bool lineAssertedD1;
-	bool blineAssertedD1;
-	bool lineAssertedD2;
-	bool blineAssertedD2;
-	bool lineAssertedD3;
-	bool blineAssertedD3;
-	bool lineAssertedTL;
-	bool blineAssertedTL;
-	bool lineAssertedTR;
-	bool blineAssertedTR;
-	bool lineAssertedTH;
-	bool blineAssertedTH;
+	std::vector<OutputLineState> outputLineState;
+	std::vector<OutputLineState> boutputLineState;
 
 	//Line access
 	boost::mutex lineMutex;
 	double lastLineAccessTime;
-	enum LineID
-	{
-		LINE_D0 = 1,	//IO
-		LINE_D1,		//IO
-		LINE_D2,		//IO
-		LINE_D3,		//IO
-		LINE_TL,		//IO
-		LINE_TR,		//IO
-		LINE_TH			//IO
-	};
 };
 
 #endif

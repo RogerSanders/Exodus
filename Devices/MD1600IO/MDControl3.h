@@ -23,6 +23,8 @@ public:
 	MDControl3(const std::wstring& ainstanceName, unsigned int amoduleID);
 
 	//Initialization functions
+	virtual void Initialize();
+	virtual void InitializeExternalConnections();
 	virtual bool ValidateDevice();
 
 	//Reference functions
@@ -41,9 +43,6 @@ public:
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
-
-	//Initialization functions
-	virtual void Initialize();
 
 	//Input functions
 	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const;
@@ -73,8 +72,8 @@ private:
 	std::vector<bool> bbuttonPressed;
 
 	//Device state
-	bool secondBankEnabled;
-	bool bsecondBankEnabled;
+	bool lineInputStateTH;
+	bool blineInputStateTH;
 
 	//Line state
 	bool lineAssertedD0;

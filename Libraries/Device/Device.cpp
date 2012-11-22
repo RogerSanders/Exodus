@@ -45,6 +45,10 @@ void Device::Initialize()
 {}
 
 //----------------------------------------------------------------------------------------
+void Device::InitializeExternalConnections()
+{}
+
+//----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
 bool Device::AddReference(const wchar_t* referenceName, IDevice* target)
@@ -391,6 +395,10 @@ unsigned int Device::GetLineWidth(unsigned int lineID) const
 
 //----------------------------------------------------------------------------------------
 void Device::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{}
+
+//----------------------------------------------------------------------------------------
+void Device::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {}
 
 //----------------------------------------------------------------------------------------

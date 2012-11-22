@@ -2552,6 +2552,32 @@ bool BusInterface::SetLineState(unsigned int sourceLine, const Data& lineData, I
 }
 
 //----------------------------------------------------------------------------------------
+bool BusInterface::RevokeSetLineState(unsigned int sourceLine, const Data& lineData, double reportedTime, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext)
+{
+	//##DEBUG##
+//	std::wcout << "SetLineBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
+	for(std::list<LineEntry>::const_iterator i = lineMap.begin(); i != lineMap.end(); ++i)
+	{
+		const LineEntry* lineEntry = &(*i);
+		//##DEBUG##
+//		std::wcout << "SetLineState:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
+		if((lineEntry->sourceDevice == sourceDevice->GetTargetDevice()) && (lineEntry->sourceLine == sourceLine))
+		{
+			Data tempData(lineEntry->targetLineBitCount, lineData.GetData());
+			if(lineEntry->remapLines)
+			{
+				//Remap lines
+				tempData = lineEntry->lineRemapTable.ConvertTo(lineData.GetData());
+			}
+			lineEntry->targetDevice->RevokeSetLineState(lineEntry->targetLine, tempData, reportedTime, callingDevice, accessTime, accessContext);
+		}
+	}
+	//##DEBUG##
+//	std::wcout << "SetLineEnd\n";
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 bool BusInterface::AdvanceToLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext)
 {
 	//##DEBUG##
