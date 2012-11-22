@@ -32,6 +32,7 @@ public:
 	inline void Commit();
 	inline void Rollback();
 	inline void Initialize();
+	inline void InitializeExternalConnections();
 
 	//Suspend functions
 	virtual void EnableTimesliceExecutionSuspend();

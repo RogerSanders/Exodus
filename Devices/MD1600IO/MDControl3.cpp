@@ -14,6 +14,36 @@ MDControl3::MDControl3(const std::wstring& ainstanceName, unsigned int amoduleID
 //----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
+void MDControl3::Initialize()
+{
+	for(unsigned int i = 0; i < buttonCount; ++i)
+	{
+		buttonPressed[i] = false;
+	}
+	lineInputStateTH = false;
+
+	lineAssertedD0 = false;
+	lineAssertedD1 = false;
+	lineAssertedD2 = false;
+	lineAssertedD3 = false;
+	lineAssertedTL = false;
+	lineAssertedTR = false;
+	lineAssertedTH = false;
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl3::InitializeExternalConnections()
+{
+	memoryBus->SetLineState(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	memoryBus->SetLineState(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	memoryBus->SetLineState(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	memoryBus->SetLineState(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	memoryBus->SetLineState(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	memoryBus->SetLineState(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	memoryBus->SetLineState(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+}
+
+//----------------------------------------------------------------------------------------
 bool MDControl3::ValidateDevice()
 {
 	return (memoryBus != 0);
@@ -71,7 +101,7 @@ void MDControl3::ExecuteRollback()
 	{
 		buttonPressed[i] = bbuttonPressed[i];
 	}
-	secondBankEnabled = bsecondBankEnabled;
+	lineInputStateTH = blineInputStateTH;
 	lineAssertedD0 = blineAssertedD0;
 	lineAssertedD1 = blineAssertedD1;
 	lineAssertedD2 = blineAssertedD2;
@@ -88,7 +118,7 @@ void MDControl3::ExecuteCommit()
 	{
 		bbuttonPressed[i] = buttonPressed[i];
 	}
-	bsecondBankEnabled = secondBankEnabled;
+	blineInputStateTH = lineInputStateTH;
 	blineAssertedD0 = lineAssertedD0;
 	blineAssertedD1 = lineAssertedD1;
 	blineAssertedD2 = lineAssertedD2;
@@ -191,7 +221,7 @@ void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 	//If the TH line has been toggled, select the currently enabled bank.
 	if(targetLine == LINE_TH)
 	{
-		secondBankEnabled = lineData.GetBit(0);
+		lineInputStateTH = lineData.GetBit(0);
 	}
 
 	//We explicitly release our lock on lineMutex here so that we're not blocking access
@@ -202,26 +232,6 @@ void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 
 	//If an input line state has changed, re-evaluate the state of the output lines.
 	UpdateLineState(caller, accessTime, accessContext);
-}
-
-//----------------------------------------------------------------------------------------
-//Initialization functions
-//----------------------------------------------------------------------------------------
-void MDControl3::Initialize()
-{
-	for(unsigned int i = 0; i < buttonCount; ++i)
-	{
-		buttonPressed[i] = false;
-	}
-	secondBankEnabled = false;
-
-	lineAssertedD0 = false;
-	lineAssertedD1 = false;
-	lineAssertedD2 = false;
-	lineAssertedD3 = false;
-	lineAssertedTL = false;
-	lineAssertedTR = false;
-	lineAssertedTH = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -282,9 +292,9 @@ void MDControl3::HandleInputKeyUp(unsigned int keyCode)
 //----------------------------------------------------------------------------------------
 void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	if(!secondBankEnabled)
+	if(!lineInputStateTH)
 	{
-		//This state is selected when TH is configured as an input and set to 1
+		//This state is selected when TH is configured as an input and set to 0
 		//D0 = Up
 		//D1 = Down
 		//D2 = Null (grounded)
@@ -330,7 +340,7 @@ void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsi
 	}
 	else
 	{
-		//This state is selected when TH is configured as an input and set to 0
+		//This state is selected when TH is configured as an input and set to 1
 		//D0 = Up
 		//D1 = Down
 		//D2 = Left

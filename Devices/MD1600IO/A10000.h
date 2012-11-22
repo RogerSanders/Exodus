@@ -73,7 +73,7 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
+	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
@@ -82,6 +82,22 @@ public:
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
 	virtual void GetState(IHeirarchicalStorageNode& node) const;
+
+private:
+	//Enumerations
+	enum Ports;
+	enum PortLine;
+	enum LineID;
+
+	//Structures
+	struct InputLineState;
+	struct LineAccess;
+
+private:
+	//Line functions
+	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
+	void ApplyPendingLineStateChanges(double currentTimesliceProgress);
+	LineID GetLineIDForPort(unsigned int portNo, PortLine portLine);
 
 	//Data register access
 	inline Data ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
@@ -183,36 +199,19 @@ public:
 	void UpdateHLInterruptState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 private:
-	enum Ports
-	{
-		PORT1 = 0,
-		PORT2 = 1,
-		PORT3 = 2
-	};
-	enum PortLine
-	{
-		LINE_D0,
-		LINE_D1,
-		LINE_D2,
-		LINE_D3,
-		LINE_TL,
-		LINE_TR,
-		LINE_TH
-	};
+	//Constants
+	static const unsigned int controlPortCount = 3;
 
 	//Bus interface
 	IBusInterface* memoryBus;
 	IBusInterface* controlPortBus;
-
-	static const unsigned int controlPortCount = 3;
-	mutable boost::mutex accessMutex;
-	double lastAccessTime;
 
 	//Version register settings
 	Data versionRegister;
 	Data bversionRegister;
 
 	//Control port registers
+	mutable boost::mutex accessMutex;
 	std::vector<Data> dataRegisters;
 	std::vector<Data> bdataRegisters;
 	std::vector<Data> controlRegisters;
@@ -227,55 +226,18 @@ private:
 	bool bcurrentHLLineState;
 
 	//Input line state
-	struct InputLineState
-	{
-		bool lineAssertedD0;
-		bool lineAssertedD1;
-		bool lineAssertedD2;
-		bool lineAssertedD3;
-		bool lineAssertedTL;
-		bool lineAssertedTR;
-		bool lineAssertedTH;
-	};
 	//##TODO## Determine whether we should be writing this in a savestate
 	std::vector<InputLineState> inputLineState;
 	std::vector<InputLineState> binputLineState;
 
 	//Line access
 	boost::mutex lineMutex;
-	double lastLineAccessTime;
-	enum LineID
-	{
-		LINE_PORT1_D0 = 1,  //IO
-		LINE_PORT1_D1,      //IO
-		LINE_PORT1_D2,      //IO
-		LINE_PORT1_D3,      //IO
-		LINE_PORT1_TL,      //IO
-		LINE_PORT1_TR,      //IO
-		LINE_PORT1_TH,      //IO
-		LINE_PORT2_D0,      //IO
-		LINE_PORT2_D1,      //IO
-		LINE_PORT2_D2,      //IO
-		LINE_PORT2_D3,      //IO
-		LINE_PORT2_TL,      //IO
-		LINE_PORT2_TR,      //IO
-		LINE_PORT2_TH,      //IO
-		LINE_PORT3_D0,      //IO
-		LINE_PORT3_D1,      //IO
-		LINE_PORT3_D2,      //IO
-		LINE_PORT3_D3,      //IO
-		LINE_PORT3_TL,      //IO
-		LINE_PORT3_TR,      //IO
-		LINE_PORT3_TH,      //IO
-
-		LINE_REGION,        //I
-		LINE_VIDEO,         //I
-		LINE_SEGACD,        //I
-		LINE_HL             //O
-	};
-
-	//Line functions
-	LineID GetLineIDForPort(unsigned int portNo, PortLine portLine);
+	double lastLineCheckTime;
+	volatile bool lineAccessPending;
+	double lastTimesliceLength;
+	double blastTimesliceLength;
+	std::list<LineAccess> lineAccessBuffer;
+	std::list<LineAccess> blineAccessBuffer;
 };
 
 #include "A10000.inl"

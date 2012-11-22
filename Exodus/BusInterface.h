@@ -114,6 +114,7 @@ public:
 
 	//Line interface functions
 	virtual bool SetLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
+	virtual bool RevokeSetLineState(unsigned int sourceLine, const Data& lineData, double reportedTime, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 	virtual bool AdvanceToLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 
 	//Clock source functions

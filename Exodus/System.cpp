@@ -1976,6 +1976,23 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		i->clockSource->PublishEffectiveClockFrequency();
 	}
 
+	//Initialize external connections for all devices we just loaded
+	//##FIX## This isn't going to do what we want in all cases. What about where modules
+	//are loaded or unloaded at runtime? If an already loaded device sets the initial line
+	//state when it is loaded, then another device is later loaded that uses those lines,
+	//the second device is not going to receive the line state changes made by the first
+	//device. Our old method had the same problem. It seems that in order to solve this,
+	//we do need the BusInterface objects themselves to track the current state of all bus
+	//lines. Note that we already plan to do this in order to support the logic analyser
+	//debug feature.
+	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
+	{
+		if(i->moduleID == moduleInfo.moduleID)
+		{
+			i->deviceContext->InitializeExternalConnections();
+		}
+	}
+
 	//Perform any additional construction tasks the devices within the system require
 	if(!ValidateSystem())
 	{

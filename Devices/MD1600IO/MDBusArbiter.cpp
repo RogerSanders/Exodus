@@ -44,8 +44,6 @@ bool MDBusArbiter::ValidateDevice()
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::Initialize()
 {
-	initialLineStateSet = false;
-
 	lineAccessPending = false;
 	lastTimesliceLength = 0;
 	lineAccessBuffer.clear();
@@ -71,6 +69,13 @@ void MDBusArbiter::Initialize()
 	z80BusResetLineStateChangeTimeLatchEnable = false;
 	m68kBusRequestLineStateChangeTimeLatchEnable = false;
 	m68kBusGrantLineStateChangeTimeLatchEnable = false;
+}
+
+//----------------------------------------------------------------------------------------
+void MDBusArbiter::InitializeExternalConnections()
+{
+	z80BusResetLineState = true;
+	z80MemoryBus->SetLineState(LINE_ZRES, Data(1, (unsigned int)z80BusResetLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -117,8 +122,6 @@ bool MDBusArbiter::RemoveReference(IBusInterface* target)
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::ExecuteRollback()
 {
-	initialLineStateSet = binitialLineStateSet;
-
 	lastTimesliceLength = blastTimesliceLength;
 	lineAccessBuffer = blineAccessBuffer;
 	lineAccessPending = !lineAccessBuffer.empty();
@@ -138,8 +141,6 @@ void MDBusArbiter::ExecuteRollback()
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::ExecuteCommit()
 {
-	binitialLineStateSet = initialLineStateSet;
-
 	blastTimesliceLength = lastTimesliceLength;
 	if(lineAccessPending)
 	{
@@ -183,36 +184,6 @@ void MDBusArbiter::NotifyUpcomingTimeslice(double nanoseconds)
 		i->accessTime -= lastTimesliceLength;
 	}
 	lastTimesliceLength = nanoseconds;
-}
-
-//----------------------------------------------------------------------------------------
-Device::UpdateMethod MDBusArbiter::GetUpdateMethod() const
-{
-	return Device::UPDATEMETHOD_TIMESLICE;
-}
-
-//----------------------------------------------------------------------------------------
-void MDBusArbiter::ExecuteTimeslice(double nanoseconds)
-{}
-
-//----------------------------------------------------------------------------------------
-void MDBusArbiter::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
-{
-	if(!initialLineStateSet)
-	{
-		z80BusResetLineState = true;
-		z80MemoryBus->SetLineState(LINE_ZRES, Data(1, (unsigned int)z80BusResetLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		initialLineStateSet = true;
-	}
-}
-
-//----------------------------------------------------------------------------------------
-double MDBusArbiter::GetNextTimingPointInDeviceTime(unsigned int& accessContext) const
-{
-	//This controller needs to power up asserting the RESET line. Since we can't access
-	//another device during initialization, we generate a timing point immediately after
-	//system construction to perform the task.
-	return (!initialLineStateSet? 0.0: -1.0);
 }
 
 //----------------------------------------------------------------------------------------

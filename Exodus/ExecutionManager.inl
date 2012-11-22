@@ -203,10 +203,18 @@ void ExecutionManager::Initialize()
 	//internal state data we are about to initialize. As the device is currently
 	//suspended, we can't send this command in parallel to each device, as the command
 	//worker thread for each device is also suspended.
-	pendingDeviceCount = totalDeviceCount;
 	for(size_t i = 0; i < deviceCount; ++i)
 	{
 		deviceArray[i]->Initialize();
+	}
+
+	//Initialize the external connections for all loaded devices. This allows devices to
+	//safely perform initialization tasks that affect other devices. This will typically
+	//involve setting the initial state of various output lines. Note that this process
+	//needs to be performed only after all devices have completed initialization.
+	for(size_t i = 0; i < deviceCount; ++i)
+	{
+		deviceArray[i]->InitializeExternalConnections();
 	}
 }
 

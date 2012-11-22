@@ -15,6 +15,7 @@ public:
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
 	virtual void Initialize();
+	virtual void InitializeExternalConnections();
 
 	//Reference functions
 	virtual bool AddReference(const wchar_t* referenceName, IDevice* target);
@@ -87,6 +88,7 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Clock source functions

@@ -58,6 +58,7 @@ public:
 	inline void Commit();
 	inline void Rollback();
 	inline void Initialize();
+	inline void InitializeExternalConnections();
 
 	//Timing functions
 	virtual double GetCurrentTimesliceProgress() const;
