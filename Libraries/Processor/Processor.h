@@ -261,20 +261,20 @@ private:
 	typedef std::list<Watchpoint*> WatchpointList;
 	mutable BreakpointList breakpoints;
 	mutable WatchpointList watchpoints;
-	mutable bool breakpointTriggered;
-	mutable bool breakOnNextOpcode;
 	bool breakpointExists;
 	bool watchpointExists;
 
 	//Call stack
 	typedef std::list<CallStackEntry> CallStack;
+	mutable bool breakOnNextOpcode;
+	bool bbreakOnNextOpcode;
 	mutable CallStack callStack;
-	bool stepOver;
-	bool stepOut;
-	int stackLevel;
 	CallStack bcallStack;
+	bool stepOver;
 	bool bstepOver;
+	bool stepOut;
 	bool bstepOut;
+	int stackLevel;
 	int bstackLevel;
 	bool stackDisassemble;
 
