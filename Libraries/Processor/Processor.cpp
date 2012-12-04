@@ -15,7 +15,7 @@ Processor::Processor(const std::wstring& aclassName, const std::wstring& ainstan
 clockSpeed(0), reportedClockSpeed(0), clockSpeedOverridden(false),
 traceEnabled(false), traceDisassemble(false), traceLength(200), traceCoverageEnabled(false), traceCoverageStart(0), traceCoverageEnd(0),
 stackDisassemble(false), stepOver(false), stepOut(false),
-breakOnNextOpcode(false), breakpointTriggered(false), breakpointExists(false), watchpointExists(false),
+breakOnNextOpcode(false), breakpointExists(false), watchpointExists(false),
 activeDisassembly(false)
 {
 	//Create the menu handler
@@ -105,6 +105,7 @@ void Processor::ExecuteRollback()
 	}
 
 	//Step over/out flags
+	breakOnNextOpcode = bbreakOnNextOpcode;
 	stepOver = bstepOver;
 	stepOut = bstepOut;
 	stackLevel = bstackLevel;
@@ -122,6 +123,7 @@ void Processor::ExecuteCommit()
 	bcallStack = callStack;
 	btrace = trace;
 
+	//Breakpoint and Watchpoint hit counters
 	if(breakpointExists)
 	{
 		for(BreakpointList::iterator i = breakpoints.begin(); i != breakpoints.end(); ++i)
@@ -138,6 +140,7 @@ void Processor::ExecuteCommit()
 	}
 
 	//Step over/out flags
+	bbreakOnNextOpcode = breakOnNextOpcode;
 	bstepOver = stepOver;
 	bstepOut = stepOut;
 	bstackLevel = stackLevel;
@@ -228,7 +231,7 @@ unsigned int Processor::GetDataBusCharWidth() const
 //----------------------------------------------------------------------------------------
 void Processor::CheckExecution(unsigned int location) const
 {
-	if(breakpointExists)
+	if(breakpointExists || breakOnNextOpcode || stepOver)
 	{
 		boost::mutex::scoped_lock lock(debugMutex);
 
@@ -261,6 +264,15 @@ void Processor::CheckExecution(unsigned int location) const
 		if(breakOnInstruction)
 		{
 			TriggerBreakpoint(triggerBreakpoint);
+		}
+
+		//If we're in step over mode and the stack level is less than or equal to 0, set
+		//the breakOnNextOpcode flag to ensure that a breakpoint will be triggered when
+		//stepping over a non-branching instruction. If the instruction triggers a branch,
+		//this flag will be cleared when a new entry is pushed to the call stack.
+		if(stepOver && (stackLevel <= 0))
+		{
+			breakOnNextOpcode = true;
 		}
 	}
 }
@@ -421,6 +433,11 @@ void Processor::PushCallStack(unsigned int sourceAddress, unsigned int targetAdd
 	if(stepOut || stepOver)
 	{
 		++stackLevel;
+
+		//If we're in step over mode and a new entry has just been added to the call
+		//stack, clear the breakOnNextOpcode flag to ensure that a breakpoint will no
+		//longer be triggered until the call returns.
+		breakOnNextOpcode = false;
 	}
 
 	CallStackEntry stackEntry(sourceAddress, targetAddress, returnAddress, entry);
