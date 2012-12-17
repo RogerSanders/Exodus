@@ -10,125 +10,16 @@ visually warn the user in some way that the analog output is bad. That said, we 
 still display a valid image, as if the video equipment was manually synced to match the
 video output.
 
--Make everything in this core which needs a way of determining the current progression
-through the horizontal and vertical scanlines use a different counting mechanism, rather
-than using hcounter and vcounter values like they do currently. I would suggest relating
-the hcounter back to the serial clock, and make the vertical counter a simple raster
-count. This will eliminate the necessity to constantly convert from the "external"
-hcounter and vcounter, where the counter values jump at various points, and will also
-allow extra accuracy in the case of the horizontal counter, where some events occur at a
-sub-pixel level of timing. It appears that SC is the true master clock signal which drives
-the video functions of the VDP.
--Within the VDP core, switch to using SC cycles rather than MCLK cycles, since this is the
-way the real VDP works, and it'll simplify things. Place MCLK cycles on the outer edge,
-and provide functions to convert MCLK cycle counts into SC cycle counts where required.
-Note that within a line, SC and the H32/H40 mode is sufficient to convert SC cycles back
-to MCLK cycles, but within a frame, SC is not sufficient, because H32/H40 mode changes can
-occur between successive lines within a frame.
--We know now that while the FIFO allows an entire word to be read or written to CRAM or
-VSRAM on each access slot, VRAM only allows one byte to be transferred per access slot. We
-need to update our FIFO implementation to support this. We also need to confirm through
-hardware tests if a write to VRAM ends up in two separate byte-wide FIFO entries, or just
-in a single FIFO entry which takes two access slots to complete.
--We need to determine when screen mode settings are latched for a line. Here are the
-properties we know can be modified on a line-by-line basis: H32/H40, M4/M5, TMS9918A text
-mode (R1,B7), Shadow/Highlight). These settings are most likely latched together at one
-point in the raster, and this is when we need to base our start of line from. Note
-however, that we don't know for sure yet that some or all of these settings don't take
-effect immediately, even during a line. There's also the test register to consider.
-
-Tests to run:
--We suspect that CRAM has a buffer register just like VSRAM, and that the CRAM flicker bug
-occurs because a CRAM read cycle is stolen from the render process in order to perform the
-CRAM write, and that the buffer is loaded with the data to be written, which then gets
-read out by the render process as if it was the requested CRAM data. If this is the case
-however, it seems logical there should be another CRAM flicker bug, this time caused by
-reads from CRAM. If it is possible to perform a CRAM read outside of hblank, a CRAM read
-would need to steal a cycle from the render process as well, most likely resulting in the
-read value from CRAM replacing the pixel that is being rendered at that time. We should
-perform a test on this behaviour, by constantly reading from CRAM with a colourful CRAM
-palette loaded, but the first entry set to 0, and see if we get speckles on our display.
-
-//#######################################Old todo#########################################
--Add savestate support
--We have seen a case where invalid sprite data caused flickering on the screen between
-successive frames, even though all the VDP state was static between frames. The cause of
-this flickering is completely unknown, and we have no theory as to why one frame would
-render differently from the next. I can't find any test rom saved, so we'll have to do
-tests on the hardware to try and reproduce this behaviour first.
-
--Check what happens with a data port write to trigger a DMA fill, when that write is held
-in the FIFO. The FIFO will always be empty when a data port write to trigger a DMA fill
-occurs, but if it's during active scan, that write might not be processed straight away.
-In the case that this happens, I would expect that the VDP would not report that DMA is in
-progress until the write leaves the FIFO, which would mean an app just monitoring the DMA
-flag might think the DMA operation is complete before the write has even been processed.
-This needs testing on the hardware. We should confirm that this can occur.
--An additional test for the interaction of DMA and the FIFO relates to the end of a DMA
-operation. It is possible that all DMA writes are added to the back of the FIFO. This may
-mean that when a DMA operation ends, and the M68000 bus is released if it was locked,
-there are still some writes remaining in the FIFO which were added by DMA. Check the FIFO
-empty flag in the status register at the completion of a DMA operation during active scan
-to determine whether this is the case.
--Check what happens when the data port or control ports are written to during DMA fill
-and copy operations. According to genvdp.txt, writing to the control or data ports during
-a DMA fill corrupts VDP registers and VRAM somehow. Investigate this behaviour. In
-addition, we need to check the behaviour of attempted data port reads during a DMA
-operation.
--There are warnings in the official docs that DMA must only be enabled when a DMA
-operation is about to be performed, and must be disabled afterwards, otherwise they
-"cannot guarantee the operation". Perform some tests to see if anything breaks when DMA
-is left enabled for normal port access.
--We know that fills can be done to CRAM and VSRAM, but the way in which this occurs isn't
-clear. Test all possible quirks, such as writing to odd addresses, and verify the
-behaviour.
--It is currently unknown whether DMA copy operations can be performed on CRAM and VSRAM.
-Run some tests to determine whether this is possible.
--Note that further testing has also shown that the VRAM is NOT initialized to all 0. It
-appears the VRAM is initialized with a logical, repeating pattern, but further tests must
-be carried out to determine what this pattern is. I would suggest reading the entire
-contents of VRAM, CRAM, and VSRAM back into RAM for analysis.
--The CRAM is initialized to 0x0EEE in all slots, except for the second entry in the
-second palette line, which is initialized to 0x0CEE. This means byte 0x22 in the CRAM is
-0x0C instead of 0x0E.
--The VSRAM is initialized to 0x07FF, except for the entry at 0x00, which is 0x07DF, and
-the entry at 0x22, which is 0x07FB.
-
-!!!!NOTE!!!!
--As per cfgm2_notes.pdf, "sprites are processed on the previous line than the one they
-are shown on, and are not processed when the display is blanked". Also other important
-comments about when major changes to screen mode take effect.
--According to a note by Charles Macdonald in newreg.htm, the first column of a layer
-cannot be controlled in 2-cell vscroll mode. Instead, the column remains unaffected. This
-is demonstrated in the Ecco II globe holder level, where sprites are actually used to
-mask the first column. Scroll B is the layer in question in this case, but Layer A is
-most likely affected as well. Note that currently we do NOT emulate this behaviour.
--Further on the 2-cell vscroll problem, I think this occurs simply because the designers
-ran out of access slots to read the vscroll data. If this is true, the vscroll value
-probably uses the last value read for the first column, rather than 0. This may mean that
-the very last value in in the vscroll table will affect the first column. I also seem to
-remember reading something like this on SpritesMind. Do more research into this behaviour.
-
-Debug outputs changes:
+Debug output changes:
 -Modify the palette window to include palette row and column labels, as well as a popup
 style window in the same style as the VRAM viewer, which shows the actual RGB palette
 values that are being used to create it.
--Note that there's a bug in the layer removal process currently. When layer A is
-disabled and shadow highlight mode is in use, the window layer ends up being used for
-priority calculations for shadow highlight mode. See the Ecco II globe holder, code
-SBFPWWJE for an example.
 -Provide options to force all tiles in each layer to either high or low priority. This
 can be used to bring hidden sprites into view for example. Also add an option to "mark"
 sprites in some way, so that even transparent sprites are visible, and the boundaries of
 all sprites on the screen are indicated clearly.
 -Provide options to control which area of the screen to make visible. Have an option to
 show all overscan regions to make each generated pixel visible.
-
-Known inaccuracies:
--On the real hardware, changes to the H32/H40 cell mode take effect immediately, even
-during a line, which can cause the current line to be corrupted. We latch the register
-settings during hblank, for convenience, so that each line rendered maintains a rate of
-3420 MCLK cycles per line.
 
 References:
 -Genesis Software Manual, Sega Enterprises, 1992, scans by antime
@@ -226,41 +117,15 @@ protected:
 
 private:
 	//Enumerations
-	enum CELineID
-	{
-		CELINE_LDS = 1,
-		CELINE_UDS,
-		CELINE_RW,
-		CELINE_AS,
-		CELINE_RMWCYCLEINPROGRESS,
-		CELINE_RMWCYCLEFIRSTOPERATION,
-		CELINE_LWR,
-		CELINE_UWR,
-		CELINE_CAS0,
-		CELINE_RAS0,
-		CELINE_OE0
-	};
-	enum LineID
-	{
-		LINE_IPL = 1,
-		LINE_INT,
-		LINE_INTAK,
-		LINE_BR,
-		LINE_BG,
-		LINE_PAL
-	};
-	enum ClockID
-	{
-		CLOCK_MCLK = 1
-	};
+	enum CELineID;
+	enum LineID;
+	enum ClockID;
 	enum Layer;
 	enum AccessContext;
 
 	//Structures
 	struct HScanSettings;
 	struct VScanSettings;
-	//##TODO## Remove this old render structure
-	//struct LineRenderSettings;
 	struct TimesliceRenderInfo;
 	struct SpriteDisplayCacheEntry;
 	struct SpriteCellDisplayCacheEntry;
@@ -317,11 +182,6 @@ private:
 	unsigned int GetNewIPLLineState();
 
 	//Execute functions
-//	void RenderThread();
-//	void RenderFrame();
-//	void RenderPrefetchLineForSprites(const AccessTarget& accessTarget);
-//	void RenderBorderLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo);
-//	void RenderActiveLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo);
 	void RenderThreadNew();
 	void AdvanceRenderProcess(unsigned int mclkCyclesToAdvance);
 	void UpdateDigitalRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
@@ -334,14 +194,9 @@ private:
 	void DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool interlaceMode2Active, bool screenModeRS1Active, unsigned int& nextTableEntryToRead, bool& spriteSearchComplete, bool& spriteOverflow, unsigned int& spriteDisplayCacheEntryCount, std::vector<SpriteDisplayCacheEntry>& spriteDisplayCache) const;
 	void DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const;
 	unsigned int DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const;
-//	void RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const;
 
 	void AdvanceAnalogRenderProcess(unsigned int pixelsToOutput);
 	void CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shadow, bool& highlight, bool shadowHighlightEnabled, bool spriteIsShadowOperator, bool spriteIsHighlightOperator, bool foundSpritePixel, bool foundLayerAPixel, bool foundLayerBPixel, bool prioritySprite, bool priorityLayerA, bool priorityLayerB) const;
-//	void WriteColorValueToImageBuffer(unsigned int paletteLine, unsigned int paletteEntry, bool shadow, bool highlight, unsigned int xpos, unsigned int ypos);
-//	void ReadMappingDataPair(Data& mappingDataEntry1, Data& mappingDataEntry2, unsigned int nameTableBaseAddress, unsigned int mappingColumnNumber, unsigned int mappingRowNumber, unsigned int screenSizeModeH, unsigned int screenSizeModeV) const;
-//	void ReadPatternDataRow(const LineRenderSettings& renderSettings, Data& patternData, const Data& mappingData, unsigned int patternRowNumber) const;
-//	void RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const;
 	void DMAWorkerThread();
 
 	//Line output prediction functions
@@ -353,10 +208,6 @@ private:
 	void ProcessCommandDataWriteFirstHalf(const Data& data);
 	void ProcessCommandDataWriteSecondHalf(const Data& data);
 	void RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int accessContext, unsigned int registerNo, const Data& data);
-
-	bool ValidReadTargetInCommandCode() const;
-//	bool ReadVideoMemory(unsigned int mclkCycle, Data& data);
-//	void WriteVideoMemory(unsigned int mclkCycle, const Data& data);
 
 	//HV counter internal/linear conversion
 	static unsigned int HCounterValueFromVDPInternalToLinear(const HScanSettings& hscanSettings, unsigned int hcounterCurrent);
@@ -418,11 +269,10 @@ private:
 	//##TODO## Mode 4 control functions
 
 	//Mode 5 control functions
-//	void M5ReadVRAM(const Data& address, Data& data, const RAMAccessTarget& accessTarget);
+	bool ValidReadTargetInCommandCode() const;
 	void M5ReadVRAM8Bit(const Data& address, Data& data, const RAMAccessTarget& accessTarget);
 	void M5ReadCRAM(const Data& address, Data& data, const RAMAccessTarget& accessTarget);
 	void M5ReadVSRAM(const Data& address, Data& data, const RAMAccessTarget& accessTarget);
-//	void M5WriteVRAM(const Data& address, const Data& data, const RAMAccessTarget& accessTarget);
 	void M5WriteVRAM8Bit(const Data& address, const Data& data, const RAMAccessTarget& accessTarget);
 	void M5WriteCRAM(const Data& address, const Data& data, const RAMAccessTarget& accessTarget);
 	void M5WriteVSRAM(const Data& address, const Data& data, const RAMAccessTarget& accessTarget);
