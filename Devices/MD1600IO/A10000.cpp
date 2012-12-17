@@ -487,8 +487,16 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	}
 	else
 	{
-		//##TODO## Log a warning
+		//##DEBUG##
+		std::wcout << "Failed to find matching line state change in RevokeSetLineState! " << GetLineName(targetLine) << '\t' << lineData.GetData() << '\t' << reportedTime << '\t' << accessTime << '\n';
+		for(std::list<LineAccess>::iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
+		{
+			std::wcout << "-" << GetLineName(i->lineID) << '\t' << i->state.GetData() << '\t' << i->accessTime << '\n';
+		}
 	}
+
+	//Update the lineAccessPending flag
+	lineAccessPending = !lineAccessBuffer.empty();
 }
 
 //----------------------------------------------------------------------------------------

@@ -107,20 +107,10 @@ void MDControl6::NotifyUpcomingTimeslice(double nanoseconds)
 		}
 	}
 
+	bankswitchCounterToggleLastRisingEdge -= currentTimesliceLength;
+
 	currentTimesliceLength = nanoseconds;
 	lastLineAccessTime = 0;
-}
-
-//----------------------------------------------------------------------------------------
-bool MDControl6::SendNotifyAfterExecuteCalled() const
-{
-	return true;
-}
-
-//----------------------------------------------------------------------------------------
-void MDControl6::NotifyAfterExecuteCalled()
-{
-	bankswitchCounterToggleLastRisingEdge -= currentTimesliceLength;
 }
 
 //----------------------------------------------------------------------------------------
@@ -130,6 +120,7 @@ void MDControl6::ExecuteRollback()
 	{
 		buttonPressed[i] = bbuttonPressed[i];
 	}
+	currentTimesliceLength = bcurrentTimesliceLength;
 	lineInputStateTH = blineInputStateTH;
 	bankswitchingDisabled = bbankswitchingDisabled;
 	bankswitchCounter = bbankswitchCounter;
@@ -144,6 +135,7 @@ void MDControl6::ExecuteCommit()
 	{
 		bbuttonPressed[i] = buttonPressed[i];
 	}
+	bcurrentTimesliceLength = currentTimesliceLength;
 	blineInputStateTH = lineInputStateTH;
 	bbankswitchingDisabled = bankswitchingDisabled;
 	bbankswitchCounter = bankswitchCounter;

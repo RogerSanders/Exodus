@@ -1021,6 +1021,11 @@ void System::RunSystem()
 //----------------------------------------------------------------------------------------
 void System::ExecuteThread()
 {
+	//Boost the system thread priority. This thread is always on the critical path. We
+	//don't want secondary threads from various devices in the system preventing this
+	//thread running.
+	SetCurrentThreadPriority(THREADPRIORITY_HIGH);
+
 	//Start active device threads
 	executionManager.BeginExecution();
 
@@ -1029,15 +1034,7 @@ void System::ExecuteThread()
 	//lost in the event of a rollback.
 	executionManager.Commit();
 
-	//Boost the system thread priority. This thread is always on the critical path. We
-	//don't want secondary threads from various devices in the system preventing this
-	//thread running.
-//	SetCurrentThreadPriority(THREADPRIORITY_HIGHEST);
-
 	//Main system loop
-	//##TODO## Replace all the device loops below with some form of message system,
-	//where all devices can be notified about a new job simultaneously. In particular,
-	//we need to be able to run multiple commit steps in parallel for example.
 	double accumulatedExecutionTime = 0;
 	PerformanceTimer timer;
 	while(!stopSystem)
@@ -1063,7 +1060,7 @@ void System::ExecuteThread()
 
 		//##TODO## Make it possible to configure the maximum timeslice size
 		//##TODO## Build in heuristics to calculate the optimal maximum timeslice size
-		double systemStepTime = ExecuteSystemStep(20000000.0);
+		double systemStepTime = ExecuteSystemStep(40000000.0);
 		accumulatedExecutionTime += systemStepTime;
 
 		//##DEBUG##
@@ -1072,7 +1069,7 @@ void System::ExecuteThread()
 
 		//If we're running too fast (*chuckle*), delay execution until we get back in
 		//sync.
-		if(accumulatedExecutionTime >= 20000000.0)
+		if(accumulatedExecutionTime >= 40000000.0)
 //		if(accumulatedExecutionTime >= 1000000000.0)
 		{
 			timer.Sync(accumulatedExecutionTime, enableThrottling);

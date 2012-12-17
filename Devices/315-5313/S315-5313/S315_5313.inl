@@ -1,18 +1,6 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum S315_5313::Event
-{
-	NEXTUPDATESTEP_HINT,
-	NEXTUPDATESTEP_VINT,
-	NEXTUPDATESTEP_EXINT,
-	NEXTUPDATESTEP_VSYNC,
-	NEXTUPDATESTEP_HINTCOUNTERADVANCE,
-	NEXTUPDATESTEP_HBLANK,
-	NEXTUPDATESTEP_VBLANK
-};
-
-//----------------------------------------------------------------------------------------
 enum S315_5313::Layer
 {
 	LAYER_SPRITE = 0,
@@ -24,15 +12,12 @@ enum S315_5313::Layer
 //----------------------------------------------------------------------------------------
 enum S315_5313::AccessContext
 {
-	ACCESSCONTEXT_VINT,
-	ACCESSCONTEXT_INT_ASSERT,
-	ACCESSCONTEXT_INT_RELEASE,
-	ACCESSCONTEXT_EXINT,
-	ACCESSCONTEXT_HINT,
+	ACCESSCONTEXT_INTLINECHANGE,
 	ACCESSCONTEXT_BR_ASSERT,
 	ACCESSCONTEXT_BR_RELEASE,
 	ACCESSCONTEXT_DMAREAD,
-	ACCESSCONTEXT_TIMINGPOINT
+	ACCESSCONTEXT_TIMINGPOINT,
+	ACCESSCONTEXT_DEBUG
 };
 
 //----------------------------------------------------------------------------------------
@@ -305,6 +290,38 @@ struct S315_5313::FIFOBufferEntry
 	Data dataPortWriteData;
 	bool dataWriteHalfWritten;
 	bool pendingDataWrite;
+};
+
+//----------------------------------------------------------------------------------------
+struct S315_5313::HVCounterAdvanceSession
+{
+	HVCounterAdvanceSession()
+	:hscanSettings(0), vscanSettings(0), pixelClockTicksAdvanced(0), mclkTicksAdvanced(0)
+	{}
+
+	const HScanSettings* hscanSettings;
+	const VScanSettings* vscanSettings;
+
+	unsigned int hcounterCurrent;
+	unsigned int vcounterCurrent;
+
+	bool interlaceEnabledCurrent;
+	bool interlaceDoubleCurrent;
+	bool screenModeRS0Current;
+	bool screenModeRS1Current;
+	bool screenModeV30Current;
+	bool palModeCurrent;
+	bool oddFlagCurrent;
+
+	bool interlaceEnabledNew;
+	bool interlaceDoubleNew;
+	bool screenModeRS0New;
+	bool screenModeRS1New;
+	bool screenModeV30New;
+	bool palModeNew;
+
+	unsigned int pixelClockTicksAdvanced;
+	unsigned int mclkTicksAdvanced;
 };
 
 //----------------------------------------------------------------------------------------

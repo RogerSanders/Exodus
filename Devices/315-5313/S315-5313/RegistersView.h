@@ -9,6 +9,7 @@ class S315_5313::RegistersView :public ViewBase
 public:
 	//Constructors
 	RegistersView(S315_5313* adevice);
+	~RegistersView();
 
 protected:
 	//Member window procedure
@@ -20,12 +21,20 @@ private:
 	INT_PTR msgWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
+	//Register locking functions
+	unsigned int ControlIDToLockedRegKey(int controlID);
+	void ToggleRegisterLock(int controlID);
 
 private:
 	S315_5313* device;
 	bool initializedDialog;
 	std::wstring previousText;
 	unsigned int currentControlFocus;
+	COLORREF lockedColor;
+	HBRUSH lockedBrush;
 };
 
 #endif

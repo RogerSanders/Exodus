@@ -72,6 +72,7 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock);
 
 	//Clock source functions
