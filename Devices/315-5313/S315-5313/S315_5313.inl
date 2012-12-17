@@ -1,6 +1,39 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
+enum S315_5313::CELineID
+{
+	CELINE_LDS = 1,
+	CELINE_UDS,
+	CELINE_RW,
+	CELINE_AS,
+	CELINE_RMWCYCLEINPROGRESS,
+	CELINE_RMWCYCLEFIRSTOPERATION,
+	CELINE_LWR,
+	CELINE_UWR,
+	CELINE_CAS0,
+	CELINE_RAS0,
+	CELINE_OE0
+};
+
+//----------------------------------------------------------------------------------------
+enum S315_5313::LineID
+{
+	LINE_IPL = 1,
+	LINE_INT,
+	LINE_INTAK,
+	LINE_BR,
+	LINE_BG,
+	LINE_PAL
+};
+
+//----------------------------------------------------------------------------------------
+enum S315_5313::ClockID
+{
+	CLOCK_MCLK = 1
+};
+
+//----------------------------------------------------------------------------------------
 enum S315_5313::Layer
 {
 	LAYER_SPRITE = 0,
@@ -158,33 +191,6 @@ struct S315_5313::VScanSettings
 	unsigned int bottomBorderVCounterLastValue;
 	unsigned int bottomBorderLineCount;
 };
-
-//----------------------------------------------------------------------------------------
-//##TODO## Remove this old render structure
-//struct S315_5313::LineRenderSettings
-//{
-//	//Fixed constant settings
-//	static const unsigned int blockPixelSizeX = 8;
-//	static const unsigned int blockPixelSizeY = 8;
-//	static const unsigned int blockPatternSizeX = 8;
-//	static const unsigned int blockMappingEntryByteSize = 2;
-//	static const unsigned int blockPatternRowByteSize = 4;
-//	static const unsigned int scCyclesPerLogicStep = 4;
-//
-//	//Settings which can change for each line
-//	//##TODO## Review which non-const data members we host in this structure
-//	bool interlaceMode2Active;
-//	bool renderWithH40Mode;
-//
-//	unsigned int blockPatternSizeY;
-//	unsigned int blockPatternByteSize;
-//	unsigned int cellBlockSetsToRead;
-//	unsigned int mclkCyclesPerSCCycle;
-//	unsigned int mclkCyclesPerLogicStep;
-//
-//	unsigned int activePixelY;
-//	unsigned int activeBlockY;
-//};
 
 //----------------------------------------------------------------------------------------
 struct S315_5313::TimesliceRenderInfo

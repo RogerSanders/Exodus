@@ -2062,69 +2062,6 @@ void S315_5313::ExecuteCommit()
 }
 
 //----------------------------------------------------------------------------------------
-//void S315_5313::RenderThread()
-//{
-//	boost::mutex::scoped_lock lock(renderThreadMutex);
-//
-//	//Start the render loop
-//	while(renderThreadActive)
-//	{
-//		//Obtain a copy of the latest completed timeslice period
-//		bool renderTimesliceObtained = false;
-//		{
-//			boost::mutex::scoped_lock lock(timesliceMutex);
-//			if(renderTimeslicePending)
-//			{
-//				regTimesliceCopy = regTimeslice;
-//				vramTimesliceCopy = vramTimeslice;
-//				cramTimesliceCopy = cramTimeslice;
-//				vsramTimesliceCopy = vsramTimeslice;
-//				renderTimeslicePending = false;
-//
-//				//Flag that we managed to obtain a render timeslice
-//				renderTimesliceObtained = true;
-//			}
-//		}
-//
-//		//If no render timeslice was available, suspend this thread until a timeslice
-//		//becomes available, or this thread is instructed to stop, then begin the loop
-//		//again.
-//		if(!renderTimesliceObtained)
-//		{
-//			renderThreadUpdate.wait(lock);
-//			continue;
-//		}
-//
-//		//Render a complete frame to the framebuffer
-//		//##TODO## Rather than rendering frame by frame, render line by line. What I mean
-//		//by that is, our render thread should receive updates in 3420 MCLK cycle blocks,
-//		//and should track which line it is up to in active scan, so that it knows which
-//		//line to render next. If double buffering is not being used, partially rendered
-//		//frames will be displayed on the screen. If double buffering is being used, our
-//		//render thread will switch the buffers after rendering the last line before
-//		//vblank.
-//		RenderFrame();
-//
-//		//##TODO## Re-evaluate this. We want to re-implement the frameskip behaviour we
-//		//had in the previous VDP core, where only the latest frame which is ready is
-//		//rendered. We need to consider how we'll handle interlacing with this system
-//		//though.
-//		//Advance to the latest target timeslice
-//		{
-//			boost::mutex::scoped_lock lock(timesliceMutex);
-//			reg.AdvancePastTimeslice(regTimesliceCopy);
-//			vram->AdvancePastTimeslice(vramTimesliceCopy);
-//			cram->AdvancePastTimeslice(cramTimesliceCopy);
-//			vsram->AdvancePastTimeslice(vsramTimesliceCopy);
-//			vram->FreeTimesliceReference(vramTimesliceCopy);
-//			cram->FreeTimesliceReference(cramTimesliceCopy);
-//			vsram->FreeTimesliceReference(vsramTimesliceCopy);
-//		}
-//	}
-//	renderThreadStopped.notify_all();
-//}
-
-//----------------------------------------------------------------------------------------
 void S315_5313::RenderThreadNew()
 {
 	boost::mutex::scoped_lock lock(renderThreadMutex);
@@ -2242,588 +2179,6 @@ void S315_5313::RenderThreadNew()
 	}
 	renderThreadStopped.notify_all();
 }
-
-////----------------------------------------------------------------------------------------
-////##FIX## We're calling this when vsync is asserted in the VDP currently, but the logic of
-////this function doesn't consider what time the frame actually starts. We need to ensure
-////that the actual register and VRAM buffers are in sync with the correct time for the
-////rendering process. Basically, we need to advance the VDP state from the vsync initial
-////point up to the point where the first pixel output starts, which is when the vcounter is
-////incremented to the start of a certain line. Check the analog output notes for more info.
-//void S315_5313::RenderFrame()
-//{
-//	//Create our reg buffer access target. Since we're working with the committed
-//	//state, access will be very fast, so there's no need to worry about caching
-//	//settings.
-//	AccessTarget accessTarget;
-//	accessTarget.AccessCommitted();
-//
-//	//##TODO## We need to decide when we consider a "frame" to start, and when we
-//	//consider a "line" to start. The VDP doesn't have the concept of a start and end
-//	//for these things, but we need to make one in order to divide rendering into
-//	//logical segments.
-//
-//	//##TODO##
-//	mclkCycleRenderProgress = 0;
-//	reg.BeginAdvanceSession(regSession, regTimesliceCopy, true);
-//	vram->BeginAdvanceSession(vramSession, vramTimesliceCopy, false);
-//	cram->BeginAdvanceSession(cramSession, cramTimesliceCopy, true);
-//	vsram->BeginAdvanceSession(vsramSession, vsramTimesliceCopy, false);
-//
-//	//Obtain the VScan settings for the currently active display mode
-//	//##TODO## Implement palMode properly. We need to know what the palMode flag was
-//	//set to when the frame began, not what the current live state of the line is.
-//	//##FIX## We need to cache the state of the V30 cell mode at vsync
-//	bool v30CellModeEnabled = M5GetV30CellModeEnabled(accessTarget);
-//	const VScanSettings& vscanSettings = GetVScanSettings(v30CellModeEnabled, palMode, M5GetLSM0(accessTarget));
-//
-//	//Calculate the number of lines to render for this frame in the various sections of
-//	//the display.
-//	//##TODO## Calculate these somewhere else, perhaps in GetVScanSettings().
-//	//##TODO## Accurately calculate the video regions of the display
-//	unsigned int activeScanLinesToRender = v30CellModeEnabled? 30*8: 28*8;
-//	unsigned int topBorderLinesToRender = (vscanSettings.linesPerFrame - activeScanLinesToRender) / 2;
-//	unsigned int bottomBorderLinesToRender = ((vscanSettings.linesPerFrame - activeScanLinesToRender) / 2) + ((vscanSettings.linesPerFrame - activeScanLinesToRender) % 2);
-//
-//	//Perform the VDP render operations
-//	//##TODO## Render the top and bottom border regions correctly
-//	//Render the top border region
-//	for(unsigned int i = 0; i < topBorderLinesToRender; ++i)
-//	{
-//		RenderBorderLine(accessTarget, i, i);
-//	}
-//	//Render the active display lines
-//	for(unsigned int i = 0; i < activeScanLinesToRender; ++i)
-//	{
-//		RenderActiveLine(accessTarget, topBorderLinesToRender+i, i);
-//	}
-//	//Render the bottom border region
-//	for(unsigned int i = 0; i < bottomBorderLinesToRender; ++i)
-//	{
-//		RenderBorderLine(accessTarget, topBorderLinesToRender+activeScanLinesToRender+i, i);
-//	}
-//
-//	//Here's what we DO know about the way data is dealt with internally:
-//	//-Colour values are only decoded when a final pixel is being displayed. We know
-//	//this because the VDP colour bus outputs the palette line and entry information.
-//	//-Highlight and shadow flags are output separately on the colour bus.
-//	//-A flag is output indicating whether the pixel is "transparent". Not clear from
-//	//documentation exactly what this means, but most likely a pixel is flagged as
-//	//transparent if it comes from the backdrop.
-//	//-A flag is output indicating whether the pixel originated from a sprite or a
-//	//layer.
-//	//-What all of this tells us is that the VDP almost certainly has each layer fill
-//	//its own 16-pixel buffer plane, and the layer selection from each plane only
-//	//occurs as that pixel is being displayed.
-//
-//	//Pattern processing notes:
-//	//Patent 4243984, Column 9, row 25:
-//	//-A pattern name is latched into the "name latch" register, by combining the name
-//	//table base address, with the current vcounter and hcounter, and loading the
-//	//mapping entry it references.
-//	//-Using the current mapping stored in the "name latch" register, a pair of "video
-//	//colour codes" are latched from the "pattern colour table", and stored in a pair
-//	//of "pattern colour registers". These are a pair of 2-byte block mappings from
-//	//the layer mapping table.
-//	//-Using the video colour codes, the overlay control will load 2 sets of 4-byte
-//	//pattern data, corresponding with two visible lines of pixels, one from each
-//	//tile, into "pattern shift registers". These pattern shift registers then provide
-//	//the pixels for that plane to the output circuit.
-//
-//	//##NOTE## The VISUAL operation of the VDP runs behind the DIGITAL operation of
-//	//the VDP. The digital VDP starts rendering as soon as the left border begins. The
-//	//first pixel is "drawn" when the first pixel of the left border is displayed. The
-//	//last pixel is drawn before the right border is displayed. The drawn pixels are
-//	//buffered before they are drawn to the screen, but as far as the digital
-//	//operation of the VDP is concerned, the status register and hv counter will
-//	//report that the VDP is ahead of what has actually been drawn to the screen. This
-//	//is important, since the CRAM flicker bug affects the LIVE video output, not the
-//	//buffered video output. In other words, if you perform a CRAM write when the
-//	//digital operation (with active scan being at the start of the line, and the left
-//	//border being at the end of the line) reports that the right border is starting,
-//	//the actual flicker on the screen will occur before the right border begins.
-//}
-//
-////----------------------------------------------------------------------------------------
-////This handles the single line which runs immediately before the first "active" line which
-////shows plane data. This line has the normal access restrictions as an active line, but is
-////only used to capture sprite data for the following line.
-////----------------------------------------------------------------------------------------
-//void S315_5313::RenderPrefetchLineForSprites(const AccessTarget& accessTarget)
-//{
-//	//##TODO##
-//}
-//
-////----------------------------------------------------------------------------------------
-//void S315_5313::RenderBorderLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo)
-//{
-//	const unsigned int mclkCyclesPerLine = 3420;
-//
-//	//Note:
-//	//-A line starts at hscanSettings.vcounterIncrementPoint
-//	//-A frame starts at hscanSettings.vcounterIncrementPoint on line vscanSettings.vsyncAssertedPoint
-//	//-This is accurate in the sense that the first and last visible scanlines which
-//	//appear on the screen definitely start and stop rendering the border colour at the
-//	//vcounter increment point. This causes us a little problem for rendering purposes
-//	//however, since there are still pixels from active scan to be output by the analog
-//	//output of the chip, while the digital operation of the chip has completed rendering
-//	//at the increment point.
-//	//-I would suggest it is impractical to attempt to "pass on" rendered data from one
-//	//line to the next. Maybe we should have special case handling for the first and last
-//	//border lines, and the first and last active lines, and make the start of a line the
-//	//beginning of hsync for rendering purposes?
-//	//-Another alternative is to completely separate the digital and analog portions of
-//	//the rendering process. In this model, we would collect all digital rendering
-//	//information across all lines, then pass that information on to the analog output
-//	//phase, which would consume as much digital data as is available and use it to render
-//	//the final image. This seems like a much better option. Not only will the
-//	//implementation be easier, it will probably be faster and more flexible also, and
-//	//should open us up to be able to do mid-line drawing updates if we implement it
-//	//with that in mind.
-//
-//	//##TODO## Implement this properly
-//	const HScanSettings& hscanSettings = GetHScanSettings(M5GetRS0(accessTarget), M5GetRS1(accessTarget));
-//
-//	//Render the right border
-//	unsigned int totalLinePixelCount = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + hscanSettings.rightBorderPixelCount;
-//	for(unsigned int i = 0; i < totalLinePixelCount; ++i)
-//	{
-//		unsigned int borderColorPaletteLine = M5GetBackgroundColorPalette(accessTarget);
-//		unsigned int borderColorPaletteEntry = M5GetBackgroundColorIndex(accessTarget);
-//		WriteColorValueToImageBuffer(borderColorPaletteLine, borderColorPaletteEntry, false, false, i, renderBufferLineNo);
-//	}
-//
-//	mclkCycleRenderProgress += mclkCyclesPerLine;
-//	reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
-//	vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
-//	vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
-//	cram->AdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
-//}
-//
-////----------------------------------------------------------------------------------------
-////This function performs the actual task of rendering graphical data to the VDP
-////framebuffer. We have performed precise hardware tests on the physical hardware to
-////determine how and when various data is latched for the VDP rendering process. This
-////render function maintains cycle accuracy for the rendering process, and reads data from
-////the VRAM buffers and register settings at the same time as the real hardware.
-////
-////Testing notes:
-////-We have confirmed that the various base address registers, IE, for layer A mapping
-////data, are not cached. Changes to these registers take effect the next time mapping data
-////is read.
-////-We have confirmed that the field size registers are not cached, and changes take effect
-////the next time mapping data is read.
-////----------------------------------------------------------------------------------------
-//void S315_5313::RenderActiveLine(const AccessTarget& accessTarget, unsigned int renderBufferLineNo, unsigned int sectionLineNo)
-//{
-//	//##TODO## Implement mode 4 support
-//	//##FIX## The active interlace mode is latched during vblank. It needs to be cached,
-//	//and the cached value retrieved here.
-//	//##FIX## Although on the real hardware H40 mode can be enabled and disabled mid-line,
-//	//we do not support this for performance reasons, and it is instead latched at hblank.
-//	//We need to cache the H40 mode setting for each line, and use that cached value here.
-//	LineRenderSettings renderSettings;
-//	renderSettings.interlaceMode2Active = M5GetLSM0(accessTarget) && M5GetLSM1(accessTarget);
-//	renderSettings.renderWithH40Mode = M5GetRS1(accessTarget);
-//	const HScanSettings& hscanSettings = GetHScanSettings(M5GetRS0(accessTarget), renderSettings.renderWithH40Mode);
-//
-//	//Calculate various screen mode settings for this line
-//	renderSettings.blockPatternSizeY = renderSettings.interlaceMode2Active? 16: 8;
-//	renderSettings.blockPatternByteSize = renderSettings.blockPatternRowByteSize * renderSettings.blockPatternSizeY;
-//	renderSettings.cellBlockSetsToRead = renderSettings.renderWithH40Mode? 5: 4;
-//	renderSettings.mclkCyclesPerSCCycle = renderSettings.renderWithH40Mode? 4: 5;
-//	renderSettings.mclkCyclesPerLogicStep = renderSettings.mclkCyclesPerSCCycle * renderSettings.scCyclesPerLogicStep;
-//
-//	//Determine which line of active scan we're rendering
-//	renderSettings.activePixelY = sectionLineNo;
-//	renderSettings.activeBlockY = sectionLineNo / renderSettings.blockPixelSizeY;
-//
-//	//##DEBUG##
-//	const unsigned int mclkCyclesPerLine = 3420;
-//	unsigned int initialMclkCycleRenderProgress = mclkCycleRenderProgress;
-//
-//	//Calculate the address of the hscroll data to read for this line
-//	unsigned int hscrollDataBase = M5GetHScrollDataBase(accessTarget);
-//	bool hscrState = M5GetHSCR(accessTarget);
-//	bool lscrState = M5GetLSCR(accessTarget);
-//	unsigned int hscrollDataAddress = hscrollDataBase;
-//	//##TODO## Based on the EA logo for Populous, it appears that the state of LSCR is
-//	//ignored when HSCR is not set. We should confirm this on hardware.
-//	if(hscrState)
-//	{
-//		hscrollDataAddress += lscrState? (sectionLineNo * 4): ((renderSettings.activeBlockY * renderSettings.blockPixelSizeY) * 4);
-//	}
-//
-//	//Read the hscroll data for this line
-//	//##TODO## Confirm the way scrolling data is interpreted through hardware tests. Eg,
-//	//does -1 actually scroll to the left by one place, or are 0 and -1 equivalent?
-//	//##TODO## According to the official documentation, the upper 6 bits of the hscroll
-//	//data are unused, and are allowed to be used by software to store whatever values
-//	//they want. Confirm this on hardware.
-//	unsigned int layerAHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+1);
-//	unsigned int layerBHscrollOffset = ((unsigned int)vram->ReadCommitted(hscrollDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(hscrollDataAddress+3);
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//##TODO## Read the sprite pattern data
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//Break the hscroll data into its two component parts. The lower 4 bits represent a
-//	//displacement into the 2-cell column, or in other words, the displacement of the
-//	//starting pixel within each column, while the upper 6 bits represent an offset for
-//	//the column mapping data itself.
-//	//-----------------------------------------
-//	//| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//	//|---------------------------------------|
-//	//|  Column Shift Value   | Displacement  |
-//	//-----------------------------------------
-//	unsigned int scrollValueDisplacementLayerA = layerAHscrollOffset & 0x00F;
-//	unsigned int columnShiftValueLayerA = (layerAHscrollOffset & 0x3F0) >> 4;
-//	unsigned int scrollValueDisplacementLayerB = layerBHscrollOffset & 0x00F;
-//	unsigned int columnShiftValueLayerB = (layerBHscrollOffset & 0x3F0) >> 4;
-//
-//	//Create the buffers for our mapping and pattern data
-//	unsigned int currentRenderPixelLayerA = 0;
-//	unsigned int currentRenderPixelLayerB = 0;
-//	std::vector<Data> mappingDataCacheLayerA(2, Data(16));
-//	std::vector<Data> mappingDataCacheLayerB(2, Data(16));
-//	std::vector<Data> patternDataCacheLayerA(2, Data(32));
-//	std::vector<Data> patternDataCacheLayerB(2, Data(32));
-//	std::vector<unsigned int> paletteIndexSprite(hscanSettings.activeDisplayPixelCount+16);
-//	std::vector<unsigned int> paletteIndexLayerA(hscanSettings.activeDisplayPixelCount+16);
-//	std::vector<unsigned int> paletteIndexLayerB(hscanSettings.activeDisplayPixelCount+16);
-//	std::vector<unsigned int> paletteLineSprite(hscanSettings.activeDisplayPixelCount+16);
-//	std::vector<unsigned int> paletteLineLayerA(hscanSettings.activeDisplayPixelCount+16);
-//	std::vector<unsigned int> paletteLineLayerB(hscanSettings.activeDisplayPixelCount+16);
-//	std::vector<bool> prioritySprite(hscanSettings.activeDisplayPixelCount+16);
-//	std::vector<bool> priorityLayerA(hscanSettings.activeDisplayPixelCount+16);
-//	std::vector<bool> priorityLayerB(hscanSettings.activeDisplayPixelCount+16);
-//
-//	//Determine the playfield dimensions
-//	//##TODO## Determine when playfield dimensions are actually calculated, either for the
-//	//entire line like this, or whether these registers are checked mid-line and can be
-//	//modified mid-line. Most likely, mid-line modifications are possible.
-//	unsigned int hszState = M5GetHSZ(accessTarget);
-//	unsigned int vszState = M5GetVSZ(accessTarget);
-//
-//	//##TODO## Comment this
-//	//##TODO## If we're in interlace mode 2, and the odd flag is set, we need to add 1 to
-//	//the virtual vertical screen position when calculating the pattern and mapping row
-//	//numbers.
-//	unsigned int columnNumber = 0x3F;
-//	unsigned int displayRowNumber = (renderSettings.interlaceMode2Active? (sectionLineNo * 2): sectionLineNo);
-//
-//	//Calculate the address of the vscroll data to read for this block
-//	//##TODO## Determine how hscroll interacts with vscroll when both are applied at the
-//	//same time. Read the test notes from Eke: Reportedly, if a 2-cell column is partially
-//	//visible on the left, that column has vscroll fixed to 0 for H32 mode, however for
-//	//H40 mode, it's some strange ANDed value of several VSRAM addresses. Check the
-//	//following thread from SpritesMind for more info:
-//	//http://gendev.spritesmind.net/forum/viewtopic.php?t=737&start=30
-//	//This only occurs when column-based vscroll is applied. Overall vscroll values work
-//	//correctly. This all needs major testing on hardware.
-//	//##TODO## Test how overall vertical scrolling interacts with line-based and overall
-//	//horizontal scrolling.
-//	bool vscrState = M5GetVSCR(accessTarget);
-//	unsigned int vscrollDataAddress = vscrState? (columnNumber * 4): 0;
-//
-//	//Read the vscroll data for this line. Note only the lower 10 bits are
-//	//effective, or the lower 11 bits in the case of interlace mode 2, due to the
-//	//scrolled address being wrapped to lie within the total field boundaries,
-//	//which never exceed 128 blocks.
-//	unsigned int layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
-//	unsigned int layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
-//
-//	//Calculate the target block mapping pair and selected row for layer A
-//	//##TODO## Confirm through VRAM snooping which actual address is read from for the
-//	//left scrolled cell block when the horizontal scroll value is aligned to a 2-cell
-//	//boundary. Even though the data is never displayed in this case, we can and should
-//	//determine where the VDP reads this data from.
-//	//##TODO## Confirm through VRAM snooping which actual address is read from when a
-//	//left-aligned window is present for layer A, both with and without horizontal
-//	//scrolling. We suspect that the normal block which is read for layer A, without a
-//	//window being active, may be read in this case.
-//	//##TODO## Replace the division and modulus operators here with bitshift and bitmask
-//	//operations.
-//	unsigned int mappingColumnNumberLayerA = columnNumber - columnShiftValueLayerA;
-//	unsigned int mappingRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) / renderSettings.blockPatternSizeY;
-//	unsigned int patternRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) % renderSettings.blockPatternSizeY;
-//
-//	//##TODO## Implement support for the window layer
-////	unsigned int nameTableBaseA = M5GetNameTableBaseWindow(accessTarget);
-////	ReadMappingDataPair(mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], nameTableBaseA, displayRowNumber / renderSettings.blockPatternSizeY, columnNumber, 0x0, 0x0);
-//
-//	//Read layer A left scrolled cell block mapping data
-//	unsigned int nameTableBaseA = M5GetNameTableBaseScrollA(accessTarget);
-//	ReadMappingDataPair(mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], nameTableBaseA, mappingRowNumberLayerA, mappingColumnNumberLayerA, hszState, vszState);
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//##TODO## Read the sprite pattern data
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//Read layer A left scrolled cell block pattern row 1
-//	ReadPatternDataRow(renderSettings, patternDataCacheLayerA[0], mappingDataCacheLayerA[0], patternRowNumberLayerA);
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//Read layer A left scrolled cell block pattern row 2
-//	ReadPatternDataRow(renderSettings, patternDataCacheLayerA[1], mappingDataCacheLayerA[1], patternRowNumberLayerA);
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//Render the layer A column
-//	RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerA, mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], patternDataCacheLayerA[0], patternDataCacheLayerA[1], paletteLineLayerA, paletteIndexLayerA, currentRenderPixelLayerA);
-//
-//	//Calculate the target block mapping pair and selected row for layer B
-//	unsigned int mappingColumnNumberLayerB = columnNumber - columnShiftValueLayerB;
-//	unsigned int mappingRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) / renderSettings.blockPatternSizeY;
-//	unsigned int patternRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) % renderSettings.blockPatternSizeY;
-//
-//	//Read layer B left scrolled cell block mapping data
-//	unsigned int nameTableBaseB = M5GetNameTableBaseScrollB(accessTarget);
-//	ReadMappingDataPair(mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], nameTableBaseB, mappingRowNumberLayerB, mappingColumnNumberLayerB, hszState, vszState);
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//##TODO## Read sprite mapping data
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//Read layer B left scrolled cell block pattern row 1
-//	ReadPatternDataRow(renderSettings, patternDataCacheLayerB[0], mappingDataCacheLayerB[0], patternRowNumberLayerB);
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//Read layer B left scrolled cell block pattern row 2
-//	ReadPatternDataRow(renderSettings, patternDataCacheLayerB[1], mappingDataCacheLayerB[1], patternRowNumberLayerB);
-//	mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//	//Render the layer B column
-//	RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerB, mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], patternDataCacheLayerB[0], patternDataCacheLayerB[1], paletteLineLayerB, paletteIndexLayerB, currentRenderPixelLayerB);
-//
-//	//Read the mapping and pattern data for all layers
-//	for(unsigned int cellBlockSet = 0; cellBlockSet < renderSettings.cellBlockSetsToRead; ++cellBlockSet)
-//	{
-//		for(unsigned int i = 0; i < 4; ++i)
-//		{
-//			columnNumber = (cellBlockSet * 4) + i;
-//
-//			//Calculate the address of the vscroll data to read for this block
-//			//##TODO## Determine if the vscroll data is read at the start of each 2-cell
-//			//block, even for overall scrolling. We can determine this by changing the
-//			//vscroll data mid-line.
-//			//##TODO## Determine if mid-line changes to VSCR take effect immediately
-//			bool vscrState = M5GetVSCR(accessTarget);
-//			unsigned int vscrollDataAddress = vscrState? (columnNumber * 4): 0;
-//
-//			//Read the vscroll data for this line. Note only the lower 10 bits are
-//			//effective, or the lower 11 bits in the case of interlace mode 2, due to the
-//			//scrolled address being wrapped to lie within the total field boundaries,
-//			//which never exceed 128 blocks.
-//			unsigned int layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
-//			unsigned int layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
-//
-//			//Calculate the target block mapping pair and selected row for layer A
-//			unsigned int mappingColumnNumberLayerA = columnNumber - columnShiftValueLayerA;
-//			unsigned int mappingRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) / renderSettings.blockPatternSizeY;
-//			unsigned int patternRowNumberLayerA = (displayRowNumber + layerAVscrollOffset) % renderSettings.blockPatternSizeY;
-//
-//			//Read layer A mapping data
-//			unsigned int nameTableBaseA = M5GetNameTableBaseScrollA(accessTarget);
-//			ReadMappingDataPair(mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], nameTableBaseA, mappingRowNumberLayerA, mappingColumnNumberLayerA, hszState, vszState);
-//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//			//External access slot, or refresh cycle on 4th block in set.
-//			if(i < 3)
-//			{
-//				reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
-//				vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
-//				vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
-//			}
-//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//			//Read layer A pattern row 1
-//			ReadPatternDataRow(renderSettings, patternDataCacheLayerA[0], mappingDataCacheLayerA[0], patternRowNumberLayerA);
-//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//			//Read layer A pattern row 2
-//			ReadPatternDataRow(renderSettings, patternDataCacheLayerA[1], mappingDataCacheLayerA[1], patternRowNumberLayerA);
-//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//			//Render the layer A column
-//			RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerA, mappingDataCacheLayerA[0], mappingDataCacheLayerA[1], patternDataCacheLayerA[0], patternDataCacheLayerA[1], paletteLineLayerA, paletteIndexLayerA, currentRenderPixelLayerA);
-//
-//			//Calculate the target block mapping pair and selected row for layer B
-//			unsigned int mappingColumnNumberLayerB = columnNumber - columnShiftValueLayerB;
-//			unsigned int mappingRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) / renderSettings.blockPatternSizeY;
-//			unsigned int patternRowNumberLayerB = (displayRowNumber + layerBVscrollOffset) % renderSettings.blockPatternSizeY;
-//
-//			//Read layer B mapping data
-//			unsigned int nameTableBaseB = M5GetNameTableBaseScrollB(accessTarget);
-//			ReadMappingDataPair(mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], nameTableBaseB, mappingRowNumberLayerB, mappingColumnNumberLayerB, hszState, vszState);
-//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//			//##TODO## Read sprite mapping data
-//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//			//Read layer B pattern row 1
-//			ReadPatternDataRow(renderSettings, patternDataCacheLayerB[0], mappingDataCacheLayerB[0], patternRowNumberLayerB);
-//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//			//Read layer B pattern row 2
-//			ReadPatternDataRow(renderSettings, patternDataCacheLayerB[1], mappingDataCacheLayerB[1], patternRowNumberLayerB);
-//			mclkCycleRenderProgress += renderSettings.mclkCyclesPerLogicStep;
-//
-//			//Render the layer A column
-//			RenderColumnBlockPair(columnNumber, scrollValueDisplacementLayerB, mappingDataCacheLayerB[0], mappingDataCacheLayerB[1], patternDataCacheLayerB[0], patternDataCacheLayerB[1], paletteLineLayerB, paletteIndexLayerB, currentRenderPixelLayerB);
-//		}
-//	}
-//
-//	//##TODO## Note that we only ever need to read or advance the CRAM data when we're
-//	//actually rendering, after the line has been built. This means we should be advancing
-//	//the CRAM data state separately from the rest of the buffers, and it is when we
-//	//perform this advance that we take CRAM write flicker into account.
-//	//##TODO## Clean up this old code.
-//	unsigned int cramWriteFlickerBufferSize = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + hscanSettings.rightBorderPixelCount;
-//	std::vector<unsigned int> cramWriteFlickerPaletteIndex(cramWriteFlickerBufferSize);
-//	std::vector<unsigned int> cramWriteFlickerPaletteLine(cramWriteFlickerBufferSize);
-//	std::vector<bool> cramWriteFlickerOccurred(cramWriteFlickerBufferSize, false);
-//
-//	//##TODO## Don't do this at all. Store CRAM writes into a buffer, like we will for
-//	//rendered sprite pixels.
-//	//##TODO## Consider enhancing the session stepping for timed buffers, to allow the
-//	//next write time to be extracted from the session info. This will avoid the need to
-//	//call BufferGetWriteInfo here unnecessarily, as we can use the saved information in
-//	//the session to determine if there is a write in range.
-//	//unsigned int cramWriteIndex = 0;
-//	//IManagedBufferInt::WriteInfo cramWriteInfo = cram->BufferGetWriteInfo(cramWriteIndex++, cramTimesliceCopy);
-//	//while(cramWriteInfo.exists && (cramWriteInfo.writeTime < mclkCyclesPerLine))
-//	//{
-//	//	unsigned int pixelIndex = (cramWriteInfo.writeTime / renderSettings.mclkCyclesPerSCCycle) / 2;
-//	//	unsigned int paletteLine = cramWriteInfo.writeAddress / 0x20;
-//	//	unsigned int paletteIndex = (cramWriteInfo.writeAddress % 0x20) / 2;
-//	//	cramWriteFlickerOccurred[pixelIndex] = true;
-//	//	cramWriteFlickerPaletteLine[pixelIndex] = paletteLine;
-//	//	cramWriteFlickerPaletteIndex[pixelIndex] = paletteIndex;
-//	//	cramWriteInfo = cram->BufferGetWriteInfo(cramWriteIndex++, cramTimesliceCopy);
-//	//}
-//
-//	//##FIX## The background colour palette and index settings have been advanced to the
-//	//end of the line by now. We need the live register values. In fact, this issue of
-//	//live register values affects a lot more than just background changes. It affects the
-//	//disable video flag for example.
-//	//Render the left border
-//	for(unsigned int i = 0; i < hscanSettings.leftBorderPixelCount; ++i)
-//	{
-//		unsigned int borderColorPaletteLine = M5GetBackgroundColorPalette(accessTarget);
-//		unsigned int borderColorPaletteEntry = M5GetBackgroundColorIndex(accessTarget);
-//		if(cramWriteFlickerOccurred[i])
-//		{
-//			borderColorPaletteLine = cramWriteFlickerPaletteLine[i];
-//			borderColorPaletteEntry = cramWriteFlickerPaletteIndex[i];
-//		}
-//		WriteColorValueToImageBuffer(borderColorPaletteLine, borderColorPaletteEntry, false, false, i, renderBufferLineNo);
-//	}
-//
-//	//Render the active display
-//	for(unsigned int i = 0; i < hscanSettings.activeDisplayPixelCount; ++i)
-//	{
-//		//Read the background palette settings
-//		unsigned int paletteLineBackground = M5GetBackgroundColorPalette(accessTarget);
-//		unsigned int paletteIndexBackground = M5GetBackgroundColorIndex(accessTarget);
-//
-//		//Load the palette line and index values for each layer into our data table
-//		unsigned int paletteLineData[4];
-//		unsigned int paletteIndexData[4];
-//		paletteLineData[LAYER_SPRITE] = paletteLineSprite[i];
-//		paletteLineData[LAYER_LAYERA] = paletteLineLayerA[i];
-//		paletteLineData[LAYER_LAYERB] = paletteLineLayerB[i];
-//		paletteLineData[LAYER_BACKGROUND] = paletteLineBackground;
-//		paletteIndexData[LAYER_SPRITE] = paletteIndexSprite[i];
-//		paletteIndexData[LAYER_LAYERA] = paletteIndexLayerA[i];
-//		paletteIndexData[LAYER_LAYERB] = paletteIndexLayerB[i];
-//		paletteIndexData[LAYER_BACKGROUND] = paletteIndexBackground;
-//
-//		//Determine if any of the palette index values for any of the layers indicate a
-//		//transparent pixel.
-//		//##TODO## Consider renaming and reversing the logic of these flags to match the
-//		//comment above. The name of "found pixel" isn't very descriptive, and in the case
-//		//of the sprite layer "isPixelOpaque" could be misleading when the sprite pixel is
-//		//being used as an operator in shadow/highlight mode. A flag with a name like
-//		//isPixelTransparent would be much more descriptive.
-//		bool foundSpritePixel = (paletteIndexData[LAYER_SPRITE] != 0);
-//		bool foundLayerAPixel = (paletteIndexData[LAYER_LAYERA] != 0);
-//		bool foundLayerBPixel = (paletteIndexData[LAYER_LAYERB] != 0);
-//
-//		//Read the shadow/highlight mode settings
-//		//##TODO## Check when changes to the shadow/highlight register take effect. Can
-//		//this register be toggled mid-line?
-//		bool shadowHighlightEnabled = M5GetShadowHighlightEnabled(accessTarget);
-//		bool spriteIsShadowOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 15);
-//		bool spriteIsHighlightOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 14);
-//
-//		//Perform layer priority calculations, and determine the layer to use, as well as
-//		//the resulting state of the shadow and highlight bits.
-//		//unsigned int layerIndex;
-//		//bool shadow;
-//		//bool highlight;
-//		//CalculateLayerPriorityIndex(layerIndex, shadow, highlight, shadowHighlightEnabled, spriteIsShadowOperator, spriteIsHighlightOperator, foundSpritePixel, foundLayerAPixel, foundLayerBPixel, prioritySprite, priorityLayerA, priorityLayerB);
-//
-//		//Encode the parameters for the layer priority calculation into an index value for
-//		//the priority lookup table.
-//		unsigned int priorityIndex = 0;
-//		priorityIndex |= (unsigned int)shadowHighlightEnabled << 8;
-//		priorityIndex |= (unsigned int)spriteIsShadowOperator << 7;
-//		priorityIndex |= (unsigned int)spriteIsHighlightOperator << 6;
-//		priorityIndex |= (unsigned int)foundSpritePixel << 5;
-//		priorityIndex |= (unsigned int)foundLayerAPixel << 4;
-//		priorityIndex |= (unsigned int)foundLayerBPixel << 3;
-//		priorityIndex |= (unsigned int)prioritySprite[i] << 2;
-//		priorityIndex |= (unsigned int)priorityLayerA[i] << 1;
-//		priorityIndex |= (unsigned int)priorityLayerB[i];
-//
-//		//Lookup the pre-calculated layer priority from the lookup table. We use a lookup
-//		//table to eliminate branching, which should yield a significant performance
-//		//boost.
-//		unsigned int layerSelectionResult = layerPriorityLookupTable[priorityIndex];
-//
-//		//Extract the layer index, shadow, and highlight data from the combined result
-//		//returned from the layer priority lookup table.
-//		unsigned int layerIndex = layerSelectionResult & 0x03;
-//		bool shadow = (layerSelectionResult & 0x08) != 0;
-//		bool highlight = (layerSelectionResult & 0x04) != 0;
-//
-//		//Read the palette line and index to use for the selected layer
-//		unsigned int paletteLine = paletteLineData[layerIndex];
-//		unsigned int paletteIndex = paletteIndexData[layerIndex];
-//
-//		//Write the final colour values to the image buffer
-//		if(cramWriteFlickerOccurred[hscanSettings.leftBorderPixelCount+i])
-//		{
-//			paletteLine = cramWriteFlickerPaletteLine[hscanSettings.leftBorderPixelCount+i];
-//			paletteIndex = cramWriteFlickerPaletteIndex[hscanSettings.leftBorderPixelCount+i];
-//		}
-//		WriteColorValueToImageBuffer(paletteLine, paletteIndex, shadow, highlight, hscanSettings.leftBorderPixelCount + i, renderBufferLineNo);
-//	}
-//
-//	//Render the right border
-//	for(unsigned int i = 0; i < hscanSettings.rightBorderPixelCount; ++i)
-//	{
-//		unsigned int borderColorPaletteLine = M5GetBackgroundColorPalette(accessTarget);
-//		unsigned int borderColorPaletteEntry = M5GetBackgroundColorIndex(accessTarget);
-//		if(cramWriteFlickerOccurred[hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i])
-//		{
-//			borderColorPaletteLine = cramWriteFlickerPaletteLine[hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i];
-//			borderColorPaletteEntry = cramWriteFlickerPaletteIndex[hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i];
-//		}
-//		WriteColorValueToImageBuffer(borderColorPaletteLine, borderColorPaletteEntry, false, false, hscanSettings.leftBorderPixelCount+hscanSettings.activeDisplayPixelCount+i, renderBufferLineNo);
-//	}
-//
-//	//##DEBUG##
-//	unsigned int remainingMclkCyclesInLine = mclkCyclesPerLine - (mclkCycleRenderProgress - initialMclkCycleRenderProgress);
-//	mclkCycleRenderProgress += remainingMclkCyclesInLine;
-//	reg.AdvanceBySession(mclkCycleRenderProgress, regSession, regTimesliceCopy);
-//	vram->AdvanceBySession(mclkCycleRenderProgress, vramSession, vramTimesliceCopy);
-//	cram->AdvanceBySession(mclkCycleRenderProgress, cramSession, cramTimesliceCopy);
-//	vsram->AdvanceBySession(mclkCycleRenderProgress, vsramSession, vsramTimesliceCopy);
-//}
 
 //----------------------------------------------------------------------------------------
 void S315_5313::AdvanceRenderProcess(unsigned int mclkCyclesRemainingToAdvance)
@@ -4042,6 +3397,109 @@ void S315_5313::DigitalRenderReadVscrollDataNew(unsigned int screenColumnNumber,
 }
 
 //----------------------------------------------------------------------------------------
+//This function performs all the necessary calculations to determine which mapping data to
+//read for a given playfield position, and reads the corresponding mapping data pair from
+//VRAM. The calculations performed appear to produce the same result as the real VDP
+//hardware under all modes and settings, including when invalid scroll size modes are
+//used.
+//
+//The following comments are provided as a supplement to the comments within this
+//function, and show how the internally calculated row and column numbers are combined
+//with the mapping base address data to produce a final VRAM address for the mapping
+//block. All possible combinations of screen mode settings are shown, including invalid
+//modes (VSZ="10" or HSZ="10"). Note that invalid combinations of screen mode settings are
+//not shown, since invalid combinations never actually occur, due to the vertical screen
+//mode being adjusted based on the horizontal screen mode, as outlined in the function
+//comments below.
+//
+//Officially supported screen mode settings. Note that the lower two bits of the resulting
+//address are masked before the address is used.
+//Mapping data VRAM address (HSZ=00 VSZ=00):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//| Base Addr | 0 | 0 |        Row        |       Column      | 0 | (Row Shift Count = 6)
+//-----------------------------------------------------------------
+//Mapping data VRAM address (HSZ=01 VSZ=00):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//| Base Addr | 0 |        Row        |         Column        | 0 | (Row Shift Count = 7)
+//-----------------------------------------------------------------
+//Mapping data VRAM address (HSZ=11 VSZ=00):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//| Base Addr |        Row        |           Column          | 0 | (Row Shift Count = 8)
+//-----------------------------------------------------------------
+//Mapping data VRAM address (HSZ=00 VSZ=01):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//| Base Addr | 0 |          Row          |       Column      | 0 | (Row Shift Count = 6)
+//-----------------------------------------------------------------
+//Mapping data VRAM address (HSZ=01 VSZ=01):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//| Base Addr |          Row          |         Column        | 0 | (Row Shift Count = 7)
+//-----------------------------------------------------------------
+//Mapping data VRAM address (HSZ=00 VSZ=11):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//| Base Addr |            Row            |       Column      | 0 | (Row Shift Count = 6)
+//-----------------------------------------------------------------
+//
+//Officially unsupported screen modes. In this case, the row and column data may be
+//interleaved, and the row shift count may be 0, as shown below:
+//Mapping data VRAM address (HSZ=00 VSZ=10):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//|           |Row| 0 |        Row        |                       | (Row Shift Count = 6)
+//|           -------------------------------------------------   |
+//|                                       |       Column      |   |
+//|---------------------------------------------------------------|
+//| Base Addr |Row| 0 |        Row        |       Column      | 0 |
+//-----------------------------------------------------------------
+//##FIX## Hardware tests have shown the two cases below to be incorrect. It appears the
+//upper bit of the column data is never applied, and the row is never incremented when the
+//invalid horizontal mode is active.
+//Mapping data VRAM address (HSZ=10 VSZ=00):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//|                                           |        Row        | (Row Shift Count = 0)
+//|                                       ------------------------|
+//|                                       |       Column      |   |
+//|---------------------------------------------------------------|
+//| Base Addr | 0 | 0 | 0 | 0 | 0 |Col| 0 |       Column      |Row|
+//-----------------------------------------------------------------
+//Mapping data VRAM address (HSZ=10 VSZ=10):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//|                                   |Row| 0 |        Row        | (Row Shift Count = 0)
+//|                               --------------------------------|
+//|                               |Col| 0 |       Column      |   |
+//|---------------------------------------------------------------|
+//| Base Addr | 0 | 0 | 0 | 0 | 0 |Col|Row|       Column      |Row|
+//-----------------------------------------------------------------
+//##TODO## Implement the correct mappings, which are as follows:
+//Mapping data VRAM address (HSZ=10 VSZ=00):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//| Base Addr | 0 | 0 | 0 | 0 | 0 | 0 | 0 |       Column      | 0 |
+//-----------------------------------------------------------------
+//Mapping data VRAM address (HSZ=10 VSZ=10):
+//-----------------------------------------------------------------
+//| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//|---------------------------------------------------------------|
+//| Base Addr | 0 | 0 | 0 | 0 | 0 | 0 | 0 |       Column      | 0 |
+//-----------------------------------------------------------------
+//----------------------------------------------------------------------------------------
 void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const
 {
 	//The existence and contents of this table have been determined through analysis of
@@ -4519,371 +3977,6 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 		}
 	}
 }
-
-////----------------------------------------------------------------------------------------
-//void S315_5313::WriteColorValueToImageBuffer(unsigned int paletteLine, unsigned int paletteEntry, bool shadow, bool highlight, unsigned int xpos, unsigned int ypos)
-//{
-//	//##TODO## Emulate CRAM write flicker
-//	const unsigned int paletteEntriesPerLine = 16;
-//	const unsigned int paletteEntrySize = 2;
-//	//##TODO## Our new colour values are basically correct, assuming what is suspected
-//	//after analysis posted on SpritesMind, that the Mega Drive VDP never actually outputs
-//	//at full intensity. We haven't taken the apparent "ladder effect" into account
-//	//however. It is highly recommended that we perform our own tests on the hardware, and
-//	//make some comparisons between captured video output from the real system, and the
-//	//output from our emulator, when playing back on the same physical screen. If the
-//	//ladder effect is real and does have an effect on the way the intensity is perceived
-//	//on the screen, we should emulate it. We also need to confirm the maximum intensity
-//	//output by the VDP. A step size of 18 for example would get a max value of 252, which
-//	//would be more logical.
-//	//const unsigned char paletteEntryTo8Bit[8] = {0, 36, 73, 109, 146, 182, 219, 255};
-//	//const unsigned char paletteEntryTo8BitShadow[8] = {0, 18, 37, 55, 73, 91, 110, 128};
-//	//const unsigned char paletteEntryTo8BitHighlight[8] = {128, 146, 165, 183, 201, 219, 238, 255};
-//	const unsigned char paletteEntryTo8Bit[8] = {0, 34, 68, 102, 136, 170, 204, 238};
-//	const unsigned char paletteEntryTo8BitShadow[8] = {0, 17, 34, 51, 68, 85, 102, 119};
-//	const unsigned char paletteEntryTo8BitHighlight[8] = {119, 136, 153, 170, 187, 204, 221, 238};
-//
-//	//Calculate the address of the colour value to read from the palette
-//	unsigned int paletteEntryAddress = (paletteEntry + (paletteLine * paletteEntriesPerLine)) * paletteEntrySize;
-//
-//	//Read the target palette entry
-//	Data paletteData(16);
-//	paletteData = (unsigned int)(cram->ReadCommitted(paletteEntryAddress+0) << 8) | (unsigned int)cram->ReadCommitted(paletteEntryAddress+1);
-//
-//	//Decode palette color
-//	unsigned char r;
-//	unsigned char g;
-//	unsigned char b;
-//	if(shadow && !highlight)
-//	{
-//		r = paletteEntryTo8BitShadow[(paletteData.GetData() & 0x000E) >> 1];
-//		g = paletteEntryTo8BitShadow[(paletteData.GetData() & 0x00E0) >> 5];
-//		b = paletteEntryTo8BitShadow[(paletteData.GetData() & 0x0E00) >> 9];
-//	}
-//	else if(highlight && !shadow)
-//	{
-//		r = paletteEntryTo8BitHighlight[(paletteData.GetData() & 0x000E) >> 1];
-//		g = paletteEntryTo8BitHighlight[(paletteData.GetData() & 0x00E0) >> 5];
-//		b = paletteEntryTo8BitHighlight[(paletteData.GetData() & 0x0E00) >> 9];
-//	}
-//	else
-//	{
-//		r = paletteEntryTo8Bit[(paletteData.GetData() & 0x000E) >> 1];
-//		g = paletteEntryTo8Bit[(paletteData.GetData() & 0x00E0) >> 5];
-//		b = paletteEntryTo8Bit[(paletteData.GetData() & 0x0E00) >> 9];
-//	}
-//
-//	//Write the final colour value to the image buffer
-//	const unsigned int imageBufferEntryByteCount = 4;
-//	//##TODO## Clean up this entry
-//	const unsigned int height = 313;
-//	unsigned int bufferPos = ((xpos + (((height - 1) * imageWidth) - (ypos * imageWidth))) * imageBufferEntryByteCount);
-////	unsigned int bufferPos = (xpos + (((imageHeight - 1) - ypos) * imageWidth)) * imageBufferEntryByteCount;
-//	if(bufferPos >= (imageWidth * imageHeight * imageBufferEntryByteCount))
-//	{
-//		//##DEBUG##
-//		std::wcout << "ERROR! Buffer overflow on image buffer\n";
-//		std::wcout << ypos << ' ' << xpos << '\n';
-//	}
-//	image[drawingImageBufferPlane][bufferPos + 0] = r;
-//	image[drawingImageBufferPlane][bufferPos + 1] = g;
-//	image[drawingImageBufferPlane][bufferPos + 2] = b;
-//	image[drawingImageBufferPlane][bufferPos + 3] = 0xFF;
-//}
-//
-////----------------------------------------------------------------------------------------
-////This function performs all the necessary calculations to determine which mapping data to
-////read for a given playfield position, and reads the corresponding mapping data pair from
-////VRAM. The calculations performed appear to produce the same result as the real VDP
-////hardware under all modes and settings, including when invalid scroll size modes are
-////used.
-////
-////The following comments are provided as a supplement to the comments within this
-////function, and show how the internally calculated row and column numbers are combined
-////with the mapping base address data to produce a final VRAM address for the mapping
-////block. All possible combinations of screen mode settings are shown, including invalid
-////modes (VSZ="10" or HSZ="10"). Note that invalid combinations of screen mode settings are
-////not shown, since invalid combinations never actually occur, due to the vertical screen
-////mode being adjusted based on the horizontal screen mode, as outlined in the function
-////comments below.
-////
-////Officially supported screen mode settings. Note that the lower two bits of the resulting
-////address are masked before the address is used.
-////Mapping data VRAM address (HSZ=00 VSZ=00):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////| Base Addr | 0 | 0 |        Row        |       Column      | 0 | (Row Shift Count = 6)
-////-----------------------------------------------------------------
-////Mapping data VRAM address (HSZ=01 VSZ=00):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////| Base Addr | 0 |        Row        |         Column        | 0 | (Row Shift Count = 7)
-////-----------------------------------------------------------------
-////Mapping data VRAM address (HSZ=11 VSZ=00):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////| Base Addr |        Row        |           Column          | 0 | (Row Shift Count = 8)
-////-----------------------------------------------------------------
-////Mapping data VRAM address (HSZ=00 VSZ=01):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////| Base Addr | 0 |          Row          |       Column      | 0 | (Row Shift Count = 6)
-////-----------------------------------------------------------------
-////Mapping data VRAM address (HSZ=01 VSZ=01):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////| Base Addr |          Row          |         Column        | 0 | (Row Shift Count = 7)
-////-----------------------------------------------------------------
-////Mapping data VRAM address (HSZ=00 VSZ=11):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////| Base Addr |            Row            |       Column      | 0 | (Row Shift Count = 6)
-////-----------------------------------------------------------------
-////
-////Officially unsupported screen modes. In this case, the row and column data may be
-////interleaved, and the row shift count may be 0, as shown below:
-////Mapping data VRAM address (HSZ=00 VSZ=10):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////|           |Row| 0 |        Row        |                       | (Row Shift Count = 6)
-////|           -------------------------------------------------   |
-////|                                       |       Column      |   |
-////|---------------------------------------------------------------|
-////| Base Addr |Row| 0 |        Row        |       Column      | 0 |
-////-----------------------------------------------------------------
-////##FIX## Hardware tests have shown the two cases below to be incorrect. It appears the
-////upper bit of the column data is never applied, and the row is never incremented when the
-////invalid horizontal mode is active.
-////Mapping data VRAM address (HSZ=10 VSZ=00):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////|                                           |        Row        | (Row Shift Count = 0)
-////|                                       ------------------------|
-////|                                       |       Column      |   |
-////|---------------------------------------------------------------|
-////| Base Addr | 0 | 0 | 0 | 0 | 0 |Col| 0 |       Column      |Row|
-////-----------------------------------------------------------------
-////Mapping data VRAM address (HSZ=10 VSZ=10):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////|                                   |Row| 0 |        Row        | (Row Shift Count = 0)
-////|                               --------------------------------|
-////|                               |Col| 0 |       Column      |   |
-////|---------------------------------------------------------------|
-////| Base Addr | 0 | 0 | 0 | 0 | 0 |Col|Row|       Column      |Row|
-////-----------------------------------------------------------------
-////##TODO## Implement the correct mappings, which are as follows:
-////Mapping data VRAM address (HSZ=10 VSZ=00):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////| Base Addr | 0 | 0 | 0 | 0 | 0 | 0 | 0 |       Column      | 0 |
-////-----------------------------------------------------------------
-////Mapping data VRAM address (HSZ=10 VSZ=10):
-////-----------------------------------------------------------------
-////| 15| 14| 13| 12| 11| 10| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-////|---------------------------------------------------------------|
-////| Base Addr | 0 | 0 | 0 | 0 | 0 | 0 | 0 |       Column      | 0 |
-////-----------------------------------------------------------------
-////----------------------------------------------------------------------------------------
-//void S315_5313::ReadMappingDataPair(Data& mappingDataEntry1, Data& mappingDataEntry2, unsigned int nameTableBaseAddress, unsigned int mappingDataRowNumber, unsigned int mappingDataColumnNumber, unsigned int screenSizeModeH, unsigned int screenSizeModeV) const
-//{
-//	//The existence and contents of this table have been determined through analysis of
-//	//the behaviour of the VDP when invalid field size settings are selected. In
-//	//particular, the third table entry of 0 is used when the invalid HSZ mode of "10" is
-//	//selected. This causes the row and column to overlap when building the final address
-//	//value. The way the address is built in these circumstances can only be logically
-//	//explained by a lookup table being used for the row shift count, with the third entry
-//	//being set to 0, as we have implemented here.
-//	//##FIX## Hardware tests have shown this is not actually the case
-//	static const unsigned int rowShiftCountTable[4] = {6, 7, 0, 8};
-//
-//	//The following calculation limits the vertical playfield size, based on the
-//	//horizontal playfield size. This calculation is quite simple in hardware, but looks
-//	//more complicated in code than it really is. Basically, the upper bit of the vertical
-//	//scroll mode is run through a NAND operation with the lower bit of the horizontal
-//	//scroll mode, and likewise, the lower bit of the vertical scroll mode is run through
-//	//a NAND operation with the upper bit of the horizontal scroll mode. This limits the
-//	//vertical scroll mode in the exact same way the real hardware does, including when
-//	//invalid scroll modes are being used.
-//	screenSizeModeV = ((screenSizeModeV & 0x1) & ((~screenSizeModeH & 0x02) >> 1)) | ((screenSizeModeV & 0x02) & ((~screenSizeModeH & 0x01) << 1));
-//
-//	//Build the playfield block masks. These masks ultimately determine the boundaries of
-//	//the playfield horizontally and vertically. Hardware testing and analysis on the
-//	//scrolling behaviour of the VDP indicate that these masks are built by mapping the
-//	//HSZ and VSZ bits to the upper bits of a 7-bit mask value, as shown below. Note that
-//	//the invalid mode setting of "10" results in a mask where bit 7 is set, and bit 6 is
-//	//unset. This has been confirmed through hardware tests.
-//	//##TODO## Test this on hardware.
-//	//##TODO## Test and confirm how the window distortion bug interacts with this block
-//	//mapping selection process.
-//	unsigned int playfieldBlockMaskX = (screenSizeModeH << 5) | 0x1F;
-//	unsigned int playfieldBlockMaskY = (screenSizeModeV << 5) | 0x1F;
-//
-//	//Calculate the row and column numbers for the mapping data. This is simply done by
-//	//converting the calculated playfield position from a pixel index into a block index,
-//	//then masking the X and Y coordinates by the horizontal and vertical block masks.
-//	//This gives us a row and column number, wrapped to the playfield boundaries.
-//	//##TODO## We want to keep this shift method for calculating the row and column,
-//	//rather than using division, but we should be using a constant, or at least
-//	//explaining why the magic number "3" is being used.
-//	//##TODO## Update these comments
-//	mappingDataRowNumber &= playfieldBlockMaskY;
-//	mappingDataColumnNumber <<= 1;
-//	mappingDataColumnNumber &= playfieldBlockMaskX;
-//
-//	//Based on the horizontal playfield mode, lookup the row shift count to use when
-//	//building the final mapping data address value. The column shift count is always
-//	//fixed to 1.
-//	unsigned int rowShiftCount = rowShiftCountTable[screenSizeModeH];
-//	const unsigned int columnShiftCount = 1;
-//
-//	//Calculate the final mapping data address. Note that the row number is masked with
-//	//the inverted mask for the column number, so that row data is only allowed to appear
-//	//where column data is not allowed to appear. This is based on the observed behaviour
-//	//of the system, as is critical in order to correctly emulate the scrolling behaviour
-//	//where an invalid horizontal scroll mode of "10" is applied. In this case, the row
-//	//data can be interleaved with the column data, since the row shift count under this
-//	//mode is 0.
-//	unsigned int mappingDataAddress = nameTableBaseAddress | ((mappingDataRowNumber << rowShiftCount) & (~playfieldBlockMaskX << columnShiftCount)) | (mappingDataColumnNumber << columnShiftCount);
-//
-//	//Mask the lower two bits of the mapping data address, to align the mapping address
-//	//with a 4-byte boundary. The VDP can only read data from the VRAM in aligned 4-byte
-//	//blocks, so the lower two bits of the address are ineffective. We read a pair of
-//	//2-byte block mappings from the masked address.
-//	mappingDataAddress &= 0xFFFC;
-//
-//	//##TODO## Clean up the old mapping code below
-//	////Calculate the target layer mapping data column pair. Note that since we read mapping
-//	////blocks in pairs, we need to find the next pair of mapping entries, not the next
-//	////individual mapping entry, which lies at or after the specified playfield position.
-//	////##TODO## The division operator we use in this function can be avoided. Since the
-//	////size of a block is always a power of 2, we should be performing a bitshift rather
-//	////than a full blown division operator. This is certainly what the real hardware would
-//	////do.
-//	//unsigned int mappingDataColumnAddress = ((layerScrolledPlayfieldX / (renderSettings.blockPatternSizeX * 2)) * 2) & playfieldBlockMaskX;
-//	//if((layerScrolledPlayfieldX % (renderSettings.blockPatternSizeX * 2)) != 0)
-//	//{
-//	//	//If a block pair is partially visible on the left side of the playfield,
-//	//	//those blocks are already being displayed using the scrolled block data.
-//	//	//In this case, advance to the next pair block. Note that this also
-//	//	//emulates the window distortion bug.
-//	//	//##TODO## Confirm this emulates the window distortion bug.
-//	//	mappingDataColumnAddress += 2;
-//	//}
-//
-//	////Calculate the target layer mapping data row
-//	////##TODO## Avoid the division operator here, and use a shift instead.
-//	//unsigned int mappingDataRowAddress = (layerScrolledPlayfieldY / renderSettings.blockPatternSizeY) & playfieldBlockMaskY;
-//
-//	////Calculate the final target layer mapping data address
-//	////##TODO## Continue testing and analysis on the invalid playfield sizes, and determine
-//	////how the row number is combined into the base address.
-//	//unsigned int mappingDataAddress = nameTableBaseAddress + ((mappingDataColumnAddress + (mappingDataRowAddress * playfieldBlockSizeX)) * renderSettings.blockMappingEntryByteSize);
-//
-//	//Read target layer mapping data
-//	mappingDataEntry1 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+1);
-//	mappingDataEntry2 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+3);
-//}
-//
-////----------------------------------------------------------------------------------------
-//void S315_5313::ReadPatternDataRow(const LineRenderSettings& renderSettings, Data& patternData, const Data& mappingData, unsigned int patternRowNumber) const
-//{
-//	//Calculate the final address for the pattern row, applying vertical flip if it is
-//	//specified in the block mapping. Note that we grab the entire mapping data block as
-//	//the block number when calculating the address. This is because the resulting address
-//	//is wrapped to keep it within the VRAM boundaries. Due to this wrapping, in reality
-//	//only the lower 11 bits of the mapping data are effective when determining the block
-//	//number, or the lower 10 bits in the case of interlace mode 2.
-//	//##TODO## Use low-level bit operations here, and provide a comment showing the
-//	//structure of the calculated address value.
-//	unsigned int patternRowNumberWithFlip = mappingData.GetBit(12)? (renderSettings.blockPatternSizeY - 1) - patternRowNumber: patternRowNumber;
-//	unsigned int patternDataAddress = ((mappingData.GetData() * renderSettings.blockPatternByteSize) + (patternRowNumberWithFlip * renderSettings.blockPatternRowByteSize)) % vramSize;
-//
-//	//Read the target pattern row
-//	patternData = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
-//}
-//
-////----------------------------------------------------------------------------------------
-//void S315_5313::RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const
-//{
-//	//Extract the individual palette index values from the block pattern data, accounting
-//	//for the horizontal flip flag in the block mappings.
-//	std::vector<unsigned int> patternEntryArray(16);
-//	if(mappingDataCell1.GetBit(11))
-//	{
-//		patternEntryArray[0] = patternDataCell1.GetDataSegment(0, 4);
-//		patternEntryArray[1] = patternDataCell1.GetDataSegment(4, 4);
-//		patternEntryArray[2] = patternDataCell1.GetDataSegment(8, 4);
-//		patternEntryArray[3] = patternDataCell1.GetDataSegment(12, 4);
-//		patternEntryArray[4] = patternDataCell1.GetDataSegment(16, 4);
-//		patternEntryArray[5] = patternDataCell1.GetDataSegment(20, 4);
-//		patternEntryArray[6] = patternDataCell1.GetDataSegment(24, 4);
-//		patternEntryArray[7] = patternDataCell1.GetDataSegment(28, 4);
-//	}
-//	else
-//	{
-//		patternEntryArray[0] = patternDataCell1.GetDataSegment(28, 4);
-//		patternEntryArray[1] = patternDataCell1.GetDataSegment(24, 4);
-//		patternEntryArray[2] = patternDataCell1.GetDataSegment(20, 4);
-//		patternEntryArray[3] = patternDataCell1.GetDataSegment(16, 4);
-//		patternEntryArray[4] = patternDataCell1.GetDataSegment(12, 4);
-//		patternEntryArray[5] = patternDataCell1.GetDataSegment(8, 4);
-//		patternEntryArray[6] = patternDataCell1.GetDataSegment(4, 4);
-//		patternEntryArray[7] = patternDataCell1.GetDataSegment(0, 4);
-//	}
-//	if(mappingDataCell2.GetBit(11))
-//	{
-//		patternEntryArray[8] = patternDataCell2.GetDataSegment(0, 4);
-//		patternEntryArray[9] = patternDataCell2.GetDataSegment(4, 4);
-//		patternEntryArray[10] = patternDataCell2.GetDataSegment(8, 4);
-//		patternEntryArray[11] = patternDataCell2.GetDataSegment(12, 4);
-//		patternEntryArray[12] = patternDataCell2.GetDataSegment(16, 4);
-//		patternEntryArray[13] = patternDataCell2.GetDataSegment(20, 4);
-//		patternEntryArray[14] = patternDataCell2.GetDataSegment(24, 4);
-//		patternEntryArray[15] = patternDataCell2.GetDataSegment(28, 4);
-//	}
-//	else
-//	{
-//		patternEntryArray[8] = patternDataCell2.GetDataSegment(28, 4);
-//		patternEntryArray[9] = patternDataCell2.GetDataSegment(24, 4);
-//		patternEntryArray[10] = patternDataCell2.GetDataSegment(20, 4);
-//		patternEntryArray[11] = patternDataCell2.GetDataSegment(16, 4);
-//		patternEntryArray[12] = patternDataCell2.GetDataSegment(12, 4);
-//		patternEntryArray[13] = patternDataCell2.GetDataSegment(8, 4);
-//		patternEntryArray[14] = patternDataCell2.GetDataSegment(4, 4);
-//		patternEntryArray[15] = patternDataCell2.GetDataSegment(0, 4);
-//	}
-//
-//	//Extract the palette line numbers from the block mappings
-//	unsigned int paletteLineCell1 = mappingDataCell1.GetDataSegment(13, 2);
-//	unsigned int paletteLineCell2 = mappingDataCell2.GetDataSegment(13, 2);
-//
-//	//##TODO## Make a comment about the window distortion bug
-//	//Calculate the number of pixels to output for this column, and the initial pixel
-//	//entry in the pattern buffer to output.
-//	unsigned int columnPixelEndPosLayerA = (((columnNumber + 1) << 4) + scrollValueDisplacement) & 0x3FF;
-//	unsigned int pixelsToOutputLayerA = columnPixelEndPosLayerA - currentRenderPixel;
-//	unsigned int pixelIndexStartValueLayerA = 0x10 - (pixelsToOutputLayerA & 0x0F);
-//
-//	//Output each pixel for this column
-//	for(unsigned int i = 0; i < pixelsToOutputLayerA; ++i)
-//	{
-//		unsigned int patternEntryBufferIndex = (pixelIndexStartValueLayerA + i) % 0x10;
-//		outputPaletteEntries[currentRenderPixel] = patternEntryArray[patternEntryBufferIndex];
-//		outputPaletteLines[currentRenderPixel] = (patternEntryBufferIndex < 8)? paletteLineCell1: paletteLineCell2;
-//		++currentRenderPixel;
-//	}
-//}
 
 //----------------------------------------------------------------------------------------
 void S315_5313::DMAWorkerThread()
@@ -9597,100 +8690,6 @@ bool S315_5313::ValidReadTargetInCommandCode() const
 	return (commandCode & 0x13) == 0;
 }
 
-////----------------------------------------------------------------------------------------
-//bool S315_5313::ReadVideoMemory(unsigned int mclkCycle, Data& data)
-//{
-//	RAMAccessTarget ramAccessTarget;
-//	ramAccessTarget.AccessTime(mclkCycle);
-//
-//	//All possible combinations of the code flags and data port reads have been tested on
-//	//the hardware. Reads are decoded based on the lower 5 bits of the code data.
-//	switch(commandCode.GetDataSegment(0, 5))
-//	{
-//	case 0x00:	//?00000 VRAM Read
-//		M5ReadVRAM(commandAddress, data, ramAccessTarget);
-//		break;
-//	case 0x04:	//?00100 VSRAM Read
-//		M5ReadVSRAM(commandAddress, data, ramAccessTarget);
-//		break;
-//	case 0x08:	//?01000 CRAM Read
-//		M5ReadCRAM(commandAddress, data, ramAccessTarget);
-//		break;
-//	case 0x0C:	//?01100 8-bit VRAM Read (undocumented)
-//		//This undocumented read mode performs a true 8-bit VRAM read. The lower 8 bits
-//		//return an 8-bit value read from VRAM, while the upper 8 bits are unaffected.
-//		M5ReadVRAM8Bit(commandAddress, data, ramAccessTarget);
-//		break;
-//	default:	//Invalid
-//		//Any attempts to read from the data port when the lower five bits don't match one
-//		//of the above patterns causes the VDP to lock up. A reset is unable to restore
-//		//normal operation. Only power cycling the device can bring the VDP back from this
-//		//state.
-//		//##TODO## Raise some kind of hard error when this occurs.
-//		return false;
-//	}
-//
-//	//We always increment the command address, regardless of whether the target was valid
-//	//or not. This is probably the way the real device would work, but since incremented
-//	//addresses are temporary, and are reloaded from the original address register
-//	//whenever a command word is written, there's no way to know if this behaviour is
-//	//correct. For the same reason, it also doesn't matter, since there's no possible
-//	//impact from either incrementing or not incrementing on invalid targets, but this way
-//	//is simpler and produces less code.
-////	commandAddress += autoIncrementData;
-//
-//	return true;
-//}
-
-////----------------------------------------------------------------------------------------
-//void S315_5313::WriteVideoMemory(unsigned int mclkCycle, const Data& data)
-//{
-//	RAMAccessTarget ramAccessTarget;
-//	ramAccessTarget.AccessTime(mclkCycle);
-//
-//	//All possible combinations of the code flags and data port writes have been tested
-//	//on the hardware. Writes are decoded based on the lower 4 bits of the code data.
-//	switch(commandCode.GetDataSegment(0, 4))
-//	{
-//	case 0x01:	//??0001 VRAM Write
-//		M5WriteVRAM(commandAddress, data, ramAccessTarget);
-//		break;
-//	case 0x03:	//??0011 CRAM Write
-//		M5WriteCRAM(commandAddress, data, ramAccessTarget);
-//		break;
-//	case 0x05:	//??0101 VSRAM Write
-//		M5WriteVSRAM(commandAddress, data, ramAccessTarget);
-//		break;
-//	default:	//Invalid
-//		//Any attempts to write to the data port when the lower four bits don't match
-//		//one of the above patterns has no effect. The write is discarded, and the
-//		//VDP is unaffected.
-//		break;
-//	}
-//
-//	//We always increment the command address, regardless of whether the target was valid
-//	//or not. This is probably the way the real device would work, but since incremented
-//	//addresses are temporary, and are reloaded from the original address register
-//	//whenever a command word is written, there's no way to know if this behaviour is
-//	//correct. For the same reason, it also doesn't matter, since there's no possible
-//	//impact from either incrementing or not incrementing on invalid targets, but this way
-//	//is simpler and produces less code.
-//	commandAddress += autoIncrementData;
-//}
-
-//----------------------------------------------------------------------------------------
-//void S315_5313::M5ReadVRAM(const Data& address, Data& data, const RAMAccessTarget& accessTarget)
-//{
-//	//Note that hardware tests have shown that the LSB of the address is ignored for
-//	//16-bit reads from VRAM.
-//	Data tempAddress(address);
-//	tempAddress.SetBit(0, false);
-//
-//	//Read the data. The full 16-bit data value is retrieved from VRAM.
-//	data.SetByte(1, vram->BufferRead(tempAddress.GetData(), accessTarget));
-//	data.SetByte(0, vram->BufferRead(tempAddress.GetData()+1, accessTarget));
-//}
-
 //----------------------------------------------------------------------------------------
 void S315_5313::M5ReadVRAM8Bit(const Data& address, Data& data, const RAMAccessTarget& accessTarget)
 {
@@ -9820,47 +8819,6 @@ void S315_5313::M5WriteVRAM8Bit(const Data& address, const Data& data, const RAM
 	//Write the data
 	vram->Write(tempAddressData, data.GetByte(0), accessTarget);
 }
-
-////----------------------------------------------------------------------------------------
-//void S315_5313::M5WriteVRAM(const Data& address, const Data& data, const RAMAccessTarget& accessTarget)
-//{
-//	//-Hardware tests have verified that if the LSB of the address is set, it is ignored
-//	//when determining the target VRAM address, but it acts as a special flag causing the
-//	//data to be byteswapped for writes to VRAM. This is true for any write to VRAM,
-//	//including writes performed as part of a DMA transfer. The LSB of the address is
-//	//ignored for reads from VRAM, IE, no byteswapping is ever performed on reads.
-//	//-It should be noted that the real VDP actually stores all VRAM data byteswapped in
-//	//the physical memory. This has been confirmed by using a logic analyzer to snoop on
-//	//the VRAM bus during operation. This means that in reality, byteswapping on VRAM
-//	//writes really occurs when the LSB is unset, while the data is byteswapped if the LSB
-//	//is set, and all reads are byteswapped. We don't byteswap the actual VRAM data in our
-//	//emulator, as not only is this byteswapping virtually transparent to the caller
-//	//except in the case of DMA fills and copies (refer to the implementation for further
-//	//info), it would be slower for us to byteswap everything on every read and write to
-//	//VRAM. Since it's faster for us, and more convenient and logical for the user
-//	//therefore for the data to be stored sequentially, we don't store data as byteswapped
-//	//in VRAM.
-//	//-Note that the real VDP also stores the VRAM data in a non-linear fashion, with data
-//	//within each 0x400 byte block stored in an interleaved format. The byteswapped data
-//	//is striped in 4-byte groups within each 0x400 byte block, with all the first bytes
-//	//of each 4-byte set at 0x000-0x100, then the second bytes at 0x100-0x200, and so on
-//	//within each 0x400 byte block. This is necessary in order to support the serial
-//	//access mode used to read data from VRAM. We also don't implement this interleaved
-//	//VRAM in our emulator, as it is an implementation detail that has no effect on the
-//	//logical operation of the VDP.
-//	Data tempAddress(address);
-//	if(tempAddress.GetBit(0))
-//	{
-//		tempAddress.SetBit(0, false);
-//		vram->BufferWrite(tempAddress.GetData(), data.GetByte(0), accessTarget);
-//		vram->BufferWrite(tempAddress.GetData()+1, data.GetByte(1), accessTarget);
-//	}
-//	else
-//	{
-//		vram->BufferWrite(tempAddress.GetData(), data.GetByte(1), accessTarget);
-//		vram->BufferWrite(tempAddress.GetData()+1, data.GetByte(0), accessTarget);
-//	}
-//}
 
 //----------------------------------------------------------------------------------------
 void S315_5313::M5WriteCRAM(const Data& address, const Data& data, const RAMAccessTarget& accessTarget)
