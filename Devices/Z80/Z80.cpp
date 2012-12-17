@@ -948,13 +948,6 @@ double Z80::ExecuteStep()
 			AddRefresh(1);
 		}
 
-		//##FIX## This shouldn't be here. According to what we know about the Z80
-		//hardware, if the INT line remains asserted after IFF1 is set, another interrupt
-		//should be taken. It seems that the VDP must be clearing the INT line after the
-		//interrupt acknowledge cycle runs. We need to emulate this behaviour, and remove
-		//this hack below.
-		intLineState = false;
-
 		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 	}
 	maskInterruptsNextOpcode = false;
