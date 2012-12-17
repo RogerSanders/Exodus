@@ -282,6 +282,46 @@ void A11100::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 }
 
 //----------------------------------------------------------------------------------------
+void A11100::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	boost::mutex::scoped_lock lock(lineMutex);
+
+	//Read the time at which this access is being made, and trigger a rollback if we've
+	//already passed that time.
+	if(lastLineCheckTime > accessTime)
+	{
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	}
+
+	//Find the matching line state change entry in the line access buffer
+	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
+	bool foundTargetEntry = false;
+	while(!foundTargetEntry && (i != lineAccessBuffer.rend()))
+	{
+		if((i->lineID == targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
+		{
+			foundTargetEntry = true;
+			continue;
+		}
+		++i;
+	}
+
+	//Erase the target line state change entry from the line access buffer
+	if(foundTargetEntry)
+	{
+		lineAccessBuffer.erase((++i).base());
+	}
+	else
+	{
+		//##DEBUG##
+		std::wcout << "Failed to find matching line state change in RevokeSetLineState! " << GetLineName(targetLine) << '\t' << lineData.GetData() << '\t' << reportedTime << '\t' << accessTime << '\n';
+	}
+
+	//Update the lineAccessPending flag
+	lineAccessPending = !lineAccessBuffer.empty();
+}
+
+//----------------------------------------------------------------------------------------
 void A11100::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 {
 	switch(targetLine)

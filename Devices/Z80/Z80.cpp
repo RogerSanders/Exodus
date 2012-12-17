@@ -602,6 +602,46 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 }
 
 //----------------------------------------------------------------------------------------
+void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	boost::mutex::scoped_lock lock(lineMutex);
+
+	//Read the time at which this access is being made, and trigger a rollback if we've
+	//already passed that time.
+	if(lastLineCheckTime > accessTime)
+	{
+		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	}
+
+	//Find the matching line state change entry in the line access buffer
+	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
+	bool foundTargetEntry = false;
+	while(!foundTargetEntry && (i != lineAccessBuffer.rend()))
+	{
+		if((i->lineID == targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
+		{
+			foundTargetEntry = true;
+			continue;
+		}
+		++i;
+	}
+
+	//Erase the target line state change entry from the line access buffer
+	if(foundTargetEntry)
+	{
+		lineAccessBuffer.erase((++i).base());
+	}
+	else
+	{
+		//##DEBUG##
+		std::wcout << "Failed to find matching line state change in RevokeSetLineState! " << GetLineName(targetLine) << '\t' << lineData.GetData() << '\t' << reportedTime << '\t' << accessTime << '\n';
+	}
+
+	//Update the lineAccessPending flag
+	lineAccessPending = !lineAccessBuffer.empty();
+}
+
+//----------------------------------------------------------------------------------------
 void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock)
 {
 	//##DEBUG##
@@ -836,12 +876,10 @@ double Z80::ExecuteStep()
 	//executed. We also use the maskInterruptsNextOpcode flag when we encounter
 	//consecutive DD or FD prefix bytes during the decode process, where we use this flag
 	//to mask interrupts until the end of the series is reached.
-//	if(!maskInterruptsNextOpcode && pendingInterrupt && (GetIFF1() || (pendingInterruptPriority == 0)))
 	if(!maskInterruptsNextOpcode && (nmiLineState || (intLineState && GetIFF1())))
 	{
 		//Clear the stopped state
 		processorStopped = false;
-//		if(pendingInterruptPriority == 0)
 		if(nmiLineState)
 		{
 			//Process a non-maskable interrupt
@@ -902,11 +940,20 @@ double Z80::ExecuteStep()
 				cyclesExecuted = 19;
 			}
 
+			//##FIX## What about the IORQ line? This line when asserted with the M1 line
+			//indicates an interrupt acknowledge cycle, and we believe this needs to be
+			//handled by the VDP in order to clear the Z80 INT line at the appropriate
+			//time. Perhaps an overloaded INTAK line would be appropriate to define to
+			//indicate this case. Both IORQ and M1 have other meanings.
 			AddRefresh(1);
-			intLineState = false;
 		}
-//		pendingInterrupt = false;
-//		pendingInterruptPriority = 0;
+
+		//##FIX## This shouldn't be here. According to what we know about the Z80
+		//hardware, if the INT line remains asserted after IFF1 is set, another interrupt
+		//should be taken. It seems that the VDP must be clearing the INT line after the
+		//interrupt acknowledge cycle runs. We need to emulate this behaviour, and remove
+		//this hack below.
+		intLineState = false;
 
 		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 	}

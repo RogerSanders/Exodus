@@ -399,7 +399,10 @@ void Device::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 
 //----------------------------------------------------------------------------------------
 void Device::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
-{}
+{
+	//##DEBUG##
+	std::wcout << "WARNING! Called RevokeSetLineState on a device which has not defined this function.\n";
+}
 
 //----------------------------------------------------------------------------------------
 bool Device::AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)

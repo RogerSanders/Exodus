@@ -35,8 +35,6 @@ public:
 	//Execute functions
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
-	virtual bool SendNotifyAfterExecuteCalled() const;
-	virtual void NotifyAfterExecuteCalled();
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
@@ -108,6 +106,7 @@ private:
 	//Device state
 	double bankswitchTimeoutInterval;
 	double currentTimesliceLength;
+	double bcurrentTimesliceLength;
 	bool lineInputStateTH;
 	bool blineInputStateTH;
 	bool bankswitchingDisabled;

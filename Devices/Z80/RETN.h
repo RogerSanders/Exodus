@@ -34,6 +34,7 @@ public:
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
 	{
 		double additionalTime = 0;
+
 		//Perform the operation
 		cpu->SetIFF1(cpu->GetIFF2());
 		Z80Word oldPC;

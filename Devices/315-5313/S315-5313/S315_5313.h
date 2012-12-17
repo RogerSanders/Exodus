@@ -253,7 +253,6 @@ private:
 	{
 		CLOCK_MCLK = 1
 	};
-	enum Event;
 	enum Layer;
 	enum AccessContext;
 
@@ -262,19 +261,13 @@ private:
 	struct VScanSettings;
 	//##TODO## Remove this old render structure
 	//struct LineRenderSettings;
-	struct EventProperties
-	{
-		Event event;
-		unsigned int mclkCycleCounter;
-		unsigned int hcounter;
-		unsigned int vcounter;
-	};
 	struct TimesliceRenderInfo;
 	struct SpriteDisplayCacheEntry;
 	struct SpriteCellDisplayCacheEntry;
 	struct SpritePixelBufferEntry;
 	struct RenderOp;
 	struct FIFOBufferEntry;
+	struct HVCounterAdvanceSession;
 
 	//Typedefs
 	typedef RandomTimeAccessBuffer<Data, unsigned int> RegBuffer;
@@ -351,11 +344,9 @@ private:
 //	void RenderColumnBlockPair(unsigned int columnNumber, unsigned int scrollValueDisplacement, const Data& mappingDataCell1, const Data& mappingDataCell2, const Data& patternDataCell1, const Data& patternDataCell2, std::vector<unsigned int>& outputPaletteLines, std::vector<unsigned int>& outputPaletteEntries, unsigned int& currentRenderPixel) const;
 	void DMAWorkerThread();
 
-	//Event functions
-	void ExecuteEvent(EventProperties event, double accessTime, unsigned int ahcounter, unsigned int avcounter, bool ascreenModeRS0, bool ascreenModeRS1, bool ascreenModeV30, bool apalMode, bool ainterlaceEnabled);
-//	void GetNextEvent(unsigned int currentMclkCycleCounter, bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent) const;
-	void GetNextEvent(bool timingPointsOnly, unsigned int currentHIntCounter, unsigned int currentPosHCounter, unsigned int currentPosVCounter, EventProperties& nextEvent, bool& eventOddFlagSet, bool& eventInterlaceEnabled, bool& eventInterlaceDouble, bool& eventPalMode, bool& eventScreenModeV30, bool& eventScreenModeRS0, bool& eventScreenModeRS1, bool eventInterlaceEnabledNew, bool eventInterlaceDoubleNew, bool eventPalModeNew, bool eventScreenModeV30New, bool eventScreenModeRS0New, bool eventScreenModeRS1New) const;
-	static bool EventOccursWithinCounterRange(const HScanSettings& hscanSettings, unsigned int hcounterStart, unsigned int vcounterStart, unsigned int hcounterEnd, unsigned int vcounterEnd, unsigned int hcounterEventPos, unsigned int vcounterEventPos);
+	//Line output prediction functions
+	void UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
+	void UpdateLineStateChangePrediction(unsigned int lineNo, unsigned int lineStateChangeData, bool& lineStateChangePending, unsigned int& lineStateChangeMCLKCountdown, double& lineStateChangeTime, bool lineStateChangePendingNew, unsigned int lineStateChangeMCLKCountdownNew, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 
 	//Port functions
 	Data GetHVCounter() const;
@@ -379,11 +370,14 @@ private:
 	static const VScanSettings& GetVScanSettings(bool screenModeV30Active, bool palModeActive, bool interlaceActive);
 
 	//HV counter comparison functions
-	static unsigned int GetPixelClockStepsBetweenHVCounterValues(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, unsigned int hcounterTarget, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool oddFlagSet, unsigned int vcounterCurrent, unsigned int vcounterTarget);
+	static bool EventOccursWithinCounterRange(const HScanSettings& hscanSettings, unsigned int hcounterStart, unsigned int vcounterStart, unsigned int hcounterEnd, unsigned int vcounterEnd, unsigned int hcounterEventPos, unsigned int vcounterEventPos);
+	static unsigned int GetPixelClockStepsBetweenHVCounterValues(bool advanceIfValuesMatch, const HScanSettings& hscanSettings, unsigned int hcounterCurrent, unsigned int hcounterTarget, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool oddFlagSet, unsigned int vcounterCurrent, unsigned int vcounterTarget);
 	static unsigned int GetPixelClockStepsBetweenHCounterValues(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, unsigned int hcounterTarget);
 	static unsigned int GetPixelClockStepsBetweenVCounterValues(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool oddFlagSet, unsigned int vcounterCurrent, unsigned int vcounterTarget);
 
 	//HV counter advancement functions
+	void BeginHVCounterAdvanceSessionFromCurrentState(HVCounterAdvanceSession& advanceSession);
+	static bool AdvanceHVCounterSession(HVCounterAdvanceSession& advanceSession, unsigned int hcounterTarget, unsigned int vcounterTarget, bool advanceIfValuesMatch);
 	static unsigned int AddStepsToHCounter(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, unsigned int hcounterStepsToAdd);
 	static unsigned int AddStepsToVCounter(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool oddFlagSet, unsigned int vcounterCurrent, unsigned int vcounterStepsToAdd);
 	static void AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned int& hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool& oddFlagSet, unsigned int& vcounterCurrent, unsigned int pixelClockSteps);
@@ -604,11 +598,12 @@ private:
 	inline void M5SetDMD0(const AccessTarget& accessTarget, bool data);
 
 private:
-	//##DEBUG##
+	//Debug output
 	bool outputPortAccessDebugMessages;
 	bool outputTimingDebugMessages;
 	bool outputRenderSyncMessages;
 	bool outputInterruptDebugMessages;
+	bool disableRenderOutput;
 
 	//Menu handling
 	DebugMenuHandler* menuHandler;
@@ -642,6 +637,7 @@ private:
 	mutable boost::mutex lineMutex; //Top level, must never be held during a blocking operation
 	double lastAccessTime;
 	RegBuffer reg;
+	bool registerLocked[registerCount];
 	ITimedBufferInt* vram;
 	ITimedBufferInt* cram;
 	ITimedBufferInt* vsram;
@@ -753,7 +749,9 @@ private:
 
 	//Update state
 	double currentTimesliceLength; //The length of the current timeslice, as passed to NotifyUpcomingTimeslice().
+	double bcurrentTimesliceLength;
 	double lastTimesliceMclkCyclesRemainingTime; //The unused portion of the last timeslice which wasn't be consumed by an mclk cycle. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
+	double blastTimesliceMclkCyclesRemainingTime;
 	double currentTimesliceMclkCyclesRemainingTime; //Rolling value, the unused portion of the current timeslice which can't be consumed by an mclk cycle, as predicted during NotifyUpcomingTimeslice().
 	double bcurrentTimesliceMclkCyclesRemainingTime;
 	unsigned int currentTimesliceTotalMclkCycles; //The total number of mclk cycles added by the current timeslice, taking into account free from the last timeslice as included in the currentTimesliceMclkCyclesRemainingTime value. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
@@ -767,6 +765,38 @@ private:
 	unsigned int bstateLastUpdateMclkUnused;
 	unsigned int stateLastUpdateMclkUnusedFromLastTimeslice;
 	unsigned int bstateLastUpdateMclkUnusedFromLastTimeslice;
+
+	//Interrupt line rollback data
+	bool lineStateChangePendingVINT;
+	bool blineStateChangePendingVINT;
+	unsigned int lineStateChangeVINTMClkCountFromCurrent;
+	unsigned int blineStateChangeVINTMClkCountFromCurrent;
+	double lineStateChangeVINTTime;
+	double blineStateChangeVINTTime;
+	bool lineStateChangePendingHINT;
+	bool blineStateChangePendingHINT;
+	unsigned int lineStateChangeHINTMClkCountFromCurrent;
+	unsigned int blineStateChangeHINTMClkCountFromCurrent;
+	double lineStateChangeHINTTime;
+	double blineStateChangeHINTTime;
+	bool lineStateChangePendingEXINT;
+	bool blineStateChangePendingEXINT;
+	unsigned int lineStateChangeEXINTMClkCountFromCurrent;
+	unsigned int blineStateChangeEXINTMClkCountFromCurrent;
+	double lineStateChangeEXINTTime;
+	double blineStateChangeEXINTTime;
+	bool lineStateChangePendingINTAsserted;
+	bool blineStateChangePendingINTAsserted;
+	unsigned int lineStateChangeINTAssertedMClkCountFromCurrent;
+	unsigned int blineStateChangeINTAssertedMClkCountFromCurrent;
+	double lineStateChangeINTAssertedTime;
+	double blineStateChangeINTAssertedTime;
+	bool lineStateChangePendingINTNegated;
+	bool blineStateChangePendingINTNegated;
+	unsigned int lineStateChangeINTNegatedMClkCountFromCurrent;
+	unsigned int blineStateChangeINTNegatedMClkCountFromCurrent;
+	double lineStateChangeINTNegatedTime;
+	double blineStateChangeINTNegatedTime;
 
 	//Control port registers
 	bool codeAndAddressRegistersModifiedSinceLastWrite;
@@ -948,37 +978,18 @@ private:
 	bool dmaTransferInvalidPortWriteCached;
 	bool bdmaTransferInvalidPortWriteCached;
 	unsigned int dmaTransferInvalidPortWriteAddressCache;
-	unsigned int bdmaTransferInvalidAddressCache;
+	unsigned int bdmaTransferInvalidPortWriteAddressCache;
 	Data dmaTransferInvalidPortWriteDataCache;
-	Data bdmaTransferInvalidDataCache;
+	Data bdmaTransferInvalidPortWriteDataCache;
 	volatile bool dmaAdvanceUntilDMAComplete;
 
-	//Interrupt settings
-	//##TODO## Add rollback settings for these values
-	bool externalInterruptPending;
-	unsigned int externalInterruptHCounter;
-	unsigned int externalInterruptVCounter;
-
-	//Event handling
-	bool eventsProcessedForTimeslice;
-	boost::condition eventProcessingCompleted;
-	mutable EventProperties nextEventToExecute;
-	EventProperties bnextEventToExecute;
-	mutable double nextEventToExecuteTime;
-	double bnextEventToExecuteTime;
-	//##TODO## Implement event snapshots
-	bool eventSnapshotSaved;
-	bool beventSnapshotSaved;
-	bool eventSnapshotScreenModeRS0;
-	bool beventSnapshotScreenModeRS0;
-	bool eventSnapshotScreenModeRS1;
-	bool beventSnapshotScreenModeRS1;
-	bool eventSnapshotScreenModeV30;
-	bool beventSnapshotScreenModeV30;
-	bool eventSnapshotPalMode;
-	bool beventSnapshotPalMode;
-	bool eventSnapshotInterlaceEnabled;
-	bool beventSnapshotInterlaceEnabled;
+	//External interrupt settings
+	bool externalInterruptVideoTriggerPointPending;
+	bool bexternalInterruptVideoTriggerPointPending;
+	unsigned int externalInterruptVideoTriggerPointHCounter;
+	unsigned int bexternalInterruptVideoTriggerPointHCounter;
+	unsigned int externalInterruptVideoTriggerPointVCounter;
+	unsigned int bexternalInterruptVideoTriggerPointVCounter;
 
 	//CE line masks
 	unsigned int ceLineMaskLowerDataStrobeInput;

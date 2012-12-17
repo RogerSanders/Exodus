@@ -34,9 +34,12 @@ public:
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
 	{
 		double additionalTime = 0;
-		Z80Word oldPC;
 
 		//Perform the operation
+		//Note that according to "The Undocumented Z80 Documented" by Sean Young, version
+		//0.91, RETI also copies IFF2 into IFF1, like the RETN opcode.
+		cpu->SetIFF1(cpu->GetIFF2());
+		Z80Word oldPC;
 		additionalTime += source.Read(cpu, location + GetInstructionSize(), oldPC);
 		cpu->PopCallStack(oldPC.GetData());
 		cpu->SetPC(oldPC);

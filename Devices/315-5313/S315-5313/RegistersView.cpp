@@ -7,8 +7,16 @@
 S315_5313::RegistersView::RegistersView(S315_5313* adevice)
 :device(adevice), initializedDialog(false), currentControlFocus(0)
 {
+	lockedColor = RGB(255,127,127);
+	lockedBrush = CreateSolidBrush(lockedColor);
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Registers");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_REGISTERS));
+}
+
+//----------------------------------------------------------------------------------------
+S315_5313::RegistersView::~RegistersView()
+{
+	DeleteObject(lockedBrush);
 }
 
 //----------------------------------------------------------------------------------------
@@ -27,6 +35,10 @@ INT_PTR S315_5313::RegistersView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpar
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
+	case WM_BOUNCE:
+		return msgWM_BOUNCE(hwnd, wparam, lparam);
+	case WM_CTLCOLOREDIT:
+		return msgWM_CTLCOLOREDIT(hwnd, wparam, lparam);
 	}
 	return FALSE;
 }
@@ -36,6 +48,48 @@ INT_PTR S315_5313::RegistersView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpar
 //----------------------------------------------------------------------------------------
 INT_PTR S315_5313::RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	//Tooltip messages
+	const std::wstring lockingTooltip = 
+		L"Selected controls on this window support register locking. "
+		L"Register locking allows the current value of a register to "
+		L"be frozen, preventing changes from within the system. "
+		L"Attempts by any device to modify locked registers will be "
+		L"ignored. The current value of locked registers can still be "
+		L"modified through the debugger. To toggle locking for a "
+		L"register, hold the CTRL key while clicking on a control. "
+		L"Controls that support locking will change colour to indicate "
+		L"when they are locked.";
+
+	//Create tooltips for the window
+	HWND hwndTooltip = CreateTooltipControl((HINSTANCE)device->GetAssemblyHandle(), hwnd);
+	AddTooltip((HINSTANCE)device->GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_LOCKING_TT, lockingTooltip, true);
+
+	//Enable system message bounce-back for controls which can be locked
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_0), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_1), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_2), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_3), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_4), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_5), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_6), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_7), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_8), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_9), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_10), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_11), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_12), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_13), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_14), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_15), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_16), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_17), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_18), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_19), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_20), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_21), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_22), BounceBackSubclassProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_23), BounceBackSubclassProc, 0, 0);
+
 	SetTimer(hwnd, 1, 50, NULL);
 
 	return TRUE;
@@ -128,6 +182,11 @@ INT_PTR S315_5313::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM
 	}
 	else if(HIWORD(wparam) == EN_KILLFOCUS)
 	{
+		//##TODO## Locking renderThreadMutex here is a bit heavy handed. See if we can use
+		//a different locking scheme which will allow a bit more decoupling.
+		boost::mutex::scoped_lock renderLock(device->renderThreadMutex);
+		boost::mutex::scoped_lock accessLock(device->accessMutex);
+
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)
 		{
@@ -137,7 +196,10 @@ INT_PTR S315_5313::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM
 			//Raw registers
 			if((LOWORD(wparam) >= IDC_REG_0) && (LOWORD(wparam) < (IDC_REG_0 + registerCount)))
 			{
-				device->SetRegisterData(LOWORD(wparam) - IDC_REG_0, accessTarget, Data(8, GetDlgItemHex(hwnd, LOWORD(wparam))));
+				unsigned int registerNo = LOWORD(wparam) - IDC_REG_0;
+				Data newData(8, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->SetRegisterData(registerNo, accessTarget, newData);
+				device->RegisterSpecialUpdateFunction(device->GetProcessorStateMclkCurrent(), device->GetProcessorStateTime(), 0, device->GetDeviceContext(), S315_5313::ACCESSCONTEXT_DEBUG, registerNo, newData);
 			}
 			else switch(LOWORD(wparam))
 			{
@@ -262,4 +324,67 @@ INT_PTR S315_5313::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM
 	}
 
 	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR S315_5313::RegistersView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	BounceMessage* bounceMessage = (BounceMessage*)lparam;
+	int controlID = GetDlgCtrlID(bounceMessage->hwnd);
+	switch(bounceMessage->uMsg)
+	{
+	case WM_LBUTTONDBLCLK:
+	case WM_LBUTTONDOWN:
+		if((bounceMessage->wParam & MK_CONTROL) != 0)
+		{
+			//If the user has control+clicked a control which supports locking, toggle
+			//the lock state of the target register.
+			boost::mutex::scoped_lock lock(device->accessMutex);
+			ToggleRegisterLock(controlID);
+
+			//Force the control to redraw when the lock state is toggled
+			InvalidateRect(bounceMessage->hwnd, NULL, FALSE);
+
+			bounceMessage->SetResult(TRUE);
+		}
+		break;
+	}
+
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR S315_5313::RegistersView::msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	//Handle background colour changes for edit controls which are locked
+	unsigned int registerNo = ControlIDToLockedRegKey(GetDlgCtrlID((HWND)lparam));
+	if((registerNo < registerCount) && device->registerLocked[registerNo])
+	{
+		SetBkColor((HDC)wparam, lockedColor);
+		return (BOOL)HandleToLong(lockedBrush);
+	}
+
+	return FALSE;
+}
+
+//----------------------------------------------------------------------------------------
+//Register locking functions
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegistersView::ControlIDToLockedRegKey(int controlID)
+{
+	if((controlID >= IDC_REG_0) && (controlID <= IDC_REG_23))
+	{
+		return (unsigned int)(controlID - IDC_REG_0);
+	}
+	return 0xFFFF;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegistersView::ToggleRegisterLock(int controlID)
+{
+	unsigned int registerNo = ControlIDToLockedRegKey(controlID);
+	if(registerNo < registerCount)
+	{
+		device->registerLocked[registerNo] = !device->registerLocked[registerNo];
+	}
 }

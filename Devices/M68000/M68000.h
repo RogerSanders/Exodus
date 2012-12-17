@@ -100,6 +100,9 @@ the stack pointer to be sure of its correct behaviour.
 byte or the lower byte of the target location is affected. Also confirm the contents of
 the other half of the value, EG, does sign extension occur? Is the data mirrored in both
 halves?
+-Reportedly (from http://cgfm2.emuviews.com) the M68000 doesn't actually generate illegal
+ instruction exceptions for all illegal instructions. Some of them may be aliases for
+ valid instructions. Perform hardware tests to look for these undocumented instructions.
 
 References:
 -M68000 Programmer's Reference Manual (M68000PM), Motorola, Rev 1 1992
@@ -182,6 +185,7 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock);
 
