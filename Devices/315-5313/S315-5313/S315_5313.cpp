@@ -1439,10 +1439,10 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	//the state of the vertical interrupt enable flag. The INT line is cleared when the
 	//vcounter is incremented.
 	//##TODO## Confirm on the hardware that INT is triggered when VINT is disabled
-	HVCounterAdvanceSession advanceSessionINT;
-	BeginHVCounterAdvanceSessionFromCurrentState(advanceSessionINT);
-	while(!AdvanceHVCounterSession(advanceSessionINT, advanceSessionINT.hscanSettings->fflagSetPoint, advanceSessionINT.vscanSettings->vblankSetPoint, true)) {}
-	unsigned int mclkTicksBeforeTriggerTimeINTAsserted = advanceSessionINT.mclkTicksAdvanced;
+	HVCounterAdvanceSession advanceSessionINTAsserted;
+	BeginHVCounterAdvanceSessionFromCurrentState(advanceSessionINTAsserted);
+	while(!AdvanceHVCounterSession(advanceSessionINTAsserted, advanceSessionINTAsserted.hscanSettings->fflagSetPoint, advanceSessionINTAsserted.vscanSettings->vblankSetPoint, true)) {}
+	unsigned int mclkTicksBeforeTriggerTimeINTAsserted = advanceSessionINTAsserted.mclkTicksAdvanced;
 
 	//Calculate the number of MCLK ticks required to reach the point at which the INT line
 	//is negated.
@@ -1450,9 +1450,10 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	//incremented
 	//##TODO## Perform hardware tests to confirm if the VDP negates the INT line when the
 	//Z80 runs an interrupt acknowledge cycle.
-	unsigned int intNegatedVCounterPosition = AddStepsToVCounter(*advanceSessionINT.hscanSettings, advanceSessionINT.hcounterCurrent, *advanceSessionINT.vscanSettings, advanceSessionINT.interlaceEnabledCurrent, advanceSessionINT.oddFlagCurrent, advanceSessionINT.vcounterCurrent, 1);
-	while(!AdvanceHVCounterSession(advanceSessionINT, advanceSessionINT.hscanSettings->vcounterIncrementPoint, intNegatedVCounterPosition, true)) {}
-	unsigned int mclkTicksBeforeTriggerTimeINTNegated = advanceSessionINT.mclkTicksAdvanced;
+	HVCounterAdvanceSession advanceSessionINTNegated;
+	BeginHVCounterAdvanceSessionFromCurrentState(advanceSessionINTNegated);
+	while(!AdvanceHVCounterSession(advanceSessionINTNegated, advanceSessionINTNegated.hscanSettings->vcounterIncrementPoint, advanceSessionINTNegated.vscanSettings->vblankSetPoint+1, true)) {}
+	unsigned int mclkTicksBeforeTriggerTimeINTNegated = advanceSessionINTNegated.mclkTicksAdvanced;
 
 	//Conditionally assert and negate the INT line
 	UpdateLineStateChangePrediction(LINE_INT, 1, lineStateChangePendingINTAsserted, lineStateChangeINTAssertedMClkCountFromCurrent, lineStateChangeINTAssertedTime, true, mclkTicksBeforeTriggerTimeINTAsserted, callingDevice, accessTime, accessContext);
