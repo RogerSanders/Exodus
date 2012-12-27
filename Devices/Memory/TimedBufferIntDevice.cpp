@@ -10,13 +10,30 @@ TimedBufferIntDevice::TimedBufferIntDevice(const std::wstring& ainstanceName, un
 //----------------------------------------------------------------------------------------
 bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 {
-	bool result = MemoryWrite::Construct(node);
+	//Call the base class Construct method
+	if(!MemoryWrite::Construct(node))
+	{
+		return false;
+	}
+
+	//Verify that a valid interface size has been specified
 	if(GetInterfaceSize() <= 0)
 	{
 		return false;
 	}
-	bufferShell.Resize(GetInterfaceSize());
-	return result;
+
+	//Read the KeepLatestBufferCopy attribute
+	bool keepLatestBufferCopy = false;
+	IHeirarchicalStorageAttribute* keepLatestBufferCopyAttribute = node.GetAttribute(L"KeepLatestBufferCopy");
+	if(keepLatestBufferCopyAttribute != 0)
+	{
+		keepLatestBufferCopy = keepLatestBufferCopyAttribute->ExtractValue<bool>();
+	}
+
+	//Resize our internal buffer
+	bufferShell.Resize(GetInterfaceSize(), keepLatestBufferCopy);
+
+	return true;
 }
 
 //----------------------------------------------------------------------------------------

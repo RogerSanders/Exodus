@@ -41,9 +41,9 @@ unsigned int TimedBufferInt::Size() const
 }
 
 //----------------------------------------------------------------------------------------
-void TimedBufferInt::Resize(unsigned int bufferSize)
+void TimedBufferInt::Resize(unsigned int bufferSize, bool keepLatestBufferCopy)
 {
-	memory.Resize(bufferSize);
+	memory.Resize(bufferSize, keepLatestBufferCopy);
 	memoryLocked.resize(bufferSize);
 }
 

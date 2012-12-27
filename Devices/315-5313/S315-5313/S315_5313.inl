@@ -244,7 +244,7 @@ struct S315_5313::SpritePixelBufferEntry
 };
 
 //----------------------------------------------------------------------------------------
-struct S315_5313::RenderOp
+struct S315_5313::VRAMRenderOp
 {
 	enum Op
 	{
@@ -256,8 +256,22 @@ struct S315_5313::RenderOp
 		MAPPING_S,
 		PATTERN_S,
 		ACC_SLOT,
-		REFRESH,
-		EMPTY
+		REFRESH
+	};
+
+	Op operation;
+	unsigned int index;
+};
+
+//----------------------------------------------------------------------------------------
+struct S315_5313::InternalRenderOp
+{
+	enum Op
+	{
+		NONE,
+		SPRITECACHE,
+		SPRITEMAPPINGCLEAR,
+		SPRITEPATTERNCLEAR
 	};
 
 	Op operation;

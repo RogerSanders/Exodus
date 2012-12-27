@@ -130,7 +130,8 @@ private:
 	struct SpriteDisplayCacheEntry;
 	struct SpriteCellDisplayCacheEntry;
 	struct SpritePixelBufferEntry;
-	struct RenderOp;
+	struct VRAMRenderOp;
+	struct InternalRenderOp;
 	struct FIFOBufferEntry;
 	struct HVCounterAdvanceSession;
 
@@ -150,8 +151,12 @@ private:
 
 	//Render constants
 	static const unsigned int renderDigitalBlockPixelSizeY = 8;
-	static const RenderOp operationsH32[];
-	static const RenderOp operationsH40[];
+	static const VRAMRenderOp vramOperationsH32ActiveLine[];
+	static const VRAMRenderOp vramOperationsH32InactiveLine[];
+	static const VRAMRenderOp vramOperationsH40ActiveLine[];
+	static const VRAMRenderOp vramOperationsH40InactiveLine[];
+	static const InternalRenderOp internalOperationsH32[];
+	static const InternalRenderOp internalOperationsH40[];
 
 	//Interrupt settings
 	static const unsigned int exintIPLLineState = 2;
@@ -185,6 +190,8 @@ private:
 	void RenderThreadNew();
 	void AdvanceRenderProcess(unsigned int mclkCyclesToAdvance);
 	void UpdateDigitalRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
+	void PerformInternalRenderOperation(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, const InternalRenderOp& nextOperation, int renderDigitalCurrentRow);
+	void PerformVRAMRenderOperation(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, const VRAMRenderOp& nextOperation, int renderDigitalCurrentRow);
 	void UpdateAnalogRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
 	void DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const;
 	void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerAVscrollPatternDisplacement, unsigned int& layerBVscrollPatternDisplacement, unsigned int& layerAVscrollMappingDisplacement, unsigned int& layerBVscrollMappingDisplacement) const;
@@ -235,7 +242,7 @@ private:
 
 	//Pixel clock functions
 	//##TODO## Move these functions somewhere more appropriate
-	static unsigned int GetUpdatedVSRAMReadCacheIndex(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int vsramReadCacheIndexCurrent, unsigned int hcounterInitial, unsigned int vcounterInitial, unsigned int hcounterFinal, unsigned int vcounterFinal, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vscrollMode);
+	//static unsigned int GetUpdatedVSRAMReadCacheIndex(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int vsramReadCacheIndexCurrent, unsigned int hcounterInitial, unsigned int vcounterInitial, unsigned int hcounterFinal, unsigned int vcounterFinal, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vscrollMode);
 	static unsigned int GetPixelClockTicksUntilNextVSRAMRead(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vcounterCurrent);
 	static unsigned int GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, bool displayEnabled, unsigned int vcounterCurrent);
 	static unsigned int GetPixelClockTicksForMclkTicks(const HScanSettings& hscanSettings, unsigned int mclkTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active, unsigned int& mclkTicksUnused);
@@ -258,7 +265,6 @@ private:
 	void AdvanceDMAState();
 	bool TargetProcessorStateReached(bool stopWhenFifoEmpty, bool stopWhenFifoFull, bool stopWhenFifoNotFull, bool stopWhenReadDataAvailable, bool stopWhenNoDMAOperationInProgress);
 	void AdvanceStatusRegisterAndHVCounter(unsigned int pixelClockSteps);
-	void AdvanceStatusRegisterAndHVCounterWithCurrentSettings(unsigned int pixelClockSteps);
 	double GetProcessorStateTime() const;
 	unsigned int GetProcessorStateMclkCurrent() const;
 
@@ -587,6 +593,8 @@ private:
 	bool bdmaFillOperationRunning;
 	unsigned int vsramReadCacheIndex;
 	unsigned int bvsramReadCacheIndex;
+	Data vsramLastRenderReadCache;
+	Data bvsramLastRenderReadCache;
 
 	//##TODO## Sprite buffer registers
 	//We know from this: http://gendev.spritesmind.net/forum/viewtopic.php?t=666&postdays=0&postorder=asc&highlight=fifo&start=0
@@ -761,7 +769,6 @@ private:
 	bool nonSpriteMaskCellEncountered;
 	bool renderSpriteMaskActive;
 	bool renderSpriteCollision;
-	unsigned int renderSpriteNextSpriteRow;
 	Data renderVSRAMCachedRead;
 
 	//Analog render data buffers
@@ -796,24 +803,8 @@ private:
 	bool bworkerThreadPaused;
 
 	//DMA transfer registers
-	//##TODO## Calculate on the hardware how many mclk cycles it takes a DMA transfer
-	//update step to read data from memory over the external bus. We can do this by
-	//measuring how quickly the data is transferred back to back while the display is
-	//disabled. We need to know the actual delay time between successive reads, so
-	//that we don't perform DMA transfers too quickly when the display is disabled, or
-	//not in an active display region.
-	//##FIX## Hardware tests have shown it takes 4 SC cycles to perform an external read,
-	//but since the serial clock changes, we need to calculate the read time in SC cycles,
-	//not MCLK cycles.
-	//##TODO## Calculate the relative synchronization of the DMA transfer read slots to
-	//the HCounter. The very fact that the DMA bitmap demos work show that these slots do
-	//in fact exist, otherwise it wouldn't be possible to achieve a stable display.
-	//##NOTE## Hardware tests have been performed. In H40 and H32 modes, at the point
-	//where HSYNC rizes (is negated, IE, leaving HSYNC), the AS line goes from high to
-	//low, which we know means a read is being performed at that point. In other words, a
-	//read occurs at HSYNC, and exactly 4 SC after that point, for the rest of the line.
-	//This means that our sync window is 8 SC cycles wide in H40, and 10 SC cycles wide in
-	//H32 mode.
+	//##FIX## Everything related to DMA transfers should be done in SC cycles, not MCLK
+	//cycles.
 	static const unsigned int dmaTransferReadTimeInMclkCycles = 16; //The number of mclk cycles required for a DMA operation to read a byte from the external bus
 	bool dmaTransferActive;
 	bool bdmaTransferActive;

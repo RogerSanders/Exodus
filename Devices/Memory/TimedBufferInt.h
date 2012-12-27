@@ -16,7 +16,7 @@ public:
 
 	//Size functions
 	virtual unsigned int Size() const;
-	void Resize(unsigned int bufferSize);
+	void Resize(unsigned int bufferSize, bool keepLatestBufferCopy = false);
 
 	//Access functions
 	virtual DataType Read(unsigned int address, const AccessTarget& accessTarget) const;
