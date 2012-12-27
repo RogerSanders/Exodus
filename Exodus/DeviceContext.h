@@ -172,7 +172,7 @@ private:
 	double timeslice;
 	double remainingTime;
 	double remainingTimeBackup;
-	double currentTimesliceProgress;
+	volatile double currentTimesliceProgress;
 
 	//Cached settings
 	mutable std::wstring capturePathCached;
