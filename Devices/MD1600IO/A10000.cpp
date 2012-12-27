@@ -72,13 +72,13 @@ void A10000::Initialize()
 
 	for(unsigned int i = 0; i < controlPortCount; ++i)
 	{
-		inputLineState[i].lineAssertedD0 = false;
-		inputLineState[i].lineAssertedD1 = false;
-		inputLineState[i].lineAssertedD2 = false;
-		inputLineState[i].lineAssertedD3 = false;
-		inputLineState[i].lineAssertedTL = false;
-		inputLineState[i].lineAssertedTR = false;
-		inputLineState[i].lineAssertedTH = false;
+		inputLineState[i].lineAssertedD0 = true;
+		inputLineState[i].lineAssertedD1 = true;
+		inputLineState[i].lineAssertedD2 = true;
+		inputLineState[i].lineAssertedD3 = true;
+		inputLineState[i].lineAssertedTL = true;
+		inputLineState[i].lineAssertedTR = true;
+		inputLineState[i].lineAssertedTH = true;
 	}
 }
 
