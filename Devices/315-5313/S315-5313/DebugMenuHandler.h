@@ -24,6 +24,10 @@ public:
 	//Constructors
 	DebugMenuHandler(S315_5313* adevice);
 
+	//Window functions
+	void OpenSpriteListDetailsView(unsigned int aspriteIndex);
+	void OpenPortMonitorDetailsView(const PortMonitorEntry& aentry);
+
 protected:
 	//Management functions
 	virtual std::wstring GetMenuHandlerName() const;

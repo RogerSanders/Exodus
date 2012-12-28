@@ -532,16 +532,14 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	interruptPendingVint = false;
 	interruptPendingEXint = false;
 
-	//##DEBUG##
 	outputPortAccessDebugMessages = false;
-	//outputTimingDebugMessages = true;
 	outputTimingDebugMessages = false;
-	//outputRenderSyncMessages = true;
 	outputRenderSyncMessages = false;
-	//outputInterruptDebugMessages = true;
 	outputInterruptDebugMessages = false;
-	//disableRenderOutput = true;
-	disableRenderOutput = false;
+	videoDisableRenderOutput = false;
+	videoEnableSpriteBoxing = false;
+	videoHighlightRenderPos = false;
+	videoSingleBuffering = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1070,6 +1068,22 @@ void S315_5313::Initialize()
 			spriteCache->WriteLatest(i, 0x00);
 		}
 	}
+
+	enableLayerAHigh = true;
+	enableLayerALow = true;
+	enableLayerBHigh = true;
+	enableLayerBLow = true;
+	enableWindowHigh = true;
+	enableWindowLow = true;
+	enableSpriteHigh = true;
+	enableSpriteLow = true;
+
+	logStatusRegisterRead = false;
+	logDataPortRead = false;
+	logHVCounterRead = false;
+	logControlPortWrite = false;
+	logDataPortWrite = false;
+	portMonitorListSize = 200;
 
 	currentTimesliceLength = 0;
 	currentTimesliceMclkCyclesRemainingTime = 0;
@@ -2002,6 +2016,13 @@ double S315_5313::GetNextTimingPointInDeviceTime(unsigned int& accessContext) co
 //----------------------------------------------------------------------------------------
 void S315_5313::ExecuteRollback()
 {
+	//Port monitor state
+	if(logStatusRegisterRead || logDataPortRead || logHVCounterRead || logControlPortWrite || logDataPortWrite)
+	{
+		boost::mutex::scoped_lock lock(portMonitorMutex);
+		portMonitorList = bportMonitorList;
+	}
+
 	//Update state
 	currentTimesliceLength = bcurrentTimesliceLength;
 	lastTimesliceMclkCyclesRemainingTime = blastTimesliceMclkCyclesRemainingTime;
@@ -2190,6 +2211,13 @@ void S315_5313::ExecuteRollback()
 //----------------------------------------------------------------------------------------
 void S315_5313::ExecuteCommit()
 {
+	//Port monitor state
+	if(logStatusRegisterRead || logDataPortRead || logHVCounterRead || logControlPortWrite || logDataPortWrite)
+	{
+		boost::mutex::scoped_lock lock(portMonitorMutex);
+		bportMonitorList = portMonitorList;
+	}
+
 	//Update state
 	bcurrentTimesliceLength = currentTimesliceLength;
 	blastTimesliceMclkCyclesRemainingTime = lastTimesliceMclkCyclesRemainingTime;
@@ -2472,7 +2500,7 @@ void S315_5313::RenderThreadNew()
 		unsigned int mclkCyclesToAdvance = timesliceRenderInfo.timesliceEndPosition - timesliceRenderInfo.timesliceStartPosition;
 		renderDigitalMclkCycleProgress = timesliceRenderInfo.timesliceStartPosition;
 
-		if(!disableRenderOutput)
+		if(!videoDisableRenderOutput)
 		{
 			//##DEBUG##
 			if(outputTimingDebugMessages)
@@ -2932,6 +2960,32 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 
 			//Read window mapping data
 			DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, 0, 0, 0, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
+
+			//Apply layer removal for the window layer
+			if(!enableWindowHigh || !enableWindowLow)
+			{
+				//Read register settings which affect which mapping data is loaded
+				nameTableBase = M5GetNameTableBaseScrollA(accessTarget);
+				hszState = M5GetHSZ(accessTarget);
+				vszState = M5GetVSZ(accessTarget);
+
+				//Read layer A mapping data
+				Data layerAMapping1(16);
+				Data layerAMapping2(16);
+				DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, layerAMapping1, layerAMapping2);
+
+				//Substitute layer A mapping data for any mapping blocks in the window
+				//region that are hidden by layer removal
+				bool windowMapping1Priority = renderMappingDataCacheLayerA[nextOperation.index].MSB();
+				bool windowMapping2Priority = renderMappingDataCacheLayerA[nextOperation.index+1].MSB();
+				if((windowMapping1Priority && !enableWindowHigh) || (!windowMapping1Priority && !enableWindowLow)
+				|| (windowMapping2Priority && !enableWindowHigh) || (!windowMapping2Priority && !enableWindowLow))
+				{
+					renderWindowActiveCache[renderDigitalCurrentColumn] = false;
+					renderMappingDataCacheLayerA[nextOperation.index] = layerAMapping1;
+					renderMappingDataCacheLayerA[nextOperation.index+1] = layerAMapping2;
+				}
+			}
 		}
 		else
 		{
@@ -3053,6 +3107,16 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		{
 			//Read the sprite table base address register
 			unsigned int spriteTableBaseAddress = M5GetNameTableBaseSprite(accessTarget);
+
+			//According to official documentation, if we're in H40 mode, the AT9 bit of
+			//the sprite table base address is masked. We emulate that here. Note that the
+			//"Traveller's Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being
+			//valid in H32 mode.
+			//##TODO## Perform hardware tests to confirm this behaviour
+			if(renderDigitalScreenModeRS1Active)
+			{
+				spriteTableBaseAddress &= 0xFC00;
+			}
 
 			//Obtain a reference to the corresponding sprite display cache entry for this
 			//sprite.
@@ -3412,6 +3476,11 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		bool spriteIsShadowOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 15);
 		bool spriteIsHighlightOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 14);
 
+		//Implement the layer removal debugging feature
+		foundSpritePixel &= ((enableSpriteHigh && enableSpriteLow) || (enableSpriteHigh && layerPriority[LAYER_SPRITE]) || (enableSpriteLow && !layerPriority[LAYER_SPRITE]));
+		foundLayerAPixel &= ((enableLayerAHigh && enableLayerALow) || (enableLayerAHigh && layerPriority[LAYER_LAYERA]) || (enableLayerALow && !layerPriority[LAYER_LAYERA]));
+		foundLayerBPixel &= ((enableLayerBHigh && enableLayerBLow) || (enableLayerBHigh && layerPriority[LAYER_LAYERB]) || (enableLayerBLow && !layerPriority[LAYER_LAYERB]));
+
 		//##NOTE## The following code is disabled, because we use a lookup table to cache
 		//the result of layer priority calculations. This gives us a significant
 		//performance boost. The code below is provided for future reference and debugging
@@ -3573,12 +3642,12 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 			ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&image[drawingImageBufferPlane][imageBufferPixelIndex]);
 			if(outputNothing)
 			{
-				//If this pixel was forced to black, IE, if bit 0 of reg 0 is set, force the
-				//output of this pixel to black.
-				//##TODO## Do hardware testing to confirm exactly what effect setting this bit
-				//has on all areas of VDP function. Does it affect the digital operation of
-				//the VDP, or just the analog output? Does it affect hsync/vsync output lines
-				//as well, or just color output?
+				//If this pixel was forced to black, IE, if bit 0 of reg 0 is set, force
+				//the output of this pixel to black.
+				//##TODO## Do hardware testing to confirm exactly what effect setting this
+				//bit has on all areas of VDP function. Does it affect the digital
+				//operation of the VDP, or just the analog output? Does it affect
+				//hsync/vsync output lines as well, or just color output?
 				imageBufferEntry.r = 0;
 				imageBufferEntry.g = 0;
 				imageBufferEntry.b = 0;
@@ -4069,6 +4138,7 @@ void S315_5313::DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCache
 {
 	if(!spriteDotOverflow)
 	{
+		//##TODO## Tidy up this list of constants
 		const unsigned int spriteCacheEntrySize = 4;
 		const unsigned int spriteTableEntrySize = 8;
 		const unsigned int spriteAttributeTableSize = (screenModeRS1Active)? 80: 64;
@@ -4881,6 +4951,11 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		readDataAvailable = false;
 		readDataHalfCached = false;
 
+		//Port monitor logging
+		if(logDataPortRead)
+		{
+			RecordPortMonitorEntry(PortMonitorEntry(L"DP Read", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+		}
 		break;
 	case 1: //001 - Control Port
 		//If the VDP was prepared to latch the next write to the control port as the
@@ -4910,10 +4985,21 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		SetStatusFlagSpriteOverflow(false);
 		SetStatusFlagSpriteCollision(false);
 
+		//Port monitor logging
+		if(logStatusRegisterRead)
+		{
+			RecordPortMonitorEntry(PortMonitorEntry(L"SR Read", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+		}
 		break;
 	case 2: //01* - HV Counter
 	case 3:
 		data = GetHVCounter();
+
+		//Port monitor logging
+		if(logHVCounterRead)
+		{
+			RecordPortMonitorEntry(PortMonitorEntry(L"HV Read", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+		}
 		break;
 	case 4: //10* - SN76489 PSG
 	case 5:
@@ -5079,6 +5165,12 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 	switch((location >> 1) & 0x7)
 	{
 	case 0:{ //000 - Data Port
+		//Port monitor logging
+		if(logDataPortWrite)
+		{
+			RecordPortMonitorEntry(PortMonitorEntry(L"DP Write", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+		}
+
 		//If the VDP was prepared to latch the next write to the control port as the
 		//second half of a command data block, that state is cancelled when the data port
 		//is read from or written to, or the control port is read.
@@ -5148,6 +5240,12 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		readDataHalfCached = false;
 		break;}
 	case 1:{ //001 - Control Port
+		//Port monitor logging
+		if(logControlPortWrite)
+		{
+			RecordPortMonitorEntry(PortMonitorEntry(L"CP Write", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+		}
+
 		//It is almost certain that control port writes are not processed until the FIFO
 		//is empty, otherwise the changes which are made to the the command code and
 		//address register would interfere with pending writes held in the FIFO. See the
@@ -5584,6 +5682,166 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 		dmd1 = data.GetBit(7);
 		break;
 	}
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RecordPortMonitorEntry(const PortMonitorEntry& entry)
+{
+	boost::mutex::scoped_lock lock(portMonitorMutex);
+	portMonitorList.push_front(entry);
+	while(portMonitorList.size() > portMonitorListSize)
+	{
+		portMonitorList.pop_back();
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::ClearPortMonitorList()
+{
+	boost::mutex::scoped_lock lock(portMonitorMutex);
+	portMonitorList.clear();
+}
+
+//----------------------------------------------------------------------------------------
+//Sprite list debugging functions
+//----------------------------------------------------------------------------------------
+S315_5313::SpriteMappingTableEntry S315_5313::GetSpriteMappingTableEntry(unsigned int entryNo) const
+{
+	AccessTarget accessTarget;
+	accessTarget.AccessCommitted();
+
+	//Read the sprite table base address register
+	unsigned int spriteTableBaseAddress = M5GetNameTableBaseSprite(accessTarget);
+
+	//According to official documentation, if we're in H40 mode, the AT9 bit of
+	//the sprite table base address is masked. We emulate that here. Note that the
+	//"Traveller's Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being
+	//valid in H32 mode.
+	bool screenModeRS1Active = M5GetRS1(accessTarget);
+	if(screenModeRS1Active)
+	{
+		spriteTableBaseAddress &= 0xFC00;
+	}
+
+	//Calculate the address in VRAM of this sprite table entry
+	const unsigned int spriteTableEntrySize = 8;
+	unsigned int spriteTableEntryAddress = spriteTableBaseAddress + (entryNo * spriteTableEntrySize);
+	spriteTableEntryAddress %= vramSize;
+
+	//Read all raw data for the sprite from the sprite attribute table in VRAM
+	SpriteMappingTableEntry entry;
+	entry.rawDataWord0 = ((unsigned int)vram->ReadCommitted(spriteTableEntryAddress+0) << 8) | (unsigned int)vram->ReadCommitted(spriteTableEntryAddress+1);
+	entry.rawDataWord1 = ((unsigned int)vram->ReadCommitted(spriteTableEntryAddress+2) << 8) | (unsigned int)vram->ReadCommitted(spriteTableEntryAddress+3);
+	entry.rawDataWord2 = ((unsigned int)vram->ReadCommitted(spriteTableEntryAddress+4) << 8) | (unsigned int)vram->ReadCommitted(spriteTableEntryAddress+5);
+	entry.rawDataWord3 = ((unsigned int)vram->ReadCommitted(spriteTableEntryAddress+6) << 8) | (unsigned int)vram->ReadCommitted(spriteTableEntryAddress+7);
+
+	//Decode the sprite mapping data
+	//        -----------------------------------------------------------------
+	//        |15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	// Word0  |---------------------------------------------------------------|
+	//        |                          Vertical Pos                         |
+	//        -----------------------------------------------------------------
+	//        -----------------------------------------------------------------
+	//        |15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	// Word1  |---------------------------------------------------------------|
+	//        | /   /   /   / | HSize | VSize | / |         Link Data         |
+	//        -----------------------------------------------------------------
+	//        HSize:     Horizontal size of the sprite
+	//        VSize:     Vertical size of the sprite
+	//        Link Data: Next sprite entry to read from table during sprite rendering
+	//        -----------------------------------------------------------------
+	//        |15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	// Word2  |---------------------------------------------------------------|
+	//        |Pri|PalRow |VF |HF |              Pattern Number               |
+	//        -----------------------------------------------------------------
+	//        Pri:    Priority Bit
+	//        PalRow: The palette row number to use when displaying the pattern data
+	//        VF:     Vertical Flip
+	//        HF:     Horizontal Flip
+	//        Mapping (Pattern Name) data format:
+	//        -----------------------------------------------------------------
+	//        |15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	// Word3  |---------------------------------------------------------------|
+	//        |                         Horizontal Pos                        |
+	//        -----------------------------------------------------------------
+	entry.ypos = entry.rawDataWord0.GetData();
+	entry.width = entry.rawDataWord1.GetDataSegment(10, 2);
+	entry.height = entry.rawDataWord1.GetDataSegment(8, 2);
+	entry.link = entry.rawDataWord1.GetDataSegment(0, 7);
+	entry.priority = entry.rawDataWord2.GetBit(15);
+	entry.paletteLine = entry.rawDataWord2.GetDataSegment(13, 2);
+	entry.vflip = entry.rawDataWord2.GetBit(12);
+	entry.hflip = entry.rawDataWord2.GetBit(11);
+	entry.blockNumber = entry.rawDataWord2.GetDataSegment(0, 11);
+	entry.xpos = entry.rawDataWord3.GetData();
+
+	return entry;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SetSpriteMappingTableEntry(unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData)
+{
+	AccessTarget accessTarget;
+	accessTarget.AccessLatest();
+
+	//Read the sprite table base address register
+	unsigned int spriteTableBaseAddress = M5GetNameTableBaseSprite(accessTarget);
+
+	//According to official documentation, if we're in H40 mode, the AT9 bit of
+	//the sprite table base address is masked. We emulate that here. Note that the
+	//"Traveller's Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being
+	//valid in H32 mode.
+	bool screenModeRS1Active = M5GetRS1(accessTarget);
+	if(screenModeRS1Active)
+	{
+		spriteTableBaseAddress &= 0xFC00;
+	}
+
+	//Select the data to write back to the sprite table
+	Data rawDataWord0(entry.rawDataWord0);
+	Data rawDataWord1(entry.rawDataWord1);
+	Data rawDataWord2(entry.rawDataWord2);
+	Data rawDataWord3(entry.rawDataWord3);
+	if(useSeparatedData)
+	{
+		rawDataWord0 = entry.ypos;
+		rawDataWord1.SetDataSegment(10, 2, entry.width);
+		rawDataWord1.SetDataSegment(8, 2, entry.height);
+		rawDataWord1.SetDataSegment(0, 7, entry.link);
+		rawDataWord2.SetBit(15, entry.priority);
+		rawDataWord2.SetDataSegment(13, 2, entry.paletteLine);
+		rawDataWord2.SetBit(12, entry.vflip);
+		rawDataWord2.SetBit(11, entry.hflip);
+		rawDataWord2.SetDataSegment(0, 11, entry.blockNumber);
+		rawDataWord3 = entry.xpos;
+	}
+
+	//Calculate the address in VRAM of this sprite table entry
+	const unsigned int spriteTableEntrySize = 8;
+	unsigned int spriteTableEntryAddress = spriteTableBaseAddress + (entryNo * spriteTableEntrySize);
+	spriteTableEntryAddress %= vramSize;
+
+	//Write the raw data for the sprite to the sprite attribute table in VRAM
+	vram->WriteLatest(spriteTableEntryAddress+0, (unsigned char)rawDataWord0.GetUpperHalf());
+	vram->WriteLatest(spriteTableEntryAddress+1, (unsigned char)rawDataWord0.GetLowerHalf());
+	vram->WriteLatest(spriteTableEntryAddress+2, (unsigned char)rawDataWord1.GetUpperHalf());
+	vram->WriteLatest(spriteTableEntryAddress+3, (unsigned char)rawDataWord1.GetLowerHalf());
+	vram->WriteLatest(spriteTableEntryAddress+4, (unsigned char)rawDataWord2.GetUpperHalf());
+	vram->WriteLatest(spriteTableEntryAddress+5, (unsigned char)rawDataWord2.GetLowerHalf());
+	vram->WriteLatest(spriteTableEntryAddress+6, (unsigned char)rawDataWord3.GetUpperHalf());
+	vram->WriteLatest(spriteTableEntryAddress+7, (unsigned char)rawDataWord3.GetLowerHalf());
+
+	//Calculate the address in the internal sprite cache of the cached portion of this
+	//sprite entry
+	const unsigned int spriteCacheEntrySize = 4;
+	unsigned int spriteCacheTableEntryAddress = spriteTableBaseAddress + (entryNo * spriteCacheEntrySize);
+	spriteCacheTableEntryAddress %= spriteCacheSize;
+
+	//Update the sprite cache to make it contain the new data
+	spriteCache->WriteLatest(spriteCacheTableEntryAddress+0, (unsigned char)rawDataWord0.GetUpperHalf());
+	spriteCache->WriteLatest(spriteCacheTableEntryAddress+1, (unsigned char)rawDataWord0.GetLowerHalf());
+	spriteCache->WriteLatest(spriteCacheTableEntryAddress+2, (unsigned char)rawDataWord1.GetUpperHalf());
+	spriteCache->WriteLatest(spriteCacheTableEntryAddress+3, (unsigned char)rawDataWord1.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
