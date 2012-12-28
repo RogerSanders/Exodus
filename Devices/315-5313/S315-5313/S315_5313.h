@@ -134,6 +134,8 @@ private:
 	struct InternalRenderOp;
 	struct FIFOBufferEntry;
 	struct HVCounterAdvanceSession;
+	struct PortMonitorEntry;
+	struct SpriteMappingTableEntry;
 
 	//Typedefs
 	typedef RandomTimeAccessBuffer<Data, unsigned int> RegBuffer;
@@ -169,18 +171,42 @@ private:
 	class PaletteViewModel;
 	class ImageViewModel;
 	class RegistersViewModel;
+	class LayerRemovalViewModel;
+	class SettingsViewModel;
+	class SpriteListViewModel;
+	class SpriteListDetailsViewModel;
+	class PortMonitorViewModel;
+	class PortMonitorDetailsViewModel;
 	class VRAMView;
 	class PaletteView;
 	class ImageView;
 	class RegistersView;
+	class LayerRemovalView;
+	class SettingsView;
+	class SpriteListView;
+	class SpriteListDetailsView;
+	class PortMonitorView;
+	class PortMonitorDetailsView;
 	friend class VRAMViewModel;
 	friend class PaletteViewModel;
 	friend class ImageViewModel;
 	friend class RegistersViewModel;
+	friend class LayerRemovalViewModel;
+	friend class SettingsViewModel;
+	friend class SpriteListViewModel;
+	friend class SpriteListDetailsViewModel;
+	friend class PortMonitorViewModel;
+	friend class PortMonitorDetailsViewModel;
 	friend class VRAMView;
 	friend class PaletteView;
 	friend class ImageView;
 	friend class RegistersView;
+	friend class LayerRemovalView;
+	friend class SettingsView;
+	friend class SpriteListView;
+	friend class SpriteListDetailsView;
+	friend class PortMonitorView;
+	friend class PortMonitorDetailsView;
 
 private:
 	//Line functions
@@ -215,6 +241,14 @@ private:
 	void ProcessCommandDataWriteFirstHalf(const Data& data);
 	void ProcessCommandDataWriteSecondHalf(const Data& data);
 	void RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int accessContext, unsigned int registerNo, const Data& data);
+
+	//Port monitor functions
+	void RecordPortMonitorEntry(const PortMonitorEntry& entry);
+	void ClearPortMonitorList();
+
+	//Sprite list debugging functions
+	SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int entryNo) const;
+	void SetSpriteMappingTableEntry(unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData);
 
 	//HV counter internal/linear conversion
 	static unsigned int HCounterValueFromVDPInternalToLinear(const HScanSettings& hscanSettings, unsigned int hcounterCurrent);
@@ -453,13 +487,20 @@ private:
 	inline bool M5GetDMD0(const AccessTarget& accessTarget) const;
 	inline void M5SetDMD0(const AccessTarget& accessTarget, bool data);
 
+	//Window functions
+	void OpenSpriteListDetailsView(unsigned int aspriteIndex);
+	void OpenPortMonitorDetailsView(const PortMonitorEntry& aentry);
+
 private:
 	//Debug output
 	bool outputPortAccessDebugMessages;
 	bool outputTimingDebugMessages;
 	bool outputRenderSyncMessages;
 	bool outputInterruptDebugMessages;
-	bool disableRenderOutput;
+	bool videoDisableRenderOutput;
+	bool videoEnableSpriteBoxing;
+	bool videoHighlightRenderPos;
+	bool videoSingleBuffering;
 
 	//Menu handling
 	DebugMenuHandler* menuHandler;
@@ -487,6 +528,27 @@ private:
 	IClockSource* clockSourceCLK1;
 	double clockMclkCurrent;
 	double bclockMclkCurrent;
+
+	//Layer removal settings
+	bool enableLayerAHigh;
+	bool enableLayerALow;
+	bool enableLayerBHigh;
+	bool enableLayerBLow;
+	bool enableWindowHigh;
+	bool enableWindowLow;
+	bool enableSpriteHigh;
+	bool enableSpriteLow;
+
+	//Port monitor settings
+	mutable boost::mutex portMonitorMutex;
+	bool logStatusRegisterRead;
+	bool logDataPortRead;
+	bool logHVCounterRead;
+	bool logControlPortWrite;
+	bool logDataPortWrite;
+	unsigned int portMonitorListSize;
+	std::list<PortMonitorEntry> portMonitorList;
+	std::list<PortMonitorEntry> bportMonitorList;
 
 	//Physical registers and memory buffers
 	mutable boost::mutex accessMutex; //Top-level, protects against concurrent interface access.

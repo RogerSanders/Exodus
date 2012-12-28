@@ -345,6 +345,45 @@ struct S315_5313::HVCounterAdvanceSession
 };
 
 //----------------------------------------------------------------------------------------
+struct S315_5313::PortMonitorEntry
+{
+	PortMonitorEntry(const std::wstring& atarget, const std::wstring& asource, unsigned int adata, double aaccessTime, unsigned int ahcounterPos, unsigned int avcounterPos)
+	:target(atarget), source(asource), data(adata), accessTime(aaccessTime), hcounterPos(ahcounterPos), vcounterPos(avcounterPos)
+	{}
+
+	std::wstring source;
+	std::wstring target;
+	unsigned int data;
+	double accessTime;
+	unsigned int hcounterPos;
+	unsigned int vcounterPos;
+};
+
+//----------------------------------------------------------------------------------------
+struct S315_5313::SpriteMappingTableEntry
+{
+	SpriteMappingTableEntry()
+	:rawDataWord0(16), rawDataWord1(16), rawDataWord2(16), rawDataWord3(16)
+	{}
+
+	Data rawDataWord0;
+	Data rawDataWord1;
+	Data rawDataWord2;
+	Data rawDataWord3;
+
+	unsigned int blockNumber;
+	unsigned int paletteLine;
+	unsigned int xpos;
+	unsigned int ypos;
+	unsigned int width;
+	unsigned int height;
+	unsigned int link;
+	bool priority;
+	bool vflip;
+	bool hflip;
+};
+
+//----------------------------------------------------------------------------------------
 //Status register functions
 //----------------------------------------------------------------------------------------
 //  -------------------------------------------------------------
@@ -1048,9 +1087,6 @@ void S315_5313::M5SetNameTableBaseScrollB(const AccessTarget& accessTarget, unsi
 //0x05(5)  | / |----------------------------------|
 //         |   |AT15|AT14|AT13|AT12|AT11|AT10 |AT9|
 //         ----------------------------------------
-//##TODO## According to the official docs, AT9 is valid in H32 mode, but in H40 mode, it
-//is always forced to 0. This should be tested on the hardware. Note that the "Traveller's
-//Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being valid in H32 mode.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M5GetNameTableBaseSprite(const AccessTarget& accessTarget) const
 {

@@ -23,3 +23,15 @@ void S315_5313::OpenViewModel(const std::wstring& menuHandlerName, int viewModel
 	Device::OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
 	menuHandler->OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
 }
+
+//----------------------------------------------------------------------------------------
+void S315_5313::OpenSpriteListDetailsView(unsigned int aspriteIndex)
+{
+	menuHandler->OpenSpriteListDetailsView(aspriteIndex);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::OpenPortMonitorDetailsView(const PortMonitorEntry& aentry)
+{
+	menuHandler->OpenPortMonitorDetailsView(aentry);
+}
