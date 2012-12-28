@@ -153,12 +153,12 @@ private:
 
 	//Render constants
 	static const unsigned int renderDigitalBlockPixelSizeY = 8;
-	static const VRAMRenderOp vramOperationsH32ActiveLine[];
-	static const VRAMRenderOp vramOperationsH32InactiveLine[];
-	static const VRAMRenderOp vramOperationsH40ActiveLine[];
-	static const VRAMRenderOp vramOperationsH40InactiveLine[];
-	static const InternalRenderOp internalOperationsH32[];
-	static const InternalRenderOp internalOperationsH40[];
+	static const VRAMRenderOp vramOperationsH32ActiveLine[171];
+	static const VRAMRenderOp vramOperationsH32InactiveLine[171];
+	static const VRAMRenderOp vramOperationsH40ActiveLine[210];
+	static const VRAMRenderOp vramOperationsH40InactiveLine[210];
+	static const InternalRenderOp internalOperationsH32[342];
+	static const InternalRenderOp internalOperationsH40[420];
 
 	//Interrupt settings
 	static const unsigned int exintIPLLineState = 2;
@@ -211,9 +211,14 @@ private:
 private:
 	//Line functions
 	unsigned int GetNewIPLLineState();
+	void UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
+	void UpdateLineStateChangePrediction(unsigned int lineNo, unsigned int lineStateChangeData, bool& lineStateChangePending, unsigned int& lineStateChangeMCLKCountdown, double& lineStateChangeTime, bool lineStateChangePendingNew, unsigned int lineStateChangeMCLKCountdownNew, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 
-	//Execute functions
-	void RenderThreadNew();
+	//DMA functions
+	void DMAWorkerThread();
+
+	//Rendering functions
+	void RenderThread();
 	void AdvanceRenderProcess(unsigned int mclkCyclesToAdvance);
 	void UpdateDigitalRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
 	void PerformInternalRenderOperation(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, const InternalRenderOp& nextOperation, int renderDigitalCurrentRow);
@@ -227,16 +232,9 @@ private:
 	void DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool interlaceMode2Active, bool screenModeRS1Active, unsigned int& nextTableEntryToRead, bool& spriteSearchComplete, bool& spriteOverflow, unsigned int& spriteDisplayCacheEntryCount, std::vector<SpriteDisplayCacheEntry>& spriteDisplayCache) const;
 	void DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const;
 	unsigned int DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const;
-
-	void AdvanceAnalogRenderProcess(unsigned int pixelsToOutput);
 	void CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shadow, bool& highlight, bool shadowHighlightEnabled, bool spriteIsShadowOperator, bool spriteIsHighlightOperator, bool foundSpritePixel, bool foundLayerAPixel, bool foundLayerBPixel, bool prioritySprite, bool priorityLayerA, bool priorityLayerB) const;
-	void DMAWorkerThread();
 
-	//Line output prediction functions
-	void UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
-	void UpdateLineStateChangePrediction(unsigned int lineNo, unsigned int lineStateChangeData, bool& lineStateChangePending, unsigned int& lineStateChangeMCLKCountdown, double& lineStateChangeTime, bool lineStateChangePendingNew, unsigned int lineStateChangeMCLKCountdownNew, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
-
-	//Port functions
+	//Memory interface functions
 	Data GetHVCounter() const;
 	void ProcessCommandDataWriteFirstHalf(const Data& data);
 	void ProcessCommandDataWriteSecondHalf(const Data& data);
@@ -277,7 +275,6 @@ private:
 	//Pixel clock functions
 	//##TODO## Move these functions somewhere more appropriate
 	//static unsigned int GetUpdatedVSRAMReadCacheIndex(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int vsramReadCacheIndexCurrent, unsigned int hcounterInitial, unsigned int vcounterInitial, unsigned int hcounterFinal, unsigned int vcounterFinal, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vscrollMode);
-	static unsigned int GetPixelClockTicksUntilNextVSRAMRead(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vcounterCurrent);
 	static unsigned int GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, bool displayEnabled, unsigned int vcounterCurrent);
 	static unsigned int GetPixelClockTicksForMclkTicks(const HScanSettings& hscanSettings, unsigned int mclkTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active, unsigned int& mclkTicksUnused);
 	static unsigned int GetMclkTicksForPixelClockTicks(const HScanSettings& hscanSettings, unsigned int pixelClockTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active);
@@ -289,7 +286,6 @@ private:
 	//Processor state advancement functions
 	void UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFifoStateBeforeUpdate, bool stopWhenFifoEmpty, bool stopWhenFifoFull, bool stopWhenFifoNotFull, bool stopWhenReadDataAvailable, bool stopWhenNoDMAOperationInProgress, bool allowAdvancePastCycleTarget);
 	bool AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAtNextAccessSlot, bool allowAdvancePastTargetForAccessSlot);
-	bool AdvanceProcessorStateNew(unsigned int mclkCyclesTarget, bool stopAtNextAccessSlot, bool allowAdvancePastTargetForAccessSlot);
 	void PerformReadCacheOperation();
 	void PerformFIFOWriteOperation();
 	void PerformDMACopyOperation();
@@ -298,7 +294,6 @@ private:
 	void PerformDMATransferOperation();
 	void AdvanceDMAState();
 	bool TargetProcessorStateReached(bool stopWhenFifoEmpty, bool stopWhenFifoFull, bool stopWhenFifoNotFull, bool stopWhenReadDataAvailable, bool stopWhenNoDMAOperationInProgress);
-	void AdvanceStatusRegisterAndHVCounter(unsigned int pixelClockSteps);
 	double GetProcessorStateTime() const;
 	unsigned int GetProcessorStateMclkCurrent() const;
 

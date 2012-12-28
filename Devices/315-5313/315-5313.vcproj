@@ -1249,7 +1249,19 @@
 			Name="S315-5313 (VDP)"
 			>
 			<File
-				RelativePath=".\S315-5313\S315_5313.cpp"
+				RelativePath=".\S315-5313\S315-5313_General.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\S315-5313\S315-5313_Ports.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\S315-5313\S315-5313_Rendering.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\S315-5313\S315-5313_Timing.cpp"
 				>
 			</File>
 			<File
