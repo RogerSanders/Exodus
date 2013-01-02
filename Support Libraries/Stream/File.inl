@@ -24,22 +24,22 @@ enum File::CreateMode
 //Constructors
 //----------------------------------------------------------------------------------------
 File::File()
-:fileBuffer(0), fileOpen(false), bufferInWriteMode(false)
+:fileBuffer(0), bufferSize(0), fileOpen(false), bufferInWriteMode(false)
 {}
 
 //----------------------------------------------------------------------------------------
 File::File(TextEncoding atextEncoding)
-:Stream(atextEncoding), fileBuffer(0), fileOpen(false), bufferInWriteMode(false)
+:Stream(atextEncoding), fileBuffer(0), bufferSize(0), fileOpen(false), bufferInWriteMode(false)
 {}
 
 //----------------------------------------------------------------------------------------
 File::File(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding)
-:Stream(atextEncoding, anewLineEncoding), fileBuffer(0), fileOpen(false), bufferInWriteMode(false)
+:Stream(atextEncoding, anewLineEncoding), fileBuffer(0), bufferSize(0), fileOpen(false), bufferInWriteMode(false)
 {}
 
 //----------------------------------------------------------------------------------------
 File::File(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, ByteOrder abyteOrder)
-:Stream(atextEncoding, anewLineEncoding, abyteOrder), fileBuffer(0), fileOpen(false), bufferInWriteMode(false)
+:Stream(atextEncoding, anewLineEncoding, abyteOrder), fileBuffer(0), bufferSize(0), fileOpen(false), bufferInWriteMode(false)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 	if(bufferSize != abufferSize)
 	{
 		bufferSize = abufferSize;
-		delete fileBuffer;
+		delete[] fileBuffer;
 		fileBuffer = new unsigned char[bufferSize];
 	}
 	bufferPosOffset = bufferSize;
@@ -338,8 +338,7 @@ bool File::EmptyDataBuffer()
 		//If the buffer contains written data, write the buffer contents to the file.
 		if(bufferPosOffset > 0)
 		{
-			result &= WriteBinaryUnbuffered((void*)(&fileBuffer[0]), bufferPosOffset);
-			bufferInWriteMode = false;
+			result &= WriteBinaryUnbuffered((void*)fileBuffer, bufferPosOffset);
 		}
 	}
 	else
@@ -356,6 +355,7 @@ bool File::EmptyDataBuffer()
 	}
 
 	//Reset the buffer to an empty state
+	bufferInWriteMode = false;
 	bufferPosOffset = bufferSize;
 	bytesRemainingInBuffer = 0;
 
@@ -368,26 +368,35 @@ bool File::PrepareDataBufferForReads()
 	//Set the data buffer to read mode
 	bufferInWriteMode = false;
 
-	//Read a new page into the data buffer. If there are not enough bytes remaining in the
-	//file, the number returned in bytesRead will be less than the amount requested in
-	//bytesToRead.
-	DWORD bytesToRead = bufferSize;
-	DWORD bytesRead = 0;
-	BOOL readFileReturn = ReadFile(fileHandle, (void*)(&fileBuffer[0]), bytesToRead, &bytesRead, NULL);
-
-	//If there was an error performing the read operation, we empty the buffer and return
-	//false.
-	if(readFileReturn == 0)
+	//If a data buffer has been specified, load a new page of data into the data buffer,
+	//otherwise set the data buffer as empty.
+	if(bufferSize > 0)
 	{
-		bufferPosOffset = 0;
-		bytesRemainingInBuffer = 0;
-		return false;
-	}
+		//Read a new page into the data buffer. If there are not enough bytes remaining in
+		//the file, the number returned in bytesRead will be less than the amount
+		//requested in bytesToRead.
+		DWORD bytesToRead = bufferSize;
+		DWORD bytesRead = 0;
+		BOOL readFileReturn = ReadFile(fileHandle, (void*)fileBuffer, bytesToRead, &bytesRead, NULL);
 
-	//Calculate the number of bytes remaining in the buffer. This handles the case where
-	//there wasn't enough data remaining in the file to fill the buffer.
-	unsigned int bytesEmptyInBuffer = (unsigned int)(bytesToRead - bytesRead);
-	bytesRemainingInBuffer = bufferSize - bytesEmptyInBuffer;
+		//If there was an error performing the read operation, we empty the buffer and
+		//return false.
+		if(readFileReturn == 0)
+		{
+			bufferPosOffset = 0;
+			bytesRemainingInBuffer = 0;
+			return false;
+		}
+
+		//Calculate the number of bytes remaining in the buffer. This handles the case
+		//where there wasn't enough data remaining in the file to fill the buffer.
+		unsigned int bytesEmptyInBuffer = (unsigned int)(bytesToRead - bytesRead);
+		bytesRemainingInBuffer = bufferSize - bytesEmptyInBuffer;
+	}
+	else
+	{
+		bytesRemainingInBuffer = 0;
+	}
 
 	//Reset the buffer position back to the start
 	bufferPosOffset = 0;

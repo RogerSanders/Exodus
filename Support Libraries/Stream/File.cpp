@@ -8,7 +8,7 @@ namespace Stream {
 File::~File()
 {
 	Close();
-	delete fileBuffer;
+	delete[] fileBuffer;
 }
 
 //----------------------------------------------------------------------------------------
