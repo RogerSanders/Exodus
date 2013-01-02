@@ -5,6 +5,7 @@
 
 //Include any header files which are part of the public interface for this library here
 #ifndef PACKAGE_LINK_LIBS_ONLY
+#include "IStreamNonSeekable.h"
 #include "IStream.h"
 #include "ViewBinary.h"
 #include "ViewText.h"

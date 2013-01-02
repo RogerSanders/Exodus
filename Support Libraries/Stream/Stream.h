@@ -2,11 +2,6 @@
 Things to do:
 -Apparently, wchar_t is 32-bit (UTF32 encoding) on unix. Make this library fully portable,
 so that it can work regardless of the particular encoding wchar_t uses.
--Create an abstract class above stream which contains the seeking interface. Allow a base
-stream class which doesn't allow seeking, which non-seekable stream targets can derive
-from. Functions which require seeking can ask for a seekable stream object by using the
-abstract seekable base class, with a compile time error if a non-seekable stream is
-provided.
 \*--------------------------------------------------------------------------------------*/
 #include "StreamInterface/StreamInterface.pkg"
 #ifndef __STREAM_H__

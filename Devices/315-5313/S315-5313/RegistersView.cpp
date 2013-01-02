@@ -191,7 +191,7 @@ INT_PTR S315_5313::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM
 		if(newText != previousText)
 		{
 			AccessTarget accessTarget;
-			accessTarget.AccessCommitted();
+			accessTarget.AccessLatest();
 
 			//Raw registers
 			if((LOWORD(wparam) >= IDC_REG_0) && (LOWORD(wparam) < (IDC_REG_0 + registerCount)))
@@ -199,28 +199,33 @@ INT_PTR S315_5313::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM
 				unsigned int registerNo = LOWORD(wparam) - IDC_REG_0;
 				Data newData(8, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				device->SetRegisterData(registerNo, accessTarget, newData);
-				device->RegisterSpecialUpdateFunction(device->GetProcessorStateMclkCurrent(), device->GetProcessorStateTime(), 0, device->GetDeviceContext(), S315_5313::ACCESSCONTEXT_DEBUG, registerNo, newData);
+				device->TransparentRegisterSpecialUpdateFunction(registerNo, newData);
 			}
 			else switch(LOWORD(wparam))
 			{
-				//Data table addresses
+			//Data table addresses
 			case IDC_SCROLLABASE:
 				device->M5SetNameTableBaseScrollA(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x02, device->GetRegisterData(0x02, accessTarget));
 				break;
 			case IDC_SCROLLBBASE:
 				device->M5SetNameTableBaseScrollB(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x04, device->GetRegisterData(0x04, accessTarget));
 				break;
 			case IDC_WINDOWBASE:
 				device->M5SetNameTableBaseWindow(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x03, device->GetRegisterData(0x03, accessTarget));
 				break;
 			case IDC_SPRITEBASE:
 				device->M5SetNameTableBaseSprite(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x05, device->GetRegisterData(0x05, accessTarget));
 				break;
 			case IDC_HSCROLLBASE:
 				device->M5SetHScrollDataBase(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x0D, device->GetRegisterData(0x0D, accessTarget));
 				break;
 
-				//Size and movement
+			//Size and movement
 			case IDC_HFIELDSIZE:
 //				device->SetScrollSizeH(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
@@ -240,51 +245,66 @@ INT_PTR S315_5313::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM
 //				device->SetScrollModeV(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 
-				//DMA registers
+			//DMA registers
 			case IDC_DMASOURCE:
 				device->M5SetDMASourceAddress(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x15, device->GetRegisterData(0x15, accessTarget));
+				device->TransparentRegisterSpecialUpdateFunction(0x16, device->GetRegisterData(0x16, accessTarget));
+				device->TransparentRegisterSpecialUpdateFunction(0x17, device->GetRegisterData(0x17, accessTarget));
 				break;
 			case IDC_DMALENGTH:
 				device->M5SetDMALengthCounter(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x13, device->GetRegisterData(0x13, accessTarget));
+				device->TransparentRegisterSpecialUpdateFunction(0x14, device->GetRegisterData(0x14, accessTarget));
 				break;
 			case IDC_DMAENABLED:
 				device->M5SetDMAEnabled(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)) != 0);
+				device->TransparentRegisterSpecialUpdateFunction(0x01, device->GetRegisterData(0x01, accessTarget));
 				break;
 			case IDC_ADDRESSINCREMENT:
 				device->M5SetAutoIncrementData(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x0F, device->GetRegisterData(0x0F, accessTarget));
 				break;
 
-				//Window settings
+			//Window settings
 			case IDC_WINDOWRIGHT:
 				device->M5SetWindowRightAligned(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)) != 0);
+				device->TransparentRegisterSpecialUpdateFunction(0x11, device->GetRegisterData(0x11, accessTarget));
 				break;
 			case IDC_WINDOWDOWN:
 				device->M5SetWindowBottomAligned(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)) != 0);
+				device->TransparentRegisterSpecialUpdateFunction(0x12, device->GetRegisterData(0x12, accessTarget));
 				break;
 			case IDC_WINDOWBASEX:
 				device->M5SetWindowBasePointX(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x11, device->GetRegisterData(0x11, accessTarget));
 				break;
 			case IDC_WINDOWBASEY:
 				device->M5SetWindowBasePointY(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x12, device->GetRegisterData(0x12, accessTarget));
 				break;
 
-				//VBlank and HBlank
+			//VBlank and HBlank
 			case IDC_HINTERRUPTENABLED:
 				device->M5SetHInterruptEnabled(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)) != 0);
+				device->TransparentRegisterSpecialUpdateFunction(0x00, device->GetRegisterData(0x00, accessTarget));
 				break;
 			case IDC_VINTERRUPTENABLED:
 				device->M5SetVInterruptEnabled(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)) != 0);
+				device->TransparentRegisterSpecialUpdateFunction(0x01, device->GetRegisterData(0x01, accessTarget));
 				break;
 			case IDC_HINTERRUPTCOUNTER:
 				device->M5SetHInterruptData(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x0A, device->GetRegisterData(0x0A, accessTarget));
 				break;
 
-				//HV counter functions
+			//HV counter functions
 			case IDC_HVCOUNTERSTOP:
 				device->M5SetHVCounterLatchEnabled(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)) != 0);
+				device->TransparentRegisterSpecialUpdateFunction(0x00, device->GetRegisterData(0x00, accessTarget));
 				break;
 
-				//Interlace functions
+			//Interlace functions
 			case IDC_INTERLACEMODE:
 //				device->SetInterlaceMode(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
@@ -292,21 +312,25 @@ INT_PTR S315_5313::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM
 //				device->SetOddInterlaceFrame(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)) != 0);
 				break;
 
-				//Miscellaneous settings
+			//Miscellaneous settings
 			case IDC_DISPLAYENABLED:
 				device->M5SetDisplayEnabled(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)) != 0);
+				device->TransparentRegisterSpecialUpdateFunction(0x01, device->GetRegisterData(0x01, accessTarget));
 				break;
 			case IDC_SHADOWHIGHLIGHTENABLED:
 				device->M5SetShadowHighlightEnabled(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)) != 0);
+				device->TransparentRegisterSpecialUpdateFunction(0x0C, device->GetRegisterData(0x0C, accessTarget));
 				break;
 			case IDC_BACKGROUNDPALETTELINE:
 				device->M5SetBackgroundColorPalette(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x07, device->GetRegisterData(0x07, accessTarget));
 				break;
 			case IDC_BACKGROUNDPALETTEENTRY:
 				device->M5SetBackgroundColorIndex(accessTarget, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				device->TransparentRegisterSpecialUpdateFunction(0x07, device->GetRegisterData(0x07, accessTarget));
 				break;
 
-				//Control port registers
+			//Control port registers
 			case IDC_CODE:
 				device->commandCode.SetData(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;

@@ -876,7 +876,17 @@ void Processor::LoadState(IHeirarchicalStorageNode& node)
 	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
 	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		if((*i)->GetName() == L"CallStack")
+		std::wstring keyName = (*i)->GetName();
+		if(keyName == L"Register")
+		{
+			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			if(nameAttribute != 0)
+			{
+				std::wstring registerName = nameAttribute->GetValue();
+				if(registerName == L"ClockSpeed")	clockSpeed = (*i)->ExtractData<double>();
+			}
+		}
+		else if(keyName == L"CallStack")
 		{
 			LoadCallStack(*(*i));
 		}
@@ -886,6 +896,7 @@ void Processor::LoadState(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void Processor::GetState(IHeirarchicalStorageNode& node) const
 {
+	node.CreateChild(L"Register", clockSpeed).CreateAttribute(L"name", L"ClockSpeed");
 	IHeirarchicalStorageNode& callStackNode = node.CreateChild(L"CallStack");
 	SaveCallStack(callStackNode);
 }

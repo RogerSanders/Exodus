@@ -1434,12 +1434,14 @@ void Z80::LoadState(IHeirarchicalStorageNode& node)
 				else if(registerName == L"IFF1")			iff1 = (*i)->ExtractData<bool>();
 				else if(registerName == L"IFF2")			iff2 = (*i)->ExtractData<bool>();
 				else if(registerName == L"MaskInterruptsNextOpcode")	maskInterruptsNextOpcode = (*i)->ExtractData<bool>();
+				else if(registerName == L"ProcessorStopped")		processorStopped = (*i)->ExtractData<bool>();
 
+				else if(registerName == L"LastTimesliceLength")		lastTimesliceLength = (*i)->ExtractData<double>();
+				else if(registerName == L"SuspendUntilLineStateChangeReceived")		suspendUntilLineStateChangeReceived = (*i)->ExtractData<bool>();
 				else if(registerName == L"ResetLineState")			resetLineState = (*i)->ExtractData<bool>();
 				else if(registerName == L"BusreqLineState")			busreqLineState = (*i)->ExtractData<bool>();
 				else if(registerName == L"INTLineState")			intLineState = (*i)->ExtractData<bool>();
 				else if(registerName == L"NMILineState")			nmiLineState = (*i)->ExtractData<bool>();
-				else if(registerName == L"ProcessorStopped")		processorStopped = (*i)->ExtractData<bool>();
 			}
 		}
 		//Restore the lineAccessBuffer state
@@ -1452,32 +1454,62 @@ void Z80::LoadState(IHeirarchicalStorageNode& node)
 				if((*lineAccessBufferEntry)->GetName() == L"LineAccess")
 				{
 					IHeirarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
-					IHeirarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
+					IHeirarchicalStorageAttribute* clockRateChangeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRateChange");
 					IHeirarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
-					if((lineNameAttribute != 0) && (lineStateAttribute != 0) && (accessTimeAttribute != 0))
+					if((lineNameAttribute != 0) && (clockRateChangeAttribute != 0) && (accessTimeAttribute != 0))
 					{
 						//Extract the entry from the XML stream
+						LineAccess lineAccess(0, 0.0, 0.0);
+						bool lineAccessDefined = false;
 						std::wstring lineName = lineNameAttribute->ExtractValue<std::wstring>();
-						unsigned int lineID = GetLineID(lineName.c_str());
-						if(lineID != 0)
+						bool clockRateChange = clockRateChangeAttribute->ExtractValue<bool>();
+						double accessTime = accessTimeAttribute->ExtractValue<double>();
+						if(clockRateChange)
 						{
-							Data lineState(GetLineWidth(lineID));
-							lineStateAttribute->ExtractValue(lineState);
-							double accessTime = accessTimeAttribute->ExtractValue<double>();
-							LineAccess entry(lineID, lineState, accessTime);
+							IHeirarchicalStorageAttribute* clockRateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRate");
+							if(clockRateAttribute != 0)
+							{
+								unsigned int lineID = GetClockSourceID(lineName.c_str());
+								if(lineID != 0)
+								{
+									double clockRate;
+									clockRateAttribute->ExtractValue(clockRate);
+									lineAccess = LineAccess(lineID, clockRate, accessTime);
+									lineAccessDefined = true;
+								}
+							}
+						}
+						else
+						{
+							IHeirarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
+							if(lineStateAttribute != 0)
+							{
+								unsigned int lineID = GetLineID(lineName.c_str());
+								if(lineID != 0)
+								{
+									Data lineState(GetLineWidth(lineID));
+									lineStateAttribute->ExtractValue(lineState);
+									lineAccess = LineAccess(lineID, lineState, accessTime);
+									lineAccessDefined = true;
+								}
+							}
+						}
 
-							//Find the correct location in the list to insert the entry. The
-							//list must be sorted from earliest to latest.
+						//Find the correct location in the list to insert the entry. The
+						//list must be sorted from earliest to latest.
+						if(lineAccessDefined)
+						{
 							std::list<LineAccess>::reverse_iterator j = lineAccessBuffer.rbegin();
-							while((j != lineAccessBuffer.rend()) && (j->accessTime > entry.accessTime))
+							while((j != lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
 							{
 								++j;
 							}
-							lineAccessBuffer.insert(j.base(), entry);
+							lineAccessBuffer.insert(j.base(), lineAccess);
 						}
 					}
 				}
 			}
+			lineAccessPending = !lineAccessBuffer.empty();
 		}
 	}
 
@@ -1508,12 +1540,14 @@ void Z80::GetState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Register", iff1).CreateAttribute(L"name", L"IFF1");
 	node.CreateChild(L"Register", iff2).CreateAttribute(L"name", L"IFF2");
 	node.CreateChild(L"Register", maskInterruptsNextOpcode).CreateAttribute(L"name", L"MaskInterruptsNextOpcode");
+	node.CreateChild(L"Register", processorStopped).CreateAttribute(L"name", L"ProcessorStopped");
 
+	node.CreateChild(L"Register", lastTimesliceLength).CreateAttribute(L"name", L"LastTimesliceLength");
+	node.CreateChild(L"Register", suspendUntilLineStateChangeReceived).CreateAttribute(L"name", L"SuspendUntilLineStateChangeReceived");
 	node.CreateChild(L"Register", resetLineState).CreateAttribute(L"name", L"ResetLineState");
 	node.CreateChild(L"Register", busreqLineState).CreateAttribute(L"name", L"BusreqLineState");
 	node.CreateChild(L"Register", intLineState).CreateAttribute(L"name", L"INTLineState");
 	node.CreateChild(L"Register", nmiLineState).CreateAttribute(L"name", L"NMILineState");
-	node.CreateChild(L"Register", processorStopped).CreateAttribute(L"name", L"ProcessorStopped");
 
 	//Save the lineAccessBuffer state
 	if(lineAccessPending)
@@ -1522,8 +1556,17 @@ void Z80::GetState(IHeirarchicalStorageNode& node) const
 		for(std::list<LineAccess>::const_iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
 		{
 			IHeirarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
-			lineAccessEntry.CreateAttribute(L"LineName", GetLineName(i->lineID));
-			lineAccessEntry.CreateAttribute(L"LineState", i->state);
+			lineAccessEntry.CreateAttribute(L"ClockRateChange", i->clockRateChange);
+			if(i->clockRateChange)
+			{
+				lineAccessEntry.CreateAttribute(L"LineName", GetClockSourceName(i->lineID));
+				lineAccessEntry.CreateAttribute(L"ClockRate", i->clockRate);
+			}
+			else
+			{
+				lineAccessEntry.CreateAttribute(L"LineName", GetLineName(i->lineID));
+				lineAccessEntry.CreateAttribute(L"LineState", i->state);
+			}
 			lineAccessEntry.CreateAttribute(L"AccessTime", i->accessTime);
 		}
 	}

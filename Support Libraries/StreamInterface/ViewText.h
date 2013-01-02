@@ -11,6 +11,7 @@ public:
 
 	//Text-based access functions
 	template<class T> bool Read(T& data);
+	template<> bool Read(bool& data);
 	template<> bool Read(std::string& data);
 	template<> bool Read(std::wstring& data);
 	template<> bool Read(char& data);
@@ -18,6 +19,7 @@ public:
 	template<> bool Read(signed char& data);
 	template<> bool Read(unsigned char& data);
 	template<class T> bool Write(const T& data);
+	template<> bool Write(const bool& data);
 	template<> bool Write(const float& data);
 	template<> bool Write(const double& data);
 	template<> bool Write(const long double& data);

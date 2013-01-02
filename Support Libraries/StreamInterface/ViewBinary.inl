@@ -3,7 +3,7 @@ namespace Stream {
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ViewBinary::ViewBinary(IStream& astream)
+ViewBinary::ViewBinary(IStreamNonSeekable& astream)
 :stream(astream)
 {}
 
@@ -18,6 +18,20 @@ template<class T> ViewBinary& ViewBinary::operator>>(T& data)
 
 //----------------------------------------------------------------------------------------
 template<class T> ViewBinary& ViewBinary::operator<<(const T& data)
+{
+	stream.WriteData(data);
+	return *this;
+}
+
+//----------------------------------------------------------------------------------------
+template<class T> ViewBinary& ViewBinary::operator>>(std::vector<T>& data)
+{
+	stream.ReadData(data, data.size());
+	return *this;
+}
+
+//----------------------------------------------------------------------------------------
+template<class T> ViewBinary& ViewBinary::operator<<(const std::vector<T>& data)
 {
 	stream.WriteData(data);
 	return *this;

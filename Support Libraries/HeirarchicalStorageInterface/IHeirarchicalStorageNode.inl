@@ -37,6 +37,22 @@ template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChil
 }
 
 //----------------------------------------------------------------------------------------
+template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChildBinary(const std::wstring& aname, const T& adata, const std::wstring& bufferName, bool ainlineBinaryData)
+{
+	IHeirarchicalStorageNode& child = CreateChild(aname.c_str());
+	child.InsertBinaryData(adata, bufferName, ainlineBinaryData);
+	return child;
+}
+
+//----------------------------------------------------------------------------------------
+template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChildBinary(const std::wstring& aname, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData)
+{
+	IHeirarchicalStorageNode& child = CreateChild(aname.c_str());
+	child.InsertBinaryData(buffer, entries, bufferName, ainlineBinaryData);
+	return child;
+}
+
+//----------------------------------------------------------------------------------------
 std::list<IHeirarchicalStorageNode*> IHeirarchicalStorageNode::GetChildList()
 {
 	std::list<IHeirarchicalStorageNode*> list;
@@ -269,6 +285,23 @@ template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::ExtractBin
 }
 
 //----------------------------------------------------------------------------------------
+template<> IHeirarchicalStorageNode& IHeirarchicalStorageNode::ExtractBinaryData(std::vector<bool>& target)
+{
+	Stream::IStream& dataStream = GetInternalStream();
+	ResetInternalStreamPosition();
+	Stream::IStream::SizeType readCount = (dataStream.Size() / (Stream::IStream::SizeType)sizeof(bool));
+	Stream::ViewBinary bufferView(dataStream);
+	for(unsigned int i = 0; (i < readCount) && (i < target.size()); ++i)
+	{
+		bool value;
+		bufferView >> value;
+		target[i] = value;
+	}
+	ResetInternalStreamPosition();
+	return *this;
+}
+
+//----------------------------------------------------------------------------------------
 template<> IHeirarchicalStorageNode& IHeirarchicalStorageNode::ExtractBinaryData(std::vector<unsigned char>& target)
 {
 	Stream::IStream& dataStream = GetInternalStream();
@@ -320,7 +353,7 @@ template<> IHeirarchicalStorageNode& IHeirarchicalStorageNode::InsertBinaryData(
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::InsertBinaryData(T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData)
+template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::InsertBinaryData(const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData)
 {
 	SetBinaryDataPresent(true);
 	SetInlineBinaryDataEnabled(ainlineBinaryData);

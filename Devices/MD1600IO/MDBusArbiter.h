@@ -48,6 +48,10 @@ public:
 	void ApplyPendingLineStateChanges(IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	bool AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int targetLine, Data targetLineState, double& lineStateReachedTime);
 
+	//Savestate functions
+	virtual void LoadState(IHeirarchicalStorageNode& node);
+	virtual void GetState(IHeirarchicalStorageNode& node) const;
+
 private:
 	//Enumerations
 	enum CELineID;

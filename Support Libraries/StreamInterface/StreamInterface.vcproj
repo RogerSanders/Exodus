@@ -494,10 +494,6 @@
 				RelativePath=".\IStream.h"
 				>
 			</File>
-			<File
-				RelativePath=".\IStream.inl"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="ViewBinary"
@@ -528,6 +524,18 @@
 			</File>
 			<File
 				RelativePath=".\ViewTextManipulators.inl"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="IStreamNonSeekable"
+			>
+			<File
+				RelativePath=".\IStreamNonSeekable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IStreamNonSeekable.inl"
 				>
 			</File>
 		</Filter>

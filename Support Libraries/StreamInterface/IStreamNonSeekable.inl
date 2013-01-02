@@ -3,7 +3,7 @@ namespace Stream {
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IStream::ByteOrder
+enum IStreamNonSeekable::ByteOrder
 {
 	BYTEORDER_PLATFORM,
 	BYTEORDER_LITTLEENDIAN,
@@ -11,7 +11,7 @@ enum IStream::ByteOrder
 };
 
 //----------------------------------------------------------------------------------------
-enum IStream::TextEncoding
+enum IStreamNonSeekable::TextEncoding
 {
 	TEXTENCODING_ASCII,
 	TEXTENCODING_UTF8,
@@ -20,7 +20,7 @@ enum IStream::TextEncoding
 };
 
 //----------------------------------------------------------------------------------------
-enum IStream::NewLineEncoding
+enum IStreamNonSeekable::NewLineEncoding
 {
 	NEWLINEENCODING_UNIX,
 	NEWLINEENCODING_DOS
@@ -29,7 +29,7 @@ enum IStream::NewLineEncoding
 //----------------------------------------------------------------------------------------
 //Structures
 //----------------------------------------------------------------------------------------
-struct IStream::UnicodeCodePoint
+struct IStreamNonSeekable::UnicodeCodePoint
 {
 	wchar_t codeUnit1;
 	wchar_t codeUnit2;
@@ -39,7 +39,7 @@ struct IStream::UnicodeCodePoint
 //----------------------------------------------------------------------------------------
 //Fixed length text buffer read functions
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -49,7 +49,7 @@ bool IStream::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -59,7 +59,7 @@ bool IStream::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -69,7 +69,7 @@ bool IStream::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::s
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -79,7 +79,7 @@ bool IStream::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::w
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -89,7 +89,7 @@ bool IStream::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -99,7 +99,7 @@ bool IStream::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -109,7 +109,7 @@ bool IStream::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -119,7 +119,7 @@ bool IStream::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -129,7 +129,7 @@ bool IStream::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStre
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -139,7 +139,7 @@ bool IStream::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStre
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -149,7 +149,7 @@ bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStrea
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -159,7 +159,7 @@ bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStrea
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -169,7 +169,7 @@ bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStre
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -179,7 +179,7 @@ bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStre
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -189,7 +189,7 @@ bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStre
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -199,7 +199,7 @@ bool IStream::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStre
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -209,7 +209,7 @@ bool IStream::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInS
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -219,7 +219,7 @@ bool IStream::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInS
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -229,7 +229,7 @@ bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInSt
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -239,7 +239,7 @@ bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInSt
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -249,7 +249,7 @@ bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInS
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -259,7 +259,7 @@ bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInS
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::string& data, char paddingChar)
+bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -269,7 +269,7 @@ bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInS
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
 	SizeType codeUnitsWritten = 0;
@@ -281,7 +281,7 @@ bool IStream::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInS
 //----------------------------------------------------------------------------------------
 //Array read functions
 //----------------------------------------------------------------------------------------
-template<class T> bool IStream::ReadData(std::vector<T>& data, SizeType length)
+template<class T> bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeType length)
 {
 	data.resize((std::vector<T>::size_type)length);
 	if(length <= 0)
@@ -292,7 +292,7 @@ template<class T> bool IStream::ReadData(std::vector<T>& data, SizeType length)
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> bool IStream::ReadDataBigEndian(std::vector<T>& data, SizeType length)
+template<class T> bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& data, SizeType length)
 {
 	data.resize((std::vector<T>::size_type)length);
 	if(length <= 0)
@@ -303,7 +303,7 @@ template<class T> bool IStream::ReadDataBigEndian(std::vector<T>& data, SizeType
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> bool IStream::ReadDataLittleEndian(std::vector<T>& data, SizeType length)
+template<class T> bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<T>& data, SizeType length)
 {
 	data.resize((std::vector<T>::size_type)length);
 	if(length <= 0)
@@ -316,145 +316,145 @@ template<class T> bool IStream::ReadDataLittleEndian(std::vector<T>& data, SizeT
 //----------------------------------------------------------------------------------------
 //Text string write functions
 //----------------------------------------------------------------------------------------
-bool IStream::WriteText(const std::string& data)
+bool IStreamNonSeekable::WriteText(const std::string& data)
 {
 	return WriteText(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteText(const std::wstring& data)
+bool IStreamNonSeekable::WriteText(const std::wstring& data)
 {
 	return WriteText(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextAsUTF8(const std::string& data)
+bool IStreamNonSeekable::WriteTextAsUTF8(const std::string& data)
 {
 	return WriteTextAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextAsUTF8(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextAsUTF8(const std::wstring& data)
 {
 	return WriteTextAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextAsUTF16(const std::string& data)
+bool IStreamNonSeekable::WriteTextAsUTF16(const std::string& data)
 {
 	return WriteTextAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextAsUTF16(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextAsUTF16(const std::wstring& data)
 {
 	return WriteTextAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextAsUTF32(const std::string& data)
+bool IStreamNonSeekable::WriteTextAsUTF32(const std::string& data)
 {
 	return WriteTextAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextAsUTF32(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextAsUTF32(const std::wstring& data)
 {
 	return WriteTextAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndian(const std::string& data)
+bool IStreamNonSeekable::WriteTextBigEndian(const std::string& data)
 {
 	return WriteTextBigEndian(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndian(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextBigEndian(const std::wstring& data)
 {
 	return WriteTextBigEndian(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianAsUTF8(const std::string& data)
+bool IStreamNonSeekable::WriteTextBigEndianAsUTF8(const std::string& data)
 {
 	return WriteTextBigEndianAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianAsUTF8(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextBigEndianAsUTF8(const std::wstring& data)
 {
 	return WriteTextBigEndianAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianAsUTF16(const std::string& data)
+bool IStreamNonSeekable::WriteTextBigEndianAsUTF16(const std::string& data)
 {
 	return WriteTextBigEndianAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianAsUTF16(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextBigEndianAsUTF16(const std::wstring& data)
 {
 	return WriteTextBigEndianAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianAsUTF32(const std::string& data)
+bool IStreamNonSeekable::WriteTextBigEndianAsUTF32(const std::string& data)
 {
 	return WriteTextBigEndianAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianAsUTF32(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextBigEndianAsUTF32(const std::wstring& data)
 {
 	return WriteTextBigEndianAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndian(const std::string& data)
+bool IStreamNonSeekable::WriteTextLittleEndian(const std::string& data)
 {
 	return WriteTextLittleEndian(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndian(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextLittleEndian(const std::wstring& data)
 {
 	return WriteTextLittleEndian(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianAsUTF8(const std::string& data)
+bool IStreamNonSeekable::WriteTextLittleEndianAsUTF8(const std::string& data)
 {
 	return WriteTextLittleEndianAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianAsUTF8(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextLittleEndianAsUTF8(const std::wstring& data)
 {
 	return WriteTextLittleEndianAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianAsUTF16(const std::string& data)
+bool IStreamNonSeekable::WriteTextLittleEndianAsUTF16(const std::string& data)
 {
 	return WriteTextLittleEndianAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianAsUTF16(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextLittleEndianAsUTF16(const std::wstring& data)
 {
 	return WriteTextLittleEndianAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianAsUTF32(const std::string& data)
+bool IStreamNonSeekable::WriteTextLittleEndianAsUTF32(const std::string& data)
 {
 	return WriteTextLittleEndianAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianAsUTF32(const std::wstring& data)
+bool IStreamNonSeekable::WriteTextLittleEndianAsUTF32(const std::wstring& data)
 {
 	return WriteTextLittleEndianAsUTF32(data.c_str(), (SizeType)data.length());
 }
@@ -462,145 +462,145 @@ bool IStream::WriteTextLittleEndianAsUTF32(const std::wstring& data)
 //----------------------------------------------------------------------------------------
 //Fixed length text buffer write functions
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
+bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool IStream::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
+bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
@@ -608,13 +608,13 @@ bool IStream::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsIn
 //----------------------------------------------------------------------------------------
 //Array write functions
 //----------------------------------------------------------------------------------------
-template<class T> bool IStream::WriteData(const std::vector<T>& data)
+template<class T> bool IStreamNonSeekable::WriteData(const std::vector<T>& data)
 {
 	return WriteData(&data[0], (SizeType)data.size());
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> bool IStream::WriteDataMultipleTimes(T data, SizeType count)
+template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
 	for(SizeType i = 0; i < count; ++i)
@@ -625,13 +625,13 @@ template<class T> bool IStream::WriteDataMultipleTimes(T data, SizeType count)
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> bool IStream::WriteDataBigEndian(const std::vector<T>& data)
+template<class T> bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<T>& data)
 {
 	return WriteDataBigEndian(&data[0], (SizeType)data.size());
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> bool IStream::WriteDataBigEndianMultipleTimes(T data, SizeType count)
+template<class T> bool IStreamNonSeekable::WriteDataBigEndianMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
 	for(SizeType i = 0; i < count; ++i)
@@ -642,13 +642,13 @@ template<class T> bool IStream::WriteDataBigEndianMultipleTimes(T data, SizeType
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> bool IStream::WriteDataLittleEndian(const std::vector<T>& data)
+template<class T> bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<T>& data)
 {
 	return WriteDataLittleEndian(&data[0], (SizeType)data.size());
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> bool IStream::WriteDataLittleEndianMultipleTimes(T data, SizeType count)
+template<class T> bool IStreamNonSeekable::WriteDataLittleEndianMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
 	for(SizeType i = 0; i < count; ++i)
