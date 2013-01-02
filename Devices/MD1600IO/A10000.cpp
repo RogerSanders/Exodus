@@ -1134,7 +1134,7 @@ void A10000::LoadState(IHeirarchicalStorageNode& node)
 	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
 	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		IHeirarchicalStorageAttribute* portNumberAttribute = (*i)->GetAttribute(L"portNumber");
+		IHeirarchicalStorageAttribute* portNumberAttribute = (*i)->GetAttribute(L"PortNumber");
 		if(portNumberAttribute != 0)
 		{
 			unsigned int portNo;
@@ -1163,7 +1163,7 @@ void A10000::LoadState(IHeirarchicalStorageNode& node)
 				}
 				else if((*i)->GetName() == L"LineAsserted")
 				{
-					IHeirarchicalStorageAttribute* lineNameAttribute = (*i)->GetAttribute(L"lineName");
+					IHeirarchicalStorageAttribute* lineNameAttribute = (*i)->GetAttribute(L"LineName");
 					if(lineNameAttribute != 0)
 					{
 						std::wstring lineName = lineNameAttribute->GetValue();
@@ -1199,9 +1199,55 @@ void A10000::LoadState(IHeirarchicalStorageNode& node)
 				}
 			}
 		}
+		else if((*i)->GetName() == L"VersionRegister")
+		{
+			versionRegister = (*i)->ExtractHexData<unsigned int>();
+		}
 		else if((*i)->GetName() == L"HLLineState")
 		{
 			currentHLLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"LastTimesliceLength")
+		{
+			lastTimesliceLength = (*i)->ExtractData<bool>();
+		}
+		//Restore the lineAccessBuffer state
+		else if((*i)->GetName() == L"LineAccessBuffer")
+		{
+			IHeirarchicalStorageNode& lineAccessBufferNode = *(*i);
+			std::list<IHeirarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
+			for(std::list<IHeirarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
+			{
+				if((*lineAccessBufferEntry)->GetName() == L"LineAccess")
+				{
+					IHeirarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
+					IHeirarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
+					IHeirarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
+					if((lineNameAttribute != 0) && (lineStateAttribute != 0) && (accessTimeAttribute != 0))
+					{
+						//Extract the entry from the XML stream
+						std::wstring lineName = lineNameAttribute->ExtractValue<std::wstring>();
+						double accessTime = accessTimeAttribute->ExtractValue<double>();
+						unsigned int lineID = GetLineID(lineName.c_str());
+						if(lineID != 0)
+						{
+							Data lineState(GetLineWidth(lineID));
+							lineStateAttribute->ExtractValue(lineState);
+							LineAccess lineAccess(lineID, lineState, accessTime);
+
+							//Find the correct location in the list to insert the entry. The
+							//list must be sorted from earliest to latest.
+							std::list<LineAccess>::reverse_iterator j = lineAccessBuffer.rbegin();
+							while((j != lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
+							{
+								++j;
+							}
+							lineAccessBuffer.insert(j.base(), lineAccess);
+						}
+					}
+				}
+			}
+			lineAccessPending = !lineAccessBuffer.empty();
 		}
 	}
 }
@@ -1211,19 +1257,34 @@ void A10000::GetState(IHeirarchicalStorageNode& node) const
 {
 	for(unsigned int i = 0; i < controlPortCount; ++i)
 	{
-		node.CreateChildHex(L"DataRegister", GetDataRegister(i).GetData(), GetDataRegister(i).GetHexCharCount()).CreateAttribute(L"portNumber", i);
-		node.CreateChildHex(L"ControlRegister", GetControlRegister(i).GetData(), GetControlRegister(i).GetHexCharCount()).CreateAttribute(L"portNumber", i);
-		node.CreateChildHex(L"SerialControlRegister", GetSerialControlRegister(i).GetData(), GetSerialControlRegister(i).GetHexCharCount()).CreateAttribute(L"portNumber", i);
-		node.CreateChildHex(L"TxDataRegister", GetTxDataRegister(i).GetData(), GetTxDataRegister(i).GetHexCharCount()).CreateAttribute(L"portNumber", i);
-		node.CreateChildHex(L"RxDataRegister", GetRxDataRegister(i).GetData(), GetRxDataRegister(i).GetHexCharCount()).CreateAttribute(L"portNumber", i);
+		node.CreateChildHex(L"DataRegister", GetDataRegister(i).GetData(), GetDataRegister(i).GetHexCharCount()).CreateAttribute(L"PortNumber", i);
+		node.CreateChildHex(L"ControlRegister", GetControlRegister(i).GetData(), GetControlRegister(i).GetHexCharCount()).CreateAttribute(L"PortNumber", i);
+		node.CreateChildHex(L"SerialControlRegister", GetSerialControlRegister(i).GetData(), GetSerialControlRegister(i).GetHexCharCount()).CreateAttribute(L"PortNumber", i);
+		node.CreateChildHex(L"TxDataRegister", GetTxDataRegister(i).GetData(), GetTxDataRegister(i).GetHexCharCount()).CreateAttribute(L"PortNumber", i);
+		node.CreateChildHex(L"RxDataRegister", GetRxDataRegister(i).GetData(), GetRxDataRegister(i).GetHexCharCount()).CreateAttribute(L"PortNumber", i);
 
-		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedD0).CreateAttribute(L"portNumber", i).CreateAttribute(L"lineName", "D0");
-		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedD1).CreateAttribute(L"portNumber", i).CreateAttribute(L"lineName", "D1");
-		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedD2).CreateAttribute(L"portNumber", i).CreateAttribute(L"lineName", "D2");
-		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedD3).CreateAttribute(L"portNumber", i).CreateAttribute(L"lineName", "D3");
-		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedTL).CreateAttribute(L"portNumber", i).CreateAttribute(L"lineName", "TL");
-		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedTR).CreateAttribute(L"portNumber", i).CreateAttribute(L"lineName", "TR");
-		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedTH).CreateAttribute(L"portNumber", i).CreateAttribute(L"lineName", "TH");
+		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedD0).CreateAttribute(L"PortNumber", i).CreateAttribute(L"LineName", "D0");
+		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedD1).CreateAttribute(L"PortNumber", i).CreateAttribute(L"LineName", "D1");
+		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedD2).CreateAttribute(L"PortNumber", i).CreateAttribute(L"LineName", "D2");
+		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedD3).CreateAttribute(L"PortNumber", i).CreateAttribute(L"LineName", "D3");
+		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedTL).CreateAttribute(L"PortNumber", i).CreateAttribute(L"LineName", "TL");
+		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedTR).CreateAttribute(L"PortNumber", i).CreateAttribute(L"LineName", "TR");
+		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedTH).CreateAttribute(L"PortNumber", i).CreateAttribute(L"LineName", "TH");
 	}
-	node.CreateChildHex(L"HLLineState", currentHLLineState, 1);
+	node.CreateChildHex(L"VersionRegister", versionRegister.GetData(), versionRegister.GetHexCharCount());
+	node.CreateChild(L"HLLineState", currentHLLineState);
+	node.CreateChild(L"LastTimesliceLength", lastTimesliceLength);
+
+	//Save the lineAccessBuffer state
+	if(lineAccessPending)
+	{
+		IHeirarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
+		for(std::list<LineAccess>::const_iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
+		{
+			IHeirarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
+			lineAccessEntry.CreateAttribute(L"LineName", GetLineName(i->lineID));
+			lineAccessEntry.CreateAttribute(L"LineState", i->state);
+			lineAccessEntry.CreateAttribute(L"AccessTime", i->accessTime);
+		}
+	}
 }

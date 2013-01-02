@@ -24,6 +24,8 @@ public:
 	inline IHeirarchicalStorageNode& CreateChild(const std::wstring& aname);
 	template<class T> IHeirarchicalStorageNode& CreateChild(const std::wstring& aname, const T& adata);
 	template<class T> IHeirarchicalStorageNode& CreateChildHex(const std::wstring& aname, const T& adata, unsigned int length);
+	template<class T> IHeirarchicalStorageNode& CreateChildBinary(const std::wstring& aname, const T& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
+	template<class T> IHeirarchicalStorageNode& CreateChildBinary(const std::wstring& aname, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
 	virtual IHeirarchicalStorageNode& CreateChild(const wchar_t* aname) = 0;
 	inline std::list<IHeirarchicalStorageNode*> GetChildList();
 
@@ -65,13 +67,14 @@ public:
 	template<class T> T ExtractBinaryData();
 	template<class T> IHeirarchicalStorageNode& ExtractBinaryData(T& target);
 	template<class T> IHeirarchicalStorageNode& ExtractBinaryData(std::vector<T>& target);
+	template<> inline IHeirarchicalStorageNode& ExtractBinaryData(std::vector<bool>& target);
 	template<> inline IHeirarchicalStorageNode& ExtractBinaryData(std::vector<unsigned char>& target);
 
 	//Binary data write functions
 	template<class T> IHeirarchicalStorageNode& InsertBinaryData(const T& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
 	template<class T> IHeirarchicalStorageNode& InsertBinaryData(const std::vector<T>& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
 	template<> inline IHeirarchicalStorageNode& InsertBinaryData(const std::vector<unsigned char>& adata, const std::wstring& bufferName, bool ainlineBinaryData);
-	template<class T> IHeirarchicalStorageNode& InsertBinaryData(T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
+	template<class T> IHeirarchicalStorageNode& InsertBinaryData(const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
 
 protected:
 	//Name functions

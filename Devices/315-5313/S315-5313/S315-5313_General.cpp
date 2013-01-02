@@ -105,9 +105,6 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	busGranted = false;
 	palModeLineState = false;
 	lineStateIPL = 0;
-	interruptPendingHint = false;
-	interruptPendingVint = false;
-	interruptPendingEXint = false;
 
 	outputPortAccessDebugMessages = false;
 	outputTimingDebugMessages = false;
@@ -322,9 +319,6 @@ void S315_5313::Initialize()
 	busGranted = false;
 	palModeLineState = true;
 	lineStateIPL = 0;
-	interruptPendingHint = false;
-	interruptPendingVint = false;
-	interruptPendingEXint = false;
 
 	for(unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
 	{
@@ -398,6 +392,7 @@ void S315_5313::Reset()
 	screenModeRS0Cached = false;
 	screenModeRS1Cached = false;
 	screenModeV30Cached = false;
+	screenModeM5Cached = false;
 	displayEnabledCached = false;
 	spriteAttributeTableBaseAddressDecoded = 0;
 	verticalScrollModeCached = false;
@@ -1031,9 +1026,6 @@ void S315_5313::ExecuteRollback()
 	busGranted = bbusGranted;
 	palModeLineState = bpalModeLineState;
 	lineStateIPL = blineStateIPL;
-	interruptPendingHint = binterruptPendingHint;
-	interruptPendingVint = binterruptPendingVint;
-	interruptPendingEXint = binterruptPendingEXint;
 
 	//Clock sources
 	clockMclkCurrent = bclockMclkCurrent;
@@ -1091,6 +1083,7 @@ void S315_5313::ExecuteRollback()
 	screenModeRS0Cached = bscreenModeRS0Cached;
 	screenModeRS1Cached = bscreenModeRS1Cached;
 	screenModeV30Cached = bscreenModeV30Cached;
+	screenModeM5Cached = bscreenModeM5Cached;
 	displayEnabledCached = bdisplayEnabledCached;
 	spriteAttributeTableBaseAddressDecoded = bspriteAttributeTableBaseAddressDecoded;
 	verticalScrollModeCached = bverticalScrollModeCached;
@@ -1226,9 +1219,6 @@ void S315_5313::ExecuteCommit()
 	bbusGranted = busGranted;
 	bpalModeLineState = palModeLineState;
 	blineStateIPL = lineStateIPL;
-	binterruptPendingHint = interruptPendingHint;
-	binterruptPendingVint = interruptPendingVint;
-	binterruptPendingEXint = interruptPendingEXint;
 
 	//Clock sources
 	bclockMclkCurrent = clockMclkCurrent;
@@ -1286,14 +1276,13 @@ void S315_5313::ExecuteCommit()
 	bscreenModeRS0Cached = screenModeRS0Cached;
 	bscreenModeRS1Cached = screenModeRS1Cached;
 	bscreenModeV30Cached = screenModeV30Cached;
+	bscreenModeM5Cached = screenModeM5Cached;
 	bdisplayEnabledCached = displayEnabledCached;
 	bspriteAttributeTableBaseAddressDecoded = spriteAttributeTableBaseAddressDecoded;
 	bverticalScrollModeCached = verticalScrollModeCached;
 
 	//Propagate any changes to the cached DMA settings back into the reg buffer. This
 	//makes changes to DMA settings visible to the debugger.
-	//##FIX## If changes are made to the DMA settings through the debugger, the settings
-	//cache won't be updated currently.
 	if(cachedDMASettingsChanged)
 	{
 		AccessTarget accessTarget;
@@ -3125,4 +3114,450 @@ void S315_5313::M5WriteVSRAM(const Data& address, const Data& data, const RAMAcc
 		//##TODO## Determine whether this is correct
 		//vsramReadCacheIndex = tempAddress;
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//Savestate functions
+//----------------------------------------------------------------------------------------
+bool S315_5313::GetScreenshot(IImage& targetImage) const
+{
+	//Assumed constants
+	unsigned int width = 347;
+	unsigned int height = 294;
+
+	boost::mutex::scoped_lock lock(imageBufferMutex);
+	//	unsigned int displayingImageBufferPlane = ((drawingImageBufferPlane + imageBufferPlanes) - 1) % imageBufferPlanes;
+	unsigned int displayingImageBufferPlane = drawingImageBufferPlane;
+
+	targetImage.SetImageFormat(width, height, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
+	for(unsigned int ypos = 0; ypos < height; ++ypos)
+	{
+		for(unsigned int xpos = 0; xpos < width; ++xpos)
+		{
+			unsigned int bufferPos = ((xpos + (((height - 1) * imageWidth) - (ypos * imageWidth))) * 4);
+			unsigned char r = image[displayingImageBufferPlane][bufferPos + 0];
+			unsigned char g = image[displayingImageBufferPlane][bufferPos + 1];
+			unsigned char b = image[displayingImageBufferPlane][bufferPos + 2];
+			targetImage.WritePixelData(xpos, ypos, 0, r);
+			targetImage.WritePixelData(xpos, ypos, 1, g);
+			targetImage.WritePixelData(xpos, ypos, 2, b);
+		}
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::LoadState(IHeirarchicalStorageNode& node)
+{
+	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		if((*i)->GetName() == L"Registers")
+		{
+			reg.LoadState(*(*i));
+
+			//Update any cached register settings
+			AccessTarget accessTarget;
+			accessTarget.AccessLatest();
+			for(unsigned int i = 0; i < registerCount; ++i)
+			{
+				TransparentRegisterSpecialUpdateFunction(i, GetRegisterData(i, accessTarget));
+			}
+		}
+		else if((*i)->GetName() == L"Register")
+		{
+			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			if(nameAttribute != 0)
+			{
+				std::wstring registerName = nameAttribute->GetValue();
+				//Bus interface
+				if(registerName == L"BusGranted")				busGranted = (*i)->ExtractData<bool>();
+				else if(registerName == L"PalModeLineState")	palModeLineState = (*i)->ExtractData<bool>();
+				else if(registerName == L"LineStateIPL")		lineStateIPL = (*i)->ExtractData<unsigned int>();
+				//Clock sources
+				else if(registerName == L"ClockMclkCurrent")		clockMclkCurrent = (*i)->ExtractData<double>();
+				//Physical registers and memory buffers
+				else if(registerName == L"Status")				status = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"HCounter")			hcounter = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"VCounter")			vcounter = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"HCounterLatchedData")	hcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"VCounterLatchedData")	vcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"HVCounterLatched")	hvCounterLatched = (*i)->ExtractData<bool>();
+				else if(registerName == L"HIntCounter")			hintCounter = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"VIntPending")			vintPending = (*i)->ExtractData<bool>();
+				else if(registerName == L"HIntPending")			hintPending = (*i)->ExtractData<bool>();
+				else if(registerName == L"EXIntPending")		exintPending = (*i)->ExtractData<bool>();
+				//Cached register settings
+				else if(registerName == L"InterlaceEnabled")	interlaceEnabled = (*i)->ExtractData<bool>();
+				else if(registerName == L"InterlaceDouble")		interlaceDouble = (*i)->ExtractData<bool>();
+				else if(registerName == L"ScreenModeRS0")		screenModeRS0 = (*i)->ExtractData<bool>();
+				else if(registerName == L"ScreenModeRS1")		screenModeRS1 = (*i)->ExtractData<bool>();
+				else if(registerName == L"ScreenModeV30")		screenModeV30 = (*i)->ExtractData<bool>();
+				else if(registerName == L"PalMode")				palMode = (*i)->ExtractData<bool>();
+				//FIFO buffer registers
+				else if(registerName == L"FIFONextReadEntry")			fifoNextReadEntry = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"FIFONextWriteEntry")			fifoNextWriteEntry = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"ReadBuffer")					readBuffer = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"ReadDataAvailable")			readDataAvailable = (*i)->ExtractData<bool>();
+				else if(registerName == L"ReadDataHalfCached")			readDataHalfCached = (*i)->ExtractData<bool>();
+				else if(registerName == L"DMAFillOperationRunning")		dmaFillOperationRunning = (*i)->ExtractData<bool>();
+				else if(registerName == L"VSRAMReadCacheIndex")			vsramReadCacheIndex = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"VSRAMLastRenderReadCache")	vsramLastRenderReadCache = (*i)->ExtractHexData<unsigned int>();
+				//Update state
+				else if(registerName == L"CurrentTimesliceLength")					currentTimesliceLength = (*i)->ExtractData<double>();
+				else if(registerName == L"LastTimesliceMclkCyclesRemainingTime")	lastTimesliceMclkCyclesRemainingTime = (*i)->ExtractData<double>();
+				else if(registerName == L"CurrentTimesliceMclkCyclesRemainingTime")	currentTimesliceMclkCyclesRemainingTime = (*i)->ExtractData<double>();
+				else if(registerName == L"LastTimesliceMclkCyclesOverrun")			lastTimesliceMclkCyclesOverrun = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"StateLastUpdateTime")						stateLastUpdateTime = (*i)->ExtractData<double>();
+				else if(registerName == L"StateLastUpdateMclk")						stateLastUpdateMclk = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"StateLastUpdateMclkUnused")				stateLastUpdateMclkUnused = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"StateLastUpdateMclkUnusedFromLastTimeslice")	stateLastUpdateMclkUnusedFromLastTimeslice = (*i)->ExtractData<unsigned int>();
+				//Interrupt line rollback data
+				else if(registerName == L"LineStateChangePendingVINT")				lineStateChangePendingVINT = (*i)->ExtractData<bool>();
+				else if(registerName == L"LineStateChangeVINTMClkCountFromCurrent")	lineStateChangeVINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"LineStateChangeVINTTime")					lineStateChangeVINTTime = (*i)->ExtractData<double>();
+				else if(registerName == L"LineStateChangePendingHINT")				lineStateChangePendingHINT = (*i)->ExtractData<bool>();
+				else if(registerName == L"LineStateChangeHINTMClkCountFromCurrent")	lineStateChangeHINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"LineStateChangeHINTTime")					lineStateChangeHINTTime = (*i)->ExtractData<double>();
+				else if(registerName == L"LineStateChangePendingEXINT")				lineStateChangePendingEXINT = (*i)->ExtractData<bool>();
+				else if(registerName == L"LineStateChangeEXINTMClkCountFromCurrent")	lineStateChangeEXINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"LineStateChangeEXINTTime")					lineStateChangeEXINTTime = (*i)->ExtractData<double>();
+				else if(registerName == L"LineStateChangePendingINTAsserted")				lineStateChangePendingINTAsserted = (*i)->ExtractData<bool>();
+				else if(registerName == L"LineStateChangeINTAssertedMClkCountFromCurrent")	lineStateChangeINTAssertedMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"LineStateChangeINTAssertedTime")					lineStateChangeINTAssertedTime = (*i)->ExtractData<double>();
+				else if(registerName == L"LineStateChangePendingINTNegated")				lineStateChangePendingINTNegated = (*i)->ExtractData<bool>();
+				else if(registerName == L"LineStateChangeINTNegatedMClkCountFromCurrent")	lineStateChangeINTNegatedMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"LineStateChangeINTNegatedTime")					lineStateChangeINTNegatedTime = (*i)->ExtractData<double>();
+				//Control port registers
+				else if(registerName == L"CodeAndAddressRegistersModifiedSinceLastWrite")	codeAndAddressRegistersModifiedSinceLastWrite = (*i)->ExtractData<bool>();
+				else if(registerName == L"CommandWritePending")								commandWritePending = (*i)->ExtractData<bool>();
+				else if(registerName == L"OriginalCommandAddress")							originalCommandAddress = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"CommandAddress")									commandAddress = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"CommandCode")										commandCode = (*i)->ExtractHexData<unsigned int>();
+				//Digital render data buffers
+				else if(registerName == L"RenderDigitalHCounterPos")					renderDigitalHCounterPos = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"RenderDigitalVCounterPos")					renderDigitalVCounterPos = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"RenderDigitalVCounterPosPreviousLine")		renderDigitalVCounterPosPreviousLine = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"RenderDigitalRemainingMclkCycles")			renderDigitalRemainingMclkCycles = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderDigitalScreenModeRS0Active")			renderDigitalScreenModeRS0Active = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderDigitalScreenModeRS1Active")			renderDigitalScreenModeRS1Active = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderDigitalScreenModeV30Active")			renderDigitalScreenModeV30Active = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderDigitalInterlaceEnabledActive")			renderDigitalInterlaceEnabledActive = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderDigitalInterlaceDoubleActive")			renderDigitalInterlaceDoubleActive = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderDigitalPalModeActive")					renderDigitalPalModeActive = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderDigitalOddFlagSet")						renderDigitalOddFlagSet = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderLayerAHscrollPatternDisplacement")		renderLayerAHscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderLayerBHscrollPatternDisplacement")		renderLayerBHscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderLayerAHscrollMappingDisplacement")		renderLayerAHscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderLayerBHscrollMappingDisplacement")		renderLayerBHscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderLayerAVscrollPatternDisplacement")		renderLayerAVscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderLayerBVscrollPatternDisplacement")		renderLayerBVscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderLayerAVscrollMappingDisplacement")		renderLayerAVscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderLayerBVscrollMappingDisplacement")		renderLayerBVscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderWindowActiveCache")						(*i)->ExtractBinaryData(renderWindowActiveCache);
+				else if(registerName == L"RenderMappingDataCacheLayerA")				(*i)->ExtractBinaryData(renderMappingDataCacheLayerA);
+				else if(registerName == L"RenderMappingDataCacheLayerB")				(*i)->ExtractBinaryData(renderMappingDataCacheLayerB);
+				else if(registerName == L"RenderMappingDataCacheSprite")				(*i)->ExtractBinaryData(renderMappingDataCacheSprite);
+				else if(registerName == L"RenderPatternDataCacheLayerA")				(*i)->ExtractBinaryData(renderPatternDataCacheLayerA);
+				else if(registerName == L"RenderPatternDataCacheLayerB")				(*i)->ExtractBinaryData(renderPatternDataCacheLayerB);
+				else if(registerName == L"RenderPatternDataCacheSprite")				(*i)->ExtractBinaryData(renderPatternDataCacheLayerB);
+				else if(registerName == L"RenderSpriteDisplayCacheEntryCount")			renderSpriteDisplayCacheEntryCount = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderSpriteDisplayCacheCurrentIndex")		renderSpriteDisplayCacheCurrentIndex = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderSpriteSearchComplete")					renderSpriteSearchComplete = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderSpriteOverflow")						renderSpriteOverflow = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderSpriteNextAttributeTableEntryToRead")	renderSpriteNextAttributeTableEntryToRead = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderSpriteDisplayCellCacheEntryCount")		renderSpriteDisplayCellCacheEntryCount = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderSpriteDisplayCellCacheCurrentIndex")	renderSpriteDisplayCellCacheCurrentIndex = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderSpriteDotOverflow")						renderSpriteDotOverflow = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderSpriteDotOverflowPreviousLine")			renderSpriteDotOverflowPreviousLine = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderSpritePixelBufferDigitalRenderPlane")	renderSpritePixelBufferDigitalRenderPlane = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"RenderSpritePixelBufferAnalogRenderPlane")	renderSpritePixelBufferAnalogRenderPlane = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"NonSpriteMaskCellEncountered")				nonSpriteMaskCellEncountered = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderSpriteMaskActive")						renderSpriteMaskActive = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderSpriteCollision")						renderSpriteCollision = (*i)->ExtractData<bool>();
+				else if(registerName == L"RenderVSRAMCachedRead")						renderVSRAMCachedRead = (*i)->ExtractHexData<unsigned int>();
+				//##TODO## Image buffer
+				//DMA worker thread properties
+				else if(registerName == L"WorkerThreadPaused")	workerThreadPaused = (*i)->ExtractData<bool>();
+				//DMA transfer registers
+				else if(registerName == L"DMATransferActive")			dmaTransferActive = (*i)->ExtractData<bool>();
+				else if(registerName == L"DMATransferReadDataCached")	dmaTransferReadDataCached = (*i)->ExtractData<bool>();
+				else if(registerName == L"DMATransferReadCache")		dmaTransferReadCache = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"DMATransferNextReadMclk")		dmaTransferNextReadMclk = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"DMATransferLastTimesliceUsedReadDelay")	dmaTransferLastTimesliceUsedReadDelay = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"DMATransferInvalidPortWriteCached")	dmaTransferInvalidPortWriteCached = (*i)->ExtractData<bool>();
+				else if(registerName == L"DMATransferInvalidPortWriteAddressCache")	dmaTransferInvalidPortWriteAddressCache = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"DMATransferInvalidPortWriteDataCache")	dmaTransferInvalidPortWriteDataCache = (*i)->ExtractHexData<unsigned int>();
+				//External interrupt settings
+				else if(registerName == L"ExternalInterruptVideoTriggerPointPending")	externalInterruptVideoTriggerPointPending = (*i)->ExtractData<bool>();
+				else if(registerName == L"ExternalInterruptVideoTriggerPointHCounter")	externalInterruptVideoTriggerPointHCounter = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"ExternalInterruptVideoTriggerPointVCounter")	externalInterruptVideoTriggerPointVCounter = (*i)->ExtractHexData<unsigned int>();
+			}
+		}
+		else if((*i)->GetName() == L"FIFOBuffer")
+		{
+			std::list<IHeirarchicalStorageNode*> entryList = (*i)->GetChildList();
+			for(std::list<IHeirarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			{
+				IHeirarchicalStorageNode* entryNode = *entryNodeIterator;
+				unsigned int entryIndex;
+				if(entryNode->ExtractAttribute(L"index", entryIndex))
+				{
+					if(entryIndex < fifoBufferSize)
+					{
+						FIFOBufferEntry& entry = fifoBuffer[entryIndex];
+						entryNode->ExtractAttributeHex(L"codeRegData", entry.codeRegData);
+						entryNode->ExtractAttributeHex(L"addressRegData", entry.addressRegData);
+						entryNode->ExtractAttributeHex(L"dataPortWriteData", entry.dataPortWriteData);
+						entryNode->ExtractAttribute(L"dataWriteHalfWritten", entry.dataWriteHalfWritten);
+						entryNode->ExtractAttribute(L"pendingDataWrite", entry.pendingDataWrite);
+					}
+				}
+			}
+		}
+		else if((*i)->GetName() == L"RenderSpriteDisplayCache")
+		{
+			std::list<IHeirarchicalStorageNode*> entryList = (*i)->GetChildList();
+			for(std::list<IHeirarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			{
+				IHeirarchicalStorageNode* entryNode = *entryNodeIterator;
+				unsigned int entryIndex;
+				if(entryNode->ExtractAttribute(L"index", entryIndex))
+				{
+					if(entryIndex < maxSpriteDisplayCacheSize)
+					{
+						SpriteDisplayCacheEntry& entry = renderSpriteDisplayCache[entryIndex];
+						entryNode->ExtractAttribute(L"spriteTableIndex", entry.spriteTableIndex);
+						entryNode->ExtractAttribute(L"spriteRowIndex", entry.spriteRowIndex);
+						entryNode->ExtractAttributeHex(L"vpos", entry.vpos);
+						entryNode->ExtractAttributeHex(L"sizeAndLinkData", entry.sizeAndLinkData);
+						entryNode->ExtractAttributeHex(L"mappingData", entry.mappingData);
+						entryNode->ExtractAttributeHex(L"hpos", entry.hpos);
+					}
+				}
+			}
+		}
+		else if((*i)->GetName() == L"RenderSpriteDisplayCellCache")
+		{
+			std::list<IHeirarchicalStorageNode*> entryList = (*i)->GetChildList();
+			for(std::list<IHeirarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			{
+				IHeirarchicalStorageNode* entryNode = *entryNodeIterator;
+				unsigned int entryIndex;
+				if(entryNode->ExtractAttribute(L"index", entryIndex))
+				{
+					if(entryIndex < maxSpriteDisplayCellCacheSize)
+					{
+						SpriteCellDisplayCacheEntry& entry = renderSpriteDisplayCellCache[entryIndex];
+						entryNode->ExtractAttribute(L"spriteDisplayCacheIndex", entry.spriteDisplayCacheIndex);
+						entryNode->ExtractAttribute(L"spriteCellColumnNo", entry.spriteCellColumnNo);
+						entryNode->ExtractAttribute(L"patternCellOffset", entry.patternCellOffset);
+						entryNode->ExtractAttribute(L"patternRowOffset", entry.patternRowOffset);
+						entryNode->ExtractAttributeHex(L"patternData", entry.patternData);
+					}
+				}
+			}
+		}
+		else if((*i)->GetName() == L"SpritePixelBuffer")
+		{
+			std::list<IHeirarchicalStorageNode*> entryList = (*i)->GetChildList();
+			for(std::list<IHeirarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			{
+				IHeirarchicalStorageNode* entryNode = *entryNodeIterator;
+				unsigned int entryIndex;
+				if(entryNode->ExtractAttribute(L"index", entryIndex))
+				{
+					if(entryIndex < spritePixelBufferSize)
+					{
+						SpritePixelBufferEntry& entry = spritePixelBuffer[entryIndex];
+						entryNode->ExtractAttribute(L"paletteLine", entry.paletteLine);
+						entryNode->ExtractAttribute(L"paletteIndex", entry.paletteIndex);
+						entryNode->ExtractAttribute(L"layerPriority", entry.layerPriority);
+						entryNode->ExtractAttribute(L"entryWritten", entry.entryWritten);
+					}
+				}
+			}
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::GetState(IHeirarchicalStorageNode& node) const
+{
+	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
+	std::wstring regBufferName = GetDeviceInstanceName();
+	regBufferName += L" - Registers";
+	reg.GetState(regNode, regBufferName, false);
+
+	//Bus interface
+	node.CreateChild(L"Register", busGranted).CreateAttribute(L"name", L"BusGranted");
+	node.CreateChild(L"Register", palModeLineState).CreateAttribute(L"name", L"PalModeLineState");
+	node.CreateChildHex(L"Register", lineStateIPL, 1).CreateAttribute(L"name", L"LineStateIPL");
+	//Clock sources
+	node.CreateChild(L"Register", clockMclkCurrent).CreateAttribute(L"name", L"ClockMclkCurrent");
+	//Physical registers and memory buffers
+	node.CreateChildHex(L"Register", status.GetData(), status.GetHexCharCount()).CreateAttribute(L"name", L"Status");
+	node.CreateChildHex(L"Register", hcounter.GetData(), hcounter.GetHexCharCount()).CreateAttribute(L"name", L"HCounter");
+	node.CreateChildHex(L"Register", vcounter.GetData(), vcounter.GetHexCharCount()).CreateAttribute(L"name", L"VCounter");
+	node.CreateChildHex(L"Register", hcounterLatchedData.GetData(), hcounterLatchedData.GetHexCharCount()).CreateAttribute(L"name", L"HCounterLatchedData");
+	node.CreateChildHex(L"Register", vcounterLatchedData.GetData(), vcounterLatchedData.GetHexCharCount()).CreateAttribute(L"name", L"VCounterLatchedData");
+	node.CreateChild(L"Register", hvCounterLatched).CreateAttribute(L"name", L"HVCounterLatched");
+	node.CreateChildHex(L"Register", hintCounter, 2).CreateAttribute(L"name", L"HIntCounter");
+	node.CreateChild(L"Register", vintPending).CreateAttribute(L"name", L"VIntPending");
+	node.CreateChild(L"Register", hintPending).CreateAttribute(L"name", L"HIntPending");
+	node.CreateChild(L"Register", exintPending).CreateAttribute(L"name", L"EXIntPending");
+	//Cached register settings
+	node.CreateChild(L"Register", interlaceEnabled).CreateAttribute(L"name", L"InterlaceEnabled");
+	node.CreateChild(L"Register", interlaceDouble).CreateAttribute(L"name", L"InterlaceDouble");
+	node.CreateChild(L"Register", screenModeRS0).CreateAttribute(L"name", L"ScreenModeRS0");
+	node.CreateChild(L"Register", screenModeRS1).CreateAttribute(L"name", L"ScreenModeRS1");
+	node.CreateChild(L"Register", screenModeV30).CreateAttribute(L"name", L"ScreenModeV30");
+	node.CreateChild(L"Register", palMode).CreateAttribute(L"name", L"PalMode");
+	//FIFO buffer registers
+	node.CreateChildHex(L"Register", fifoNextReadEntry, 1).CreateAttribute(L"name", L"FIFONextReadEntry");
+	node.CreateChildHex(L"Register", fifoNextWriteEntry, 1).CreateAttribute(L"name", L"FIFONextWriteEntry");
+	IHeirarchicalStorageNode& fifoBufferNode = node.CreateChild(L"FIFOBuffer");
+	for(unsigned int i = 0; i < fifoBufferSize; ++i)
+	{
+		IHeirarchicalStorageNode& entryNode = fifoBufferNode.CreateChild(L"FIFOBufferEntry");
+		const FIFOBufferEntry& entry = fifoBuffer[i];
+		entryNode.CreateAttribute(L"index", i);
+		entryNode.CreateAttributeHex(L"codeRegData", entry.codeRegData.GetData(), entry.codeRegData.GetHexCharCount());
+		entryNode.CreateAttributeHex(L"addressRegData", entry.addressRegData.GetData(), entry.addressRegData.GetHexCharCount());
+		entryNode.CreateAttributeHex(L"dataPortWriteData", entry.dataPortWriteData.GetData(), entry.dataPortWriteData.GetHexCharCount());
+		entryNode.CreateAttribute(L"dataWriteHalfWritten", entry.dataWriteHalfWritten);
+		entryNode.CreateAttribute(L"pendingDataWrite", entry.pendingDataWrite);
+	}
+	node.CreateChildHex(L"Register", readBuffer.GetData(), readBuffer.GetHexCharCount()).CreateAttribute(L"name", L"ReadBuffer");
+	node.CreateChild(L"Register", readDataAvailable).CreateAttribute(L"name", L"ReadDataAvailable");
+	node.CreateChild(L"Register", readDataHalfCached).CreateAttribute(L"name", L"ReadDataHalfCached");
+	node.CreateChild(L"Register", dmaFillOperationRunning).CreateAttribute(L"name", L"DMAFillOperationRunning");
+	node.CreateChildHex(L"Register", vsramReadCacheIndex, 2).CreateAttribute(L"name", L"VSRAMReadCacheIndex");
+	node.CreateChildHex(L"Register", vsramLastRenderReadCache.GetData(), vsramLastRenderReadCache.GetHexCharCount()).CreateAttribute(L"name", L"VSRAMLastRenderReadCache");
+	//Update state
+	node.CreateChild(L"Register", currentTimesliceLength).CreateAttribute(L"name", L"CurrentTimesliceLength");
+	node.CreateChild(L"Register", lastTimesliceMclkCyclesRemainingTime).CreateAttribute(L"name", L"LastTimesliceMclkCyclesRemainingTime");
+	node.CreateChild(L"Register", currentTimesliceMclkCyclesRemainingTime).CreateAttribute(L"name", L"CurrentTimesliceMclkCyclesRemainingTime");
+	node.CreateChild(L"Register", lastTimesliceMclkCyclesOverrun).CreateAttribute(L"name", L"LastTimesliceMclkCyclesOverrun");
+	node.CreateChild(L"Register", stateLastUpdateTime).CreateAttribute(L"name", L"StateLastUpdateTime");
+	node.CreateChild(L"Register", stateLastUpdateMclk).CreateAttribute(L"name", L"StateLastUpdateMclk");
+	node.CreateChild(L"Register", stateLastUpdateMclkUnused).CreateAttribute(L"name", L"StateLastUpdateMclkUnused");
+	node.CreateChild(L"Register", stateLastUpdateMclkUnusedFromLastTimeslice).CreateAttribute(L"name", L"StateLastUpdateMclkUnusedFromLastTimeslice");
+	//Interrupt line rollback data
+	node.CreateChild(L"Register", lineStateChangePendingVINT).CreateAttribute(L"name", L"LineStateChangePendingVINT");
+	node.CreateChild(L"Register", lineStateChangeVINTMClkCountFromCurrent).CreateAttribute(L"name", L"LineStateChangeVINTMClkCountFromCurrent");
+	node.CreateChild(L"Register", lineStateChangeVINTTime).CreateAttribute(L"name", L"LineStateChangeVINTTime");
+	node.CreateChild(L"Register", lineStateChangePendingHINT).CreateAttribute(L"name", L"LineStateChangePendingHINT");
+	node.CreateChild(L"Register", lineStateChangeHINTMClkCountFromCurrent).CreateAttribute(L"name", L"LineStateChangeHINTMClkCountFromCurrent");
+	node.CreateChild(L"Register", lineStateChangeHINTTime).CreateAttribute(L"name", L"LineStateChangeHINTTime");
+	node.CreateChild(L"Register", lineStateChangePendingEXINT).CreateAttribute(L"name", L"LineStateChangePendingEXINT");
+	node.CreateChild(L"Register", lineStateChangeEXINTMClkCountFromCurrent).CreateAttribute(L"name", L"LineStateChangeEXINTMClkCountFromCurrent");
+	node.CreateChild(L"Register", lineStateChangeEXINTTime).CreateAttribute(L"name", L"LineStateChangeEXINTTime");
+	node.CreateChild(L"Register", lineStateChangePendingINTAsserted).CreateAttribute(L"name", L"LineStateChangePendingINTAsserted");
+	node.CreateChild(L"Register", lineStateChangeINTAssertedMClkCountFromCurrent).CreateAttribute(L"name", L"LineStateChangeINTAssertedMClkCountFromCurrent");
+	node.CreateChild(L"Register", lineStateChangeINTAssertedTime).CreateAttribute(L"name", L"LineStateChangeINTAssertedTime");
+	node.CreateChild(L"Register", lineStateChangePendingINTNegated).CreateAttribute(L"name", L"LineStateChangePendingINTNegated");
+	node.CreateChild(L"Register", lineStateChangeINTNegatedMClkCountFromCurrent).CreateAttribute(L"name", L"LineStateChangeINTNegatedMClkCountFromCurrent");
+	node.CreateChild(L"Register", lineStateChangeINTNegatedTime).CreateAttribute(L"name", L"LineStateChangeINTNegatedTime");
+	//Control port registers
+	node.CreateChild(L"Register", codeAndAddressRegistersModifiedSinceLastWrite).CreateAttribute(L"name", L"CodeAndAddressRegistersModifiedSinceLastWrite");
+	node.CreateChild(L"Register", commandWritePending).CreateAttribute(L"name", L"CommandWritePending");
+	node.CreateChildHex(L"Register", originalCommandAddress.GetData(), originalCommandAddress.GetHexCharCount()).CreateAttribute(L"name", L"OriginalCommandAddress");
+	node.CreateChildHex(L"Register", commandAddress.GetData(), commandAddress.GetHexCharCount()).CreateAttribute(L"name", L"CommandAddress");
+	node.CreateChildHex(L"Register", commandCode.GetData(), commandCode.GetHexCharCount()).CreateAttribute(L"name", L"CommandCode");
+	//Digital render data buffers
+	node.CreateChildHex(L"Register", renderDigitalHCounterPos, 3).CreateAttribute(L"name", L"RenderDigitalHCounterPos");
+	node.CreateChildHex(L"Register", renderDigitalVCounterPos, 3).CreateAttribute(L"name", L"RenderDigitalVCounterPos");
+	node.CreateChildHex(L"Register", renderDigitalVCounterPosPreviousLine, 3).CreateAttribute(L"name", L"RenderDigitalVCounterPosPreviousLine");
+	node.CreateChild(L"Register", renderDigitalRemainingMclkCycles).CreateAttribute(L"name", L"RenderDigitalRemainingMclkCycles");
+	node.CreateChild(L"Register", renderDigitalScreenModeRS0Active).CreateAttribute(L"name", L"RenderDigitalScreenModeRS0Active");
+	node.CreateChild(L"Register", renderDigitalScreenModeRS1Active).CreateAttribute(L"name", L"RenderDigitalScreenModeRS1Active");
+	node.CreateChild(L"Register", renderDigitalScreenModeV30Active).CreateAttribute(L"name", L"RenderDigitalScreenModeV30Active");
+	node.CreateChild(L"Register", renderDigitalInterlaceEnabledActive).CreateAttribute(L"name", L"RenderDigitalInterlaceEnabledActive");
+	node.CreateChild(L"Register", renderDigitalInterlaceDoubleActive).CreateAttribute(L"name", L"RenderDigitalInterlaceDoubleActive");
+	node.CreateChild(L"Register", renderDigitalPalModeActive).CreateAttribute(L"name", L"RenderDigitalPalModeActive");
+	node.CreateChild(L"Register", renderDigitalOddFlagSet).CreateAttribute(L"name", L"RenderDigitalOddFlagSet");
+	node.CreateChild(L"Register", renderLayerAHscrollPatternDisplacement).CreateAttribute(L"name", L"RenderLayerAHscrollPatternDisplacement");
+	node.CreateChild(L"Register", renderLayerBHscrollPatternDisplacement).CreateAttribute(L"name", L"RenderLayerBHscrollPatternDisplacement");
+	node.CreateChild(L"Register", renderLayerAHscrollMappingDisplacement).CreateAttribute(L"name", L"RenderLayerAHscrollMappingDisplacement");
+	node.CreateChild(L"Register", renderLayerBHscrollMappingDisplacement).CreateAttribute(L"name", L"RenderLayerBHscrollMappingDisplacement");
+	node.CreateChild(L"Register", renderLayerAVscrollPatternDisplacement).CreateAttribute(L"name", L"RenderLayerAVscrollPatternDisplacement");
+	node.CreateChild(L"Register", renderLayerBVscrollPatternDisplacement).CreateAttribute(L"name", L"RenderLayerBVscrollPatternDisplacement");
+	node.CreateChild(L"Register", renderLayerAVscrollMappingDisplacement).CreateAttribute(L"name", L"RenderLayerAVscrollMappingDisplacement");
+	node.CreateChild(L"Register", renderLayerBVscrollMappingDisplacement).CreateAttribute(L"name", L"RenderLayerBVscrollMappingDisplacement");
+	node.CreateChildBinary(L"Register", renderWindowActiveCache, GetDeviceInstanceName() + L"RenderWindowActiveCache").CreateAttribute(L"name", L"RenderWindowActiveCache");
+	node.CreateChildBinary(L"Register", renderMappingDataCacheLayerA, GetDeviceInstanceName() + L"RenderMappingDataCacheLayerA").CreateAttribute(L"name", L"RenderMappingDataCacheLayerA");
+	node.CreateChildBinary(L"Register", renderMappingDataCacheLayerB, GetDeviceInstanceName() + L"RenderMappingDataCacheLayerB").CreateAttribute(L"name", L"RenderMappingDataCacheLayerB");
+	node.CreateChildBinary(L"Register", renderMappingDataCacheSprite, GetDeviceInstanceName() + L"RenderMappingDataCacheSprite").CreateAttribute(L"name", L"RenderMappingDataCacheSprite");
+	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerA, GetDeviceInstanceName() + L"RenderPatternDataCacheLayerA").CreateAttribute(L"name", L"RenderPatternDataCacheLayerA");
+	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetDeviceInstanceName() + L"RenderPatternDataCacheLayerB").CreateAttribute(L"name", L"RenderPatternDataCacheLayerB");
+	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetDeviceInstanceName() + L"RenderPatternDataCacheSprite").CreateAttribute(L"name", L"RenderPatternDataCacheSprite");
+	IHeirarchicalStorageNode& renderSpriteDisplayCacheNode = node.CreateChild(L"RenderSpriteDisplayCache");
+	for(unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
+	{
+		IHeirarchicalStorageNode& entryNode = renderSpriteDisplayCacheNode.CreateChild(L"RenderSpriteDisplayCacheEntry");
+		const SpriteDisplayCacheEntry& entry = renderSpriteDisplayCache[i];
+		entryNode.CreateAttribute(L"index", i);
+		entryNode.CreateAttribute(L"spriteTableIndex", entry.spriteTableIndex);
+		entryNode.CreateAttribute(L"spriteRowIndex", entry.spriteRowIndex);
+		entryNode.CreateAttributeHex(L"vpos", entry.vpos.GetData(), entry.vpos.GetHexCharCount());
+		entryNode.CreateAttributeHex(L"sizeAndLinkData", entry.sizeAndLinkData.GetData(), entry.sizeAndLinkData.GetHexCharCount());
+		entryNode.CreateAttributeHex(L"mappingData", entry.mappingData.GetData(), entry.mappingData.GetHexCharCount());
+		entryNode.CreateAttributeHex(L"hpos", entry.hpos.GetData(), entry.hpos.GetHexCharCount());
+	}
+	node.CreateChild(L"Register", renderSpriteDisplayCacheEntryCount).CreateAttribute(L"name", L"RenderSpriteDisplayCacheEntryCount");
+	node.CreateChild(L"Register", renderSpriteDisplayCacheCurrentIndex).CreateAttribute(L"name", L"RenderSpriteDisplayCacheCurrentIndex");
+	node.CreateChild(L"Register", renderSpriteSearchComplete).CreateAttribute(L"name", L"RenderSpriteSearchComplete");
+	node.CreateChild(L"Register", renderSpriteOverflow).CreateAttribute(L"name", L"RenderSpriteOverflow");
+	node.CreateChild(L"Register", renderSpriteNextAttributeTableEntryToRead).CreateAttribute(L"name", L"RenderSpriteNextAttributeTableEntryToRead");
+	IHeirarchicalStorageNode& renderSpriteDisplayCellCacheNode = node.CreateChild(L"RenderSpriteDisplayCellCache");
+	for(unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
+	{
+		IHeirarchicalStorageNode& entryNode = renderSpriteDisplayCellCacheNode.CreateChild(L"RenderSpriteDisplayCellCacheEntry");
+		const SpriteCellDisplayCacheEntry& entry = renderSpriteDisplayCellCache[i];
+		entryNode.CreateAttribute(L"index", i);
+		entryNode.CreateAttribute(L"spriteDisplayCacheIndex", entry.spriteDisplayCacheIndex);
+		entryNode.CreateAttribute(L"spriteCellColumnNo", entry.spriteCellColumnNo);
+		entryNode.CreateAttribute(L"patternCellOffset", entry.patternCellOffset);
+		entryNode.CreateAttribute(L"patternRowOffset", entry.patternRowOffset);
+		entryNode.CreateAttributeHex(L"patternData", entry.patternData.GetData(), entry.patternData.GetHexCharCount());
+	}
+	node.CreateChild(L"Register", renderSpriteDisplayCellCacheEntryCount).CreateAttribute(L"name", L"RenderSpriteDisplayCellCacheEntryCount");
+	node.CreateChild(L"Register", renderSpriteDisplayCellCacheCurrentIndex).CreateAttribute(L"name", L"RenderSpriteDisplayCellCacheCurrentIndex");
+	node.CreateChild(L"Register", renderSpriteDotOverflow).CreateAttribute(L"name", L"RenderSpriteDotOverflow");
+	node.CreateChild(L"Register", renderSpriteDotOverflowPreviousLine).CreateAttribute(L"name", L"RenderSpriteDotOverflowPreviousLine");
+	node.CreateChild(L"Register", renderSpritePixelBufferDigitalRenderPlane).CreateAttribute(L"name", L"RenderSpritePixelBufferDigitalRenderPlane");
+	node.CreateChild(L"Register", renderSpritePixelBufferAnalogRenderPlane).CreateAttribute(L"name", L"RenderSpritePixelBufferAnalogRenderPlane");
+	IHeirarchicalStorageNode& spritePixelBufferNode = node.CreateChild(L"SpritePixelBuffer");
+	for(unsigned int i = 0; i < spritePixelBufferSize; ++i)
+	{
+		IHeirarchicalStorageNode& entryNode = spritePixelBufferNode.CreateChild(L"SpritePixelBufferEntry");
+		const SpritePixelBufferEntry& entry = spritePixelBuffer[i];
+		entryNode.CreateAttribute(L"index", i);
+		entryNode.CreateAttribute(L"paletteLine", entry.paletteLine);
+		entryNode.CreateAttribute(L"paletteIndex", entry.paletteIndex);
+		entryNode.CreateAttribute(L"layerPriority", entry.layerPriority);
+		entryNode.CreateAttribute(L"entryWritten", entry.entryWritten);
+	}
+	node.CreateChild(L"Register", nonSpriteMaskCellEncountered).CreateAttribute(L"name", L"NonSpriteMaskCellEncountered");
+	node.CreateChild(L"Register", renderSpriteMaskActive).CreateAttribute(L"name", L"RenderSpriteMaskActive");
+	node.CreateChild(L"Register", renderSpriteCollision).CreateAttribute(L"name", L"RenderSpriteCollision");
+	node.CreateChildHex(L"Register", renderVSRAMCachedRead.GetData(), renderVSRAMCachedRead.GetHexCharCount()).CreateAttribute(L"name", L"RenderVSRAMCachedRead");
+	//##TODO## Image buffer
+	//DMA worker thread properties
+	node.CreateChild(L"Register", workerThreadPaused).CreateAttribute(L"name", L"WorkerThreadPaused");
+	//DMA transfer registers
+	node.CreateChild(L"Register", dmaTransferActive).CreateAttribute(L"name", L"DMATransferActive");
+	node.CreateChild(L"Register", dmaTransferReadDataCached).CreateAttribute(L"name", L"DMATransferReadDataCached");
+	node.CreateChildHex(L"Register", dmaTransferReadCache.GetData(), dmaTransferReadCache.GetHexCharCount()).CreateAttribute(L"name", L"DMATransferReadCache");
+	node.CreateChild(L"Register", dmaTransferNextReadMclk).CreateAttribute(L"name", L"DMATransferNextReadMclk");
+	node.CreateChild(L"Register", dmaTransferLastTimesliceUsedReadDelay).CreateAttribute(L"name", L"DMATransferLastTimesliceUsedReadDelay");
+	node.CreateChild(L"Register", dmaTransferInvalidPortWriteCached).CreateAttribute(L"name", L"DMATransferInvalidPortWriteCached");
+	node.CreateChildHex(L"Register", dmaTransferInvalidPortWriteAddressCache, 2).CreateAttribute(L"name", L"DMATransferInvalidPortWriteAddressCache");
+	node.CreateChildHex(L"Register", dmaTransferInvalidPortWriteDataCache.GetData(), dmaTransferReadCache.GetHexCharCount()).CreateAttribute(L"name", L"DMATransferInvalidPortWriteDataCache");
+	//External interrupt settings
+	node.CreateChild(L"Register", externalInterruptVideoTriggerPointPending).CreateAttribute(L"name", L"ExternalInterruptVideoTriggerPointPending");
+	node.CreateChildHex(L"Register", externalInterruptVideoTriggerPointHCounter, 3).CreateAttribute(L"name", L"ExternalInterruptVideoTriggerPointHCounter");
+	node.CreateChildHex(L"Register", externalInterruptVideoTriggerPointVCounter, 3).CreateAttribute(L"name", L"ExternalInterruptVideoTriggerPointVCounter");
 }

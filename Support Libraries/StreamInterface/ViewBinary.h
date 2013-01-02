@@ -6,14 +6,16 @@ class ViewBinary
 {
 public:
 	//Constructors
-	inline ViewBinary(IStream& astream);
+	inline ViewBinary(IStreamNonSeekable& astream);
 
 	//Binary stream functions
 	template<class T> ViewBinary& operator>>(T& data);
 	template<class T> ViewBinary& operator<<(const T& data);
+	template<class T> ViewBinary& operator>>(std::vector<T>& data);
+	template<class T> ViewBinary& operator<<(const std::vector<T>& data);
 
 private:
-	IStream& stream;
+	IStreamNonSeekable& stream;
 };
 
 } //Close namespace Stream

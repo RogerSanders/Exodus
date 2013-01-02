@@ -226,7 +226,6 @@ private:
 	bool bcurrentHLLineState;
 
 	//Input line state
-	//##TODO## Determine whether we should be writing this in a savestate
 	std::vector<InputLineState> inputLineState;
 	std::vector<InputLineState> binputLineState;
 

@@ -1253,3 +1253,120 @@ bool MDBusArbiter::AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* cal
 	//caught before the line state change buffer was advanced.
 	return targetLineStateReached;
 }
+
+//----------------------------------------------------------------------------------------
+//Savestate functions
+//----------------------------------------------------------------------------------------
+void MDBusArbiter::LoadState(IHeirarchicalStorageNode& node)
+{
+	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		if((*i)->GetName() == L"Z80BankswitchDataCurrent")
+		{
+			z80BankswitchDataCurrent = (*i)->ExtractHexData<unsigned int>();
+		}
+		else if((*i)->GetName() == L"Z80BankswitchDataNew")
+		{
+			z80BankswitchDataNew = (*i)->ExtractHexData<unsigned int>();
+		}
+		else if((*i)->GetName() == L"Z80BankswitchBitsWritten")
+		{
+			z80BankswitchBitsWritten = (*i)->ExtractData<unsigned int>();
+		}
+		else if((*i)->GetName() == L"CartInLineState")
+		{
+			cartInLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"Z80BusRequestLineState")
+		{
+			z80BusRequestLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"Z80BusGrantLineState")
+		{
+			z80BusGrantLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"Z80BusResetLineState")
+		{
+			z80BusResetLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"M68KBusRequestLineState")
+		{
+			m68kBusRequestLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"M68KBusGrantLineState")
+		{
+			m68kBusGrantLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"LastTimesliceLength")
+		{
+			lastTimesliceLength = (*i)->ExtractData<bool>();
+		}
+		//Restore the lineAccessBuffer state
+		else if((*i)->GetName() == L"LineAccessBuffer")
+		{
+			IHeirarchicalStorageNode& lineAccessBufferNode = *(*i);
+			std::list<IHeirarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
+			for(std::list<IHeirarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
+			{
+				if((*lineAccessBufferEntry)->GetName() == L"LineAccess")
+				{
+					IHeirarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
+					IHeirarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
+					IHeirarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
+					if((lineNameAttribute != 0) && (lineStateAttribute != 0) && (accessTimeAttribute != 0))
+					{
+						//Extract the entry from the XML stream
+						std::wstring lineName = lineNameAttribute->ExtractValue<std::wstring>();
+						double accessTime = accessTimeAttribute->ExtractValue<double>();
+						unsigned int lineID = GetLineID(lineName.c_str());
+						if(lineID != 0)
+						{
+							Data lineState(GetLineWidth(lineID));
+							lineStateAttribute->ExtractValue(lineState);
+							LineAccess lineAccess(lineID, lineState, accessTime);
+
+							//Find the correct location in the list to insert the entry. The
+							//list must be sorted from earliest to latest.
+							std::list<LineAccess>::reverse_iterator j = lineAccessBuffer.rbegin();
+							while((j != lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
+							{
+								++j;
+							}
+							lineAccessBuffer.insert(j.base(), lineAccess);
+						}
+					}
+				}
+			}
+			lineAccessPending = !lineAccessBuffer.empty();
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void MDBusArbiter::GetState(IHeirarchicalStorageNode& node) const
+{
+	node.CreateChildHex(L"VersionRegister", z80BankswitchDataCurrent.GetData(), z80BankswitchDataCurrent.GetHexCharCount());
+	node.CreateChildHex(L"Z80BankswitchDataNew", z80BankswitchDataNew.GetData(), z80BankswitchDataNew.GetHexCharCount());
+	node.CreateChild(L"Z80BankswitchBitsWritten", z80BankswitchBitsWritten);
+	node.CreateChild(L"CartInLineState", cartInLineState);
+	node.CreateChild(L"Z80BusRequestLineState", z80BusRequestLineState);
+	node.CreateChild(L"Z80BusGrantLineState", z80BusGrantLineState);
+	node.CreateChild(L"Z80BusResetLineState", z80BusResetLineState);
+	node.CreateChild(L"M68KBusRequestLineState", m68kBusRequestLineState);
+	node.CreateChild(L"M68KBusGrantLineState", m68kBusGrantLineState);
+	node.CreateChild(L"LastTimesliceLength", lastTimesliceLength);
+
+	//Save the lineAccessBuffer state
+	if(lineAccessPending)
+	{
+		IHeirarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
+		for(std::list<LineAccess>::const_iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
+		{
+			IHeirarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
+			lineAccessEntry.CreateAttribute(L"LineName", GetLineName(i->lineID));
+			lineAccessEntry.CreateAttribute(L"LineState", i->state);
+			lineAccessEntry.CreateAttribute(L"AccessTime", i->accessTime);
+		}
+	}
+}

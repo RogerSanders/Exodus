@@ -135,9 +135,10 @@ private:
 	HANDLE fileHandle;
 
 	//Data buffering
-	std::vector<unsigned char> fileBuffer;
+	unsigned char* fileBuffer;
 	unsigned int bufferSize;
 	unsigned int bufferPosOffset;
+	unsigned int bytesRemainingInBuffer;
 	bool bufferInWriteMode;
 };
 

@@ -109,6 +109,11 @@ public:
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
+	//Savestate functions
+	virtual bool GetScreenshot(IImage& targetImage) const;
+	virtual void LoadState(IHeirarchicalStorageNode& node);
+	virtual void GetState(IHeirarchicalStorageNode& node) const;
+
 protected:
 	//Window functions
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
@@ -238,6 +243,7 @@ private:
 	Data GetHVCounter() const;
 	void ProcessCommandDataWriteFirstHalf(const Data& data);
 	void ProcessCommandDataWriteSecondHalf(const Data& data);
+	void TransparentRegisterSpecialUpdateFunction(unsigned int registerNo, const Data& data);
 	void RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int accessContext, unsigned int registerNo, const Data& data);
 
 	//Port monitor functions
@@ -508,12 +514,6 @@ private:
 	bool bpalModeLineState;
 	volatile unsigned int lineStateIPL;
 	unsigned int blineStateIPL;
-	bool interruptPendingHint;
-	bool binterruptPendingHint;
-	bool interruptPendingVint;
-	bool binterruptPendingVint;
-	bool interruptPendingEXint;
-	bool binterruptPendingEXint;
 
 	//Embedded PSG device
 	IDevice* psg;
@@ -625,6 +625,8 @@ private:
 	bool bscreenModeRS1Cached;
 	bool screenModeV30Cached;
 	bool bscreenModeV30Cached;
+	bool screenModeM5Cached;
+	bool bscreenModeM5Cached;
 	bool displayEnabledCached;
 	bool bdisplayEnabledCached;
 	unsigned int spriteAttributeTableBaseAddressDecoded;

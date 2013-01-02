@@ -63,6 +63,22 @@ template<class T> bool ViewText::Read(T& data)
 }
 
 //----------------------------------------------------------------------------------------
+template<> bool ViewText::Read(bool& data)
+{
+	IStream::UnicodeCodePoint codePoint;
+	if(!stream.ReadChar(codePoint))
+	{
+		return false;
+	}
+	if(codePoint.surrogatePair || ((codePoint.codeUnit1 != L'0') && (codePoint.codeUnit1 != L'1')))
+	{
+		return false;
+	}
+	data = (codePoint.codeUnit1 == L'1');
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 template<> bool ViewText::Read(std::string& data)
 {
 	return ReadTextString(data, true);
@@ -128,6 +144,13 @@ template<class T> bool ViewText::Write(const T& data)
 	wcharStream.str(L"");
 	wcharStream << data;
 	return stream.WriteText(wcharStream.str());
+}
+
+//----------------------------------------------------------------------------------------
+template<> bool ViewText::Write(const bool& data)
+{
+	wchar_t* boolAsString = data? L"1": L"0";
+	return stream.WriteText(boolAsString);
 }
 
 //----------------------------------------------------------------------------------------

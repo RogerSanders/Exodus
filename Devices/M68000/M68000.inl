@@ -5,21 +5,21 @@ namespace M68000 {
 //----------------------------------------------------------------------------------------
 enum M68000::Exceptions
 {
-	EX_RESET					= 0,
-	EX_BUS_ERROR				= 2,
-	EX_ADDRESS_ERROR			= 3,
-	EX_ILLEGAL_INSTRUCTION		= 4,
-	EX_ZERO_DIVIDE				= 5,
-	EX_CHK_INSTRUCTION			= 6,
-	EX_TRAPV_INSTRUCTION		= 7,
-	EX_PRIVILEGE_VIOLATION		= 8,
-	EX_TRACE					= 9,
-	EX_LINE_1010				= 10,
-	EX_LINE_1111				= 11,
-	EX_INTERRUPT_UNINITIALIZED	= 15,
-	EX_INTERRUPT_SPURIOUS		= 24,
-	EX_INTERRUPT_AUTOVECTOR		= 25,
-	EX_INTERRUPT_TRAP			= 32
+	EX_RESET                    = 0,
+	EX_BUS_ERROR                = 2,
+	EX_ADDRESS_ERROR            = 3,
+	EX_ILLEGAL_INSTRUCTION      = 4,
+	EX_ZERO_DIVIDE              = 5,
+	EX_CHK_INSTRUCTION          = 6,
+	EX_TRAPV_INSTRUCTION        = 7,
+	EX_PRIVILEGE_VIOLATION      = 8,
+	EX_TRACE                    = 9,
+	EX_LINE_1010                = 10,
+	EX_LINE_1111                = 11,
+	EX_INTERRUPT_UNINITIALIZED  = 15,
+	EX_INTERRUPT_SPURIOUS       = 24,
+	EX_INTERRUPT_AUTOVECTOR     = 25,
+	EX_INTERRUPT_TRAP           = 32
 };
 
 //----------------------------------------------------------------------------------------
@@ -28,14 +28,14 @@ enum M68000::Exceptions
 //----------------------------------------------------------------------------------------
 enum M68000::FunctionCode
 {
-	FUNCTIONCODE_UNDEFINED0			= 0, //000
-	FUNCTIONCODE_USERDATA			= 1, //001
-	FUNCTIONCODE_USERPROGRAM		= 2, //010
-	FUNCTIONCODE_UNDEFINED3			= 3, //011
-	FUNCTIONCODE_UNDEFINED4			= 4, //100
-	FUNCTIONCODE_SUPERVISORDATA		= 5, //101
-	FUNCTIONCODE_SUPERVISORPROGRAM	= 6, //110
-	FUNCTIONCODE_CPUSPACE			= 7  //111
+	FUNCTIONCODE_UNDEFINED0         = 0, //000
+	FUNCTIONCODE_USERDATA           = 1, //001
+	FUNCTIONCODE_USERPROGRAM        = 2, //010
+	FUNCTIONCODE_UNDEFINED3         = 3, //011
+	FUNCTIONCODE_UNDEFINED4         = 4, //100
+	FUNCTIONCODE_SUPERVISORDATA     = 5, //101
+	FUNCTIONCODE_SUPERVISORPROGRAM  = 6, //110
+	FUNCTIONCODE_CPUSPACE           = 7  //111
 };
 
 //----------------------------------------------------------------------------------------
@@ -44,10 +44,10 @@ enum M68000::FunctionCode
 //----------------------------------------------------------------------------------------
 enum M68000::State
 {
-	STATE_NORMAL,
-	STATE_STOPPED,
-	STATE_EXCEPTION,
-	STATE_HALTED
+	STATE_NORMAL    = 0,
+	STATE_STOPPED   = 1,
+	STATE_EXCEPTION = 2,
+	STATE_HALTED    = 3
 };
 
 //----------------------------------------------------------------------------------------
@@ -432,12 +432,6 @@ void M68000::GetD(unsigned int index, Data& data) const
 void M68000::SetD(unsigned int index, const M68000Long& data)
 {
 	d[index] = data;
-}
-
-//----------------------------------------------------------------------------------------
-M68000::State M68000::GetProcessorState() const
-{
-	return processorState;
 }
 
 //----------------------------------------------------------------------------------------

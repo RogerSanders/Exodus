@@ -1340,6 +1340,13 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				//Perform the register write
 				unsigned int registerNo = originalCommandAddress.GetDataSegment(8, 5);
 				Data registerData(8, originalCommandAddress.GetDataSegment(0, 8));
+
+				//##FIX## Test this in hardware
+				if(!screenModeM5Cached)
+				{
+					registerNo &= 0x0F;
+				}
+
 				if((registerNo < registerCount) && !registerLocked[registerNo])
 				{
 					RegisterSpecialUpdateFunction(accessMclkCycle + accessMclkCycleDelay, accessTime, accessResult.executionTime, caller, accessContext, registerNo, registerData);
@@ -1570,6 +1577,61 @@ void S315_5313::ProcessCommandDataWriteSecondHalf(const Data& data)
 }
 
 //----------------------------------------------------------------------------------------
+void S315_5313::TransparentRegisterSpecialUpdateFunction(unsigned int registerNo, const Data& data)
+{
+	switch(registerNo)
+	{
+	case 0:
+		hvCounterLatchEnabled = data.GetBit(1);
+		hintEnabled = data.GetBit(4);
+		break;
+	case 1:
+		screenModeM5Cached = data.GetBit(2);
+		screenModeV30Cached = data.GetBit(3);
+		dmaEnabled = data.GetBit(4);
+		displayEnabledCached = data.GetBit(6);
+		vintEnabled = data.GetBit(5);
+		break;
+	case 5:
+		spriteAttributeTableBaseAddressDecoded = (data.GetDataSegment(0, 7) << 9);
+		break;
+	case 10:
+		hintCounterReloadValue = data.GetData();
+		break;
+	case 11:
+		verticalScrollModeCached = data.GetBit(2);
+		exintEnabled = data.GetBit(3);
+		break;
+	case 12:
+		screenModeRS0Cached = data.GetBit(7);
+		screenModeRS1Cached = data.GetBit(0);
+		interlaceDoubleCached = data.GetBit(2);
+		interlaceEnabledCached = data.GetBit(1);
+		break;
+	case 15:
+		autoIncrementData = data.GetData();
+		break;
+	case 19:
+		dmaLengthCounter = (dmaLengthCounter & 0xFF00) | data.GetData();
+		break;
+	case 20:
+		dmaLengthCounter = (dmaLengthCounter & 0x00FF) | (data.GetData() << 8);
+		break;
+	case 21:
+		dmaSourceAddressByte1 = data.GetData();
+		break;
+	case 22:
+		dmaSourceAddressByte2 = data.GetData();
+		break;
+	case 23:
+		dmaSourceAddressByte3 = data.GetDataSegment(0, 7);
+		dmd0 = data.GetBit(6);
+		dmd1 = data.GetBit(7);
+		break;
+	}
+}
+
+//----------------------------------------------------------------------------------------
 void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int accessContext, unsigned int registerNo, const Data& data)
 {
 	switch(registerNo)
@@ -1589,6 +1651,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 		}
 		break;
 	case 1:
+		screenModeM5Cached = data.GetBit(2);
 		screenModeV30Cached = data.GetBit(3);
 		dmaEnabled = data.GetBit(4);
 		displayEnabledCached = data.GetBit(6);

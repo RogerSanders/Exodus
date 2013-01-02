@@ -24,22 +24,22 @@ enum File::CreateMode
 //Constructors
 //----------------------------------------------------------------------------------------
 File::File()
-:fileOpen(false), bufferInWriteMode(false)
+:fileBuffer(0), fileOpen(false), bufferInWriteMode(false)
 {}
 
 //----------------------------------------------------------------------------------------
 File::File(TextEncoding atextEncoding)
-:Stream(atextEncoding), fileOpen(false), bufferInWriteMode(false)
+:Stream(atextEncoding), fileBuffer(0), fileOpen(false), bufferInWriteMode(false)
 {}
 
 //----------------------------------------------------------------------------------------
 File::File(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding)
-:Stream(atextEncoding, anewLineEncoding), fileOpen(false), bufferInWriteMode(false)
+:Stream(atextEncoding, anewLineEncoding), fileBuffer(0), fileOpen(false), bufferInWriteMode(false)
 {}
 
 //----------------------------------------------------------------------------------------
 File::File(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, ByteOrder abyteOrder)
-:Stream(atextEncoding, anewLineEncoding, abyteOrder), fileOpen(false), bufferInWriteMode(false)
+:Stream(atextEncoding, anewLineEncoding, abyteOrder), fileBuffer(0), fileOpen(false), bufferInWriteMode(false)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -113,9 +113,14 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 	}
 
 	//Initialize the buffer for the file
-	bufferSize = abufferSize;
-	fileBuffer.resize(bufferSize);
+	if(bufferSize != abufferSize)
+	{
+		bufferSize = abufferSize;
+		delete fileBuffer;
+		fileBuffer = new unsigned char[bufferSize];
+	}
 	bufferPosOffset = bufferSize;
+	bytesRemainingInBuffer = 0;
 	bufferInWriteMode = false;
 
 	fileOpen = true;
@@ -144,59 +149,77 @@ bool File::IsOpen() const
 //----------------------------------------------------------------------------------------
 bool File::ReadBinary(void* rawData, unsigned int bytesToRead)
 {
-	bool result = true;
+	//Ensure that a file is currently open
 	if(!fileOpen)
 	{
 		return false;
 	}
 
-	//Perform the read operation from the file
-	if(bytesToRead > bufferSize)
+	//Prepare to perform the read operation
+	bool result = true;
+	unsigned char* rawDataAsCharArray = (unsigned char*)rawData;
+
+	//Read the data from the buffer. Note that profiling has found memcpy to be the most
+	//efficient way of doing this kind of data transfer under all circumstances, being
+	//roughly as efficient for a single byte transfer, and noticeably more efficient for
+	//two bytes or more.
+	unsigned int bytesToReadFromBuffer = 0;
+	if(!bufferInWriteMode)
 	{
-		//If the size of the operation exceeds the maximum data buffer size for the file,
-		//empty any current contents from the buffer, and perform the operation
-		//unbuffered.
-		result &= EmptyDataBuffer();
-		result &= ReadBinaryUnbuffered(rawData, bytesToRead);
+		bytesToReadFromBuffer = (bytesToRead <= bytesRemainingInBuffer)? bytesToRead: bytesRemainingInBuffer;
 	}
-	else
+	memcpy((void*)rawDataAsCharArray, (void*)(fileBuffer + bufferPosOffset), (size_t)bytesToReadFromBuffer);
+	bufferPosOffset += bytesToReadFromBuffer;
+	bytesRemainingInBuffer -= bytesToReadFromBuffer;
+
+	//Perform the read operation from the file
+	unsigned int bytesRemainingToRead = bytesToRead - bytesToReadFromBuffer;
+	if(bytesRemainingToRead > 0)
 	{
+		//Empty the contents of the data buffer. If the buffer is in write mode, this will
+		//cause the uncommitted contents to be flushed to disk. If the buffer is in read
+		//mode, this won't do anything, since we've already advanced to the end of the
+		//current read buffer in the step above.
+		result &= EmptyDataBuffer();
+
 		//If the size of the operation can fit within the data buffer, perform the
-		//operation using the data buffer.
-		unsigned char* rawDataAsCharArray = (unsigned char*)rawData;
-		unsigned int bytesRemainingInBuffer = (bufferSize - bufferPosOffset);
-
-		//Read the data from the buffer
-		unsigned int bytesToReadFromBuffer = ((bytesToRead <= bytesRemainingInBuffer) && !bufferInWriteMode)? bytesToRead: bytesRemainingInBuffer;
-		for(unsigned int i = 0; i < bytesToReadFromBuffer; ++i)
+		//operation using the data buffer, otherwise perform the read operation
+		//unbuffered.
+		if(bytesRemainingToRead > bufferSize)
 		{
-			*(rawDataAsCharArray + i) = fileBuffer[(size_t)bufferPosOffset++];
+			//Perform the remainder of the read operation unbuffered
+			result &= ReadBinaryUnbuffered((void*)(rawDataAsCharArray + bytesToReadFromBuffer), bytesRemainingToRead);
 		}
-
-		//Reload the data buffer if necessary, and read any remaining data to be read from
-		//the buffer.
-		unsigned int bytesRemainingToRead = bytesToRead - bytesToReadFromBuffer;
-		if(bytesRemainingToRead > 0)
+		else
 		{
-			//Attempt to load data into the data buffer. This may fail if there isn't
-			//enough data left in the file to fill the read buffer.
-			result &= EmptyDataBuffer();
-			bool readDataCached = PrepareDataBufferForReads();
+			//Reload the data read buffer
+			result &= PrepareDataBufferForReads();
 
-			//If we successfully managed to fill the read cache, perform the read from the
-			//data cache, otherwise perform the read in unbuffered mode.
-			if(readDataCached)
+			//If there's enough data in the read buffer to perform the read operation,
+			//read the data out of the buffer, otherwise set the result to false.
+			if(bytesRemainingToRead > bytesRemainingInBuffer)
 			{
-				//Read the data from the buffer
-				for(unsigned int i = 0; i < bytesRemainingToRead; ++i)
-				{
-					*(rawDataAsCharArray + bytesToReadFromBuffer + i) = fileBuffer[(size_t)bufferPosOffset++];
-				}
+				//There's not enough data remaining in the file to complete the read
+				//operation. In case we read data out of the buffer before reloading the
+				//buffer, we seek back to the file position we would have been up to in
+				//the file before we cached this new read buffer block. This will allow
+				//another read operation to follow this one, which will be performed from
+				//the same file data location this attempted read operation was performed
+				//from.
+				LARGE_INTEGER relativeFilePointer;
+				relativeFilePointer.QuadPart = -((LONGLONG)bytesToReadFromBuffer);
+				BOOL setFilePointerExReturn = SetFilePointerEx(fileHandle, relativeFilePointer, NULL, FILE_CURRENT);
+				result &= (setFilePointerExReturn != 0);
+
+				//Since the read operation failed, set the result to false.
+				result = false;
 			}
 			else
 			{
-				//Read data directly from the file in unbuffered mode
-				result &= ReadBinaryUnbuffered((void*)((unsigned char*)rawData + bytesToReadFromBuffer), bytesRemainingToRead);
+				//Read the data from the buffer
+				memcpy((void*)(rawDataAsCharArray + bytesToReadFromBuffer), (void*)(fileBuffer + bufferPosOffset), (size_t)bytesRemainingToRead);
+				bufferPosOffset += bytesRemainingToRead;
+				bytesRemainingInBuffer -= bytesRemainingToRead;
 			}
 		}
 	}
@@ -207,13 +230,14 @@ bool File::ReadBinary(void* rawData, unsigned int bytesToRead)
 //----------------------------------------------------------------------------------------
 bool File::WriteBinary(const void* rawData, unsigned int bytesToWrite)
 {
-	bool result = true;
+	//Ensure that a file is currently open
 	if(!fileOpen)
 	{
 		return false;
 	}
 
 	//Perform the write operation to the file
+	bool result = true;
 	if(bytesToWrite > bufferSize)
 	{
 		//If the size of the operation exceeds the maximum data buffer size for the file,
@@ -227,14 +251,16 @@ bool File::WriteBinary(const void* rawData, unsigned int bytesToWrite)
 		//If the size of the operation can fit within the data buffer, perform the
 		//operation using the data buffer.
 		unsigned char* rawDataAsCharArray = (unsigned char*)rawData;
-		unsigned int bytesRemainingInBuffer = (bufferSize - bufferPosOffset);
 
 		//Write data to the buffer
-		unsigned int bytesToWriteToBuffer = ((bytesToWrite <= bytesRemainingInBuffer) && bufferInWriteMode)? bytesToWrite: bytesRemainingInBuffer;
-		for(unsigned int i = 0; i < bytesToWriteToBuffer; ++i)
+		unsigned int bytesToWriteToBuffer = 0;
+		if(bufferInWriteMode)
 		{
-			fileBuffer[(size_t)bufferPosOffset++] = *(rawDataAsCharArray + i);
+			bytesToWriteToBuffer = (bytesToWrite <= bytesRemainingInBuffer)? bytesToWrite: bytesRemainingInBuffer;
 		}
+		memcpy((void*)(fileBuffer + bufferPosOffset), (void*)rawDataAsCharArray, (size_t)bytesToWriteToBuffer);
+		bufferPosOffset += bytesToWriteToBuffer;
+		bytesRemainingInBuffer -= bytesToWriteToBuffer;
 
 		//Reload the data buffer if necessary, and write any remaining data to be written
 		//to the buffer.
@@ -246,10 +272,9 @@ bool File::WriteBinary(const void* rawData, unsigned int bytesToWrite)
 			result &= PrepareDataBufferForWrites();
 
 			//Write the data to the buffer
-			for(unsigned int i = 0; i < bytesRemainingToWrite; ++i)
-			{
-				fileBuffer[(size_t)bufferPosOffset++] = *(rawDataAsCharArray + bytesToWriteToBuffer + i);
-			}
+			memcpy((void*)(fileBuffer + bufferPosOffset), (void*)(rawDataAsCharArray + bytesToWriteToBuffer), (size_t)bytesRemainingToWrite);
+			bufferPosOffset += bytesRemainingToWrite;
+			bytesRemainingInBuffer -= bytesRemainingToWrite;
 		}
 	}
 
@@ -307,15 +332,32 @@ bool File::EmptyDataBuffer()
 {
 	bool result = true;
 
-	//If the buffer contains written data, write the buffer contents to the file.
-	if(bufferInWriteMode && (bufferPosOffset > 0))
+	//Empty the contents of the data buffer
+	if(bufferInWriteMode)
 	{
-		result = WriteBinaryUnbuffered((void*)(&fileBuffer[0]), bufferPosOffset);
-		bufferInWriteMode = false;
+		//If the buffer contains written data, write the buffer contents to the file.
+		if(bufferPosOffset > 0)
+		{
+			result &= WriteBinaryUnbuffered((void*)(&fileBuffer[0]), bufferPosOffset);
+			bufferInWriteMode = false;
+		}
+	}
+	else
+	{
+		//If the buffer contains unused cached read data, seek to the position in the file
+		//that we're up to in the buffer.
+		if(bytesRemainingInBuffer > 0)
+		{
+			LARGE_INTEGER relativeFilePointer;
+			relativeFilePointer.QuadPart = -((LONGLONG)bytesRemainingInBuffer);
+			BOOL setFilePointerExReturn = SetFilePointerEx(fileHandle, relativeFilePointer, NULL, FILE_CURRENT);
+			result &= (setFilePointerExReturn != 0);
+		}
 	}
 
 	//Reset the buffer to an empty state
 	bufferPosOffset = bufferSize;
+	bytesRemainingInBuffer = 0;
 
 	return result;
 }
@@ -326,18 +368,28 @@ bool File::PrepareDataBufferForReads()
 	//Set the data buffer to read mode
 	bufferInWriteMode = false;
 
-	//Read a new page into the data buffer. If this fails, there might not be enough data
-	//left in the file to fill the buffer. In this case, we empty the cache and return
+	//Read a new page into the data buffer. If there are not enough bytes remaining in the
+	//file, the number returned in bytesRead will be less than the amount requested in
+	//bytesToRead.
+	DWORD bytesToRead = bufferSize;
+	DWORD bytesRead = 0;
+	BOOL readFileReturn = ReadFile(fileHandle, (void*)(&fileBuffer[0]), bytesToRead, &bytesRead, NULL);
+
+	//If there was an error performing the read operation, we empty the buffer and return
 	//false.
-	if(!ReadBinaryUnbuffered((void*)(&fileBuffer[0]), bufferSize))
+	if(readFileReturn == 0)
 	{
+		bufferPosOffset = 0;
+		bytesRemainingInBuffer = 0;
 		return false;
 	}
 
-	//Reset the buffer position back to the start. Note that this needs to happen after
-	//we attempt to read the buffer data above, since if the buffer fill fails, we need to
-	//restore the seek position in the file, which is adjusted based on the current buffer
-	//offset.
+	//Calculate the number of bytes remaining in the buffer. This handles the case where
+	//there wasn't enough data remaining in the file to fill the buffer.
+	unsigned int bytesEmptyInBuffer = (unsigned int)(bytesToRead - bytesRead);
+	bytesRemainingInBuffer = bufferSize - bytesEmptyInBuffer;
+
+	//Reset the buffer position back to the start
 	bufferPosOffset = 0;
 
 	return true;
@@ -351,6 +403,7 @@ bool File::PrepareDataBufferForWrites()
 
 	//Reset the buffer position back to the start
 	bufferPosOffset = 0;
+	bytesRemainingInBuffer = bufferSize;
 
 	return true;
 }

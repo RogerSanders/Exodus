@@ -253,7 +253,6 @@ public:
 	inline void SetD(unsigned int index, const M68000Long& data);
 
 	//##TODO## Phase out these functions, and just work with the state variable directly.
-	inline State GetProcessorState() const;
 	inline void SetProcessorState(State executeState);
 
 	//Special operation functions
@@ -363,22 +362,22 @@ private:
 	//Group 0 exception info
 	mutable bool group0ExceptionPending;
 	bool bgroup0ExceptionPending;
-	mutable M68000Word group0instructionRegister;
-	M68000Word bgroup0instructionRegister;
-	mutable M68000Long group0address;
-	M68000Long bgroup0address;
-	mutable M68000Long group0pc;
-	M68000Long bgroup0pc;
-	mutable M68000Word group0sr;
-	M68000Word bgroup0sr;
-	mutable bool group0readWriteFlag;
-	bool bgroup0readWriteFlag;
-	mutable bool group0instructionFlag;
-	bool bgroup0instructionFlag;
-	mutable unsigned int group0vector;
-	unsigned int bgroup0vector;
-	mutable FunctionCode group0functionCode;
-	FunctionCode bgroup0functionCode;
+	mutable M68000Word group0InstructionRegister;
+	M68000Word bgroup0InstructionRegister;
+	mutable M68000Long group0Address;
+	M68000Long bgroup0Address;
+	mutable M68000Long group0PC;
+	M68000Long bgroup0PC;
+	mutable M68000Word group0SR;
+	M68000Word bgroup0SR;
+	mutable bool group0ReadWriteFlag;
+	bool bgroup0ReadWriteFlag;
+	mutable bool group0InstructionFlag;
+	bool bgroup0InstructionFlag;
+	mutable unsigned int group0Vector;
+	unsigned int bgroup0Vector;
+	mutable FunctionCode group0FunctionCode;
+	FunctionCode bgroup0FunctionCode;
 
 	//Exception debugging
 	mutable boost::mutex debugMutex;

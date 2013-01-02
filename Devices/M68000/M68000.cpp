@@ -279,7 +279,7 @@ void M68000::Initialize()
 void M68000::Reset()
 {
 	//Queue the reset exception for the next cycle
-	group0vector = EX_RESET;
+	group0Vector = EX_RESET;
 	group0ExceptionPending = true;
 }
 
@@ -821,16 +821,16 @@ double M68000::ExecuteStep()
 	if(group0ExceptionPending)
 	{
 		group0ExceptionPending = false;
-		if(!ExceptionDisabled(group0vector))
+		if(!ExceptionDisabled(group0Vector))
 		{
-			if(group0vector != EX_RESET)
+			if(group0Vector != EX_RESET)
 			{
-				PushStackFrame(group0pc, group0sr, group0instructionRegister, group0address, group0readWriteFlag, group0instructionFlag, group0functionCode);
+				PushStackFrame(group0PC, group0SR, group0InstructionRegister, group0Address, group0ReadWriteFlag, group0InstructionFlag, group0FunctionCode);
 			}
-			cyclesExecuted = ProcessException(group0vector).cycles;
+			cyclesExecuted = ProcessException(group0Vector).cycles;
 
 			//If we've triggered a double bus fault, enter the halted state
-			if(group0ExceptionPending && (group0vector != EX_RESET))
+			if(group0ExceptionPending && (group0Vector != EX_RESET))
 			{
 				group0ExceptionPending = false;
 				SetProcessorState(STATE_HALTED);
@@ -840,7 +840,7 @@ double M68000::ExecuteStep()
 	}
 
 	//If we're in a halted state, terminate instruction processing
-	if(GetProcessorState() == STATE_HALTED)
+	if(processorState == STATE_HALTED)
 	{
 		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 	}
@@ -934,7 +934,7 @@ double M68000::ExecuteStep()
 	}
 
 	//If the processor isn't stopped, fetch the next opcode
-	if(GetProcessorState() != STATE_STOPPED)
+	if(processorState != STATE_STOPPED)
 	{
 		//Update the trace log, and test for breakpoints
 		RecordTrace(GetPC().GetData());
@@ -1072,14 +1072,14 @@ void M68000::ExecuteRollback()
 	interruptPendingLevel = binterruptPendingLevel;
 
 	group0ExceptionPending = bgroup0ExceptionPending;
-	group0instructionRegister = bgroup0instructionRegister;
-	group0address = bgroup0address;
-	group0pc = bgroup0pc;
-	group0sr = bgroup0sr;
-	group0readWriteFlag = bgroup0readWriteFlag;
-	group0instructionFlag = bgroup0instructionFlag;
-	group0vector = bgroup0vector;
-	group0functionCode = bgroup0functionCode;
+	group0InstructionRegister = bgroup0InstructionRegister;
+	group0Address = bgroup0Address;
+	group0PC = bgroup0PC;
+	group0SR = bgroup0SR;
+	group0ReadWriteFlag = bgroup0ReadWriteFlag;
+	group0InstructionFlag = bgroup0InstructionFlag;
+	group0Vector = bgroup0Vector;
+	group0FunctionCode = bgroup0FunctionCode;
 
 	Processor::ExecuteRollback();
 }
@@ -1133,14 +1133,14 @@ void M68000::ExecuteCommit()
 	binterruptPendingLevel = interruptPendingLevel;
 
 	bgroup0ExceptionPending = group0ExceptionPending;
-	bgroup0instructionRegister = group0instructionRegister;
-	bgroup0address = group0address;
-	bgroup0pc = group0pc;
-	bgroup0sr = group0sr;
-	bgroup0readWriteFlag = group0readWriteFlag;
-	bgroup0instructionFlag = group0instructionFlag;
-	bgroup0vector = group0vector;
-	bgroup0functionCode = group0functionCode;
+	bgroup0InstructionRegister = group0InstructionRegister;
+	bgroup0Address = group0Address;
+	bgroup0PC = group0PC;
+	bgroup0SR = group0SR;
+	bgroup0ReadWriteFlag = group0ReadWriteFlag;
+	bgroup0InstructionFlag = group0InstructionFlag;
+	bgroup0Vector = group0Vector;
+	bgroup0FunctionCode = group0FunctionCode;
 
 	Processor::ExecuteCommit();
 }
@@ -1819,14 +1819,14 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 	{
 		//Generate an address error for unaligned memory access
 		group0ExceptionPending = true;
-		group0instructionRegister = instructionRegister;
-		group0address = location;
-		group0pc = currentPC;
-		group0sr = GetSR();
-		group0readWriteFlag = true;
-		group0instructionFlag = !processingInstruction;
-		group0vector = EX_ADDRESS_ERROR;
-		group0functionCode = code;
+		group0InstructionRegister = instructionRegister;
+		group0Address = location;
+		group0PC = currentPC;
+		group0SR = GetSR();
+		group0ReadWriteFlag = true;
+		group0InstructionFlag = !processingInstruction;
+		group0Vector = EX_ADDRESS_ERROR;
+		group0FunctionCode = code;
 	}
 	else
 	{
@@ -1934,14 +1934,14 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 		{
 			//Generate a bus error if communication failed
 			group0ExceptionPending = true;
-			group0instructionRegister = instructionRegister;
-			group0address = location;
-			group0pc = currentPC;
-			group0sr = GetSR();
-			group0readWriteFlag = true;
-			group0instructionFlag = !processingInstruction;
-			group0vector = EX_BUS_ERROR;
-			group0functionCode = code;
+			group0InstructionRegister = instructionRegister;
+			group0Address = location;
+			group0PC = currentPC;
+			group0SR = GetSR();
+			group0ReadWriteFlag = true;
+			group0InstructionFlag = !processingInstruction;
+			group0Vector = EX_BUS_ERROR;
+			group0FunctionCode = code;
 			//##DEBUG##
 			//std::wcout << "Bus error triggered on read of " << std::hex << location.GetData() << '\n';
 		}
@@ -2045,14 +2045,14 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 	{
 		//Generate an address error for unaligned memory access
 		group0ExceptionPending = true;
-		group0instructionRegister = instructionRegister;
-		group0address = location;
-		group0pc = currentPC;
-		group0sr = GetSR();
-		group0readWriteFlag = false;
-		group0instructionFlag = !processingInstruction;
-		group0vector = EX_ADDRESS_ERROR;
-		group0functionCode = code;
+		group0InstructionRegister = instructionRegister;
+		group0Address = location;
+		group0PC = currentPC;
+		group0SR = GetSR();
+		group0ReadWriteFlag = false;
+		group0InstructionFlag = !processingInstruction;
+		group0Vector = EX_ADDRESS_ERROR;
+		group0FunctionCode = code;
 	}
 	else
 	{
@@ -2131,14 +2131,14 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 		{
 			//Generate a bus error if communication failed
 			group0ExceptionPending = true;
-			group0instructionRegister = instructionRegister;
-			group0address = location;
-			group0pc = currentPC;
-			group0sr = GetSR();
-			group0readWriteFlag = false;
-			group0instructionFlag = !processingInstruction;
-			group0vector = EX_BUS_ERROR;
-			group0functionCode = code;
+			group0InstructionRegister = instructionRegister;
+			group0Address = location;
+			group0PC = currentPC;
+			group0SR = GetSR();
+			group0ReadWriteFlag = false;
+			group0InstructionFlag = !processingInstruction;
+			group0Vector = EX_BUS_ERROR;
+			group0FunctionCode = code;
 			//##DEBUG##
 			//std::wcout << "Bus error triggered on write of " << std::hex << location.GetData() << '\n';
 		}
@@ -2369,7 +2369,23 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 				else if(registerName == L"SR")	sr = (*i)->ExtractHexData<unsigned int>();
 
 				else if(registerName == L"LastReadBusData")	lastReadBusData = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"ProcessorState")	processorState = (State)(*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"WordIsPrefetched")	wordIsPrefetched = (*i)->ExtractData<bool>();
+				else if(registerName == L"PrefetchedWord")	prefetchedWord = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"PrefetchedWordAddress")	prefetchedWordAddress = (*i)->ExtractHexData<unsigned int>();
 
+				else if(registerName == L"Group0ExceptionPending")	group0ExceptionPending = (*i)->ExtractData<bool>();
+				else if(registerName == L"Group0InstructionRegister")	group0InstructionRegister = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"Group0Address")	group0Address = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"Group0PC")	group0PC = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"Group0SR")	group0SR = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"Group0ReadWriteFlag")	group0ReadWriteFlag = (*i)->ExtractData<bool>();
+				else if(registerName == L"Group0InstructionFlag")	group0InstructionFlag = (*i)->ExtractData<bool>();
+				else if(registerName == L"Group0Vector")	group0Vector = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"Group0FunctionCode")	group0FunctionCode = (FunctionCode)(*i)->ExtractHexData<unsigned int>();
+
+				else if(registerName == L"LastTimesliceLength")		lastTimesliceLength = (*i)->ExtractData<double>();
+				else if(registerName == L"SuspendUntilLineStateChangeReceived")		suspendUntilLineStateChangeReceived = (*i)->ExtractData<bool>();
 				else if(registerName == L"ResetLineState")			resetLineState = (*i)->ExtractData<bool>();
 				else if(registerName == L"HaltLineState")			haltLineState = (*i)->ExtractData<bool>();
 				else if(registerName == L"BRLineState")				brLineState = (*i)->ExtractData<bool>();
@@ -2387,32 +2403,62 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 				if((*lineAccessBufferEntry)->GetName() == L"LineAccess")
 				{
 					IHeirarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
-					IHeirarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
+					IHeirarchicalStorageAttribute* clockRateChangeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRateChange");
 					IHeirarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
-					if((lineNameAttribute != 0) && (lineStateAttribute != 0) && (accessTimeAttribute != 0))
+					if((lineNameAttribute != 0) && (clockRateChangeAttribute != 0) && (accessTimeAttribute != 0))
 					{
 						//Extract the entry from the XML stream
+						LineAccess lineAccess(0, 0.0, 0.0);
+						bool lineAccessDefined = false;
 						std::wstring lineName = lineNameAttribute->ExtractValue<std::wstring>();
-						unsigned int lineID = GetLineID(lineName.c_str());
-						if(lineID != 0)
+						bool clockRateChange = clockRateChangeAttribute->ExtractValue<bool>();
+						double accessTime = accessTimeAttribute->ExtractValue<double>();
+						if(clockRateChange)
 						{
-							Data lineState(GetLineWidth(lineID));
-							lineStateAttribute->ExtractValue(lineState);
-							double accessTime = accessTimeAttribute->ExtractValue<double>();
-							LineAccess entry(lineID, lineState, accessTime);
+							IHeirarchicalStorageAttribute* clockRateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRate");
+							if(clockRateAttribute != 0)
+							{
+								unsigned int lineID = GetClockSourceID(lineName.c_str());
+								if(lineID != 0)
+								{
+									double clockRate;
+									clockRateAttribute->ExtractValue(clockRate);
+									lineAccess = LineAccess(lineID, clockRate, accessTime);
+									lineAccessDefined = true;
+								}
+							}
+						}
+						else
+						{
+							IHeirarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
+							if(lineStateAttribute != 0)
+							{
+								unsigned int lineID = GetLineID(lineName.c_str());
+								if(lineID != 0)
+								{
+									Data lineState(GetLineWidth(lineID));
+									lineStateAttribute->ExtractValue(lineState);
+									lineAccess = LineAccess(lineID, lineState, accessTime);
+									lineAccessDefined = true;
+								}
+							}
+						}
 
-							//Find the correct location in the list to insert the entry. The
-							//list must be sorted from earliest to latest.
+						//Find the correct location in the list to insert the entry. The
+						//list must be sorted from earliest to latest.
+						if(lineAccessDefined)
+						{
 							std::list<LineAccess>::reverse_iterator j = lineAccessBuffer.rbegin();
-							while((j != lineAccessBuffer.rend()) && (j->accessTime > entry.accessTime))
+							while((j != lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
 							{
 								++j;
 							}
-							lineAccessBuffer.insert(j.base(), entry);
+							lineAccessBuffer.insert(j.base(), lineAccess);
 						}
 					}
 				}
 			}
+			lineAccessPending = !lineAccessBuffer.empty();
 		}
 	}
 
@@ -2445,7 +2491,23 @@ void M68000::GetState(IHeirarchicalStorageNode& node) const
 	node.CreateChildHex(L"Register", sr.GetData(), sr.GetHexCharCount()).CreateAttribute(L"name", L"SR");
 
 	node.CreateChildHex(L"Register", lastReadBusData.GetData(), lastReadBusData.GetHexCharCount()).CreateAttribute(L"name", L"LastReadBusData");
+	node.CreateChildHex(L"Register", (unsigned int)processorState, 1).CreateAttribute(L"name", L"ProcessorState");
+	node.CreateChild(L"Register", wordIsPrefetched).CreateAttribute(L"name", L"WordIsPrefetched");
+	node.CreateChildHex(L"Register", prefetchedWord.GetData(), prefetchedWord.GetHexCharCount()).CreateAttribute(L"name", L"PrefetchedWord");
+	node.CreateChildHex(L"Register", prefetchedWordAddress.GetData(), prefetchedWordAddress.GetHexCharCount()).CreateAttribute(L"name", L"PrefetchedWordAddress");
 
+	node.CreateChild(L"Register", group0ExceptionPending).CreateAttribute(L"name", L"Group0ExceptionPending");
+	node.CreateChildHex(L"Register", group0InstructionRegister.GetData(), group0InstructionRegister.GetHexCharCount()).CreateAttribute(L"name", L"Group0InstructionRegister");
+	node.CreateChildHex(L"Register", group0Address.GetData(), group0Address.GetHexCharCount()).CreateAttribute(L"name", L"Group0Address");
+	node.CreateChildHex(L"Register", group0PC.GetData(), group0PC.GetHexCharCount()).CreateAttribute(L"name", L"Group0PC");
+	node.CreateChildHex(L"Register", group0SR.GetData(), group0SR.GetHexCharCount()).CreateAttribute(L"name", L"Group0SR");
+	node.CreateChild(L"Register", group0ReadWriteFlag).CreateAttribute(L"name", L"Group0ReadWriteFlag");
+	node.CreateChild(L"Register", group0InstructionFlag).CreateAttribute(L"name", L"Group0InstructionFlag");
+	node.CreateChildHex(L"Register", group0Vector, 2).CreateAttribute(L"name", L"Group0Vector");
+	node.CreateChildHex(L"Register", (unsigned int)group0FunctionCode, 1).CreateAttribute(L"name", L"Group0FunctionCode");
+
+	node.CreateChild(L"Register", lastTimesliceLength).CreateAttribute(L"name", L"LastTimesliceLength");
+	node.CreateChild(L"Register", suspendUntilLineStateChangeReceived).CreateAttribute(L"name", L"SuspendUntilLineStateChangeReceived");
 	node.CreateChild(L"Register", resetLineState).CreateAttribute(L"name", L"ResetLineState");
 	node.CreateChild(L"Register", haltLineState).CreateAttribute(L"name", L"HaltLineState");
 	node.CreateChild(L"Register", brLineState).CreateAttribute(L"name", L"BRLineState");
@@ -2459,8 +2521,17 @@ void M68000::GetState(IHeirarchicalStorageNode& node) const
 		for(std::list<LineAccess>::const_iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
 		{
 			IHeirarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
-			lineAccessEntry.CreateAttribute(L"LineName", GetLineName(i->lineID));
-			lineAccessEntry.CreateAttribute(L"LineState", i->state);
+			lineAccessEntry.CreateAttribute(L"ClockRateChange", i->clockRateChange);
+			if(i->clockRateChange)
+			{
+				lineAccessEntry.CreateAttribute(L"LineName", GetClockSourceName(i->lineID));
+				lineAccessEntry.CreateAttribute(L"ClockRate", i->clockRate);
+			}
+			else
+			{
+				lineAccessEntry.CreateAttribute(L"LineName", GetLineName(i->lineID));
+				lineAccessEntry.CreateAttribute(L"LineState", i->state);
+			}
 			lineAccessEntry.CreateAttribute(L"AccessTime", i->accessTime);
 		}
 	}

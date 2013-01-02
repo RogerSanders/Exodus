@@ -8,6 +8,7 @@ namespace Stream {
 File::~File()
 {
 	Close();
+	delete fileBuffer;
 }
 
 //----------------------------------------------------------------------------------------
@@ -68,7 +69,7 @@ File::SizeType File::GetStreamPos() const
 			}
 			else
 			{
-				streamPos -= (SizeType)(bufferSize - bufferPosOffset);
+				streamPos -= (SizeType)bytesRemainingInBuffer;
 			}
 		}
 	}

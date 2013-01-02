@@ -691,8 +691,14 @@ void SN76489::LoadState(IHeirarchicalStorageNode& node)
 	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
 	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
+		//Clock settings
+		if((*i)->GetName() == L"ExternalClockRate")
+		{
+			(*i)->ExtractData(externalClockRate);
+		}
+
 		//Register data
-		if((*i)->GetName() == L"Registers")
+		else if((*i)->GetName() == L"Registers")
 		{
 			reg.LoadState(*(*i));
 		}
@@ -752,6 +758,9 @@ void SN76489::LoadState(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void SN76489::GetState(IHeirarchicalStorageNode& node) const
 {
+	//Clock settings
+	node.CreateChild(L"ExternalClockRate").SetData(externalClockRate);
+
 	//Register data
 	reg.GetState(node.CreateChild(L"Registers"), L"", true);
 
