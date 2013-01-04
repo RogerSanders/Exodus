@@ -72,18 +72,18 @@ INT_PTR M68000::RegistersView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lpar
 	//Update PC
 	if(currentControlFocus != IDC_REG_PC)	UpdateDlgItemHex(hwnd, IDC_REG_PC, 8, device->GetPC().GetData());
 	//Update CCR flags
-	if(currentControlFocus != IDC_REG_X)		UpdateDlgItemHex(hwnd, IDC_REG_X, 1, device->GetX());
-	if(currentControlFocus != IDC_REG_N)		UpdateDlgItemHex(hwnd, IDC_REG_N, 1, device->GetN());
-	if(currentControlFocus != IDC_REG_Z)		UpdateDlgItemHex(hwnd, IDC_REG_Z, 1, device->GetZ());
-	if(currentControlFocus != IDC_REG_V)		UpdateDlgItemHex(hwnd, IDC_REG_V, 1, device->GetV());
-	if(currentControlFocus != IDC_REG_C)		UpdateDlgItemHex(hwnd, IDC_REG_C, 1, device->GetC());
+	if(currentControlFocus != IDC_REG_X)	UpdateDlgItemHex(hwnd, IDC_REG_X, 1, device->GetX());
+	if(currentControlFocus != IDC_REG_N)	UpdateDlgItemHex(hwnd, IDC_REG_N, 1, device->GetN());
+	if(currentControlFocus != IDC_REG_Z)	UpdateDlgItemHex(hwnd, IDC_REG_Z, 1, device->GetZ());
+	if(currentControlFocus != IDC_REG_V)	UpdateDlgItemHex(hwnd, IDC_REG_V, 1, device->GetV());
+	if(currentControlFocus != IDC_REG_C)	UpdateDlgItemHex(hwnd, IDC_REG_C, 1, device->GetC());
 	//Update Supervisor Registers
 	device->GetUSP(data);
 	if(currentControlFocus != IDC_REG_USP)	UpdateDlgItemHex(hwnd, IDC_REG_USP, 8, data.GetData());
 	device->GetSSP(data);
 	if(currentControlFocus != IDC_REG_SSP)	UpdateDlgItemHex(hwnd, IDC_REG_SSP, 8, data.GetData());
-	if(currentControlFocus != IDC_REG_S)		UpdateDlgItemHex(hwnd, IDC_REG_S, 1, device->GetSR_S());
-	if(currentControlFocus != IDC_REG_T)		UpdateDlgItemHex(hwnd, IDC_REG_T, 1, device->GetSR_T());
+	if(currentControlFocus != IDC_REG_S)	UpdateDlgItemHex(hwnd, IDC_REG_S, 1, device->GetSR_S());
+	if(currentControlFocus != IDC_REG_T)	UpdateDlgItemHex(hwnd, IDC_REG_T, 1, device->GetSR_T());
 	if(currentControlFocus != IDC_REG_IPM)	UpdateDlgItemHex(hwnd, IDC_REG_IPM, 1, device->GetSR_IPM());
 	if(currentControlFocus != IDC_REG_SR)	UpdateDlgItemHex(hwnd, IDC_REG_SR, 4, device->GetSR().GetData());
 
@@ -98,7 +98,7 @@ INT_PTR M68000::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lp
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)

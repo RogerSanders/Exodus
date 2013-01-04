@@ -133,10 +133,35 @@ void RAM::LoadState(IHeirarchicalStorageNode& node)
 	{
 		memory.insert(memory.end(), memorySize - memory.size(), 0);
 	}
+
+	Device::LoadState(node);
 }
 
 //----------------------------------------------------------------------------------------
-void RAM::GetState(IHeirarchicalStorageNode& node) const
+void RAM::SaveState(IHeirarchicalStorageNode& node) const
 {
 	node.InsertBinaryData(memory, GetDeviceInstanceName(), false);
+
+	Device::SaveState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void RAM::LoadDebuggerState(IHeirarchicalStorageNode& node)
+{
+	size_t memorySize = memoryLocked.size();
+	node.ExtractBinaryData(memoryLocked);
+	if(memoryLocked.size() < memorySize)
+	{
+		memoryLocked.insert(memoryLocked.end(), memorySize - memoryLocked.size(), false);
+	}
+
+	Device::LoadDebuggerState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void RAM::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+{
+	node.InsertBinaryData(memoryLocked, GetDeviceInstanceName() + L" - MemoryLockedState", false);
+
+	Device::SaveDebuggerState(node);
 }

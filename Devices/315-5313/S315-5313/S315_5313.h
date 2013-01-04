@@ -112,7 +112,9 @@ public:
 	//Savestate functions
 	virtual bool GetScreenshot(IImage& targetImage) const;
 	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node) const;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 
 protected:
 	//Window functions
@@ -149,6 +151,7 @@ private:
 
 	//Constants
 	static const unsigned int registerCount = 24;
+	static const unsigned int registerCountM4 = 11;
 	static const unsigned int vramSize = 0x10000;
 	static const unsigned int cramSize = 0x80;
 	static const unsigned int vsramSize = 0x50;

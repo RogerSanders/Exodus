@@ -180,7 +180,7 @@ INT_PTR S315_5313::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		//##TODO## Locking renderThreadMutex here is a bit heavy handed. See if we can use
 		//a different locking scheme which will allow a bit more decoupling.

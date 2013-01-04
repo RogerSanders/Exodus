@@ -37,7 +37,6 @@ INT_PTR Processor::ControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam
 INT_PTR Processor::ControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetTimer(hwnd, 1, 100, NULL);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_CONTROL_ENABLED, (device->GetDeviceContext()->DeviceEnabled())? BST_CHECKED: BST_UNCHECKED);
 
 	return TRUE;
 }
@@ -55,6 +54,7 @@ INT_PTR Processor::ControlView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lpa
 INT_PTR Processor::ControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	initializedDialog = true;
+	CheckDlgButton(hwnd, IDC_PROCESSOR_CONTROL_ENABLED, (device->GetDeviceContext()->DeviceEnabled())? BST_CHECKED: BST_UNCHECKED);
 	if(currentControlFocus != IDC_PROCESSOR_CONTROL_CLOCK)	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, (unsigned int)device->GetClockSpeed());
 
 	return TRUE;
@@ -68,7 +68,7 @@ INT_PTR Processor::ControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)

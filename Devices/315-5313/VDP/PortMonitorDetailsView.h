@@ -28,7 +28,6 @@ private:
 
 private:
 	VDP* device;
-
 	HWND hwndInternal;
 	PortMonitorEntry entry;
 };

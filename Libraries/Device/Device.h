@@ -58,9 +58,9 @@ public:
 	//Savestate functions
 	virtual bool GetScreenshot(IImage& image) const;
 	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node) const;
-	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
 	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 
 	//CE line state functions
 	virtual unsigned int GetCELineID(const wchar_t* lineName, bool inputLine) const;

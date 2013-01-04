@@ -55,7 +55,6 @@ private:
 	bool initializedDialog;
 	std::wstring previousText;
 	unsigned int currentControlFocus;
-
 	HWND hwndGridList;
 	HWND hwndControlPanel;
 	HFONT hfont;

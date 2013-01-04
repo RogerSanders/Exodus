@@ -37,24 +37,14 @@ INT_PTR Processor::TraceView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, 
 //----------------------------------------------------------------------------------------
 INT_PTR Processor::TraceView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	boost::mutex::scoped_lock lock(device->debugMutex);
-
-	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_ENABLED, (device->GetTraceEnabled())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_DISASSEMBLE, (device->traceDisassemble)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_COVERAGE_ENABLED, (device->GetTraceCoverageEnabled())? BST_CHECKED: BST_UNCHECKED);
-	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_TRACE_LENGTH, device->GetTraceLength());
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_TRACE_START, device->GetAddressBusCharWidth(), device->GetTraceCoverageStart());
 	if(device->GetTraceCoverageEnd() == 0)
 	{
 		device->SetTraceCoverageEnd((1 << device->GetAddressBusWidth()) - 1);
 	}
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_TRACE_END, device->GetAddressBusCharWidth(), device->GetTraceCoverageEnd());
-	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_TRACE_COVERAGE_SIZE, device->GetTraceCoverageLogSize());
-
 	int tabsize = 40;
 	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_STACK_STACK), LB_SETTABSTOPS, (WPARAM)1, (LPARAM)&tabsize);
 
-	SetTimer(hwnd, 1, 500, NULL);
+	SetTimer(hwnd, 1, 200, NULL);
 
 	return TRUE;
 }
@@ -74,8 +64,12 @@ INT_PTR Processor::TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lpara
 	initializedDialog = true;
 	boost::mutex::scoped_lock lock(device->debugMutex);
 
-	if(currentControlFocus != IDC_PROCESSOR_TRACE_START)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_TRACE_START, device->GetAddressBusCharWidth(), device->GetTraceCoverageStart());
-	if(currentControlFocus != IDC_PROCESSOR_TRACE_END)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_TRACE_END, device->GetAddressBusCharWidth(), device->GetTraceCoverageEnd());
+	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_ENABLED, (device->GetTraceEnabled())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_DISASSEMBLE, (device->traceDisassemble)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_COVERAGE_ENABLED, (device->GetTraceCoverageEnabled())? BST_CHECKED: BST_UNCHECKED);
+	if(currentControlFocus != IDC_PROCESSOR_TRACE_LENGTH)			UpdateDlgItemBin(hwnd, IDC_PROCESSOR_TRACE_LENGTH, device->GetTraceLength());
+	if(currentControlFocus != IDC_PROCESSOR_TRACE_START)			UpdateDlgItemHex(hwnd, IDC_PROCESSOR_TRACE_START, device->GetAddressBusCharWidth(), device->GetTraceCoverageStart());
+	if(currentControlFocus != IDC_PROCESSOR_TRACE_END)				UpdateDlgItemHex(hwnd, IDC_PROCESSOR_TRACE_END, device->GetAddressBusCharWidth(), device->GetTraceCoverageEnd());
 	if(currentControlFocus != IDC_PROCESSOR_TRACE_COVERAGE_SIZE)	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_TRACE_COVERAGE_SIZE, device->GetTraceCoverageLogSize());
 
 	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), WM_SETREDRAW, FALSE, 0);
@@ -107,7 +101,7 @@ INT_PTR Processor::TraceView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)

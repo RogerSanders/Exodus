@@ -63,10 +63,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return 1;
 	}
 
+	//Initialize the system, and load all modules and settings.
 	//##TODO## Separate this out. This should be a message or the like which is posted to
 	//the message queue for the main window, and is then picked up by the UI thread and
 	//executed. It should display progress for module loading.
-	//Initialize the system, and load all modules and settings.
 	if(!exodusInterface.InitializeSystem())
 	{
 		return 2;

@@ -18,6 +18,7 @@ private:
 	//Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
@@ -25,10 +26,10 @@ private:
 	bool initializedDialog;
 	std::wstring previousText;
 	unsigned int currentControlFocus;
-
-	DeviceContext* deviceContext;
+	int deviceListIndex;
 	unsigned int systemStep;
 	unsigned int deviceStep;
+	DeviceArray devicesCopy;
 };
 
 #endif

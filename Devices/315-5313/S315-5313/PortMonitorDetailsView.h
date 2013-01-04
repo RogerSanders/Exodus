@@ -28,7 +28,6 @@ private:
 
 private:
 	S315_5313* device;
-
 	HWND hwndInternal;
 	PortMonitorEntry entry;
 };

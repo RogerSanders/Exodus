@@ -30,9 +30,9 @@ private:
 	bool initializedDialog;
 	std::wstring previousText;
 	unsigned int currentControlFocus;
-
 	int watchpointListIndex;
 	Watchpoint watchpoint;
+	WatchpointList watchpointsCopy;
 };
 
 #endif

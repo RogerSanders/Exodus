@@ -1253,7 +1253,7 @@ void A10000::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::GetState(IHeirarchicalStorageNode& node) const
+void A10000::SaveState(IHeirarchicalStorageNode& node) const
 {
 	for(unsigned int i = 0; i < controlPortCount; ++i)
 	{

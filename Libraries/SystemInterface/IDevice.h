@@ -83,10 +83,9 @@ public:
 	//Savestate functions
 	virtual bool GetScreenshot(IImage& image) const = 0;
 	virtual void LoadState(IHeirarchicalStorageNode& node) = 0;
-	virtual void GetState(IHeirarchicalStorageNode& node) const = 0;
-	//##TODO## Implement saving and loading of the debugger state
-	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const = 0;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const = 0;
 	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node) = 0;
+	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const = 0;
 
 	//CE line state functions
 	inline unsigned int GetCELineID(const std::wstring& lineName, bool inputLine) const;

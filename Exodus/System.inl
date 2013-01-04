@@ -191,6 +191,7 @@ struct System::LogEntryInternal
 struct System::ViewModelOpenRequest
 {
 	bool ownerSystem;
+	unsigned int moduleID;
 	std::wstring menuHandlerName;
 	int viewID;
 	std::wstring deviceInstanceName;
@@ -200,7 +201,7 @@ struct System::ViewModelOpenRequest
 //Constructors
 //----------------------------------------------------------------------------------------
 System::System(void* aassemblyHandle)
-:stopSystem(false), systemStopped(true), initialize(false), enableThrottling(true), assemblyHandle(aassemblyHandle)
+:stopSystem(false), systemStopped(true), initialize(false), enableThrottling(true), runWhenProgramModuleLoaded(true), assemblyHandle(aassemblyHandle)
 {
 	//Create the menu handler
 	debugMenuHandler = new DebugMenuHandler(this);

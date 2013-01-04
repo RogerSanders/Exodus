@@ -69,7 +69,7 @@ void TimedBufferIntDevice::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void TimedBufferIntDevice::GetState(IHeirarchicalStorageNode& node) const
+void TimedBufferIntDevice::SaveState(IHeirarchicalStorageNode& node) const
 {
 	bufferShell.GetState(node, GetDeviceInstanceName());
 }

@@ -1337,17 +1337,26 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				//|CD1|CD0|A13|A12|A11|A10|A9 |A8 |A7 |A6 |A5 |A4 |A3 |A2 |A1 |A0 |
 				//-----------------------------------------------------------------
 
-				//Perform the register write
+				//Decode the target register number and data from the command address data
 				unsigned int registerNo = originalCommandAddress.GetDataSegment(8, 5);
 				Data registerData(8, originalCommandAddress.GetDataSegment(0, 8));
 
-				//##FIX## Test this in hardware
+				//Calculate the highest accessible register number available based on the
+				//current screen mode. Documentation and hardware tests show that when
+				//mode 4 is active, VDP registers above the register block defined under
+				//mode 4 are inaccessible.
+				//##TODO## Do hardware tests to confirm whether the unused registers 6, 8,
+				//and 9 can be modified in mode 5, and whether the unused registers 3 and
+				//4 can be modified in mode 4.
+				unsigned int accessibleRegisterCount = registerCount;
 				if(!screenModeM5Cached)
 				{
-					registerNo &= 0x0F;
+					accessibleRegisterCount = registerCountM4;
 				}
 
-				if((registerNo < registerCount) && !registerLocked[registerNo])
+				//If the target register is accessible in this video mode and isn't
+				//currently locked, perform the register write.
+				if((registerNo < accessibleRegisterCount) && !registerLocked[registerNo])
 				{
 					RegisterSpecialUpdateFunction(accessMclkCycle + accessMclkCycleDelay, accessTime, accessResult.executionTime, caller, accessContext, registerNo, registerData);
 					AccessTarget accessTarget;

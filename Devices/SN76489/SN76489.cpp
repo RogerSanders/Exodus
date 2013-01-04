@@ -756,7 +756,7 @@ void SN76489::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void SN76489::GetState(IHeirarchicalStorageNode& node) const
+void SN76489::SaveState(IHeirarchicalStorageNode& node) const
 {
 	//Clock settings
 	node.CreateChild(L"ExternalClockRate").SetData(externalClockRate);

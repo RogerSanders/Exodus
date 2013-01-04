@@ -224,7 +224,7 @@ void TimedRAM::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void TimedRAM::GetState(IHeirarchicalStorageNode& node) const
+void TimedRAM::SaveState(IHeirarchicalStorageNode& node) const
 {
 	memory.GetState(node, GetDeviceInstanceName());
 }

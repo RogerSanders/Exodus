@@ -448,7 +448,7 @@ public:
 	//Savestate functions
 	virtual bool GetScreenshot(IImage& targetImage) const;
 	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node) const;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
 
 	//Port functions
 	unsigned short ReadDataPort(double accessTime, IDeviceContext* device);

@@ -53,14 +53,12 @@ public:
 	inline ~System();
 
 	//Savestate functions
-	virtual bool LoadState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType);
-	virtual bool SaveState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType);
+	virtual bool LoadState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState);
+	virtual bool SaveState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState);
 	virtual StateInfo GetStateInfo(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) const;
-	virtual bool LoadDebuggerState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType);
-	virtual bool SaveDebuggerState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType);
 	virtual bool LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const;
 	virtual bool DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfo& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const;
-	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode) const;
+	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false) const;
 
 	//Logging functions
 	virtual void WriteLogEvent(const ILogEntry& entry) const;
@@ -80,6 +78,8 @@ public:
 	virtual void FlagStopSystem();
 	virtual bool GetThrottlingState() const;
 	virtual void SetThrottlingState(bool state);
+	virtual bool GetRunWhenProgramModuleLoadedState() const;
+	virtual void SetRunWhenProgramModuleLoadedState(bool state);
 	virtual bool SystemRunning() const;
 	virtual bool IsSystemRollbackFlagged() const;
 	virtual double SystemRollbackTime() const;
@@ -99,6 +99,7 @@ public:
 	virtual bool LoadModuleSynchronousResult() const;
 	virtual bool LoadModuleSynchronousAborted() const;
 	virtual bool LoadModule(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher);
+	virtual bool SaveSystem(const std::wstring& fileDir, const std::wstring& fileName);
 	virtual bool UnloadModule(unsigned int moduleID);
 	virtual void UnloadAllModulesSynchronous();
 	virtual bool UnloadAllModulesSynchronousComplete() const;
@@ -192,6 +193,7 @@ private:
 	ClockSource* GetClockSource(unsigned int moduleID, const std::wstring& clockSourceName) const;
 
 	//Savestate functions
+	bool LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const;
 	void SaveModuleRelationshipsExportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
 	void SaveModuleRelationshipsImportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
 
@@ -228,7 +230,10 @@ private:
 	bool LoadModule_System_ImportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap);
 	bool LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_ProcessViewModelQueue(unsigned int moduleID, const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher);
+	bool LoadModule_ProcessViewModelQueue(const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher);
+	bool LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<LoadedModuleInfo>& addedModules);
+	void UnloadModuleInternal(unsigned int moduleID);
+	bool LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<LoadedModuleInfo>& addedModules);
 
 	//Device creation and deletion
 	bool AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext);
@@ -347,6 +352,7 @@ private:
 	//System settings
 	std::wstring capturePath;
 	bool enableThrottling;
+	bool runWhenProgramModuleLoaded;
 
 	//Connector settings
 	mutable unsigned int nextFreeConnectorID;

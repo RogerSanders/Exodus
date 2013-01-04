@@ -1517,7 +1517,7 @@ void Z80::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void Z80::GetState(IHeirarchicalStorageNode& node) const
+void Z80::SaveState(IHeirarchicalStorageNode& node) const
 {
 	node.CreateChildHex(L"Register", afreg.GetData(), afreg.GetHexCharCount()).CreateAttribute(L"name", L"AF");
 	node.CreateChildHex(L"Register", bcreg.GetData(), bcreg.GetHexCharCount()).CreateAttribute(L"name", L"BC");
@@ -1571,7 +1571,7 @@ void Z80::GetState(IHeirarchicalStorageNode& node) const
 		}
 	}
 
-	Processor::GetState(node);
+	Processor::SaveState(node);
 }
 
 } //Close namespace Z80

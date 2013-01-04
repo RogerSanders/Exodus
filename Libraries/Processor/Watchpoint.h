@@ -46,6 +46,10 @@ public:
 	inline void SetWriteConditionData2(unsigned int data, unsigned int dataBusWidth);
 	bool PassesWriteCondition(unsigned int data);
 
+	//Savestate functions
+	virtual void LoadState(IHeirarchicalStorageNode& node);
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+
 private:
 	//Read/Write condition flag data
 	bool read;

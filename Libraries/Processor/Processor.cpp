@@ -891,14 +891,150 @@ void Processor::LoadState(IHeirarchicalStorageNode& node)
 			LoadCallStack(*(*i));
 		}
 	}
+
+	Device::LoadState(node);
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::GetState(IHeirarchicalStorageNode& node) const
+void Processor::SaveState(IHeirarchicalStorageNode& node) const
 {
 	node.CreateChild(L"Register", clockSpeed).CreateAttribute(L"name", L"ClockSpeed");
 	IHeirarchicalStorageNode& callStackNode = node.CreateChild(L"CallStack");
 	SaveCallStack(callStackNode);
+
+	Device::SaveState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::LoadDebuggerState(IHeirarchicalStorageNode& node)
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+
+	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		std::wstring keyName = (*i)->GetName();
+		if(keyName == L"Register")
+		{
+			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			if(nameAttribute != 0)
+			{
+				std::wstring registerName = nameAttribute->GetValue();
+				//Device enable
+				if(registerName == L"DeviceEnabled")				GetDeviceContext()->SetDeviceEnabled((*i)->ExtractData<bool>());
+				//Clock speed
+				else if(registerName == L"OverriddenClockSpeed")
+				{
+					clockSpeedOverridden = true;
+					reportedClockSpeed = (*i)->ExtractData<double>();
+				}
+				//Call stack
+				else if(registerName == L"StackDisassemble")		stackDisassemble = (*i)->ExtractData<bool>();
+				//Trace
+				else if(registerName == L"TraceEnabled")			traceEnabled = (*i)->ExtractData<bool>();
+				else if(registerName == L"TraceDisassemble")		traceDisassemble = (*i)->ExtractData<bool>();
+				else if(registerName == L"TraceLength")				traceLength = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"TraceCoverageEnabled")	traceCoverageEnabled = (*i)->ExtractData<bool>();
+				else if(registerName == L"TraceCoverageStart")		traceCoverageStart = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"TraceCoverageEnd")		traceCoverageEnd = (*i)->ExtractHexData<unsigned int>();
+				//Disassembly
+				else if(registerName == L"ActiveDisassembly")		activeDisassembly = (*i)->ExtractData<bool>();
+				else if(registerName == L"ActiveDisassemblyStartLocation")	activeDisassemblyStartLocation = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"ActiveDisassemblyEndLocation")	activeDisassemblyEndLocation = (*i)->ExtractHexData<unsigned int>();
+			}
+		}
+		else if(keyName == L"BreakpointList")
+		{
+			for(BreakpointList::const_iterator breakpointIterator = breakpoints.begin(); breakpointIterator != breakpoints.end(); ++breakpointIterator)
+			{
+				delete *breakpointIterator;
+			}
+			breakpoints.clear();
+
+			std::list<IHeirarchicalStorageNode*> childList = (*i)->GetChildList();
+			for(std::list<IHeirarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
+			{
+				IHeirarchicalStorageNode& childNode = *(*childNodeIterator);
+				if(childNode.GetName() == L"Breakpoint")
+				{
+					Breakpoint* breakpoint = new Breakpoint();
+					breakpoint->LoadState(childNode);
+					breakpoints.push_back(breakpoint);
+				}
+			}
+			breakpointExists = !breakpoints.empty();
+		}
+		else if(keyName == L"WatchpointList")
+		{
+			for(WatchpointList::const_iterator watchpointIterator = watchpoints.begin(); watchpointIterator != watchpoints.end(); ++watchpointIterator)
+			{
+				delete *watchpointIterator;
+			}
+			watchpoints.clear();
+
+			std::list<IHeirarchicalStorageNode*> childList = (*i)->GetChildList();
+			for(std::list<IHeirarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
+			{
+				IHeirarchicalStorageNode& childNode = *(*childNodeIterator);
+				if(childNode.GetName() == L"Watchpoint")
+				{
+					Watchpoint* watchpoint = new Watchpoint();
+					watchpoint->LoadState(childNode);
+					watchpoints.push_back(watchpoint);
+				}
+			}
+			watchpointExists = !watchpoints.empty();
+		}
+	}
+
+	Device::LoadDebuggerState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+
+	//Device enable
+	node.CreateChild(L"Register", GetDeviceContext()->DeviceEnabled()).CreateAttribute(L"name", L"DeviceEnabled");
+
+	//Clock speed
+	if(clockSpeedOverridden)
+	{
+		node.CreateChild(L"Register", reportedClockSpeed).CreateAttribute(L"name", L"OverriddenClockSpeed");
+	}
+
+	//Breakpoints
+	IHeirarchicalStorageNode& breakpointListNode = node.CreateChild(L"BreakpointList");
+	for(BreakpointList::const_iterator i = breakpoints.begin(); i != breakpoints.end(); ++i)
+	{
+		IHeirarchicalStorageNode& breakpointListEntry = breakpointListNode.CreateChild(L"Breakpoint");
+		(*i)->SaveState(breakpointListEntry);
+	}
+	IHeirarchicalStorageNode& watchpointListNode = node.CreateChild(L"WatchpointList");
+	for(WatchpointList::const_iterator i = watchpoints.begin(); i != watchpoints.end(); ++i)
+	{
+		IHeirarchicalStorageNode& watchpointListEntry = watchpointListNode.CreateChild(L"Watchpoint");
+		(*i)->SaveState(watchpointListEntry);
+	}
+
+	//Call stack
+	node.CreateChild(L"Register", stackDisassemble).CreateAttribute(L"name", L"StackDisassemble");
+
+	//Trace
+	node.CreateChild(L"Register", traceEnabled).CreateAttribute(L"name", L"TraceEnabled");
+	node.CreateChild(L"Register", traceDisassemble).CreateAttribute(L"name", L"TraceDisassemble");
+	node.CreateChild(L"Register", traceLength).CreateAttribute(L"name", L"TraceLength");
+	node.CreateChild(L"Register", traceCoverageEnabled).CreateAttribute(L"name", L"TraceCoverageEnabled");
+	node.CreateChild(L"Register", traceCoverageStart).CreateAttributeHex(L"name", L"TraceCoverageStart", 8);
+	node.CreateChild(L"Register", traceCoverageEnd).CreateAttributeHex(L"name", L"TraceCoverageEnd", 8);
+
+	//Disassembly
+	node.CreateChild(L"Register", activeDisassembly).CreateAttribute(L"name", L"ActiveDisassembly");
+	node.CreateChild(L"Register", activeDisassemblyStartLocation).CreateAttributeHex(L"name", L"ActiveDisassemblyStartLocation", 8);
+	node.CreateChild(L"Register", activeDisassemblyEndLocation).CreateAttributeHex(L"name", L"ActiveDisassemblyEndLocation", 8);
+
+	Device::SaveDebuggerState(node);
 }
 
 //----------------------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------
 enum Breakpoint::Condition
 {
-	CONDITION_EQUAL,
+	CONDITION_EQUAL = 0,
 	CONDITION_GREATER,
 	CONDITION_LESS,
 	CONDITION_GREATER_AND_LESS

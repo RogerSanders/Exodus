@@ -139,13 +139,13 @@ INT_PTR S315_5313::SpriteListDetailsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam
 		switch(controlID)
 		{
 		case IDC_VDP_SPRITELIST_DETAILS_P:
-			spriteMapping.priority = (IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
+			spriteMapping.priority = (IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_SPRITELIST_DETAILS_HFLIP:
-			spriteMapping.hflip = (IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
+			spriteMapping.hflip = (IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_SPRITELIST_DETAILS_VFLIP:
-			spriteMapping.vflip = (IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
+			spriteMapping.vflip = (IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		}
 		device->SetSpriteMappingTableEntry(spriteIndex, spriteMapping, true);

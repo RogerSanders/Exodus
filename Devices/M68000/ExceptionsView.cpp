@@ -26,6 +26,8 @@ INT_PTR M68000::ExceptionsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
 	case WM_CLOSE:
 		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_TIMER:
+		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	}
@@ -37,19 +39,10 @@ INT_PTR M68000::ExceptionsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam
 //----------------------------------------------------------------------------------------
 INT_PTR M68000::ExceptionsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	boost::mutex::scoped_lock lock(device->debugMutex);
-	for(ExceptionList::iterator i = device->exceptionList.begin(); i != device->exceptionList.end(); ++i)
-	{
-		std::wstring exceptionName = BuildExceptionName((*i)->vectorNumber);
-		int listIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_ADDSTRING, 0, (LPARAM)exceptionName.c_str());
-		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_SETITEMDATA, listIndex, (LPARAM)*i);
-	}
-
+	SetTimer(hwnd, 1, 100, NULL);
 	exceptionEntry.Initialize();
 	UpdateExceptionEntry(hwnd, exceptionEntry, device->GetAddressBusCharWidth());
 	exceptionListIndex = -1;
-
-	initializedDialog = true;
 
 	return TRUE;
 }
@@ -57,7 +50,54 @@ INT_PTR M68000::ExceptionsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARA
 //----------------------------------------------------------------------------------------
 INT_PTR M68000::ExceptionsView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	KillTimer(hwnd, 1);
 	DestroyWindow(hwnd);
+
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR M68000::ExceptionsView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	boost::mutex::scoped_lock lock(device->debugMutex);
+	initializedDialog = true;
+
+	//Check if we need to refresh the exception list
+	bool refreshExceptionList = (exceptionListCopy.size() != device->exceptionList.size());
+	if(!refreshExceptionList)
+	{
+		ExceptionList::const_iterator exceptionListIterator = device->exceptionList.begin();
+		ExceptionList::const_iterator exceptionListCopyIterator = exceptionListCopy.begin();
+		while(!refreshExceptionList && (exceptionListIterator != device->exceptionList.end()) && (exceptionListCopyIterator != exceptionListCopy.end()))
+		{
+			refreshExceptionList |= (*exceptionListIterator != *exceptionListCopyIterator);
+			++exceptionListIterator;
+			++exceptionListCopyIterator;
+		}
+	}
+	exceptionListCopy = device->exceptionList;
+
+	//Refresh the exception list if required
+	if(refreshExceptionList)
+	{
+		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), WM_SETREDRAW, FALSE, 0);
+
+		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_GETTOPINDEX, 0, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_RESETCONTENT, 0, NULL);
+		for(ExceptionList::iterator i = device->exceptionList.begin(); i != device->exceptionList.end(); ++i)
+		{
+			std::wstring exceptionName = BuildExceptionName((*i)->vectorNumber);
+			int listIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_ADDSTRING, 0, (LPARAM)exceptionName.c_str());
+			SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_SETITEMDATA, listIndex, (LPARAM)*i);
+		}
+		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_SETCURSEL, (WPARAM)-1, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_SETTOPINDEX, top, 0);
+
+		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), WM_SETREDRAW, TRUE, 0);
+		InvalidateRect(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), NULL, FALSE);
+
+		exceptionListIndex = -1;
+	}
 
 	return TRUE;
 }
@@ -65,12 +105,12 @@ INT_PTR M68000::ExceptionsView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lpa
 //----------------------------------------------------------------------------------------
 INT_PTR M68000::ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == EN_SETFOCUS)
+	if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
 	{
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)
@@ -132,7 +172,7 @@ INT_PTR M68000::ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 				ExceptionDebuggingEntry* targetExceptionEntry = (ExceptionDebuggingEntry*)SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_GETITEMDATA, exceptionListIndex, 0);
 				SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_DELETESTRING, exceptionListIndex, NULL);
 
-				std::wstring exceptionName = BuildExceptionName(targetExceptionEntry->vectorNumber);
+				std::wstring exceptionName = BuildExceptionName(exceptionEntry.vectorNumber);
 				SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_INSERTSTRING, exceptionListIndex, (LPARAM)exceptionName.c_str());
 				SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_SETITEMDATA, exceptionListIndex, (LPARAM)targetExceptionEntry);
 				SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_SETCURSEL, exceptionListIndex, NULL);
@@ -143,6 +183,7 @@ INT_PTR M68000::ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 				ExceptionDebuggingEntry* targetExceptionEntry = new ExceptionDebuggingEntry(exceptionEntry);
 				device->exceptionList.push_back(targetExceptionEntry);
 				device->exceptionListEmpty = device->exceptionList.empty();
+				exceptionListCopy = device->exceptionList;
 
 				std::wstring exceptionName = BuildExceptionName(targetExceptionEntry->vectorNumber);
 				exceptionListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_ADDSTRING, 0, (LPARAM)exceptionName.c_str());
@@ -170,12 +211,16 @@ INT_PTR M68000::ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 					}
 				}
 				device->exceptionListEmpty = device->exceptionList.empty();
+				exceptionListCopy = device->exceptionList;
 				SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_DELETESTRING, exceptionListIndex, NULL);
-				exceptionListIndex -= 1;
+				if(exceptionListIndex >= exceptionListCopy.size())
+				{
+					exceptionListIndex -= 1;
+				}
 			}
 			SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_SETCURSEL, exceptionListIndex, NULL);
 
-			//Load the data for the new breakpoint
+			//Load the data for the new exception list entry
 			if(exceptionListIndex != -1)
 			{
 				ExceptionDebuggingEntry* targetExceptionEntry = (ExceptionDebuggingEntry*)SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_GETITEMDATA, exceptionListIndex, 0);
@@ -195,6 +240,7 @@ INT_PTR M68000::ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 			}
 			device->exceptionList.clear();
 			device->exceptionListEmpty = device->exceptionList.empty();
+			exceptionListCopy.clear();
 
 			//Clear the current exception info
 			exceptionEntry.Initialize();

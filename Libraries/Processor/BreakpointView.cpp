@@ -37,13 +37,6 @@ INT_PTR Processor::BreakpointView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpa
 //----------------------------------------------------------------------------------------
 INT_PTR Processor::BreakpointView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	boost::mutex::scoped_lock lock(device->debugMutex);
-	for(BreakpointList::iterator i = device->breakpoints.begin(); i != device->breakpoints.end(); ++i)
-	{
-		int listIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_ADDSTRING, 0, (LPARAM)(*i)->GetName().c_str());
-		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_SETITEMDATA, listIndex, (LPARAM)*i);
-	}
-
 	SetTimer(hwnd, 1, 100, NULL);
 	breakpoint.Initialize();
 	UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
@@ -64,7 +57,46 @@ INT_PTR Processor::BreakpointView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM 
 //----------------------------------------------------------------------------------------
 INT_PTR Processor::BreakpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	boost::mutex::scoped_lock lock(device->debugMutex);
 	initializedDialog = true;
+
+	//Check if we need to refresh the breakpoint list
+	bool refreshBreakpointList = (breakpointsCopy.size() != device->breakpoints.size());
+	if(!refreshBreakpointList)
+	{
+		BreakpointList::const_iterator breakpointsIterator = device->breakpoints.begin();
+		BreakpointList::const_iterator breakpointsCopyIterator = breakpointsCopy.begin();
+		while(!refreshBreakpointList && (breakpointsIterator != device->breakpoints.end()) && (breakpointsCopyIterator != breakpointsCopy.end()))
+		{
+			refreshBreakpointList |= (*breakpointsIterator != *breakpointsCopyIterator);
+			++breakpointsIterator;
+			++breakpointsCopyIterator;
+		}
+	}
+	breakpointsCopy = device->breakpoints;
+
+	//Refresh the breakpoint list if required
+	if(refreshBreakpointList)
+	{
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), WM_SETREDRAW, FALSE, 0);
+
+		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_GETTOPINDEX, 0, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_RESETCONTENT, 0, NULL);
+		for(BreakpointList::iterator i = device->breakpoints.begin(); i != device->breakpoints.end(); ++i)
+		{
+			int listIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_ADDSTRING, 0, (LPARAM)(*i)->GetName().c_str());
+			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_SETITEMDATA, listIndex, (LPARAM)*i);
+		}
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_SETCURSEL, (WPARAM)-1, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_SETTOPINDEX, top, 0);
+
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), WM_SETREDRAW, TRUE, 0);
+		InvalidateRect(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), NULL, FALSE);
+
+		breakpointListIndex = -1;
+	}
+
+	//If we currently have a selected breakpoint from the list, update the hit count.
 	if(breakpointListIndex >= 0)
 	{
 		Breakpoint* targetBreakpoint = (Breakpoint*)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_GETITEMDATA, breakpointListIndex, 0);
@@ -77,12 +109,12 @@ INT_PTR Processor::BreakpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 //----------------------------------------------------------------------------------------
 INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == EN_SETFOCUS)
+	if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
 	{
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)
@@ -190,6 +222,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				Breakpoint* targetBreakpoint = new Breakpoint(breakpoint);
 				device->breakpoints.push_back(targetBreakpoint);
 				device->breakpointExists = !device->breakpoints.empty();
+				breakpointsCopy = device->breakpoints;
 
 				breakpointListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_ADDSTRING, 0, (LPARAM)breakpoint.GetName().c_str());
 				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_SETITEMDATA, breakpointListIndex, (LPARAM)targetBreakpoint);
@@ -216,8 +249,12 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 					}
 				}
 				device->breakpointExists = !device->breakpoints.empty();
+				breakpointsCopy = device->breakpoints;
 				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_DELETESTRING, breakpointListIndex, NULL);
-				breakpointListIndex -= 1;
+				if(breakpointListIndex >= breakpointsCopy.size())
+				{
+					breakpointListIndex -= 1;
+				}
 			}
 			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_SETCURSEL, breakpointListIndex, NULL);
 
@@ -241,6 +278,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			}
 			device->breakpoints.clear();
 			device->breakpointExists = false;
+			breakpointsCopy.clear();
 
 			//Clear the current breakpoint info
 			breakpoint.Initialize();

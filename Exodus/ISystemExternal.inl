@@ -13,10 +13,11 @@ enum ISystemExternal::FileType
 struct ISystemExternal::StateInfo
 {
 	StateInfo()
-	:valid(false), screenshotPresent(false)
+	:valid(false), debuggerState(false), screenshotPresent(false)
 	{}
 
 	bool valid;
+	bool debuggerState;
 	std::wstring creationDate;
 	std::wstring creationTime;
 	std::wstring comments;
@@ -27,11 +28,20 @@ struct ISystemExternal::StateInfo
 //----------------------------------------------------------------------------------------
 struct ISystemExternal::LoadedModuleInfo
 {
+	LoadedModuleInfo()
+	:systemModule(false), programModule(false)
+	{}
+
 	//Internal data
 	unsigned int moduleID;
 
+	//External information
+	std::wstring fileDir;
+	std::wstring fileName;
+
 	//Required metadata
 	bool systemModule;
+	bool programModule;
 	std::wstring systemClassName;
 	std::wstring className;
 	std::wstring instanceName;
@@ -81,6 +91,8 @@ struct ISystemExternal::SavedRelationshipModule
 	std::wstring systemClassName;
 	std::wstring className;
 	std::wstring instanceName;
+	std::wstring fileDir;
+	std::wstring fileName;
 	std::list<SavedRelationshipExportConnector> exportedConnectors;
 	std::list<SavedRelationshipImportConnector> importedConnectors;
 };

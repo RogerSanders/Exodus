@@ -32,6 +32,7 @@ private:
 	unsigned int currentControlFocus;
 	int breakpointListIndex;
 	Breakpoint breakpoint;
+	BreakpointList breakpointsCopy;
 };
 
 #endif

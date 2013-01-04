@@ -31,7 +31,9 @@ public:
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node) const;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 
 private:
 	typedef std::map<unsigned int, unsigned char> MemoryAccessBuffer;

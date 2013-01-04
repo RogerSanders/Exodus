@@ -1,5 +1,6 @@
 #ifndef __BREAKPOINT_H__
 #define __BREAKPOINT_H__
+#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
 #include <string>
 
 class Breakpoint
@@ -10,6 +11,7 @@ public:
 
 	//Constructors
 	inline Breakpoint();
+	virtual ~Breakpoint();
 
 	//Initialization functions
 	inline void Initialize();
@@ -54,6 +56,10 @@ public:
 	inline unsigned int GetBreakCounter() const;
 	inline void SetBreakCounter(unsigned int abreakCounter);
 	bool CheckHitCounter();
+
+	//Savestate functions
+	virtual void LoadState(IHeirarchicalStorageNode& node);
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
 
 private:
 	//Breakpoint name

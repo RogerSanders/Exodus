@@ -317,19 +317,21 @@ bool M68000::RemoveReference(IBusInterface* target)
 //----------------------------------------------------------------------------------------
 //Exception functions
 //----------------------------------------------------------------------------------------
-void M68000::PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool processingInstruction)
+double M68000::PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool processingInstruction)
 {
 	//Push Group 1/2 exception stack frame
+	double delayTime = 0.0;
 	M68000Long stackPointer = GetSSP();
 	stackPointer -= apc.GetByteSize();
-	WriteMemory(stackPointer, apc, FUNCTIONCODE_SUPERVISORDATA, apc, processingInstruction, 0, false, false);
+	delayTime += WriteMemory(stackPointer, apc, FUNCTIONCODE_SUPERVISORDATA, apc, processingInstruction, 0, false, false);
 	stackPointer -= asr.GetByteSize();
-	WriteMemory(stackPointer, asr, FUNCTIONCODE_SUPERVISORDATA, apc, processingInstruction, 0, false, false);
+	delayTime += WriteMemory(stackPointer, asr, FUNCTIONCODE_SUPERVISORDATA, apc, processingInstruction, 0, false, false);
 	SetSSP(stackPointer);
+	return delayTime;
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::PushStackFrame(const M68000Long& apc, const M68000Word& asr, const M68000Word& ainstructionRegister, const M68000Long& aaccessAddress, bool aread, bool aprocessingInstruction, FunctionCode afunctionCode)
+double M68000::PushStackFrame(const M68000Long& apc, const M68000Word& asr, const M68000Word& ainstructionRegister, const M68000Long& aaccessAddress, bool aread, bool aprocessingInstruction, FunctionCode afunctionCode)
 {
 	//Push Group 0 Bus/Address error exception stack frame
 	M68000Word statusFlags = afunctionCode;
@@ -337,18 +339,21 @@ void M68000::PushStackFrame(const M68000Long& apc, const M68000Word& asr, const 
 	statusFlags.SetBit(3, !aprocessingInstruction);
 	statusFlags.SetBit(4, aread);
 
+	double delayTime = 0.0;
 	M68000Long stackPointer = GetSSP();
 	stackPointer -= apc.GetByteSize();
-	WriteMemory(stackPointer, apc, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, apc, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
 	stackPointer -= asr.GetByteSize();
-	WriteMemory(stackPointer, asr, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, asr, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
 	stackPointer -= ainstructionRegister.GetByteSize();
-	WriteMemory(stackPointer, ainstructionRegister, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, ainstructionRegister, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
 	stackPointer -= aaccessAddress.GetByteSize();
-	WriteMemory(stackPointer, aaccessAddress, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, aaccessAddress, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
 	stackPointer -= statusFlags.GetByteSize();
-	WriteMemory(stackPointer, statusFlags, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, statusFlags, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
 	SetSSP(stackPointer);
+
+	return delayTime;
 }
 
 //----------------------------------------------------------------------------------------
@@ -804,12 +809,12 @@ double M68000::ExecuteStep()
 		{
 			//Push a dummy group 0 exception stack frame. It's not really possible to give
 			//real data here, since a real exception didn't occur.
-			PushStackFrame(GetPC(), GetSR(), 0, 0, false, false, GetFunctionCode(true));
+			additionalTime += PushStackFrame(GetPC(), GetSR(), 0, 0, false, false, GetFunctionCode(true));
 		}
 		else
 		{
 			//Push a group 1/2 exception stack frame
-			PushStackFrame(GetPC(), GetSR(), false);
+			additionalTime += PushStackFrame(GetPC(), GetSR(), false);
 		}
 
 		//Process the exception
@@ -825,7 +830,7 @@ double M68000::ExecuteStep()
 		{
 			if(group0Vector != EX_RESET)
 			{
-				PushStackFrame(group0PC, group0SR, group0InstructionRegister, group0Address, group0ReadWriteFlag, group0InstructionFlag, group0FunctionCode);
+				additionalTime += PushStackFrame(group0PC, group0SR, group0InstructionRegister, group0Address, group0ReadWriteFlag, group0InstructionFlag, group0FunctionCode);
 			}
 			cyclesExecuted = ProcessException(group0Vector).cycles;
 
@@ -926,7 +931,7 @@ double M68000::ExecuteStep()
 		//Process the interrupt
 		if(!ExceptionDisabled(interruptVectorNumber.GetData()))
 		{
-			PushStackFrame(GetPC(), GetSR(), false);
+			additionalTime += PushStackFrame(GetPC(), GetSR(), false);
 			SetSR_IPM(interruptPendingLevel);
 			cyclesExecuted = ProcessException(interruptVectorNumber.GetData()).cycles;
 			return CalculateExecutionTime(cyclesExecuted) + additionalTime;
@@ -961,7 +966,7 @@ double M68000::ExecuteStep()
 			}
 			if(!ExceptionDisabled(exception))
 			{
-				PushStackFrame(GetPC(), GetSR(), false);
+				additionalTime += PushStackFrame(GetPC(), GetSR(), false);
 				cyclesExecuted = ProcessException(exception).cycles;
 			}
 		}
@@ -974,7 +979,7 @@ double M68000::ExecuteStep()
 			{
 				//Generate a privilege violation if the instruction is privileged and
 				//we're not in supervisor mode.
-				PushStackFrame(GetPC(), GetSR(), false);
+				additionalTime += PushStackFrame(GetPC(), GetSR(), false);
 				cyclesExecuted = ProcessException(EX_PRIVILEGE_VIOLATION).cycles;
 			}
 			else
@@ -1016,9 +1021,8 @@ double M68000::ExecuteStep()
 				//internally, but this implementation should have identical behaviour.
 				if(trace && !group0ExceptionPending && !ExceptionDisabled(EX_TRACE))
 				{
-					PushStackFrame(GetPC(), GetSR(), false);
+					additionalTime += PushStackFrame(GetPC(), GetSR(), false);
 					cyclesExecuted += ProcessException(EX_TRACE).cycles;
-					return cyclesExecuted;
 				}
 			}
 			nextOpcode->~M68000Instruction();
@@ -2466,7 +2470,7 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::GetState(IHeirarchicalStorageNode& node) const
+void M68000::SaveState(IHeirarchicalStorageNode& node) const
 {
 	node.CreateChildHex(L"Register", a[0].GetData(), a[0].GetHexCharCount()).CreateAttribute(L"name", L"A0");
 	node.CreateChildHex(L"Register", a[1].GetData(), a[1].GetHexCharCount()).CreateAttribute(L"name", L"A1");
@@ -2536,7 +2540,80 @@ void M68000::GetState(IHeirarchicalStorageNode& node) const
 		}
 	}
 
-	Processor::GetState(node);
+	Processor::SaveState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::LoadDebuggerState(IHeirarchicalStorageNode& node)
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+
+	//Exception debugging
+	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		std::wstring keyName = (*i)->GetName();
+		if(keyName == L"Register")
+		{
+			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			if(nameAttribute != 0)
+			{
+				std::wstring registerName = nameAttribute->GetValue();
+				//Exception debugging
+				if(registerName == L"LogAllExceptions")				logAllExceptions = (*i)->ExtractData<bool>();
+				else if(registerName == L"BreakOnAllExceptions")	breakOnAllExceptions = (*i)->ExtractData<bool>();
+				else if(registerName == L"DisableAllExceptions")	disableAllExceptions = (*i)->ExtractData<bool>();
+			}
+		}
+		else if(keyName == L"ExceptionDebugList")
+		{
+			for(ExceptionList::const_iterator exceptionListIterator = exceptionList.begin(); exceptionListIterator != exceptionList.end(); ++exceptionListIterator)
+			{
+				delete *exceptionListIterator;
+			}
+			exceptionList.clear();
+
+			std::list<IHeirarchicalStorageNode*> childList = (*i)->GetChildList();
+			for(std::list<IHeirarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
+			{
+				IHeirarchicalStorageNode& childNode = *(*childNodeIterator);
+				if(childNode.GetName() == L"ExceptionDebugListEntry")
+				{
+					ExceptionDebuggingEntry* entry = new ExceptionDebuggingEntry();
+					childNode.ExtractAttribute(L"VectorNumber", entry->vectorNumber);
+					childNode.ExtractAttribute(L"EnableLogging", entry->enableLogging);
+					childNode.ExtractAttribute(L"EnableBreak", entry->enableBreak);
+					childNode.ExtractAttribute(L"Disable", entry->disable);
+					exceptionList.push_back(entry);
+				}
+			}
+			exceptionListEmpty = exceptionList.empty();
+		}
+	}
+
+	Processor::LoadDebuggerState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+
+	//Exception debugging
+	IHeirarchicalStorageNode& exceptionListNode = node.CreateChild(L"ExceptionDebugList");
+	for(ExceptionList::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
+	{
+		IHeirarchicalStorageNode& exceptionListEntry = exceptionListNode.CreateChild(L"ExceptionDebugListEntry");
+		exceptionListEntry.CreateAttributeHex(L"VectorNumber", (*i)->vectorNumber, 8);
+		exceptionListEntry.CreateAttribute(L"EnableLogging", (*i)->enableLogging);
+		exceptionListEntry.CreateAttribute(L"EnableBreak", (*i)->enableBreak);
+		exceptionListEntry.CreateAttribute(L"Disable", (*i)->disable);
+	}
+	node.CreateChild(L"Register", logAllExceptions).CreateAttribute(L"name", L"LogAllExceptions");
+	node.CreateChild(L"Register", breakOnAllExceptions).CreateAttribute(L"name", L"BreakOnAllExceptions");
+	node.CreateChild(L"Register", disableAllExceptions).CreateAttribute(L"name", L"DisableAllExceptions");
+
+	Processor::SaveDebuggerState(node);
 }
 
 } //Close namespace M68000

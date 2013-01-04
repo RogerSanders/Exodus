@@ -27,7 +27,6 @@ private:
 
 private:
 	System* system;
-
 	HWND hwndInternal;
 	LogEntryInternal logEntry;
 };

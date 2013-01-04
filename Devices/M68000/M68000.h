@@ -152,8 +152,8 @@ public:
 	virtual bool RemoveReference(IBusInterface* target);
 
 	//Exception functions
-	void PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool processingInstruction = true);
-	void PushStackFrame(const M68000Long& apc, const M68000Word& asr, const M68000Word& ainstructionRegister, const M68000Long& aaccessAddress, bool aread, bool aprocessingInstruction, FunctionCode afunctionCode);
+	double PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool processingInstruction = true);
+	double PushStackFrame(const M68000Long& apc, const M68000Word& asr, const M68000Word& ainstructionRegister, const M68000Long& aaccessAddress, bool aread, bool aprocessingInstruction, FunctionCode afunctionCode);
 	ExecuteTime ProcessException(unsigned int vector);
 	ExecuteTime GetExceptionProcessingTime(unsigned int vector) const;
 	std::wstring GetExceptionName(unsigned int vector) const;
@@ -275,7 +275,9 @@ public:
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node) const;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 
 	//Window functions
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
@@ -381,7 +383,6 @@ private:
 
 	//Exception debugging
 	mutable boost::mutex debugMutex;
-	mutable bool exceptionDebuggingActive;
 	typedef std::list<ExceptionDebuggingEntry*> ExceptionList;
 	ExceptionList exceptionList;
 	volatile bool exceptionListEmpty;

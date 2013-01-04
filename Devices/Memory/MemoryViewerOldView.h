@@ -26,7 +26,6 @@ private:
 	bool initializedDialog;
 	std::wstring previousText;
 	unsigned int currentControlFocus;
-
 	unsigned int memoryLocation;
 	unsigned int memorySize;
 	unsigned int addressWidth;
