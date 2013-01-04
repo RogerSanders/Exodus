@@ -105,7 +105,7 @@ public:
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node) const;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
 
 	//Window functions
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
@@ -137,8 +137,8 @@ private:
 		:attenuation(10), phaseCounter(20)
 		{}
 
-		Data attenuation;	//10-bit
-		Data phaseCounter;	//20-bit
+		Data attenuation;   //10-bit
+		Data phaseCounter;  //20-bit
 		ADSRPhase phase;
 		bool keyon;
 		bool csmKeyOn;

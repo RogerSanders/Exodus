@@ -191,7 +191,9 @@ public:
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node) const;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 	void LoadCallStack(IHeirarchicalStorageNode& node);
 	void SaveCallStack(IHeirarchicalStorageNode& node) const;
 
@@ -261,12 +263,12 @@ private:
 	typedef std::list<Watchpoint*> WatchpointList;
 	mutable BreakpointList breakpoints;
 	mutable WatchpointList watchpoints;
-	bool breakpointExists;
-	bool watchpointExists;
+	volatile bool breakpointExists;
+	volatile bool watchpointExists;
 
 	//Call stack
 	typedef std::list<CallStackEntry> CallStack;
-	mutable bool breakOnNextOpcode;
+	volatile mutable bool breakOnNextOpcode;
 	bool bbreakOnNextOpcode;
 	mutable CallStack callStack;
 	CallStack bcallStack;

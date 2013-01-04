@@ -136,7 +136,7 @@ INT_PTR MemoryRead::MemoryViewerOldView::msgWM_COMMAND(HWND hwnd, WPARAM wparam,
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		switch(LOWORD(wparam))
 		{

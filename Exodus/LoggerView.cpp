@@ -47,6 +47,8 @@ INT_PTR System::LoggerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lp
 	UpdateDlgItemBin(hwnd, IDC_LOGGER_LISTSIZE, system->GetEventLogSize());
 	SetTimer(hwnd, 1, 200, NULL);
 
+	initializedDialog = true;
+
 	return TRUE;
 }
 
@@ -63,7 +65,6 @@ INT_PTR System::LoggerView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 INT_PTR System::LoggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	boost::mutex::scoped_lock lock(system->debugMutex);
-	initializedDialog = true;
 	SendMessage(GetDlgItem(hwnd, IDC_LOGGER_LIST), WM_SETREDRAW, FALSE, 0);
 
 	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_LOGGER_LIST), LB_GETTOPINDEX, 0, 0);
@@ -125,7 +126,7 @@ INT_PTR System::LoggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpara
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)

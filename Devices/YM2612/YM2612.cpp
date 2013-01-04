@@ -2665,7 +2665,7 @@ void YM2612::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::GetState(IHeirarchicalStorageNode& node) const
+void YM2612::SaveState(IHeirarchicalStorageNode& node) const
 {
 	//Clock settings
 	node.CreateChild(L"ExternalClockRate").SetData(externalClockRate);

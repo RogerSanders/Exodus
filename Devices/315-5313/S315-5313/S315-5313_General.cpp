@@ -3366,11 +3366,12 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 			{
 				IHeirarchicalStorageNode* entryNode = *entryNodeIterator;
 				unsigned int entryIndex;
-				if(entryNode->ExtractAttribute(L"index", entryIndex))
+				unsigned int renderPlane;
+				if(entryNode->ExtractAttribute(L"index", entryIndex) && entryNode->ExtractAttribute(L"renderPlane", renderPlane))
 				{
-					if(entryIndex < spritePixelBufferSize)
+					if((entryIndex < spritePixelBufferSize) && (renderPlane < renderSpritePixelBufferPlaneCount))
 					{
-						SpritePixelBufferEntry& entry = spritePixelBuffer[entryIndex];
+						SpritePixelBufferEntry& entry = spritePixelBuffer[renderPlane][entryIndex];
 						entryNode->ExtractAttribute(L"paletteLine", entry.paletteLine);
 						entryNode->ExtractAttribute(L"paletteIndex", entry.paletteIndex);
 						entryNode->ExtractAttribute(L"layerPriority", entry.layerPriority);
@@ -3380,10 +3381,12 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 			}
 		}
 	}
+
+	Device::LoadState(node);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::GetState(IHeirarchicalStorageNode& node) const
+void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 {
 	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
 	std::wstring regBufferName = GetDeviceInstanceName();
@@ -3530,15 +3533,19 @@ void S315_5313::GetState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Register", renderSpritePixelBufferDigitalRenderPlane).CreateAttribute(L"name", L"RenderSpritePixelBufferDigitalRenderPlane");
 	node.CreateChild(L"Register", renderSpritePixelBufferAnalogRenderPlane).CreateAttribute(L"name", L"RenderSpritePixelBufferAnalogRenderPlane");
 	IHeirarchicalStorageNode& spritePixelBufferNode = node.CreateChild(L"SpritePixelBuffer");
-	for(unsigned int i = 0; i < spritePixelBufferSize; ++i)
+	for(unsigned int renderPlane = 0; renderPlane < renderSpritePixelBufferPlaneCount; ++renderPlane)
 	{
-		IHeirarchicalStorageNode& entryNode = spritePixelBufferNode.CreateChild(L"SpritePixelBufferEntry");
-		const SpritePixelBufferEntry& entry = spritePixelBuffer[i];
-		entryNode.CreateAttribute(L"index", i);
-		entryNode.CreateAttribute(L"paletteLine", entry.paletteLine);
-		entryNode.CreateAttribute(L"paletteIndex", entry.paletteIndex);
-		entryNode.CreateAttribute(L"layerPriority", entry.layerPriority);
-		entryNode.CreateAttribute(L"entryWritten", entry.entryWritten);
+		for(unsigned int i = 0; i < spritePixelBufferSize; ++i)
+		{
+			IHeirarchicalStorageNode& entryNode = spritePixelBufferNode.CreateChild(L"SpritePixelBufferEntry");
+			const SpritePixelBufferEntry& entry = spritePixelBuffer[renderPlane][i];
+			entryNode.CreateAttribute(L"renderPlane", renderPlane);
+			entryNode.CreateAttribute(L"index", i);
+			entryNode.CreateAttribute(L"paletteLine", entry.paletteLine);
+			entryNode.CreateAttribute(L"paletteIndex", entry.paletteIndex);
+			entryNode.CreateAttribute(L"layerPriority", entry.layerPriority);
+			entryNode.CreateAttribute(L"entryWritten", entry.entryWritten);
+		}
 	}
 	node.CreateChild(L"Register", nonSpriteMaskCellEncountered).CreateAttribute(L"name", L"NonSpriteMaskCellEncountered");
 	node.CreateChild(L"Register", renderSpriteMaskActive).CreateAttribute(L"name", L"RenderSpriteMaskActive");
@@ -3560,4 +3567,70 @@ void S315_5313::GetState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Register", externalInterruptVideoTriggerPointPending).CreateAttribute(L"name", L"ExternalInterruptVideoTriggerPointPending");
 	node.CreateChildHex(L"Register", externalInterruptVideoTriggerPointHCounter, 3).CreateAttribute(L"name", L"ExternalInterruptVideoTriggerPointHCounter");
 	node.CreateChildHex(L"Register", externalInterruptVideoTriggerPointVCounter, 3).CreateAttribute(L"name", L"ExternalInterruptVideoTriggerPointVCounter");
+
+	Device::SaveState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::LoadDebuggerState(IHeirarchicalStorageNode& node)
+{
+	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		std::wstring keyName = (*i)->GetName();
+		if(keyName == L"Register")
+		{
+			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			if(nameAttribute != 0)
+			{
+				std::wstring registerName = nameAttribute->GetValue();
+				//Debug output
+				if(registerName == L"OutputPortAccessDebugMessages")		outputPortAccessDebugMessages = (*i)->ExtractData<bool>();
+				else if(registerName == L"OutputTimingDebugMessages")		outputTimingDebugMessages = (*i)->ExtractData<bool>();
+				else if(registerName == L"OutputRenderSyncMessages")		outputRenderSyncMessages = (*i)->ExtractData<bool>();
+				else if(registerName == L"OutputInterruptDebugMessages")	outputInterruptDebugMessages = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoDisableRenderOutput")		videoDisableRenderOutput = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoEnableSpriteBoxing")			videoEnableSpriteBoxing = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoHighlightRenderPos")			videoHighlightRenderPos = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoSingleBuffering")			videoSingleBuffering = (*i)->ExtractData<bool>();
+				//Layer removal settings
+				else if(registerName == L"EnableLayerAHigh")		enableLayerAHigh = (*i)->ExtractData<bool>();
+				else if(registerName == L"EnableLayerALow")			enableLayerALow = (*i)->ExtractData<bool>();
+				else if(registerName == L"EnableLayerBHigh")		enableLayerBHigh = (*i)->ExtractData<bool>();
+				else if(registerName == L"EnableLayerBLow")			enableLayerBLow = (*i)->ExtractData<bool>();
+				else if(registerName == L"EnableWindowHigh")		enableWindowHigh = (*i)->ExtractData<bool>();
+				else if(registerName == L"EnableWindowLow")			enableWindowLow = (*i)->ExtractData<bool>();
+				else if(registerName == L"EnableSpriteHigh")		enableSpriteHigh = (*i)->ExtractData<bool>();
+				else if(registerName == L"EnableSpriteLow")			enableSpriteLow = (*i)->ExtractData<bool>();
+			}
+		}
+	}
+
+	Device::LoadDebuggerState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+{
+	//Debug output
+	node.CreateChild(L"Register", outputPortAccessDebugMessages).CreateAttribute(L"name", L"OutputPortAccessDebugMessages");
+	node.CreateChild(L"Register", outputTimingDebugMessages).CreateAttribute(L"name", L"OutputTimingDebugMessages");
+	node.CreateChild(L"Register", outputRenderSyncMessages).CreateAttribute(L"name", L"OutputRenderSyncMessages");
+	node.CreateChild(L"Register", outputInterruptDebugMessages).CreateAttribute(L"name", L"OutputInterruptDebugMessages");
+	node.CreateChild(L"Register", videoDisableRenderOutput).CreateAttribute(L"name", L"VideoDisableRenderOutput");
+	node.CreateChild(L"Register", videoEnableSpriteBoxing).CreateAttribute(L"name", L"VideoEnableSpriteBoxing");
+	node.CreateChild(L"Register", videoHighlightRenderPos).CreateAttribute(L"name", L"VideoHighlightRenderPos");
+	node.CreateChild(L"Register", videoSingleBuffering).CreateAttribute(L"name", L"VideoSingleBuffering");
+
+	//Layer removal settings
+	node.CreateChild(L"Register", enableLayerAHigh).CreateAttribute(L"name", L"EnableLayerAHigh");
+	node.CreateChild(L"Register", enableLayerALow).CreateAttribute(L"name", L"EnableLayerALow");
+	node.CreateChild(L"Register", enableLayerBHigh).CreateAttribute(L"name", L"EnableLayerBHigh");
+	node.CreateChild(L"Register", enableLayerBLow).CreateAttribute(L"name", L"EnableLayerBLow");
+	node.CreateChild(L"Register", enableWindowHigh).CreateAttribute(L"name", L"EnableWindowHigh");
+	node.CreateChild(L"Register", enableWindowLow).CreateAttribute(L"name", L"EnableWindowLow");
+	node.CreateChild(L"Register", enableSpriteHigh).CreateAttribute(L"name", L"EnableSpriteHigh");
+	node.CreateChild(L"Register", enableSpriteLow).CreateAttribute(L"name", L"EnableSpriteLow");
+
+	Device::SaveDebuggerState(node);
 }

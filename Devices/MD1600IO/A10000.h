@@ -81,7 +81,7 @@ public:
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node) const;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
 
 private:
 	//Enumerations

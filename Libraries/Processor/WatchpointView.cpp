@@ -38,13 +38,6 @@ INT_PTR Processor::WatchpointView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpa
 //----------------------------------------------------------------------------------------
 INT_PTR Processor::WatchpointView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	boost::mutex::scoped_lock lock(device->debugMutex);
-	for(WatchpointList::iterator i = device->watchpoints.begin(); i != device->watchpoints.end(); ++i)
-	{
-		int listIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_ADDSTRING, 0, (LPARAM)(*i)->GetName().c_str());
-		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETITEMDATA, listIndex, (LPARAM)*i);
-	}
-
 	SetTimer(hwnd, 1, 100, NULL);
 	watchpoint.Initialize();
 	UpdateWatchpoint(hwnd, watchpoint, device->GetAddressBusCharWidth(), device->GetDataBusCharWidth());
@@ -65,7 +58,46 @@ INT_PTR Processor::WatchpointView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM 
 //----------------------------------------------------------------------------------------
 INT_PTR Processor::WatchpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	boost::mutex::scoped_lock lock(device->debugMutex);
 	initializedDialog = true;
+
+	//Check if we need to refresh the watchpoint list
+	bool refreshWatchpointList = (watchpointsCopy.size() != device->watchpoints.size());
+	if(!refreshWatchpointList)
+	{
+		WatchpointList::const_iterator watchpointsIterator = device->watchpoints.begin();
+		WatchpointList::const_iterator watchpointsCopyIterator = watchpointsCopy.begin();
+		while(!refreshWatchpointList && (watchpointsIterator != device->watchpoints.end()) && (watchpointsCopyIterator != watchpointsCopy.end()))
+		{
+			refreshWatchpointList |= (*watchpointsIterator != *watchpointsCopyIterator);
+			++watchpointsIterator;
+			++watchpointsCopyIterator;
+		}
+	}
+	watchpointsCopy = device->watchpoints;
+
+	//Refresh the watchpoint list if required
+	if(refreshWatchpointList)
+	{
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), WM_SETREDRAW, FALSE, 0);
+
+		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETTOPINDEX, 0, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_RESETCONTENT, 0, NULL);
+		for(WatchpointList::iterator i = device->watchpoints.begin(); i != device->watchpoints.end(); ++i)
+		{
+			int listIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_ADDSTRING, 0, (LPARAM)(*i)->GetName().c_str());
+			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETITEMDATA, listIndex, (LPARAM)*i);
+		}
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, (WPARAM)-1, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETTOPINDEX, top, 0);
+
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), WM_SETREDRAW, TRUE, 0);
+		InvalidateRect(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), NULL, FALSE);
+
+		watchpointListIndex = -1;
+	}
+
+	//If we currently have a selected watchpoint from the list, update the hit count.
 	if(watchpointListIndex >= 0)
 	{
 		Watchpoint* targetWatchpoint = (Watchpoint*)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETITEMDATA, watchpointListIndex, 0);
@@ -78,12 +110,12 @@ INT_PTR Processor::WatchpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 //----------------------------------------------------------------------------------------
 INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == EN_SETFOCUS)
+	if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
 	{
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)
@@ -217,6 +249,7 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				Watchpoint* targetWatchpoint = new Watchpoint(watchpoint);
 				device->watchpoints.push_back(targetWatchpoint);
 				device->watchpointExists = !device->watchpoints.empty();
+				watchpointsCopy = device->watchpoints;
 
 				watchpointListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_ADDSTRING, 0, (LPARAM)watchpoint.GetName().c_str());
 				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, watchpointListIndex, NULL);
@@ -243,8 +276,12 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 					}
 				}
 				device->watchpointExists = !device->watchpoints.empty();
+				watchpointsCopy = device->watchpoints;
 				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_DELETESTRING, watchpointListIndex, NULL);
-				watchpointListIndex -= 1;
+				if(watchpointListIndex >= watchpointsCopy.size())
+				{
+					watchpointListIndex -= 1;
+				}
 			}
 			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, watchpointListIndex, NULL);
 
@@ -267,7 +304,8 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				delete *i;
 			}
 			device->watchpoints.clear();
-			device->breakpointExists = false;
+			device->watchpointExists = false;
+			watchpointsCopy.clear();
 
 			//Clear the current watchpoint info
 			watchpoint.Initialize();

@@ -85,7 +85,7 @@ public:
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node) const;
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
 
 	//Window functions
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);

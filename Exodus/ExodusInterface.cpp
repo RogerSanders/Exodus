@@ -1,18 +1,20 @@
 #include "ExodusInterface.h"
 #include "WindowFunctions/WindowFunctions.pkg"
 #include "resource.h"
-#include <commctrl.h>
-#include <shlwapi.h>
-#include <shlobj.h>
 #include "ZIP/ZIP.pkg"
 #include "Stream/Stream.pkg"
 #include "HeirarchicalStorage/HeirarchicalStorage.pkg"
+#include "DataConversion/DataConversion.pkg"
+#include <boost/functional/hash.hpp>
+#include <commctrl.h>
+#include <shlwapi.h>
+#include <shlobj.h>
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
 ExodusInterface::ExodusInterface(ISystemExternal& asystem)
-:system(asystem)
+:system(asystem), moduleManagerDialog(NULL)
 {
 	//Set the size of the savestate window cell array
 	cell.resize(cellCount);
@@ -44,7 +46,6 @@ ExodusInterface::ExodusInterface(ISystemExternal& asystem)
 	//##TODO## Modify these defaults to use the correct folders for assemblies and modules
 	prefs.pathModulesRaw = L".\\Systems";
 	prefs.pathSavestatesRaw = L".\\Savestates";
-	prefs.pathDebugSessionsRaw = L".\\DebugSessions";
 	prefs.pathWorkspacesRaw = L".\\Workspaces";
 	prefs.pathCapturesRaw = L".\\Captures";
 	prefs.pathAssembliesRaw = L".\\Modules";
@@ -261,7 +262,125 @@ bool ExodusInterface::InitializeSystem()
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void ExodusInterface::LoadState(const std::wstring& folder)
+std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
+{
+	//Obtain lists of full identifier names of all loaded module instances, and the
+	//instance names of all loaded program modules.
+	std::list<std::wstring> moduleIdentifierStrings;
+	std::list<std::wstring> loadedProgramModuleInstanceNames;
+	std::list<unsigned int> loadedModuleIDs = system.GetLoadedModuleIDs();
+	for(std::list<unsigned int>::const_iterator i = loadedModuleIDs.begin(); i != loadedModuleIDs.end(); ++i)
+	{
+		ISystemExternal::LoadedModuleInfo moduleInfo;
+		if(system.GetLoadedModuleInfo(*i, moduleInfo))
+		{
+			std::wstring moduleIdentifierString = moduleInfo.systemClassName + L"." + moduleInfo.className + L"." + moduleInfo.instanceName;
+			moduleIdentifierStrings.push_back(moduleIdentifierString);
+			if(moduleInfo.programModule)
+			{
+				loadedProgramModuleInstanceNames.push_back(moduleInfo.instanceName);
+			}
+		}
+	}
+
+	//Obtain a list of all current connector mapping identifier strings
+	std::list<std::wstring> connectorMappingStrings;
+	std::list<unsigned int> connectorIDs = system.GetConnectorIDs();
+	for(std::list<unsigned int>::const_iterator i = connectorIDs.begin(); i != connectorIDs.end(); ++i)
+	{
+		ISystemExternal::ConnectorInfo connectorInfo;
+		if(system.GetConnectorInfo(*i, connectorInfo))
+		{
+			//If this connector is used, add information about the connector mapping to
+			//the list of connector mappings.
+			if(connectorInfo.connectorUsed)
+			{
+				//Load information on the module which exports this connector
+				ISystemExternal::LoadedModuleInfo exportingModuleInfo;
+				if(!system.GetLoadedModuleInfo(connectorInfo.exportingModuleID, exportingModuleInfo))
+				{
+					continue;
+				}
+
+				//Load information on the module which imports this connector
+				ISystemExternal::LoadedModuleInfo importingModuleInfo;
+				if(!system.GetLoadedModuleInfo(connectorInfo.importingModuleID, importingModuleInfo))
+				{
+					continue;
+				}
+
+				//Build a string describing the connector mapping
+				std::wstring connectorMappingString = L"(" + importingModuleInfo.systemClassName + L"." + importingModuleInfo.className + L"." + importingModuleInfo.instanceName + L"." + connectorInfo.importingModuleConnectorInstanceName + L"@" + exportingModuleInfo.systemClassName + L"." + exportingModuleInfo.className + L"." + exportingModuleInfo.instanceName + L"." + connectorInfo.exportingModuleConnectorInstanceName + L")";
+
+				//Add the connector mapping string to the list of connector mappings
+				connectorMappingStrings.push_back(connectorMappingString);
+			}
+		}
+	}
+
+	//Sort our lists. This ensures that all elements will be processed in the same order,
+	//regardless of the order they were loaded in.
+	moduleIdentifierStrings.sort();
+	loadedProgramModuleInstanceNames.sort();
+	connectorMappingStrings.sort();
+
+	//Build a system identifier string using the module identifier and connector mapping
+	//identifier strings
+	std::wstring systemIdentifierString;
+	for(std::list<std::wstring>::const_iterator i = moduleIdentifierStrings.begin(); i != moduleIdentifierStrings.end(); ++i)
+	{
+		if(!systemIdentifierString.empty())
+		{
+			systemIdentifierString += L" + ";
+		}
+		systemIdentifierString += *i;
+	}
+	for(std::list<std::wstring>::const_iterator i = connectorMappingStrings.begin(); i != connectorMappingStrings.end(); ++i)
+	{
+		if(!systemIdentifierString.empty())
+		{
+			systemIdentifierString += L" + ";
+		}
+		systemIdentifierString += *i;
+	}
+
+	//Build a hash of the system identifier string. We encode this into the filename to
+	//try and ensure that only savestates compatible with the current system configuration
+	//are offered to the user.
+	boost::hash<std::wstring> stringHasher;
+	size_t systemIdentifierHashRaw = stringHasher(systemIdentifierString);
+	std::wstring systemIdentifierHash;
+	IntToStringBase16((unsigned int)systemIdentifierHashRaw, systemIdentifierHash, 8, false);
+
+	//Build the filename for the savestate
+	std::wstring fileName;
+	for(std::list<std::wstring>::const_iterator i = loadedProgramModuleInstanceNames.begin(); i != loadedProgramModuleInstanceNames.end(); ++i)
+	{
+		if(!fileName.empty())
+		{
+			fileName += L" + ";
+		}
+		fileName += *i;
+	}
+	fileName += L" {" + systemIdentifierHash + L"}";
+
+	//Escape out any invalid characters in the filename
+	std::wstring invalidFilenameChars = L"\\/:?\"<>|";
+	wchar_t invalidCharReplacement = L'_';
+	for(size_t i = 0; i < fileName.size(); ++i)
+	{
+		if(invalidFilenameChars.find(fileName[i]) != invalidFilenameChars.npos)
+		{
+			fileName[i] = invalidCharReplacement;
+		}
+	}
+
+	//Return the constructed filename
+	return fileName;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::LoadState(const std::wstring& folder, bool debuggerState)
 {
 	bool running = system.SystemRunning();
 	system.StopSystem();
@@ -294,7 +413,7 @@ void ExodusInterface::LoadState(const std::wstring& folder)
 		{
 			fileType = System::FILETYPE_XML;
 		}
-		LoadStateFromFile(fileDir, fileName, fileType);
+		LoadStateFromFile(fileDir, fileName, fileType, debuggerState);
 	}
 
 	if(running)
@@ -304,24 +423,25 @@ void ExodusInterface::LoadState(const std::wstring& folder)
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType)
+void ExodusInterface::LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType, bool debuggerState)
 {
-	system.LoadState(fileDir, fileName, fileType);
+	system.LoadState(fileDir, fileName, fileType, debuggerState);
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::SaveState(const std::wstring& folder)
+void ExodusInterface::SaveState(const std::wstring& folder, bool debuggerState)
 {
 	bool running = system.SystemRunning();
 	system.StopSystem();
 
 	//Pre-initialize the target filename with the name of the currently loaded ROM file
 	TCHAR fileName[MAX_PATH];
-	for(unsigned int i = 0; i < romFileName.size(); ++i)
+	std::wstring savestateAutoFileNamePrefix = GetSavestateAutoFileNamePrefix();
+	for(unsigned int i = 0; i < savestateAutoFileNamePrefix.size(); ++i)
 	{
-		fileName[i] = romFileName[i];
+		fileName[i] = savestateAutoFileNamePrefix[i];
 	}
-	fileName[romFileName.size()] = L'\0';
+	fileName[savestateAutoFileNamePrefix.size()] = L'\0';
 
 	//Get filename
 	OPENFILENAME openFileParams;
@@ -349,7 +469,7 @@ void ExodusInterface::SaveState(const std::wstring& folder)
 		{
 			fileType = System::FILETYPE_XML;
 		}
-		SaveStateToFile(fileDir, fileName, fileType);
+		SaveStateToFile(fileDir, fileName, fileType, debuggerState);
 	}
 
 	if(running)
@@ -359,131 +479,43 @@ void ExodusInterface::SaveState(const std::wstring& folder)
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType)
+void ExodusInterface::SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType, bool debuggerState)
 {
-	system.SaveState(fileDir, fileName, fileType);
-}
-
-//----------------------------------------------------------------------------------------
-void ExodusInterface::LoadDebuggerState(const std::wstring& folder)
-{
-	bool running = system.SystemRunning();
-	system.StopSystem();
-
-	//Get filename
-	TCHAR fileName[MAX_PATH];
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = mainWindowHandle;
-	openFileParams.lpstrFile = fileName;
-	openFileParams.lpstrFile[0] = '\0';
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Compressed debug session files (*.exd;*.zip)\0*.exd;*.zip\0Uncompressed debug session files (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-	openFileParams.lpstrDefExt = L"exd";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = &folder[0];
-	openFileParams.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-	if(GetOpenFileName(&openFileParams) != 0)
-	{
-		std::wstring fileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
-		std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
-		PathRemoveFileSpec(openFileParams.lpstrFile);
-		std::wstring fileDir = openFileParams.lpstrFile;
-		System::FileType fileType = System::FILETYPE_ZIP;
-		if(fileExt == L"xml")
-		{
-			fileType = System::FILETYPE_XML;
-		}
-		LoadDebuggerStateFromFile(fileDir, fileName, fileType);
-	}
-
-	if(running)
-	{
-		system.RunSystem();
-	}
-}
-
-//----------------------------------------------------------------------------------------
-void ExodusInterface::LoadDebuggerStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType)
-{
-	system.LoadDebuggerState(fileDir, fileName, fileType);
-}
-
-//----------------------------------------------------------------------------------------
-void ExodusInterface::SaveDebuggerState(const std::wstring& folder)
-{
-	bool running = system.SystemRunning();
-	system.StopSystem();
-
-	//Pre-initialize the target filename with the name of the currently loaded ROM file
-	TCHAR fileName[MAX_PATH];
-	for(unsigned int i = 0; i < romFileName.size(); ++i)
-	{
-		fileName[i] = romFileName[i];
-	}
-	fileName[romFileName.size()] = L'\0';
-
-	//Get filename
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = mainWindowHandle;
-	openFileParams.lpstrFile = fileName;
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Compressed debug session files (*.exd;*.zip)\0*.exd;*.zip\0Uncompressed debug session files (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-	openFileParams.lpstrDefExt = L"exd";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = &folder[0];
-	openFileParams.Flags = 0;
-
-	if(GetSaveFileName(&openFileParams) != 0)
-	{
-		std::wstring fileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
-		std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
-		PathRemoveFileSpec(openFileParams.lpstrFile);
-		std::wstring fileDir = openFileParams.lpstrFile;
-		System::FileType fileType = System::FILETYPE_ZIP;
-		if(fileExt == L"xml")
-		{
-			fileType = System::FILETYPE_XML;
-		}
-		SaveDebuggerStateToFile(fileDir, fileName, fileType);
-	}
-
-	if(running)
-	{
-		system.RunSystem();
-	}
-}
-
-//----------------------------------------------------------------------------------------
-void ExodusInterface::SaveDebuggerStateToFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType)
-{
-	system.SaveDebuggerState(fileDir, fileName, fileType);
+	system.SaveState(fileDir, fileName, fileType, debuggerState);
 }
 
 //----------------------------------------------------------------------------------------
 //Savestate quick-select popup functions
 //----------------------------------------------------------------------------------------
-void ExodusInterface::QuickLoadState()
+void ExodusInterface::QuickLoadState(bool debuggerState)
 {
 	std::wstring filePostfix = cell[selectedSaveCell].slotName;
-	std::wstring fileName = romFileName + L" - " + filePostfix + L".exs";
-	LoadStateFromFile(prefs.pathSavestates, fileName, System::FILETYPE_ZIP);
+	std::wstring fileName;
+	if(debuggerState)
+	{
+		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L" - DebugState" + L".exs";
+	}
+	else
+	{
+		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L".exs";
+	}
+	LoadStateFromFile(prefs.pathSavestates, fileName, System::FILETYPE_ZIP, debuggerState);
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::QuickSaveState()
+void ExodusInterface::QuickSaveState(bool debuggerState)
 {
 	std::wstring filePostfix = cell[selectedSaveCell].slotName;
-	std::wstring fileName = romFileName + L" - " + filePostfix + L".exs";
-	SaveStateToFile(prefs.pathSavestates, fileName, System::FILETYPE_ZIP);
+	std::wstring fileName;
+	if(debuggerState)
+	{
+		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L" - DebugState" + L".exs";
+	}
+	else
+	{
+		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L".exs";
+	}
+	SaveStateToFile(prefs.pathSavestates, fileName, System::FILETYPE_ZIP, debuggerState);
 	PostMessage(cell[selectedSaveCell].hwnd, WM_USER, 0, (LPARAM)this);
 }
 
@@ -527,6 +559,17 @@ void ExodusInterface::UpdateSaveSlots()
 	for(unsigned int i = 0; i < cellCount; ++i)
 	{
 		PostMessage(cell[i].hwnd, WM_USER, 0, (LPARAM)this);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+//Module functions
+//----------------------------------------------------------------------------------------
+void ExodusInterface::UpdateModuleDisplayInfo() const
+{
+	if(moduleManagerDialog != NULL)
+	{
+		PostMessage(moduleManagerDialog, WM_USER, 0, (LPARAM)this);
 	}
 }
 
@@ -834,72 +877,6 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& fileName)
 }
 
 //----------------------------------------------------------------------------------------
-//ROM functions
-//----------------------------------------------------------------------------------------
-bool ExodusInterface::OpenROM(const std::wstring& folder)
-{
-	bool result = false;
-
-	////Get filename
-	//TCHAR fileName[MAX_PATH];
-	//OPENFILENAME openFileParams;
-	//ZeroMemory(&openFileParams, sizeof(openFileParams));
-	//openFileParams.lStructSize = sizeof(openFileParams);
-	//openFileParams.hwndOwner = mainWindowHandle;
-	//openFileParams.lpstrFile = fileName;
-	//openFileParams.lpstrFile[0] = '\0';
-	//openFileParams.nMaxFile = sizeof(fileName);
-	//openFileParams.lpstrFilter = L"Mega Drive Roms (*.bin;*.gen)\0*.bin;*.gen\0All (*.*)\0*.*\0\0";
-	//openFileParams.nFilterIndex = 1;
-	//openFileParams.lpstrFileTitle = NULL;
-	//openFileParams.nMaxFileTitle = 0;
-	//openFileParams.lpstrInitialDir = &folder[0];
-	//openFileParams.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-	//if(GetOpenFileName(&openFileParams) != 0)
-	//{
-	//	//Load ROM
-	//	Stream::File file;
-	//	file.Open(openFileParams.lpstrFile, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN);
-	//	if(file.IsOpen())
-	//	{
-	//		for(unsigned int moduleID = 0; moduleID < 10; ++moduleID)
-	//		{
-	//			IDevice* memory = system.GetDevice(moduleID, L"ROM");
-	//			if(memory != 0)
-	//			{
-	//				std::vector<unsigned char> data;
-	//				if(file.ReadData(data, file.Size()))
-	//				{
-	//					for(unsigned int i = 0; i < memory->GetInterfaceSize(); ++i)
-	//					{
-	//						memory->TransparentWriteInterface(0, i, Data(8, 0), 0);
-	//					}
-	//					for(unsigned int i = 0; i < data.size(); ++i)
-	//					{
-	//						memory->TransparentWriteInterface(0, i, Data(8, data[i]), 0);
-	//					}
-	//				}
-	//				result = true;
-	//			}
-	//		}
-	//	}
-
-	//	//Store the filename of the ROM
-	//	if(openFileParams.nFileExtension > 0)
-	//	{
-	//		openFileParams.lpstrFile[openFileParams.nFileExtension - 1] = L'\0';
-	//	}
-	//	romFileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
-
-	//	//Update the savestate quickselect screen
-	//	UpdateSaveSlots();
-	//}
-
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
 //Module functions
 //----------------------------------------------------------------------------------------
 bool ExodusInterface::LoadModule(const std::wstring& folder)
@@ -966,50 +943,81 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 	}
 
 	//Map all imported connectors to available connectors in the system
-	//##TODO## Make this a separate step that the user has control over, so that they can
-	//identify which connector to map to in the case that multiple compatible connectors
-	//are available.
 	//##TODO## Cache this information in our module database when the modules are scanned,
 	//so that we only have to access the module definition file once for a module load.
-	bool mappedAllConnectors = true;
 	System::ConnectorMappingList connectorMappings;
 	std::list<unsigned int> loadedConnectorIDList = system.GetConnectorIDs();
 	for(System::ConnectorImportList::const_iterator i = connectorsImported.begin(); i != connectorsImported.end(); ++i)
 	{
-		//Look for a loaded connector which matches the desired type
-		bool mappedConnector = false;
+		//Build a list of all available, loaded connectors which match the desired type.
+		std::list<System::ConnectorInfo> availableConnectors;
 		std::list<unsigned int>::const_iterator loadedConnectorID = loadedConnectorIDList.begin();
-		while(!mappedConnector && (loadedConnectorID != loadedConnectorIDList.end()))
+		while(loadedConnectorID != loadedConnectorIDList.end())
 		{
 			System::ConnectorInfo connectorInfo;
 			if(system.GetConnectorInfo(*loadedConnectorID, connectorInfo))
 			{
 				//If this connector matches the connector type the module wants to import,
-				//and the connector is free, map it.
+				//and the connector is free, add it to the available connector list.
 				if(!connectorInfo.connectorUsed && (connectorInfo.systemClassName == systemClassName) && (i->className == connectorInfo.connectorClassName))
 				{
-					System::ConnectorMapping connectorMapping;
-					connectorMapping.connectorID = *loadedConnectorID;
-					connectorMapping.importingModuleConnectorInstanceName = i->instanceName;
-					connectorMappings.push_back(connectorMapping);
-					mappedConnector = true;
+					availableConnectors.push_back(connectorInfo);
 				}
 			}
 			++loadedConnectorID;
 		}
-		mappedAllConnectors &= mappedConnector;
-	}
 
-	//If we couldn't map all the connectors, abort the operation.
-	if(!mappedAllConnectors)
-	{
-		std::wstring text = L"Failed to map all connectors.";
-		std::wstring title = L"Error loading module!";
-		MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		//Ensure that at least one compatible connector was found
+		if(availableConnectors.empty())
+		{
+			std::wstring text = L"No available connector of type " + systemClassName + L"." + i->className + L" could be found!";
+			std::wstring title = L"Error loading module!";
+			MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
 
-		viewEventProcessingPaused = false;
-		FlagProcessPendingEvents();
-		return false;
+			viewEventProcessingPaused = false;
+			FlagProcessPendingEvents();
+			return false;
+		}
+
+		//Map the connector
+		if(availableConnectors.size() == 1)
+		{
+			//If only one connector was found that matches the required type, map it.
+			System::ConnectorInfo connector = *availableConnectors.begin();
+			System::ConnectorMapping connectorMapping;
+			connectorMapping.connectorID = connector.connectorID;
+			connectorMapping.importingModuleConnectorInstanceName = i->instanceName;
+			connectorMappings.push_back(connectorMapping);
+		}
+		else
+		{
+			//If multiple compatible connectors are available, open a dialog allowing the
+			//user to select a connector from the list of available connectors.
+			MapConnectorDialogParams mapConnectorDialogParams;
+			mapConnectorDialogParams.system = &system;
+			mapConnectorDialogParams.connectorList = availableConnectors;
+			INT_PTR mapConnectorDialogBoxParamResult;
+			mapConnectorDialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_MAPCONNECTOR), mainWindowHandle, MapConnectorProc, (LPARAM)&mapConnectorDialogParams);
+			bool connectorMapped = ((mapConnectorDialogBoxParamResult == 1) && (mapConnectorDialogParams.selectionMade));
+
+			//Ensure that a connector mapping has been made
+			if(!connectorMapped)
+			{
+				std::wstring text = L"No connector mapping specified for imported connector " + systemClassName + L"." + i->className + L"!";
+				std::wstring title = L"Error loading module!";
+				MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+
+				viewEventProcessingPaused = false;
+				FlagProcessPendingEvents();
+				return false;
+			}
+
+			//Map the selected connector
+			System::ConnectorMapping connectorMapping;
+			connectorMapping.connectorID = mapConnectorDialogParams.selectedConnector.connectorID;
+			connectorMapping.importingModuleConnectorInstanceName = i->instanceName;
+			connectorMappings.push_back(connectorMapping);
+		}
 	}
 
 	//Begin the module load process
@@ -1050,7 +1058,57 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 	viewEventProcessingPaused = false;
 	FlagProcessPendingEvents();
 
+	//Since the loaded system configuration has now changed, update any display info which
+	//is dependent on the loaded modules.
+	UpdateSaveSlots();
+	UpdateModuleDisplayInfo();
+
 	return result;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::SaveSystem(const std::wstring& folder)
+{
+	//Pre-initialize the target filename with the name of the currently loaded ROM file
+	TCHAR fileName[MAX_PATH];
+	std::wstring savestateAutoFileNamePrefix = GetSavestateAutoFileNamePrefix();
+	for(unsigned int i = 0; i < savestateAutoFileNamePrefix.size(); ++i)
+	{
+		fileName[i] = savestateAutoFileNamePrefix[i];
+	}
+	fileName[savestateAutoFileNamePrefix.size()] = L'\0';
+
+	//Get filename
+	OPENFILENAME openFileParams;
+	ZeroMemory(&openFileParams, sizeof(openFileParams));
+	openFileParams.lStructSize = sizeof(openFileParams);
+	openFileParams.hwndOwner = mainWindowHandle;
+	openFileParams.lpstrFile = fileName;
+	openFileParams.nMaxFile = sizeof(fileName);
+	openFileParams.lpstrFilter = L"Module Definitions (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
+	openFileParams.lpstrDefExt = L"xml";
+	openFileParams.nFilterIndex = 1;
+	openFileParams.lpstrFileTitle = NULL;
+	openFileParams.nMaxFileTitle = 0;
+	openFileParams.lpstrInitialDir = &folder[0];
+	openFileParams.Flags = 0;
+
+	if(GetSaveFileName(&openFileParams) != 0)
+	{
+		std::wstring fileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
+		std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
+		PathRemoveFileSpec(openFileParams.lpstrFile);
+		std::wstring fileDir = openFileParams.lpstrFile;
+		return SaveSystemToFile(fileDir, fileName);
+	}
+
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::SaveSystemToFile(const std::wstring& fileDir, const std::wstring& fileName)
+{
+	return system.SaveSystem(fileDir, fileName);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1066,6 +1124,11 @@ void ExodusInterface::UnloadModule(unsigned int moduleID)
 
 	//Initialize the debug menu
 	BuildDebugMenu(debugMenu);
+
+	//Since the loaded system configuration has now changed, update any display info which
+	//is dependent on the loaded modules.
+	UpdateSaveSlots();
+	UpdateModuleDisplayInfo();
 }
 
 //----------------------------------------------------------------------------------------
@@ -1083,6 +1146,11 @@ void ExodusInterface::UnloadAllModules()
 
 		//Initialize the debug menu
 		BuildDebugMenu(debugMenu);
+
+		//Since the loaded system configuration has now changed, update any display info which
+		//is dependent on the loaded modules.
+		UpdateSaveSlots();
+		UpdateModuleDisplayInfo();
 
 		systemLoaded = false;
 		moduleCommandComplete = true;
@@ -1116,10 +1184,6 @@ void ExodusInterface::LoadPrefs(const std::wstring& filePath)
 					{
 						prefs.pathSavestatesRaw = (*i)->GetData();
 					}
-					else if((*i)->GetName() == L"DebugSessionsPath")
-					{
-						prefs.pathDebugSessionsRaw = (*i)->GetData();
-					}
 					else if((*i)->GetName() == L"WorkspacesPath")
 					{
 						prefs.pathWorkspacesRaw = (*i)->GetData();
@@ -1140,9 +1204,19 @@ void ExodusInterface::LoadPrefs(const std::wstring& filePath)
 					{
 						prefs.loadWorkspaceRaw = (*i)->GetData();
 					}
+					else if((*i)->GetName() == L"EnableThrottling")
+					{
+						prefs.enableThrottling = (*i)->ExtractData<bool>();
+					}
+					else if((*i)->GetName() == L"RunWhenProgramModuleLoaded")
+					{
+						prefs.runWhenProgramModuleLoaded = (*i)->ExtractData<bool>();
+					}
 				}
 				ResolvePrefs();
 				system.SetCapturePath(prefs.pathCaptures);
+				system.SetRunWhenProgramModuleLoadedState(prefs.runWhenProgramModuleLoaded);
+				system.SetThrottlingState(prefs.enableThrottling);
 				UpdateSaveSlots();
 			}
 		}
@@ -1157,12 +1231,13 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 	rootNode.SetName(L"Settings");
 	rootNode.CreateChild(L"ModulesPath").SetData(prefs.pathModulesRaw);
 	rootNode.CreateChild(L"SavestatesPath").SetData(prefs.pathSavestatesRaw);
-	rootNode.CreateChild(L"DebugSessionsPath").SetData(prefs.pathDebugSessionsRaw);
 	rootNode.CreateChild(L"WorkspacesPath").SetData(prefs.pathWorkspacesRaw);
 	rootNode.CreateChild(L"CapturesPath").SetData(prefs.pathCapturesRaw);
 	rootNode.CreateChild(L"AssembliesPath").SetData(prefs.pathAssembliesRaw);
 	rootNode.CreateChild(L"DefaultSystem").SetData(prefs.loadSystemRaw);
 	rootNode.CreateChild(L"DefaultWorkspace").SetData(prefs.loadWorkspaceRaw);
+	rootNode.CreateChild(L"EnableThrottling").SetData(prefs.enableThrottling);
+	rootNode.CreateChild(L"RunWhenProgramModuleLoaded").SetData(prefs.runWhenProgramModuleLoaded);
 
 	Stream::File file(Stream::IStream::TEXTENCODING_UTF16);
 	if(file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
@@ -1188,12 +1263,6 @@ void ExodusInterface::ResolvePrefs()
 	{
 		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathSavestates[0]);
 		prefs.pathSavestates = combinedPath;
-	}
-	prefs.pathDebugSessions = prefs.pathDebugSessionsRaw;
-	if(PathIsRelative(&prefs.pathDebugSessions[0]) == TRUE)
-	{
-		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathDebugSessions[0]);
-		prefs.pathDebugSessions = combinedPath;
 	}
 	prefs.pathWorkspaces = prefs.pathWorkspacesRaw;
 	if(PathIsRelative(&prefs.pathWorkspaces[0]) == TRUE)
@@ -1942,9 +2011,6 @@ bool ExodusInterface::BuildDebugMenu(HMENU debugMenu)
 //----------------------------------------------------------------------------------------
 void ExodusInterface::UnloadModuleThread(unsigned int moduleID)
 {
-	//Stop the system if it is currently running
-	system.StopSystem();
-
 	//Unload the specified module
 	system.UnloadModule(moduleID);
 
@@ -1956,9 +2022,6 @@ void ExodusInterface::UnloadSystemThread()
 {
 	if(systemLoaded)
 	{
-		//Stop the system if it is currently running
-		system.StopSystem();
-
 		//Clear all previously loaded system info
 		system.UnloadAllModules();
 	}
@@ -2511,13 +2574,107 @@ int CALLBACK ExodusInterface::SetSHBrowseForFolderInitialDir(HWND hwnd, UINT ums
 		LPTSTR filePart;
 		TCHAR fullPathName[MAX_PATH];
 		GetFullPathName(pathName, MAX_PATH, &fullPathName[0], &filePart);
-		//##FIX## On Windows 7, this doesn't always work. Sometimes the tree isn't fully
-		//loaded by this point, and the folder can't be scrolled to because it hasn't been
-		//loaded into the tree control yet. Microsoft is working on the bug. Only known
-		//workaround is to fire extra BFFM_SETSELECTION messages on a delay.
 		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)&fullPathName[0]);
 	}
+	else if(umsg == BFFM_SELCHANGED)
+	{
+		//Note that on Windows 7 and up, the BFFM_SETSELECTION message doesn't always
+		//work. Sometimes the tree isn't fully loaded by this point, and the folder can't
+		//be scrolled to because it hasn't been loaded into the tree control yet.
+		//Microsoft originally acknowledged the bug, but they appear to have now abandoned
+		//it and won't fix it. The only two known workarounds are to either fire off extra
+		//BFFM_SETSELECTION messages on a delay, or do what we do below, which is to
+		//manually locate the tree control in the dialog, retrieve its current selection,
+		//and force it to ensure the selected item is visible. Although this solution is
+		//bound to internal details, it's preferable to the timer method, since it will
+		//definitely make the dialog always work correctly regardless of how long it takes
+		//to load, and it won't interfere with input from the user, which a timer method
+		//could, since it has no way of detecting when the selection has been set.
+		const int subPaneDialogItemID = 0x0;
+		const int treeDialogItemID = 0x64;
+		HWND subPaneHandle = GetDlgItem(hwnd, subPaneDialogItemID);
+		if(subPaneHandle != 0)
+		{
+			HWND treeHandle = GetDlgItem(subPaneHandle, treeDialogItemID);
+			if(treeHandle != 0)
+			{
+				HTREEITEM selectedItemHandle = (HTREEITEM)SendMessage(treeHandle, TVM_GETNEXTITEM, TVGN_CARET, 0);
+				SendMessage(treeHandle, TVM_ENSUREVISIBLE, 0, (LPARAM)selectedItemHandle);
+			}
+		}
+	}
 	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+	//Obtain the object pointer
+	MapConnectorDialogParams* state = (MapConnectorDialogParams*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+	switch(Message)
+	{
+	case WM_CLOSE:
+		EndDialog(hwnd, 0);
+		break;
+	case WM_COMMAND:{
+		bool validateSelection = false;
+		if(HIWORD(wParam) == LBN_DBLCLK)
+		{
+			switch(LOWORD(wParam))
+			{
+			case IDC_MAPCONNECTOR_LIST:
+				validateSelection = true;
+				break;
+			}
+		}
+		else if(HIWORD(wParam) == BN_CLICKED)
+		{
+			switch(LOWORD(wParam))
+			{
+			case IDOK:{
+				validateSelection = true;
+				break;}
+			case IDCANCEL:
+				EndDialog(hwnd, 0);
+				break;
+			}
+		}
+		if(validateSelection)
+		{
+			int currentItemListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_GETCURSEL, 0, 0);
+			System::ConnectorInfo* targetItemConnectorInfo = (System::ConnectorInfo*)SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_GETITEMDATA, currentItemListIndex, NULL);
+			if(targetItemConnectorInfo != 0)
+			{
+				state->selectedConnector = *targetItemConnectorInfo;
+				state->selectionMade = true;
+				EndDialog(hwnd, 1);
+			}
+		}
+		break;}
+	case WM_INITDIALOG:{
+		//Set the object pointer
+		state = (MapConnectorDialogParams*)lParam;
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
+
+		for(std::list<System::ConnectorInfo>::iterator i = state->connectorList.begin(); i != state->connectorList.end(); ++i)
+		{
+			System::LoadedModuleInfo moduleInfo;
+			if(state->system->GetLoadedModuleInfo(i->exportingModuleID, moduleInfo))
+			{
+				std::wstringstream text;
+				text << moduleInfo.instanceName << L"." << i->exportingModuleConnectorInstanceName;
+				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_ADDSTRING, 0, (LPARAM)text.str().c_str());
+				SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)&(*i));
+			}
+		}
+
+		break;}
+	default:
+		return FALSE;
+		break;
+	}
+	return TRUE;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2614,7 +2771,7 @@ INT_PTR CALLBACK ExodusInterface::UnloadModuleProc(HWND hwnd, UINT Message, WPAR
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR CALLBACK ExodusInterface::ModuleUnloaderProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ExodusInterface::ModuleManagerProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	//Obtain the object pointer
 	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -2623,23 +2780,23 @@ INT_PTR CALLBACK ExodusInterface::ModuleUnloaderProc(HWND hwnd, UINT Message, WP
 	{
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
+		state->moduleManagerDialog = NULL;
 		break;
 	case WM_COMMAND:{
 		if(HIWORD(wParam) == BN_CLICKED)
 		{
 			switch(LOWORD(wParam))
 			{
-			case IDC_MODULEUNLOADER_REFRESH:
-				//Refresh the module list
-				SendMessage(hwnd, WM_USER, 0, 0);
-				break;
-			case IDC_MODULEUNLOADER_UNLOADSELECTED:{
+			case IDC_MODULEMANAGER_LOAD:{
+				state->LoadModule(state->prefs.pathModules);
+				break;}
+			case IDC_MODULEMANAGER_UNLOADSELECTED:{
 				//Retrieve the selected list item
-				LRESULT selectedListItem = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_GETCURSEL, 0, 0);
+				LRESULT selectedListItem = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETCURSEL, 0, 0);
 				if(selectedListItem != LB_ERR)
 				{
 					//Retrieve the module ID number of the selected module
-					LRESULT listItemData = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_GETITEMDATA, selectedListItem, NULL);
+					LRESULT listItemData = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETITEMDATA, selectedListItem, NULL);
 					if(listItemData != LB_ERR)
 					{
 						//Unload the selected module
@@ -2651,7 +2808,7 @@ INT_PTR CALLBACK ExodusInterface::ModuleUnloaderProc(HWND hwnd, UINT Message, WP
 					}
 				}
 				break;}
-			case IDC_MODULEUNLOADER_UNLOADALL:
+			case IDC_MODULEMANAGER_UNLOADALL:
 				//Clear all loaded modules
 				state->UnloadAllModules();
 
@@ -2670,11 +2827,11 @@ INT_PTR CALLBACK ExodusInterface::ModuleUnloaderProc(HWND hwnd, UINT Message, WP
 		SendMessage(hwnd, WM_USER, 0, 0);
 		break;
 	case WM_USER:{
-		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), WM_SETREDRAW, FALSE, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), WM_SETREDRAW, FALSE, 0);
 
-		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_GETTOPINDEX, 0, 0);
-		LRESULT selected = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_GETCURSEL, 0, 0);
-		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_RESETCONTENT, 0, NULL);
+		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETTOPINDEX, 0, 0);
+		LRESULT selected = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETCURSEL, 0, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_RESETCONTENT, 0, NULL);
 		std::list<unsigned int> loadedModuleIDs = state->system.GetLoadedModuleIDs();
 		for(std::list<unsigned int>::iterator i = loadedModuleIDs.begin(); i != loadedModuleIDs.end(); ++i)
 		{
@@ -2683,15 +2840,15 @@ INT_PTR CALLBACK ExodusInterface::ModuleUnloaderProc(HWND hwnd, UINT Message, WP
 			{
 				std::wstringstream text;
 				text << moduleInfo.displayName << " (" << moduleInfo.className << ")";
-				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_ADDSTRING, 0, (LPARAM)text.str().c_str());
-				SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)moduleInfo.moduleID);
+				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_ADDSTRING, 0, (LPARAM)text.str().c_str());
+				SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)moduleInfo.moduleID);
 			}
 		}
-		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_SETCURSEL, selected, 0);
-		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), LB_SETTOPINDEX, top, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_SETCURSEL, selected, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_SETTOPINDEX, top, 0);
 
-		SendMessage(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), WM_SETREDRAW, TRUE, 0);
-		InvalidateRect(GetDlgItem(hwnd, IDC_MODULEUNLOADER_MODULES_LIST), NULL, FALSE);
+		SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), WM_SETREDRAW, TRUE, 0);
+		InvalidateRect(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), NULL, FALSE);
 		break;}
 	default:
 		return FALSE;
@@ -2748,8 +2905,13 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 		}
 		else if(HIWORD(wParam) == BN_CLICKED)
 		{
-			switch(LOWORD(wParam))
+			unsigned int controlID = LOWORD(wParam);
+			switch(controlID)
 			{
+			case IDC_SETTINGS_ENABLETHROTTLE:
+			case IDC_SETTINGS_RUNWHENPROGRAMLOADED:
+				EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), TRUE);
+				break;
 			case IDC_SETTINGS_OK:
 				SendMessage(hwnd, WM_COMMAND, MAKEWPARAM(IDC_SETTINGS_APPLY, BN_CLICKED), (LPARAM)GetDlgItem(hwnd, IDC_SETTINGS_APPLY));
 				DestroyWindow(hwnd);
@@ -2760,12 +2922,15 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 			case IDC_SETTINGS_APPLY:
 				state->prefs.pathModulesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHMODULES);
 				state->prefs.pathSavestatesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHSAVESTATES);
-				state->prefs.pathDebugSessionsRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHDEBUGSESSIONS);
 				state->prefs.pathWorkspacesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHWORKSPACES);
 				state->prefs.pathCapturesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHCAPTURES);
 				state->prefs.pathAssembliesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHASSEMBLIES);
 				state->prefs.loadSystemRaw = GetDlgItemString(hwnd, IDC_SETTINGS_LOADSYSTEM);
 				state->prefs.loadWorkspaceRaw = GetDlgItemString(hwnd, IDC_SETTINGS_LOADWORKSPACE);
+				state->prefs.enableThrottling = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLETHROTTLE) == BST_CHECKED);
+				state->prefs.runWhenProgramModuleLoaded = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED) == BST_CHECKED);
+				state->system.SetThrottlingState(state->prefs.enableThrottling);
+				state->system.SetRunWhenProgramModuleLoadedState(state->prefs.runWhenProgramModuleLoaded);
 				state->ResolvePrefs();
 				state->UpdateSaveSlots();
 				EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
@@ -2941,7 +3106,6 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 				info.pszDisplayName = folderName;
 				info.lpszTitle = &messageText[0];
 				info.ulFlags = BIF_USENEWUI;
-				info.lpfn = NULL;
 				info.lpfn = SetSHBrowseForFolderInitialDir;
 				info.lParam = (LPARAM)&initialDir[0];
 				itemIDList = SHBrowseForFolder(&info);
@@ -2990,12 +3154,13 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 		SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_LOADWORKSPACECHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHMODULES, &state->prefs.pathModulesRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHSAVESTATES, &state->prefs.pathSavestatesRaw[0]);
-		SetDlgItemText(hwnd, IDC_SETTINGS_PATHDEBUGSESSIONS, &state->prefs.pathDebugSessionsRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHWORKSPACES, &state->prefs.pathWorkspacesRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHCAPTURES, &state->prefs.pathCapturesRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHASSEMBLIES, &state->prefs.pathAssembliesRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_LOADSYSTEM, &state->prefs.loadSystemRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_LOADWORKSPACE, &state->prefs.loadWorkspaceRaw[0]);
+		CheckDlgButton(hwnd, IDC_SETTINGS_ENABLETHROTTLE, state->prefs.enableThrottling? BST_CHECKED: BST_UNCHECKED);
+		CheckDlgButton(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED, state->prefs.runWhenProgramModuleLoaded? BST_CHECKED: BST_UNCHECKED);
 		break;}
 	default:
 		return FALSE;
@@ -3058,88 +3223,60 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 		case ID_FILE_RUNSYSTEM:
 			state->system.RunSystem();
 			break;
-		case ID_FILE_HARDRESET:{
-			bool running = state->system.SystemRunning();
-			state->system.StopSystem();
-
+		case ID_FILE_HARDRESET:
 			state->system.Initialize();
-
-			if(running)
-			{
-				state->system.RunSystem();
-			}
-			break;}
+			break;
 		case ID_SYSTEM_TOGGLETHROTTLE:
 			state->system.SetThrottlingState(!state->system.GetThrottlingState());
 			break;
-		case ID_FILE_LOADMODULE:{
-			bool running = state->system.SystemRunning();
-			state->system.StopSystem();
+		case ID_FILE_LOADMODULE:
 			state->LoadModule(state->prefs.pathModules);
-			if(running)
+			break;
+		case ID_FILE_SAVESYSTEM:
+			state->SaveSystem(state->prefs.pathModules);
+			break;
+		case ID_FILE_MANAGEMODULES:{
+			if(state->moduleManagerDialog != NULL)
 			{
-				state->system.RunSystem();
+				//Activate the window
+				ShowWindow(state->moduleManagerDialog, SW_RESTORE);
+				SetActiveWindow(state->moduleManagerDialog);
+				SetForegroundWindow(state->moduleManagerDialog);
 			}
-			break;}
-		case ID_FILE_UNLOADMODULE:{
-			HWND dialog = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULESELECTOR), hwnd, ExodusInterface::ModuleUnloaderProc, (LPARAM)state);
-			ShowWindow(dialog, SW_SHOWNORMAL);
-			UpdateWindow(dialog);
+			else
+			{
+				//Open the window
+				state->moduleManagerDialog = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_MODULEMANAGER), hwnd, ExodusInterface::ModuleManagerProc, (LPARAM)state);
+				ShowWindow(state->moduleManagerDialog, SW_SHOWNORMAL);
+				UpdateWindow(state->moduleManagerDialog);
+			}
 			break;}
 		case ID_FILE_UNLOADALLMODULES:
 			state->UnloadAllModules();
 			break;
-		case ID_FILE_OPENROM:{
-			bool running = state->system.SystemRunning();
-			state->system.StopSystem();
-
-			if(state->OpenROM(state->prefs.pathModules))
-			{
-				state->system.Initialize();
-				//##TODO## Implement a flag into the prefs file which allows the user to
-				//set whether the system should automatically run when a rom file is
-				//loaded.
-				state->system.RunSystem();
-			}
-			else
-			{
-				if(running)
-				{
-					state->system.RunSystem();
-				}
-			}
-			break;}
-		case ID_FILE_CLOSEROM:{
-			state->system.StopSystem();
-			//for(unsigned int moduleID = 0; moduleID < 10; ++moduleID)
-			//{
-			//	IDevice* memory = state->system.GetDevice(moduleID, L"ROM");
-			//	if(memory != 0)
-			//	{
-			//		for(unsigned int i = 0; i < memory->GetInterfaceSize(); ++i)
-			//		{
-			//			memory->TransparentWriteInterface(0, i, Data(8, 0), 0);
-			//		}
-			//	}
-			//}
-			break;}
-		case ID_FILE_SAVEDEBUGGERSESSION:
-			state->SaveDebuggerState(state->prefs.pathDebugSessions);
-			break;
-		case ID_FILE_LOADDEBUGGERSESSION:
-			state->LoadDebuggerState(state->prefs.pathDebugSessions);
-			break;
 		case ID_FILE_SAVESTATE:
-			state->SaveState(state->prefs.pathSavestates);
+			state->SaveState(state->prefs.pathSavestates, false);
 			break;
 		case ID_FILE_LOADSTATE:
-			state->LoadState(state->prefs.pathSavestates);
+			state->LoadState(state->prefs.pathSavestates, false);
 			break;
 		case ID_FILE_QUICKSAVESTATE:
-			state->QuickSaveState();
+			state->QuickSaveState(false);
 			break;
 		case ID_FILE_QUICKLOADSTATE:
-			state->QuickLoadState();
+			state->QuickLoadState(false);
+			break;
+		case ID_FILE_SAVEDEBUGSTATE:
+			state->SaveState(state->prefs.pathSavestates, true);
+			break;
+		case ID_FILE_LOADDEBUGSTATE:
+			state->LoadState(state->prefs.pathSavestates, true);
+			break;
+		case ID_FILE_QUICKSAVEDEBUGSTATE:
+			state->QuickSaveState(true);
+			break;
+		case ID_FILE_QUICKLOADDEBUGSTATE:
+			state->QuickLoadState(true);
 			break;
 		case ID_FILE_INCREMENTSAVESLOT:
 			state->IncrementSaveSlot();
@@ -3295,18 +3432,24 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		ExodusInterface* exodusInterface = (ExodusInterface*)lParam;
 
 		std::wstring savePostfix = state->slotName;
-		std::wstring saveFileName = exodusInterface->romFileName + L" - " + savePostfix + L".exs";
+		std::wstring saveFileName = exodusInterface->GetSavestateAutoFileNamePrefix() + L" - " + savePostfix + L".exs";
+		std::wstring debuggerSaveFileName = exodusInterface->GetSavestateAutoFileNamePrefix() + L" - " + savePostfix + L" - DebugState" + L".exs";
 		System::StateInfo stateInfo = exodusInterface->system.GetStateInfo(exodusInterface->prefs.pathSavestates, saveFileName, System::FILETYPE_ZIP);
-		if((state->savestatePresent == stateInfo.valid) && (state->date == stateInfo.creationDate) && (state->time == stateInfo.creationTime))
+		System::StateInfo debuggerStateInfo = exodusInterface->system.GetStateInfo(exodusInterface->prefs.pathSavestates, debuggerSaveFileName, System::FILETYPE_ZIP);
+		if((state->savestatePresent == stateInfo.valid)
+		&& (state->debugStatePresent == debuggerStateInfo.valid)
+		&& (state->date == (state->savestatePresent? stateInfo.creationDate: debuggerStateInfo.creationDate))
+		&& (state->time == (state->savestatePresent? stateInfo.creationTime: debuggerStateInfo.creationTime)))
 		{
 			break;
 		}
 
 		ShowWindow(hwnd, SW_HIDE);
 		state->savestatePresent = stateInfo.valid;
-		state->date = stateInfo.creationDate;
-		state->time = stateInfo.creationTime;
-		state->timestamp = stateInfo.creationDate + L" " + stateInfo.creationTime;
+		state->debugStatePresent = debuggerStateInfo.valid;
+		state->date = stateInfo.valid? stateInfo.creationDate: debuggerStateInfo.creationDate;
+		state->time = stateInfo.valid? stateInfo.creationTime: debuggerStateInfo.creationTime;
+		state->timestamp = state->date + L" " + state->time;
 
 		if(state->initializedBitmap)
 		{
@@ -3316,7 +3459,7 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		}
 
 		//Load the screenshot
-		state->screenshotPresent = stateInfo.screenshotPresent;
+		state->screenshotPresent = stateInfo.valid && stateInfo.screenshotPresent;
 		if(stateInfo.screenshotPresent)
 		{
 			//Open the target file
@@ -3381,9 +3524,11 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		COLORREF borderColorSelected = RGB(0, 255, 0);
 		COLORREF borderColorInactive = RGB(0, 0, 0);
 		COLORREF fillColorPresent = RGB(255, 0, 0);
+		COLORREF fillColorDebugPresent = RGB(0, 0, 255);
 		COLORREF fillColorEmpty = RGB(0, 0, 0);
 		COLORREF borderColor = (state->savestateSlotSelected)? borderColorSelected: borderColorInactive;
-		COLORREF fillColor = (state->savestatePresent)? fillColorPresent: fillColorEmpty;
+		COLORREF fillColor = (state->savestatePresent)? fillColorPresent: (state->debugStatePresent? fillColorDebugPresent: fillColorEmpty);
+		COLORREF debugFillColor = (state->debugStatePresent)? fillColorDebugPresent: (state->savestatePresent? fillColorPresent: fillColorEmpty);
 
 		//Draw the outer rectangle
 		unsigned int outerRectangleWidth = controlWidth;
@@ -3406,6 +3551,17 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		PatBlt(hdc, innerRectanglePosX, innerRectanglePosY, innerRectangleWidth, innerRectangleHeight, PATCOPY);
 		SelectObject(hdc, innerRectangleBrushOld);
 		DeleteObject(innerRectangleBrush);
+
+		//Draw the debug present rectangle
+		unsigned int debugRectangleWidth = innerRectangleWidth;
+		unsigned int debugRectangleHeight = innerRectangleHeight / 2;
+		unsigned int debugRectanglePosX = innerRectanglePosX;
+		unsigned int debugRectanglePosY = innerRectanglePosY + (innerRectangleHeight - debugRectangleHeight);
+		HBRUSH debugRectangleBrush = CreateSolidBrush(debugFillColor);
+		HBRUSH debugRectangleBrushOld = (HBRUSH)SelectObject(hdc, debugRectangleBrush);
+		PatBlt(hdc, debugRectanglePosX, debugRectanglePosY, debugRectangleWidth, debugRectangleHeight, PATCOPY);
+		SelectObject(hdc, debugRectangleBrushOld);
+		DeleteObject(debugRectangleBrush);
 
 		//Calculate the maximum font width and height which will allow two lines of text
 		//to be displayed in the information rectangle, with 20 characters per line.

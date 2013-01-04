@@ -278,15 +278,15 @@ void Device::LoadState(IHeirarchicalStorageNode& node)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::GetState(IHeirarchicalStorageNode& node) const
-{}
-
-//----------------------------------------------------------------------------------------
-void Device::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+void Device::SaveState(IHeirarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------
 void Device::LoadDebuggerState(IHeirarchicalStorageNode& node)
+{}
+
+//----------------------------------------------------------------------------------------
+void Device::SaveDebuggerState(IHeirarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------

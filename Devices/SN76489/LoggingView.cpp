@@ -125,7 +125,7 @@ INT_PTR SN76489::LoggingView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)

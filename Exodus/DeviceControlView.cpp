@@ -7,7 +7,7 @@
 System::DeviceControlView::DeviceControlView(System* asystem)
 :system(asystem), initializedDialog(false), currentControlFocus(0)
 {
-	deviceContext = 0;
+	deviceListIndex = -1;
 	systemStep = 0;
 	deviceStep = 1;
 	std::wstring windowTitle = L"Device Control";
@@ -26,6 +26,8 @@ INT_PTR System::DeviceControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpa
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
 	case WM_CLOSE:
 		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_TIMER:
+		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	}
@@ -37,31 +39,6 @@ INT_PTR System::DeviceControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpa
 //----------------------------------------------------------------------------------------
 INT_PTR System::DeviceControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Update the device list
-	SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), WM_SETREDRAW, FALSE, 0);
-
-	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETTOPINDEX, 0, 0);
-	LRESULT selected = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, 0);
-	SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_RESETCONTENT, 0, NULL);
-	for(DeviceArray::iterator i = system->devices.begin(); i != system->devices.end(); ++i)
-	{
-		DeviceContext* device = *i;
-		if(device->ActiveDevice())
-		{
-			LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_ADDSTRING, 0, (LPARAM)device->GetTargetDevice()->GetDeviceInstanceName().c_str());
-			SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)device);
-		}
-	}
-	SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETCURSEL, selected, 0);
-	SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETTOPINDEX, top, 0);
-
-	SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), WM_SETREDRAW, TRUE, 0);
-	InvalidateRect(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), NULL, FALSE);
-
-	//Update the textboxes
-	UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, systemStep);
-	UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, deviceStep);
-
 	initializedDialog = true;
 
 	return TRUE;
@@ -71,6 +48,58 @@ INT_PTR System::DeviceControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LP
 INT_PTR System::DeviceControlView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	DestroyWindow(hwnd);
+
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR System::DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	boost::mutex::scoped_lock lock(system->debugMutex);
+
+	//Update the textboxes
+	if(currentControlFocus != IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT)	UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, systemStep);
+	if(currentControlFocus != IDC_DEVICECONTROL_DEVICE_STEPAMOUNT)		UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, deviceStep);
+
+	//Check if we need to refresh the breakpoint list
+	bool refreshBreakpointList = (devicesCopy.size() != system->devices.size());
+	if(!refreshBreakpointList)
+	{
+		DeviceArray::const_iterator devicesIterator = system->devices.begin();
+		DeviceArray::const_iterator devicesCopyIterator = devicesCopy.begin();
+		while(!refreshBreakpointList && (devicesIterator != system->devices.end()) && (devicesCopyIterator != devicesCopy.end()))
+		{
+			refreshBreakpointList |= (*devicesIterator != *devicesCopyIterator);
+			++devicesIterator;
+			++devicesCopyIterator;
+		}
+	}
+	devicesCopy = system->devices;
+
+	//Refresh the device list if required
+	if(refreshBreakpointList)
+	{
+		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), WM_SETREDRAW, FALSE, 0);
+
+		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETTOPINDEX, 0, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_RESETCONTENT, 0, NULL);
+		for(DeviceArray::iterator i = system->devices.begin(); i != system->devices.end(); ++i)
+		{
+			DeviceContext* device = *i;
+			if(device->ActiveDevice() && (device->GetTargetDevice()->GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP))
+			{
+				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_ADDSTRING, 0, (LPARAM)device->GetTargetDevice()->GetDeviceInstanceName().c_str());
+				SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)device);
+			}
+		}
+		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETCURSEL, (WPARAM)-1, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETTOPINDEX, top, 0);
+
+		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), WM_SETREDRAW, TRUE, 0);
+		InvalidateRect(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), NULL, FALSE);
+
+		deviceListIndex = -1;
+	}
 
 	return TRUE;
 }
@@ -93,6 +122,8 @@ INT_PTR System::DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			system->ExecuteSystemStep(systemStep);
 			break;
 		case IDC_DEVICECONTROL_DEVICE_INITIALIZE:{
+			int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
+			DeviceContext* deviceContext = (DeviceContext*)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
 			if(deviceContext != 0)
 			{
 				bool running = system->SystemRunning();
@@ -105,6 +136,8 @@ INT_PTR System::DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			}
 			break;}
 		case IDC_DEVICECONTROL_DEVICE_STEP:{
+			int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
+			DeviceContext* deviceContext = (DeviceContext*)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
 			if(deviceContext != 0)
 			{
 				system->StopSystem();
@@ -116,12 +149,14 @@ INT_PTR System::DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				}
 			}
 			break;}
-		case IDC_DEVICECONTROL_DEVICE_ENABLED:
+		case IDC_DEVICECONTROL_DEVICE_ENABLED:{
+			int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
+			DeviceContext* deviceContext = (DeviceContext*)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
 			if(deviceContext != 0)
 			{
 				deviceContext->SetDeviceEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			}
-			break;
+			break;}
 		}
 	}
 	else if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
@@ -129,7 +164,7 @@ INT_PTR System::DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		currentControlFocus = LOWORD(wparam);
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(newText != previousText)
@@ -150,11 +185,10 @@ INT_PTR System::DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 		switch(LOWORD(wparam))
 		{
 		case IDC_DEVICECONTROL_LIST:{
-			int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
-			deviceContext = (DeviceContext*)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
-			if(deviceContext != 0)
+			int selectedItem = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
+			if(selectedItem != LB_ERR)
 			{
-				CheckDlgButton(hwnd, IDC_DEVICECONTROL_DEVICE_ENABLED, (deviceContext->DeviceEnabled())? BST_CHECKED: BST_UNCHECKED);
+				deviceListIndex = selectedItem;
 			}
 			break;}
 		}

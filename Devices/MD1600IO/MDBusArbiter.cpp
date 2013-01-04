@@ -1344,7 +1344,7 @@ void MDBusArbiter::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void MDBusArbiter::GetState(IHeirarchicalStorageNode& node) const
+void MDBusArbiter::SaveState(IHeirarchicalStorageNode& node) const
 {
 	node.CreateChildHex(L"VersionRegister", z80BankswitchDataCurrent.GetData(), z80BankswitchDataCurrent.GetHexCharCount());
 	node.CreateChildHex(L"Z80BankswitchDataNew", z80BankswitchDataNew.GetData(), z80BankswitchDataNew.GetHexCharCount());

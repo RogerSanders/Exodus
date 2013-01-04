@@ -43,14 +43,12 @@ public:
 	//be hardcoded to "save.xml". Come up with a way for the name within the archive to
 	//be specified by the caller perhaps? The problem is, we don't want to have to load
 	//the zip file twice.
-	virtual bool LoadState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) = 0;
-	virtual bool SaveState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) = 0;
+	virtual bool LoadState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState) = 0;
+	virtual bool SaveState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState) = 0;
 	virtual StateInfo GetStateInfo(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) const = 0;
-	virtual bool LoadDebuggerState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) = 0;
-	virtual bool SaveDebuggerState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) = 0;
 	virtual bool LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const = 0;
 	virtual bool DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfo& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const = 0;
-	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode) const = 0;
+	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false) const = 0;
 
 	//Path functions
 	virtual std::wstring GetCapturePath() const = 0;
@@ -63,6 +61,8 @@ public:
 	virtual void FlagStopSystem() = 0;
 	virtual bool GetThrottlingState() const = 0;
 	virtual void SetThrottlingState(bool state) = 0;
+	virtual bool GetRunWhenProgramModuleLoadedState() const = 0;
+	virtual void SetRunWhenProgramModuleLoadedState(bool state) = 0;
 	virtual bool SystemRunning() const = 0;
 
 	//Device registration
@@ -84,6 +84,7 @@ public:
 	virtual bool LoadModuleSynchronousResult() const = 0;
 	virtual bool LoadModuleSynchronousAborted() const = 0;
 	virtual bool LoadModule(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher) = 0;
+	virtual bool SaveSystem(const std::wstring& fileDir, const std::wstring& fileName) = 0;
 	virtual bool UnloadModule(unsigned int moduleID) = 0;
 	virtual void UnloadAllModulesSynchronous() = 0;
 	virtual bool UnloadAllModulesSynchronousComplete() const = 0;

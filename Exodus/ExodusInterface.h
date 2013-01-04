@@ -61,22 +61,17 @@ public:
 	bool InitializeSystem();
 
 	//Savestate functions
-	void LoadState(const std::wstring& folder);
-	void LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType);
-	void SaveState(const std::wstring& folder);
-	void SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType);
-	void LoadDebuggerState(const std::wstring& folder);
-	void LoadDebuggerStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType);
-	void SaveDebuggerState(const std::wstring& folder);
-	void SaveDebuggerStateToFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType);
+	void LoadState(const std::wstring& folder, bool debuggerState);
+	void LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType, bool debuggerState);
+	void SaveState(const std::wstring& folder, bool debuggerState);
+	void SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType, bool debuggerState);
 
 	//Savestate quick-select popup functions
-	void QuickLoadState();
-	void QuickSaveState();
+	void QuickLoadState(bool debuggerState);
+	void QuickSaveState(bool debuggerState);
 	void IncrementSaveSlot();
 	void DecrementSaveSlot();
 	void SelectSaveSlot(unsigned int slotNo);
-	void UpdateSaveSlots();
 
 	//Workspace functions
 	void LoadWorkspace(const std::wstring& folder);
@@ -84,12 +79,11 @@ public:
 	void SaveWorkspace(const std::wstring& folder);
 	bool SaveWorkspaceToFile(const std::wstring& fileName);
 
-	//ROM functions
-	bool OpenROM(const std::wstring& folder);
-
 	//Module functions
 	bool LoadModule(const std::wstring& folder);
 	bool LoadModuleFromFile(const std::wstring& fileDir, const std::wstring& fileName);
+	bool SaveSystem(const std::wstring& folder);
+	bool SaveSystemToFile(const std::wstring& fileDir, const std::wstring& fileName);
 	void UnloadModule(unsigned int moduleID);
 	void UnloadAllModules();
 
@@ -135,6 +129,8 @@ private:
 		std::wstring loadSystemRaw;
 		std::wstring loadWorkspace;
 		std::wstring loadWorkspaceRaw;
+		bool enableThrottling;
+		bool runWhenProgramModuleLoaded;
 	};
 	struct NewMenuItem;
 	struct ViewInfo;
@@ -142,6 +138,7 @@ private:
 	struct SavestateCellWindowState;
 	struct ViewOperation;
 	struct WorkspaceViewEntryDetails;
+	struct MapConnectorDialogParams;
 
 	//Typedefs
 	typedef std::map<unsigned int, NewMenuItem> NewMenuList;
@@ -153,6 +150,15 @@ private:
 	typedef std::list<ViewOperation> ViewOperationQueue;
 
 private:
+	//Savestate functions
+	std::wstring GetSavestateAutoFileNamePrefix() const;
+
+	//Savestate quick-select popup functions
+	void UpdateSaveSlots();
+
+	//Module functions
+	void UpdateModuleDisplayInfo() const;
+
 	//View management functions
 	void FlagProcessPendingEvents();
 	void ProcessPendingEvents();
@@ -191,9 +197,10 @@ private:
 	//Window callbacks
 	static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 	static int CALLBACK SetSHBrowseForFolderInitialDir(HWND hwnd, UINT umsg, LPARAM lparam, LPARAM lpData);
+	static INT_PTR CALLBACK MapConnectorProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK LoadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK UnloadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
-	static INT_PTR CALLBACK ModuleUnloaderProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK ModuleManagerProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK AboutProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK SettingsProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -204,11 +211,11 @@ private:
 private:
 	ISystemExternal& system;
 	HMENU debugMenu;
+	HWND moduleManagerDialog;
 	MenuSubmenu* debugSubmenu;
 	NewMenuList newMenuList;
 	unsigned int nextDebugMenuID;
 	SystemPrefs prefs;
-	std::wstring romFileName;
 	std::wstring originalWorkingDir;
 	volatile bool moduleCommandComplete;
 	bool systemLoaded;

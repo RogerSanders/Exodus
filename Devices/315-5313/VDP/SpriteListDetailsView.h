@@ -29,7 +29,6 @@ private:
 	bool initializedDialog;
 	std::wstring previousText;
 	unsigned int currentControlFocus;
-
 	unsigned int spriteMappingAddress;
 	unsigned int spriteIndex;
 	SpriteMapping spriteMapping;

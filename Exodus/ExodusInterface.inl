@@ -62,7 +62,7 @@ struct ExodusInterface::Region2D
 struct ExodusInterface::SavestateCellWindowState
 {
 	SavestateCellWindowState()
-	:hbitmap(NULL), hwnd(NULL), savestatePresent(false), savestateSlotSelected(false), screenshotPresent(false), initializedBitmap(false)
+	:hbitmap(NULL), hwnd(NULL), savestatePresent(false), savestateSlotSelected(false), debugStatePresent(false), screenshotPresent(false), initializedBitmap(false)
 	{}
 
 	HWND hwnd;
@@ -73,6 +73,7 @@ struct ExodusInterface::SavestateCellWindowState
 	std::wstring timestamp;
 	bool savestatePresent;
 	bool savestateSlotSelected;
+	bool debugStatePresent;
 
 	Image originalImage;
 	Image resizedImage;
@@ -109,4 +110,17 @@ struct ExodusInterface::WorkspaceViewEntryDetails
 	std::wstring menuHandlerName;
 	int viewID;
 	IViewModel* viewModel;
+};
+
+//----------------------------------------------------------------------------------------
+struct ExodusInterface::MapConnectorDialogParams
+{
+	MapConnectorDialogParams()
+	:selectionMade(false), system(0)
+	{}
+
+	bool selectionMade;
+	std::list<System::ConnectorInfo> connectorList;
+	System::ConnectorInfo selectedConnector;
+	ISystemExternal* system;
 };

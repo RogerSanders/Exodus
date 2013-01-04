@@ -1961,7 +1961,7 @@ void VDP::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void VDP::GetState(IHeirarchicalStorageNode& node) const
+void VDP::SaveState(IHeirarchicalStorageNode& node) const
 {
 	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
 	std::wstring regBufferName = GetDeviceInstanceName();

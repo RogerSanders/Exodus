@@ -1108,7 +1108,7 @@ INT_PTR YM2612::DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 		currentControlFocus = LOWORD(wparam);
 		return FALSE;
 	}
-	else if(HIWORD(wparam) == EN_KILLFOCUS)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if(currentControlFocus == LOWORD(wparam))

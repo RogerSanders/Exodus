@@ -19,6 +19,7 @@ private:
 	//Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 	//Exception functions
@@ -30,9 +31,9 @@ private:
 	bool initializedDialog;
 	std::wstring previousText;
 	unsigned int currentControlFocus;
-
 	int exceptionListIndex;
 	ExceptionDebuggingEntry exceptionEntry;
+	ExceptionList exceptionListCopy;
 };
 
 } //Close namespace M68000
