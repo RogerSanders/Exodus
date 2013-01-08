@@ -39,7 +39,7 @@ INT_PTR System::DeviceControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpa
 //----------------------------------------------------------------------------------------
 INT_PTR System::DeviceControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	SetTimer(hwnd, 1, 200, NULL);
 
 	return TRUE;
 }
@@ -56,20 +56,21 @@ INT_PTR System::DeviceControlView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM 
 INT_PTR System::DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	boost::mutex::scoped_lock lock(system->debugMutex);
+	initializedDialog = true;
 
 	//Update the textboxes
 	if(currentControlFocus != IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT)	UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, systemStep);
 	if(currentControlFocus != IDC_DEVICECONTROL_DEVICE_STEPAMOUNT)		UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, deviceStep);
 
-	//Check if we need to refresh the breakpoint list
-	bool refreshBreakpointList = (devicesCopy.size() != system->devices.size());
-	if(!refreshBreakpointList)
+	//Check if we need to refresh the device list
+	bool refreshDeviceList = (devicesCopy.size() != system->devices.size());
+	if(!refreshDeviceList)
 	{
 		DeviceArray::const_iterator devicesIterator = system->devices.begin();
 		DeviceArray::const_iterator devicesCopyIterator = devicesCopy.begin();
-		while(!refreshBreakpointList && (devicesIterator != system->devices.end()) && (devicesCopyIterator != devicesCopy.end()))
+		while(!refreshDeviceList && (devicesIterator != system->devices.end()) && (devicesCopyIterator != devicesCopy.end()))
 		{
-			refreshBreakpointList |= (*devicesIterator != *devicesCopyIterator);
+			refreshDeviceList |= (*devicesIterator != *devicesCopyIterator);
 			++devicesIterator;
 			++devicesCopyIterator;
 		}
@@ -77,7 +78,7 @@ INT_PTR System::DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 	devicesCopy = system->devices;
 
 	//Refresh the device list if required
-	if(refreshBreakpointList)
+	if(refreshDeviceList)
 	{
 		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), WM_SETREDRAW, FALSE, 0);
 

@@ -370,6 +370,41 @@ bool DeviceContext::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inpu
 	case VK_RIGHT:
 		inputKeyCode = KEYCODE_RIGHT;
 		return true;
+	case VK_SNAPSHOT:
+		inputKeyCode = KEYCODE_PRINTSCREEN;
+		return true;
+	case VK_PAUSE:
+		inputKeyCode = KEYCODE_PAUSE;
+		return true;
+	case VK_NUMLOCK:
+		inputKeyCode = KEYCODE_NUMLOCK;
+		return true;
+	case VK_CAPITAL:
+		inputKeyCode = KEYCODE_CAPSLOCK;
+		return true;
+	case VK_SCROLL:
+		inputKeyCode = KEYCODE_SCROLLLOCK;
+		return true;
+	case VK_LWIN:
+		inputKeyCode = KEYCODE_LEFTWINDOWS;
+		return true;
+	case VK_RWIN:
+		inputKeyCode = KEYCODE_RIGHTWINDOWS;
+		return true;
+	case VK_APPS:
+		inputKeyCode = KEYCODE_MENU;
+		return true;
+
+	//Modifier keys
+	case VK_CONTROL:
+		inputKeyCode = KEYCODE_CTRL;
+		return true;
+	case VK_MENU:
+		inputKeyCode = KEYCODE_ALT;
+		return true;
+	case VK_SHIFT:
+		inputKeyCode = KEYCODE_SHIFT;
+		return true;
 
 	//Function keys
 	case VK_F1:
@@ -441,7 +476,7 @@ bool DeviceContext::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inpu
 		inputKeyCode = KEYCODE_9;
 		return true;
 
-	//Characters
+	//Letters
 	case 'A':
 		inputKeyCode = KEYCODE_A;
 		return true;
@@ -519,6 +554,97 @@ bool DeviceContext::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inpu
 		return true;
 	case 'Z':
 		inputKeyCode = KEYCODE_Z;
+		return true;
+
+	//Symbol keys
+	case VK_OEM_1:
+		inputKeyCode = KEYCODE_OEM1;
+		return true;
+	case VK_OEM_PLUS:
+		inputKeyCode = KEYCODE_OEMPLUS;
+		return true;
+	case VK_OEM_COMMA:
+		inputKeyCode = KEYCODE_OEMCOMMA;
+		return true;
+	case VK_OEM_MINUS:
+		inputKeyCode = KEYCODE_OEMMINUS;
+		return true;
+	case VK_OEM_PERIOD:
+		inputKeyCode = KEYCODE_OEMPERIOD;
+		return true;
+	case VK_OEM_2:
+		inputKeyCode = KEYCODE_OEM2;
+		return true;
+	case VK_OEM_3:
+		inputKeyCode = KEYCODE_OEM3;
+		return true;
+	case VK_OEM_4:
+		inputKeyCode = KEYCODE_OEM4;
+		return true;
+	case VK_OEM_5:
+		inputKeyCode = KEYCODE_OEM5;
+		return true;
+	case VK_OEM_6:
+		inputKeyCode = KEYCODE_OEM6;
+		return true;
+	case VK_OEM_7:
+		inputKeyCode = KEYCODE_OEM7;
+		return true;
+	case VK_OEM_8:
+		inputKeyCode = KEYCODE_OEM8;
+		return true;
+	case VK_OEM_AX:
+		inputKeyCode = KEYCODE_OEMAX;
+		return true;
+	case VK_OEM_102:
+		inputKeyCode = KEYCODE_OEM102;
+		return true;
+
+	//Numpad keys
+	case VK_NUMPAD0:
+		inputKeyCode = KEYCODE_NUMPAD0;
+		return true;
+	case VK_NUMPAD1:
+		inputKeyCode = KEYCODE_NUMPAD1;
+		return true;
+	case VK_NUMPAD2:
+		inputKeyCode = KEYCODE_NUMPAD2;
+		return true;
+	case VK_NUMPAD3:
+		inputKeyCode = KEYCODE_NUMPAD3;
+		return true;
+	case VK_NUMPAD4:
+		inputKeyCode = KEYCODE_NUMPAD4;
+		return true;
+	case VK_NUMPAD5:
+		inputKeyCode = KEYCODE_NUMPAD5;
+		return true;
+	case VK_NUMPAD6:
+		inputKeyCode = KEYCODE_NUMPAD6;
+		return true;
+	case VK_NUMPAD7:
+		inputKeyCode = KEYCODE_NUMPAD7;
+		return true;
+	case VK_NUMPAD8:
+		inputKeyCode = KEYCODE_NUMPAD8;
+		return true;
+	case VK_NUMPAD9:
+		inputKeyCode = KEYCODE_NUMPAD9;
+		return true;
+	case VK_MULTIPLY:
+		inputKeyCode = KEYCODE_NUMPADMULTIPLY;
+		return true;
+	case VK_DIVIDE:
+		inputKeyCode = KEYCODE_NUMPADDIVIDE;
+		return true;
+	case VK_SUBTRACT:
+		inputKeyCode = KEYCODE_NUMPADSUBTRACT;
+		return true;
+	case VK_ADD:
+		inputKeyCode = KEYCODE_NUMPADADD;
+		return true;
+	case VK_DECIMAL:
+		inputKeyCode = KEYCODE_NUMPADDECIMAL;
 		return true;
 	}
 	return false;

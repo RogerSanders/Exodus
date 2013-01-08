@@ -1,19 +1,27 @@
 #include "System.h"
-#ifndef __SYSTEM_DEBUGMENUHANDLER_H__
-#define __SYSTEM_DEBUGMENUHANDLER_H__
+#ifndef __SYSTEM_SYSTEMMENUHANDLER_H__
+#define __SYSTEM_SYSTEMMENUHANDLER_H__
 #include "SystemInterface/SystemInterface.pkg"
 
-class System::DebugMenuHandler :public MenuHandlerBase
+class System::SystemMenuHandler :public MenuHandlerBase
 {
 public:
 	//Enumerations
 	enum MenuItem
 	{
-		MENUITEM_DEVICECONTROL
+		MENUITEM_LOGGER,
+		MENUITEM_LOGGERDETAILS,
+		MENUITEM_INPUTMAPPING,
+		MENUITEM_INPUTMAPPINGDETAILS
 	};
 
 	//Constructors
-	DebugMenuHandler(System* adevice);
+	SystemMenuHandler(System* adevice);
+
+	//Window functions
+	void OpenLoggerDetailsView(const LogEntryInternal& alogEntry);
+	void OpenInputMappingDetailsView(IDevice* targetDevice);
+	void CloseInputMappingDetailsView();
 
 protected:
 	//Management functions

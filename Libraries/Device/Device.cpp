@@ -441,11 +441,17 @@ unsigned int Device::GetKeyCodeID(const wchar_t* keyCodeName) const
 }
 
 //----------------------------------------------------------------------------------------
-void Device::HandleInputKeyDown(unsigned int keyCode)
+const wchar_t* Device::GetKeyCodeName(unsigned int keyCodeID) const
+{
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+void Device::HandleInputKeyDown(unsigned int keyCodeID)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::HandleInputKeyUp(unsigned int keyCode)
+void Device::HandleInputKeyUp(unsigned int keyCodeID)
 {}
 
 //----------------------------------------------------------------------------------------

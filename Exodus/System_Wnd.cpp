@@ -1,8 +1,19 @@
 #include "System.h"
+#include "SystemMenuHandler.h"
 #include "DebugMenuHandler.h"
 
 //----------------------------------------------------------------------------------------
 //View functions
+//----------------------------------------------------------------------------------------
+void System::BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) const
+{
+	//Add the system settings menu items
+	IMenuSegment& menuSegmentForSystem = menuSubmenu.CreateMenuSegment();
+	systemMenuHandler->AddMenuItems(menuSegmentForSystem, viewModelLauncher);
+
+	//##TODO## Add any options defined in the currently loaded system
+}
+
 //----------------------------------------------------------------------------------------
 void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) const
 {
@@ -101,6 +112,7 @@ bool System::RestoreViewModelStateForDevice(unsigned int moduleID, const std::ws
 //----------------------------------------------------------------------------------------
 void System::DeleteSystemViews()
 {
+	systemMenuHandler->ClearMenuItems();
 	debugMenuHandler->ClearMenuItems();
 }
 
@@ -109,5 +121,17 @@ void System::DeleteSystemViews()
 //----------------------------------------------------------------------------------------
 void System::OpenLoggerDetailsView(const LogEntryInternal& alogEntry)
 {
-	debugMenuHandler->OpenLoggerDetailsView(alogEntry);
+	systemMenuHandler->OpenLoggerDetailsView(alogEntry);
+}
+
+//----------------------------------------------------------------------------------------
+void System::OpenInputMappingDetailsView(IDevice* targetDevice)
+{
+	systemMenuHandler->OpenInputMappingDetailsView(targetDevice);
+}
+
+//----------------------------------------------------------------------------------------
+void System::CloseInputMappingDetailsView()
+{
+	systemMenuHandler->CloseInputMappingDetailsView();
 }

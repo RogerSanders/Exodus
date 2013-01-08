@@ -19,10 +19,11 @@ ExodusInterface::ExodusInterface(ISystemExternal& asystem)
 	//Set the size of the savestate window cell array
 	cell.resize(cellCount);
 
-	//Set the next menu ID to use when building the debug menus
-	nextDebugMenuID = 1;
+	//Set the next menu ID number to use when building menus
+	nextFreeMenuID = 1;
 
-	//Create the debug submenu object
+	//Create our submenu objects
+	systemSubmenu = new MenuSubmenu(L"System");
 	debugSubmenu = new MenuSubmenu(L"Debug");
 
 	//Initialize the savestate popup window settings
@@ -101,30 +102,53 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 		return NULL;
 	}
 
-	//Create the debug menu
-	std::wstring menuName = L"Debug";
-	debugMenu = CreatePopupMenu();
-	if(debugMenu == NULL)
-	{
-		return NULL;
-	}
+	//Retrieve the handle for the menu
 	HMENU mainMenu = GetMenu(mainWindowHandle);
 	if(mainMenu == NULL)
 	{
 		return NULL;
 	}
-	MENUITEMINFO menuItemInfo;
-	menuItemInfo.cbSize = sizeof(MENUITEMINFO);
-	menuItemInfo.fMask = MIIM_STRING | MIIM_SUBMENU;
-	menuItemInfo.hSubMenu = debugMenu;
-	menuItemInfo.dwTypeData = &menuName[0];
-	menuItemInfo.cch = (UINT)menuName.size();
-	BOOL insertMenuItemReturn = InsertMenuItem(mainMenu, 2, TRUE, &menuItemInfo);
-	if(insertMenuItemReturn == 0)
+
+	//Obtain the location of the dynamic portion of the settings menu
+	MENUITEMINFO settingsMenuItemInfo;
+	settingsMenuItemInfo.cbSize = sizeof(MENUITEMINFO);
+	settingsMenuItemInfo.fMask = MIIM_SUBMENU;
+	BOOL getSettingsMenuItemInfoReturn = GetMenuItemInfo(mainMenu, 1, TRUE, &settingsMenuItemInfo);
+	if(getSettingsMenuItemInfoReturn == 0)
 	{
 		return NULL;
 	}
-	if(!BuildDebugMenu(debugMenu))
+	if(settingsMenuItemInfo.hSubMenu == NULL)
+	{
+		return NULL;
+	}
+	systemMenu = settingsMenuItemInfo.hSubMenu;
+	systemMenuFirstItemIndex = GetMenuItemCount(systemMenu)-1;
+
+	//Build the dynamic portion of the settings menu
+	if(!BuildSystemMenu())
+	{
+		return NULL;
+	}
+
+	//Obtain the location of the dynamic portion of the debug menu
+	MENUITEMINFO debugMenuItemInfo;
+	debugMenuItemInfo.cbSize = sizeof(MENUITEMINFO);
+	debugMenuItemInfo.fMask = MIIM_SUBMENU;
+	BOOL getDebugMenuItemInfoReturn = GetMenuItemInfo(mainMenu, 2, TRUE, &debugMenuItemInfo);
+	if(getDebugMenuItemInfoReturn == 0)
+	{
+		return NULL;
+	}
+	if(debugMenuItemInfo.hSubMenu == NULL)
+	{
+		return NULL;
+	}
+	debugMenu = debugMenuItemInfo.hSubMenu;
+	debugMenuFirstItemIndex = GetMenuItemCount(debugMenu)-1;
+
+	//Build the dynamic portion of the debug menu
+	if(!BuildDebugMenu())
 	{
 		return NULL;
 	}
@@ -1030,11 +1054,12 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 	bool moduleLoadSucceeded = (dialogBoxParamResult == 1);
 	if(moduleLoadSucceeded)
 	{
-		//Since the system loaded successfully, construct the debug menu.
-		result = BuildDebugMenu(debugMenu);
+		//Since the system loaded successfully, construct the settings and debug menus.
+		result = BuildSystemMenu();
+		result |= BuildDebugMenu();
 		if(!result)
 		{
-			std::wstring text = L"An error occurred while building the debug windows for the system.";
+			std::wstring text = L"An error occurred while building the debug or settings windows for the system.";
 			std::wstring title = L"Error loading module!";
 			MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
 		}
@@ -1122,8 +1147,9 @@ void ExodusInterface::UnloadModule(unsigned int moduleID)
 	INT_PTR dialogBoxParamResult;
 	dialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), mainWindowHandle, UnloadModuleProc, (LPARAM)this);
 
-	//Initialize the debug menu
-	BuildDebugMenu(debugMenu);
+	//Initialize the debug and settings menus
+	BuildSystemMenu();
+	BuildDebugMenu();
 
 	//Since the loaded system configuration has now changed, update any display info which
 	//is dependent on the loaded modules.
@@ -1144,11 +1170,12 @@ void ExodusInterface::UnloadAllModules()
 		INT_PTR dialogBoxParamResult;
 		dialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), mainWindowHandle, UnloadModuleProc, (LPARAM)this);
 
-		//Initialize the debug menu
-		BuildDebugMenu(debugMenu);
+		//Initialize the debug and settings menus
+		BuildSystemMenu();
+		BuildDebugMenu();
 
-		//Since the loaded system configuration has now changed, update any display info which
-		//is dependent on the loaded modules.
+		//Since the loaded system configuration has now changed, update any display info
+		//which is dependent on the loaded modules.
 		UpdateSaveSlots();
 		UpdateModuleDisplayInfo();
 
@@ -1973,15 +2000,49 @@ bool ExodusInterface::BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IM
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::BuildDebugMenu(HMENU debugMenu)
+bool ExodusInterface::BuildSystemMenu()
 {
 	bool result = true;
 
-	//Clear all existing items from the physical debug menu
-	int menuItemCount = GetMenuItemCount(debugMenu);
-	for(int i = 0; i < menuItemCount; ++i)
+	//Clear all existing dynamic items from the physical settings menu
+	int menuItemCount = GetMenuItemCount(systemMenu);
+	for(int i = systemMenuFirstItemIndex; i < menuItemCount; ++i)
 	{
-		int menuItemIndex = (menuItemCount - 1) - i;
+		int menuItemIndex = (menuItemCount - 1) - (i - systemMenuFirstItemIndex);
+		DeleteMenu(systemMenu, menuItemIndex, MF_BYPOSITION);
+	}
+
+	//Clear all items from our debug submenu structure
+	systemSubmenu->DeleteAllMenuSegments();
+
+	//Add settings menu items to the submenu
+	system.BuildSystemMenu(*systemSubmenu, *this);
+
+	//Build the actual menu using the menu structure
+	std::list<IMenuSegment*> menuSegments = systemSubmenu->GetMenuSegments();
+	for(std::list<IMenuSegment*>::iterator menuSegment = menuSegments.begin(); menuSegment != menuSegments.end(); ++menuSegment)
+	{
+		std::list<IMenuItem*> menuItems = (*menuSegment)->GetMenuItems();
+		for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+		{
+			result &= BuildMenuRecursive(mainWindowHandle, systemMenu, *(*i), nextFreeMenuID);
+		}
+	}
+
+	DrawMenuBar(mainWindowHandle);
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::BuildDebugMenu()
+{
+	bool result = true;
+
+	//Clear all existing dynamic items from the physical debug menu
+	int menuItemCount = GetMenuItemCount(debugMenu);
+	for(int i = debugMenuFirstItemIndex; i < menuItemCount; ++i)
+	{
+		int menuItemIndex = (menuItemCount - 1) - (i - debugMenuFirstItemIndex);
 		DeleteMenu(debugMenu, menuItemIndex, MF_BYPOSITION);
 	}
 
@@ -1998,7 +2059,7 @@ bool ExodusInterface::BuildDebugMenu(HMENU debugMenu)
 		std::list<IMenuItem*> menuItems = (*menuSegment)->GetMenuItems();
 		for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 		{
-			result &= BuildMenuRecursive(mainWindowHandle, debugMenu, *(*i), nextDebugMenuID);
+			result &= BuildMenuRecursive(mainWindowHandle, debugMenu, *(*i), nextFreeMenuID);
 		}
 	}
 

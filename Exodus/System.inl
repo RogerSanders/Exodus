@@ -1,3 +1,4 @@
+#include "SystemMenuHandler.h"
 #include "DebugMenuHandler.h"
 
 //----------------------------------------------------------------------------------------
@@ -198,12 +199,28 @@ struct System::ViewModelOpenRequest
 };
 
 //----------------------------------------------------------------------------------------
+struct System::InputRegistration
+{
+	InputRegistration()
+	:targetDevice(0), preferredSystemKeyCodeSpecified(false)
+	{}
+
+	unsigned int moduleID;
+	IDevice* targetDevice;
+	unsigned int deviceKeyCode;
+	bool preferredSystemKeyCodeSpecified;
+	IDeviceContext::KeyCode systemKeyCode;
+};
+
+//----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
 System::System(void* aassemblyHandle)
 :stopSystem(false), systemStopped(true), initialize(false), enableThrottling(true), runWhenProgramModuleLoaded(true), assemblyHandle(aassemblyHandle)
 {
-	//Create the menu handler
+	//Create the menu handlers
+	systemMenuHandler = new SystemMenuHandler(this);
+	systemMenuHandler->LoadMenuItems();
 	debugMenuHandler = new DebugMenuHandler(this);
 	debugMenuHandler->LoadMenuItems();
 

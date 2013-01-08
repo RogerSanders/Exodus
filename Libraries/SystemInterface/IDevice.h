@@ -128,12 +128,15 @@ public:
 	//Input functions
 	inline unsigned int GetKeyCodeID(const std::wstring& keyCodeName) const;
 	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const = 0;
-	virtual void HandleInputKeyDown(unsigned int keyCode) = 0;
-	virtual void HandleInputKeyUp(unsigned int keyCode) = 0;
+	virtual const wchar_t* GetKeyCodeName(unsigned int keyCodeID) const = 0;
+	virtual void HandleInputKeyDown(unsigned int keyCodeID) = 0;
+	virtual void HandleInputKeyUp(unsigned int keyCodeID) = 0;
 
 	//Window functions
 	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle) = 0;
 	virtual AssemblyHandle GetAssemblyHandle() const = 0;
+	//##TODO## Consider removing global debug menu items. What were they supposed to be
+	//for anyway? It seems likely that the system menu removes the need for this option.
 	virtual void AddGlobalDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	inline void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
