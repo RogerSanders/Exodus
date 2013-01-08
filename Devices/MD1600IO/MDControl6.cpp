@@ -311,92 +311,6 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 }
 
 //----------------------------------------------------------------------------------------
-//Input functions
-//----------------------------------------------------------------------------------------
-unsigned int MDControl6::GetKeyCodeID(const wchar_t* keyCodeName) const
-{
-	std::wstring keyCodeNameString = keyCodeName;
-	if(keyCodeNameString == L"Up")
-	{
-		return BUTTON_UP;
-	}
-	else if(keyCodeNameString == L"Down")
-	{
-		return BUTTON_DOWN;
-	}
-	else if(keyCodeNameString == L"Left")
-	{
-		return BUTTON_LEFT;
-	}
-	else if(keyCodeNameString == L"Right")
-	{
-		return BUTTON_RIGHT;
-	}
-	else if(keyCodeNameString == L"A")
-	{
-		return BUTTON_A;
-	}
-	else if(keyCodeNameString == L"B")
-	{
-		return BUTTON_B;
-	}
-	else if(keyCodeNameString == L"C")
-	{
-		return BUTTON_C;
-	}
-	else if(keyCodeNameString == L"Start")
-	{
-		return BUTTON_START;
-	}
-	else if(keyCodeNameString == L"X")
-	{
-		return BUTTON_X;
-	}
-	else if(keyCodeNameString == L"Y")
-	{
-		return BUTTON_Y;
-	}
-	else if(keyCodeNameString == L"Z")
-	{
-		return BUTTON_Z;
-	}
-	else if(keyCodeNameString == L"Mode")
-	{
-		return BUTTON_MODE;
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-void MDControl6::HandleInputKeyDown(unsigned int keyCode)
-{
-	//##TODO## We have seen on the real hardware that a button press is not a "clean"
-	//signal. In fact, the pressed state of a button often toggles many times while the
-	//user is in the process of pressing the button, even if this button press happens
-	//quickly. We should approximate this behaviour here, by firing a set pattern of
-	//button press and release events for both a key down and a key up event. This will
-	//allow input routines to be correctly tested on our emulator, which will also be
-	//robust on the hardware.
-	//##TODO## The real six button controller has a D-pad, where left and right, as well
-	//as up and down, are mutually exclusive. Input routines on games are often coded
-	//assuming this will be the case. On a keyboard though, there's nothing stopping the
-	//user from pressing these normally exclusive input buttons simultaneously, possibly
-	//causing games to exhibit errors. We should have an option, which is enabled by
-	//default but possible to disable, that will ensure that if a mutually exclusive set
-	//of key press events are received, the most recent key press will cause the set state
-	//of its exclusive keys to be negated.
-	buttonPressed[keyCode] = true;
-	UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-}
-
-//----------------------------------------------------------------------------------------
-void MDControl6::HandleInputKeyUp(unsigned int keyCode)
-{
-	buttonPressed[keyCode] = false;
-	UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-}
-
-//----------------------------------------------------------------------------------------
 void MDControl6::UpdateLineState(bool timeoutSettingsChanged, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Update the line state for each output line
@@ -634,4 +548,125 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 	//##TODO## Raise an assert if we end up here with an invalid setting for the
 	//bankswitch counter or the target line.
 	return false;
+}
+
+//----------------------------------------------------------------------------------------
+//Input functions
+//----------------------------------------------------------------------------------------
+unsigned int MDControl6::GetKeyCodeID(const wchar_t* keyCodeName) const
+{
+	std::wstring keyCodeNameString = keyCodeName;
+	if(keyCodeNameString == L"Up")
+	{
+		return BUTTON_UP+1;
+	}
+	else if(keyCodeNameString == L"Down")
+	{
+		return BUTTON_DOWN+1;
+	}
+	else if(keyCodeNameString == L"Left")
+	{
+		return BUTTON_LEFT+1;
+	}
+	else if(keyCodeNameString == L"Right")
+	{
+		return BUTTON_RIGHT+1;
+	}
+	else if(keyCodeNameString == L"A")
+	{
+		return BUTTON_A+1;
+	}
+	else if(keyCodeNameString == L"B")
+	{
+		return BUTTON_B+1;
+	}
+	else if(keyCodeNameString == L"C")
+	{
+		return BUTTON_C+1;
+	}
+	else if(keyCodeNameString == L"Start")
+	{
+		return BUTTON_START+1;
+	}
+	else if(keyCodeNameString == L"X")
+	{
+		return BUTTON_X+1;
+	}
+	else if(keyCodeNameString == L"Y")
+	{
+		return BUTTON_Y+1;
+	}
+	else if(keyCodeNameString == L"Z")
+	{
+		return BUTTON_Z+1;
+	}
+	else if(keyCodeNameString == L"Mode")
+	{
+		return BUTTON_MODE+1;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* MDControl6::GetKeyCodeName(unsigned int keyCodeID) const
+{
+	switch(keyCodeID)
+	{
+	case BUTTON_UP+1:
+		return L"Up";
+	case BUTTON_DOWN+1:
+		return L"Down";
+	case BUTTON_LEFT+1:
+		return L"Left";
+	case BUTTON_RIGHT+1:
+		return L"Right";
+	case BUTTON_A+1:
+		return L"A";
+	case BUTTON_B+1:
+		return L"B";
+	case BUTTON_C+1:
+		return L"C";
+	case BUTTON_START+1:
+		return L"Start";
+	case BUTTON_X+1:
+		return L"X";
+	case BUTTON_Y+1:
+		return L"Y";
+	case BUTTON_Z+1:
+		return L"Z";
+	case BUTTON_MODE+1:
+		return L"Mode";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl6::HandleInputKeyDown(unsigned int keyCodeID)
+{
+	//##TODO## We have seen on the real hardware that a button press is not a "clean"
+	//signal. In fact, the pressed state of a button often toggles many times while the
+	//user is in the process of pressing the button, even if this button press happens
+	//quickly. We should approximate this behaviour here, by firing a set pattern of
+	//button press and release events for both a key down and a key up event. This will
+	//allow input routines to be correctly tested on our emulator, which will also be
+	//robust on the hardware.
+	//##TODO## The real six button controller has a D-pad, where left and right, as well
+	//as up and down, are mutually exclusive. Input routines on games are often coded
+	//assuming this will be the case. On a keyboard though, there's nothing stopping the
+	//user from pressing these normally exclusive input buttons simultaneously, possibly
+	//causing games to exhibit errors. We should have an option, which is enabled by
+	//default but possible to disable, that will ensure that if a mutually exclusive set
+	//of key press events are received, the most recent key press will cause the set state
+	//of its exclusive keys to be negated.
+	Button keyCode = (Button)(keyCodeID-1);
+	buttonPressed[keyCode] = true;
+	UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl6::HandleInputKeyUp(unsigned int keyCodeID)
+{
+	Button keyCode = (Button)(keyCodeID-1);
+	buttonPressed[keyCode] = false;
+	UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }

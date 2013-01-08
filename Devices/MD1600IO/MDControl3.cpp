@@ -235,61 +235,6 @@ void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 }
 
 //----------------------------------------------------------------------------------------
-//Input functions
-//----------------------------------------------------------------------------------------
-unsigned int MDControl3::GetKeyCodeID(const wchar_t* keyCodeName) const
-{
-	std::wstring keyCodeNameString = keyCodeName;
-	if(keyCodeNameString == L"Up")
-	{
-		return BUTTON_UP;
-	}
-	else if(keyCodeNameString == L"Down")
-	{
-		return BUTTON_DOWN;
-	}
-	else if(keyCodeNameString == L"Left")
-	{
-		return BUTTON_LEFT;
-	}
-	else if(keyCodeNameString == L"Right")
-	{
-		return BUTTON_RIGHT;
-	}
-	else if(keyCodeNameString == L"A")
-	{
-		return BUTTON_A;
-	}
-	else if(keyCodeNameString == L"B")
-	{
-		return BUTTON_B;
-	}
-	else if(keyCodeNameString == L"C")
-	{
-		return BUTTON_C;
-	}
-	else if(keyCodeNameString == L"Start")
-	{
-		return BUTTON_START;
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-void MDControl3::HandleInputKeyDown(unsigned int keyCode)
-{
-	buttonPressed[keyCode] = true;
-	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-}
-
-//----------------------------------------------------------------------------------------
-void MDControl3::HandleInputKeyUp(unsigned int keyCode)
-{
-	buttonPressed[keyCode] = false;
-	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-}
-
-//----------------------------------------------------------------------------------------
 void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	if(!lineInputStateTH)
@@ -384,4 +329,86 @@ void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsi
 			memoryBus->SetLineState(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//Input functions
+//----------------------------------------------------------------------------------------
+unsigned int MDControl3::GetKeyCodeID(const wchar_t* keyCodeName) const
+{
+	std::wstring keyCodeNameString = keyCodeName;
+	if(keyCodeNameString == L"Up")
+	{
+		return BUTTON_UP+1;
+	}
+	else if(keyCodeNameString == L"Down")
+	{
+		return BUTTON_DOWN+1;
+	}
+	else if(keyCodeNameString == L"Left")
+	{
+		return BUTTON_LEFT+1;
+	}
+	else if(keyCodeNameString == L"Right")
+	{
+		return BUTTON_RIGHT+1;
+	}
+	else if(keyCodeNameString == L"A")
+	{
+		return BUTTON_A+1;
+	}
+	else if(keyCodeNameString == L"B")
+	{
+		return BUTTON_B+1;
+	}
+	else if(keyCodeNameString == L"C")
+	{
+		return BUTTON_C+1;
+	}
+	else if(keyCodeNameString == L"Start")
+	{
+		return BUTTON_START+1;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* MDControl3::GetKeyCodeName(unsigned int keyCodeID) const
+{
+	switch(keyCodeID)
+	{
+	case BUTTON_UP+1:
+		return L"Up";
+	case BUTTON_DOWN+1:
+		return L"Down";
+	case BUTTON_LEFT+1:
+		return L"Left";
+	case BUTTON_RIGHT+1:
+		return L"Right";
+	case BUTTON_A+1:
+		return L"A";
+	case BUTTON_B+1:
+		return L"B";
+	case BUTTON_C+1:
+		return L"C";
+	case BUTTON_START+1:
+		return L"Start";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl3::HandleInputKeyDown(unsigned int keyCodeID)
+{
+	Button keyCode = (Button)(keyCodeID-1);
+	buttonPressed[keyCode] = true;
+	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl3::HandleInputKeyUp(unsigned int keyCodeID)
+{
+	Button keyCode = (Button)(keyCodeID-1);
+	buttonPressed[keyCode] = false;
+	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }

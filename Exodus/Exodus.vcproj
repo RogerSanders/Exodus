@@ -1559,6 +1559,58 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="SystemMenuHandler"
+				>
+				<File
+					RelativePath=".\SystemMenuHandler.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SystemMenuHandler.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="InputMappingView"
+				>
+				<File
+					RelativePath=".\InputMappingView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\InputMappingView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\InputMappingViewModel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\InputMappingViewModel.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="InputMappingDetailsView"
+				>
+				<File
+					RelativePath=".\InputMappingDetailsView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\InputMappingDetailsView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\InputMappingDetailsViewModel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\InputMappingDetailsViewModel.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="ExodusInterface"

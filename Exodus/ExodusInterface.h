@@ -180,7 +180,8 @@ private:
 
 	//Menu functions
 	bool BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IMenuItem& amenuItem, unsigned int& nextMenuID);
-	bool BuildDebugMenu(HMENU debugMenu);
+	bool BuildSystemMenu();
+	bool BuildDebugMenu();
 
 	//Thread handlers
 	void UnloadModuleThread(unsigned int moduleID);
@@ -210,11 +211,15 @@ private:
 
 private:
 	ISystemExternal& system;
+	HMENU systemMenu;
+	int systemMenuFirstItemIndex;
 	HMENU debugMenu;
+	int debugMenuFirstItemIndex;
 	HWND moduleManagerDialog;
+	MenuSubmenu* systemSubmenu;
 	MenuSubmenu* debugSubmenu;
 	NewMenuList newMenuList;
-	unsigned int nextDebugMenuID;
+	unsigned int nextFreeMenuID;
 	SystemPrefs prefs;
 	std::wstring originalWorkingDir;
 	volatile bool moduleCommandComplete;

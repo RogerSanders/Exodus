@@ -44,14 +44,15 @@ public:
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
-
-	//Input functions
-	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const;
-	virtual void HandleInputKeyDown(unsigned int keyCode);
-	virtual void HandleInputKeyUp(unsigned int keyCode);
 	void UpdateLineState(bool timeoutSettingsChanged, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void UpdateOutputLineStateForLine(unsigned int lineID, bool revokeAllTimeoutStateChanges, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	static bool GetDesiredLineState(unsigned int currentBankswitchCounter, unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, unsigned int lineID);
+
+	//Input functions
+	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const;
+	virtual const wchar_t* GetKeyCodeName(unsigned int keyCodeID) const;
+	virtual void HandleInputKeyDown(unsigned int keyCodeID);
+	virtual void HandleInputKeyUp(unsigned int keyCodeID);
 
 private:
 	//Enumerations

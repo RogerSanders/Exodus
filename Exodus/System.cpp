@@ -7,6 +7,7 @@
 #include <time.h>
 #include <boost/bind.hpp>
 #include <sstream>
+#include <shlwapi.h>
 //##DEBUG##
 #include <iostream>
 #include <iomanip>
@@ -192,8 +193,10 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 	std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
 	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
+		std::wstring elementName = (*i)->GetName();
+
 		//Load the device node
-		if((*i)->GetName() == L"Device")
+		if(elementName == L"Device")
 		{
 			//Extract the mandatory attributes
 			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"Name");
@@ -241,7 +244,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 			}
 		}
 		//Load the ModuleRelationships node
-		else if((*i)->GetName() == L"ModuleRelationships")
+		else if(elementName == L"ModuleRelationships")
 		{
 			if(!LoadModuleRelationshipsNode(*(*i), relationshipMap))
 			{
@@ -252,6 +255,11 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 				}
 				return false;
 			}
+		}
+		else
+		{
+			//Log a warning for an unrecognised element
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognised element: " + elementName + L" when loading state from file " + fileName + L"."));
 		}
 	}
 
@@ -826,7 +834,7 @@ bool System::DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedR
 }
 
 //----------------------------------------------------------------------------------------
-void System::SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo) const
+void System::SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo, const std::wstring& relativePathBase) const
 {
 	for(LoadedModuleInfoList::const_iterator i = loadedModuleInfoList.begin(); i != loadedModuleInfoList.end(); ++i)
 	{
@@ -837,7 +845,19 @@ void System::SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationships
 		moduleNode.CreateAttribute(L"ModuleInstanceName", i->instanceName);
 		if(saveFilePathInfo)
 		{
-			moduleNode.CreateAttribute(L"FileDir", i->fileDir);
+			//Convert the file directory to a relative path from the base directory, if
+			//the target directory is the same or contained within the target path.
+			std::wstring fileDir = i->fileDir;
+			if(PathIsPrefix(&relativePathBase[0], &fileDir[0]) == TRUE)
+			{
+				TCHAR relativePath[MAX_PATH];
+				if(PathRelativePathTo(&relativePath[0], &relativePathBase[0], FILE_ATTRIBUTE_DIRECTORY, &fileDir[0], FILE_ATTRIBUTE_DIRECTORY) == TRUE)
+				{
+					fileDir = relativePath;
+				}
+			}
+
+			moduleNode.CreateAttribute(L"FileDir", fileDir);
 			moduleNode.CreateAttribute(L"FileName", i->fileName);
 		}
 		SaveModuleRelationshipsExportConnectors(moduleNode, i->moduleID);
@@ -1547,6 +1567,18 @@ void System::UnloadDevice(IDevice* adevice)
 	//Remove all references to the device from our input mappings
 	UnmapAllKeyCodeMappingsForDevice(adevice);
 
+	//Remove all registered input targets for this device from our input registration list
+	InputRegistrationList::iterator inputRegistrationListIterator = inputRegistrationList.begin();
+	while(inputRegistrationListIterator != inputRegistrationList.end())
+	{
+		InputRegistrationList::iterator currentElement = inputRegistrationListIterator;
+		++inputRegistrationListIterator;
+		if(currentElement->targetDevice == adevice)
+		{
+			inputRegistrationList.erase(currentElement);
+		}
+	}
+
 	//Remove all bus references to the device
 	for(BusInterfaceList::iterator i = busInterfaces.begin(); i != busInterfaces.end(); ++i)
 	{
@@ -1653,7 +1685,8 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 	//Load the module file
 	std::list<LoadedModuleInfo> addedModules;
 	std::list<ViewModelOpenRequest> viewModelOpenRequests;
-	if(!LoadModuleInternal(fileDir, fileName, connectorMappings, viewModelOpenRequests, addedModules))
+	std::list<InputRegistration> inputRegistrationRequests;
+	if(!LoadModuleInternal(fileDir, fileName, connectorMappings, viewModelOpenRequests, inputRegistrationRequests, addedModules))
 	{
 		//If there's an error loading the module, log the failure, and return false.
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + fileName + L"!"));
@@ -1725,7 +1758,7 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 	//the second device is not going to receive the line state changes made by the first
 	//device. Our old method had the same problem. It seems that in order to solve this,
 	//we do need the BusInterface objects themselves to track the current state of all bus
-	//lines. Note that we already plan to do this in order to support the logic analyser
+	//lines. Note that we already plan to do this in order to support the logic analyzer
 	//debug feature.
 	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 	{
@@ -1753,6 +1786,37 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		return false;
 	}
 
+	//Map any remaining unmapped controller inputs from the set of loaded devices that
+	//have their preferred input keys available.
+	for(std::list<InputRegistration>::const_iterator i = inputRegistrationRequests.begin(); i != inputRegistrationRequests.end(); ++i)
+	{
+		const InputRegistration& defaultInputRegistration = *i;
+
+		//Attempt to map this input to the preferred system key code if one has been
+		//specified
+		if(defaultInputRegistration.preferredSystemKeyCodeSpecified)
+		{
+			//If this device input has already been mapped, skip it.
+			if(IsDeviceKeyCodeMapped(defaultInputRegistration.targetDevice, defaultInputRegistration.deviceKeyCode))
+			{
+				continue;
+			}
+
+			//Map this input if the desired key is available
+			if(!IsKeyCodeMapped(defaultInputRegistration.systemKeyCode))
+			{
+				if(!MapKeyCode(defaultInputRegistration.targetDevice, defaultInputRegistration.deviceKeyCode, defaultInputRegistration.systemKeyCode))
+				{
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"MapKeyCode failed on default input registration for " + defaultInputRegistration.targetDevice->GetDeviceInstanceName() + L" with device key code " + defaultInputRegistration.targetDevice->GetKeyCodeName(defaultInputRegistration.deviceKeyCode) + L" and system key code " + GetKeyCodeName(defaultInputRegistration.systemKeyCode) + L"!"));
+				}
+			}
+		}
+	}
+
+	//Save all input registration requests from the list of loaded modules into the list
+	//of active input registrations.
+	inputRegistrationList.splice(inputRegistrationList.end(), inputRegistrationRequests);
+
 	//Log the event
 	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Loaded module from file " + fileName + L"."));
 
@@ -1775,7 +1839,7 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<LoadedModuleInfo>& addedModules)
+bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<LoadedModuleInfo>& addedModules)
 {
 	//Open the target file
 	std::wstring filePath = fileDir + L"\\" + fileName;
@@ -1836,7 +1900,7 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 	//method, otherwise verify that this file is marked as a module.
 	if(rootNode.GetName() == L"System")
 	{
-		return LoadSystem(fileDir, fileName, rootNode, viewModelOpenRequests, addedModules);
+		return LoadSystem(fileDir, fileName, rootNode, viewModelOpenRequests, inputRegistrationRequests, addedModules);
 	}
 	else if(rootNode.GetName() != L"Module")
 	{
@@ -1949,7 +2013,7 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 		}
 		else if(elementName == L"Device.RegisterInput")
 		{
-			loadedWithoutErrors &= LoadModule_Device_RegisterInput(*(*i), moduleInfo.moduleID);
+			loadedWithoutErrors &= LoadModule_Device_RegisterInput(*(*i), moduleInfo.moduleID, inputRegistrationRequests);
 		}
 		else if(elementName == L"BusInterface")
 		{
@@ -2055,7 +2119,7 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 		else
 		{
 			//Log a warning for an unrecognised element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Unrecognised element: " + elementName + L" when loading module file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognised element: " + elementName + L" when loading module file " + fileName + L"."));
 		}
 	}
 
@@ -2063,26 +2127,18 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 	addedModules.push_back(moduleInfo);
 	loadedModuleInfoList.push_back(moduleInfo);
 
-	//If the system load was aborted, log the event, and flag the module to unload.
-	bool unloadModule = false;
+	//If the system load was aborted, log the event and return false.
 	if(loadSystemAbort)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading module from file " + fileName + L"."));
-		unloadModule = true;
+		return false;
 	}
 
-	//If any errors occurred while loading the system file, log the error, and flag the
-	//module to unload.
+	//If any errors occurred while loading the module file, log the error and return
+	//false.
 	if(!loadedWithoutErrors)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Errors occurred while loading module from file " + fileName + L". The system may not work as expected. Unloading failed module."));
-		unloadModule = true;
-	}
-
-	//Unload the module if it wasn't loaded successfully, and return false.
-	if(unloadModule)
-	{
-		UnloadModuleInternal(moduleInfo.moduleID);
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Errors occurred while loading module from file " + fileName + L"."));
 		return false;
 	}
 
@@ -2090,7 +2146,69 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<LoadedModuleInfo>& addedModules)
+bool System::LoadSystem_Device_MapInput(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
+{
+	//Load the external module ID, device name, system key code, and target key code.
+	IHeirarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
+	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHeirarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"SystemKeyCode");
+	IHeirarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
+	if((moduleIDAttribute == 0) || (deviceInstanceNameAttribute == 0) || (systemKeyCodeAttribute == 0) || (deviceKeyCodeAttribute == 0))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing target module ID, device instance name, system key code, or target key code, for Device.MapInput!"));
+		return false;
+	}
+	unsigned int moduleIDExternal = moduleIDAttribute->ExtractValue<unsigned int>();
+	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
+	std::wstring systemKeyCodeString = systemKeyCodeAttribute->GetValue();
+	std::wstring deviceKeyCodeString = deviceKeyCodeAttribute->GetValue();
+
+	//Resolve the loaded module ID from the external module ID
+	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
+	if(loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
+	{
+		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		logEntry << L"Could not locate imported module with ID " << moduleIDExternal << L" for Device.MapInput!";
+		WriteLogEvent(logEntry);
+		return false;
+	}
+	unsigned int moduleID = loadedModuleIDIterator->second;
+
+	//Retrieve the specified device from the system
+	IDevice* device = GetDevice(moduleID, deviceName);
+	if(device == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate target device with name " + deviceName + L" for Device.MapInput!"));
+		return false;
+	}
+
+	//Translate the device key code
+	unsigned int deviceKeyCode = device->GetKeyCodeID(deviceKeyCodeString);
+	if(deviceKeyCode == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device key code with name " + deviceKeyCodeString + L" on device " + deviceName + L" for Device.MapInput!"));
+		return false;
+	}
+
+	//Translate the system key code
+	IDeviceContext::KeyCode systemKeyCode = GetKeyCodeID(systemKeyCodeString);
+	if(systemKeyCode == IDeviceContext::KEYCODE_NONE)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate system key code with name " + systemKeyCodeString + L" for Device.MapInput!"));
+		return false;
+	}
+
+	//Add the key code mapping to the system
+	if(!MapKeyCode(device, deviceKeyCode, systemKeyCode))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"MapKeyCode failed on Device.MapInput key for " + deviceName + L" with device key code " + deviceKeyCodeString + L" and system key code " + systemKeyCodeString + L" for Device.MapInput!"));
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<LoadedModuleInfo>& addedModules)
 {
 	//Extract the module relationships data from the file
 	bool moduleRelationshipsLoaded = false;
@@ -2109,14 +2227,13 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 	if(!moduleRelationshipsLoaded)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load system from file " + fileName + L" because the ModuleRelationships node could not be loaded!"));
-		loadSystemComplete = true;
-		loadSystemResult = false;
 		return false;
 	}
 
 	//Attempt to load each module referenced in the saved module relationship data
+	bool modulesLoadedWithoutErrors = true;
 	std::map<unsigned int, unsigned int> savedModuleIDToLoadedModuleIDMap;
-	for(SavedRelationshipMap::const_iterator i = savedRelationshipData.begin(); i != savedRelationshipData.end(); ++i)
+	for(SavedRelationshipMap::const_iterator i = savedRelationshipData.begin(); !loadSystemAbort && modulesLoadedWithoutErrors && (i != savedRelationshipData.end()); ++i)
 	{
 		const SavedRelationshipModule& savedModuleInfo = i->second;
 
@@ -2159,14 +2276,26 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 			targetModuleConnectorMappings.push_back(connectorMapping);
 		}
 
-		//Attempt to load this module
-		if(!LoadModuleInternal(savedModuleInfo.fileDir, savedModuleInfo.fileName, targetModuleConnectorMappings, viewModelOpenRequests, addedModules))
+		//If the system file contains a relative path to this module, resolve the relative
+		//file path using the directory containing the system file as a base.
+		std::wstring savedModuleFileDir = savedModuleInfo.fileDir;
+		if(PathIsRelative(&savedModuleInfo.fileDir[0]) == TRUE)
 		{
-			return false;
+			TCHAR combinedPath[MAX_PATH];
+			PathCombine(&combinedPath[0], &fileDir[0], &savedModuleInfo.fileDir[0]);
+			savedModuleFileDir = combinedPath;
 		}
 
-		//Save the mapping between the saved module ID and the loaded module ID for
-		//the module we just loaded.
+		//Attempt to load this module
+		modulesLoadedWithoutErrors &= LoadModuleInternal(savedModuleFileDir, savedModuleInfo.fileName, targetModuleConnectorMappings, viewModelOpenRequests, inputRegistrationRequests, addedModules);
+
+		//Save the mapping between the saved module ID and the loaded module ID for the
+		//module we just loaded.
+		//##FIX## If we referenced another system file, this module ID will be
+		//meaningless. But then again, we don't really want to support referencing a
+		//system file from within a system file. Add some kind of verification during
+		//module loading to prevent this. Once we've done that, this code below will be
+		//acceptable.
 		std::list<LoadedModuleInfo>::const_reverse_iterator addedModuleIterator = addedModules.rbegin();
 		if(addedModuleIterator != addedModules.rend())
 		{
@@ -2174,9 +2303,57 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 		}
 	}
 
-	//Flag that the load system operation is complete
-	loadSystemResult = true;
-	loadSystemComplete = true;
+	//If the system load was aborted, log the event and return false.
+	if(loadSystemAbort)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading system from file " + fileName + L"."));
+		return false;
+	}
+
+	//If any errors occurred while loading the system file, log the error and return
+	//false.
+	if(!modulesLoadedWithoutErrors)
+	{
+		return false;
+	}
+
+	//Load the elements from the root node one by one
+	bool loadedWithoutErrors = true;
+	NameToIDMap connectorNameToIDMap;
+	NameToIDMap lineGroupNameToIDMap;
+	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); !loadSystemAbort && (i != childList.end()); ++i)
+	{
+		std::wstring elementName = (*i)->GetName();
+		if(elementName == L"ModuleRelationships")
+		{
+			//We've already processed the ModuleRelationships node above, so we skip it
+			//here.
+		}
+		else if(elementName == L"Device.MapInput")
+		{
+			loadedWithoutErrors &= LoadSystem_Device_MapInput(*(*i), savedModuleIDToLoadedModuleIDMap);
+		}
+		else
+		{
+			//Log a warning for an unrecognised element
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognised element: " + elementName + L" when loading system file " + fileName + L"."));
+		}
+	}
+
+	//If the system load was aborted, log the event, and flag the module to unload.
+	if(loadSystemAbort)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading system from file " + fileName + L"."));
+		return false;
+	}
+
+	//If any errors occurred while loading the system file, log the error, and flag the
+	//module to unload.
+	if(!loadedWithoutErrors)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Errors occurred while loading system from file " + fileName + L"."));
+		return false;
+	}
 
 	return true;
 }
@@ -2200,7 +2377,42 @@ bool System::SaveSystem(const std::wstring& fileDir, const std::wstring& fileNam
 
 	//Save the ModuleRelationships node
 	IHeirarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
-	SaveModuleRelationshipsNode(moduleRelationshipsNode, true);
+	SaveModuleRelationshipsNode(moduleRelationshipsNode, true, fileDir);
+
+	//Save mapped key inputs to the system file
+	{
+		boost::mutex::scoped_lock lock(inputMutex);
+		for(InputKeyMap::const_iterator i = inputKeyMap.begin(); i != inputKeyMap.end(); ++i)
+		{
+			const InputMapEntry& inputMapEntry = i->second;
+
+			//Find the module ID for the target device
+			unsigned int moduleID = 0;
+			bool foundModuleID = false;
+			LoadedDeviceInfoList::const_iterator deviceInfoListIterator = loadedDeviceInfoList.begin();
+			while(!foundModuleID && (deviceInfoListIterator != loadedDeviceInfoList.end()))
+			{
+				if(deviceInfoListIterator->device == inputMapEntry.targetDevice)
+				{
+					moduleID = deviceInfoListIterator->moduleID;
+					foundModuleID = true;
+					continue;
+				}
+				++deviceInfoListIterator;
+			}
+			if(!foundModuleID)
+			{
+				continue;
+			}
+
+			//Create the input registration node for this input key map entry
+			IHeirarchicalStorageNode& registerInputNode = tree.GetRootNode().CreateChild(L"Device.MapInput");
+			registerInputNode.CreateAttribute(L"ModuleID", moduleID);
+			registerInputNode.CreateAttribute(L"DeviceInstanceName", inputMapEntry.targetDevice->GetDeviceInstanceName());
+			registerInputNode.CreateAttribute(L"SystemKeyCode", GetKeyCodeName(inputMapEntry.keyCode));
+			registerInputNode.CreateAttribute(L"DeviceKeyCode", inputMapEntry.targetDevice->GetKeyCodeName(inputMapEntry.targetDeviceKeyCode));
+		}
+	}
 
 	//Save XML tree to the target file
 	std::wstring filePath = fileDir + L"\\" + fileName;
@@ -2702,19 +2914,17 @@ bool System::LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& no
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<InputRegistration>& inputRegistrationRequests)
 {
 	//Load the device name, system key code, and target key code.
 	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"SystemKeyCode");
 	IHeirarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
-	if((deviceInstanceNameAttribute == 0) || (systemKeyCodeAttribute == 0) || (deviceKeyCodeAttribute == 0))
+	if((deviceInstanceNameAttribute == 0) || (deviceKeyCodeAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing target device instance name, system key code, or target key code, for Device.RegisterInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing target device instance name or device key code for Device.RegisterInput!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
-	std::wstring systemKeyCodeString = systemKeyCodeAttribute->GetValue();
 	std::wstring deviceKeyCodeString = deviceKeyCodeAttribute->GetValue();
 
 	//Retrieve the specified device from the system
@@ -2725,14 +2935,43 @@ bool System::LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Translate the key codes, and add the key code mapping to the system.
+	//Translate the device key code
 	unsigned int deviceKeyCode = device->GetKeyCodeID(deviceKeyCodeString);
-	DeviceContext::KeyCode systemKeyCode = GetKeyCodeID(systemKeyCodeString);
-	if(!MapKeyCode(systemKeyCode, deviceKeyCode, device))
+	if(deviceKeyCode == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"MapKeyCode failed for " + deviceName + L" with device key code " + deviceKeyCodeString + L" and system key code " + systemKeyCodeString + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device key code with name " + deviceKeyCodeString + L" on device " + deviceName + L" for Device.RegisterInput!"));
 		return false;
 	}
+
+	//Retrieve the preferred system key code attribute if one has been specified
+	bool preferredSystemKeyCodeSpecified = false;
+	IDeviceContext::KeyCode systemKeyCode = IDeviceContext::KEYCODE_NONE;
+	IHeirarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"PreferredSystemKeyCode");
+	if(systemKeyCodeAttribute != 0)
+	{
+		//Extract the system key code string
+		std::wstring systemKeyCodeString = systemKeyCodeAttribute->GetValue();
+
+		//Translate the system key code
+		systemKeyCode = GetKeyCodeID(systemKeyCodeString);
+		if(systemKeyCode == IDeviceContext::KEYCODE_NONE)
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate system key code with name " + systemKeyCodeString + L" for Device.RegisterInput!"));
+			return false;
+		}
+
+		//Flag that a preferred system key code has been specified
+		preferredSystemKeyCodeSpecified = true;
+	}
+
+	//Add this input registration request to the list of input registration requests
+	InputRegistration inputRegistrationRequest;
+	inputRegistrationRequest.moduleID = moduleID;
+	inputRegistrationRequest.targetDevice = device;
+	inputRegistrationRequest.deviceKeyCode = deviceKeyCode;
+	inputRegistrationRequest.preferredSystemKeyCodeSpecified = preferredSystemKeyCodeSpecified;
+	inputRegistrationRequest.systemKeyCode = systemKeyCode;
+	inputRegistrationRequests.push_back(inputRegistrationRequest);
 
 	return true;
 }
@@ -4169,11 +4408,16 @@ bool System::UnloadAllModulesSynchronousComplete() const
 //----------------------------------------------------------------------------------------
 void System::UnloadAllModules()
 {
+	boost::mutex::scoped_lock lock(debugMutex);
+
 	//Stop the system if it is currently running
 	StopSystem();
 
 	//Remove key code mappings
 	ClearKeyCodeMap();
+
+	//Remove all registered input targets
+	inputRegistrationList.clear();
 
 	//Remove all connector details
 	connectorDetailsMap.clear();
@@ -4195,7 +4439,9 @@ void System::UnloadAllModules()
 	//Remove all devices
 	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 	{
+		lock.unlock();
 		DestroyDevice(i->device->GetDeviceInstanceName(), i->device);
+		lock.lock();
 	}
 	loadedDeviceInfoList.clear();
 	executionManager.ClearAllDevices();
@@ -4363,266 +4609,236 @@ bool System::GetConnectorInfo(unsigned int connectorID, ConnectorInfo& connector
 IDeviceContext::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 {
 	//Control keys
-	if(keyCodeName == L"Esc")
-	{
-		return IDeviceContext::KEYCODE_ESCAPE;
-	}
-	else if(keyCodeName == L"Tab")
-	{
-		return IDeviceContext::KEYCODE_TAB;
-	}
-	else if(keyCodeName == L"Enter")
-	{
-		return IDeviceContext::KEYCODE_ENTER;
-	}
-	else if(keyCodeName == L"Space")
-	{
-		return IDeviceContext::KEYCODE_SPACE;
-	}
-	else if(keyCodeName == L"Backspace")
-	{
-		return IDeviceContext::KEYCODE_BACKSPACE;
-	}
-	else if(keyCodeName == L"Insert")
-	{
-		return IDeviceContext::KEYCODE_INSERT;
-	}
-	else if(keyCodeName == L"Delete")
-	{
-		return IDeviceContext::KEYCODE_DELETE;
-	}
-	else if(keyCodeName == L"PgUp")
-	{
-		return IDeviceContext::KEYCODE_PAGEUP;
-	}
-	else if(keyCodeName == L"PgDn")
-	{
-		return IDeviceContext::KEYCODE_PAGEDOWN;
-	}
-	else if(keyCodeName == L"Home")
-	{
-		return IDeviceContext::KEYCODE_HOME;
-	}
-	else if(keyCodeName == L"End")
-	{
-		return IDeviceContext::KEYCODE_END;
-	}
-	else if(keyCodeName == L"Up")
-	{
-		return IDeviceContext::KEYCODE_UP;
-	}
-	else if(keyCodeName == L"Down")
-	{
-		return IDeviceContext::KEYCODE_DOWN;
-	}
-	else if(keyCodeName == L"Left")
-	{
-		return IDeviceContext::KEYCODE_LEFT;
-	}
-	else if(keyCodeName == L"Right")
-	{
-		return IDeviceContext::KEYCODE_RIGHT;
-	}
-
+	if(keyCodeName == L"Esc")             return IDeviceContext::KEYCODE_ESCAPE;
+	else if(keyCodeName == L"Tab")        return IDeviceContext::KEYCODE_TAB;
+	else if(keyCodeName == L"Enter")      return IDeviceContext::KEYCODE_ENTER;
+	else if(keyCodeName == L"Space")      return IDeviceContext::KEYCODE_SPACE;
+	else if(keyCodeName == L"Backspace")  return IDeviceContext::KEYCODE_BACKSPACE;
+	else if(keyCodeName == L"Insert")     return IDeviceContext::KEYCODE_INSERT;
+	else if(keyCodeName == L"Delete")     return IDeviceContext::KEYCODE_DELETE;
+	else if(keyCodeName == L"PgUp")       return IDeviceContext::KEYCODE_PAGEUP;
+	else if(keyCodeName == L"PgDn")       return IDeviceContext::KEYCODE_PAGEDOWN;
+	else if(keyCodeName == L"Home")       return IDeviceContext::KEYCODE_HOME;
+	else if(keyCodeName == L"End")        return IDeviceContext::KEYCODE_END;
+	else if(keyCodeName == L"Up")         return IDeviceContext::KEYCODE_UP;
+	else if(keyCodeName == L"Down")       return IDeviceContext::KEYCODE_DOWN;
+	else if(keyCodeName == L"Left")       return IDeviceContext::KEYCODE_LEFT;
+	else if(keyCodeName == L"Right")      return IDeviceContext::KEYCODE_RIGHT;
+	else if(keyCodeName == L"Print")      return IDeviceContext::KEYCODE_PRINTSCREEN;
+	else if(keyCodeName == L"Pause")      return IDeviceContext::KEYCODE_PAUSE;
+	else if(keyCodeName == L"NumLock")    return IDeviceContext::KEYCODE_NUMLOCK;
+	else if(keyCodeName == L"CapsLock")   return IDeviceContext::KEYCODE_CAPSLOCK;
+	else if(keyCodeName == L"ScrollLock") return IDeviceContext::KEYCODE_SCROLLLOCK;
+	else if(keyCodeName == L"LeftWin")    return IDeviceContext::KEYCODE_LEFTWINDOWS;
+	else if(keyCodeName == L"RightWin")   return IDeviceContext::KEYCODE_RIGHTWINDOWS;
+	else if(keyCodeName == L"Menu")       return IDeviceContext::KEYCODE_MENU;
+	//Modifier keys
+	else if(keyCodeName == L"Ctrl")       return IDeviceContext::KEYCODE_CTRL;
+	else if(keyCodeName == L"Alt")        return IDeviceContext::KEYCODE_ALT;
+	else if(keyCodeName == L"Shift")      return IDeviceContext::KEYCODE_SHIFT;
 	//Function keys
-	else if(keyCodeName == L"F1")
-	{
-		return IDeviceContext::KEYCODE_F1;
-	}
-	else if(keyCodeName == L"F2")
-	{
-		return IDeviceContext::KEYCODE_F2;
-	}
-	else if(keyCodeName == L"F3")
-	{
-		return IDeviceContext::KEYCODE_F3;
-	}
-	else if(keyCodeName == L"F4")
-	{
-		return IDeviceContext::KEYCODE_F4;
-	}
-	else if(keyCodeName == L"F5")
-	{
-		return IDeviceContext::KEYCODE_F5;
-	}
-	else if(keyCodeName == L"F6")
-	{
-		return IDeviceContext::KEYCODE_F6;
-	}
-	else if(keyCodeName == L"F7")
-	{
-		return IDeviceContext::KEYCODE_F7;
-	}
-	else if(keyCodeName == L"F8")
-	{
-		return IDeviceContext::KEYCODE_F8;
-	}
-	else if(keyCodeName == L"F9")
-	{
-		return IDeviceContext::KEYCODE_F9;
-	}
-	else if(keyCodeName == L"F10")
-	{
-		return IDeviceContext::KEYCODE_F10;
-	}
-	else if(keyCodeName == L"F11")
-	{
-		return IDeviceContext::KEYCODE_F11;
-	}
-	else if(keyCodeName == L"F12")
-	{
-		return IDeviceContext::KEYCODE_F12;
-	}
-
+	else if(keyCodeName == L"F1")         return IDeviceContext::KEYCODE_F1;
+	else if(keyCodeName == L"F2")         return IDeviceContext::KEYCODE_F2;
+	else if(keyCodeName == L"F3")         return IDeviceContext::KEYCODE_F3;
+	else if(keyCodeName == L"F4")         return IDeviceContext::KEYCODE_F4;
+	else if(keyCodeName == L"F5")         return IDeviceContext::KEYCODE_F5;
+	else if(keyCodeName == L"F6")         return IDeviceContext::KEYCODE_F6;
+	else if(keyCodeName == L"F7")         return IDeviceContext::KEYCODE_F7;
+	else if(keyCodeName == L"F8")         return IDeviceContext::KEYCODE_F8;
+	else if(keyCodeName == L"F9")         return IDeviceContext::KEYCODE_F9;
+	else if(keyCodeName == L"F10")        return IDeviceContext::KEYCODE_F10;
+	else if(keyCodeName == L"F11")        return IDeviceContext::KEYCODE_F11;
+	else if(keyCodeName == L"F12")        return IDeviceContext::KEYCODE_F12;
 	//Numbers
-	else if(keyCodeName == L"0")
-	{
-		return IDeviceContext::KEYCODE_0;
-	}
-	else if(keyCodeName == L"1")
-	{
-		return IDeviceContext::KEYCODE_1;
-	}
-	else if(keyCodeName == L"2")
-	{
-		return IDeviceContext::KEYCODE_2;
-	}
-	else if(keyCodeName == L"3")
-	{
-		return IDeviceContext::KEYCODE_3;
-	}
-	else if(keyCodeName == L"4")
-	{
-		return IDeviceContext::KEYCODE_4;
-	}
-	else if(keyCodeName == L"5")
-	{
-		return IDeviceContext::KEYCODE_5;
-	}
-	else if(keyCodeName == L"6")
-	{
-		return IDeviceContext::KEYCODE_6;
-	}
-	else if(keyCodeName == L"7")
-	{
-		return IDeviceContext::KEYCODE_7;
-	}
-	else if(keyCodeName == L"8")
-	{
-		return IDeviceContext::KEYCODE_8;
-	}
-	else if(keyCodeName == L"9")
-	{
-		return IDeviceContext::KEYCODE_9;
-	}
+	else if(keyCodeName == L"0")          return IDeviceContext::KEYCODE_0;
+	else if(keyCodeName == L"1")          return IDeviceContext::KEYCODE_1;
+	else if(keyCodeName == L"2")          return IDeviceContext::KEYCODE_2;
+	else if(keyCodeName == L"3")          return IDeviceContext::KEYCODE_3;
+	else if(keyCodeName == L"4")          return IDeviceContext::KEYCODE_4;
+	else if(keyCodeName == L"5")          return IDeviceContext::KEYCODE_5;
+	else if(keyCodeName == L"6")          return IDeviceContext::KEYCODE_6;
+	else if(keyCodeName == L"7")          return IDeviceContext::KEYCODE_7;
+	else if(keyCodeName == L"8")          return IDeviceContext::KEYCODE_8;
+	else if(keyCodeName == L"9")          return IDeviceContext::KEYCODE_9;
+	//Letters
+	else if(keyCodeName == L"A")          return IDeviceContext::KEYCODE_A;
+	else if(keyCodeName == L"B")          return IDeviceContext::KEYCODE_B;
+	else if(keyCodeName == L"C")          return IDeviceContext::KEYCODE_C;
+	else if(keyCodeName == L"D")          return IDeviceContext::KEYCODE_D;
+	else if(keyCodeName == L"E")          return IDeviceContext::KEYCODE_E;
+	else if(keyCodeName == L"F")          return IDeviceContext::KEYCODE_F;
+	else if(keyCodeName == L"G")          return IDeviceContext::KEYCODE_G;
+	else if(keyCodeName == L"H")          return IDeviceContext::KEYCODE_H;
+	else if(keyCodeName == L"I")          return IDeviceContext::KEYCODE_I;
+	else if(keyCodeName == L"J")          return IDeviceContext::KEYCODE_J;
+	else if(keyCodeName == L"K")          return IDeviceContext::KEYCODE_K;
+	else if(keyCodeName == L"L")          return IDeviceContext::KEYCODE_L;
+	else if(keyCodeName == L"M")          return IDeviceContext::KEYCODE_M;
+	else if(keyCodeName == L"N")          return IDeviceContext::KEYCODE_N;
+	else if(keyCodeName == L"O")          return IDeviceContext::KEYCODE_O;
+	else if(keyCodeName == L"P")          return IDeviceContext::KEYCODE_P;
+	else if(keyCodeName == L"Q")          return IDeviceContext::KEYCODE_Q;
+	else if(keyCodeName == L"R")          return IDeviceContext::KEYCODE_R;
+	else if(keyCodeName == L"S")          return IDeviceContext::KEYCODE_S;
+	else if(keyCodeName == L"T")          return IDeviceContext::KEYCODE_T;
+	else if(keyCodeName == L"U")          return IDeviceContext::KEYCODE_U;
+	else if(keyCodeName == L"V")          return IDeviceContext::KEYCODE_V;
+	else if(keyCodeName == L"W")          return IDeviceContext::KEYCODE_W;
+	else if(keyCodeName == L"X")          return IDeviceContext::KEYCODE_X;
+	else if(keyCodeName == L"Y")          return IDeviceContext::KEYCODE_Y;
+	else if(keyCodeName == L"Z")          return IDeviceContext::KEYCODE_Z;
+	//Symbol keys
+	else if(keyCodeName == L"OEM1")       return IDeviceContext::KEYCODE_OEM1;
+	else if(keyCodeName == L"OEMPlus")    return IDeviceContext::KEYCODE_OEMPLUS;
+	else if(keyCodeName == L"OEMComma")   return IDeviceContext::KEYCODE_OEMCOMMA;
+	else if(keyCodeName == L"OEMMinus")   return IDeviceContext::KEYCODE_OEMMINUS;
+	else if(keyCodeName == L"OEMPeriod")  return IDeviceContext::KEYCODE_OEMPERIOD;
+	else if(keyCodeName == L"OEM2")       return IDeviceContext::KEYCODE_OEM2;
+	else if(keyCodeName == L"OEM3")       return IDeviceContext::KEYCODE_OEM3;
+	else if(keyCodeName == L"OEM4")       return IDeviceContext::KEYCODE_OEM4;
+	else if(keyCodeName == L"OEM5")       return IDeviceContext::KEYCODE_OEM5;
+	else if(keyCodeName == L"OEM6")       return IDeviceContext::KEYCODE_OEM6;
+	else if(keyCodeName == L"OEM7")       return IDeviceContext::KEYCODE_OEM7;
+	else if(keyCodeName == L"OEM8")       return IDeviceContext::KEYCODE_OEM8;
+	else if(keyCodeName == L"OEMAX")      return IDeviceContext::KEYCODE_OEMAX;
+	else if(keyCodeName == L"OEM102")     return IDeviceContext::KEYCODE_OEM102;
+	//Numpad keys
+	else if(keyCodeName == L"Numpad0")    return IDeviceContext::KEYCODE_NUMPAD0;
+	else if(keyCodeName == L"Numpad1")    return IDeviceContext::KEYCODE_NUMPAD1;
+	else if(keyCodeName == L"Numpad2")    return IDeviceContext::KEYCODE_NUMPAD2;
+	else if(keyCodeName == L"Numpad3")    return IDeviceContext::KEYCODE_NUMPAD3;
+	else if(keyCodeName == L"Numpad4")    return IDeviceContext::KEYCODE_NUMPAD4;
+	else if(keyCodeName == L"Numpad5")    return IDeviceContext::KEYCODE_NUMPAD5;
+	else if(keyCodeName == L"Numpad6")    return IDeviceContext::KEYCODE_NUMPAD6;
+	else if(keyCodeName == L"Numpad7")    return IDeviceContext::KEYCODE_NUMPAD7;
+	else if(keyCodeName == L"Numpad8")    return IDeviceContext::KEYCODE_NUMPAD8;
+	else if(keyCodeName == L"Numpad9")    return IDeviceContext::KEYCODE_NUMPAD9;
+	else if(keyCodeName == L"Numpad*")    return IDeviceContext::KEYCODE_NUMPADMULTIPLY;
+	else if(keyCodeName == L"Numpad/")    return IDeviceContext::KEYCODE_NUMPADDIVIDE;
+	else if(keyCodeName == L"Numpad-")    return IDeviceContext::KEYCODE_NUMPADSUBTRACT;
+	else if(keyCodeName == L"Numpad+")    return IDeviceContext::KEYCODE_NUMPADADD;
+	else if(keyCodeName == L"Numpad.")    return IDeviceContext::KEYCODE_NUMPADDECIMAL;
 
-	//Characters
-	else if(keyCodeName == L"A")
-	{
-		return IDeviceContext::KEYCODE_A;
-	}
-	else if(keyCodeName == L"B")
-	{
-		return IDeviceContext::KEYCODE_B;
-	}
-	else if(keyCodeName == L"C")
-	{
-		return IDeviceContext::KEYCODE_C;
-	}
-	else if(keyCodeName == L"D")
-	{
-		return IDeviceContext::KEYCODE_D;
-	}
-	else if(keyCodeName == L"E")
-	{
-		return IDeviceContext::KEYCODE_E;
-	}
-	else if(keyCodeName == L"F")
-	{
-		return IDeviceContext::KEYCODE_F;
-	}
-	else if(keyCodeName == L"G")
-	{
-		return IDeviceContext::KEYCODE_G;
-	}
-	else if(keyCodeName == L"H")
-	{
-		return IDeviceContext::KEYCODE_H;
-	}
-	else if(keyCodeName == L"I")
-	{
-		return IDeviceContext::KEYCODE_I;
-	}
-	else if(keyCodeName == L"J")
-	{
-		return IDeviceContext::KEYCODE_J;
-	}
-	else if(keyCodeName == L"K")
-	{
-		return IDeviceContext::KEYCODE_K;
-	}
-	else if(keyCodeName == L"L")
-	{
-		return IDeviceContext::KEYCODE_L;
-	}
-	else if(keyCodeName == L"M")
-	{
-		return IDeviceContext::KEYCODE_M;
-	}
-	else if(keyCodeName == L"N")
-	{
-		return IDeviceContext::KEYCODE_N;
-	}
-	else if(keyCodeName == L"O")
-	{
-		return IDeviceContext::KEYCODE_O;
-	}
-	else if(keyCodeName == L"P")
-	{
-		return IDeviceContext::KEYCODE_P;
-	}
-	else if(keyCodeName == L"Q")
-	{
-		return IDeviceContext::KEYCODE_Q;
-	}
-	else if(keyCodeName == L"R")
-	{
-		return IDeviceContext::KEYCODE_R;
-	}
-	else if(keyCodeName == L"S")
-	{
-		return IDeviceContext::KEYCODE_S;
-	}
-	else if(keyCodeName == L"T")
-	{
-		return IDeviceContext::KEYCODE_T;
-	}
-	else if(keyCodeName == L"U")
-	{
-		return IDeviceContext::KEYCODE_U;
-	}
-	else if(keyCodeName == L"V")
-	{
-		return IDeviceContext::KEYCODE_V;
-	}
-	else if(keyCodeName == L"W")
-	{
-		return IDeviceContext::KEYCODE_W;
-	}
-	else if(keyCodeName == L"X")
-	{
-		return IDeviceContext::KEYCODE_X;
-	}
-	else if(keyCodeName == L"Y")
-	{
-		return IDeviceContext::KEYCODE_Y;
-	}
-	else if(keyCodeName == L"Z")
-	{
-		return IDeviceContext::KEYCODE_Z;
-	}
+	return IDeviceContext::KEYCODE_NONE;
+}
 
-	return (IDeviceContext::KeyCode)0;
+//----------------------------------------------------------------------------------------
+std::wstring System::GetKeyCodeName(IDeviceContext::KeyCode keyCode) const
+{
+	switch(keyCode)
+	{
+	//Control keys
+	case IDeviceContext::KEYCODE_ESCAPE:            return L"Esc";
+	case IDeviceContext::KEYCODE_TAB:               return L"Tab";
+	case IDeviceContext::KEYCODE_ENTER:             return L"Enter";
+	case IDeviceContext::KEYCODE_SPACE:             return L"Space";
+	case IDeviceContext::KEYCODE_BACKSPACE:         return L"Backspace";
+	case IDeviceContext::KEYCODE_INSERT:            return L"Insert";
+	case IDeviceContext::KEYCODE_DELETE:            return L"Delete";
+	case IDeviceContext::KEYCODE_PAGEUP:            return L"PgUp";
+	case IDeviceContext::KEYCODE_PAGEDOWN:          return L"PgDn";
+	case IDeviceContext::KEYCODE_HOME:              return L"Home";
+	case IDeviceContext::KEYCODE_END:               return L"End";
+	case IDeviceContext::KEYCODE_UP:                return L"Up";
+	case IDeviceContext::KEYCODE_DOWN:              return L"Down";
+	case IDeviceContext::KEYCODE_LEFT:              return L"Left";
+	case IDeviceContext::KEYCODE_RIGHT:             return L"Right";
+	case IDeviceContext::KEYCODE_PRINTSCREEN:       return L"Print";
+	case IDeviceContext::KEYCODE_PAUSE:             return L"Pause";
+	case IDeviceContext::KEYCODE_NUMLOCK:           return L"NumLock";
+	case IDeviceContext::KEYCODE_CAPSLOCK:          return L"CapsLock";
+	case IDeviceContext::KEYCODE_SCROLLLOCK:        return L"ScrollLock";
+	case IDeviceContext::KEYCODE_LEFTWINDOWS:       return L"LeftWin";
+	case IDeviceContext::KEYCODE_RIGHTWINDOWS:      return L"RightWin";
+	case IDeviceContext::KEYCODE_MENU:              return L"Menu";
+	//Modifier keys
+	case IDeviceContext::KEYCODE_CTRL:              return L"Ctrl";
+	case IDeviceContext::KEYCODE_ALT:               return L"Alt";
+	case IDeviceContext::KEYCODE_SHIFT:             return L"Shift";
+	//Function keys
+	case IDeviceContext::KEYCODE_F1:                return L"F1";
+	case IDeviceContext::KEYCODE_F2:                return L"F2";
+	case IDeviceContext::KEYCODE_F3:                return L"F3";
+	case IDeviceContext::KEYCODE_F4:                return L"F4";
+	case IDeviceContext::KEYCODE_F5:                return L"F5";
+	case IDeviceContext::KEYCODE_F6:                return L"F6";
+	case IDeviceContext::KEYCODE_F7:                return L"F7";
+	case IDeviceContext::KEYCODE_F8:                return L"F8";
+	case IDeviceContext::KEYCODE_F9:                return L"F9";
+	case IDeviceContext::KEYCODE_F10:               return L"F10";
+	case IDeviceContext::KEYCODE_F11:               return L"F11";
+	case IDeviceContext::KEYCODE_F12:               return L"F12";
+	//Numbers
+	case IDeviceContext::KEYCODE_0:                 return L"0";
+	case IDeviceContext::KEYCODE_1:                 return L"1";
+	case IDeviceContext::KEYCODE_2:                 return L"2";
+	case IDeviceContext::KEYCODE_3:                 return L"3";
+	case IDeviceContext::KEYCODE_4:                 return L"4";
+	case IDeviceContext::KEYCODE_5:                 return L"5";
+	case IDeviceContext::KEYCODE_6:                 return L"6";
+	case IDeviceContext::KEYCODE_7:                 return L"7";
+	case IDeviceContext::KEYCODE_8:                 return L"8";
+	case IDeviceContext::KEYCODE_9:                 return L"9";
+	//Letters
+	case IDeviceContext::KEYCODE_A:                 return L"A";
+	case IDeviceContext::KEYCODE_B:                 return L"B";
+	case IDeviceContext::KEYCODE_C:                 return L"C";
+	case IDeviceContext::KEYCODE_D:                 return L"D";
+	case IDeviceContext::KEYCODE_E:                 return L"E";
+	case IDeviceContext::KEYCODE_F:                 return L"F";
+	case IDeviceContext::KEYCODE_G:                 return L"G";
+	case IDeviceContext::KEYCODE_H:                 return L"H";
+	case IDeviceContext::KEYCODE_I:                 return L"I";
+	case IDeviceContext::KEYCODE_J:                 return L"J";
+	case IDeviceContext::KEYCODE_K:                 return L"K";
+	case IDeviceContext::KEYCODE_L:                 return L"L";
+	case IDeviceContext::KEYCODE_M:                 return L"M";
+	case IDeviceContext::KEYCODE_N:                 return L"N";
+	case IDeviceContext::KEYCODE_O:                 return L"O";
+	case IDeviceContext::KEYCODE_P:                 return L"P";
+	case IDeviceContext::KEYCODE_Q:                 return L"Q";
+	case IDeviceContext::KEYCODE_R:                 return L"R";
+	case IDeviceContext::KEYCODE_S:                 return L"S";
+	case IDeviceContext::KEYCODE_T:                 return L"T";
+	case IDeviceContext::KEYCODE_U:                 return L"U";
+	case IDeviceContext::KEYCODE_V:                 return L"V";
+	case IDeviceContext::KEYCODE_W:                 return L"W";
+	case IDeviceContext::KEYCODE_X:                 return L"X";
+	case IDeviceContext::KEYCODE_Y:                 return L"Y";
+	case IDeviceContext::KEYCODE_Z:                 return L"Z";
+	//Symbol keys
+	case IDeviceContext::KEYCODE_OEM1:              return L"OEM1";
+	case IDeviceContext::KEYCODE_OEMPLUS:           return L"OEMPlus";
+	case IDeviceContext::KEYCODE_OEMCOMMA:          return L"OEMComma";
+	case IDeviceContext::KEYCODE_OEMMINUS:          return L"OEMMinus";
+	case IDeviceContext::KEYCODE_OEMPERIOD:         return L"OEMPeriod";
+	case IDeviceContext::KEYCODE_OEM2:              return L"OEM2";
+	case IDeviceContext::KEYCODE_OEM3:              return L"OEM3";
+	case IDeviceContext::KEYCODE_OEM4:              return L"OEM4";
+	case IDeviceContext::KEYCODE_OEM5:              return L"OEM5";
+	case IDeviceContext::KEYCODE_OEM6:              return L"OEM6";
+	case IDeviceContext::KEYCODE_OEM7:              return L"OEM7";
+	case IDeviceContext::KEYCODE_OEM8:              return L"OEM8";
+	case IDeviceContext::KEYCODE_OEMAX:             return L"OEMAX";
+	case IDeviceContext::KEYCODE_OEM102:            return L"OEM102";
+	//Numpad keys
+	case IDeviceContext::KEYCODE_NUMPAD0:           return L"Numpad0";
+	case IDeviceContext::KEYCODE_NUMPAD1:           return L"Numpad1";
+	case IDeviceContext::KEYCODE_NUMPAD2:           return L"Numpad2";
+	case IDeviceContext::KEYCODE_NUMPAD3:           return L"Numpad3";
+	case IDeviceContext::KEYCODE_NUMPAD4:           return L"Numpad4";
+	case IDeviceContext::KEYCODE_NUMPAD5:           return L"Numpad5";
+	case IDeviceContext::KEYCODE_NUMPAD6:           return L"Numpad6";
+	case IDeviceContext::KEYCODE_NUMPAD7:           return L"Numpad7";
+	case IDeviceContext::KEYCODE_NUMPAD8:           return L"Numpad8";
+	case IDeviceContext::KEYCODE_NUMPAD9:           return L"Numpad9";
+	case IDeviceContext::KEYCODE_NUMPADMULTIPLY:    return L"Numpad*";
+	case IDeviceContext::KEYCODE_NUMPADDIVIDE:      return L"Numpad/";
+	case IDeviceContext::KEYCODE_NUMPADSUBTRACT:    return L"Numpad-";
+	case IDeviceContext::KEYCODE_NUMPADADD:         return L"Numpad+";
+	case IDeviceContext::KEYCODE_NUMPADDECIMAL:     return L"Numpad.";
+	}
+	return L"None";
 }
 
 //----------------------------------------------------------------------------------------
@@ -4633,7 +4849,42 @@ bool System::IsKeyCodeMapped(IDeviceContext::KeyCode keyCode) const
 }
 
 //----------------------------------------------------------------------------------------
-bool System::MapKeyCode(IDeviceContext::KeyCode keyCode, unsigned int targetDeviceKeyCode, IDevice* targetDevice)
+bool System::IsDeviceKeyCodeMapped(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
+{
+	boost::mutex::scoped_lock lock(inputMutex);
+	bool foundMapping = false;
+	InputKeyMap::const_iterator inputKeyMapIterator = inputKeyMap.begin();
+	while(!foundMapping&& (inputKeyMapIterator != inputKeyMap.end()))
+	{
+		const InputMapEntry& inputMapEntry = inputKeyMapIterator->second;
+		if((inputMapEntry.targetDevice == targetDevice) && (inputMapEntry.targetDeviceKeyCode == targetDeviceKeyCode))
+		{
+			foundMapping = true;
+		}
+		++inputKeyMapIterator;
+	}
+	return foundMapping;
+}
+
+//----------------------------------------------------------------------------------------
+IDeviceContext::KeyCode System::GetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
+{
+	boost::mutex::scoped_lock lock(inputMutex);
+	InputKeyMap::const_iterator inputKeyMapIterator = inputKeyMap.begin();
+	while(inputKeyMapIterator != inputKeyMap.end())
+	{
+		const InputMapEntry& inputMapEntry = inputKeyMapIterator->second;
+		if((inputMapEntry.targetDevice == targetDevice) && (inputMapEntry.targetDeviceKeyCode == targetDeviceKeyCode))
+		{
+			return inputMapEntry.keyCode;
+		}
+		++inputKeyMapIterator;
+	}
+	return IDeviceContext::KEYCODE_NONE;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::MapKeyCode(IDevice* targetDevice, unsigned int targetDeviceKeyCode, IDeviceContext::KeyCode keyCode)
 {
 	if(!IsKeyCodeMapped(keyCode))
 	{
@@ -4653,6 +4904,23 @@ void System::UnmapKeyCode(IDeviceContext::KeyCode keyCode)
 {
 	boost::mutex::scoped_lock lock(inputMutex);
 	inputKeyMap.erase(keyCode);
+}
+
+//----------------------------------------------------------------------------------------
+void System::UnmapKeyCode(IDevice* targetDevice, unsigned int targetDeviceKeyCode)
+{
+	boost::mutex::scoped_lock lock(inputMutex);
+	InputKeyMap::iterator inputKeyMapIterator = inputKeyMap.begin();
+	while(inputKeyMapIterator != inputKeyMap.end())
+	{
+		const InputMapEntry& inputMapEntry = inputKeyMapIterator->second;
+		if((inputMapEntry.targetDevice == targetDevice) && (inputMapEntry.targetDeviceKeyCode == targetDeviceKeyCode))
+		{
+			inputKeyMap.erase(inputKeyMapIterator);
+			return;
+		}
+		++inputKeyMapIterator;
+	}
 }
 
 //----------------------------------------------------------------------------------------

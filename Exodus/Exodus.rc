@@ -208,6 +208,35 @@ BEGIN
     DEFPUSHBUTTON   "Cancel",IDCANCEL,102,115,50,14
 END
 
+IDD_INPUTMAPPING DIALOGEX 0, 0, 206, 100
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LISTBOX         IDC_INPUTMAPPING_LIST,7,27,192,66,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Select a device from the list to view and edit input mapping assignments for the device.",IDC_STATIC,7,7,192,17
+END
+
+IDD_INPUTMAPPING_DETAILS DIALOGEX 0, 0, 250, 111
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    COMBOBOX        IDC_INPUTMAPPING_DETAILS_DEVICEKEY,57,62,64,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_INPUTMAPPING_DETAILS_SYSTEMKEY,167,62,64,45,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Device Key",IDC_STATIC,19,64,36,8
+    LTEXT           "System Key",IDC_STATIC,127,64,38,8
+    LTEXT           "You can use the following fields to define the mapping between inputs for this device and system key inputs. Change the value in the system key field or press a key while the system key field is selected to bind device input to the selected key.",IDC_STATIC,7,8,234,34
+    PUSHBUTTON      "Start Auto Mapping",IDC_INPUTMAPPING_DETAILS_AUTOMAPPINGTOGGLE,7,78,73,14
+    EDITTEXT        IDC_INPUTMAPPING_DETAILS_DEVICENAME,57,44,174,14,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "Device Name",IDC_STATIC,13,47,42,8
+    LTEXT           "Auto mapping will prompt you to press a key for each input sequentially.",IDC_INPUTMAPPING_DETAILS_AUTOMAPPINGTEXT,7,96,234,8
+    PUSHBUTTON      "Clear All",IDC_INPUTMAPPING_DETAILS_CLEARALL,87,78,73,14
+    PUSHBUTTON      "Restore Defaults",IDC_INPUTMAPPING_DETAILS_RESTOREDEFAULTS,168,78,73,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -288,6 +317,22 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 129
     END
+
+    IDD_INPUTMAPPING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 199
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 93
+    END
+
+    IDD_INPUTMAPPING_DETAILS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 241
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 104
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -342,6 +387,12 @@ BEGIN
         MENUITEM "Run System\tF3",              ID_FILE_RUNSYSTEM
         MENUITEM "Hard Reset\tF4",              ID_FILE_HARDRESET
         MENUITEM "Toggle Throttle\tF9",         ID_SYSTEM_TOGGLETHROTTLE
+        MENUITEM SEPARATOR
+        MENUITEM "Dynamic Placeholder",         ID_SYSTEM_DYNAMICPLACEHOLDER
+    END
+    POPUP "Debug"
+    BEGIN
+        MENUITEM "Dynamic Placeholder",         ID_Menu40105
     END
     POPUP "Help"
     BEGIN

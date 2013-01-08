@@ -99,8 +99,9 @@ public:
 
 	//Input functions
 	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const;
-	virtual void HandleInputKeyDown(unsigned int keyCode);
-	virtual void HandleInputKeyUp(unsigned int keyCode);
+	virtual const wchar_t* GetKeyCodeName(unsigned int keyCodeID) const;
+	virtual void HandleInputKeyDown(unsigned int keyCodeID);
+	virtual void HandleInputKeyUp(unsigned int keyCodeID);
 
 	//Window functions
 	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle);

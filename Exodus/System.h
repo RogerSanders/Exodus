@@ -58,7 +58,7 @@ public:
 	virtual StateInfo GetStateInfo(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) const;
 	virtual bool LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const;
 	virtual bool DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfo& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const;
-	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false) const;
+	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false, const std::wstring& relativePathBase = L"") const;
 
 	//Logging functions
 	virtual void WriteLogEvent(const ILogEntry& entry) const;
@@ -118,6 +118,7 @@ public:
 	void* GetAssemblyHandle() const;
 
 	//View functions
+	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) const;
 	virtual void BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) const;
 	virtual void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual bool RestoreViewModelStateForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName, const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
@@ -150,6 +151,7 @@ private:
 	struct InputEventEntry;
 	struct LogEntryInternal;
 	struct ViewModelOpenRequest;
+	struct InputRegistration;
 
 	//Typedefs
 	typedef std::map<std::wstring, unsigned int> NameToIDMap;
@@ -164,6 +166,7 @@ private:
 	typedef std::list<ImportedBusInfo> ImportedBusInterfaceList;
 	typedef std::list<LoadedClockSourceInfo> ClockSourceList;
 	typedef std::list<ImportedClockSourceInfo> ImportedClockSourceList;
+	typedef std::list<InputRegistration> InputRegistrationList;
 	typedef std::map<IDeviceContext::KeyCode, InputMapEntry> InputKeyMap;
 	typedef std::pair<IDeviceContext::KeyCode, InputMapEntry> InputKeyMapEntry;
 	typedef std::map<unsigned int, ConnectorDetails> ConnectorDetailsMap;
@@ -172,16 +175,25 @@ private:
 	typedef std::pair<unsigned int, LineGroupDetails> LineGroupDetailsMapEntry;
 
 	//View and menu classes
+	class SystemMenuHandler;
 	class DebugMenuHandler;
 	class LoggerViewModel;
 	class LoggerDetailsViewModel;
+	class InputMappingViewModel;
+	class InputMappingDetailsViewModel;
 	class DeviceControlViewModel;
 	class LoggerView;
 	class LoggerDetailsView;
+	class InputMappingView;
+	class InputMappingDetailsView;
 	class DeviceControlView;
 	friend class LoggerViewModel;
 	friend class LoggerDetailsViewModel;
+	friend class InputMappingViewModel;
+	friend class InputMappingDetailsViewModel;
 	friend class DeviceControlViewModel;
+	friend class LoggerView;
+	friend class LoggerDetailsView;
 	friend class LoggerView;
 	friend class LoggerDetailsView;
 	friend class DeviceControlView;
@@ -206,7 +218,7 @@ private:
 	bool LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<InputRegistration>& inputRegistrationRequests);
 	bool LoadModule_BusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_BusInterface_DefineLineGroup(IHeirarchicalStorageNode& node, unsigned int moduleID, NameToIDMap& lineGroupNameToIDMap);
 	bool LoadModule_BusInterface_DefineCELineMemory(IHeirarchicalStorageNode& node, unsigned int moduleID);
@@ -231,9 +243,10 @@ private:
 	bool LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap);
 	bool LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_ProcessViewModelQueue(const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher);
-	bool LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<LoadedModuleInfo>& addedModules);
+	bool LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<LoadedModuleInfo>& addedModules);
 	void UnloadModuleInternal(unsigned int moduleID);
-	bool LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<LoadedModuleInfo>& addedModules);
+	bool LoadSystem_Device_MapInput(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
+	bool LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<LoadedModuleInfo>& addedModules);
 
 	//Device creation and deletion
 	bool AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext);
@@ -281,9 +294,13 @@ private:
 
 	//Input functions
 	IDeviceContext::KeyCode GetKeyCodeID(const std::wstring& keyCodeName) const;
+	std::wstring GetKeyCodeName(IDeviceContext::KeyCode keyCode) const;
 	bool IsKeyCodeMapped(IDeviceContext::KeyCode keyCode) const;
-	bool MapKeyCode(IDeviceContext::KeyCode keyCode, unsigned int targetDeviceKeyCode, IDevice* targetDevice);
+	bool IsDeviceKeyCodeMapped(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const;
+	IDeviceContext::KeyCode GetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const;
+	bool MapKeyCode(IDevice* targetDevice, unsigned int targetDeviceKeyCode, IDeviceContext::KeyCode keyCode);
 	void UnmapKeyCode(IDeviceContext::KeyCode keyCode);
+	void UnmapKeyCode(IDevice* targetDevice, unsigned int targetDeviceKeyCode);
 	void ClearKeyCodeMap();
 	void SendStoredInputEvents();
 	void ClearSentStoredInputEvents();
@@ -291,9 +308,12 @@ private:
 
 	//Window functions
 	void OpenLoggerDetailsView(const LogEntryInternal& alogEntry);
+	void OpenInputMappingDetailsView(IDevice* targetDevice);
+	void CloseInputMappingDetailsView();
 
 private:
 	//Menu handling
+	SystemMenuHandler* systemMenuHandler;
 	DebugMenuHandler* debugMenuHandler;
 
 	//Module handle
@@ -346,6 +366,7 @@ private:
 
 	//Input settings
 	mutable boost::mutex inputMutex;
+	InputRegistrationList inputRegistrationList;
 	InputKeyMap inputKeyMap;
 	std::list<InputEventEntry> inputEvents;
 
