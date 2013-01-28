@@ -45,9 +45,9 @@ enum A10000::LineID
 	LINE_PORT3_TR,      //IO
 	LINE_PORT3_TH,      //IO
 
-	LINE_REGION,        //I
-	LINE_VIDEO,         //I
-	LINE_SEGACD,        //I
+	LINE_JAP,           //I
+	LINE_NTSC,          //I
+	LINE_DISK,          //I
 	LINE_HL             //O
 };
 
@@ -79,47 +79,48 @@ struct A10000::LineAccess
 
 //----------------------------------------------------------------------------------------
 //Version register functions
-//----------------------------------
-//| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0  |
-//|--------------------------------|
-//|*R |*V |*U1|*U2|Hardware Version|
-//----------------------------------
-//R: The current state of the region jumper
-//V: The current state of the video jumper
-//U1: Reports whether the SegaCD is connected
-//U2: Probably reports whether another physical line is connected
+//-------------------------------------
+//|  7 |  6 | 5  | 4 | 3 | 2 | 1 | 0  |
+//|-----------------------------------|
+//|MODE|VMOD|DISK| - |Hardware Version|
+//-------------------------------------
+//MODE: The current state of the JAP line. This line is active low, so a value of 0 means
+//      it's a domestic model, while a value of 1 means it's an overseas model.
+//VMOD: The inverted state of the NTSC line. Returns 1 if the NTSC line is negated (PAL).
+//DISK: The current state of the DISK line on the expansion port. Note that since DISK is
+//      active low, this means that a value of 0 means a device is connected.
 //----------------------------------------------------------------------------------------
-bool A10000::GetRegionFlag() const
+bool A10000::GetOverseasFlag() const
 {
 	return versionRegister.GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::SetRegionFlag(bool data)
+void A10000::SetOverseasFlag(bool data)
 {
 	versionRegister.SetBit(7, data);
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetVideoFlag() const
+bool A10000::GetPALFlag() const
 {
 	return versionRegister.GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::SetVideoFlag(bool data)
+void A10000::SetPALFlag(bool data)
 {
 	versionRegister.SetBit(6, data);
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetSegaCDFlag() const
+bool A10000::GetNoDiskFlag() const
 {
 	return versionRegister.GetBit(5);
 }
 
 //----------------------------------------------------------------------------------------
-void A10000::SetSegaCDFlag(bool data)
+void A10000::SetNoDiskFlag(bool data)
 {
 	versionRegister.SetBit(5, data);
 }
@@ -223,7 +224,7 @@ void A10000::SetRxDataRegister(unsigned int portNo, const Data& data)
 //U: Unused. Returns the last value written to it. Effectively, this acts like a line
 //which is always set as an output, and isn't mapped to any physical control port line.
 //----------------------------------------------------------------------------------------
-bool A10000::GetDataRegisterHL(unsigned int portNo)
+bool A10000::GetDataRegisterHL(unsigned int portNo) const
 {
 	return dataRegisters[portNo].GetBit(7);
 }
@@ -235,7 +236,7 @@ void A10000::SetDataRegisterHL(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetDataRegisterTH(unsigned int portNo)
+bool A10000::GetDataRegisterTH(unsigned int portNo) const
 {
 	return dataRegisters[portNo].GetBit(6);
 }
@@ -247,7 +248,7 @@ void A10000::SetDataRegisterTH(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetDataRegisterTR(unsigned int portNo)
+bool A10000::GetDataRegisterTR(unsigned int portNo) const
 {
 	return dataRegisters[portNo].GetBit(5);
 }
@@ -259,7 +260,7 @@ void A10000::SetDataRegisterTR(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetDataRegisterTL(unsigned int portNo)
+bool A10000::GetDataRegisterTL(unsigned int portNo) const
 {
 	return dataRegisters[portNo].GetBit(4);
 }
@@ -271,7 +272,7 @@ void A10000::SetDataRegisterTL(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetDataRegisterD3(unsigned int portNo)
+bool A10000::GetDataRegisterD3(unsigned int portNo) const
 {
 	return dataRegisters[portNo].GetBit(3);
 }
@@ -283,7 +284,7 @@ void A10000::SetDataRegisterD3(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetDataRegisterD2(unsigned int portNo)
+bool A10000::GetDataRegisterD2(unsigned int portNo) const
 {
 	return dataRegisters[portNo].GetBit(2);
 }
@@ -295,7 +296,7 @@ void A10000::SetDataRegisterD2(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetDataRegisterD1(unsigned int portNo)
+bool A10000::GetDataRegisterD1(unsigned int portNo) const
 {
 	return dataRegisters[portNo].GetBit(1);
 }
@@ -307,7 +308,7 @@ void A10000::SetDataRegisterD1(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetDataRegisterD0(unsigned int portNo)
+bool A10000::GetDataRegisterD0(unsigned int portNo) const
 {
 	return dataRegisters[portNo].GetBit(0);
 }
@@ -332,7 +333,7 @@ void A10000::SetDataRegisterD0(unsigned int portNo, bool state)
 //|HL |TH |TR |TL |D3 |D2 |D1 |D0 |
 //---------------------------------
 //----------------------------------------------------------------------------------------
-bool A10000::GetControlRegisterHL(unsigned int portNo)
+bool A10000::GetControlRegisterHL(unsigned int portNo) const
 {
 	return controlRegisters[portNo].GetBit(7);
 }
@@ -344,7 +345,7 @@ void A10000::SetControlRegisterHL(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetControlRegisterTH(unsigned int portNo)
+bool A10000::GetControlRegisterTH(unsigned int portNo) const
 {
 	return controlRegisters[portNo].GetBit(6);
 }
@@ -356,7 +357,7 @@ void A10000::SetControlRegisterTH(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetControlRegisterTR(unsigned int portNo)
+bool A10000::GetControlRegisterTR(unsigned int portNo) const
 {
 	return controlRegisters[portNo].GetBit(5);
 }
@@ -368,7 +369,7 @@ void A10000::SetControlRegisterTR(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetControlRegisterTL(unsigned int portNo)
+bool A10000::GetControlRegisterTL(unsigned int portNo) const
 {
 	return controlRegisters[portNo].GetBit(4);
 }
@@ -380,7 +381,7 @@ void A10000::SetControlRegisterTL(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetControlRegisterD3(unsigned int portNo)
+bool A10000::GetControlRegisterD3(unsigned int portNo) const
 {
 	return controlRegisters[portNo].GetBit(3);
 }
@@ -392,7 +393,7 @@ void A10000::SetControlRegisterD3(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetControlRegisterD2(unsigned int portNo)
+bool A10000::GetControlRegisterD2(unsigned int portNo) const
 {
 	return controlRegisters[portNo].GetBit(2);
 }
@@ -404,7 +405,7 @@ void A10000::SetControlRegisterD2(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetControlRegisterD1(unsigned int portNo)
+bool A10000::GetControlRegisterD1(unsigned int portNo) const
 {
 	return controlRegisters[portNo].GetBit(1);
 }
@@ -416,7 +417,7 @@ void A10000::SetControlRegisterD1(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetControlRegisterD0(unsigned int portNo)
+bool A10000::GetControlRegisterD0(unsigned int portNo) const
 {
 	return controlRegisters[portNo].GetBit(0);
 }
@@ -450,7 +451,7 @@ void A10000::SetControlRegisterD0(unsigned int portNo, bool state)
 //F: Read-only TxData buffer full flag. Set if there is still data in TxData waiting to
 //   be written.
 //----------------------------------------------------------------------------------------
-unsigned int A10000::GetSerialBaudRate(unsigned int portNo)
+unsigned int A10000::GetSerialBaudRate(unsigned int portNo) const
 {
 	return serialControlRegisters[portNo].GetDataSegment(6, 2);
 }
@@ -462,7 +463,7 @@ void A10000::SetSerialBaudRate(unsigned int portNo, unsigned int state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetSerialInputEnabled(unsigned int portNo)
+bool A10000::GetSerialInputEnabled(unsigned int portNo) const
 {
 	return serialControlRegisters[portNo].GetBit(5);
 }
@@ -474,7 +475,7 @@ void A10000::SetSerialInputEnabled(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetSerialOutputEnabled(unsigned int portNo)
+bool A10000::GetSerialOutputEnabled(unsigned int portNo) const
 {
 	return serialControlRegisters[portNo].GetBit(4);
 }
@@ -486,7 +487,7 @@ void A10000::SetSerialOutputEnabled(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetSerialInterruptEnabled(unsigned int portNo)
+bool A10000::GetSerialInterruptEnabled(unsigned int portNo) const
 {
 	return serialControlRegisters[portNo].GetBit(3);
 }
@@ -498,7 +499,7 @@ void A10000::SetSerialInterruptEnabled(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetSerialErrorFlag(unsigned int portNo)
+bool A10000::GetSerialErrorFlag(unsigned int portNo) const
 {
 	return serialControlRegisters[portNo].GetBit(2);
 }
@@ -510,7 +511,7 @@ void A10000::SetSerialErrorFlag(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetRxDataBufferFull(unsigned int portNo)
+bool A10000::GetRxDataBufferFull(unsigned int portNo) const
 {
 	return serialControlRegisters[portNo].GetBit(1);
 }
@@ -522,7 +523,7 @@ void A10000::SetRxDataBufferFull(unsigned int portNo, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::GetTxDataBufferFull(unsigned int portNo)
+bool A10000::GetTxDataBufferFull(unsigned int portNo) const
 {
 	return serialControlRegisters[portNo].GetBit(0);
 }

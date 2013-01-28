@@ -12,34 +12,40 @@ bool ROM::Construct(IHeirarchicalStorageNode& node)
 {
 	bool result = MemoryRead::Construct(node);
 
-	//Validate that ROM data has been provided
-	if(!node.GetBinaryDataPresent())
+	//If embedded ROM data has been specified, attempt to load it now.
+	if(node.GetBinaryDataPresent())
 	{
-		return false;
-	}
+		//Obtain the stream for our binary data
+		Stream::IStream& dataStream = node.GetBinaryDataBufferStream();
+		dataStream.SetStreamPos(0);
 
-	//Obtain the stream for our binary data
-	Stream::IStream& dataStream = node.GetBinaryDataBufferStream();
-	dataStream.SetStreamPos(0);
-
-	//Set the size of our internal memory
-	//##TODO## Consider failing the construction process if the ROM data is empty
-	if(GetInterfaceSize() <= 0)
-	{
-		unsigned int interfaceSize = (unsigned int)dataStream.Size();
-		if(interfaceSize <= 0)
+		//Set the size of our internal memory
+		if(GetInterfaceSize() <= 0)
 		{
-			interfaceSize = 1;
+			unsigned int interfaceSize = (unsigned int)dataStream.Size();
+			if(interfaceSize <= 0)
+			{
+				//If the embedded ROM data is empty, return false.
+				return false;
+			}
+			SetInterfaceSize(interfaceSize);
 		}
-		SetInterfaceSize(interfaceSize);
-	}
-	memory.resize(GetInterfaceSize());
+		memory.resize(GetInterfaceSize());
 
-	//Read in the ROM data
-	unsigned int bytesToRead = ((unsigned int)memory.size() < (unsigned int)dataStream.Size())? (unsigned int)memory.size(): (unsigned int)dataStream.Size();
-	if(!dataStream.ReadData(&memory[0], bytesToRead))
+		//Read in the ROM data
+		unsigned int bytesToRead = ((unsigned int)memory.size() < (unsigned int)dataStream.Size())? (unsigned int)memory.size(): (unsigned int)dataStream.Size();
+		if(!dataStream.ReadData(&memory[0], bytesToRead))
+		{
+			return false;
+		}
+	}
+	else
 	{
-		return false;
+		//If no embedded ROM data has been provided, ensure that a valid interface size
+		//has been specified, and set the size of our internal memory.
+		unsigned int interfaceSize = GetInterfaceSize();
+		result = (interfaceSize > 0);
+		memory.resize(interfaceSize);
 	}
 
 	return result;

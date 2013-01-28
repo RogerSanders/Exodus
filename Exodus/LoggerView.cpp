@@ -7,7 +7,7 @@
 System::LoggerView::LoggerView(System* asystem)
 :system(asystem), initializedDialog(false), currentControlFocus(0)
 {
-	std::wstring windowTitle = L"Logger";
+	std::wstring windowTitle = L"Event Log";
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)system->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_LOGGER));
 }
 

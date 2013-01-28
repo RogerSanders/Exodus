@@ -82,6 +82,8 @@ public:
 	virtual unsigned int GetLineID(const wchar_t* lineName) const;
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
+	virtual void AssertCurrentOutputLineState() const;
+	virtual void NegateCurrentOutputLineState() const;
 
 	//Clock source functions
 	virtual unsigned int GetClockSourceID(const wchar_t* clockSourceName) const;
@@ -415,6 +417,8 @@ private:
 	bool timerBLoad;
 	bool btimerALoad;
 	bool btimerBLoad;
+	bool irqLineState;
+	bool birqLineState;
 
 	//This register records the times at which Timer A overflows. It is needed in order
 	//to implement CSM support.

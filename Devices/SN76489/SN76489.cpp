@@ -762,7 +762,7 @@ void SN76489::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"ExternalClockRate").SetData(externalClockRate);
 
 	//Register data
-	reg.GetState(node.CreateChild(L"Registers"), L"", true);
+	reg.SaveState(node.CreateChild(L"Registers"), L"", true);
 
 	//Register latch settings
 	node.CreateChild(L"LatchedChannel", latchedChannel);

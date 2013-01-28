@@ -257,6 +257,7 @@ void M68000::Initialize()
 
 	//Abandon currently pending interrupts, and restore normal processor state
 	interruptPendingLevel = 0;
+	lastLineCheckTime = 0;
 	lineAccessPending = false;
 	lastTimesliceLength = 0;
 	blastTimesliceLength = 0;
@@ -781,9 +782,10 @@ double M68000::ExecuteStep()
 		}
 	}
 
-	//If the reset line is being asserted, trigger a reset, and abort any further
-	//processing.
-	if(resetLineState)
+	//If the reset line and halt line are both asserted, trigger a reset, and abort any
+	//further processing. Note that both the halt and reset lines need to be asserted in
+	//order to trigger a reset, as confirmed by the M68000 User's Manual, section 3.6.
+	if(resetLineState && haltLineState)
 	{
 		Reset();
 		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
@@ -871,13 +873,8 @@ double M68000::ExecuteStep()
 		//interrupt acknowledge cycle.
 		autoVectorPendingInterrupt = false;
 		M68000Word interruptVectorNumber = 0;
-		memoryAccessFunctionCode = FUNCTIONCODE_CPUSPACE;
-		memoryAccessUpperDataStrobe = true;
-		memoryAccessLowerDataStrobe = true;
-		memoryAccessReadHighWriteLow = true;
-		memoryAccessRMWCycleInProgress = false;
-		memoryAccessRMWCycleFirstOperation = false;
-		IBusInterface::AccessResult accessResult = memoryBus->ReadMemory(interruptCycleAddress.GetData(), interruptVectorNumber, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		CalculateCELineStateContext ceLineStateContext(FUNCTIONCODE_CPUSPACE, true, true, true, false, false);
+		IBusInterface::AccessResult accessResult = memoryBus->ReadMemory(interruptCycleAddress.GetData(), interruptVectorNumber, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 
 		//Mask the resulting interrupt vector number to a single byte. According to the
 		//M68000 users manual, section 5.1.4, the M68000 does perform a 16-bit read for
@@ -1399,6 +1396,12 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 }
 
 //----------------------------------------------------------------------------------------
+void M68000::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{
+	SetLineState(targetLine, lineData, 0, 0.0, 0);
+}
+
+//----------------------------------------------------------------------------------------
 void M68000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(lineMutex);
@@ -1554,6 +1557,24 @@ bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 		result = true;
 	}
 	return result;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::AssertCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(bgLineState) memoryBus->SetLineState(LINE_BG, Data(GetLineWidth(LINE_BG), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::NegateCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(bgLineState) memoryBus->SetLineState(LINE_BG, Data(GetLineWidth(LINE_BG), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -1851,13 +1872,8 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 			{
 				M68000Word temp;
 				bool odd = location.Odd();
-				memoryAccessFunctionCode = code;
-				memoryAccessUpperDataStrobe = !odd;
-				memoryAccessLowerDataStrobe = odd;
-				memoryAccessReadHighWriteLow = true;
-				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
-				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24) & ~0x1, temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+				CalculateCELineStateContext ceLineStateContext(code, !odd, odd, true, rmwCycleInProgress, rmwCycleFirstOperation);
+				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24) & ~0x1, temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 				if(!result.accessMaskUsed)
 				{
 					lastReadBusData = temp;
@@ -1879,13 +1895,8 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 		case BITCOUNT_WORD:
 			{
 				M68000Word temp;
-				memoryAccessFunctionCode = code;
-				memoryAccessUpperDataStrobe = true;
-				memoryAccessLowerDataStrobe = true;
-				memoryAccessReadHighWriteLow = true;
-				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
-				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+				CalculateCELineStateContext ceLineStateContext(code, true, true, true, rmwCycleInProgress, rmwCycleFirstOperation);
+				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 				if(!result.accessMaskUsed)
 				{
 					lastReadBusData = temp;
@@ -1902,14 +1913,9 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 				M68000Word temp1;
 				M68000Word temp2;
 				IBusInterface::AccessResult result2;
-				memoryAccessFunctionCode = code;
-				memoryAccessUpperDataStrobe = true;
-				memoryAccessLowerDataStrobe = true;
-				memoryAccessReadHighWriteLow = true;
-				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
-				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24), temp1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-				result2 = memoryBus->ReadMemory((location + 2).GetDataSegment(0, 24), temp2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0);
+				CalculateCELineStateContext ceLineStateContext(code, true, true, true, rmwCycleInProgress, rmwCycleFirstOperation);
+				result = memoryBus->ReadMemory(location.GetDataSegment(0, 24), temp1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
+				result2 = memoryBus->ReadMemory((location + 2).GetDataSegment(0, 24), temp2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0, (void*)&ceLineStateContext);
 				if(!result.accessMaskUsed)
 				{
 					lastReadBusData = temp1;
@@ -1967,57 +1973,33 @@ void M68000::ReadMemoryTransparent(const M68000Long& location, Data& data, Funct
 			M68000Word temp;
 			if(location.Odd())
 			{
-				PerformanceLock lock(ceLineStateMutex);
-				memoryAccessTransparentFunctionCode = code;
-				memoryAccessTransparentUpperDataStrobe = false;
-				memoryAccessTransparentLowerDataStrobe = true;
-				memoryAccessTransparentReadHighWriteLow = true;
-				memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
-				memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-				memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24) & ~0x1, temp, GetDeviceContext(), 0);
+				CalculateCELineStateContext ceLineStateContext(code, false, true, true, rmwCycleInProgress, rmwCycleFirstOperation);
+				memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24) & ~0x1, temp, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 				temp.GetLowerBits(data);
 			}
 			else
 			{
-				PerformanceLock lock(ceLineStateMutex);
-				memoryAccessTransparentFunctionCode = code;
-				memoryAccessTransparentUpperDataStrobe = true;
-				memoryAccessTransparentLowerDataStrobe = false;
-				memoryAccessTransparentReadHighWriteLow = true;
-				memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
-				memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-				memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), 0);
+				CalculateCELineStateContext ceLineStateContext(code, true, false, true, rmwCycleInProgress, rmwCycleFirstOperation);
+				memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 				temp.GetUpperBits(data);
 			}
 			break;
 		}
 	case BITCOUNT_WORD:
 		{
-			PerformanceLock lock(ceLineStateMutex);
 			M68000Word temp;
-			memoryAccessTransparentFunctionCode = code;
-			memoryAccessTransparentUpperDataStrobe = true;
-			memoryAccessTransparentLowerDataStrobe = true;
-			memoryAccessTransparentReadHighWriteLow = true;
-			memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
-			memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-			memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), 0);
+			CalculateCELineStateContext ceLineStateContext(code, true, true, true, rmwCycleInProgress, rmwCycleFirstOperation);
+			memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 			data = temp;
 			break;
 		}
 	case BITCOUNT_LONG:
 		{
-			PerformanceLock lock(ceLineStateMutex);
 			M68000Word temp1;
 			M68000Word temp2;
-			memoryAccessTransparentFunctionCode = code;
-			memoryAccessTransparentUpperDataStrobe = true;
-			memoryAccessTransparentLowerDataStrobe = true;
-			memoryAccessTransparentReadHighWriteLow = true;
-			memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
-			memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-			memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp1, GetDeviceContext(), 0);
-			memoryBus->TransparentReadMemory((location + 2).GetDataSegment(0, 24), temp2, GetDeviceContext(), 0);
+			CalculateCELineStateContext ceLineStateContext(code, true, true, true, rmwCycleInProgress, rmwCycleFirstOperation);
+			memoryBus->TransparentReadMemory(location.GetDataSegment(0, 24), temp1, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+			memoryBus->TransparentReadMemory((location + 2).GetDataSegment(0, 24), temp2, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 			data = (temp1.GetData() << temp2.GetBitCount()) | temp2.GetData();
 		}
 	}
@@ -2081,35 +2063,20 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 
 				if(location.Odd())
 				{
-					memoryAccessFunctionCode = code;
-					memoryAccessUpperDataStrobe = false;
-					memoryAccessLowerDataStrobe = true;
-					memoryAccessReadHighWriteLow = false;
-					memoryAccessRMWCycleInProgress = rmwCycleInProgress;
-					memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-					result = memoryBus->WriteMemory(location.GetDataSegment(0, 24) & ~0x1, tempData, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+					CalculateCELineStateContext ceLineStateContext(code, false, true, false, rmwCycleInProgress, rmwCycleFirstOperation);
+					result = memoryBus->WriteMemory(location.GetDataSegment(0, 24) & ~0x1, tempData, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 				}
 				else
 				{
-					memoryAccessFunctionCode = code;
-					memoryAccessUpperDataStrobe = true;
-					memoryAccessLowerDataStrobe = false;
-					memoryAccessReadHighWriteLow = false;
-					memoryAccessRMWCycleInProgress = rmwCycleInProgress;
-					memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-					result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), tempData, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+					CalculateCELineStateContext ceLineStateContext(code, true, false, false, rmwCycleInProgress, rmwCycleFirstOperation);
+					result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), tempData, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 				}
 				break;
 			}
 		case BITCOUNT_WORD:
 			{
-				memoryAccessFunctionCode = code;
-				memoryAccessUpperDataStrobe = true;
-				memoryAccessLowerDataStrobe = true;
-				memoryAccessReadHighWriteLow = false;
-				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
-				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), M68000Word(data), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+				CalculateCELineStateContext ceLineStateContext(code, true, true, false, rmwCycleInProgress, rmwCycleFirstOperation);
+				result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), M68000Word(data), GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 				break;
 			}
 		case BITCOUNT_LONG:
@@ -2117,14 +2084,9 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 				M68000Word word1(data.GetUpperBits(BITCOUNT_WORD));
 				M68000Word word2(data.GetLowerBits(BITCOUNT_WORD));
 				IBusInterface::AccessResult result2;
-				memoryAccessFunctionCode = code;
-				memoryAccessUpperDataStrobe = true;
-				memoryAccessLowerDataStrobe = true;
-				memoryAccessReadHighWriteLow = false;
-				memoryAccessRMWCycleInProgress = rmwCycleInProgress;
-				memoryAccessRMWCycleFirstOperation = rmwCycleFirstOperation;
-				result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), word1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-				result2 = memoryBus->WriteMemory((location + 2).GetDataSegment(0, 24), word2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0);
+				CalculateCELineStateContext ceLineStateContext(code, true, true, false, rmwCycleInProgress, rmwCycleFirstOperation);
+				result = memoryBus->WriteMemory(location.GetDataSegment(0, 24), word1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
+				result2 = memoryBus->WriteMemory((location + 2).GetDataSegment(0, 24), word2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0, (void*)&ceLineStateContext);
 				result.busError |= result2.busError;
 				result.executionTime += result2.executionTime;
 				break;
@@ -2174,53 +2136,29 @@ void M68000::WriteMemoryTransparent(const M68000Long& location, const Data& data
 
 			if(location.Odd())
 			{
-				PerformanceLock lock(ceLineStateMutex);
-				memoryAccessTransparentFunctionCode = code;
-				memoryAccessTransparentUpperDataStrobe = false;
-				memoryAccessTransparentLowerDataStrobe = true;
-				memoryAccessTransparentReadHighWriteLow = false;
-				memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
-				memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-				memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24) & ~0x1, tempData, GetDeviceContext(), 0);
+				CalculateCELineStateContext ceLineStateContext(code, false, true, false, rmwCycleInProgress, rmwCycleFirstOperation);
+				memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24) & ~0x1, tempData, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 			}
 			else
 			{
-				PerformanceLock lock(ceLineStateMutex);
-				memoryAccessTransparentFunctionCode = code;
-				memoryAccessTransparentUpperDataStrobe = true;
-				memoryAccessTransparentLowerDataStrobe = false;
-				memoryAccessTransparentReadHighWriteLow = false;
-				memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
-				memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-				memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), tempData, GetDeviceContext(), 0);
+				CalculateCELineStateContext ceLineStateContext(code, true, false, false, rmwCycleInProgress, rmwCycleFirstOperation);
+				memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), tempData, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 			}
 			break;
 		}
 	case BITCOUNT_WORD:
 		{
-			PerformanceLock lock(ceLineStateMutex);
-			memoryAccessTransparentFunctionCode = code;
-			memoryAccessTransparentUpperDataStrobe = true;
-			memoryAccessTransparentLowerDataStrobe = true;
-			memoryAccessTransparentReadHighWriteLow = false;
-			memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
-			memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-			memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), M68000Word(data), GetDeviceContext(), 0);
+			CalculateCELineStateContext ceLineStateContext(code, true, true, false, rmwCycleInProgress, rmwCycleFirstOperation);
+			memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), M68000Word(data), GetDeviceContext(), 0, (void*)&ceLineStateContext);
 			break;
 		}
 	case BITCOUNT_LONG:
 		{
-			PerformanceLock lock(ceLineStateMutex);
 			M68000Word word1(data.GetUpperBits(BITCOUNT_WORD));
 			M68000Word word2(data.GetLowerBits(BITCOUNT_WORD));
-			memoryAccessTransparentFunctionCode = code;
-			memoryAccessTransparentUpperDataStrobe = true;
-			memoryAccessTransparentLowerDataStrobe = true;
-			memoryAccessTransparentReadHighWriteLow = false;
-			memoryAccessTransparentRMWCycleInProgress = rmwCycleInProgress;
-			memoryAccessTransparentRMWCycleFirstOperation = rmwCycleFirstOperation;
-			memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), word1, GetDeviceContext(), 0);
-			memoryBus->TransparentWriteMemory((location + 2).GetDataSegment(0, 24), word2, GetDeviceContext(), 0);
+			CalculateCELineStateContext ceLineStateContext(code, true, true, false, rmwCycleInProgress, rmwCycleFirstOperation);
+			memoryBus->TransparentWriteMemory(location.GetDataSegment(0, 24), word1, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+			memoryBus->TransparentWriteMemory((location + 2).GetDataSegment(0, 24), word2, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 			break;
 		}
 	}
@@ -2301,39 +2239,28 @@ void M68000::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int 
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int M68000::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const
+unsigned int M68000::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	unsigned int ceLineState = 0;
-	if(caller == this->GetDeviceContext())
+	if((caller == GetDeviceContext()) && (calculateCELineStateContext != 0))
 	{
-		ceLineState |= memoryAccessUpperDataStrobe? ceLineMaskUpperDataStrobe: 0x0;
-		ceLineState |= memoryAccessLowerDataStrobe? ceLineMaskLowerDataStrobe: 0x0;
-		ceLineState |= memoryAccessReadHighWriteLow? ceLineMaskReadHighWriteLow: 0x0;
+		CalculateCELineStateContext& ceLineStateContext = *((CalculateCELineStateContext*)calculateCELineStateContext);
+		ceLineState |= ceLineStateContext.upperDataStrobe? ceLineMaskUpperDataStrobe: 0x0;
+		ceLineState |= ceLineStateContext.lowerDataStrobe? ceLineMaskLowerDataStrobe: 0x0;
+		ceLineState |= ceLineStateContext.readHighWriteLow? ceLineMaskReadHighWriteLow: 0x0;
 		ceLineState |= ceLineMaskAddressStrobe;
-		ceLineState |= ((unsigned int)memoryAccessFunctionCode << ceLineBitNumberFunctionCode) & ceLineMaskFunctionCode;
-		ceLineState |= (memoryAccessFunctionCode == 0x7)? ceLineMaskFCCPUSpace: 0x0;
-		ceLineState |= memoryAccessRMWCycleInProgress? ceLineMaskRMWCycleInProgress: 0x0;
-		ceLineState |= memoryAccessRMWCycleFirstOperation? ceLineMaskRMWCycleFirstOperation: 0x0;
+		ceLineState |= ((unsigned int)ceLineStateContext.functionCode << ceLineBitNumberFunctionCode) & ceLineMaskFunctionCode;
+		ceLineState |= (ceLineStateContext.functionCode == 0x7)? ceLineMaskFCCPUSpace: 0x0;
+		ceLineState |= ceLineStateContext.rmwCycleInProgress? ceLineMaskRMWCycleInProgress: 0x0;
+		ceLineState |= ceLineStateContext.rmwCycleFirstOperation? ceLineMaskRMWCycleFirstOperation: 0x0;
 	}
 	return ceLineState;
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int M68000::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const
+unsigned int M68000::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
-	unsigned int ceLineState = 0;
-	if(caller == this->GetDeviceContext())
-	{
-		ceLineState |= memoryAccessTransparentUpperDataStrobe? ceLineMaskUpperDataStrobe: 0x0;
-		ceLineState |= memoryAccessTransparentLowerDataStrobe? ceLineMaskLowerDataStrobe: 0x0;
-		ceLineState |= memoryAccessTransparentReadHighWriteLow? ceLineMaskReadHighWriteLow: 0x0;
-		ceLineState |= ceLineMaskAddressStrobe;
-		ceLineState |= ((unsigned int)memoryAccessTransparentFunctionCode << ceLineBitNumberFunctionCode) & ceLineMaskFunctionCode;
-		ceLineState |= (memoryAccessTransparentFunctionCode == 0x7)? ceLineMaskFCCPUSpace: 0x0;
-		ceLineState |= memoryAccessTransparentRMWCycleInProgress? ceLineMaskRMWCycleInProgress: 0x0;
-		ceLineState |= memoryAccessTransparentRMWCycleFirstOperation? ceLineMaskRMWCycleFirstOperation: 0x0;
-	}
-	return ceLineState;
+	return CalculateCELineStateMemory(location, data, currentCELineState, sourceBusInterface, caller, calculateCELineStateContext, 0.0);
 }
 
 //----------------------------------------------------------------------------------------

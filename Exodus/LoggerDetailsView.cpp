@@ -8,7 +8,7 @@ System::LoggerDetailsView::LoggerDetailsView(System* asystem, const LogEntryInte
 :system(asystem), logEntry(alogEntry)
 {
 	hwndInternal = NULL;
-	std::wstring windowTitle = L"Logger Details";
+	std::wstring windowTitle = L"Event Log Entry";
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)system->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_LOGGER_DETAILS));
 }
 

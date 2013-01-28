@@ -1,33 +1,56 @@
 #ifndef __PERFORMANCEMUTEX_H__
 #define __PERFORMANCEMUTEX_H__
 #include "WindowFunctions/WindowFunctions.pkg"
-//#include <intrin.h>
-//_ReadWriteBarrier;
-//MemoryBarrier();
+#include "InterlockedTypes.h"
 
 //##NOTE## Tests have shown no significant performance improvements with these locking
 //mechanisms compared to the standard locking mechanisms provided in the Boost.Threads
 //library. The inlined asm method and InterlockedCompareExchange method appear to run
 //at a similar speed. The performance difference between these methods and the locking
 //system in boost in a real-world high collision scenario appears to be minimal.
-//##NOTE## Further reading suggests Lock() should use InterlockedCompareExchangeAcquire(),
-//and Unlock() should use InterlockedCompareExchangeRelease() for better performance. This
-//may optimize the memory barriers.
-class PerformanceMutex
+struct PerformanceMutex
 {
 public:
-	PerformanceMutex()
+	inline PerformanceMutex()
 	:mutex(0)
 	{}
 
-	void Lock()
+	inline void Lock()
 	{
-		while(InterlockedCompareExchange(&mutex, 1, 0) != 0) {}
+		//Generate an explicit read/write barrier. This is not a memory barrier! This is a
+		//compiler intrinsic to prevent instruction re-ordering. In this case, this
+		//barrier will ensure that even if this function is inlined by the compiler, any
+		//preceding instructions that work with shared memory will be performed before
+		//this code is executed, ensuring that instructions are not re-ordered around the
+		//mutex.
+		_ReadWriteBarrier();
+
+		//Enter a spin lock until the mutex can be acquired
+		//while(InterlockedCompareExchangeAcquire(&mutex, 1, 0) != 0) {}
+		while(PerformanceInterlockedBitTestAndSet(&mutex, 0)) {}
+
+		//This final write barrier ensures that the compiler doesn't re-order our acquire
+		//of the mutex after any following instructions.
+		_WriteBarrier();
 	}
 
-	void Unlock()
+	inline void Unlock()
 	{
-		InterlockedCompareExchange(&mutex, 0, 1);
+		//Generate an explicit read/write barrier. This is not a memory barrier! This is a
+		//compiler intrinsic to prevent instruction re-ordering. In this case, this
+		//barrier will ensure that even if this function is inlined by the compiler, any
+		//preceding instructions that work with shared memory will be performed before
+		//this code is executed, ensuring that instructions are not re-ordered around the
+		//mutex.
+		_ReadWriteBarrier();
+
+		//Release the mutex
+		//InterlockedCompareExchangeRelease(&mutex, 0, 1);
+		PerformanceInterlockedBitTestAndReset(&mutex, 0);
+
+		//This final write barrier ensures that the compiler doesn't re-order our release
+		//of the mutex after any following instructions.
+		_WriteBarrier();
 	}
 
 	//##NOTE## Inline asm isn't supported by x64 compiler
@@ -37,7 +60,7 @@ public:
 	//{
 	//	__asm
 	//	{
-	//		mov		ebx, this
+	//		mov     ebx, this
 	//		mov     eax, 1
 
 	//		spin_loop:
@@ -51,7 +74,7 @@ public:
 	//{
 	//	__asm
 	//	{
-	//		mov		ebx, this
+	//		mov     ebx, this
 	//		mov     eax, 0
 
 	//		xchg    eax, [ebx].mutex
@@ -60,7 +83,7 @@ public:
 	//}
 
 private:
-	volatile LONG mutex;
+	volatile InterlockedVarAligned32 mutex;
 };
 
 #endif

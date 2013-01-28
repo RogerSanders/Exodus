@@ -10,6 +10,8 @@
 #include <boost/thread/condition.hpp>
 
 //##TODO## Add support for views which can be open multiple times
+//##TODO## Add support for menu items which are not just selectable items, IE, submenus or
+//separators.
 class MenuHandlerBase :public IMenuHandler
 {
 public:

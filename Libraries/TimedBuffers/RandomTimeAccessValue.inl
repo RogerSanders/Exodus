@@ -71,8 +71,8 @@ template<class DataType, class TimesliceType> RandomTimeAccessValue<DataType, Ti
 {}
 
 //----------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue(const DataType& default)
-:value(default)
+template<class DataType, class TimesliceType> RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue(const DataType& defaultValue)
+:value(defaultValue)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -716,7 +716,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::GetState(IHeirarchicalStorageNode& node) const
+template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::SaveState(IHeirarchicalStorageNode& node) const
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	DataType saveValue(value);

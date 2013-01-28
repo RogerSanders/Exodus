@@ -86,6 +86,7 @@ public:
 	bool MapLine(IDevice* sourceDevice, unsigned int targetLineGroupID, const LineMappingParams& params);
 	bool MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice, IHeirarchicalStorageNode& node);
 	bool MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice, const LineMappingParams& params);
+	bool IsDeviceLineMappedTo(IDevice* device, unsigned int lineNo) const;
 
 	//CE line mapping functions
 	bool DefineCELineMemory(IHeirarchicalStorageNode& node);
@@ -101,16 +102,16 @@ public:
 	bool MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, const ClockSourceMappingParams& params);
 
 	//Memory interface functions
-	virtual AccessResult ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	virtual AccessResult WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	virtual void TransparentReadMemory(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) const;
-	virtual void TransparentWriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) const;
+	virtual AccessResult ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext = 0);
+	virtual AccessResult WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext = 0);
+	virtual void TransparentReadMemory(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext = 0) const;
+	virtual void TransparentWriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext = 0) const;
 
 	//Port interface functions
-	virtual AccessResult ReadPort(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	virtual AccessResult WritePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	virtual void TransparentReadPort(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) const;
-	virtual void TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) const;
+	virtual AccessResult ReadPort(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext = 0);
+	virtual AccessResult WritePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext = 0);
+	virtual void TransparentReadPort(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext = 0) const;
+	virtual void TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext = 0) const;
 
 	//Line interface functions
 	virtual bool SetLineState(unsigned int sourceLine, const Data& lineData, IDeviceContext* sourceDevice, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
@@ -174,10 +175,10 @@ private:
 	void UnmapClockSourceForDevice(IDevice* device);
 
 	//CE line state functions
-	unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime) const;
-	unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, IDeviceContext* caller) const;
-	unsigned int CalculateCELineStatePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime) const;
-	unsigned int CalculateCELineStatePortTransparent(unsigned int location, const Data& data, IDeviceContext* caller) const;
+	unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
+	unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext) const;
+	unsigned int CalculateCELineStatePort(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
+	unsigned int CalculateCELineStatePortTransparent(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext) const;
 
 	//Memory interface functions
 	MapEntry* ResolveMemoryAddress(unsigned int ce, unsigned int location) const;

@@ -105,6 +105,7 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	busGranted = false;
 	palModeLineState = false;
 	lineStateIPL = 0;
+	busRequestLineState = false;
 
 	outputPortAccessDebugMessages = false;
 	outputTimingDebugMessages = false;
@@ -114,6 +115,22 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	videoEnableSpriteBoxing = false;
 	videoHighlightRenderPos = false;
 	videoSingleBuffering = false;
+
+	enableLayerAHigh = true;
+	enableLayerALow = true;
+	enableLayerBHigh = true;
+	enableLayerBLow = true;
+	enableWindowHigh = true;
+	enableWindowLow = true;
+	enableSpriteHigh = true;
+	enableSpriteLow = true;
+
+	logStatusRegisterRead = false;
+	logDataPortRead = false;
+	logHVCounterRead = false;
+	logControlPortWrite = false;
+	logDataPortWrite = false;
+	portMonitorListSize = 200;
 }
 
 //----------------------------------------------------------------------------------------
@@ -172,6 +189,12 @@ bool S315_5313::ValidateDevice()
 void S315_5313::Initialize()
 {
 	reg.Initialize();
+	//##FIX## Separate the Initialize and Reset functions in the VDP core. We know that
+	//the VDP has a separate dedicated reset line, and we know that on a reset, all the
+	//VDP registers are initialized to 0. This is most likely almost the only thing we
+	//should actually be doing on a reset. Other buffers, like the internal sprite cache,
+	//are probably not even cleared, although this needs extensive hardware testing to
+	//determine what we should clear and what we should not.
 	Reset();
 
 	//Initialize the default external clock divider settings
@@ -198,13 +221,16 @@ void S315_5313::Initialize()
 		for(unsigned int i = 0; i < vramSize; i += 2)
 		{
 			//##FIX## This is just a random value, not what the system actually has.
-			//		vram->WriteLatest(i, 0xDE);
-			//		vram->WriteLatest(i+1, 0xAD);
-			//##FIX## Reverted to just zero-filling VRAM, due to some test roms which
-			//don't correctly initialize used VRAM areas. Perform some hardware tests to
-			//determine an appropriate fill pattern for VRAM.
-			vram->WriteLatest(i, 0x00);
-			vram->WriteLatest(i+1, 0x00);
+			//Perform some hardware tests to determine an appropriate fill pattern for
+			//VRAM.
+			if(!vram->IsByteLocked(i))
+			{
+				vram->WriteLatest(i, 0xDE);
+			}
+			if(!vram->IsByteLocked(i+1))
+			{
+				vram->WriteLatest(i+1, 0xAD);
+			}
 		}
 	}
 
@@ -217,17 +243,31 @@ void S315_5313::Initialize()
 	//apply when the target memory has not yet been written to, but that once a write is
 	//made, the memory is effectively cleared. Some uninitialized electrical pathway
 	//between the actual memory itself may be responsible for these readings. Perform
-	//hardware tests to confirm.
+	//hardware tests to confirm. Actually, upon consideration, we've only tested the
+	//joystick test program using the EverDrive. We need to test with the Tototek flash
+	//cart on a non-TMSS system to observe the correct behaviour.
 	if(cram != 0)
 	{
 		cram->Initialize();
 		for(unsigned int i = 0; i < cramSize; i += 2)
 		{
-			cram->WriteLatest(i, 0x0E);
-			cram->WriteLatest(i+1, 0xEE);
+			if(!cram->IsByteLocked(i))
+			{
+				cram->WriteLatest(i, 0x0E);
+			}
+			if(!cram->IsByteLocked(i+1))
+			{
+				cram->WriteLatest(i+1, 0xEE);
+			}
 		}
-		cram->WriteLatest(0x22, 0x0C);
-		cram->WriteLatest(0x23, 0xEE);
+		if(!cram->IsByteLocked(0x22))
+		{
+			cram->WriteLatest(0x22, 0x0C);
+		}
+		if(!cram->IsByteLocked(0x23))
+		{
+			cram->WriteLatest(0x23, 0xEE);
+		}
 	}
 
 	//The VSRAM is initialized to 0x07FF, except for the entry at 0x00, which is 0x07DF,
@@ -238,13 +278,31 @@ void S315_5313::Initialize()
 		vsram->Initialize();
 		for(unsigned int i = 0; i < vsramSize; i += 2)
 		{
-			vsram->WriteLatest(i, 0x07);
-			vsram->WriteLatest(i+1, 0xFF);
+			if(!vsram->IsByteLocked(i))
+			{
+				vsram->WriteLatest(i, 0x07);
+			}
+			if(!vsram->IsByteLocked(i+1))
+			{
+				vsram->WriteLatest(i+1, 0xFF);
+			}
 		}
-		vsram->WriteLatest(0x00, 0x07);
-		vsram->WriteLatest(0x01, 0xDF);
-		vsram->WriteLatest(0x22, 0x07);
-		vsram->WriteLatest(0x23, 0xFB);
+		if(!vsram->IsByteLocked(0x00))
+		{
+			vsram->WriteLatest(0x00, 0x07);
+		}
+		if(!vsram->IsByteLocked(0x01))
+		{
+			vsram->WriteLatest(0x01, 0xDF);
+		}
+		if(!vsram->IsByteLocked(0x22))
+		{
+			vsram->WriteLatest(0x22, 0x07);
+		}
+		if(!vsram->IsByteLocked(0x23))
+		{
+			vsram->WriteLatest(0x23, 0xFB);
+		}
 	}
 
 	//We have no idea how the sprite cache should be initialized. Most likely, it is not
@@ -256,25 +314,12 @@ void S315_5313::Initialize()
 		spriteCache->Initialize();
 		for(unsigned int i = 0; i < spriteCacheSize; i += 2)
 		{
-			spriteCache->WriteLatest(i, 0x00);
+			if(!spriteCache->IsByteLocked(i))
+			{
+				spriteCache->WriteLatest(i, 0x00);
+			}
 		}
 	}
-
-	enableLayerAHigh = true;
-	enableLayerALow = true;
-	enableLayerBHigh = true;
-	enableLayerBLow = true;
-	enableWindowHigh = true;
-	enableWindowLow = true;
-	enableSpriteHigh = true;
-	enableSpriteLow = true;
-
-	logStatusRegisterRead = false;
-	logDataPortRead = false;
-	logHVCounterRead = false;
-	logControlPortWrite = false;
-	logDataPortWrite = false;
-	portMonitorListSize = 200;
 
 	currentTimesliceLength = 0;
 	currentTimesliceMclkCyclesRemainingTime = 0;
@@ -319,6 +364,7 @@ void S315_5313::Initialize()
 	busGranted = false;
 	palModeLineState = true;
 	lineStateIPL = 0;
+	busRequestLineState = false;
 
 	for(unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
 	{
@@ -1026,6 +1072,7 @@ void S315_5313::ExecuteRollback()
 	busGranted = bbusGranted;
 	palModeLineState = bpalModeLineState;
 	lineStateIPL = blineStateIPL;
+	busRequestLineState = bbusRequestLineState;
 
 	//Clock sources
 	clockMclkCurrent = bclockMclkCurrent;
@@ -1219,6 +1266,7 @@ void S315_5313::ExecuteCommit()
 	bbusGranted = busGranted;
 	bpalModeLineState = palModeLineState;
 	blineStateIPL = lineStateIPL;
+	bbusRequestLineState = busRequestLineState;
 
 	//Clock sources
 	bclockMclkCurrent = clockMclkCurrent;
@@ -1521,7 +1569,8 @@ void S315_5313::DMAWorkerThread()
 					//already cleared the dmaTransferActive flag, so our worker thread
 					//will continue to run without advancing the processor state until the
 					//bus is released.
-					memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), 0), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_BR_RELEASE);
+					busRequestLineState = false;
+					memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), (unsigned int)busRequestLineState), GetDeviceContext(), GetDeviceContext(), accessTime, ACCESSCONTEXT_BR_RELEASE);
 
 					//Since we've reached the end of this DMA operation, reset the
 					//timeslice execution progress to the end of the timeslice. Note that
@@ -3391,7 +3440,7 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
 	std::wstring regBufferName = GetDeviceInstanceName();
 	regBufferName += L" - Registers";
-	reg.GetState(regNode, regBufferName, false);
+	reg.SaveState(regNode, regBufferName, false);
 
 	//Bus interface
 	node.CreateChild(L"Register", busGranted).CreateAttribute(L"name", L"BusGranted");

@@ -574,22 +574,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="PerformanceLock"
-			>
-			<File
-				RelativePath=".\PerformanceLock.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="PerformanceMutex"
-			>
-			<File
-				RelativePath=".\PerformanceMutex.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="PerformanceTimer"
 			>
 			<File
@@ -618,6 +602,30 @@
 			</File>
 			<File
 				RelativePath=".\MemoryBarrier.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Performance Locks"
+			>
+			<File
+				RelativePath=".\InterlockedTypes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PerformanceLock.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PerformanceLockReentrant.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PerformanceMutex.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PerformanceMutexReentrant.h"
 				>
 			</File>
 		</Filter>

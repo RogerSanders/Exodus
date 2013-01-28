@@ -66,14 +66,33 @@ void TimedBufferIntDevice::TransparentWriteInterface(unsigned int interfaceNumbe
 void TimedBufferIntDevice::LoadState(IHeirarchicalStorageNode& node)
 {
 	bufferShell.LoadState(node);
+
+	MemoryWrite::LoadState(node);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::SaveState(IHeirarchicalStorageNode& node) const
 {
-	bufferShell.GetState(node, GetDeviceInstanceName());
+	bufferShell.SaveState(node, GetDeviceInstanceName());
+
+	MemoryWrite::SaveState(node);
 }
 
+//----------------------------------------------------------------------------------------
+void TimedBufferIntDevice::LoadDebuggerState(IHeirarchicalStorageNode& node)
+{
+	bufferShell.LoadDebuggerState(node);
+
+	MemoryWrite::LoadDebuggerState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void TimedBufferIntDevice::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+{
+	bufferShell.SaveDebuggerState(node, GetDeviceInstanceName());
+
+	MemoryWrite::SaveDebuggerState(node);
+}
 //----------------------------------------------------------------------------------------
 //Memory locking functions
 //----------------------------------------------------------------------------------------

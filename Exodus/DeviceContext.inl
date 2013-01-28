@@ -231,12 +231,6 @@ void DeviceContext::Initialize()
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceContext::InitializeExternalConnections()
-{
-	device->InitializeExternalConnections();
-}
-
-//----------------------------------------------------------------------------------------
 //Timing functions
 //----------------------------------------------------------------------------------------
 double DeviceContext::GetNextTimingPoint(unsigned int& accessContext) const

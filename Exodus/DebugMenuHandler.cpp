@@ -13,7 +13,7 @@ System::DebugMenuHandler::DebugMenuHandler(System* adevice)
 //----------------------------------------------------------------------------------------
 std::wstring System::DebugMenuHandler::GetMenuHandlerName() const
 {
-	return L"SystemDebugMenu";
+	return L"DebugMenu";
 }
 
 //----------------------------------------------------------------------------------------

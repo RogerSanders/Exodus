@@ -185,8 +185,11 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
 	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void AssertCurrentOutputLineState() const;
+	virtual void NegateCurrentOutputLineState() const;
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock);
 
 	//Clock source functions
@@ -270,8 +273,8 @@ public:
 	//CE line state functions
 	virtual unsigned int GetCELineID(const wchar_t* lineName, bool inputLine) const;
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
-	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const;
-	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const;
+	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
+	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const;
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
@@ -293,6 +296,7 @@ private:
 	//Structures
 	struct ExceptionDebuggingEntry;
 	struct LineAccess;
+	struct CalculateCELineStateContext;
 	struct RegisterDisassemblyInfo
 	{
 		RegisterDisassemblyInfo()
@@ -402,21 +406,6 @@ private:
 	unsigned int ceLineMaskFCCPUSpace;
 	unsigned int ceLineMaskRMWCycleInProgress;
 	unsigned int ceLineMaskRMWCycleFirstOperation;
-
-	//CE line state info
-	mutable PerformanceMutex ceLineStateMutex;
-	mutable bool memoryAccessUpperDataStrobe;
-	mutable bool memoryAccessLowerDataStrobe;
-	mutable bool memoryAccessReadHighWriteLow;
-	mutable FunctionCode memoryAccessFunctionCode;
-	mutable bool memoryAccessRMWCycleInProgress;
-	mutable bool memoryAccessRMWCycleFirstOperation;
-	mutable bool memoryAccessTransparentUpperDataStrobe;
-	mutable bool memoryAccessTransparentLowerDataStrobe;
-	mutable bool memoryAccessTransparentReadHighWriteLow;
-	mutable FunctionCode memoryAccessTransparentFunctionCode;
-	mutable bool memoryAccessTransparentRMWCycleInProgress;
-	mutable bool memoryAccessTransparentRMWCycleFirstOperation;
 
 	//Line access
 	boost::mutex lineMutex;

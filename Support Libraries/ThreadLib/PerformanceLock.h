@@ -2,20 +2,21 @@
 #define __PERFORMANCELOCK_H__
 #include "PerformanceMutex.h"
 
-class PerformanceLock
+struct PerformanceLock
 {
 public:
-	PerformanceLock(PerformanceMutex& amutex)
+	inline PerformanceLock(PerformanceMutex& amutex)
 	:mutex(amutex)
 	{
 		mutex.Lock();
 	}
-	~PerformanceLock()
+	inline ~PerformanceLock()
 	{
 		mutex.Unlock();
 	}
 
 private:
+	//Don't allow the lock to be copied
 	PerformanceLock(const PerformanceLock& object)
 	:mutex(object.mutex)
 	{}

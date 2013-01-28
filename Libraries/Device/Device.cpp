@@ -45,10 +45,6 @@ void Device::Initialize()
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::InitializeExternalConnections()
-{}
-
-//----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
 bool Device::AddReference(const wchar_t* referenceName, IDevice* target)
@@ -306,25 +302,25 @@ void Device::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int 
 {}
 
 //----------------------------------------------------------------------------------------
-unsigned int Device::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const
+unsigned int Device::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Device::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const
+unsigned int Device::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Device::CalculateCELineStatePort(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const
+unsigned int Device::CalculateCELineStatePort(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Device::CalculateCELineStatePortTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const
+unsigned int Device::CalculateCELineStatePortTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
 	return 0;
 }
@@ -398,6 +394,10 @@ void Device::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 {}
 
 //----------------------------------------------------------------------------------------
+void Device::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{}
+
+//----------------------------------------------------------------------------------------
 void Device::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//##DEBUG##
@@ -409,6 +409,14 @@ bool Device::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 {
 	return false;
 }
+
+//----------------------------------------------------------------------------------------
+void Device::AssertCurrentOutputLineState() const
+{}
+
+//----------------------------------------------------------------------------------------
+void Device::NegateCurrentOutputLineState() const
+{}
 
 //----------------------------------------------------------------------------------------
 //Clock source functions

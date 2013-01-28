@@ -24,7 +24,6 @@ public:
 
 	//Initialization functions
 	virtual void Initialize();
-	virtual void InitializeExternalConnections();
 	virtual bool ValidateDevice();
 
 	//Reference functions
@@ -42,6 +41,9 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
+	virtual void AssertCurrentOutputLineState() const;
+	virtual void NegateCurrentOutputLineState() const;
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
 	void UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
 

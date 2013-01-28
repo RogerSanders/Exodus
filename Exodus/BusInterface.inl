@@ -66,16 +66,25 @@ struct BusInterface::LineMappingParams
 	LineMappingParams()
 	:sourceLineDefined(false),
 	 targetLineDefined(false),
+	 lineMaskANDDefined(false),
+	 lineMaskORDefined(false),
+	 lineMaskXORDefined(false),
 	 lineMappingDefined(false),
 	 declaringPartialMappingTemplate(false)
 	{}
 
 	bool sourceLineDefined;
 	bool targetLineDefined;
+	bool lineMaskANDDefined;
+	bool lineMaskORDefined;
+	bool lineMaskXORDefined;
 	bool lineMappingDefined;
 	bool declaringPartialMappingTemplate;
 	std::wstring sourceLine;
 	std::wstring targetLine;
+	unsigned int lineMaskAND;
+	unsigned int lineMaskOR;
+	unsigned int lineMaskXOR;
 	std::wstring lineMapping;
 };
 
@@ -129,6 +138,9 @@ struct BusInterface::LineEntry
 	LineEntry()
 	:sourceDevice(0),
 	 targetDevice(0),
+	 lineMaskAND(0xFFFFFFFF),
+	 lineMaskOR(0),
+	 lineMaskXOR(0),
 	 remapLines(false)
 	{}
 	LineEntry(IDevice* asourceDevice, unsigned int asourceLine, unsigned int asourceLineBitCount, IDevice* atargetDevice, unsigned int atargetLine, unsigned int atargetLineBitCount)
@@ -138,6 +150,9 @@ struct BusInterface::LineEntry
 	 targetDevice(atargetDevice),
 	 targetLine(atargetLine),
 	 targetLineBitCount(atargetLineBitCount),
+	 lineMaskAND(0xFFFFFFFF),
+	 lineMaskOR(0),
+	 lineMaskXOR(0),
 	 remapLines(false)
 	{}
 
@@ -147,6 +162,10 @@ struct BusInterface::LineEntry
 	unsigned int sourceLineBitCount;
 	unsigned int targetLine;
 	unsigned int targetLineBitCount;
+
+	unsigned int lineMaskAND;
+	unsigned int lineMaskOR;
+	unsigned int lineMaskXOR;
 
 	bool remapLines;
 	DataRemapTable lineRemapTable;

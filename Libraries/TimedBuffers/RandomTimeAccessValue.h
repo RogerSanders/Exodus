@@ -25,7 +25,7 @@ public:
 
 	//Constructors
 	RandomTimeAccessValue();
-	RandomTimeAccessValue(const DataType& default);
+	RandomTimeAccessValue(const DataType& defaultValue);
 
 	//Dereference operators
 	const DataType& operator*() const;
@@ -58,7 +58,7 @@ public:
 	bool LoadState(IHeirarchicalStorageNode& node);
 	bool LoadTimesliceEntries(IHeirarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);
 	bool LoadWriteEntries(IHeirarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
-	bool GetState(IHeirarchicalStorageNode& node) const;
+	bool SaveState(IHeirarchicalStorageNode& node) const;
 
 private:
 	mutable boost::mutex accessLock;

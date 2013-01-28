@@ -45,6 +45,17 @@ struct Z80::LineAccess
 };
 
 //----------------------------------------------------------------------------------------
+struct Z80::CalculateCELineStateContext
+{
+	CalculateCELineStateContext(bool alineRD, bool alineWR)
+	:lineRD(alineRD), lineWR(alineWR)
+	{}
+
+	bool lineRD;
+	bool lineWR;
+};
+
+//----------------------------------------------------------------------------------------
 //Register functions
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetA() const

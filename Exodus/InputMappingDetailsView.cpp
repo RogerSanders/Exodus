@@ -313,6 +313,6 @@ void System::InputMappingDetailsView::SetSystemKeySelectionForDeviceKey(unsigned
 	system->UnmapKeyCode(targetDevice, inputRegistrationsForDevice[inputRegistrationNo].deviceKeyCode);
 	if(systemKeyCode != IDeviceContext::KEYCODE_NONE)
 	{
-		system->MapKeyCode(systemKeyCode, inputRegistrationsForDevice[inputRegistrationNo].deviceKeyCode, targetDevice);
+		system->MapKeyCode(targetDevice, inputRegistrationsForDevice[inputRegistrationNo].deviceKeyCode, systemKeyCode);
 	}
 }

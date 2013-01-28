@@ -112,7 +112,7 @@ public:
 
 	//Savestate functions
 	bool LoadState(IHeirarchicalStorageNode& node);
-	bool GetState(IHeirarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData = false) const;
+	bool SaveState(IHeirarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData = false) const;
 
 private:
 	//Structures

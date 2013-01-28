@@ -129,7 +129,18 @@ INT_PTR System::DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			{
 				bool running = system->SystemRunning();
 				system->StopSystem();
+				deviceContext->GetTargetDevice()->NegateCurrentOutputLineState();
 				deviceContext->Initialize();
+				deviceContext->GetTargetDevice()->AssertCurrentOutputLineState();
+
+				//Re-assert the current line state for all system lines. This is required,
+				//as devices reset their input line state as a result of a call to the
+				//Initialize method.
+				for(SystemLineMap::const_iterator i = system->systemLines.begin(); i != system->systemLines.end(); ++i)
+				{
+					system->SetSystemLineState(i->first, Data(i->second.lineWidth, i->second.currentValue));
+				}
+
 				if(running)
 				{
 					system->RunSystem();

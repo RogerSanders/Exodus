@@ -2,37 +2,6 @@
 #include "TimedBufferTimeslice.h"
 
 //----------------------------------------------------------------------------------------
-//Savestate functions
-//----------------------------------------------------------------------------------------
-void TimedBufferInt::LoadState(IHeirarchicalStorageNode& node)
-{
-	memory.LoadState(node);
-}
-
-//----------------------------------------------------------------------------------------
-void TimedBufferInt::GetState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const
-{
-	memory.GetState(node, bufferName);
-}
-
-//----------------------------------------------------------------------------------------
-//Memory locking functions
-//----------------------------------------------------------------------------------------
-void TimedBufferInt::LockMemoryBlock(unsigned int location, unsigned int size, bool state)
-{
-	for(unsigned int i = 0; i < size; ++i)
-	{
-		memoryLocked[location + i] = state;
-	}
-}
-
-//----------------------------------------------------------------------------------------
-bool TimedBufferInt::IsByteLocked(unsigned int location) const
-{
-	return memoryLocked[location];
-}
-
-//----------------------------------------------------------------------------------------
 //Size functions
 //----------------------------------------------------------------------------------------
 unsigned int TimedBufferInt::Size() const
@@ -207,4 +176,52 @@ void TimedBufferInt::AddTimeslice(TimesliceType timeslice)
 void TimedBufferInt::BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice* targetTimeslice, bool retrieveWriteInfo) const
 {
 	memory.BeginAdvanceSession(advanceSession, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice, retrieveWriteInfo);
+}
+
+//----------------------------------------------------------------------------------------
+//Memory locking functions
+//----------------------------------------------------------------------------------------
+void TimedBufferInt::LockMemoryBlock(unsigned int location, unsigned int size, bool state)
+{
+	for(unsigned int i = 0; i < size; ++i)
+	{
+		memoryLocked[location + i] = state;
+	}
+}
+
+//----------------------------------------------------------------------------------------
+bool TimedBufferInt::IsByteLocked(unsigned int location) const
+{
+	return memoryLocked[location];
+}
+
+//----------------------------------------------------------------------------------------
+//Savestate functions
+//----------------------------------------------------------------------------------------
+void TimedBufferInt::LoadState(IHeirarchicalStorageNode& node)
+{
+	memory.LoadState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void TimedBufferInt::SaveState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const
+{
+	memory.SaveState(node, bufferName);
+}
+
+//----------------------------------------------------------------------------------------
+void TimedBufferInt::LoadDebuggerState(IHeirarchicalStorageNode& node)
+{
+	size_t memorySize = memoryLocked.size();
+	node.ExtractBinaryData(memoryLocked);
+	if(memoryLocked.size() < memorySize)
+	{
+		memoryLocked.insert(memoryLocked.end(), memorySize - memoryLocked.size(), false);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void TimedBufferInt::SaveDebuggerState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const
+{
+	node.InsertBinaryData(memoryLocked, bufferName + L" - MemoryLockedState", false);
 }

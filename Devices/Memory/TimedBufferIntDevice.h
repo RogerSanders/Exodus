@@ -18,6 +18,8 @@ public:
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
 	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 
 	//Memory locking functions
 	virtual bool IsMemoryLockingSupported() const;

@@ -308,9 +308,11 @@ void Z80::Initialize()
 	processorStopped = false;
 	bprocessorStopped = false;
 
+	lastLineCheckTime = 0;
 	lineAccessPending = false;
 	resetLineState = false;
 	busreqLineState = false;
+	busackLineState = false;
 	intLineState = false;
 	nmiLineState = false;
 	lastTimesliceLength = 0;
@@ -430,6 +432,7 @@ void Z80::ExecuteRollback()
 	suspendUntilLineStateChangeReceived = bsuspendUntilLineStateChangeReceived;
 	resetLineState = bresetLineState;
 	busreqLineState = bbusreqLineState;
+	busackLineState = bbusackLineState;
 	intLineState = bintLineState;
 	nmiLineState = bnmiLineState;
 
@@ -468,6 +471,7 @@ void Z80::ExecuteCommit()
 	bsuspendUntilLineStateChangeReceived = suspendUntilLineStateChangeReceived;
 	bresetLineState = resetLineState;
 	bbusreqLineState = busreqLineState;
+	bbusackLineState = busackLineState;
 	bintLineState = intLineState;
 	bnmiLineState = nmiLineState;
 
@@ -602,6 +606,12 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 }
 
 //----------------------------------------------------------------------------------------
+void Z80::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{
+	SetLineState(targetLine, lineData, 0, 0.0, 0);
+}
+
+//----------------------------------------------------------------------------------------
 void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(lineMutex);
@@ -642,6 +652,24 @@ void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, doub
 }
 
 //----------------------------------------------------------------------------------------
+void Z80::AssertCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(busackLineState) memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::NegateCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(busackLineState) memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
 void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock)
 {
 	//##DEBUG##
@@ -670,7 +698,8 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, bo
 
 			//If we're processing a change to the BUSREQ line, we need to now change the
 			//state of the BUSACK line to match.
-			memoryBus->SetLineState(LINE_BUSACK, lineData, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+			busackLineState = busreqLineState;
+			memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), (unsigned int)busackLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 
 			//Re-acquire the lock now that we've completed our external call
 			lock.lock();
@@ -1246,39 +1275,31 @@ double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent) co
 	{
 	case BITCOUNT_BYTE:{
 		Z80Byte temp;
+		CalculateCELineStateContext ceLineStateContext(true, false);
 		if(transparent)
 		{
-			PerformanceLock lock(ceLineStateMutex);
-			memoryAccessTransparentRD = true;
-			memoryAccessTransparentWR = false;
-			memoryBus->TransparentReadMemory(location.GetData(), temp, GetDeviceContext(), 0);
+			memoryBus->TransparentReadMemory(location.GetData(), temp, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 		}
 		else
 		{
-			memoryAccessRD = true;
-			memoryAccessWR = false;
-			result = memoryBus->ReadMemory(location.GetData(), temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+			result = memoryBus->ReadMemory(location.GetData(), temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 		}
 		data = temp;
 		break;}
 	case BITCOUNT_WORD:{
 		Z80Byte byteLow;
 		Z80Byte byteHigh;
+		CalculateCELineStateContext ceLineStateContext(true, false);
 		if(transparent)
 		{
-			PerformanceLock lock(ceLineStateMutex);
-			memoryAccessTransparentRD = true;
-			memoryAccessTransparentWR = false;
-			memoryBus->TransparentReadMemory(location.GetData(), byteLow, GetDeviceContext(), 0);
-			memoryBus->TransparentReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), 0);
+			memoryBus->TransparentReadMemory(location.GetData(), byteLow, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+			memoryBus->TransparentReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 		}
 		else
 		{
 			IBusInterface::AccessResult result2;
-			memoryAccessRD = true;
-			memoryAccessWR = false;
-			result = memoryBus->ReadMemory(location.GetData(), byteLow, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-			result2 = memoryBus->ReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0);
+			result = memoryBus->ReadMemory(location.GetData(), byteLow, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
+			result2 = memoryBus->ReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0, (void*)&ceLineStateContext);
 			result.executionTime += result2.executionTime;
 		}
 		data.SetLowerBits(byteLow);
@@ -1302,40 +1323,32 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 	switch(data.GetBitCount())
 	{
 	case BITCOUNT_BYTE:{
+		CalculateCELineStateContext ceLineStateContext(false, true);
 		if(transparent)
 		{
-			PerformanceLock lock(ceLineStateMutex);
-			memoryAccessTransparentRD = false;
-			memoryAccessTransparentWR = true;
-			memoryBus->TransparentWriteMemory(location.GetData(), data, GetDeviceContext(), 0);
+			memoryBus->TransparentWriteMemory(location.GetData(), data, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 		}
 		else
 		{
-			memoryAccessRD = false;
-			memoryAccessWR = true;
-			result = memoryBus->WriteMemory(location.GetData(), data, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+			result = memoryBus->WriteMemory(location.GetData(), data, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 		}
 		break;}
 	case BITCOUNT_WORD:{
+		CalculateCELineStateContext ceLineStateContext(false, true);
 		if(transparent)
 		{
-			PerformanceLock lock(ceLineStateMutex);
 			Z80Byte byte1(data.GetLowerBits(BITCOUNT_BYTE));
 			Z80Byte byte2(data.GetUpperBits(BITCOUNT_BYTE));
-			memoryAccessTransparentRD = false;
-			memoryAccessTransparentWR = true;
-			memoryBus->TransparentWriteMemory(location.GetData(), byte1, GetDeviceContext(), 0);
-			memoryBus->TransparentWriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), 0);
+			memoryBus->TransparentWriteMemory(location.GetData(), byte1, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+			memoryBus->TransparentWriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 		}
 		else
 		{
 			IBusInterface::AccessResult result2;
 			Z80Byte byte1(data.GetLowerBits(BITCOUNT_BYTE));
 			Z80Byte byte2(data.GetUpperBits(BITCOUNT_BYTE));
-			memoryAccessRD = false;
-			memoryAccessWR = true;
-			result = memoryBus->WriteMemory(location.GetData(), byte1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-			result2 = memoryBus->WriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0);
+			result = memoryBus->WriteMemory(location.GetData(), byte1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
+			result2 = memoryBus->WriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0, (void*)&ceLineStateContext);
 			result.executionTime += result2.executionTime;
 		}
 		break;}
@@ -1376,27 +1389,22 @@ void Z80::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lin
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Z80::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const
+unsigned int Z80::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	unsigned int ceLineState = 0;
-	if(caller == this->GetDeviceContext())
+	if((caller == GetDeviceContext()) && (calculateCELineStateContext != 0))
 	{
-		ceLineState |= memoryAccessRD? ceLineMaskRD: 0x0;
-		ceLineState |= memoryAccessWR? ceLineMaskWR: 0x0;
+		CalculateCELineStateContext& ceLineStateContext = *((CalculateCELineStateContext*)calculateCELineStateContext);
+		ceLineState |= ceLineStateContext.lineRD? ceLineMaskRD: 0x0;
+		ceLineState |= ceLineStateContext.lineWR? ceLineMaskWR: 0x0;
 	}
 	return ceLineState;
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Z80::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const
+unsigned int Z80::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
-	unsigned int ceLineState = 0;
-	if(caller == this->GetDeviceContext())
-	{
-		ceLineState |= memoryAccessTransparentRD? ceLineMaskRD: 0x0;
-		ceLineState |= memoryAccessTransparentWR? ceLineMaskWR: 0x0;
-	}
-	return ceLineState;
+	return CalculateCELineStateMemory(location, data, currentCELineState, sourceBusInterface, caller, calculateCELineStateContext, 0.0);
 }
 
 //----------------------------------------------------------------------------------------

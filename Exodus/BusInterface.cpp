@@ -881,6 +881,20 @@ bool BusInterface::MapLine(IDevice* sourceDevice, IDevice* targetDevice, const L
 		return false;
 	}
 
+	//Handle any line mask parameters
+	if(params.lineMaskANDDefined)
+	{
+		lineEntry.lineMaskAND = params.lineMaskAND;
+	}
+	if(params.lineMaskORDefined)
+	{
+		lineEntry.lineMaskOR = params.lineMaskOR;
+	}
+	if(params.lineMaskXORDefined)
+	{
+		lineEntry.lineMaskXOR = params.lineMaskXOR;
+	}
+
 	//Handle a LineMapping parameter
 	if(params.lineMappingDefined)
 	{
@@ -1083,6 +1097,19 @@ bool BusInterface::MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice
 }
 
 //----------------------------------------------------------------------------------------
+bool BusInterface::IsDeviceLineMappedTo(IDevice* device, unsigned int lineNo) const
+{
+	for(std::list<LineEntry>::const_iterator i = lineMap.begin(); i != lineMap.end(); ++i)
+	{
+		if((i->targetDevice == device) && (i->targetLine == lineNo))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
 bool BusInterface::ExtractLineMappingParams(IHeirarchicalStorageNode& node, LineMappingParams& params) const
 {
 	//Extract all possible parameters from the XMLEntity object
@@ -1097,6 +1124,24 @@ bool BusInterface::ExtractLineMappingParams(IHeirarchicalStorageNode& node, Line
 	{
 		params.targetLineDefined = true;
 		params.targetLine = targetLineAttribute->GetValue();
+	}
+	IHeirarchicalStorageAttribute* lineMaskANDAttribute = node.GetAttribute(L"ANDMask");
+	if(lineMaskANDAttribute != 0)
+	{
+		params.lineMaskANDDefined = true;
+		params.lineMaskAND = lineMaskANDAttribute->ExtractHexValue<unsigned int>();
+	}
+	IHeirarchicalStorageAttribute* lineMaskORAttribute = node.GetAttribute(L"ORMask");
+	if(lineMaskORAttribute != 0)
+	{
+		params.lineMaskORDefined = true;
+		params.lineMaskOR = lineMaskORAttribute->ExtractHexValue<unsigned int>();
+	}
+	IHeirarchicalStorageAttribute* lineMaskXORAttribute = node.GetAttribute(L"XORMask");
+	if(lineMaskXORAttribute != 0)
+	{
+		params.lineMaskXORDefined = true;
+		params.lineMaskXOR = lineMaskXORAttribute->ExtractHexValue<unsigned int>();
 	}
 	IHeirarchicalStorageAttribute* lineMappingAttribute = node.GetAttribute(L"LineMapping");
 	if(lineMappingAttribute != 0)
@@ -2082,7 +2127,7 @@ void BusInterface::UnmapClockSourceForDevice(IDevice* device)
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int BusInterface::CalculateCELineStateMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime) const
+unsigned int BusInterface::CalculateCELineStateMemory(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	unsigned int ceLineState = ceLineInitialStateMemory;
 
@@ -2090,7 +2135,7 @@ unsigned int BusInterface::CalculateCELineStateMemory(unsigned int location, con
 	for(unsigned int i = 0; i < ceLineDeviceMappingsMemoryOutputDeviceSize; ++i)
 	{
 		const CELineDeviceEntry& deviceEntry = ceLineDeviceMappingsMemory[i];
-		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStateMemory(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, accessTime);
+		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStateMemory(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, calculateCELineStateContext, accessTime);
 		ceLineState |= (deviceReturn & deviceEntry.outputCELineMask);
 	}
 
@@ -2098,7 +2143,7 @@ unsigned int BusInterface::CalculateCELineStateMemory(unsigned int location, con
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int BusInterface::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, IDeviceContext* caller) const
+unsigned int BusInterface::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
 	unsigned int ceLineState = ceLineInitialStateMemory;
 
@@ -2106,7 +2151,7 @@ unsigned int BusInterface::CalculateCELineStateMemoryTransparent(unsigned int lo
 	for(unsigned int i = 0; i < ceLineDeviceMappingsMemoryOutputDeviceSize; ++i)
 	{
 		const CELineDeviceEntry& deviceEntry = ceLineDeviceMappingsMemory[i];
-		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStateMemoryTransparent(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller);
+		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStateMemoryTransparent(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, calculateCELineStateContext);
 		ceLineState |= (deviceReturn & deviceEntry.outputCELineMask);
 	}
 
@@ -2114,7 +2159,7 @@ unsigned int BusInterface::CalculateCELineStateMemoryTransparent(unsigned int lo
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int BusInterface::CalculateCELineStatePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime) const
+unsigned int BusInterface::CalculateCELineStatePort(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	unsigned int ceLineState = ceLineInitialStatePort;
 
@@ -2122,7 +2167,7 @@ unsigned int BusInterface::CalculateCELineStatePort(unsigned int location, const
 	for(unsigned int i = 0; i < ceLineDeviceMappingsPortOutputDeviceSize; ++i)
 	{
 		const CELineDeviceEntry& deviceEntry = ceLineDeviceMappingsPort[i];
-		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStatePort(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, accessTime);
+		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStatePort(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, calculateCELineStateContext, accessTime);
 		ceLineState |= (deviceReturn & deviceEntry.outputCELineMask);
 	}
 
@@ -2130,7 +2175,7 @@ unsigned int BusInterface::CalculateCELineStatePort(unsigned int location, const
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int BusInterface::CalculateCELineStatePortTransparent(unsigned int location, const Data& data, IDeviceContext* caller) const
+unsigned int BusInterface::CalculateCELineStatePortTransparent(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
 	unsigned int ceLineState = ceLineInitialStatePort;
 
@@ -2138,7 +2183,7 @@ unsigned int BusInterface::CalculateCELineStatePortTransparent(unsigned int loca
 	for(unsigned int i = 0; i < ceLineDeviceMappingsPortOutputDeviceSize; ++i)
 	{
 		const CELineDeviceEntry& deviceEntry = ceLineDeviceMappingsPort[i];
-		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStatePortTransparent(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller);
+		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStatePortTransparent(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, calculateCELineStateContext);
 		ceLineState |= (deviceReturn & deviceEntry.outputCELineMask);
 	}
 
@@ -2181,11 +2226,11 @@ BusInterface::MapEntry* BusInterface::ResolveMemoryAddress(unsigned int ce, unsi
 }
 
 //----------------------------------------------------------------------------------------
-BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext)
 {
 	AccessResult accessResult(false, true, 0);
 	location &= addressBusMask;
-	unsigned int ce = CalculateCELineStateMemory(location, data, caller, accessTime);
+	unsigned int ce = CalculateCELineStateMemory(location, data, caller, calculateCELineStateContext, accessTime);
 	MapEntry* mapEntry = ResolveMemoryAddress(ce, location);
 	if(mapEntry != 0)
 	{
@@ -2234,11 +2279,11 @@ BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data&
 }
 
 //----------------------------------------------------------------------------------------
-BusInterface::AccessResult BusInterface::WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+BusInterface::AccessResult BusInterface::WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext)
 {
 	AccessResult accessResult(false);
 	location &= addressBusMask;
-	unsigned int ce = CalculateCELineStateMemory(location, data, caller, accessTime);
+	unsigned int ce = CalculateCELineStateMemory(location, data, caller, calculateCELineStateContext, accessTime);
 	MapEntry* mapEntry = ResolveMemoryAddress(ce, location);
 	if(mapEntry != 0)
 	{
@@ -2269,10 +2314,10 @@ BusInterface::AccessResult BusInterface::WriteMemory(unsigned int location, cons
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::TransparentReadMemory(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) const
+void BusInterface::TransparentReadMemory(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext) const
 {
 	location &= addressBusMask;
-	unsigned int ce = CalculateCELineStateMemoryTransparent(location, data, caller);
+	unsigned int ce = CalculateCELineStateMemoryTransparent(location, data, caller, calculateCELineStateContext);
 	MapEntry* mapEntry = ResolveMemoryAddress(ce, location);
 	if(mapEntry != 0)
 	{
@@ -2302,10 +2347,10 @@ void BusInterface::TransparentReadMemory(unsigned int location, Data& data, IDev
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::TransparentWriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) const
+void BusInterface::TransparentWriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext) const
 {
 	location &= addressBusMask;
-	unsigned int ce = CalculateCELineStateMemoryTransparent(location, data, caller);
+	unsigned int ce = CalculateCELineStateMemoryTransparent(location, data, caller, calculateCELineStateContext);
 	MapEntry* mapEntry = ResolveMemoryAddress(ce, location);
 	if(mapEntry != 0)
 	{
@@ -2370,11 +2415,11 @@ BusInterface::MapEntry* BusInterface::ResolvePortAddress(unsigned int ce, unsign
 }
 
 //----------------------------------------------------------------------------------------
-BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext)
 {
 	AccessResult accessResult(false, true, 0);
 	location &= portAddressBusMask;
-	unsigned int ce = CalculateCELineStatePort(location, data, caller, accessTime);
+	unsigned int ce = CalculateCELineStatePort(location, data, caller, calculateCELineStateContext, accessTime);
 	MapEntry* mapEntry = ResolvePortAddress(ce, location);
 	if(mapEntry != 0)
 	{
@@ -2423,11 +2468,11 @@ BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& d
 }
 
 //----------------------------------------------------------------------------------------
-BusInterface::AccessResult BusInterface::WritePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+BusInterface::AccessResult BusInterface::WritePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext)
 {
 	AccessResult accessResult(false);
 	location &= portAddressBusMask;
-	unsigned int ce = CalculateCELineStatePort(location, data, caller, accessTime);
+	unsigned int ce = CalculateCELineStatePort(location, data, caller, calculateCELineStateContext, accessTime);
 	MapEntry* mapEntry = ResolvePortAddress(ce, location);
 	if(mapEntry != 0)
 	{
@@ -2458,10 +2503,10 @@ BusInterface::AccessResult BusInterface::WritePort(unsigned int location, const 
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::TransparentReadPort(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) const
+void BusInterface::TransparentReadPort(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext) const
 {
 	location &= portAddressBusMask;
-	unsigned int ce = CalculateCELineStatePortTransparent(location, data, caller);
+	unsigned int ce = CalculateCELineStatePortTransparent(location, data, caller, calculateCELineStateContext);
 	MapEntry* mapEntry = ResolvePortAddress(ce, location);
 	if(mapEntry != 0)
 	{
@@ -2491,10 +2536,10 @@ void BusInterface::TransparentReadPort(unsigned int location, Data& data, IDevic
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) const
+void BusInterface::TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext) const
 {
 	location &= portAddressBusMask;
-	unsigned int ce = CalculateCELineStatePortTransparent(location, data, caller);
+	unsigned int ce = CalculateCELineStatePortTransparent(location, data, caller, calculateCELineStateContext);
 	MapEntry* mapEntry = ResolvePortAddress(ce, location);
 	if(mapEntry != 0)
 	{
@@ -2543,6 +2588,9 @@ bool BusInterface::SetLineState(unsigned int sourceLine, const Data& lineData, I
 				//Remap lines
 				tempData = lineEntry->lineRemapTable.ConvertTo(lineData.GetData());
 			}
+			tempData &= lineEntry->lineMaskAND;
+			tempData |= lineEntry->lineMaskOR;
+			tempData ^= lineEntry->lineMaskXOR;
 			lineEntry->targetDevice->SetLineState(lineEntry->targetLine, tempData, callingDevice, accessTime, accessContext);
 		}
 	}

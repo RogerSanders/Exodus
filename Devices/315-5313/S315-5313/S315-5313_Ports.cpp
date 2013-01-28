@@ -222,6 +222,12 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 }
 
 //----------------------------------------------------------------------------------------
+void S315_5313::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{
+	SetLineState(targetLine, lineData, 0, 0.0, 0);
+}
+
+//----------------------------------------------------------------------------------------
 bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	switch(targetLine)
@@ -306,6 +312,95 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 		break;
 	}
 	return false;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::AssertCurrentOutputLineState() const
+{
+	if(memoryBus == 0)
+	{
+		return;
+	}
+
+	//Assert the current line output state for the output lines
+	if(busRequestLineState) memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(lineStateIPL != 0)   memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), lineStateIPL), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+
+	//Re-assert any pending IPL line state changes
+	if(lineStateChangePendingVINT)
+	{
+		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeVINTTime, ACCESSCONTEXT_INTLINECHANGE);
+	}
+	if(lineStateChangePendingHINT)
+	{
+		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeHINTTime, ACCESSCONTEXT_INTLINECHANGE);
+	}
+	if(lineStateChangePendingEXINT)
+	{
+		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeEXINTTime, ACCESSCONTEXT_INTLINECHANGE);
+	}
+
+	//Re-assert any pending INT line state changes, and re-assert the INT line if it's
+	//currently asserted.
+	if(lineStateChangePendingINTAsserted)
+	{
+		memoryBus->RevokeSetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), lineStateChangeINTAssertedTime, ACCESSCONTEXT_INTLINECHANGE);
+	}
+	else if(lineStateChangePendingINTNegated)
+	{
+		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+	}
+	if(lineStateChangePendingINTNegated)
+	{
+		memoryBus->RevokeSetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), lineStateChangeINTNegatedTime, ACCESSCONTEXT_INTLINECHANGE);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::NegateCurrentOutputLineState() const
+{
+	if(memoryBus == 0)
+	{
+		return;
+	}
+
+	//Negate the current line output state for the output lines
+	if(busRequestLineState) memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(lineStateIPL != 0)   memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+
+	//Revoke any pending IPL line state changes
+	if(lineStateChangePendingVINT)
+	{
+		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+	}
+	if(lineStateChangePendingHINT)
+	{
+		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+	}
+	if(lineStateChangePendingEXINT)
+	{
+		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+	}
+
+	//Revoke any pending INT line state changes, and negate the INT line if it's currently
+	//asserted.
+	if(lineStateChangePendingINTAsserted)
+	{
+		memoryBus->RevokeSetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+	}
+	else if(lineStateChangePendingINTNegated)
+	{
+		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+	}
+	if(lineStateChangePendingINTNegated)
+	{
+		memoryBus->RevokeSetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -696,9 +791,9 @@ void S315_5313::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned i
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const
+unsigned int S315_5313::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
-	bool vdpIsSource = (caller == this->GetDeviceContext());
+	bool vdpIsSource = (caller == GetDeviceContext());
 	bool currentLowerDataStrobe = (currentCELineState & ceLineMaskLowerDataStrobeInput) != 0;
 	bool currentUpperDataStrobe = (currentCELineState & ceLineMaskUpperDataStrobeInput) != 0;
 	bool operationIsWrite = (currentCELineState & ceLineMaskReadHighWriteLowInput) == 0;
@@ -712,13 +807,13 @@ unsigned int S315_5313::CalculateCELineStateMemory(unsigned int location, const 
 		rmwCycleInProgress = false;
 		rmwCycleFirstOperation = false;
 	}
-	return BuildCELine(location, vdpIsSource, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
+	return BuildCELine(location, vdpIsSource, false, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const
+unsigned int S315_5313::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
-	bool vdpIsSource = (caller == this->GetDeviceContext());
+	bool vdpIsSource = (caller == GetDeviceContext());
 	bool currentLowerDataStrobe = (currentCELineState & ceLineMaskLowerDataStrobeInput) != 0;
 	bool currentUpperDataStrobe = (currentCELineState & ceLineMaskUpperDataStrobeInput) != 0;
 	bool operationIsWrite = (currentCELineState & ceLineMaskReadHighWriteLowInput) == 0;
@@ -732,11 +827,11 @@ unsigned int S315_5313::CalculateCELineStateMemoryTransparent(unsigned int locat
 		rmwCycleInProgress = false;
 		rmwCycleFirstOperation = false;
 	}
-	return BuildCELine(location, vdpIsSource, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
+	return BuildCELine(location, vdpIsSource, true, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
+unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool transparentAccess, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
 {
 	//Calculate the state of all the various CE lines
 	bool lineLWR = operationIsWrite && currentLowerDataStrobe;
@@ -769,7 +864,7 @@ unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource
 	//write component. This is done through the use of two pseudo-CE lines from the
 	//M68000, which indicate whether we are performing a read-modify-write cycle, and
 	//whether this is the first operation of that cycle, respectively.
-	if(rmwCycleInProgress)
+	if(rmwCycleInProgress && !transparentAccess)
 	{
 		if(rmwCycleFirstOperation)
 		{
@@ -1079,13 +1174,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				std::wcout << "VDP WriteInterface called while a bus request was pending! Caching the write.\n";
 			}
 
-			if((location & 0xE) == 0)
-			{
-				dmaTransferInvalidPortWriteCached = true;
-				dmaTransferInvalidPortWriteAddressCache = location;
-				dmaTransferInvalidPortWriteDataCache = data;
-			}
-			else if((location & 0xE) == 2)
+			if(((location & 0xE) == 0) || ((location & 0xE) == 2))
 			{
 				dmaTransferInvalidPortWriteCached = true;
 				dmaTransferInvalidPortWriteAddressCache = location;
@@ -1347,7 +1436,9 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				//mode 4 are inaccessible.
 				//##TODO## Do hardware tests to confirm whether the unused registers 6, 8,
 				//and 9 can be modified in mode 5, and whether the unused registers 3 and
-				//4 can be modified in mode 4.
+				//4 can be modified in mode 4. Also do a specific test to see if the auto
+				//increment data register (0x0F) can be modified in mode 4, as the test
+				//rom "Flavio's DMA Test (PD)" relies on this.
 				unsigned int accessibleRegisterCount = registerCount;
 				if(!screenModeM5Cached)
 				{
@@ -1440,7 +1531,8 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 			//is granted? We can test this by physically preventing the VDP from asserting
 			//the BR line, so that the M68000 never grants the bus, and see how the VDP
 			//responds if we continue to access it.
-			memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), 1), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime, ACCESSCONTEXT_BR_ASSERT);
+			busRequestLineState = true;
+			memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), (unsigned int)busRequestLineState), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime, ACCESSCONTEXT_BR_ASSERT);
 		}
 		break;}
 	case 2: //01* - HV Counter

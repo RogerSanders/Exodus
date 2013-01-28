@@ -5,17 +5,67 @@
 //----------------------------------------------------------------------------------------
 //View functions
 //----------------------------------------------------------------------------------------
-void System::BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) const
+void System::BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher)
 {
-	//Add the system settings menu items
+	//Add the system menu items
 	IMenuSegment& menuSegmentForSystem = menuSubmenu.CreateMenuSegment();
 	systemMenuHandler->AddMenuItems(menuSegmentForSystem, viewModelLauncher);
-
-	//##TODO## Add any options defined in the currently loaded system
 }
 
 //----------------------------------------------------------------------------------------
-void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) const
+void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher)
+{
+	//Add the settings menu items
+	IMenuSegment& menuSegmentForSystem = menuSubmenu.CreateMenuSegment();
+	settingsMenuHandler->AddMenuItems(menuSegmentForSystem, viewModelLauncher);
+	IMenuSeparator& menuSystemItemsSeparator = menuSegmentForSystem.AddMenuItemSeparator();
+
+	//Build our module submenus
+	IMenuSegment& menuSegmentForModules = menuSubmenu.CreateMenuSegment();
+	for(ModuleSystemSettingMap::iterator moduleSettingsIterator = moduleSettings.begin(); moduleSettingsIterator != moduleSettings.end(); ++moduleSettingsIterator)
+	{
+		unsigned int targetModuleID = moduleSettingsIterator->first;
+		SystemSettingsList& moduleSettings = moduleSettingsIterator->second;
+
+		//Retrieve the display name for the target module
+		std::wstring moduleDisplayName;
+		if(!GetModuleDisplayName(targetModuleID, moduleDisplayName))
+		{
+			continue;
+		}
+
+		//Create a submenu for this module
+		IMenuSubmenu& moduleSubmenu = menuSegmentForModules.AddMenuItemSubmenu(moduleDisplayName);
+
+		//Add menu items for each system option defined in this module
+		IMenuSegment& menuSegmentForSettings = moduleSubmenu.CreateMenuSegment();
+		for(SystemSettingsList::iterator settingsIterator = moduleSettings.begin(); settingsIterator != moduleSettings.end(); ++settingsIterator)
+		{
+			IMenuSubmenu& settingSubmenu = menuSegmentForSettings.AddMenuItemSubmenu(settingsIterator->displayName);
+			IMenuSegment& menuSegmentForSettingSubmenu = settingSubmenu.CreateMenuSegment();
+			for(unsigned int i = 0; i < settingsIterator->options.size(); ++i)
+			{
+				IMenuSelectableOption& optionMenuItem = menuSegmentForSettingSubmenu.AddMenuItemSelectableOption(*systemOptionMenuHandler, settingsIterator->options[i].menuItemID, settingsIterator->options[i].displayName);
+				settingsIterator->options[i].menuItemEntry = &optionMenuItem;
+				if(settingsIterator->selectedOption == i)
+				{
+					optionMenuItem.SetCheckedState(true);
+				}
+			}
+		}
+	}
+
+	//If no module submenus were defined, remove the module segment, and ensure no
+	//trailing separators are left on the menu.
+	if(menuSegmentForModules.NoMenuItemsExist())
+	{
+		menuSubmenu.DeleteMenuSegment(menuSegmentForModules);
+		menuSegmentForSystem.DeleteMenuItem(menuSystemItemsSeparator);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher)
 {
 	//Add the system debug menu items
 	IMenuSegment& menuSegmentForSystem = menuSubmenu.CreateMenuSegment();
@@ -127,11 +177,11 @@ void System::OpenLoggerDetailsView(const LogEntryInternal& alogEntry)
 //----------------------------------------------------------------------------------------
 void System::OpenInputMappingDetailsView(IDevice* targetDevice)
 {
-	systemMenuHandler->OpenInputMappingDetailsView(targetDevice);
+	settingsMenuHandler->OpenInputMappingDetailsView(targetDevice);
 }
 
 //----------------------------------------------------------------------------------------
 void System::CloseInputMappingDetailsView()
 {
-	systemMenuHandler->CloseInputMappingDetailsView();
+	settingsMenuHandler->CloseInputMappingDetailsView();
 }

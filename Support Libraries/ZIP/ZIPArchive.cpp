@@ -57,9 +57,8 @@ bool ZIPArchive::LoadFromStream(Stream::IStream& source)
 			done = true;
 			break;}
 		//If we've encountered an unknown file chunk, abort any further processing.
-		default:{
+		default:
 			return false;
-			break;}
 		}
 	}
 	return true;

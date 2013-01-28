@@ -57,6 +57,7 @@ public:
 	//Constructors
 	//##TODO## Implement a destructor, which cleans up our views.
 	ExodusInterface(ISystemExternal& asystem);
+	virtual ~ExodusInterface();
 	HWND CreateMainInterface(HINSTANCE hinstance);
 	bool InitializeSystem();
 
@@ -181,6 +182,7 @@ private:
 	//Menu functions
 	bool BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IMenuItem& amenuItem, unsigned int& nextMenuID);
 	bool BuildSystemMenu();
+	bool BuildSettingsMenu();
 	bool BuildDebugMenu();
 
 	//Thread handlers
@@ -213,10 +215,13 @@ private:
 	ISystemExternal& system;
 	HMENU systemMenu;
 	int systemMenuFirstItemIndex;
+	HMENU settingsMenu;
+	int settingsMenuFirstItemIndex;
 	HMENU debugMenu;
 	int debugMenuFirstItemIndex;
 	HWND moduleManagerDialog;
 	MenuSubmenu* systemSubmenu;
+	MenuSubmenu* settingsSubmenu;
 	MenuSubmenu* debugSubmenu;
 	NewMenuList newMenuList;
 	unsigned int nextFreeMenuID;
