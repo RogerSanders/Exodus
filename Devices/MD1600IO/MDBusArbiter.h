@@ -13,10 +13,11 @@ public:
 	//Initialization functions
 	virtual bool ValidateDevice();
 	virtual void Initialize();
-	virtual void InitializeExternalConnections();
 
 	//Reference functions
+	virtual bool AddReference(const wchar_t* referenceName, IDevice* target);
 	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
+	virtual bool RemoveReference(IDevice* target);
 	virtual bool RemoveReference(IBusInterface* target);
 
 	//Execute functions
@@ -24,6 +25,8 @@ public:
 	virtual void ExecuteCommit();
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
+	virtual bool SendNotifyAfterExecuteCalled() const;
+	virtual void NotifyAfterExecuteCalled();
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
@@ -35,17 +38,20 @@ public:
 	virtual unsigned int GetCELineID(const wchar_t* lineName, bool inputLine) const;
 	virtual void SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
-	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const;
-	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const;
+	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
+	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const;
 
 	//Line functions
 	virtual unsigned int GetLineID(const wchar_t* lineName) const;
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
 	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void AssertCurrentOutputLineState() const;
+	virtual void NegateCurrentOutputLineState() const;
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, double accessTime);
-	void ApplyPendingLineStateChanges(IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	void ApplyPendingLineStateChanges(double accessTime);
 	bool AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int targetLine, Data targetLineState, double& lineStateReachedTime);
 
 	//Savestate functions
@@ -67,9 +73,22 @@ private:
 	unsigned int BuildCELineZ80(unsigned int targetAddress) const;
 
 private:
+	//Device references
+	IDevice* bootROM;
+
 	//Bus interfaces
 	IBusInterface* z80MemoryBus;
 	IBusInterface* m68kMemoryBus;
+
+	//Device settings
+	bool activateTMSS;
+	bool bactivateTMSS;
+	bool activateBootROM;
+	bool bactivateBootROM;
+
+	//TMSS Security settings
+	bool bootROMEnabled;
+	bool bbootROMEnabled;
 
 	//Z80 to M68K memory bankswitch register settings
 	mutable boost::mutex bankswitchAccessMutex;
@@ -86,6 +105,7 @@ private:
 	unsigned int ceLineMaskLDS;
 	unsigned int ceLineMaskOE0;
 	unsigned int ceLineMaskCE0;
+	unsigned int ceLineMaskBootROM;
 	unsigned int ceLineMaskROM;
 	unsigned int ceLineMaskASEL;
 	unsigned int ceLineMaskFDC;

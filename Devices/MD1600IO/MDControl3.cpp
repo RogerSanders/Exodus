@@ -32,18 +32,6 @@ void MDControl3::Initialize()
 }
 
 //----------------------------------------------------------------------------------------
-void MDControl3::InitializeExternalConnections()
-{
-	memoryBus->SetLineState(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-}
-
-//----------------------------------------------------------------------------------------
 bool MDControl3::ValidateDevice()
 {
 	return (memoryBus != 0);
@@ -232,6 +220,42 @@ void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 
 	//If an input line state has changed, re-evaluate the state of the output lines.
 	UpdateLineState(caller, accessTime, accessContext);
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl3::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{
+	SetLineState(targetLine, lineData, 0, 0.0, 0);
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl3::AssertCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(lineAssertedD0) memoryBus->SetLineState(LINE_D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD1) memoryBus->SetLineState(LINE_D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD2) memoryBus->SetLineState(LINE_D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD3) memoryBus->SetLineState(LINE_D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTL) memoryBus->SetLineState(LINE_TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTR) memoryBus->SetLineState(LINE_TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTH) memoryBus->SetLineState(LINE_TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl3::NegateCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(lineAssertedD0) memoryBus->SetLineState(LINE_D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD1) memoryBus->SetLineState(LINE_D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD2) memoryBus->SetLineState(LINE_D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD3) memoryBus->SetLineState(LINE_D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTL) memoryBus->SetLineState(LINE_TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTR) memoryBus->SetLineState(LINE_TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTH) memoryBus->SetLineState(LINE_TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
 }
 
 //----------------------------------------------------------------------------------------

@@ -6,14 +6,6 @@
 class TimedBufferInt :public ITimedBufferInt
 {
 public:
-	//Savestate functions
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void GetState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const;
-
-	//Memory locking functions
-	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state);
-	virtual bool IsByteLocked(unsigned int location) const;
-
 	//Size functions
 	virtual unsigned int Size() const;
 	void Resize(unsigned int bufferSize, bool keepLatestBufferCopy = false);
@@ -47,6 +39,16 @@ public:
 
 	//Session management functions
 	virtual void BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice* targetTimeslice, bool retrieveWriteInfo) const;
+
+	//Memory locking functions
+	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state);
+	virtual bool IsByteLocked(unsigned int location) const;
+
+	//Savestate functions
+	void LoadState(IHeirarchicalStorageNode& node);
+	void SaveState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const;
+	void LoadDebuggerState(IHeirarchicalStorageNode& node);
+	void SaveDebuggerState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const;
 
 protected:
 	//Access functions

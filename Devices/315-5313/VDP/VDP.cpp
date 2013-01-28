@@ -132,7 +132,34 @@ void VDP::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 //	std::wcout << "VDPSetLineState\t" << targetLine << '\n';
 	if(targetLine == LINE_INTAK)
 	{
-		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), caller, accessTime, accessContext);
+		iplLineState = 0;
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), iplLineState), GetDeviceContext(), caller, accessTime, accessContext);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void VDP::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{
+	SetLineState(targetLine, lineData, 0, 0.0, 0);
+}
+
+//----------------------------------------------------------------------------------------
+void VDP::AssertCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(intLineState)      memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INT);
+		if(iplLineState != 0) memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), iplLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void VDP::NegateCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(intLineState)      memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INT);
+		if(iplLineState != 0) memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -178,6 +205,8 @@ void VDP::Reset()
 	oddInterlaceFrame = false;
 	vintHappened = false;
 	palMode = true;
+	intLineState = false;
+	iplLineState = 0;
 
 //After numerous tests performed on the actual system, it appears that all VDP registers
 //are initialized to 0 on a reset. This is supported by Addendum 4 from SEGA in the
@@ -614,6 +643,8 @@ void VDP::ExecuteRollback()
 	oddInterlaceFrame = boddInterlaceFrame;
 	palMode = bpalMode;
 	vintHappened = bvintHappened;
+	intLineState = bintLineState;
+	iplLineState = biplLineState;
 
 	reg.Rollback();
 	address = baddress;
@@ -657,6 +688,8 @@ void VDP::ExecuteCommit()
 	boddInterlaceFrame = oddInterlaceFrame;
 	bpalMode = palMode;
 	bvintHappened = vintHappened;
+	bintLineState = intLineState;
+	biplLineState = iplLineState;
 
 	//If we're committing a timeslice which has triggered a render operation, pass the
 	//render operation on to the render thread.
@@ -787,9 +820,9 @@ void VDP::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lin
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int VDP::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const
+unsigned int VDP::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
-	bool vdpIsSource = (caller == this->GetDeviceContext());
+	bool vdpIsSource = (caller == GetDeviceContext());
 	bool currentLowerDataStrobe = (currentCELineState & ceLineMaskLowerDataStrobeInput) != 0;
 	bool currentUpperDataStrobe = (currentCELineState & ceLineMaskUpperDataStrobeInput) != 0;
 	bool operationIsWrite = (currentCELineState & ceLineMaskReadHighWriteLowInput) == 0;
@@ -803,13 +836,13 @@ unsigned int VDP::CalculateCELineStateMemory(unsigned int location, const Data& 
 		rmwCycleInProgress = false;
 		rmwCycleFirstOperation = false;
 	}
-	return BuildCELine(location, vdpIsSource, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
+	return BuildCELine(location, vdpIsSource, false, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int VDP::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const
+unsigned int VDP::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
-	bool vdpIsSource = (caller == this->GetDeviceContext());
+	bool vdpIsSource = (caller == GetDeviceContext());
 	bool currentLowerDataStrobe = (currentCELineState & ceLineMaskLowerDataStrobeInput) != 0;
 	bool currentUpperDataStrobe = (currentCELineState & ceLineMaskUpperDataStrobeInput) != 0;
 	bool operationIsWrite = (currentCELineState & ceLineMaskReadHighWriteLowInput) == 0;
@@ -823,11 +856,11 @@ unsigned int VDP::CalculateCELineStateMemoryTransparent(unsigned int location, c
 		rmwCycleInProgress = false;
 		rmwCycleFirstOperation = false;
 	}
-	return BuildCELine(location, vdpIsSource, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
+	return BuildCELine(location, vdpIsSource, true, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int VDP::BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
+unsigned int VDP::BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool transparentAccess, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
 {
 	//Calculate the state of all the various CE lines
 	bool lineLWR = operationIsWrite && currentLowerDataStrobe;
@@ -860,7 +893,7 @@ unsigned int VDP::BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool
 	//write component. This is done through the use of two pseudo-CE lines from the
 	//M68000, which indicate whether we are performing a read-modify-write cycle, and
 	//whether this is the first operation of that cycle, respectively.
-	if(rmwCycleInProgress)
+	if(rmwCycleInProgress && !transparentAccess)
 	{
 		if(rmwCycleFirstOperation)
 		{
@@ -932,7 +965,8 @@ IBusInterface::AccessResult VDP::ReadInterface(unsigned int interfaceNumber, uns
 		//Negate the INT line if it's currently asserted
 		if(vintHappened)
 		{
-			memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), caller, accessTime, accessContext);
+			intLineState = false;
+			memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), (unsigned int)intLineState), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 
 		//New status register read process
@@ -1480,7 +1514,8 @@ void VDP::ProcessVInt()
 	//	SetVInterruptHappened(GetVInterruptEnabled(GetCurrentTimesliceProgress()));
 
 		//Trigger VInt for M68000
-		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_VINT);
+		iplLineState = vintIPLLineState;
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), iplLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_VINT);
 	}
 
 	//##TODO## Confirm whether this should be triggered on every frame, or just when VInt
@@ -1495,7 +1530,8 @@ void VDP::ProcessVInt()
 	//and cleared.
 
 	//Trigger VInt for Z80
-	memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INT);
+	intLineState = true;
+	memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), (unsigned int)intLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INT);
 
 	//Set the odd interlace frame flag for the status register
 	if(GetInterlaceMode() != INTERLACE_NONE)
@@ -1515,7 +1551,8 @@ void VDP::ProcessHInt()
 {
 	if(GetHInterruptEnabled(GetCurrentTimesliceProgress()))
 	{
-		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_HINT);
+		iplLineState = hintIPLLineState;
+		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), iplLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_HINT);
 	}
 	//##DEBUG##
 	else
@@ -1966,7 +2003,7 @@ void VDP::SaveState(IHeirarchicalStorageNode& node) const
 	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
 	std::wstring regBufferName = GetDeviceInstanceName();
 	regBufferName += L" - Registers";
-	reg.GetState(regNode, regBufferName, false);
+	reg.SaveState(regNode, regBufferName, false);
 
 	node.CreateChildHex(L"Register", address, 4).CreateAttribute(L"name", L"Address");
 	node.CreateChild(L"Register", (unsigned int)code).CreateAttribute(L"name", L"Code");

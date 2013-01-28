@@ -942,9 +942,11 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 		{
 			for(unsigned int i = 0; i < dependentTargetCount; ++i)
 			{
+				//SafeMemoryBarrierRead();
 				while((currentTimesliceProgress > deviceDependencies[i].device->GetCurrentTimesliceProgress()) && deviceDependencies[i].dependencyEnabled)
 				{
 					Sleep(0);
+					//SafeMemoryBarrierRead();
 				}
 			}
 			currentTimesliceProgress += device->ExecuteStep();
@@ -955,6 +957,7 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 					currentTimesliceProgress = timeslice;
 				}
 			}
+			//SafeMemoryBarrierWrite();
 		}
 		remainingTime = currentTimesliceProgress - timeslice;
 		device->NotifyAfterExecuteStepFinishedTimeslice();

@@ -1611,6 +1611,50 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="SystemOptionMenuHandler"
+				>
+				<File
+					RelativePath=".\SystemOptionMenuHandler.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SystemOptionMenuHandler.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="SettingsMenuHandler"
+				>
+				<File
+					RelativePath=".\SettingsMenuHandler.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SettingsMenuHandler.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="EmbeddedROMView"
+				>
+				<File
+					RelativePath=".\EmbeddedROMView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\EmbeddedROMView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\EmbeddedROMViewModel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\EmbeddedROMViewModel.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="ExodusInterface"

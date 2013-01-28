@@ -27,6 +27,8 @@ public:
 	virtual void ExecuteCommit();
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
+	virtual bool SendNotifyAfterExecuteCalled() const;
+	virtual void NotifyAfterExecuteCalled();
 	virtual UpdateMethod GetUpdateMethod() const;
 	virtual void ExecuteTimeslice(double nanoseconds);
 	virtual void ExecuteTimesliceTimingPointStep(unsigned int accessContext);
@@ -41,9 +43,12 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
 	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void AssertCurrentOutputLineState() const;
+	virtual void NegateCurrentOutputLineState() const;
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
-	void ApplyPendingLineStateChanges(IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	void ApplyPendingLineStateChanges(double accessTime);
 
 private:
 	//Enumerations

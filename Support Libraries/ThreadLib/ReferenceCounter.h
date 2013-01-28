@@ -17,6 +17,8 @@ reached, that the counter will definitely not change again.
 #define __REFERENCECOUNTER_H__
 #include "WindowFunctions/WindowFunctions.pkg"
 
+//##FIX## These methods can be replaced with a call to InterlockedIncrement and
+//InterlockedDecrement
 typedef LONG ReferenceCounterType;
 ReferenceCounterType ReferenceCounterIncrement(volatile ReferenceCounterType& referenceCounter);
 ReferenceCounterType ReferenceCounterDecrement(volatile ReferenceCounterType& referenceCounter);

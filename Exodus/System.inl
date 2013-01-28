@@ -1,5 +1,7 @@
 #include "SystemMenuHandler.h"
+#include "SettingsMenuHandler.h"
 #include "DebugMenuHandler.h"
+#include "SystemOptionMenuHandler.h"
 
 //----------------------------------------------------------------------------------------
 //Enumerations
@@ -8,6 +10,14 @@ enum System::InputEvent
 {
 	INPUTEVENT_KEYDOWN,
 	INPUTEVENT_KEYUP
+};
+
+//----------------------------------------------------------------------------------------
+enum System::SystemStateChangeType
+{
+	SYSTEMSTATECHANGETYPE_SETSYSTEMLINESTATE,
+	SYSTEMSTATECHANGETYPE_SETCLOCKFREQUENCY,
+	SYSTEMSTATECHANGETYPE_SETSYSTEMOPTION
 };
 
 //----------------------------------------------------------------------------------------
@@ -124,19 +134,19 @@ struct System::ExportedLineGroupInfo
 };
 
 //----------------------------------------------------------------------------------------
-struct System::ImportedLineGroupInfo
-{
-	unsigned int lineGroupID;
-	std::wstring importName;
-	std::wstring localName;
-};
-
-//----------------------------------------------------------------------------------------
 struct System::LineGroupDetails
 {
 	BusInterface* busInterface;
 	std::wstring lineGroupName;
 	unsigned int lineGroupID;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ImportedLineGroupInfo
+{
+	unsigned int lineGroupID;
+	std::wstring importName;
+	std::wstring localName;
 };
 
 //----------------------------------------------------------------------------------------
@@ -155,6 +165,7 @@ struct System::ConnectorDetails
 	std::map<std::wstring, ExportedDeviceInfo> exportedDeviceInfo;
 	std::map<std::wstring, ExportedBusInfo> exportedBusInfo;
 	std::map<std::wstring, ExportedClockSourceInfo> exportedClockSourceInfo;
+	std::map<std::wstring, ExportedSystemLineInfo> exportedSystemLineInfo;
 
 	//Importing module info
 	bool connectorUsed;
@@ -213,6 +224,124 @@ struct System::InputRegistration
 };
 
 //----------------------------------------------------------------------------------------
+struct System::UnmappedLineStateInfo
+{
+	UnmappedLineStateInfo(unsigned int amoduleID, IDevice* atargetDevice, unsigned int alineNo, Data alineData)
+	:moduleID(amoduleID), targetDevice(atargetDevice), lineNo(alineNo), lineData(alineData)
+	{}
+
+	unsigned int moduleID;
+	IDevice* targetDevice;
+	unsigned int lineNo;
+	Data lineData;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::SystemSettingInfo
+{
+	SystemSettingInfo()
+	:selectedOption(0), defaultOption(0)
+	{}
+	std::wstring name;
+	std::wstring displayName;
+	std::vector<SystemSettingOption> options;
+	unsigned int defaultOption;
+	unsigned int selectedOption;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::SystemSettingOption
+{
+	SystemSettingOption()
+	:menuItemEntry(0)
+	{}
+
+	std::wstring name;
+	std::wstring displayName;
+	std::list<SystemStateChange> stateChanges;
+	unsigned int menuItemID;
+	IMenuSelectableOption* menuItemEntry;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::SystemStateChange
+{
+	unsigned int moduleID;
+	SystemStateChangeType type;
+	std::wstring targetElementName;
+	unsigned int setLineStateValue;
+	ClockSource::ClockType setClockRateClockType;
+	double setClockRateValue;
+	std::wstring setSystemOptionValue;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::SystemLineInfo
+{
+	unsigned int moduleID;
+	std::wstring lineName;
+	unsigned int lineID;
+	unsigned int lineWidth;
+	unsigned int currentValue;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ExportedSystemLineInfo
+{
+	unsigned int systemLineID;
+	std::wstring exportingModuleSystemLineName;
+	std::wstring importName;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ImportedSystemLineInfo
+{
+	unsigned int systemLineID;
+	std::wstring exportingModuleSystemLineName;
+	std::wstring importName;
+	unsigned int connectorID;
+	unsigned int exportingModuleID;
+	unsigned int importingModuleID;
+	std::wstring importingModuleSystemLineName;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::SystemLineMapping
+{
+	SystemLineMapping()
+	:targetDevice(0),
+	 lineMaskAND(0xFFFFFFFF),
+	 lineMaskOR(0),
+	 lineMaskXOR(0)
+	{}
+
+	unsigned int moduleID;
+	IDevice* targetDevice;
+	unsigned int systemLineID;
+	unsigned int systemLineBitCount;
+	unsigned int targetLine;
+	unsigned int targetLineBitCount;
+
+	unsigned int lineMaskAND;
+	unsigned int lineMaskOR;
+	unsigned int lineMaskXOR;
+
+	bool remapLines;
+	DataRemapTable lineRemapTable;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::EmbeddedROMInfo
+{
+	unsigned int moduleID;
+	IDevice* targetDevice;
+	unsigned int interfaceNumber;
+	unsigned int romRegionSize;
+	std::wstring displayName;
+	std::wstring filePath;
+};
+
+//----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
 System::System(void* aassemblyHandle)
@@ -221,8 +350,11 @@ System::System(void* aassemblyHandle)
 	//Create the menu handlers
 	systemMenuHandler = new SystemMenuHandler(this);
 	systemMenuHandler->LoadMenuItems();
+	settingsMenuHandler = new SettingsMenuHandler(this);
+	settingsMenuHandler->LoadMenuItems();
 	debugMenuHandler = new DebugMenuHandler(this);
 	debugMenuHandler->LoadMenuItems();
+	systemOptionMenuHandler = new SystemOptionMenuHandler(this);
 
 	loggerLevel1Enabled = true;
 	loggerLevel2Enabled = true;
@@ -234,6 +366,7 @@ System::System(void* aassemblyHandle)
 	nextFreeModuleID = 0;
 	nextFreeConnectorID = 1000;
 	nextFreeLineGroupID = 2000;
+	nextFreeSystemLineID = 3000;
 }
 
 //----------------------------------------------------------------------------------------
@@ -245,5 +378,8 @@ System::~System()
 	//##FIX## We can't safely call this here, since the interface class may have been
 	//destroyed by now.
 	//debugMenuHandler->ClearMenuItems();
+	delete systemMenuHandler;
+	delete settingsMenuHandler;
 	delete debugMenuHandler;
+	delete systemOptionMenuHandler;
 }

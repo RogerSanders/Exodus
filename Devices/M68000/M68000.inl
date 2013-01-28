@@ -130,6 +130,21 @@ struct M68000::LineAccess
 };
 
 //----------------------------------------------------------------------------------------
+struct M68000::CalculateCELineStateContext
+{
+	CalculateCELineStateContext(FunctionCode afunctionCode, bool aupperDataStrobe, bool alowerDataStrobe, bool areadHighWriteLow, bool armwCycleInProgress, bool armwCycleFirstOperation)
+	:functionCode(afunctionCode), upperDataStrobe(aupperDataStrobe), lowerDataStrobe(alowerDataStrobe), readHighWriteLow(areadHighWriteLow), rmwCycleInProgress(armwCycleInProgress), rmwCycleFirstOperation(armwCycleFirstOperation)
+	{}
+
+	FunctionCode functionCode;
+	bool upperDataStrobe;
+	bool lowerDataStrobe;
+	bool readHighWriteLow;
+	bool rmwCycleInProgress;
+	bool rmwCycleFirstOperation;
+};
+
+//----------------------------------------------------------------------------------------
 //CCR flags
 //	-----------------------------------------------------------------
 //	|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |

@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\ 
+/*--------------------------------------------------------------------------------------*\
 Description:
 This core emulates the Sega video display processor model 315-5313, first used in the
 Sega Mega Drive/Genesis console. This processor is an evolution of the VDP used in the
@@ -393,6 +393,9 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
+	virtual void AssertCurrentOutputLineState() const;
+	virtual void NegateCurrentOutputLineState() const;
 
 	//Initialization functions
 	virtual bool ValidateDevice();
@@ -420,9 +423,9 @@ public:
 	virtual unsigned int GetCELineID(const wchar_t* lineName, bool inputLine) const;
 	virtual void SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
-	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const;
-	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const;
-	unsigned int BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
+	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
+	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const;
+	unsigned int BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool transparentAccess, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
@@ -828,6 +831,8 @@ private:
 	bool oddInterlaceFrame;
 	bool palMode;
 	bool vintHappened;
+	bool intLineState;
+	unsigned int iplLineState;
 
 	//Old status register variables to be removed
 	unsigned int sr;
@@ -908,6 +913,8 @@ private:
 	bool boddInterlaceFrame;
 	bool bpalMode;
 	bool bvintHappened;
+	bool bintLineState;
+	unsigned int biplLineState;
 };
 
 #include "VDP.inl"

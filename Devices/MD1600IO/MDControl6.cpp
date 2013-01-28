@@ -37,18 +37,6 @@ void MDControl6::Initialize()
 }
 
 //----------------------------------------------------------------------------------------
-void MDControl6::InitializeExternalConnections()
-{
-	memoryBus->SetLineState(LINE_D0, Data(1, (unsigned int)outputLineState[0].asserted), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_D1, Data(1, (unsigned int)outputLineState[1].asserted), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_D2, Data(1, (unsigned int)outputLineState[2].asserted), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_D3, Data(1, (unsigned int)outputLineState[3].asserted), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_TL, Data(1, (unsigned int)outputLineState[4].asserted), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_TR, Data(1, (unsigned int)outputLineState[5].asserted), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	memoryBus->SetLineState(LINE_TH, Data(1, (unsigned int)outputLineState[6].asserted), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-}
-
-//----------------------------------------------------------------------------------------
 bool MDControl6::ValidateDevice()
 {
 	return (memoryBus != 0);
@@ -308,6 +296,115 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 
 	//If an input line state has changed, re-evaluate the state of the output lines.
 	UpdateLineState(timeoutSettingsChanged, caller, accessTime, accessContext);
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl6::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{
+	SetLineState(targetLine, lineData, 0, 0.0, 0);
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl6::AssertCurrentOutputLineState() const
+{
+	if(memoryBus == 0)
+	{
+		return;
+	}
+
+	//Assert the current line output state for the output lines
+	if(outputLineState[0].asserted) memoryBus->SetLineState(LINE_D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[1].asserted) memoryBus->SetLineState(LINE_D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[2].asserted) memoryBus->SetLineState(LINE_D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[3].asserted) memoryBus->SetLineState(LINE_D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[4].asserted) memoryBus->SetLineState(LINE_TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[5].asserted) memoryBus->SetLineState(LINE_TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[6].asserted) memoryBus->SetLineState(LINE_TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+
+	//Re-assert any pending line state timeout changes
+	if(outputLineState[LINE_D0-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_D0, Data(1, outputLineState[LINE_D0-LINE_D0].timeoutAssertedState), outputLineState[LINE_D0-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState(LINE_D0, Data(1, outputLineState[LINE_D0-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_D0-LINE_D0].timeoutTime, 0);
+	}
+	if(outputLineState[LINE_D1-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_D1, Data(1, outputLineState[LINE_D1-LINE_D0].timeoutAssertedState), outputLineState[LINE_D1-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState(LINE_D1, Data(1, outputLineState[LINE_D1-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_D1-LINE_D0].timeoutTime, 0);
+	}
+	if(outputLineState[LINE_D2-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_D2, Data(1, outputLineState[LINE_D2-LINE_D0].timeoutAssertedState), outputLineState[LINE_D2-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState(LINE_D2, Data(1, outputLineState[LINE_D2-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_D2-LINE_D0].timeoutTime, 0);
+	}
+	if(outputLineState[LINE_D3-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_D3, Data(1, outputLineState[LINE_D3-LINE_D0].timeoutAssertedState), outputLineState[LINE_D3-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState(LINE_D3, Data(1, outputLineState[LINE_D3-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_D3-LINE_D0].timeoutTime, 0);
+	}
+	if(outputLineState[LINE_TL-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_TL, Data(1, outputLineState[LINE_TL-LINE_D0].timeoutAssertedState), outputLineState[LINE_TL-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState(LINE_TL, Data(1, outputLineState[LINE_TL-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_TL-LINE_D0].timeoutTime, 0);
+	}
+	if(outputLineState[LINE_TR-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_TR, Data(1, outputLineState[LINE_TR-LINE_D0].timeoutAssertedState), outputLineState[LINE_TR-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState(LINE_TR, Data(1, outputLineState[LINE_TR-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_TR-LINE_D0].timeoutTime, 0);
+	}
+	if(outputLineState[LINE_TH-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_TH, Data(1, outputLineState[LINE_TH-LINE_D0].timeoutAssertedState), outputLineState[LINE_TH-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState(LINE_TH, Data(1, outputLineState[LINE_TH-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_TH-LINE_D0].timeoutTime, 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl6::NegateCurrentOutputLineState() const
+{
+	if(memoryBus == 0)
+	{
+		return;
+	}
+
+	//Negate the current line output state for the output lines
+	if(outputLineState[0].asserted) memoryBus->SetLineState(LINE_D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[1].asserted) memoryBus->SetLineState(LINE_D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[2].asserted) memoryBus->SetLineState(LINE_D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[3].asserted) memoryBus->SetLineState(LINE_D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[4].asserted) memoryBus->SetLineState(LINE_TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[5].asserted) memoryBus->SetLineState(LINE_TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[6].asserted) memoryBus->SetLineState(LINE_TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+
+	//Revoke any pending line state timeout changes
+	if(outputLineState[LINE_D0-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_D0, Data(1, outputLineState[LINE_D0-LINE_D0].timeoutAssertedState), outputLineState[LINE_D0-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(outputLineState[LINE_D1-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_D1, Data(1, outputLineState[LINE_D1-LINE_D0].timeoutAssertedState), outputLineState[LINE_D1-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(outputLineState[LINE_D2-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_D2, Data(1, outputLineState[LINE_D2-LINE_D0].timeoutAssertedState), outputLineState[LINE_D2-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(outputLineState[LINE_D3-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_D3, Data(1, outputLineState[LINE_D3-LINE_D0].timeoutAssertedState), outputLineState[LINE_D3-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(outputLineState[LINE_TL-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_TL, Data(1, outputLineState[LINE_TL-LINE_D0].timeoutAssertedState), outputLineState[LINE_TL-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(outputLineState[LINE_TR-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_TR, Data(1, outputLineState[LINE_TR-LINE_D0].timeoutAssertedState), outputLineState[LINE_TR-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(outputLineState[LINE_TH-LINE_D0].timeoutFlagged)
+	{
+		memoryBus->RevokeSetLineState(LINE_TH, Data(1, outputLineState[LINE_TH-LINE_D0].timeoutAssertedState), outputLineState[LINE_TH-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
 }
 
 //----------------------------------------------------------------------------------------

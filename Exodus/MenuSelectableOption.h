@@ -15,6 +15,16 @@ public:
 	//Type functions
 	virtual Type GetType() const;
 
+	//Physical menu functions
+	HMENU GetPhysicalMenuHandle() const;
+	void SetPhysicalMenuHandle(HMENU aphysicalMenuHandle);
+	unsigned int GetPhysicalMenuItemID() const;
+	void SetPhysicalMenuItemID(unsigned int aphysicalMenuItemID);
+
+	//Checked state functions
+	virtual bool GetCheckedState() const;
+	virtual void SetCheckedState(bool acheckedState);
+
 protected:
 	//Menu handler functions
 	virtual const wchar_t* GetNameInternal() const;
@@ -23,6 +33,9 @@ private:
 	std::wstring name;
 	IMenuHandler& menuHandler;
 	int menuItemID;
+	HMENU physicalMenuHandle;
+	unsigned int physicalMenuItemID;
+	bool checkedState;
 };
 
 #endif

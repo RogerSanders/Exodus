@@ -62,7 +62,7 @@ bool AudioStream::Open(unsigned int achannelCount, unsigned int abitsPerSample, 
 	if(renderThreadHandle == NULL)
 	{
 		//##DEBUG##
-		std::wcout << "AudioStream Error!:\tFailed to create worker thread" << GetLastError() << '\n';
+		std::wcout << "AudioStream Error!:\tFailed to create worker thread!\t" << GetLastError() << '\n';
 		return false;
 	}
 	SetThreadPriority(renderThreadHandle, THREAD_PRIORITY_TIME_CRITICAL);
@@ -70,7 +70,7 @@ bool AudioStream::Open(unsigned int achannelCount, unsigned int abitsPerSample, 
 	{
 		TerminateThread(renderThreadHandle, 0);
 		//##DEBUG##
-		std::wcout << "AudioStream Error!:\tFailed to resume worker thread" << GetLastError() << '\n';
+		std::wcout << "AudioStream Error!:\tFailed to resume worker thread!\t" << GetLastError() << '\n';
 		return false;
 	}
 
@@ -79,7 +79,7 @@ bool AudioStream::Open(unsigned int achannelCount, unsigned int abitsPerSample, 
 	if(!workerThreadRunning)
 	{
 		//##DEBUG##
-		std::wcout << "AudioStream Error!:\tWorker thread initialization failed" << '\n';
+		std::wcout << "AudioStream Error!:\tWorker thread initialization failed!" << '\n';
 		return false;
 	}
 

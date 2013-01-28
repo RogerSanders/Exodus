@@ -56,6 +56,10 @@ public:
 	//Session management functions
 	virtual void BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice* targetTimeslice, bool retrieveWriteInfo) const = 0;
 
+	//Memory locking functions
+	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state) = 0;
+	virtual bool IsByteLocked(unsigned int location) const = 0;
+
 protected:
 	//Access functions
 	virtual void GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const = 0;

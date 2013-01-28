@@ -61,21 +61,13 @@ bool ClockSource::Construct(IHeirarchicalStorageNode& node)
 	if(clockTypeAttribute != 0)
 	{
 		std::wstring clockTypeString = clockTypeAttribute->GetValue();
-		if(clockTypeString == L"Direct")
-		{
-			params.clockType = CLOCKTYPE_DIRECT;
-			params.clockTypeDefined = true;
-		}
-		else if(clockTypeString == L"Multiplier")
-		{
-			params.clockType = CLOCKTYPE_MULTIPLIER;
-			params.clockTypeDefined = true;
-		}
-		else if(clockTypeString == L"Divider")
-		{
-			params.clockType = CLOCKTYPE_DIVIDER;
-			params.clockTypeDefined = true;
-		}
+		params.clockTypeDefined = DecodeClockTypeString(clockTypeString, params.clockType);
+	}
+
+	//If we failed to successfully load the clock type, return false.
+	if(!params.clockTypeDefined)
+	{
+		return false;
 	}
 
 	//Load the initial value parameter
@@ -88,6 +80,28 @@ bool ClockSource::Construct(IHeirarchicalStorageNode& node)
 
 	//Try and construct the clock source
 	return Construct(params);
+}
+
+//----------------------------------------------------------------------------------------
+bool ClockSource::DecodeClockTypeString(const std::wstring& clockTypeString, ClockType& aclockType)
+{
+	if(clockTypeString == L"Direct")
+	{
+		aclockType = CLOCKTYPE_DIRECT;
+	}
+	else if(clockTypeString == L"Multiplier")
+	{
+		aclockType = CLOCKTYPE_MULTIPLIER;
+	}
+	else if(clockTypeString == L"Divider")
+	{
+		aclockType = CLOCKTYPE_DIVIDER;
+	}
+	else
+	{
+		return false;
+	}
+	return true;
 }
 
 //----------------------------------------------------------------------------------------

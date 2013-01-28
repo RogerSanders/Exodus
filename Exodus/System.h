@@ -118,8 +118,9 @@ public:
 	void* GetAssemblyHandle() const;
 
 	//View functions
-	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) const;
-	virtual void BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) const;
+	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
+	virtual void BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
+	virtual void BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
 	virtual void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual bool RestoreViewModelStateForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName, const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void DeleteSystemViews();
@@ -131,6 +132,7 @@ public:
 private:
 	//Enumerations
 	enum InputEvent;
+	enum SystemStateChangeType;
 
 	//Structures
 	struct DeviceLibraryEntry;
@@ -143,15 +145,24 @@ private:
 	struct LoadedClockSourceInfo;
 	struct ExportedClockSourceInfo;
 	struct ImportedClockSourceInfo;
+	struct LineGroupDetails;
 	struct ExportedLineGroupInfo;
 	struct ImportedLineGroupInfo;
-	struct LineGroupDetails;
 	struct ConnectorDetails;
 	struct InputMapEntry;
 	struct InputEventEntry;
 	struct LogEntryInternal;
 	struct ViewModelOpenRequest;
 	struct InputRegistration;
+	struct UnmappedLineStateInfo;
+	struct SystemSettingInfo;
+	struct SystemSettingOption;
+	struct SystemStateChange;
+	struct SystemLineInfo;
+	struct ExportedSystemLineInfo;
+	struct ImportedSystemLineInfo;
+	struct SystemLineMapping;
+	struct EmbeddedROMInfo;
 
 	//Typedefs
 	typedef std::map<std::wstring, unsigned int> NameToIDMap;
@@ -173,29 +184,45 @@ private:
 	typedef std::pair<unsigned int, ConnectorDetails> ConnectorDetailsMapEntry;
 	typedef std::map<unsigned int, LineGroupDetails> LineGroupDetailsMap;
 	typedef std::pair<unsigned int, LineGroupDetails> LineGroupDetailsMapEntry;
+	typedef std::list<UnmappedLineStateInfo> UnmappedLineStateList;
+	typedef std::list<SystemSettingInfo> SystemSettingsList;
+	typedef std::map<unsigned int, SystemSettingsList> ModuleSystemSettingMap;
+	typedef std::pair<unsigned int, SystemSettingsList> ModuleSystemSettingMapEntry;
+	typedef std::map<unsigned int, SystemLineInfo> SystemLineMap;
+	typedef std::pair<unsigned int, SystemLineInfo> SystemLineMapEntry;
+	typedef std::list<ImportedSystemLineInfo> ImportedSystemLineList;
+	typedef std::list<SystemLineMapping> SystemLineMappingList;
+	typedef std::list<EmbeddedROMInfo> EmbeddedROMList;
 
 	//View and menu classes
 	class SystemMenuHandler;
+	class SettingsMenuHandler;
 	class DebugMenuHandler;
+	class SystemOptionMenuHandler;
 	class LoggerViewModel;
 	class LoggerDetailsViewModel;
 	class InputMappingViewModel;
 	class InputMappingDetailsViewModel;
+	class EmbeddedROMViewModel;
 	class DeviceControlViewModel;
 	class LoggerView;
 	class LoggerDetailsView;
 	class InputMappingView;
 	class InputMappingDetailsView;
+	class EmbeddedROMView;
 	class DeviceControlView;
+	friend class SystemOptionMenuHandler;
 	friend class LoggerViewModel;
 	friend class LoggerDetailsViewModel;
 	friend class InputMappingViewModel;
 	friend class InputMappingDetailsViewModel;
+	friend class EmbeddedROMViewModel;
 	friend class DeviceControlViewModel;
 	friend class LoggerView;
 	friend class LoggerDetailsView;
-	friend class LoggerView;
-	friend class LoggerDetailsView;
+	friend class InputMappingView;
+	friend class InputMappingDetailsView;
+	friend class EmbeddedROMView;
 	friend class DeviceControlView;
 
 private:
@@ -203,6 +230,7 @@ private:
 	IDevice* GetDevice(unsigned int moduleID, const std::wstring& deviceName) const;
 	BusInterface* GetBusInterface(unsigned int moduleID, const std::wstring& busInterfaceName) const;
 	ClockSource* GetClockSource(unsigned int moduleID, const std::wstring& clockSourceName) const;
+	unsigned int GetSystemLineID(unsigned int moduleID, const std::wstring& systemLineName) const;
 
 	//Savestate functions
 	bool LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const;
@@ -213,6 +241,7 @@ private:
 	unsigned int GenerateFreeModuleID() const;
 	unsigned int GenerateFreeConnectorID() const;
 	unsigned int GenerateFreeLineGroupID() const;
+	unsigned int GenerateFreeSystemLineID() const;
 	bool LoadModule_Device(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_SetDependentDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
@@ -231,6 +260,7 @@ private:
 	bool LoadModule_BusInterface_MapPort(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_BusInterface_MapLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& lineGroupNameToIDMap);
 	bool LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_UnmappedLineState(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_ClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_ClockSource_SetInputClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<ViewModelOpenRequest>& viewModelOpenRequests);
@@ -238,15 +268,27 @@ private:
 	bool LoadModule_System_ExportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, const NameToIDMap& lineGroupNameToIDMap);
 	bool LoadModule_System_ExportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ExportSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, const ConnectorMappingList& connectorMappings, NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap);
 	bool LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ImportSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_DefineEmbeddedROM(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_System_DefineSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName);
+	bool LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption);
+	bool LoadModule_System_SelectSettingOption(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
+	bool LoadModule_System_SetClockFrequency(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
+	bool LoadModule_System_SetLineState(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
 	bool LoadModule_ProcessViewModelQueue(const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher);
-	bool LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<LoadedModuleInfo>& addedModules);
+	bool LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, std::list<LoadedModuleInfo>& addedModules);
 	void UnloadModuleInternal(unsigned int moduleID);
 	bool LoadSystem_Device_MapInput(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
-	bool LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<LoadedModuleInfo>& addedModules);
+	bool LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
+	bool LoadSystem_System_SelectSettingOption(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap, SystemStateChange& stateChange);
+	bool LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, std::list<LoadedModuleInfo>& addedModules);
 
 	//Device creation and deletion
 	bool AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext);
@@ -306,6 +348,13 @@ private:
 	void ClearSentStoredInputEvents();
 	void UnmapAllKeyCodeMappingsForDevice(IDevice* adevice);
 
+	//System setting functions
+	bool ApplySystemStateChange(const SystemStateChange& stateChange);
+
+	//System line functions
+	unsigned int GetSystemLineWidth(unsigned int systemLineID) const;
+	bool SetSystemLineState(unsigned int systemLineID, const Data& lineData);
+
 	//Window functions
 	void OpenLoggerDetailsView(const LogEntryInternal& alogEntry);
 	void OpenInputMappingDetailsView(IDevice* targetDevice);
@@ -314,7 +363,9 @@ private:
 private:
 	//Menu handling
 	SystemMenuHandler* systemMenuHandler;
+	SettingsMenuHandler* settingsMenuHandler;
 	DebugMenuHandler* debugMenuHandler;
+	SystemOptionMenuHandler* systemOptionMenuHandler;
 
 	//Module handle
 	void* assemblyHandle;
@@ -360,9 +411,24 @@ private:
 	BusInterfaceList busInterfaces;
 	ImportedBusInterfaceList importedBusInterfaces;
 
+	//Unmapped line state info
+	UnmappedLineStateList unmappedLineStateList;
+
 	//Clock sources
 	ClockSourceList clockSources;
 	ImportedClockSourceList importedClockSources;
+
+	//Module settings
+	ModuleSystemSettingMap moduleSettings;
+
+	//System lines
+	mutable unsigned int nextFreeSystemLineID;
+	SystemLineMap systemLines;
+	ImportedSystemLineList importedSystemLines;
+	SystemLineMappingList systemLineMappings;
+
+	//Embedded ROM info
+	EmbeddedROMList embeddedROMInfo;
 
 	//Input settings
 	mutable boost::mutex inputMutex;

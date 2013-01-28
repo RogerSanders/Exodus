@@ -72,7 +72,10 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
 	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void AssertCurrentOutputLineState() const;
+	virtual void NegateCurrentOutputLineState() const;
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock);
 
 	//Clock source functions
@@ -239,8 +242,8 @@ public:
 	//CE line state functions
 	virtual unsigned int GetCELineID(const wchar_t* lineName, bool inputLine) const;
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
-	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, double accessTime) const;
-	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller) const;
+	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
+	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const;
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
@@ -259,6 +262,7 @@ private:
 
 	//Structures
 	struct LineAccess;
+	struct CalculateCELineStateContext;
 
 	//View and menu classes
 	class DebugMenuHandler;
@@ -327,13 +331,6 @@ private:
 	unsigned int ceLineMaskRD;
 	unsigned int ceLineMaskWR;
 
-	//CE line state info
-	mutable PerformanceMutex ceLineStateMutex;
-	mutable bool memoryAccessRD;
-	mutable bool memoryAccessWR;
-	mutable bool memoryAccessTransparentRD;
-	mutable bool memoryAccessTransparentWR;
-
 	//Line access
 	boost::mutex lineMutex;
 	mutable double lastLineCheckTime;
@@ -348,10 +345,12 @@ private:
 
 	bool resetLineState;
 	bool busreqLineState;
+	bool busackLineState;
 	bool intLineState;
 	bool nmiLineState;
 	bool bresetLineState;
 	bool bbusreqLineState;
+	bool bbusackLineState;
 	bool bintLineState;
 	bool bnmiLineState;
 };

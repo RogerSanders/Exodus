@@ -1122,7 +1122,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataType, TimesliceType>::GetState(IHeirarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData) const
+template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataType, TimesliceType>::SaveState(IHeirarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData) const
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	std::vector<DataType> saveMemory;

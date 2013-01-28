@@ -12,6 +12,10 @@ public:
 	virtual IMenuHandler& GetMenuHandler() const = 0;
 	virtual int GetMenuItemID() const = 0;
 
+	//Checked state functions
+	virtual bool GetCheckedState() const = 0;
+	virtual void SetCheckedState(bool acheckedState) = 0;
+
 protected:
 	//Menu handler functions
 	virtual const wchar_t* GetNameInternal() const = 0;

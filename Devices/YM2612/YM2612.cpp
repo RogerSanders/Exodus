@@ -10,41 +10,41 @@
 //attenuation increment table following hardware tests.
 //----------------------------------------------------------------------------------------
 const unsigned int YM2612::counterShiftTable[1 << rateBitCount] = {
-	11,	11,	11,	11,	//0-3    (0x00-0x03)
-	10,	10,	10,	10,	//4-7    (0x04-0x07)
-	9,	9,	9,	9,	//8-11   (0x08-0x0B)
-	8,	8,	8,	8,	//12-15  (0x0C-0x0F)
-	7,	7,	7,	7,	//16-19  (0x10-0x13)
-	6,	6,	6,	6,	//20-23  (0x14-0x17)
-	5,	5,	5,	5,	//24-27  (0x18-0x1B)
-	4,	4,	4,	4,	//28-31  (0x1C-0x1F)
-	3,	3,	3,	3,	//32-35  (0x20-0x23)
-	2,	2,	2,	2,	//36-39  (0x24-0x27)
-	1,	1,	1,	1,	//40-43  (0x28-0x2B)
-	0,	0,	0,	0,	//44-47  (0x2C-0x2F)
-	0,	0,	0,	0,	//48-51  (0x30-0x33)
-	0,	0,	0,	0,	//52-55  (0x34-0x37)
-	0,	0,	0,	0,	//56-59  (0x38-0x3B)
-	0,	0,	0,	0};	//60-63  (0x3C-0x3F)
+	11, 11, 11, 11, //0-3    (0x00-0x03)
+	10, 10, 10, 10, //4-7    (0x04-0x07)
+	9,  9,  9,  9,  //8-11   (0x08-0x0B)
+	8,  8,  8,  8,  //12-15  (0x0C-0x0F)
+	7,  7,  7,  7,  //16-19  (0x10-0x13)
+	6,  6,  6,  6,  //20-23  (0x14-0x17)
+	5,  5,  5,  5,  //24-27  (0x18-0x1B)
+	4,  4,  4,  4,  //28-31  (0x1C-0x1F)
+	3,  3,  3,  3,  //32-35  (0x20-0x23)
+	2,  2,  2,  2,  //36-39  (0x24-0x27)
+	1,  1,  1,  1,  //40-43  (0x28-0x2B)
+	0,  0,  0,  0,  //44-47  (0x2C-0x2F)
+	0,  0,  0,  0,  //48-51  (0x30-0x33)
+	0,  0,  0,  0,  //52-55  (0x34-0x37)
+	0,  0,  0,  0,  //56-59  (0x38-0x3B)
+	0,  0,  0,  0}; //60-63  (0x3C-0x3F)
 
 //----------------------------------------------------------------------------------------
 const unsigned int YM2612::attenuationIncrementTable[1 << rateBitCount][8] = {
-	{0,0,0,0,0,0,0,0},	{0,0,0,0,0,0,0,0},	{0,1,0,1,0,1,0,1},	{0,1,0,1,0,1,0,1},	//0-3    (0x00-0x03)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,0,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,0,1,1,1},	//4-7    (0x04-0x07)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//8-11   (0x08-0x0B)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//12-15  (0x0C-0x0F)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//16-19  (0x10-0x13)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//20-23  (0x14-0x17)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//24-27  (0x18-0x1B)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//28-31  (0x1C-0x1F)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//32-35  (0x20-0x23)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//36-39  (0x24-0x27)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//40-43  (0x28-0x2B)
-	{0,1,0,1,0,1,0,1},	{0,1,0,1,1,1,0,1},	{0,1,1,1,0,1,1,1},	{0,1,1,1,1,1,1,1},	//44-47  (0x2C-0x2F)
-	{1,1,1,1,1,1,1,1},	{1,1,1,2,1,1,1,2},	{1,2,1,2,1,2,1,2},	{1,2,2,2,1,2,2,2},	//48-51  (0x30-0x33)
-	{2,2,2,2,2,2,2,2},	{2,2,2,4,2,2,2,4},	{2,4,2,4,2,4,2,4},	{2,4,4,4,2,4,4,4},	//52-55  (0x34-0x37)
-	{4,4,4,4,4,4,4,4},	{4,4,4,8,4,4,4,8},	{4,8,4,8,4,8,4,8},	{4,8,8,8,4,8,8,8},	//56-59  (0x38-0x3B)
-	{8,8,8,8,8,8,8,8},	{8,8,8,8,8,8,8,8},	{8,8,8,8,8,8,8,8},	{8,8,8,8,8,8,8,8}};	//60-63  (0x3C-0x3F)
+	{0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,1,0,1,0,1,0,1}, {0,1,0,1,0,1,0,1},  //0-3    (0x00-0x03)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,0,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,0,1,1,1},  //4-7    (0x04-0x07)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //8-11   (0x08-0x0B)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //12-15  (0x0C-0x0F)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //16-19  (0x10-0x13)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //20-23  (0x14-0x17)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},   //24-27  (0x18-0x1B)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //28-31  (0x1C-0x1F)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //32-35  (0x20-0x23)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //36-39  (0x24-0x27)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //40-43  (0x28-0x2B)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //44-47  (0x2C-0x2F)
+	{1,1,1,1,1,1,1,1}, {1,1,1,2,1,1,1,2}, {1,2,1,2,1,2,1,2}, {1,2,2,2,1,2,2,2},  //48-51  (0x30-0x33)
+	{2,2,2,2,2,2,2,2}, {2,2,2,4,2,2,2,4}, {2,4,2,4,2,4,2,4}, {2,4,4,4,2,4,4,4},  //52-55  (0x34-0x37)
+	{4,4,4,4,4,4,4,4}, {4,4,4,8,4,4,4,8}, {4,8,4,8,4,8,4,8}, {4,8,8,8,4,8,8,8},  //56-59  (0x38-0x3B)
+	{8,8,8,8,8,8,8,8}, {8,8,8,8,8,8,8,8}, {8,8,8,8,8,8,8,8}, {8,8,8,8,8,8,8,8}}; //60-63  (0x3C-0x3F)
 
 //----------------------------------------------------------------------------------------
 //This table is derived from the detune table given in the YM2608 Application Manual,
@@ -53,49 +53,49 @@ const unsigned int YM2612::attenuationIncrementTable[1 << rateBitCount][8] = {
 const unsigned int YM2612::detunePhaseIncrementTable[1 << keyCodeBitCount][1 << (detuneBitCount - 1)] = {
 //	   Detune        Key-Code
 //	 0  1  2  3
-	{0, 0, 1, 2},	//0  (0x00)
-	{0, 0, 1, 2},	//1  (0x01)
-	{0, 0, 1, 2},	//2  (0x02)
-	{0, 0, 1, 2},	//3  (0x03)
-	{0, 1, 2, 2},	//4  (0x04)
-	{0, 1, 2, 3},	//5  (0x05)
-	{0, 1, 2, 3},	//6  (0x06)
-	{0, 1, 2, 3},	//7  (0x07)
-	{0, 1, 2, 4},	//8  (0x08)
-	{0, 1, 3, 4},	//9  (0x09)
-	{0, 1, 3, 4},	//10 (0x0A)
-	{0, 1, 3, 5},	//11 (0x0B)
-	{0, 2, 4, 5},	//12 (0x0C)
-	{0, 2, 4, 6},	//13 (0x0D)
-	{0, 2, 4, 6},	//14 (0x0E)
-	{0, 2, 5, 7},	//15 (0x0F)
-	{0, 2, 5, 8},	//16 (0x10)
-	{0, 3, 6, 8},	//17 (0x11)
-	{0, 3, 6, 9},	//18 (0x12)
-	{0, 3, 7,10},	//19 (0x13)
-	{0, 4, 8,11},	//20 (0x14)
-	{0, 4, 8,12},	//21 (0x15)
-	{0, 4, 9,13},	//22 (0x16)
-	{0, 5,10,14},	//23 (0x17)
-	{0, 5,11,16},	//24 (0x18)
-	{0, 6,12,17},	//25 (0x19)
-	{0, 6,13,19},	//26 (0x1A)
-	{0, 7,14,20},	//27 (0x1B)
-	{0, 8,16,22},	//28 (0x1C)
-	{0, 8,16,22},	//29 (0x1D)
-	{0, 8,16,22},	//30 (0x1E)
-	{0, 8,16,22}};	//31 (0x1F)
+	{0, 0, 1, 2},  //0  (0x00)
+	{0, 0, 1, 2},  //1  (0x01)
+	{0, 0, 1, 2},  //2  (0x02)
+	{0, 0, 1, 2},  //3  (0x03)
+	{0, 1, 2, 2},  //4  (0x04)
+	{0, 1, 2, 3},  //5  (0x05)
+	{0, 1, 2, 3},  //6  (0x06)
+	{0, 1, 2, 3},  //7  (0x07)
+	{0, 1, 2, 4},  //8  (0x08)
+	{0, 1, 3, 4},  //9  (0x09)
+	{0, 1, 3, 4},  //10 (0x0A)
+	{0, 1, 3, 5},  //11 (0x0B)
+	{0, 2, 4, 5},  //12 (0x0C)
+	{0, 2, 4, 6},  //13 (0x0D)
+	{0, 2, 4, 6},  //14 (0x0E)
+	{0, 2, 5, 7},  //15 (0x0F)
+	{0, 2, 5, 8},  //16 (0x10)
+	{0, 3, 6, 8},  //17 (0x11)
+	{0, 3, 6, 9},  //18 (0x12)
+	{0, 3, 7,10},  //19 (0x13)
+	{0, 4, 8,11},  //20 (0x14)
+	{0, 4, 8,12},  //21 (0x15)
+	{0, 4, 9,13},  //22 (0x16)
+	{0, 5,10,14},  //23 (0x17)
+	{0, 5,11,16},  //24 (0x18)
+	{0, 6,12,17},  //25 (0x19)
+	{0, 6,13,19},  //26 (0x1A)
+	{0, 7,14,20},  //27 (0x1B)
+	{0, 8,16,22},  //28 (0x1C)
+	{0, 8,16,22},  //29 (0x1D)
+	{0, 8,16,22},  //30 (0x1E)
+	{0, 8,16,22}}; //31 (0x1F)
 
 //----------------------------------------------------------------------------------------
 const unsigned int YM2612::phaseModIncrementTable[1 << pmsBitCount][1 << (phaseModIndexBitCount - 2)] = {
-	{0, 0, 0, 0, 0, 0, 0, 0},	//0
-	{0, 0, 0, 0, 1, 1, 1, 1},	//1
-	{0, 0, 0, 1, 1, 1, 2, 2},	//2
-	{0, 0, 1, 1, 2, 2, 3, 3},	//3
-	{0, 0, 1, 2, 2, 2, 3, 4},	//4
-	{0, 0, 2, 3, 4, 4, 5, 6},	//5
-	{0, 0, 4, 6, 8, 8,10,12},	//6
-	{0, 0, 8,12,16,16,20,24}};	//7
+	{0, 0, 0, 0, 0, 0, 0, 0},  //0
+	{0, 0, 0, 0, 1, 1, 1, 1},  //1
+	{0, 0, 0, 1, 1, 1, 2, 2},  //2
+	{0, 0, 1, 1, 2, 2, 3, 3},  //3
+	{0, 0, 1, 2, 2, 2, 3, 4},  //4
+	{0, 0, 2, 3, 4, 4, 5, 6},  //5
+	{0, 0, 4, 6, 8, 8,10,12},  //6
+	{0, 0, 8,12,16,16,20,24}}; //7
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -306,6 +306,7 @@ void YM2612::Initialize()
 	timerBEnable = false;
 	timerALoad = false;
 	timerBLoad = false;
+	irqLineState = false;
 
 	//Initialize the render thread properties
 	remainingRenderTime = 0;
@@ -416,6 +417,24 @@ unsigned int YM2612::GetLineWidth(unsigned int lineID) const
 		return 1;
 	}
 	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void YM2612::AssertCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(irqLineState) memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void YM2612::NegateCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(irqLineState) memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -589,6 +608,7 @@ void YM2612::ExecuteRollback()
 	timerBEnable = btimerBEnable;
 	timerALoad = btimerALoad;
 	timerBLoad = btimerBLoad;
+	irqLineState = birqLineState;
 
 	//Clear any uncommitted timeslices from our render timeslice buffers
 	regTimesliceListUncommitted.clear();
@@ -633,6 +653,7 @@ void YM2612::ExecuteCommit()
 	btimerBEnable = timerBEnable;
 	btimerALoad = timerALoad;
 	btimerBLoad = timerBLoad;
+	birqLineState = irqLineState;
 
 	//Ensure that a valid latest timeslice exists in all our buffers. We need this
 	//check here, because commits can be triggered by the system at potentially any
@@ -2253,7 +2274,8 @@ void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& da
 		{
 			if(memoryBus != 0)
 			{
-				memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 0), GetDeviceContext(), caller, accessTime, accessContext);
+				irqLineState = false;
+				memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), (unsigned int)irqLineState), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 		break;
@@ -2431,7 +2453,8 @@ void YM2612::UpdateTimers(double timesliceProgress)
 				{
 					if(memoryBus != 0)
 					{
-						memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
+						irqLineState = true;
+						memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), (unsigned int)irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
 					}
 				}
 				//Update the overflow flag
@@ -2469,7 +2492,8 @@ void YM2612::UpdateTimers(double timesliceProgress)
 				{
 					if(memoryBus != 0)
 					{
-						memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
+						irqLineState = true;
+						memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), (unsigned int)irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
 					}
 				}
 				//Update the overflow flag
@@ -2674,7 +2698,7 @@ void YM2612::SaveState(IHeirarchicalStorageNode& node) const
 	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
 	std::wstring regBufferName = GetDeviceInstanceName();
 	regBufferName += L" - Registers";
-	reg.GetState(regNode, regBufferName, false);
+	reg.SaveState(regNode, regBufferName, false);
 	node.CreateChild(L"StatusRegister").SetData(status);
 
 	//Register latch settings

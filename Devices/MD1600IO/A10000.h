@@ -65,6 +65,8 @@ public:
 	//Execute functions
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
+	virtual bool SendNotifyAfterExecuteCalled() const;
+	virtual void NotifyAfterExecuteCalled();
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
@@ -73,7 +75,10 @@ public:
 	virtual const wchar_t* GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
 	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	virtual void AssertCurrentOutputLineState() const;
+	virtual void NegateCurrentOutputLineState() const;
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
@@ -95,9 +100,11 @@ private:
 
 private:
 	//Line functions
+	void AssertCurrentOutputLineStateForPort(unsigned int portNo) const;
+	void NegateCurrentOutputLineStateForPort(unsigned int portNo) const;
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
 	void ApplyPendingLineStateChanges(double currentTimesliceProgress);
-	LineID GetLineIDForPort(unsigned int portNo, PortLine portLine);
+	LineID GetLineIDForPort(unsigned int portNo, PortLine portLine) const;
 
 	//Data register access
 	inline Data ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
@@ -134,65 +141,65 @@ private:
 	inline void SetRxDataRegister(unsigned int portNo, const Data& data);
 
 	//Version register functions
-	inline bool GetRegionFlag() const;
-	inline void SetRegionFlag(bool data);
-	inline bool GetVideoFlag() const;
-	inline void SetVideoFlag(bool data);
-	inline bool GetSegaCDFlag() const;
-	inline void SetSegaCDFlag(bool data);
+	inline bool GetOverseasFlag() const;
+	inline void SetOverseasFlag(bool data);
+	inline bool GetPALFlag() const;
+	inline void SetPALFlag(bool data);
+	inline bool GetNoDiskFlag() const;
+	inline void SetNoDiskFlag(bool data);
 	inline unsigned int GetHardwareVersion() const;
 	inline void SetHardwareVersion(unsigned int data);
 
 	//Data register functions
-	inline bool GetDataRegisterHL(unsigned int portNo);
+	inline bool GetDataRegisterHL(unsigned int portNo) const;
 	inline void SetDataRegisterHL(unsigned int portNo, bool state);
-	inline bool GetDataRegisterTH(unsigned int portNo);
+	inline bool GetDataRegisterTH(unsigned int portNo) const;
 	inline void SetDataRegisterTH(unsigned int portNo, bool state);
-	inline bool GetDataRegisterTR(unsigned int portNo);
+	inline bool GetDataRegisterTR(unsigned int portNo) const;
 	inline void SetDataRegisterTR(unsigned int portNo, bool state);
-	inline bool GetDataRegisterTL(unsigned int portNo);
+	inline bool GetDataRegisterTL(unsigned int portNo) const;
 	inline void SetDataRegisterTL(unsigned int portNo, bool state);
-	inline bool GetDataRegisterD3(unsigned int portNo);
+	inline bool GetDataRegisterD3(unsigned int portNo) const;
 	inline void SetDataRegisterD3(unsigned int portNo, bool state);
-	inline bool GetDataRegisterD2(unsigned int portNo);
+	inline bool GetDataRegisterD2(unsigned int portNo) const;
 	inline void SetDataRegisterD2(unsigned int portNo, bool state);
-	inline bool GetDataRegisterD1(unsigned int portNo);
+	inline bool GetDataRegisterD1(unsigned int portNo) const;
 	inline void SetDataRegisterD1(unsigned int portNo, bool state);
-	inline bool GetDataRegisterD0(unsigned int portNo);
+	inline bool GetDataRegisterD0(unsigned int portNo) const;
 	inline void SetDataRegisterD0(unsigned int portNo, bool state);
 
 	//Control register functions
-	inline bool GetControlRegisterHL(unsigned int portNo);
+	inline bool GetControlRegisterHL(unsigned int portNo) const;
 	inline void SetControlRegisterHL(unsigned int portNo, bool state);
-	inline bool GetControlRegisterTH(unsigned int portNo);
+	inline bool GetControlRegisterTH(unsigned int portNo) const;
 	inline void SetControlRegisterTH(unsigned int portNo, bool state);
-	inline bool GetControlRegisterTR(unsigned int portNo);
+	inline bool GetControlRegisterTR(unsigned int portNo) const;
 	inline void SetControlRegisterTR(unsigned int portNo, bool state);
-	inline bool GetControlRegisterTL(unsigned int portNo);
+	inline bool GetControlRegisterTL(unsigned int portNo) const;
 	inline void SetControlRegisterTL(unsigned int portNo, bool state);
-	inline bool GetControlRegisterD3(unsigned int portNo);
+	inline bool GetControlRegisterD3(unsigned int portNo) const;
 	inline void SetControlRegisterD3(unsigned int portNo, bool state);
-	inline bool GetControlRegisterD2(unsigned int portNo);
+	inline bool GetControlRegisterD2(unsigned int portNo) const;
 	inline void SetControlRegisterD2(unsigned int portNo, bool state);
-	inline bool GetControlRegisterD1(unsigned int portNo);
+	inline bool GetControlRegisterD1(unsigned int portNo) const;
 	inline void SetControlRegisterD1(unsigned int portNo, bool state);
-	inline bool GetControlRegisterD0(unsigned int portNo);
+	inline bool GetControlRegisterD0(unsigned int portNo) const;
 	inline void SetControlRegisterD0(unsigned int portNo, bool state);
 
 	//Serial control register functions
-	inline unsigned int GetSerialBaudRate(unsigned int portNo);
+	inline unsigned int GetSerialBaudRate(unsigned int portNo) const;
 	inline void SetSerialBaudRate(unsigned int portNo, unsigned int state);
-	inline bool GetSerialInputEnabled(unsigned int portNo);
+	inline bool GetSerialInputEnabled(unsigned int portNo) const;
 	inline void SetSerialInputEnabled(unsigned int portNo, bool state);
-	inline bool GetSerialOutputEnabled(unsigned int portNo);
+	inline bool GetSerialOutputEnabled(unsigned int portNo) const;
 	inline void SetSerialOutputEnabled(unsigned int portNo, bool state);
-	inline bool GetSerialInterruptEnabled(unsigned int portNo);
+	inline bool GetSerialInterruptEnabled(unsigned int portNo) const;
 	inline void SetSerialInterruptEnabled(unsigned int portNo, bool state);
-	inline bool GetSerialErrorFlag(unsigned int portNo);
+	inline bool GetSerialErrorFlag(unsigned int portNo) const;
 	inline void SetSerialErrorFlag(unsigned int portNo, bool state);
-	inline bool GetRxDataBufferFull(unsigned int portNo);
+	inline bool GetRxDataBufferFull(unsigned int portNo) const;
 	inline void SetRxDataBufferFull(unsigned int portNo, bool state);
-	inline bool GetTxDataBufferFull(unsigned int portNo);
+	inline bool GetTxDataBufferFull(unsigned int portNo) const;
 	inline void SetTxDataBufferFull(unsigned int portNo, bool state);
 
 	//Interrupt functions

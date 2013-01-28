@@ -37,12 +37,10 @@ bool A10000::ValidateDevice()
 void A10000::Initialize()
 {
 	//Initialize the version register
-	//##TODO## Set these parameters through line state info which can be specified in the
-	//system file, and changed by line state changes at runtime.
 	versionRegister = 0;
-	SetRegionFlag(true);
-	SetVideoFlag(true);
-	SetSegaCDFlag(true); //Note that this is reversed, IE, true means it is NOT present.
+	SetOverseasFlag(false);
+	SetPALFlag(true);
+	SetNoDiskFlag(true);
 	SetHardwareVersion(0);
 
 	//Initialize the control port registers to their correct default values. These
@@ -65,20 +63,26 @@ void A10000::Initialize()
 	rxDataRegisters[2] = 0x00;
 	serialControlRegisters[2] = 0x00;
 
+	lastLineCheckTime = 0;
 	lineAccessPending = false;
 	lastTimesliceLength = 0;
 	lineAccessBuffer.clear();
 	currentHLLineState = false;
 
+	//Note that we initialize these lines to false, but on the real system, these lines
+	//read as true when no controller is connected. This occurs because there are pull-up
+	//resistors attached to these input lines. Pull-up resistors are mapped through the
+	//system XML mappings in our emulator, so we shouldn't initialize these values here
+	//assuming that these pull-up resistors exist, since they could be removed.
 	for(unsigned int i = 0; i < controlPortCount; ++i)
 	{
-		inputLineState[i].lineAssertedD0 = true;
-		inputLineState[i].lineAssertedD1 = true;
-		inputLineState[i].lineAssertedD2 = true;
-		inputLineState[i].lineAssertedD3 = true;
-		inputLineState[i].lineAssertedTL = true;
-		inputLineState[i].lineAssertedTR = true;
-		inputLineState[i].lineAssertedTH = true;
+		inputLineState[i].lineAssertedD0 = false;
+		inputLineState[i].lineAssertedD1 = false;
+		inputLineState[i].lineAssertedD2 = false;
+		inputLineState[i].lineAssertedD3 = false;
+		inputLineState[i].lineAssertedTL = false;
+		inputLineState[i].lineAssertedTR = false;
+		inputLineState[i].lineAssertedTH = false;
 	}
 }
 
@@ -137,7 +141,6 @@ void A10000::NotifyUpcomingTimeslice(double nanoseconds)
 
 	//Reset lastLineCheckTime for the beginning of the new timeslice, and force any
 	//remaining line state changes to be evaluated at the start of the new timeslice.
-	//##TODO## Do this in a NotifyAfterExecuteCalled method
 	lastLineCheckTime = 0;
 	for(std::list<LineAccess>::iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
 	{
@@ -148,6 +151,20 @@ void A10000::NotifyUpcomingTimeslice(double nanoseconds)
 		i->accessTime -= lastTimesliceLength;
 	}
 	lastTimesliceLength = nanoseconds;
+}
+
+//----------------------------------------------------------------------------------------
+bool A10000::SendNotifyAfterExecuteCalled() const
+{
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+void A10000::NotifyAfterExecuteCalled()
+{
+	//Ensure that any pending line state changes which we have passed in this timeslice
+	//are applied
+	ApplyPendingLineStateChanges(lastTimesliceLength);
 }
 
 //----------------------------------------------------------------------------------------
@@ -283,17 +300,17 @@ unsigned int A10000::GetLineID(const wchar_t* lineName) const
 		return LINE_PORT3_TH;
 	}
 
-	else if(lineNameString == L"REGION")
+	else if(lineNameString == L"JAP")
 	{
-		return LINE_REGION;
+		return LINE_JAP;
 	}
-	else if(lineNameString == L"VIDEO")
+	else if(lineNameString == L"NTSC")
 	{
-		return LINE_VIDEO;
+		return LINE_NTSC;
 	}
-	else if(lineNameString == L"SEGACD")
+	else if(lineNameString == L"DISK")
 	{
-		return LINE_SEGACD;
+		return LINE_DISK;
 	}
 	else if(lineNameString == L"HL")
 	{
@@ -352,12 +369,12 @@ const wchar_t* A10000::GetLineName(unsigned int lineID) const
 	case LINE_PORT3_TH:
 		return L"PORT3_TH";
 
-	case LINE_REGION:
-		return L"REGION";
-	case LINE_VIDEO:
-		return L"VIDEO";
-	case LINE_SEGACD:
-		return L"SEGACD";
+	case LINE_JAP:
+		return L"JAP";
+	case LINE_NTSC:
+		return L"NTSC";
+	case LINE_DISK:
+		return L"DISK";
 	case LINE_HL:
 		return L"HL";
 	}
@@ -396,11 +413,11 @@ unsigned int A10000::GetLineWidth(unsigned int lineID) const
 	case LINE_PORT3_TH:
 		return 1;
 
-	case LINE_REGION:
+	case LINE_JAP:
 		return 1;
-	case LINE_VIDEO:
+	case LINE_NTSC:
 		return 1;
-	case LINE_SEGACD:
+	case LINE_DISK:
 		return 1;
 	case LINE_HL:
 		return 1;
@@ -456,6 +473,12 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 }
 
 //----------------------------------------------------------------------------------------
+void A10000::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{
+	SetLineState(targetLine, lineData, 0, 0.0, 0);
+}
+
+//----------------------------------------------------------------------------------------
 void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(lineMutex);
@@ -497,6 +520,96 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 
 	//Update the lineAccessPending flag
 	lineAccessPending = !lineAccessBuffer.empty();
+}
+
+//----------------------------------------------------------------------------------------
+void A10000::AssertCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		AssertCurrentOutputLineStateForPort(PORT1);
+		AssertCurrentOutputLineStateForPort(PORT2);
+		AssertCurrentOutputLineStateForPort(PORT3);
+		if(currentHLLineState) memoryBus->SetLineState(LINE_HL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void A10000::NegateCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		NegateCurrentOutputLineStateForPort(PORT1);
+		NegateCurrentOutputLineStateForPort(PORT2);
+		NegateCurrentOutputLineStateForPort(PORT3);
+		if(currentHLLineState) memoryBus->SetLineState(LINE_HL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void A10000::AssertCurrentOutputLineStateForPort(unsigned int portNo) const
+{
+	if(GetControlRegisterD0(portNo) && GetDataRegisterD0(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D0), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterD1(portNo) && GetDataRegisterD1(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D1), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterD2(portNo) && GetDataRegisterD2(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D2), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterD3(portNo) && GetDataRegisterD3(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D3), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterTL(portNo) && GetDataRegisterTL(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TL), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterTR(portNo) && GetDataRegisterTR(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TR), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterTH(portNo) && GetDataRegisterTH(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TH), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void A10000::NegateCurrentOutputLineStateForPort(unsigned int portNo) const
+{
+	if(GetControlRegisterD0(portNo) && GetDataRegisterD0(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D0), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterD1(portNo) && GetDataRegisterD1(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D1), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterD2(portNo) && GetDataRegisterD2(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D2), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterD3(portNo) && GetDataRegisterD3(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D3), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterTL(portNo) && GetDataRegisterTL(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TL), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterTR(portNo) && GetDataRegisterTR(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TR), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+	if(GetControlRegisterTH(portNo) && GetDataRegisterTH(portNo))
+	{
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TH), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -636,14 +749,14 @@ void A10000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 		}
 		break;
 
-	case LINE_REGION:
-		SetRegionFlag(lineData.GetBit(0));
+	case LINE_JAP:
+		SetOverseasFlag(!lineData.GetBit(0));
 		break;
-	case LINE_VIDEO:
-		SetVideoFlag(lineData.GetBit(0));
+	case LINE_NTSC:
+		SetPALFlag(!lineData.GetBit(0));
 		break;
-	case LINE_SEGACD:
-		SetSegaCDFlag(lineData.GetBit(0));
+	case LINE_DISK:
+		SetNoDiskFlag(!lineData.GetBit(0));
 		break;
 	}
 }
@@ -677,7 +790,7 @@ void A10000::ApplyPendingLineStateChanges(double currentTimesliceProgress)
 }
 
 //----------------------------------------------------------------------------------------
-A10000::LineID A10000::GetLineIDForPort(unsigned int portNo, PortLine portLine)
+A10000::LineID A10000::GetLineIDForPort(unsigned int portNo, PortLine portLine) const
 {
 	switch(portNo)
 	{
@@ -754,8 +867,8 @@ void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime, u
 	                   || (GetControlRegisterHL(PORT3) && !GetControlRegisterTH(PORT3) && GetDataRegisterTH(PORT3));
 	if(newHLLineState != currentHLLineState)
 	{
-		memoryBus->SetLineState(LINE_HL, Data(1, newHLLineState), GetDeviceContext(), caller, accessTime, accessContext);
 		currentHLLineState = newHLLineState;
+		memoryBus->SetLineState(LINE_HL, Data(1, currentHLLineState), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 }
 

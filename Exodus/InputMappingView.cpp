@@ -92,11 +92,12 @@ INT_PTR System::InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM l
 			++inputDevicesCopyIterator;
 		}
 	}
-	inputDevicesCopy = inputDeviceList;
 
 	//Refresh the input device list if required
 	if(refreshInputDeviceList)
 	{
+		inputDevicesCopy = inputDeviceList;
+
 		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), WM_SETREDRAW, FALSE, 0);
 
 		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_GETTOPINDEX, 0, 0);
@@ -126,7 +127,7 @@ INT_PTR System::InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM l
 				}
 			}
 
-			//Build a string uniquely identifying this input device in the system
+			//Build a string uniquely identifying this device in the system
 			std::wstring deviceNameString = moduleDisplayName;
 			if(inputModulesWithMultipleInputDevicesSet.find(deviceModuleID) != inputModulesWithMultipleInputDevicesSet.end())
 			{

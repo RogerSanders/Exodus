@@ -25,6 +25,7 @@ void A11100::Initialize()
 {
 	initialized = false;
 
+	lastLineCheckTime = 0;
 	lineAccessPending = false;
 	lastTimesliceLength = 0;
 	lineAccessBuffer.clear();
@@ -126,6 +127,20 @@ void A11100::NotifyUpcomingTimeslice(double nanoseconds)
 }
 
 //----------------------------------------------------------------------------------------
+bool A11100::SendNotifyAfterExecuteCalled() const
+{
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+void A11100::NotifyAfterExecuteCalled()
+{
+	//Ensure that any pending line state changes which we have passed in this timeslice
+	//are applied
+	ApplyPendingLineStateChanges(lastTimesliceLength);
+}
+
+//----------------------------------------------------------------------------------------
 Device::UpdateMethod A11100::GetUpdateMethod() const
 {
 	return Device::UPDATEMETHOD_TIMESLICE;
@@ -162,7 +177,7 @@ IBusInterface::AccessResult A11100::ReadInterface(unsigned int interfaceNumber, 
 	boost::mutex::scoped_lock lock(accessMutex);
 
 	//Apply any changes to the line state that are pending at this time
-	ApplyPendingLineStateChanges(caller, accessTime, accessContext);
+	ApplyPendingLineStateChanges(accessTime);
 
 	//Return true if the Z80 bus is not accessible by the M68000
 	data.SetBit(0, (reset || !busGranted));
@@ -175,7 +190,7 @@ IBusInterface::AccessResult A11100::WriteInterface(unsigned int interfaceNumber,
 	boost::mutex::scoped_lock lock(accessMutex);
 
 	//Apply any changes to the line state that are pending at this time
-	ApplyPendingLineStateChanges(caller, accessTime, accessContext);
+	ApplyPendingLineStateChanges(accessTime);
 
 	if(location == 0x100)
 	{
@@ -282,6 +297,12 @@ void A11100::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 }
 
 //----------------------------------------------------------------------------------------
+void A11100::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{
+	SetLineState(targetLine, lineData, 0, 0.0, 0);
+}
+
+//----------------------------------------------------------------------------------------
 void A11100::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	boost::mutex::scoped_lock lock(lineMutex);
@@ -322,6 +343,26 @@ void A11100::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 }
 
 //----------------------------------------------------------------------------------------
+void A11100::AssertCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(reset)        memoryBus->SetLineState(LINE_RESET, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(busRequested) memoryBus->SetLineState(LINE_BUSREQ, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void A11100::NegateCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(reset)        memoryBus->SetLineState(LINE_RESET, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(busRequested) memoryBus->SetLineState(LINE_BUSREQ, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
 void A11100::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 {
 	switch(targetLine)
@@ -333,7 +374,7 @@ void A11100::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 }
 
 //----------------------------------------------------------------------------------------
-void A11100::ApplyPendingLineStateChanges(IDeviceContext* caller, double accessTime, unsigned int accessContext)
+void A11100::ApplyPendingLineStateChanges(double accessTime)
 {
 	//If we have any pending line state changes waiting, apply any which we have now
 	//reached.
