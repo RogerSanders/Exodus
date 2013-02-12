@@ -278,6 +278,14 @@ void Device::SaveState(IHeirarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------
+void Device::LoadSettingsState(IHeirarchicalStorageNode& node)
+{}
+
+//----------------------------------------------------------------------------------------
+void Device::SaveSettingsState(IHeirarchicalStorageNode& node) const
+{}
+
+//----------------------------------------------------------------------------------------
 void Device::LoadDebuggerState(IHeirarchicalStorageNode& node)
 {}
 
@@ -475,6 +483,10 @@ Device::AssemblyHandle Device::GetAssemblyHandle() const
 {
 	return assemblyHandle;
 }
+
+//----------------------------------------------------------------------------------------
+void Device::AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
+{}
 
 //----------------------------------------------------------------------------------------
 void Device::AddGlobalDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)

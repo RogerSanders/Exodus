@@ -26,6 +26,7 @@ enum S315_5313::LineID
 	LINE_BG,
 	LINE_PAL
 	//##TODO## Add RESET line
+	//##TODO## Add the HL line
 };
 
 //----------------------------------------------------------------------------------------
@@ -78,7 +79,13 @@ struct S315_5313::HScanSettings
 	              unsigned int aleftBorderPixelCount,
 	              unsigned int arightBorderHCounterFirstValue,
 	              unsigned int arightBorderHCounterLastValue,
-	              unsigned int arightBorderPixelCount)
+	              unsigned int arightBorderPixelCount,
+	              unsigned int aleftBlankingHCounterFirstValue,
+	              unsigned int aleftBlankingHCounterLastValue,
+	              unsigned int aleftBlankingPixelCount,
+	              unsigned int arightBlankingHCounterFirstValue,
+	              unsigned int arightBlankingHCounterLastValue,
+	              unsigned int arightBlankingPixelCount)
 	:hcounterActiveScanMaxValue(ahcounterActiveScanMaxValue),
 	 hcounterBlankingInitialValue(ahcounterBlankingInitialValue),
 	 vcounterIncrementPoint(avcounterIncrementPoint),
@@ -99,6 +106,12 @@ struct S315_5313::HScanSettings
 	 rightBorderHCounterFirstValue(arightBorderHCounterFirstValue),
 	 rightBorderHCounterLastValue(arightBorderHCounterLastValue),
 	 rightBorderPixelCount(arightBorderPixelCount),
+	 leftBlankingHCounterFirstValue(aleftBlankingHCounterFirstValue),
+	 leftBlankingHCounterLastValue(aleftBlankingHCounterLastValue),
+	 leftBlankingPixelCount(aleftBlankingPixelCount),
+	 rightBlankingHCounterFirstValue(arightBlankingHCounterFirstValue),
+	 rightBlankingHCounterLastValue(arightBlankingHCounterLastValue),
+	 rightBlankingPixelCount(arightBlankingPixelCount),
 	 hcounterStepsPerIteration(ahcounterActiveScanMaxValue + 1 + ((ahcounterMaxValue + 1) - ahcounterBlankingInitialValue))
 	{}
 
@@ -119,12 +132,18 @@ struct S315_5313::HScanSettings
 	unsigned int activeDisplayPixelCount;
 	unsigned int leftBorderPixelCount;
 	unsigned int rightBorderPixelCount;
+	unsigned int leftBlankingPixelCount;
+	unsigned int rightBlankingPixelCount;
 	unsigned int activeDisplayHCounterFirstValue;
 	unsigned int activeDisplayHCounterLastValue;
 	unsigned int leftBorderHCounterFirstValue;
 	unsigned int leftBorderHCounterLastValue;
 	unsigned int rightBorderHCounterFirstValue;
 	unsigned int rightBorderHCounterLastValue;
+	unsigned int leftBlankingHCounterFirstValue;
+	unsigned int leftBlankingHCounterLastValue;
+	unsigned int rightBlankingHCounterFirstValue;
+	unsigned int rightBlankingHCounterLastValue;
 };
 
 //----------------------------------------------------------------------------------------
@@ -147,7 +166,13 @@ struct S315_5313::VScanSettings
 	              unsigned int atopBorderLineCount,
 	              unsigned int abottomBorderVCounterFirstValue,
 	              unsigned int abottomBorderVCounterLastValue,
-	              unsigned int abottomBorderLineCount)
+	              unsigned int abottomBorderLineCount,
+	              unsigned int atopBlankingVCounterFirstValue,
+	              unsigned int atopBlankingVCounterLastValue,
+	              unsigned int atopBlankingLineCount,
+	              unsigned int abottomBlankingVCounterFirstValue,
+	              unsigned int abottomBlankingVCounterLastValue,
+	              unsigned int abottomBlankingLineCount)
 	:vcounterActiveScanMaxValue(avcounterActiveScanMaxValue),
 	 vcounterBlankingInitialValue(avcounterBlankingInitialValue),
 	 vcounterBlankingInitialValueOddFlag(avcounterBlankingInitialValueOddFlag),
@@ -166,6 +191,12 @@ struct S315_5313::VScanSettings
 	 bottomBorderVCounterFirstValue(abottomBorderVCounterFirstValue),
 	 bottomBorderVCounterLastValue(abottomBorderVCounterLastValue),
 	 bottomBorderLineCount(abottomBorderLineCount),
+	 topBlankingVCounterFirstValue(atopBlankingVCounterFirstValue),
+	 topBlankingVCounterLastValue(atopBlankingVCounterLastValue),
+	 topBlankingLineCount(atopBlankingLineCount),
+	 bottomBlankingVCounterFirstValue(abottomBlankingVCounterFirstValue),
+	 bottomBlankingVCounterLastValue(abottomBlankingVCounterLastValue),
+	 bottomBlankingLineCount(abottomBlankingLineCount),
 	 vcounterStepsPerIteration(avcounterActiveScanMaxValue + 1 + ((avcounterMaxValue + 1) - avcounterBlankingInitialValue)),
 	 vcounterStepsPerIterationOddFlag(avcounterActiveScanMaxValue + 1 + ((avcounterMaxValue + 1) - avcounterBlankingInitialValueOddFlag))
 	{}
@@ -191,6 +222,12 @@ struct S315_5313::VScanSettings
 	unsigned int bottomBorderVCounterFirstValue;
 	unsigned int bottomBorderVCounterLastValue;
 	unsigned int bottomBorderLineCount;
+	unsigned int topBlankingLineCount;
+	unsigned int topBlankingVCounterFirstValue;
+	unsigned int topBlankingVCounterLastValue;
+	unsigned int bottomBlankingLineCount;
+	unsigned int bottomBlankingVCounterFirstValue;
+	unsigned int bottomBlankingVCounterLastValue;
 };
 
 //----------------------------------------------------------------------------------------
@@ -385,6 +422,24 @@ struct S315_5313::SpriteMappingTableEntry
 };
 
 //----------------------------------------------------------------------------------------
+struct S315_5313::ImageBufferColorEntry
+{
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char a;
+};
+
+//----------------------------------------------------------------------------------------
+struct S315_5313::SpriteBoundaryLineEntry
+{
+	int linePosXStart;
+	int linePosXEnd;
+	int linePosYStart;
+	int linePosYEnd;
+};
+
+//----------------------------------------------------------------------------------------
 //Status register functions
 //----------------------------------------------------------------------------------------
 //  -------------------------------------------------------------
@@ -413,8 +468,10 @@ struct S315_5313::SpriteMappingTableEntry
 //       flag is usually asserted for the upcoming line. This flag is cleared when the
 //       status register is read.
 //ODD  - Set if the VDP is currently drawing an odd frame in interlace mode
-//VB   - During VBlank
-//HB   - During HBlank
+//VB   - During VBlank. Note that although not officially documented, hardware tests have
+//       shown this bit always returns true if the display is disabled.
+//HB   - During HBlank. Unlike the VBlank flag, this bit is unaffected by the display
+//       enable state.
 //DMA  - Set if a DMA operation is currently in progress
 //PAL  - Set if the PAL input line to the VDP is currently asserted
 //----------------------------------------------------------------------------------------
@@ -553,6 +610,14 @@ void S315_5313::SetRegisterData(unsigned int location, const AccessTarget& acces
 
 //----------------------------------------------------------------------------------------
 //Mode 4 register functions
+//##TODO## Fold the Mode 4 register access functions together with the mode 5 register
+//access functions, and eliminate the use of "M5" prefixes on any methods. It's becoming
+//clear that the operation of the VDP is almost the same in mode 4 and mode 5, and based
+//on new research, there are very few register bits that have alternate meanings between
+//the two modes. In fact, the only register with a known alternate meaning is bit 3 of
+//register 0, which is the "HSM" register in mode 5 and alters the horizontal sync mode,
+//and is the "SS" register in mode 4 and activates sprite shifting. Every other register
+//value is either equivalent in both modes, or is only defined in one of the modes.
 //----------------------------------------------------------------------------------------
 //         ------------------------------------
 //         | 7  | 6  | 5  | 4 | 3 | 2 | 1 | 0 |
@@ -877,20 +942,76 @@ void S315_5313::M4SetLineCounter(const AccessTarget& accessTarget, unsigned int 
 //----------------------------------------------------------------------------------------
 //Mode 5 register functions
 //----------------------------------------------------------------------------------------
-//         ---------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//0x00(0)  |-------------------------------|
-//         | /   /   / |IE1|*U1|*PS|M3 |*U2|
-//         ---------------------------------
+//         ------------------------------------
+//         | 7  | 6 |  5 | 4 | 3  | 2 | 1 | 0 |
+//0x00(0)  |----------------------------------|
+//         |*VSI| / |*LCB|IE1|*HSM|*PS|M3 |*ES|
+//         ------------------------------------
+//*VSI: Vertical Scroll Inhibit. Disable vertical scrolling for columns 24-31. This
+//      setting from the SMS VDP is still present in the Mega Drive VDP, even when mode 5
+//      is active. This setting is mentioned in the Accolade doc "The Sega Development
+//      System". We have done hardware tests and confirmed the behaviour of this register
+//      setting. Enabling this bit stopped the rightmost 8 cells (4 2-cell blocks) from
+//      being scrolled in H32 mode. When H40 mode was activated, the exact same blocks
+//      were still fixed and non-scrolling, however, the rest of the blocks after that
+//      point were now scrolling again, IE, this setting does not inhibit vertical
+//      scrolling for columns 32 and onwards. We also noticed in this mode that vertical
+//      scrolling isn't totally disabled for this region, but rather, only the highest
+//      possible active bit of vertical scroll data affects the blocks. If we're running
+//      with the H32 V128 scroll size, we see the scroll value jump from 0x000 to 0x200
+//      when the scroll value places a block from the upper 64 cells at the top of the
+//      screen. Also note that hardware tests have shown this register setting only
+//      affects layer A, not layer B. We have also confirmed that horizontal scrolling
+//      affects the locked region. Where both horizontal and vertical scrolling are
+//      applied to this region, the region itself does scroll horizontally, up to the next
+//      2-cell boundary, at which point, the fixed vscroll region jumps back. We also
+//      tested with the window layer active, and found that the window layer being active
+//      had no impact on the fixed vscroll region at all, and the fixed vscroll region had
+//      no effect on the window. Both interacted exactly as layer A and window regions
+//      normally would.
+//*LCB: Left Column Blank. Mask column 0. This setting from the SMS VDP is still present
+//      in the Mega Drive VDP, even when mode 5 is active. This setting is mentioned in
+//      the Accolade doc "The Sega Development System". Hardware tests have confirmed its
+//      presence. This setting simply does what it says, which is to mask the first 8-cell
+//      column of the active display. Instead of displaying pattern data in this cell, the
+//      background layer is displayed instead. This setting affects layers A and B and
+//      presumably sprites as well, since it just discards any pixel data within the
+//      masked region at the time layer priority selection is performed.
 //IE1:  Horizontal interrupt enable
-//*U1:  An undocumented mode flag which is mentioned in genvdp.txt
+//*HSM: When this register is set, the output mode of the HSYNC pin is altered. Instead of
+//      the HSYNC line being asserted when the horizontal sync region begins and negated
+//      when it ends, the HSYNC line is instead toggled at the start of each HSYNC region.
+//      When HSYNC would normally be negated, nothing happens, and the HSYNC line retains
+//      its current value until the next HSYNC region is reached, at which point, the line
+//      output state is reversed. Note that the CSYNC line is unaffected by this setting,
+//      which means that video output on the Mega Drive is unaffected in H32 mode, but if
+//      this bit is set when the EDCLK input is being used, as it should be in H40 mode on
+//      the Mega Drive, the video signal will be corrupted, as the EDCLK generator relies
+//      on the HSYNC signal in order to generate the input clock signal.
 //*PS:  Palette Select. When 0, enables an undocumented mode where only bits 1, 5, and 9
 //      of the CRAM data are used to generate colours.
-//M3:   Enables hv counter latching on an external interrupt
-//*U2:  According to genvdp.txt, setting this bit selects a state where all video output
-//      from the VDP is disabled. The normal "Display Enable" flag in register 0x01
-//      simply forces the output to the backdrop colour, while this bit disables all
-//      output.
+//M3:   Enable HV counter latching on an external interrupt. Note that hardware tests have
+//      shown that as soon as this bit is set to 1, the HV counter is actually frozen at
+//      that point. The HV counter will latch a new value if the HL input line is asserted
+//      after this point, otherwise, it will retain its current value until this bit is
+//      cleared.
+//*ES:  Setting this bit to 1 appears to disable the C-SYNC output signal. Instead of
+//      outputting the CSYNC signal encoding the HSYNC and VSYNC signals together, the
+//      CSYNC output pin is always held high. The HSYNC and VSYNC lines, along with the
+//      general operation of the VDP, appear otherwise unaffected. Note however that a
+//      CSYNC signal is required on the Mega Drive in order to generate a valid video
+//      signal. This means setting this bit effectively removes all sync information from
+//      the video signal, preventing most monitors from locking onto it and displaying it
+//      correctly. The "Software Reference Manual for the Sega Mark III Console" lists
+//      this register as "ES", with the only description of it being that it enables an
+//      "External Sync" setting. This may indicate there's some way for an external device
+//      to provide a sync input line to the VDP, where this input signal is output instead
+//      of the internally generated CSYNC signal when this register is set to 1. Note that
+//      this input pin may no longer exist on the 315-5313 VDP in the Mega Drive, but if
+//      this feature exists, it should be present in the 315-5124 VDP used in the Mark III
+//      and the original SMS system.
+//##TODO## Test if bit 6 acts as the HSI (Horizontal Scroll Inhibit) bit from the mode 4
+//screen mode if column or line based scrolling is enabled.
 //----------------------------------------------------------------------------------------
 bool S315_5313::M5GetHInterruptEnabled(const AccessTarget& accessTarget) const
 {
@@ -928,29 +1049,45 @@ void S315_5313::M5SetHVCounterLatchEnabled(const AccessTarget& accessTarget, boo
 }
 
 //----------------------------------------------------------------------------------------
-//         ----------------------------------
-//         | 7 | 6  | 5 | 4 | 3 | 2 | 1 | 0 |
-//0x01(1)  |--------------------------------|
-//         |*U1|DISP|IE0|M1 |M2 |*M5| / |*U2|
-//         ----------------------------------
-//*U1:  Enables an undocumented TMS9918 text display mode
-//DISP: Display enable. If this bit is cleared, the entire display is filled with the
-//      backdrop colour. During this time, the VDP can be accessed at any time without
-//      having to wait. Changing this bit takes effect immediately, and it can be toggled
-//      mid-line. Note that according to notes in m5hvc.txt by Charles MacDonald, the
-//      vblank flag may be set while this bit is cleared, even during active scan.
-//IE0:  Vertical interrupt enable
-//M1:   DMA enable
-//M2:   V30 mode enable. When set, display is 30 columns high, when cleared it's 28
-//      columns high.
-//*M5:  Enables Mode 5. When cleared, mode 4 is active.
-//*U2:  An undocumented mode flag, notes from genvdp.txt are as follows:
-//      "Bit 0 has an interesting effect; horizontal scrolling is disabled, and it would
-//       almost seem like the horizontal scroll value modifies the horizontal retrace /
-//       blanking / sync start and end positions around; the middle of the display is
-//       blanked out, and will scroll left or right. (note the blanked area scrolls - not
-//       the background) Moving too far in one direction, so the blanked area is
-//       offscreen, totally corrupts the display."
+//         -------------------------------------
+//         |  7   | 6  | 5 | 4 | 3 | 2 | 1 | 0 |
+//0x01(1)  |-----------------------------------|
+//         |*EVRAM|DISP|IE0|M1 |M2 |M5 | / | / |
+//         -------------------------------------
+//*EVRAM: Enables the extended 128Kb VRAM mode. This is unavailable in the Mega Drive, as
+//        only 64Kb of VRAM is present in the system. The only known systems to contain
+//        128Kb of VRAM are the Sega TeraDrive, and according to documentation, the "Super
+//        Mega Drive" development system produced by Sega.
+//DISP:   Display enable. If this bit is cleared, the entire display is filled with the
+//        backdrop colour. During this time, the VDP can be accessed at any time without
+//        having to wait. Changing this bit takes effect immediately, and it can be
+//        toggled mid-line. Note that according to notes in m5hvc.txt by Charles
+//        MacDonald, the vblank flag may be set while this bit is cleared, even during
+//        active scan.
+//IE0 :   Vertical interrupt enable
+//M1:     DMA enable
+//M2:     V30 mode enable. When set, display is 30 columns high, when cleared it's 28
+//        columns high.
+//M5:     Enables Mode 5. When cleared, mode 4 is active.
+//Note that bit 0 is reported to have an effect in genvdp.txt by Charles MacDonald, but
+//all attempts to produce any effect from this bit on the real hardware have failed. Based
+//on the description in genvdp.txt, I believe Charles may have been referring to the
+//effect from setting reg 0 bit 0 to 1, and an error was made when writing the notes.
+//##TODO## Add full documentation and support for the extended VRAM mode
+//##TODO## Check if we setup the address register with bit 16 set while extended VRAM mode
+//is disabled, then enable extended VRAM mode and do a partial control port write to setup
+//a new address, if a VRAM write following this operation goes to the upper or lower VRAM
+//area. This will tell us if bit 16 of the address is masked when the address register is
+//set, or if it is masked later on.
+//##TODO## Check if we have a write pending in the FIFO to the upper memory area when
+//extended VRAM mode is disabled, then we enable extended VRAM mode before the write is
+//performed, if the pending write ends up going to the lower VRAM area or the upper VRAM
+//area. This will tell us if bit 16 of the target VRAM address is masked when entries are
+//made into the FIFO, or if it is only masked when writes are being performed.
+//##TODO## Confirm if the full VRAM region is available in one continuous segment in
+//interlace mode 2 when extended VRAM mode is enabled.
+//##TODO## Confirm if the pattern base address registers have any effect in interlace mode
+//2.
 //----------------------------------------------------------------------------------------
 bool S315_5313::M5GetDisplayEnabled(const AccessTarget& accessTarget) const
 {
@@ -1021,12 +1158,8 @@ void S315_5313::M5SetMode5Enabled(const AccessTarget& accessTarget, bool data)
 //         |       |--------------|           |
 //         |       |SA15|SA14|SA13|           |
 //         ------------------------------------
-//##NOTE## Reportedly, if bit 7 of this register is clear, the VDP VRAM is 128KB in size,
-//not 64KB in size, meaning it is accessible in the range 0x00000-0x1FFFF, not just
-//0x0000-0xFFFF as is the case in the Mega Drive. If this bit is set to 1, the VRAM size
-//is limited by the VDP to 64KB. Looking at the specs, there's no reason this couldn't be
-//the case. See the "Super Mega Drive Manual", page 3, for a description of this
-//behaviour.
+//##TODO## Add in the 17th address bit for all table base address registers, which is used
+//in extended VRAM mode.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M5GetNameTableBaseScrollA(const AccessTarget& accessTarget) const
 {
@@ -1047,6 +1180,7 @@ void S315_5313::M5SetNameTableBaseScrollA(const AccessTarget& accessTarget, unsi
 //0x03(3)  | /   / |-------------------------| / |
 //         |       |WD15|WD14|WD13|WD12|WD11 |   |
 //         ---------------------------------------
+//WD11: This bit is only used in H32 mode. It is ignored in H40 mode, and is treated as 0.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M5GetNameTableBaseWindow(const AccessTarget& accessTarget) const
 {
@@ -1088,6 +1222,10 @@ void S315_5313::M5SetNameTableBaseScrollB(const AccessTarget& accessTarget, unsi
 //0x05(5)  | / |----------------------------------|
 //         |   |AT15|AT14|AT13|AT12|AT11|AT10 |AT9|
 //         ----------------------------------------
+//AT0: This bit is only used in H32 mode. It is ignored in H40 mode, and is treated as 0.
+//##TODO## There are a lot of tests still required regarding the interaction of AT9 and
+//the internal sprite cache, and how screen mode settings changes affect the sprite cache.
+//See the notes in RegisterSpecialUpdateFunction for this register for more information.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M5GetNameTableBaseSprite(const AccessTarget& accessTarget) const
 {
@@ -1099,6 +1237,17 @@ void S315_5313::M5SetNameTableBaseSprite(const AccessTarget& accessTarget, unsig
 {
 	SetRegisterData(0x05, accessTarget, GetRegisterData(0x05, accessTarget).SetDataSegment(0, 7, data >> 9));
 }
+
+//----------------------------------------------------------------------------------------
+//         ----------------------------------
+//         | 7 | 6 | 5  | 4 | 3 | 2 | 1 | 0 |
+//0x06(6)  |--------------------------------|
+//         | / | / |AP16| / | / | / | / | / |
+//         ----------------------------------
+//AP16: Sprite Pattern Generator Base Address, bit 16. This bit only has an effect in
+//      extended VRAM mode.
+//----------------------------------------------------------------------------------------
+//##TODO## Write functions to access this data
 
 //----------------------------------------------------------------------------------------
 //         ------------------------------------
@@ -1154,8 +1303,20 @@ void S315_5313::M5SetHInterruptData(const AccessTarget& accessTarget, unsigned i
 //         ------------------------------------
 //         | 7 | 6 | 5 | 4 | 3 | 2  | 1  | 0  |
 //0x0B(11) |----------------------------------|
-//         | /   /   /   / |IE2|VSCR|HSCR|LSCR|
+//         |*U1|*U2| /   / |IE2|VSCR|HSCR|LSCR|
 //         ------------------------------------
+//*U1:  Mentioned by Charles MacDonald in c2tech.txt, described as follows:
+//      "VDP controls color bus. Reading or writing color RAM at any address only affects
+//      address zero, and the data read/written will often be corrupted."
+//*U2:  Mentioned in Accolade doc "The Sega Development System". Description was
+//      "Unknown - causes halt sometimes". Hardware tests have shown that setting this bit
+//      to 1 can indeed cause some kind of lockup. Just setting the register value to 1
+//      and trying to set it back again to 0 seems to lock up the system. If the enable
+//      and clear of this register value happen as two halves of a long-word register
+//      write however, no lockup occurs. The VDP doesn't request the bus, so it's not
+//      clear what causes the lockup at this point. Additional tests required. Note that
+//      this bit is also mentioned in c2tech.txt, also described as locking up the
+//      hardware when set.
 //IE2:  External interrupt enable
 //VSCR: Vertical scroll mode. Full screen vertical scrolling when clear, 2-cell column
 //      vertical scrolling when set.
@@ -1212,12 +1373,12 @@ void S315_5313::M5SetLSCR(const AccessTarget& accessTarget, bool data)
 }
 
 //----------------------------------------------------------------------------------------
-//         ------------------------------------
-//         | 7  | 6 | 5 | 4 | 3 | 2  | 1  | 0 |
-//0x0C(12) |----------------------------------|
-//         |*RS0|*U1|*U2|*U3|STE|LSM1|LSM0|RS1|
-//         ------------------------------------
-//*RS0: When set, the VDP uses the EDCLK input to drive SC directly. When clear, the VDP
+//         -----------------------------------
+//         | 7 | 6 | 5 | 4 | 3 | 2  | 1  | 0 |
+//0x0C(12) |---------------------------------|
+//         |RS0|*U1|*U2|*U3|STE|LSM1|LSM0|RS1|
+//         -----------------------------------
+//RS0 : When set, the VDP uses the EDCLK input to drive SC directly. When clear, the VDP
 //      calculates SC internally, as either MCLK/5 or MCLK/4, depending on the state of
 //      the RS1 bit.
 //*U1:  When this bit is set, it causes the VSYNC pin to output the internal pixel clock
@@ -1244,32 +1405,9 @@ void S315_5313::M5SetLSCR(const AccessTarget& accessTarget, bool data)
 //      varying clock rate which increases the clock rate for active scan, while slowing
 //      it during HSYNC to keep the overall drawing time of a line in H40 mode the same as
 //      in H32 mode, which allows a normal TV to lock onto the signal.
-//##OLD##
-//*RS0: I suspect that either RS0 or RS1, probably RS0, affects the analog output signals
-//      such as HSYNC, while the other flag affects the digital operation of the chip and
-//      selects the actual cells which are drawn, and when. This is supported by the
-//      information in genvdp.txt, which states that setting RS0/1 to 01 does activate a
-//      40-cell display (see "Populous"), but that the display is "distorted a bit".
-//      Follow-up: It seems likely that when RS0 is set, it switches the analog hardware
-//      from using the internal pixel clock, to using the external dot clock. In fact, all
-//      four upper bits of this register affect the analog chip state.
-//*U1:  When this bit is set, it causes the VSYNC pin to output the internal pixel clock
-//      (dot clock) instead of the VSYNC signal. The HSYNC signal is reportedly forced to
-//      the asserted state, but this is disputed. See:
-//      http://gendev.spritesmind.net/forum/viewtopic.php?p=7189#7189
-//*U2:  An undocumented mode flag. According to genvdp:
-//      "Bit 5 seems to affect the display when used in conjunction with RS0, but only in
-//       the same way as the display appears when using a setting of 01b"
-//*U3:  Reportedly, when this bit it set, HSYNC is forced to 1 constantly. See:
-//      http://gendev.spritesmind.net/forum/viewtopic.php?p=8245#8245
-//STE:  Shadow/highlight mode enable. When set, shadow/highlight mode is active.
-//LSM1: Interlace double flag. When set, double interlace mode is active if the interlace
-//      enable bit is set. If interlacing is enabled and this bit is not set, normal
-//      interlace mode is active.
-//LSM0: Interlace enable flag. When set, interlacing is active. Whether normal or double
-//      interlace mode is active depends on the state of LSM1.
-//RS1:  When set, appears to change the digital operation of the VDP to enable H40 mode
-//      instead of the default H32 mode.
+//##TODO## According to notes from Charles Macdonald in c2tech.txt, it sounds like the U1
+//bit may make the VSYNC line output the dot clock, not the HSYNC line. Perform hardware
+//tests on all these bits to determine exactly what they do.
 //----------------------------------------------------------------------------------------
 bool S315_5313::M5GetRS0(const AccessTarget& accessTarget) const
 {
@@ -1349,6 +1487,19 @@ void S315_5313::M5SetHScrollDataBase(const AccessTarget& accessTarget, unsigned 
 {
 	SetRegisterData(0x0D, accessTarget, GetRegisterData(0x0D, accessTarget).SetDataSegment(0, 6, data >> 10));
 }
+
+//----------------------------------------------------------------------------------------
+//         -----------------------------------
+//         | 7 | 6 | 5 | 4  | 3 | 2 | 1 | 0  |
+//0x0E(14) |---------------------------------|
+//         | / | / | / |PB16| / | / | / |PA16|
+//         -----------------------------------
+//PA16: When this bit is set and extended VRAM mode is enabled, layer A is rebased to the
+//      upper memory area.
+//PB16: When this bit and PA16 are both set and extended VRAM mode is enabled, layer B is
+//      rebased to the upper memory area.
+//----------------------------------------------------------------------------------------
+//##TODO## Write functions to access this data
 
 //----------------------------------------------------------------------------------------
 //         ---------------------------------
@@ -1452,6 +1603,11 @@ void S315_5313::M5SetHSZ0(const AccessTarget& accessTarget, bool data)
 //0x11(17) |--------------------------------|
 //         |RIGT| /   / |Window H Base Point|
 //         ----------------------------------
+//Note that despite what is recorded in the Accolade document "The Sega Development
+//System", hardware tests have shown that only the lower 5 bits of the register are used
+//to calculate the horizontal and vertical window base point, not the lower 7 as recorded
+//in this document from Accolade. Setting bits 5 and 6 of these registers has no visible
+//effect on the window layer.
 //----------------------------------------------------------------------------------------
 bool S315_5313::M5GetWindowRightAligned(const AccessTarget& accessTarget) const
 {
@@ -1543,14 +1699,14 @@ void S315_5313::M5SetDMALengthCounter(const AccessTarget& accessTarget, unsigned
 //0x16(22) |---------------------------------------|
 //         |SA16|SA15|SA14|SA13|SA12|SA11|SA10|SA9 |
 //         -----------------------------------------
-//         ------------------------------------------
-//         | 7  |  6  | 5  | 4  | 3  | 2  | 1  | 0  |
-//0x17(23) |----------------------------------------|
-//         |DMD1|*DMD0|SA22|SA21|SA20|SA19|SA18|SA17|
-//         |    | SA23|    |    |    |    |    |    |
-//         ------------------------------------------
-//*DMD0:  DMD0 acts as both DMD0 and SA23, so there's deliberate overlap in the access
-//        functions to these registers.
+//         -----------------------------------------
+//         | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
+//0x17(23) |---------------------------------------|
+//         |DMD1|DMD0|SA22|SA21|SA20|SA19|SA18|SA17|
+//         |    |SA23|    |    |    |    |    |    |
+//         -----------------------------------------
+//DMD0:   Note that DMD0 acts as both DMD0 and SA23, so there's deliberate overlap in the
+//        access functions to these registers.
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::M5GetDMASourceAddress(const AccessTarget& accessTarget) const
 {

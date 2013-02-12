@@ -53,6 +53,33 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& vi
 				}
 			}
 		}
+
+		//Create a separator between the system settings and the device settings
+		IMenuSeparator& menuSettingsSeparator = menuSegmentForSettings.AddMenuItemSeparator();
+
+		//Add the settings submenus for each device in this module
+		IMenuSegment& menuSegmentForDevices = moduleSubmenu.CreateMenuSegment();
+		for(LoadedDeviceInfoList::const_iterator deviceInfo = loadedDeviceInfoList.begin(); deviceInfo != loadedDeviceInfoList.end(); ++deviceInfo)
+		{
+			if(deviceInfo->moduleID == targetModuleID)
+			{
+				IMenuSubmenu& deviceSubmenu = menuSegmentForDevices.AddMenuItemSubmenu(deviceInfo->device->GetDeviceInstanceName());
+				IMenuSegment& menuSegmentForDeviceSubmenu = deviceSubmenu.CreateMenuSegment();
+				deviceInfo->device->AddSettingsMenuItems(menuSegmentForDeviceSubmenu, viewModelLauncher);
+				if(menuSegmentForDeviceSubmenu.NoMenuItemsExist())
+				{
+					menuSegmentForDevices.DeleteMenuItem(deviceSubmenu);
+				}
+			}
+		}
+
+		//If no device submenus were defined, remove the device segment, and ensure no
+		//trailing separators are left on the menu.
+		if(menuSegmentForDevices.NoMenuItemsExist())
+		{
+			moduleSubmenu.DeleteMenuSegment(menuSegmentForDevices);
+			menuSegmentForSettings.DeleteMenuItem(menuSettingsSeparator);
+		}
 	}
 
 	//If no module submenus were defined, remove the module segment, and ensure no

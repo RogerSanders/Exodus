@@ -4,7 +4,7 @@
 #include "ImageViewModel.h"
 #include "RegistersViewModel.h"
 #include "LayerRemovalViewModel.h"
-#include "SettingsViewModel.h"
+#include "DebugSettingsViewModel.h"
 #include "SpriteListViewModel.h"
 #include "SpriteListDetailsViewModel.h"
 #include "PortMonitorViewModel.h"
@@ -79,7 +79,7 @@ void S315_5313::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& me
 	menuItems.push_back(MenuItemDefinition(MENUITEM_IMAGE, L"Image", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_LAYERREMOVAL, L"Layer Removal", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_SETTINGS, L"Settings", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_SETTINGS, L"Debug Settings", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELIST, L"Sprite List", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELISTDETAILS, L"Sprite List Details", true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITOR, L"Port Monitor", true));
@@ -102,7 +102,7 @@ IViewModel* S315_5313::DebugMenuHandler::CreateViewModelForItem(int menuItemID)
 	case MENUITEM_LAYERREMOVAL:
 		return new LayerRemovalViewModel(GetMenuHandlerName(), MENUITEM_LAYERREMOVAL, device);
 	case MENUITEM_SETTINGS:
-		return new SettingsViewModel(GetMenuHandlerName(), MENUITEM_SETTINGS, device);
+		return new DebugSettingsViewModel(GetMenuHandlerName(), MENUITEM_SETTINGS, device);
 	case MENUITEM_SPRITELIST:
 		return new SpriteListViewModel(GetMenuHandlerName(), MENUITEM_SPRITELIST, device);
 	case MENUITEM_PORTMONITOR:

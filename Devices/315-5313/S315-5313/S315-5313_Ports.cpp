@@ -1558,8 +1558,13 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 //----------------------------------------------------------------------------------------
 Data S315_5313::GetHVCounter() const
 {
+	//##TODO## Implement support for HV counter latching. Hardware tests have shown that
+	//the current value of the HV counter is latched at the time the HV counter latch bit
+	//is enabled, and the returned value from the HV counter only changes while the bit is
+	//set if the HL line is asserted, latching the current HV counter value at that time.
+
 	//Since the status register has already been updated when the device was accessed,
-	//build the hv counter based on the current processor state.
+	//build the HV counter based on the current processor state.
 
 	//Build the 8-bit external hcounter
 	//The internal hcounter is 9-bit, and the external hcounter is 8-bit. The upper 8 bits
