@@ -1449,11 +1449,9 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 	}
 
 	//Obtain pointers to all the interface functions for the assembly
-	unsigned int (*GetSTLVersion)();
 	bool (*GetLibraryEntry)(unsigned int entryNo, DeviceInfo& entry);
-	GetSTLVersion = (unsigned int (*)())GetProcAddress(dllHandle, "GetSTLVersion");
 	GetLibraryEntry = (bool (*)(unsigned int entryNo, DeviceInfo& entry))GetProcAddress(dllHandle, "GetLibraryEntry");
-	if((GetSTLVersion == 0) || (GetLibraryEntry == 0))
+	if(GetLibraryEntry == 0)
 	{
 		//##DEBUG##
 		std::wcout << "Error loading assembly " << filePath << "!\n"

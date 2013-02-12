@@ -73,12 +73,6 @@ extern "C" __declspec(dllexport) unsigned int GetInterfaceVersion()
 }
 
 //----------------------------------------------------------------------------------------
-extern "C" __declspec(dllexport) unsigned int GetSTLVersion()
-{
-	return EXODUS_STLVERSION;
-}
-
-//----------------------------------------------------------------------------------------
 extern "C" __declspec(dllexport) bool GetLibraryEntry(unsigned int entryNo, IDeviceInfo& entry)
 {
 	switch(entryNo)
