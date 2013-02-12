@@ -12,7 +12,7 @@ public:
 
 	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
-		return table.AllocateRegionToOpcode(this, L"1011***1CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011,111100");
+		return table.AllocateRegionToOpcode(this, L"1011***1CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001");
 	}
 
 	virtual std::wstring GetOpcodeName() const

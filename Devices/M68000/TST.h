@@ -13,8 +13,7 @@ public:
 	virtual bool RegisterOpcode(OpcodeTable<M68000Instruction>& table) const
 	{
 		bool result = true;
-		result &= table.AllocateRegionToOpcode(this, L"01001010CCDDDDDD", L"CC=00 DDDDDD=000000-000111,010000-110111,111000,111001,111010,111011");
-		result &= table.AllocateRegionToOpcode(this, L"01001010CCDDDDDD", L"CC=01-10 DDDDDD=000000-110111,111000,111001,111010,111011,111100");
+		result &= table.AllocateRegionToOpcode(this, L"01001010CCDDDDDD", L"CC=00-10 DDDDDD=000000-000111,010000-110111,111000,111001");
 		return result;
 	}
 
