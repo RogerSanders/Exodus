@@ -2,7 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by Exodus.rc
 //
-#define IDI_PROGRAM                     100
 #define IDR_MAINMENU                    107
 #define IDD_M68000_DEBUG                108
 #define IDD_ABOUT                       112
@@ -13,6 +12,7 @@
 #define IDD_LOADSYSTEM                  142
 #define IDD_LOADMODULE                  142
 #define IDD_SETTINGS                    143
+#define IDI_PROGRAM                     150
 #define IDI_FOLDER                      151
 #define IDD_SN76489_AUDIO               153
 #define IDR_ACCELERATORS                161
@@ -212,7 +212,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        171
+#define _APS_NEXT_RESOURCE_VALUE        173
 #define _APS_NEXT_COMMAND_VALUE         40110
 #define _APS_NEXT_CONTROL_VALUE         1461
 #define _APS_NEXT_SYMED_VALUE           101
