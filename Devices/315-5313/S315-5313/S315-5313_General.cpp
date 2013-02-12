@@ -1,5 +1,7 @@
 #include "S315_5313.h"
+#include "SettingsMenuHandler.h"
 #include "DebugMenuHandler.h"
+#include "Image/Image.pkg"
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -47,9 +49,11 @@ renderPatternDataCacheSprite(maxCellsPerRow, Data(32)),
 renderSpriteDisplayCache(maxSpriteDisplayCacheSize),
 renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 {
-	//Create the menu handler
-	menuHandler = new DebugMenuHandler(this);
-	menuHandler->LoadMenuItems();
+	//Create the menu handlers
+	settingsMenuHandler = new SettingsMenuHandler(this);
+	settingsMenuHandler->LoadMenuItems();
+	debugMenuHandler = new DebugMenuHandler(this);
+	debugMenuHandler->LoadMenuItems();
 
 	fifoBuffer.resize(fifoBufferSize);
 	bfifoBuffer.resize(fifoBufferSize);
@@ -92,7 +96,11 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	renderThreadActive = false;
 	renderTimeslicePending = false;
 	drawingImageBufferPlane = 0;
-	imageBuffer.resize(imageBufferHeight * imageBufferWidth);
+	frameReadyInImageBuffer = false;
+	for(unsigned int i = 0; i < imageBufferPlanes; ++i)
+	{
+		imageBufferLineCount[i] = 0;
+	}
 
 	//Initialize the sprite pixel buffer
 	for(unsigned int i = 0; i < renderSpritePixelBufferPlaneCount; ++i)
@@ -115,6 +123,11 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	videoEnableSpriteBoxing = false;
 	videoHighlightRenderPos = false;
 	videoSingleBuffering = false;
+	videoFixedAspectRatio = true;
+	videoShowStatusBar = true;
+	videoShowBoundaryActiveImage = false;
+	videoShowBoundaryActionSafe = false;
+	videoShowBoundaryTitleSafe = false;
 
 	enableLayerAHigh = true;
 	enableLayerALow = true;
@@ -136,9 +149,11 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 //----------------------------------------------------------------------------------------
 S315_5313::~S315_5313()
 {
-	//Delete the menu handler
-	menuHandler->ClearMenuItems();
-	delete menuHandler;
+	//Delete the menu handlers
+	settingsMenuHandler->ClearMenuItems();
+	delete settingsMenuHandler;
+	debugMenuHandler->ClearMenuItems();
+	delete debugMenuHandler;
 }
 
 //----------------------------------------------------------------------------------------
@@ -383,6 +398,7 @@ void S315_5313::Initialize()
 		renderSpriteDisplayCache[i].mappingData= 0;
 		renderSpriteDisplayCache[i].hpos = 0;
 	}
+	currentRenderPosOnScreen = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2129,6 +2145,10 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//Update the vblank and hblank flags
 		bool vblankFlag = (vcounterNew >= vscanSettings.vblankSetPoint) && (vcounterNew < vscanSettings.vblankClearedPoint);
 		bool hblankFlag = (hcounterNew >= hscanSettings.hblankSetPoint) || (hcounterNew < hscanSettings.hblankClearedPoint);
+		//Note that although not mentioned in the official documentation, hardware tests
+		//have confirmed that the VBlank flag is always forced to set when the display is
+		//disabled. We emulate that here.
+		vblankFlag |= !displayEnabledCached;
 		SetStatusFlagVBlank(vblankFlag);
 		SetStatusFlagHBlank(hblankFlag);
 
@@ -3170,26 +3190,62 @@ void S315_5313::M5WriteVSRAM(const Data& address, const Data& data, const RAMAcc
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetScreenshot(IImage& targetImage) const
 {
-	//Assumed constants
-	unsigned int width = 347;
-	unsigned int height = 294;
-
 	boost::mutex::scoped_lock lock(imageBufferMutex);
-	//	unsigned int displayingImageBufferPlane = ((drawingImageBufferPlane + imageBufferPlanes) - 1) % imageBufferPlanes;
-	unsigned int displayingImageBufferPlane = drawingImageBufferPlane;
 
-	targetImage.SetImageFormat(width, height, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
-	for(unsigned int ypos = 0; ypos < height; ++ypos)
+	//Determine the index of the current image plane that is being used for display
+	unsigned int displayingImageBufferPlane = videoSingleBuffering? drawingImageBufferPlane: ((drawingImageBufferPlane + imageBufferPlanes) - 1) % imageBufferPlanes;
+
+	//Calculate the width and height of the output image. We take the line width of the
+	//first line as the width of the output image, but it should be noted that the width
+	//may actually vary between lines, due to mid-frame changes to the screen settings. We
+	//handle this below by resampling lines which don't match the image width to the
+	//correct width.
+	unsigned int imageWidth = imageBufferLineWidth[displayingImageBufferPlane][0];
+	unsigned int imageHeight = imageBufferLineCount[displayingImageBufferPlane];
+
+	//Write the current contents of the image buffer to the output image
+	targetImage.SetImageFormat(imageWidth, imageHeight, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
+	for(unsigned int ypos = 0; ypos < imageHeight; ++ypos)
 	{
-		for(unsigned int xpos = 0; xpos < width; ++xpos)
+		//Obtain the width of this line in pixels
+		unsigned int lineWidth = imageBufferLineWidth[displayingImageBufferPlane][ypos];
+
+		//If the width of this line doesn't match the width of the image, resample this
+		//line and write it to the output image, otherwise write the pixel data directly
+		//to the output image.
+		if(lineWidth != imageWidth)
 		{
-			unsigned int bufferPos = ((xpos + (((height - 1) * imageWidth) - (ypos * imageWidth))) * 4);
-			unsigned char r = image[displayingImageBufferPlane][bufferPos + 0];
-			unsigned char g = image[displayingImageBufferPlane][bufferPos + 1];
-			unsigned char b = image[displayingImageBufferPlane][bufferPos + 2];
-			targetImage.WritePixelData(xpos, ypos, 0, r);
-			targetImage.WritePixelData(xpos, ypos, 1, g);
-			targetImage.WritePixelData(xpos, ypos, 2, b);
+			Image lineImage(lineWidth, 1, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
+			for(unsigned int xpos = 0; xpos < lineWidth; ++xpos)
+			{
+				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&imageBuffer[drawingImageBufferPlane][((xpos * lineWidth) + ypos) * 4]);
+				lineImage.WritePixelData(xpos, ypos, 0, imageBufferEntry.r);
+				lineImage.WritePixelData(xpos, ypos, 1, imageBufferEntry.g);
+				lineImage.WritePixelData(xpos, ypos, 2, imageBufferEntry.b);
+			}
+			lineImage.ResampleBilinear(imageWidth, 1);
+			for(unsigned int xpos = 0; xpos < imageWidth; ++xpos)
+			{
+				unsigned char r;
+				unsigned char g;
+				unsigned char b;
+				lineImage.ReadPixelData(xpos, 0, 0, r);
+				lineImage.ReadPixelData(xpos, 0, 1, g);
+				lineImage.ReadPixelData(xpos, 0, 2, b);
+				targetImage.WritePixelData(xpos, ypos, 0, r);
+				targetImage.WritePixelData(xpos, ypos, 1, g);
+				targetImage.WritePixelData(xpos, ypos, 2, b);
+			}
+		}
+		else
+		{
+			for(unsigned int xpos = 0; xpos < imageWidth; ++xpos)
+			{
+				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&imageBuffer[drawingImageBufferPlane][((xpos * imageWidth) + ypos) * 4]);
+				targetImage.WritePixelData(xpos, ypos, 0, imageBufferEntry.r);
+				targetImage.WritePixelData(xpos, ypos, 1, imageBufferEntry.g);
+				targetImage.WritePixelData(xpos, ypos, 2, imageBufferEntry.b);
+			}
 		}
 	}
 
@@ -3621,6 +3677,39 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 }
 
 //----------------------------------------------------------------------------------------
+void S315_5313::LoadSettingsState(IHeirarchicalStorageNode& node)
+{
+	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		std::wstring keyName = (*i)->GetName();
+		if(keyName == L"Register")
+		{
+			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			if(nameAttribute != 0)
+			{
+				std::wstring registerName = nameAttribute->GetValue();
+				if(registerName == L"VideoSingleBuffering")			videoSingleBuffering = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoFixedAspectRatio")	videoFixedAspectRatio = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoShowStatusBar")		videoShowStatusBar = (*i)->ExtractData<bool>();
+			}
+		}
+	}
+
+	Device::LoadSettingsState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SaveSettingsState(IHeirarchicalStorageNode& node) const
+{
+	node.CreateChild(L"Register", videoSingleBuffering).CreateAttribute(L"name", L"VideoSingleBuffering");
+	node.CreateChild(L"Register", videoFixedAspectRatio).CreateAttribute(L"name", L"VideoFixedAspectRatio");
+	node.CreateChild(L"Register", videoShowStatusBar).CreateAttribute(L"name", L"VideoShowStatusBar");
+
+	Device::SaveSettingsState(node);
+}
+
+//----------------------------------------------------------------------------------------
 void S315_5313::LoadDebuggerState(IHeirarchicalStorageNode& node)
 {
 	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
@@ -3641,7 +3730,9 @@ void S315_5313::LoadDebuggerState(IHeirarchicalStorageNode& node)
 				else if(registerName == L"VideoDisableRenderOutput")		videoDisableRenderOutput = (*i)->ExtractData<bool>();
 				else if(registerName == L"VideoEnableSpriteBoxing")			videoEnableSpriteBoxing = (*i)->ExtractData<bool>();
 				else if(registerName == L"VideoHighlightRenderPos")			videoHighlightRenderPos = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoSingleBuffering")			videoSingleBuffering = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoShowBoundaryActiveImage")	videoShowBoundaryActiveImage = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoShowBoundaryActionSafe")		videoShowBoundaryActionSafe = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoShowBoundaryTitleSafe")		videoShowBoundaryTitleSafe = (*i)->ExtractData<bool>();
 				//Layer removal settings
 				else if(registerName == L"EnableLayerAHigh")		enableLayerAHigh = (*i)->ExtractData<bool>();
 				else if(registerName == L"EnableLayerALow")			enableLayerALow = (*i)->ExtractData<bool>();
@@ -3669,7 +3760,9 @@ void S315_5313::SaveDebuggerState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Register", videoDisableRenderOutput).CreateAttribute(L"name", L"VideoDisableRenderOutput");
 	node.CreateChild(L"Register", videoEnableSpriteBoxing).CreateAttribute(L"name", L"VideoEnableSpriteBoxing");
 	node.CreateChild(L"Register", videoHighlightRenderPos).CreateAttribute(L"name", L"VideoHighlightRenderPos");
-	node.CreateChild(L"Register", videoSingleBuffering).CreateAttribute(L"name", L"VideoSingleBuffering");
+	node.CreateChild(L"Register", videoShowBoundaryActiveImage).CreateAttribute(L"name", L"VideoShowBoundaryActiveImage");
+	node.CreateChild(L"Register", videoShowBoundaryActionSafe).CreateAttribute(L"name", L"VideoShowBoundaryActionSafe");
+	node.CreateChild(L"Register", videoShowBoundaryTitleSafe).CreateAttribute(L"name", L"VideoShowBoundaryTitleSafe");
 
 	//Layer removal settings
 	node.CreateChild(L"Register", enableLayerAHigh).CreateAttribute(L"name", L"EnableLayerAHigh");

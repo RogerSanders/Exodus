@@ -58,6 +58,8 @@ public:
 	virtual bool GetScreenshot(IImage& image) const;
 	virtual void LoadState(IHeirarchicalStorageNode& node);
 	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadSettingsState(IHeirarchicalStorageNode& node);
+	virtual void SaveSettingsState(IHeirarchicalStorageNode& node) const;
 	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 
@@ -108,6 +110,7 @@ public:
 	//Window functions
 	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle);
 	virtual AssemblyHandle GetAssemblyHandle() const;
+	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void AddGlobalDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void RestoreViewModelState(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);

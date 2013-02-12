@@ -83,6 +83,8 @@ public:
 	virtual bool GetScreenshot(IImage& image) const = 0;
 	virtual void LoadState(IHeirarchicalStorageNode& node) = 0;
 	virtual void SaveState(IHeirarchicalStorageNode& node) const = 0;
+	virtual void LoadSettingsState(IHeirarchicalStorageNode& node) = 0;
+	virtual void SaveSettingsState(IHeirarchicalStorageNode& node) const = 0;
 	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node) = 0;
 	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const = 0;
 
@@ -137,6 +139,7 @@ public:
 	//Window functions
 	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle) = 0;
 	virtual AssemblyHandle GetAssemblyHandle() const = 0;
+	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	//##TODO## Consider removing global debug menu items. What were they supposed to be
 	//for anyway? It seems likely that the system menu removes the need for this option.
 	virtual void AddGlobalDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;

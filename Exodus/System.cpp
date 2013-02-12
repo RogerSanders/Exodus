@@ -2328,6 +2328,45 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 }
 
 //----------------------------------------------------------------------------------------
+bool System::LoadSystem_Device_Settings(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
+{
+	//Load the external module ID and device name
+	IHeirarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
+	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	if((moduleIDAttribute == 0) || (deviceInstanceNameAttribute == 0))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID or DeviceInstanceName attribute for Device.Settings!"));
+		return false;
+	}
+	unsigned int moduleIDExternal = moduleIDAttribute->ExtractValue<unsigned int>();
+	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
+
+	//Resolve the loaded module ID from the external module ID
+	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
+	if(loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
+	{
+		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		logEntry << L"Could not locate imported module with ID " << moduleIDExternal << L" for Device.Settings!";
+		WriteLogEvent(logEntry);
+		return false;
+	}
+	unsigned int moduleID = loadedModuleIDIterator->second;
+
+	//Retrieve the specified device from the system
+	IDevice* device = GetDevice(moduleID, deviceName);
+	if(device == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate target device with name " + deviceName + L" for Device.Settings!"));
+		return false;
+	}
+
+	//Load the device settings from this node
+	device->LoadSettingsState(node);
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 bool System::LoadSystem_Device_MapInput(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
 {
 	//Load the external module ID, device name, system key code, and target key code.
@@ -2631,6 +2670,10 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 			//We expect an Info node to exist, but we're not interested in its contents at
 			//this stage, so we skip it here.
 		}
+		else if(elementName == L"Device.Settings")
+		{
+			loadedWithoutErrors &= LoadSystem_Device_Settings(*(*i), savedModuleIDToLoadedModuleIDMap);
+		}
 		else if(elementName == L"Device.MapInput")
 		{
 			loadedWithoutErrors &= LoadSystem_Device_MapInput(*(*i), savedModuleIDToLoadedModuleIDMap);
@@ -2696,6 +2739,15 @@ bool System::SaveSystem(const std::wstring& fileDir, const std::wstring& fileNam
 	//Save the ModuleRelationships node
 	IHeirarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
 	SaveModuleRelationshipsNode(moduleRelationshipsNode, true, fileDir);
+
+	//Save device settings to the system file
+	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
+	{
+		IHeirarchicalStorageNode& node = tree.GetRootNode().CreateChild(L"Device.Settings");
+		node.CreateAttribute(L"DeviceInstanceName", (*i).device->GetDeviceInstanceName());
+		node.CreateAttribute(L"ModuleID").SetValue((*i).moduleID);
+		(*i).device->SaveSettingsState(node);
+	}
 
 	//Save mapped key inputs to the system file
 	{

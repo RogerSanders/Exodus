@@ -116,11 +116,14 @@ public:
 	virtual bool GetScreenshot(IImage& targetImage) const;
 	virtual void LoadState(IHeirarchicalStorageNode& node);
 	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadSettingsState(IHeirarchicalStorageNode& node);
+	virtual void SaveSettingsState(IHeirarchicalStorageNode& node) const;
 	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 
 protected:
 	//Window functions
+	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher);
@@ -146,6 +149,8 @@ private:
 	struct HVCounterAdvanceSession;
 	struct PortMonitorEntry;
 	struct SpriteMappingTableEntry;
+	struct ImageBufferColorEntry;
+	struct SpriteBoundaryLineEntry;
 
 	//Typedefs
 	typedef RandomTimeAccessBuffer<Data, unsigned int> RegBuffer;
@@ -177,12 +182,14 @@ private:
 	static const unsigned int vintIPLLineState = 6;
 
 	//View and menu classes
+	class SettingsMenuHandler;
 	class DebugMenuHandler;
 	class VRAMViewModel;
 	class PaletteViewModel;
 	class ImageViewModel;
 	class RegistersViewModel;
 	class LayerRemovalViewModel;
+	class DebugSettingsViewModel;
 	class SettingsViewModel;
 	class SpriteListViewModel;
 	class SpriteListDetailsViewModel;
@@ -193,6 +200,7 @@ private:
 	class ImageView;
 	class RegistersView;
 	class LayerRemovalView;
+	class DebugSettingsView;
 	class SettingsView;
 	class SpriteListView;
 	class SpriteListDetailsView;
@@ -203,6 +211,7 @@ private:
 	friend class ImageViewModel;
 	friend class RegistersViewModel;
 	friend class LayerRemovalViewModel;
+	friend class DebugSettingsViewModel;
 	friend class SettingsViewModel;
 	friend class SpriteListViewModel;
 	friend class SpriteListDetailsViewModel;
@@ -213,6 +222,7 @@ private:
 	friend class ImageView;
 	friend class RegistersView;
 	friend class LayerRemovalView;
+	friend class DebugSettingsView;
 	friend class SettingsView;
 	friend class SpriteListView;
 	friend class SpriteListDetailsView;
@@ -241,7 +251,7 @@ private:
 	void DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const;
 	void DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const;
 	void DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool interlaceMode2Active, bool screenModeRS1Active, unsigned int& nextTableEntryToRead, bool& spriteSearchComplete, bool& spriteOverflow, unsigned int& spriteDisplayCacheEntryCount, std::vector<SpriteDisplayCacheEntry>& spriteDisplayCache) const;
-	void DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const;
+	void DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const;
 	unsigned int DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const;
 	void CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shadow, bool& highlight, bool shadowHighlightEnabled, bool spriteIsShadowOperator, bool spriteIsHighlightOperator, bool foundSpritePixel, bool foundLayerAPixel, bool foundLayerBPixel, bool prioritySprite, bool priorityLayerA, bool priorityLayerB) const;
 
@@ -507,10 +517,19 @@ private:
 	bool videoDisableRenderOutput;
 	bool videoEnableSpriteBoxing;
 	bool videoHighlightRenderPos;
-	bool videoSingleBuffering;
+	volatile bool videoSingleBuffering;
+	volatile bool videoFixedAspectRatio;
+	volatile bool videoShowStatusBar;
+	volatile bool currentRenderPosOnScreen;
+	volatile unsigned int currentRenderPosScreenX;
+	volatile unsigned int currentRenderPosScreenY;
+	bool videoShowBoundaryActiveImage;
+	bool videoShowBoundaryActionSafe;
+	bool videoShowBoundaryTitleSafe;
 
 	//Menu handling
-	DebugMenuHandler* menuHandler;
+	SettingsMenuHandler* settingsMenuHandler;
+	DebugMenuHandler* debugMenuHandler;
 
 	//Bus interface
 	IBusInterface* memoryBus;
@@ -839,26 +858,21 @@ private:
 	Data renderVSRAMCachedRead;
 
 	//Analog render data buffers
-	//##TODO## Complete this list, and implement these buffers.
-	struct ImageBufferColorEntry
-	{
-		unsigned char r;
-		unsigned char g;
-		unsigned char b;
-		unsigned char a;
-	};
+	mutable boost::mutex imageBufferMutex;
 	static const unsigned int imageBufferWidth = 512;
 	static const unsigned int imageBufferHeight = 512;
-	std::vector<ImageBufferColorEntry> imageBuffer;
-
-	//Image buffer
-	//##TODO## Fix up these dimensions
-	mutable boost::mutex imageBufferMutex; //##TODO## Use this properly
-	static const unsigned int imageWidth = 512;
-	static const unsigned int imageHeight = 512;
 	static const unsigned int imageBufferPlanes = 3;
-	unsigned char image[imageBufferPlanes][imageHeight * imageWidth * 4];
 	unsigned int drawingImageBufferPlane;
+	volatile bool frameReadyInImageBuffer;
+	unsigned char imageBuffer[imageBufferPlanes][imageBufferHeight * imageBufferWidth * 4];
+	unsigned int imageBufferLineCount[imageBufferPlanes];
+	unsigned int imageBufferLineWidth[imageBufferPlanes][imageBufferHeight];
+	unsigned int imageBufferActiveScanPosXStart[imageBufferPlanes][imageBufferHeight];
+	unsigned int imageBufferActiveScanPosXEnd[imageBufferPlanes][imageBufferHeight];
+	unsigned int imageBufferActiveScanPosYStart[imageBufferPlanes];
+	unsigned int imageBufferActiveScanPosYEnd[imageBufferPlanes];
+	mutable boost::mutex spriteBoundaryMutex[imageBufferPlanes];
+	mutable std::vector<SpriteBoundaryLineEntry> imageBufferSpriteBoundaryLines[imageBufferPlanes];
 
 	//DMA worker thread properties
 	mutable boost::mutex workerThreadMutex; //Top-level, required in order to interact with state affecting DMA worker thread.

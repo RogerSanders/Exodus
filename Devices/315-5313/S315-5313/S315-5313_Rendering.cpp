@@ -532,6 +532,8 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		if(windowActiveInThisColumn)
 		{
 			//Read register settings which affect which mapping data is loaded
+			//##FIX## Documentation and hardware tests have shown that WD11 is masked in
+			//H40 mode.
 			unsigned int nameTableBase = M5GetNameTableBaseWindow(accessTarget);
 
 			//The window mapping table dimensions are determined based on the H40 screen
@@ -707,7 +709,7 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 			SpriteDisplayCacheEntry& spriteDisplayCacheEntry = renderSpriteDisplayCache[renderSpriteDisplayCacheCurrentIndex];
 
 			//Build a sprite cell list for the current sprite
-			DigitalRenderBuildSpriteCellList(renderSpriteDisplayCacheCurrentIndex, spriteTableBaseAddress, interlaceMode2Active, renderDigitalScreenModeRS1Active, renderSpriteDotOverflow, spriteDisplayCacheEntry, renderSpriteDisplayCellCacheEntryCount, renderSpriteDisplayCellCache);
+			DigitalRenderBuildSpriteCellList(hscanSettings, vscanSettings, renderSpriteDisplayCacheCurrentIndex, spriteTableBaseAddress, interlaceMode2Active, renderDigitalScreenModeRS1Active, renderSpriteDotOverflow, spriteDisplayCacheEntry, renderSpriteDisplayCellCacheEntryCount, renderSpriteDisplayCellCache);
 
 			//Advance to the next sprite mapping entry
 			++renderSpriteDisplayCacheCurrentIndex;
@@ -841,7 +843,6 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	bool insidePixelBufferRegion = true;
 	bool insideActiveScanVertically = false;
 	unsigned int renderAnalogCurrentRow = 0;
-
 	if((renderDigitalVCounterPosIncrementAtHBlank >= vscanSettings.activeDisplayVCounterFirstValue) && (renderDigitalVCounterPosIncrementAtHBlank <= vscanSettings.activeDisplayVCounterLastValue))
 	{
 		//We're inside the active display region
@@ -850,7 +851,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	}
 	else
 	{
-		//Check if we're in a border region, or in the blanking region
+		//Check if we're in a border region, or in the blanking region.
 		if((renderDigitalVCounterPosIncrementAtHBlank >= vscanSettings.topBorderVCounterFirstValue) && (renderDigitalVCounterPosIncrementAtHBlank <= vscanSettings.topBorderVCounterLastValue))
 		{
 			//We're in the top border. In this case, we need to force the pixel output to
@@ -887,30 +888,68 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		activeScanPixelIndex = (renderDigitalHCounterPos - hscanSettings.activeDisplayHCounterFirstValue);
 		insideActiveScanHorizontally = true;
 	}
+	else if((renderDigitalHCounterPos >= hscanSettings.leftBorderHCounterFirstValue) && (renderDigitalHCounterPos <= hscanSettings.leftBorderHCounterLastValue))
+	{
+		//We're in the left border. In this case, we need to force the pixel output to the
+		//current backdrop colour.
+		renderAnalogCurrentPixel = (renderDigitalHCounterPos - hscanSettings.leftBorderHCounterFirstValue);
+		forceOutputBackgroundPixel = true;
+	}
+	else if((renderDigitalHCounterPos >= hscanSettings.rightBorderHCounterFirstValue) && (renderDigitalHCounterPos <= hscanSettings.rightBorderHCounterLastValue))
+	{
+		//We're in the right border. In this case, we need to force the pixel output to
+		//the current backdrop colour.
+		renderAnalogCurrentPixel = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + (renderDigitalHCounterPos - hscanSettings.rightBorderHCounterFirstValue);
+		forceOutputBackgroundPixel = true;
+	}
 	else
 	{
-		//Check if we're in a border region, or in the blanking region
-		if((renderDigitalHCounterPos >= hscanSettings.leftBorderHCounterFirstValue) && (renderDigitalHCounterPos <= hscanSettings.leftBorderHCounterLastValue))
-		{
-			//We're in the left border. In this case, we need to force the pixel output to
-			//the current backdrop colour.
-			renderAnalogCurrentPixel = renderDigitalHCounterPos - hscanSettings.leftBorderHCounterFirstValue;
-			forceOutputBackgroundPixel = true;
-		}
-		else if((renderDigitalHCounterPos >= hscanSettings.rightBorderHCounterFirstValue) && (renderDigitalHCounterPos <= hscanSettings.rightBorderHCounterLastValue))
-		{
-			//We're in the right border. In this case, we need to force the pixel output
-			//to the current backdrop colour.
-			renderAnalogCurrentPixel = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + (renderDigitalHCounterPos - hscanSettings.rightBorderHCounterFirstValue);
-			forceOutputBackgroundPixel = true;
-		}
-		else
-		{
-			//We're in a blanking region. In this case, we need to force the pixel output
-			//to black.
-			insidePixelBufferRegion = false;
-			outputNothing = true;
-		}
+		//We're in a blanking region or in the hscan region. In this case, there's nothing
+		//to output.
+		insidePixelBufferRegion = false;
+		outputNothing = true;
+	}
+
+	//Update the current screen raster position of the render output for debug output
+	currentRenderPosOnScreen = false;
+	if(insidePixelBufferRegion)
+	{
+		currentRenderPosScreenX = renderAnalogCurrentPixel;
+		currentRenderPosScreenY = renderAnalogCurrentRow;
+		currentRenderPosOnScreen = true;
+	}
+
+	//Roll our image buffers on to the next line and the next frame when appropriate
+	if(renderDigitalHCounterPos == hscanSettings.hsyncNegated)
+	{
+		//Record the number of output pixels we're going to generate in this line
+		imageBufferLineWidth[drawingImageBufferPlane][renderAnalogCurrentRow] = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount + hscanSettings.rightBorderPixelCount;
+
+		//Record the active scan start and end positions for this line
+		imageBufferActiveScanPosXStart[drawingImageBufferPlane][renderAnalogCurrentRow] = hscanSettings.leftBorderPixelCount;
+		imageBufferActiveScanPosXEnd[drawingImageBufferPlane][renderAnalogCurrentRow] = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount;
+	}
+	else if(renderDigitalHCounterPos == hscanSettings.vcounterIncrementPoint && (renderDigitalVCounterPos == vscanSettings.vsyncClearedPoint))
+	{
+		boost::mutex::scoped_lock lock(imageBufferMutex);
+
+		//Advance the image buffer to the next plane
+		drawingImageBufferPlane = videoSingleBuffering? drawingImageBufferPlane: (drawingImageBufferPlane + 1) % imageBufferPlanes;
+
+		//Now that we've completed another frame, notify the image window that a new
+		//frame is ready to display.
+		frameReadyInImageBuffer = true;
+
+		//Record the number of raster lines we're going to render in the new frame
+		imageBufferLineCount[drawingImageBufferPlane] = vscanSettings.topBorderLineCount + vscanSettings.activeDisplayLineCount + vscanSettings.bottomBorderLineCount;
+
+		//Record the active scan start and end positions for this frame
+		imageBufferActiveScanPosYStart[drawingImageBufferPlane] = vscanSettings.topBorderLineCount;
+		imageBufferActiveScanPosYEnd[drawingImageBufferPlane] = vscanSettings.topBorderLineCount + vscanSettings.activeDisplayLineCount;
+
+		//Clear the cache of sprite boundary lines in this frame
+		boost::mutex::scoped_lock spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
+		imageBufferSpriteBoundaryLines[drawingImageBufferPlane].clear();
 	}
 
 	//Read the display enable register. If this register is cleared, the output for this
@@ -927,6 +966,9 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	//##TODO## Test on the hardware if we should disable the actual rendering process
 	//and allow free access to VRAM if reg 0 bit 0 is set, or if this bit only
 	//disables the analog video output.
+	//##NOTE## Hardware tests have shown this register only affects the CSYNC output line.
+	//Clean up these comments, and ensure we're not doing anything to affect rendering
+	//based on this register state.
 
 	//Determine the palette line and index numbers and the shadow/highlight state for this
 	//pixel.
@@ -1206,54 +1248,37 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 			colorIntensityB = (colorIntensityB & 0x01) << 2;
 		}
 
-		//Convert the palette data to a 24-bit RGB triple and write it to the image buffer
+		//Convert the palette data to a 32-bit RGBA triple and write it to the image
+		//buffer
 		//##TODO## As an optimization, use a combined lookup table for colour value
 		//decoding, and eliminate the branching logic here.
-		//##TODO## Add bounds checking to the array here
-//		ImageBufferColorEntry& imageBufferEntry = imageBuffer[renderAnalogCurrentPixel + (renderAnalogCurrentRow * imageBufferWidth)];
-		//##FIX## We're grafting the old image buffer into our new render code here for
-		//temporary testing purposes. Once the new render code is tested and online,
-		//modify the image window to use the new buffer.
-		unsigned int imageBufferPixelIndex = (renderAnalogCurrentPixel + ((312 - renderAnalogCurrentRow) * imageBufferWidth)) * 4;
-		//##DEBUG##
-		if(imageBufferPixelIndex >= (imageWidth * imageHeight * 4))
+		ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&imageBuffer[drawingImageBufferPlane][((renderAnalogCurrentRow * imageBufferWidth) + renderAnalogCurrentPixel) * 4]);
+		if(outputNothing)
 		{
-			std::wcout << "ERROR! Buffer overflow on image buffer\n";
-			std::wcout << renderAnalogCurrentPixel << ' ' << renderAnalogCurrentRow << '\n';
+			imageBufferEntry.r = 0;
+			imageBufferEntry.g = 0;
+			imageBufferEntry.b = 0;
+			imageBufferEntry.a = 0xFF;
+		}
+		else if(shadow && !highlight)
+		{
+			imageBufferEntry.r = paletteEntryTo8BitShadow[colorIntensityR];
+			imageBufferEntry.g = paletteEntryTo8BitShadow[colorIntensityG];
+			imageBufferEntry.b = paletteEntryTo8BitShadow[colorIntensityB];
+			imageBufferEntry.a = 0xFF;
+		}
+		else if(highlight && !shadow)
+		{
+			imageBufferEntry.r = paletteEntryTo8BitHighlight[colorIntensityR];
+			imageBufferEntry.g = paletteEntryTo8BitHighlight[colorIntensityG];
+			imageBufferEntry.b = paletteEntryTo8BitHighlight[colorIntensityB];
+			imageBufferEntry.a = 0xFF;
 		}
 		else
 		{
-			ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&image[drawingImageBufferPlane][imageBufferPixelIndex]);
-			if(outputNothing)
-			{
-				//If this pixel was forced to black, IE, if bit 0 of reg 0 is set, force
-				//the output of this pixel to black.
-				//##TODO## Do hardware testing to confirm exactly what effect setting this
-				//bit has on all areas of VDP function. Does it affect the digital
-				//operation of the VDP, or just the analog output? Does it affect
-				//hsync/vsync output lines as well, or just color output?
-				imageBufferEntry.r = 0;
-				imageBufferEntry.g = 0;
-				imageBufferEntry.b = 0;
-			}
-			else if(shadow && !highlight)
-			{
-				imageBufferEntry.r = paletteEntryTo8BitShadow[colorIntensityR];
-				imageBufferEntry.g = paletteEntryTo8BitShadow[colorIntensityG];
-				imageBufferEntry.b = paletteEntryTo8BitShadow[colorIntensityB];
-			}
-			else if(highlight && !shadow)
-			{
-				imageBufferEntry.r = paletteEntryTo8BitHighlight[colorIntensityR];
-				imageBufferEntry.g = paletteEntryTo8BitHighlight[colorIntensityG];
-				imageBufferEntry.b = paletteEntryTo8BitHighlight[colorIntensityB];
-			}
-			else
-			{
-				imageBufferEntry.r = paletteEntryTo8Bit[colorIntensityR];
-				imageBufferEntry.g = paletteEntryTo8Bit[colorIntensityG];
-				imageBufferEntry.b = paletteEntryTo8Bit[colorIntensityB];
-			}
+			imageBufferEntry.r = paletteEntryTo8Bit[colorIntensityR];
+			imageBufferEntry.g = paletteEntryTo8Bit[colorIntensityG];
+			imageBufferEntry.b = paletteEntryTo8Bit[colorIntensityB];
 			imageBufferEntry.a = 0xFF;
 		}
 	}
@@ -1718,7 +1743,7 @@ void S315_5313::DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool 
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const
+void S315_5313::DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const
 {
 	if(!spriteDotOverflow)
 	{
@@ -1783,6 +1808,67 @@ void S315_5313::DigitalRenderBuildSpriteCellList(unsigned int spriteDisplayCache
 		//internal sprite pattern render list.
 		for(unsigned int i = 0; i < spriteWidthInCells; ++i)
 		{
+			//Record sprite boundary information for sprite boxing support if requested
+			if(videoEnableSpriteBoxing && (spriteCellDisplayCacheEntryCount < renderSpriteCellDisplayCacheSize))
+			{
+				const unsigned int cellWidthInPixels = 8;
+				Data spritePosH(9, spriteDisplayCacheEntry.hpos.GetData());
+				int spritePosXInScreenSpace = ((int)spritePosH.GetData() - (int)spritePosScreenStartH) + (int)hscanSettings.leftBorderPixelCount;
+				int spritePosYInScreenSpace = ((int)spriteDisplayCacheEntry.vpos.GetData() - (int)spritePosScreenStartV) + (int)vscanSettings.topBorderLineCount;
+				//if((spritePosXInScreenSpace >= 0) && (spritePosYInScreenSpace >= 0))
+				{
+					boost::mutex::scoped_lock spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
+
+					//If this is the first cell column for the sprite, draw a horizontal
+					//line down the left boundary of the sprite.
+					if(i == 0)
+					{
+						SpriteBoundaryLineEntry spriteBoundaryLineEntry;
+						spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace;
+						spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace;
+						spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace + (int)spriteDisplayCacheEntry.spriteRowIndex;
+						spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace + (int)(spriteDisplayCacheEntry.spriteRowIndex + 1);
+						imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
+					}
+
+					//If this is the last cell column for the sprite, draw a horizontal
+					//line down the right boundary of the sprite.
+					if(((i + 1) == spriteWidthInCells) || ((spriteCellDisplayCacheEntryCount + 1) == renderSpriteCellDisplayCacheSize))
+					{
+						SpriteBoundaryLineEntry spriteBoundaryLineEntry;
+						spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
+						spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
+						spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace + (int)spriteDisplayCacheEntry.spriteRowIndex;
+						spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace + (int)(spriteDisplayCacheEntry.spriteRowIndex + 1);
+						imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
+					}
+
+					//If this is the first line for the sprite, draw a horizontal line
+					//across the top boundary of the sprite.
+					if(spriteDisplayCacheEntry.spriteRowIndex == 0)
+					{
+						SpriteBoundaryLineEntry spriteBoundaryLineEntry;
+						spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace + (int)(i * cellWidthInPixels);
+						spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
+						spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace;
+						spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace;
+						imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
+					}
+
+					//If this is the last line for the sprite, draw a horizontal line
+					//across the bottom boundary of the sprite.
+					if((spriteDisplayCacheEntry.spriteRowIndex + 1) == (spriteHeightInCells * rowsPerTile))
+					{
+						SpriteBoundaryLineEntry spriteBoundaryLineEntry;
+						spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace + (int)(i * cellWidthInPixels);
+						spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
+						spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace + (int)(spriteDisplayCacheEntry.spriteRowIndex + 1);
+						spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace + (int)(spriteDisplayCacheEntry.spriteRowIndex + 1);
+						imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
+					}
+				}
+			}
+
 			//We perform a check for a sprite dot overflow here. If each sprite is 2 cells
 			//wide, and the maximum number of sprites for a line are present, we generate
 			//the exact maximum number of sprite dots per line. If sprite widths are 3
@@ -2002,10 +2088,10 @@ S315_5313::SpriteMappingTableEntry S315_5313::GetSpriteMappingTableEntry(unsigne
 	//Read the sprite table base address register
 	unsigned int spriteTableBaseAddress = M5GetNameTableBaseSprite(accessTarget);
 
-	//According to official documentation, if we're in H40 mode, the AT9 bit of
-	//the sprite table base address is masked. We emulate that here. Note that the
-	//"Traveller's Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being
-	//valid in H32 mode.
+	//According to official documentation, if we're in H40 mode, the AT9 bit of the sprite
+	//table base address is masked. We emulate that here. Note that the "Traveller's
+	//Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being valid in H32 mode.
+	//##TODO## Confirm this behaviour through hardware tests
 	bool screenModeRS1Active = M5GetRS1(accessTarget);
 	if(screenModeRS1Active)
 	{
