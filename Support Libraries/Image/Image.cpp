@@ -2328,8 +2328,10 @@ void Image::ResampleNearest(const IImage& oldImage, unsigned int newWidth, unsig
 {
 	SetImageFormat(newWidth, newHeight, oldImage.GetPixelFormat(), oldImage.GetDataFormat());
 
-	float imageWidthConversionRatio = (float)oldImage.GetImageWidth() / (float)imageWidth;
-	float imageHeightConversionRatio = (float)oldImage.GetImageHeight() / (float)imageHeight;
+	unsigned int maxOldImageXPos = (oldImage.GetImageWidth() - 1);
+	unsigned int maxOldImageYPos = (oldImage.GetImageHeight() - 1);
+	float imageWidthConversionRatio = (float)maxOldImageXPos / (float)imageWidth;
+	float imageHeightConversionRatio = (float)maxOldImageYPos / (float)imageHeight;
 	for(unsigned int ypos = 0; ypos < imageHeight; ++ypos)
 	{
 		float yposNormalized = (float)ypos * imageHeightConversionRatio;
