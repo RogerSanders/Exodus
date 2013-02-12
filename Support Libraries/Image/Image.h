@@ -151,6 +151,13 @@ private:
 	unsigned int imageWidth;
 	unsigned int imageHeight;
 	unsigned int dataPlaneCount;
+	//##TODO## Use a raw array rather than a vector here
+	//##TODO## Don't use the PixelData structure internally, only use it for passing pixel
+	//data externally in a generic way.
+	//##TODO## Add fast methods to get and set sub-image data, to allow copying and
+	//modifying regions of an image.
+	//##TODO## When we make this a raw array, add a copy constructor which uses memcpy to
+	//duplicate the elements of the array.
 	std::vector<PixelData> imageData;
 };
 
