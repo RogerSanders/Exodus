@@ -1977,9 +1977,9 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 			//If there's an error binding the ce line mappings, log the failure, and
 			//return false.
 			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindCELineMappings failed for BusInterface " + i->name + L" when loading module from file " + fileName + L"!"));
-			for(LoadedModuleInfoList::const_iterator addedModuleIterator = addedModules.begin(); addedModuleIterator != addedModules.end(); ++addedModuleIterator)
+			for(std::set<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 			{
-				UnloadModuleInternal(addedModuleIterator->moduleID);
+				UnloadModuleInternal(*addedModuleIDsIterator);
 			}
 			if(!ValidateSystem())
 			{
@@ -2011,9 +2011,9 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 	{
 		//If there's an error building the system, log the failure, and return false.
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"System validation failed after loading module from file " + fileName + L"!"));
-		for(LoadedModuleInfoList::const_iterator addedModuleIterator = addedModules.begin(); addedModuleIterator != addedModules.end(); ++addedModuleIterator)
+		for(std::set<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 		{
-			UnloadModuleInternal(addedModuleIterator->moduleID);
+			UnloadModuleInternal(*addedModuleIDsIterator);
 		}
 		if(!ValidateSystem())
 		{
@@ -2022,6 +2022,18 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		loadSystemComplete = true;
 		loadSystemResult = false;
 		return false;
+	}
+
+	//Flag that all loaded modules have passed validation. After this point, we want to
+	//call functions on a device which affect the state of other devices when unloading
+	//them from the system.
+	for(LoadedModuleInfoList::iterator i = loadedModuleInfoList.begin(); i != loadedModuleInfoList.end(); ++i)
+	{
+		std::set<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.find(i->moduleID);
+		if(addedModuleIDsIterator != addedModuleIDs.end())
+		{
+			i->moduleValidated = true;
+		}
 	}
 
 	//Synchronize the asserted line state for all devices in the system, now that this
@@ -2064,9 +2076,9 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 
 	//Bind new system options to the system option menu, and apply the default settings
 	//for any system settings in the set of loaded modules.
-	for(LoadedModuleInfoList::const_iterator addedModuleIterator = addedModules.begin(); addedModuleIterator != addedModules.end(); ++addedModuleIterator)
+	for(std::set<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 	{
-		ModuleSystemSettingMap::const_iterator moduleSettingsIterator = moduleSettings.find(addedModuleIterator->moduleID);
+		ModuleSystemSettingMap::const_iterator moduleSettingsIterator = moduleSettings.find(*addedModuleIDsIterator);
 		if(moduleSettingsIterator != moduleSettings.end())
 		{
 			for(SystemSettingsIDList::const_iterator settingsIDIterator = moduleSettingsIterator->second.begin(); settingsIDIterator != moduleSettingsIterator->second.end(); ++settingsIDIterator)
@@ -3222,14 +3234,20 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		UnloadModuleInternal(*i);
 	}
 
-	//Negate any active output lines that are being asserted by devices in this module.
-	//This will allow other devices in the system that are not being unloaded with this
-	//module to correctly restore their input line state.
-	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
+	//If this module passed validation, negate any active output lines that are being
+	//asserted by devices in this module. This will allow other devices in the system that
+	//are not being unloaded with this module to correctly restore their input line state.
+	//We only perform this operation for validated modules, since modules that have not
+	//yet been validated have not yet asserted any output line state, and devices within
+	//that module may not yet have been initialized.
+	if(moduleInfo.moduleValidated)
 	{
-		if(i->moduleID == moduleID)
+		for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 		{
-			i->device->NegateCurrentOutputLineState();
+			if(i->moduleID == moduleID)
+			{
+				i->device->NegateCurrentOutputLineState();
+			}
 		}
 	}
 
@@ -3490,6 +3508,32 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 	//have an unmapped line state specified
 	for(UnmappedLineStateList::const_iterator i = unmappedLineStateList.begin(); i != unmappedLineStateList.end(); ++i)
 	{
+		//Retrieve information on the module that contains the target device
+		unsigned int deviceModuleID = i->targetDevice->GetDeviceModuleID();
+		bool foundDeviceModuleEntry = false;
+		LoadedModuleInfoList::const_iterator deviceLoadedModuleIterator = loadedModuleInfoList.begin();
+		while(!foundDeviceModuleEntry && (deviceLoadedModuleIterator != loadedModuleInfoList.end()))
+		{
+			if(deviceLoadedModuleIterator->moduleID == deviceModuleID)
+			{
+				foundDeviceModuleEntry = true;
+				continue;
+			}
+			++deviceLoadedModuleIterator;
+		}
+		if(!foundModuleEntry)
+		{
+			continue;
+		}
+		const LoadedModuleInfoInternal& deviceModuleInfo = *deviceLoadedModuleIterator;
+
+		//If the module which contains this device has not been validated, skip any
+		//further processing for this device.
+		if(!deviceModuleInfo.moduleValidated)
+		{
+			continue;
+		}
+
 		//Check if at least one mapping exists to the target line on the device with the
 		//unmapped line state setting
 		bool foundMappingToLine = false;
@@ -6143,6 +6187,7 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 
 	//Populate the system setting object with this setting info
 	SystemSettingInfo setting;
+	setting.moduleID = moduleID;
 	setting.name = settingName;
 	setting.displayName = displayName;
 
