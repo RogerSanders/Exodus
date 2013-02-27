@@ -25,6 +25,7 @@ should be able to be sent to all devices simultaneously.
 #include "ClockSource.h"
 #include "DeviceContext.h"
 #include "DeviceInfo.h"
+#include "ExtensionInfo.h"
 #include "ISystemInternal.h"
 #include "ExecutionManager.h"
 #include <string>
@@ -35,16 +36,30 @@ should be able to be sent to all devices simultaneously.
 
 //Terminology:
 //Assembly  - An assembly (IE, a dll) which contains the definition of one or more devices
+//            or extensions.
 //Device    - An emulation core for a logical chip or device in a system
+//Extension - An extension to the emulation platform. Extensions have some limited access
+//            to the emulation platform, and can reference, and be referenced by, other
+//            devices and extensions, allowing forms of interaction between devices that
+//            are not provided by the base emulation platform, and allowing new menu items
+//            to be defined which can affect and interact with the system in ways that
+//            devices alone cannot do.
 //Module    - A physical or logical part of a system, usually defining one or more devices
-//            and the connections between devices. In our case, an xml file describes a
-//            module.
-//System    - The "base" module which defines a system. It may export connectors, but
-//            imports none.
-//Connector - An interface into a module or system where other modules are able to attach
+//            and the connections between those devices, and exposing connectors for other
+//            modules to interface with. In our case, an xml file describes a module.
+//System    - The total combination of all currently loaded modules, with the current
+//            state of all system settings defined within those modules. A system may be
+//            seen as a convenience, allowing a complex system with many modules and
+//            settings to be saved and loaded in one operation. A system is defined by an
+//            xml file.
+//Connector - An interface into a module where other modules are able to attach
 //            themselves, and are able to observe and/or effect the operation of the
-//            system via the interface exposed over the connector.
+//            other module via the interface exposed over the connector. Connectors should
+//            usually model physical connectors used on the real hardware.
 
+//##TODO## Split the module loading and unloading code into a separate source file. This
+//code currently occupies most of our System.cpp file, making it hard to find critical
+//system functions.
 class System :public ISystemInternal
 {
 public:
@@ -52,12 +67,14 @@ public:
 	inline System(void* aassemblyHandle);
 	inline ~System();
 
+	//Initialization functions
+	virtual void BindToGUIExtensionInterface(IGUIExtensionInterface* aguiExtensionInterface);
+
 	//Savestate functions
 	virtual bool LoadState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState);
 	virtual bool SaveState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState);
 	virtual StateInfo GetStateInfo(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) const;
 	virtual bool LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const;
-	virtual bool DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfo& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const;
 	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false, const std::wstring& relativePathBase = L"") const;
 
 	//Logging functions
@@ -90,6 +107,10 @@ public:
 	virtual bool RegisterDevice(const DeviceInfo& entry, IDevice::AssemblyHandle assemblyHandle);
 	virtual void UnregisterDevice(const std::wstring deviceName);
 
+	//Extension registration
+	virtual bool RegisterExtension(const ExtensionInfo& entry, IExtension::AssemblyHandle assemblyHandle);
+	virtual void UnregisterExtension(const std::wstring extensionName);
+
 	//Module loading and unloading
 	virtual bool GetModuleDisplayName(unsigned int moduleID, std::wstring& moduleDisplayName) const;
 	virtual void LoadModuleSynchronous(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher);
@@ -105,19 +126,22 @@ public:
 	virtual bool UnloadAllModulesSynchronousComplete() const;
 	virtual void UnloadAllModules();
 	virtual bool ReadModuleConnectorInfo(const std::wstring& fileDir, const std::wstring& fileName, std::wstring& systemClassName, ConnectorImportList& connectorsImported, ConnectorExportList& connectorsExported) const;
+	virtual std::wstring LoadModuleSynchronousCurrentModuleName() const;
+	virtual std::wstring UnloadModuleSynchronousCurrentModuleName() const;
 
 	//Loaded module info functions
 	virtual std::list<unsigned int> GetLoadedModuleIDs() const;
-	virtual bool GetLoadedModuleInfo(unsigned int moduleID, LoadedModuleInfo& moduleInfo) const;
+	virtual bool GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& moduleInfo) const;
 
 	//Connector info functions
 	virtual std::list<unsigned int> GetConnectorIDs() const;
-	virtual bool GetConnectorInfo(unsigned int connectorID, ConnectorInfo& connectorInfo) const;
+	virtual bool GetConnectorInfo(unsigned int connectorID, IConnectorInfo& connectorInfo) const;
 
 	//Assembly handle functions
 	void* GetAssemblyHandle() const;
 
 	//View functions
+	virtual void BuildFileOpenMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
 	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
 	virtual void BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
 	virtual void BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
@@ -129,6 +153,13 @@ public:
 	virtual void HandleInputKeyDown(IDeviceContext::KeyCode keyCode);
 	virtual void HandleInputKeyUp(IDeviceContext::KeyCode keyCode);
 
+protected:
+	//Loaded module info functions
+	virtual void GetLoadedModuleIDsInternal(unsigned int itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const;
+
+	//Connector info functions
+	virtual void GetConnectorIDsInternal(unsigned int itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const;
+
 private:
 	//Enumerations
 	enum InputEvent;
@@ -136,9 +167,13 @@ private:
 
 	//Structures
 	struct DeviceLibraryEntry;
+	struct ExtensionLibraryEntry;
 	struct LoadedDeviceInfo;
 	struct ExportedDeviceInfo;
 	struct ImportedDeviceInfo;
+	struct LoadedExtensionInfo;
+	struct ExportedExtensionInfo;
+	struct ImportedExtensionInfo;
 	struct LoadedBusInfo;
 	struct ExportedBusInfo;
 	struct ImportedBusInfo;
@@ -148,7 +183,8 @@ private:
 	struct LineGroupDetails;
 	struct ExportedLineGroupInfo;
 	struct ImportedLineGroupInfo;
-	struct ConnectorDetails;
+	struct LoadedModuleInfoInternal;
+	struct ConnectorInfoInternal;
 	struct InputMapEntry;
 	struct InputEventEntry;
 	struct LogEntryInternal;
@@ -161,18 +197,24 @@ private:
 	struct SystemLineInfo;
 	struct ExportedSystemLineInfo;
 	struct ImportedSystemLineInfo;
+	struct ExportedSystemSettingInfo;
+	struct ImportedSystemSettingInfo;
 	struct SystemLineMapping;
 	struct EmbeddedROMInfo;
 
 	//Typedefs
 	typedef std::map<std::wstring, unsigned int> NameToIDMap;
 	typedef std::pair<std::wstring, unsigned int> NameToIDMapEntry;
-	typedef std::list<LoadedModuleInfo> LoadedModuleInfoList;
+	typedef std::list<LoadedModuleInfoInternal> LoadedModuleInfoList;
 	typedef std::list<LoadedDeviceInfo> LoadedDeviceInfoList;
 	typedef std::list<ImportedDeviceInfo> ImportedDeviceInfoList;
 	typedef std::vector<DeviceContext*> DeviceArray;
+	typedef std::list<LoadedExtensionInfo> LoadedExtensionInfoList;
+	typedef std::list<ImportedExtensionInfo> ImportedExtensionInfoList;
 	typedef std::map<std::wstring, DeviceLibraryEntry> DeviceLibraryList;
 	typedef std::pair<std::wstring, DeviceLibraryEntry> DeviceLibraryListEntry;
+	typedef std::map<std::wstring, ExtensionLibraryEntry> ExtensionLibraryList;
+	typedef std::pair<std::wstring, ExtensionLibraryEntry> ExtensionLibraryListEntry;
 	typedef std::list<LoadedBusInfo> BusInterfaceList;
 	typedef std::list<ImportedBusInfo> ImportedBusInterfaceList;
 	typedef std::list<LoadedClockSourceInfo> ClockSourceList;
@@ -180,17 +222,20 @@ private:
 	typedef std::list<InputRegistration> InputRegistrationList;
 	typedef std::map<IDeviceContext::KeyCode, InputMapEntry> InputKeyMap;
 	typedef std::pair<IDeviceContext::KeyCode, InputMapEntry> InputKeyMapEntry;
-	typedef std::map<unsigned int, ConnectorDetails> ConnectorDetailsMap;
-	typedef std::pair<unsigned int, ConnectorDetails> ConnectorDetailsMapEntry;
+	typedef std::map<unsigned int, ConnectorInfoInternal> ConnectorDetailsMap;
+	typedef std::pair<unsigned int, ConnectorInfoInternal> ConnectorDetailsMapEntry;
 	typedef std::map<unsigned int, LineGroupDetails> LineGroupDetailsMap;
 	typedef std::pair<unsigned int, LineGroupDetails> LineGroupDetailsMapEntry;
 	typedef std::list<UnmappedLineStateInfo> UnmappedLineStateList;
-	typedef std::list<SystemSettingInfo> SystemSettingsList;
-	typedef std::map<unsigned int, SystemSettingsList> ModuleSystemSettingMap;
-	typedef std::pair<unsigned int, SystemSettingsList> ModuleSystemSettingMapEntry;
+	typedef std::map<unsigned int, SystemSettingInfo> SystemSettingsMap;
+	typedef std::pair<unsigned int, SystemSettingInfo> SystemSettingsMapEntry;
+	typedef std::list<unsigned int> SystemSettingsIDList;
+	typedef std::map<unsigned int, SystemSettingsIDList> ModuleSystemSettingMap;
+	typedef std::pair<unsigned int, SystemSettingsIDList> ModuleSystemSettingMapEntry;
 	typedef std::map<unsigned int, SystemLineInfo> SystemLineMap;
 	typedef std::pair<unsigned int, SystemLineInfo> SystemLineMapEntry;
 	typedef std::list<ImportedSystemLineInfo> ImportedSystemLineList;
+	typedef std::list<ImportedSystemSettingInfo> ImportedSystemSettingList;
 	typedef std::list<SystemLineMapping> SystemLineMappingList;
 	typedef std::list<EmbeddedROMInfo> EmbeddedROMList;
 
@@ -228,26 +273,36 @@ private:
 private:
 	//Loaded entity functions
 	IDevice* GetDevice(unsigned int moduleID, const std::wstring& deviceName) const;
+	IExtension* GetExtension(unsigned int moduleID, const std::wstring& extensionName) const;
 	BusInterface* GetBusInterface(unsigned int moduleID, const std::wstring& busInterfaceName) const;
 	ClockSource* GetClockSource(unsigned int moduleID, const std::wstring& clockSourceName) const;
 	unsigned int GetSystemLineID(unsigned int moduleID, const std::wstring& systemLineName) const;
+	unsigned int GetSystemSettingID(unsigned int moduleID, const std::wstring& systemSettingName) const;
 
 	//Savestate functions
 	bool LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const;
 	void SaveModuleRelationshipsExportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
 	void SaveModuleRelationshipsImportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
+	bool DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfoInternal& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const;
 
 	//Module loading and unloading
 	unsigned int GenerateFreeModuleID() const;
 	unsigned int GenerateFreeConnectorID() const;
 	unsigned int GenerateFreeLineGroupID() const;
 	unsigned int GenerateFreeSystemLineID() const;
+	unsigned int GenerateFreeSystemSettingID() const;
 	bool LoadModule_Device(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_SetDependentDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_ReferenceExtension(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<InputRegistration>& inputRegistrationRequests);
+	bool LoadModule_Extension(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Extension_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Extension_ReferenceExtension(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Extension_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Extension_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_BusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_BusInterface_DefineLineGroup(IHeirarchicalStorageNode& node, unsigned int moduleID, NameToIDMap& lineGroupNameToIDMap);
 	bool LoadModule_BusInterface_DefineCELineMemory(IHeirarchicalStorageNode& node, unsigned int moduleID);
@@ -266,14 +321,18 @@ private:
 	bool LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<ViewModelOpenRequest>& viewModelOpenRequests);
 	bool LoadModule_System_ExportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ExportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ExportExtension(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, const NameToIDMap& lineGroupNameToIDMap);
 	bool LoadModule_System_ExportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ExportSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ExportSystemSetting(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, const ConnectorMappingList& connectorMappings, NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ImportExtension(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap);
 	bool LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_ImportSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ImportSystemSetting(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
 	bool LoadModule_System_DefineEmbeddedROM(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_System_DefineSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID);
@@ -283,13 +342,17 @@ private:
 	bool LoadModule_System_SetClockFrequency(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
 	bool LoadModule_System_SetLineState(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
 	bool LoadModule_ProcessViewModelQueue(const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher);
-	bool LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, std::list<LoadedModuleInfo>& addedModules);
+	bool LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules);
 	void UnloadModuleInternal(unsigned int moduleID);
 	bool LoadSystem_Device_Settings(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
 	bool LoadSystem_Device_MapInput(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
 	bool LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
 	bool LoadSystem_System_SelectSettingOption(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap, SystemStateChange& stateChange);
-	bool LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, std::list<LoadedModuleInfo>& addedModules);
+	bool LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules);
+	void PushLoadModuleCurrentModuleName(const std::wstring& moduleName);
+	void PopLoadModuleCurrentModuleName();
+	void PushUnloadModuleCurrentModuleName(const std::wstring& moduleName);
+	void PopUnloadModuleCurrentModuleName();
 
 	//Device creation and deletion
 	bool AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext);
@@ -297,6 +360,12 @@ private:
 	void DestroyDevice(const std::wstring& deviceName, IDevice* device) const;
 	void UnloadDevice(IDevice* adevice);
 	void RemoveDeviceFromDeviceList(DeviceArray& deviceList, IDevice* adevice) const;
+
+	//Extension creation and deletion
+	bool AddExtension(unsigned int moduleID, IExtension* device);
+	IExtension* CreateExtension(const std::wstring& extensionName, const std::wstring& instanceName, unsigned int moduleID) const;
+	void DestroyExtension(const std::wstring& extensionName, IExtension* extension) const;
+	void UnloadExtension(IExtension* aextension);
 
 	//System interface functions
 	bool ValidateSystem();
@@ -362,6 +431,10 @@ private:
 	void CloseInputMappingDetailsView();
 
 private:
+	//Extension interfaces
+	ISystemExtensionInterface* systemExtensionInterface;
+	IGUIExtensionInterface* guiExtensionInterface;
+
 	//Menu handling
 	SystemMenuHandler* systemMenuHandler;
 	SettingsMenuHandler* settingsMenuHandler;
@@ -408,6 +481,11 @@ private:
 	ExecutionManager executionManager;
 	DeviceArray devices;
 
+	//Extensions
+	ExtensionLibraryList extensionLibrary;
+	LoadedExtensionInfoList loadedExtensionInfoList;
+	ImportedExtensionInfoList importedExtensionInfoList;
+
 	//Bus interfaces
 	BusInterfaceList busInterfaces;
 	ImportedBusInterfaceList importedBusInterfaces;
@@ -420,7 +498,10 @@ private:
 	ImportedClockSourceList importedClockSources;
 
 	//Module settings
+	mutable unsigned int nextFreeSystemSettingID;
+	SystemSettingsMap systemSettings;
 	ModuleSystemSettingMap moduleSettings;
+	ImportedSystemSettingList importedSystemSettings;
 
 	//System lines
 	mutable unsigned int nextFreeSystemLineID;
@@ -454,8 +535,10 @@ private:
 	mutable boost::mutex accessMutex;
 	mutable boost::mutex controlMutex;
 	mutable boost::mutex debugMutex;
+	mutable boost::mutex eventLogMutex;
 
 	//Asynchronous notification settings
+	mutable boost::mutex moduleNameMutex;
 	boost::condition notifySystemStopped;
 	volatile bool stopSystem;
 	volatile bool systemStopped;
@@ -466,6 +549,8 @@ private:
 	volatile bool loadSystemResult;
 	volatile bool loadSystemAbort;
 	volatile bool clearSystemComplete;
+	std::list<std::wstring> loadSystemCurrentModuleNameStack;
+	std::list<std::wstring> unloadSystemCurrentModuleNameStack;
 
 	//Rollback settings
 	volatile double rollbackTimeslice;

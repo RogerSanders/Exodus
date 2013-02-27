@@ -5,6 +5,23 @@
 //----------------------------------------------------------------------------------------
 //View functions
 //----------------------------------------------------------------------------------------
+void System::BuildFileOpenMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher)
+{
+	//Add all file open menu item entries from the list of loaded extensions
+	IMenuSegment& menuSegmentForModules = menuSubmenu.CreateMenuSegment();
+	for(LoadedExtensionInfoList::const_iterator extensionIterator = loadedExtensionInfoList.begin(); extensionIterator != loadedExtensionInfoList.end(); ++extensionIterator)
+	{
+		extensionIterator->extension->AddFileOpenMenuItems(menuSegmentForModules, viewModelLauncher);
+	}
+
+	//If no module submenus were defined, remove the module segment.
+	if(menuSegmentForModules.NoMenuItemsExist())
+	{
+		menuSubmenu.DeleteMenuSegment(menuSegmentForModules);
+	}
+}
+
+//----------------------------------------------------------------------------------------
 void System::BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher)
 {
 	//Add the system menu items
@@ -25,7 +42,7 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& vi
 	for(ModuleSystemSettingMap::iterator moduleSettingsIterator = moduleSettings.begin(); moduleSettingsIterator != moduleSettings.end(); ++moduleSettingsIterator)
 	{
 		unsigned int targetModuleID = moduleSettingsIterator->first;
-		SystemSettingsList& moduleSettings = moduleSettingsIterator->second;
+		SystemSettingsIDList& moduleSettings = moduleSettingsIterator->second;
 
 		//Retrieve the display name for the target module
 		std::wstring moduleDisplayName;
@@ -39,15 +56,25 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& vi
 
 		//Add menu items for each system option defined in this module
 		IMenuSegment& menuSegmentForSettings = moduleSubmenu.CreateMenuSegment();
-		for(SystemSettingsList::iterator settingsIterator = moduleSettings.begin(); settingsIterator != moduleSettings.end(); ++settingsIterator)
+		for(SystemSettingsIDList::const_iterator settingsIDIterator = moduleSettings.begin(); settingsIDIterator != moduleSettings.end(); ++settingsIDIterator)
 		{
-			IMenuSubmenu& settingSubmenu = menuSegmentForSettings.AddMenuItemSubmenu(settingsIterator->displayName);
-			IMenuSegment& menuSegmentForSettingSubmenu = settingSubmenu.CreateMenuSegment();
-			for(unsigned int i = 0; i < settingsIterator->options.size(); ++i)
+			//Retrieve the info for the target system setting
+			unsigned int systemSettingID = *settingsIDIterator;
+			SystemSettingsMap::iterator settingsIterator = systemSettings.find(systemSettingID);
+			if(settingsIterator == systemSettings.end())
 			{
-				IMenuSelectableOption& optionMenuItem = menuSegmentForSettingSubmenu.AddMenuItemSelectableOption(*systemOptionMenuHandler, settingsIterator->options[i].menuItemID, settingsIterator->options[i].displayName);
-				settingsIterator->options[i].menuItemEntry = &optionMenuItem;
-				if(settingsIterator->selectedOption == i)
+				continue;
+			}
+			SystemSettingInfo& systemSettingInfo = settingsIterator->second;
+
+			//Build the menu for this system setting
+			IMenuSubmenu& settingSubmenu = menuSegmentForSettings.AddMenuItemSubmenu(systemSettingInfo.displayName);
+			IMenuSegment& menuSegmentForSettingSubmenu = settingSubmenu.CreateMenuSegment();
+			for(unsigned int i = 0; i < systemSettingInfo.options.size(); ++i)
+			{
+				IMenuSelectableOption& optionMenuItem = menuSegmentForSettingSubmenu.AddMenuItemSelectableOption(*systemOptionMenuHandler, systemSettingInfo.options[i].menuItemID, systemSettingInfo.options[i].displayName);
+				systemSettingInfo.options[i].menuItemEntry = &optionMenuItem;
+				if(systemSettingInfo.selectedOption == i)
 				{
 					optionMenuItem.SetCheckedState(true);
 				}

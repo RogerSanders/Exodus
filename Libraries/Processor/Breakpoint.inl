@@ -12,16 +12,17 @@ enum Breakpoint::Condition
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Breakpoint::Breakpoint()
+Breakpoint::Breakpoint(unsigned int addressBusWidth)
 {
-	Initialize();
+	Initialize(addressBusWidth);
 }
 
 //----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
-void Breakpoint::Initialize()
+void Breakpoint::Initialize(unsigned int addressBusWidth)
 {
+	enabled = true;
 	logEvent = true;
 	breakEvent = true;
 	name.clear();
@@ -30,6 +31,7 @@ void Breakpoint::Initialize()
 	locationCondition = CONDITION_EQUAL;
 	locationConditionData1 = 0;
 	locationConditionData2 = 0;
+	locationMask = ((1 << addressBusWidth) - 1);
 
 	hitCounter = 0;
 	hitCounterIncrement = 0;
@@ -54,6 +56,18 @@ void Breakpoint::Rollback()
 
 //----------------------------------------------------------------------------------------
 //Breakpoint event triggers
+//----------------------------------------------------------------------------------------
+bool Breakpoint::GetEnabled() const
+{
+	return enabled;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetEnabled(bool state)
+{
+	enabled = state;
+}
+
 //----------------------------------------------------------------------------------------
 bool Breakpoint::GetLogEvent() const
 {
@@ -125,9 +139,9 @@ unsigned int Breakpoint::GetLocationConditionData1() const
 }
 
 //----------------------------------------------------------------------------------------
-void Breakpoint::SetLocationConditionData1(unsigned int data, unsigned int addressBusWidth)
+void Breakpoint::SetLocationConditionData1(unsigned int data)
 {
-	locationConditionData1 = data & ((1 << addressBusWidth) - 1);
+	locationConditionData1 = data;
 }
 
 //----------------------------------------------------------------------------------------
@@ -137,9 +151,21 @@ unsigned int Breakpoint::GetLocationConditionData2() const
 }
 
 //----------------------------------------------------------------------------------------
-void Breakpoint::SetLocationConditionData2(unsigned int data, unsigned int addressBusWidth)
+void Breakpoint::SetLocationConditionData2(unsigned int data)
 {
-	locationConditionData2 = data & ((1 << addressBusWidth) - 1);
+	locationConditionData2 = data;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Breakpoint::GetLocationMask() const
+{
+	return locationMask;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetLocationMask(unsigned int data)
+{
+	locationMask = data;
 }
 
 //----------------------------------------------------------------------------------------

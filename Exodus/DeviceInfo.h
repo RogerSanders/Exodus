@@ -15,6 +15,7 @@ public:
 	//typedef for the function pointers:
 	//IDevice* (*GetAllocator() const)(const wchar_t*, unsigned int);
 	//void (*GetDestructor() const)(IDevice*);
+	//##TODO## Place these typedefs in the base interface, and use them everywhere.
 	typedef IDevice* (*AllocatorPointer)(const wchar_t*, unsigned int);
 	typedef void (*DestructorPointer)(IDevice*);
 	AllocatorPointer GetAllocator() const;
@@ -26,8 +27,8 @@ protected:
 private:
 	unsigned int deviceVersionNo;
 	std::wstring deviceName;
-	IDevice* (*Allocator)(const wchar_t* instanceName, unsigned int moduleID);
-	void (*Destructor)(IDevice*);
+	AllocatorPointer Allocator;
+	DestructorPointer Destructor;
 };
 
 #endif

@@ -940,6 +940,9 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		//frame is ready to display.
 		frameReadyInImageBuffer = true;
 
+		//Record the odd interlace frame flag
+		imageBufferLineCount[drawingImageBufferPlane] = renderDigitalOddFlagSet;
+
 		//Record the number of raster lines we're going to render in the new frame
 		imageBufferLineCount[drawingImageBufferPlane] = vscanSettings.topBorderLineCount + vscanSettings.activeDisplayLineCount + vscanSettings.bottomBorderLineCount;
 
@@ -1811,61 +1814,61 @@ void S315_5313::DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSetti
 			//Record sprite boundary information for sprite boxing support if requested
 			if(videoEnableSpriteBoxing && (spriteCellDisplayCacheEntryCount < renderSpriteCellDisplayCacheSize))
 			{
+				boost::mutex::scoped_lock spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
+
+				//Calculate the position of this sprite relative to the screen
 				const unsigned int cellWidthInPixels = 8;
 				Data spritePosH(9, spriteDisplayCacheEntry.hpos.GetData());
+				int spriteHeightDivider = (!interlaceMode2Active)? 1: 2;
 				int spritePosXInScreenSpace = ((int)spritePosH.GetData() - (int)spritePosScreenStartH) + (int)hscanSettings.leftBorderPixelCount;
-				int spritePosYInScreenSpace = ((int)spriteDisplayCacheEntry.vpos.GetData() - (int)spritePosScreenStartV) + (int)vscanSettings.topBorderLineCount;
-				//if((spritePosXInScreenSpace >= 0) && (spritePosYInScreenSpace >= 0))
+				int spritePosYInScreenSpace = (((int)spriteDisplayCacheEntry.vpos.GetData() - (int)spritePosScreenStartV) / spriteHeightDivider) + (int)vscanSettings.topBorderLineCount;
+
+				//If this is the first cell column for the sprite, draw a horizontal line
+				//down the left boundary of the sprite.
+				if(i == 0)
 				{
-					boost::mutex::scoped_lock spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
+					SpriteBoundaryLineEntry spriteBoundaryLineEntry;
+					spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace;
+					spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace;
+					spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace + ((int)spriteDisplayCacheEntry.spriteRowIndex / spriteHeightDivider);
+					spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace + (((int)spriteDisplayCacheEntry.spriteRowIndex / spriteHeightDivider) + 1);
+					imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
+				}
 
-					//If this is the first cell column for the sprite, draw a horizontal
-					//line down the left boundary of the sprite.
-					if(i == 0)
-					{
-						SpriteBoundaryLineEntry spriteBoundaryLineEntry;
-						spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace;
-						spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace;
-						spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace + (int)spriteDisplayCacheEntry.spriteRowIndex;
-						spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace + (int)(spriteDisplayCacheEntry.spriteRowIndex + 1);
-						imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
-					}
+				//If this is the last cell column for the sprite, draw a horizontal line
+				//down the right boundary of the sprite.
+				if(((i + 1) == spriteWidthInCells) || ((spriteCellDisplayCacheEntryCount + 1) == renderSpriteCellDisplayCacheSize))
+				{
+					SpriteBoundaryLineEntry spriteBoundaryLineEntry;
+					spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
+					spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
+					spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace + ((int)spriteDisplayCacheEntry.spriteRowIndex / spriteHeightDivider);
+					spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace + (((int)spriteDisplayCacheEntry.spriteRowIndex / spriteHeightDivider) + 1);
+					imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
+				}
 
-					//If this is the last cell column for the sprite, draw a horizontal
-					//line down the right boundary of the sprite.
-					if(((i + 1) == spriteWidthInCells) || ((spriteCellDisplayCacheEntryCount + 1) == renderSpriteCellDisplayCacheSize))
-					{
-						SpriteBoundaryLineEntry spriteBoundaryLineEntry;
-						spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
-						spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
-						spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace + (int)spriteDisplayCacheEntry.spriteRowIndex;
-						spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace + (int)(spriteDisplayCacheEntry.spriteRowIndex + 1);
-						imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
-					}
+				//If this is the first line for the sprite, draw a horizontal line across
+				//the top boundary of the sprite.
+				if((spriteDisplayCacheEntry.spriteRowIndex == 0) || (interlaceMode2Active && (spriteDisplayCacheEntry.spriteRowIndex == 1)))
+				{
+					SpriteBoundaryLineEntry spriteBoundaryLineEntry;
+					spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace + (int)(i * cellWidthInPixels);
+					spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
+					spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace;
+					spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace;
+					imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
+				}
 
-					//If this is the first line for the sprite, draw a horizontal line
-					//across the top boundary of the sprite.
-					if(spriteDisplayCacheEntry.spriteRowIndex == 0)
-					{
-						SpriteBoundaryLineEntry spriteBoundaryLineEntry;
-						spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace + (int)(i * cellWidthInPixels);
-						spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
-						spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace;
-						spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace;
-						imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
-					}
-
-					//If this is the last line for the sprite, draw a horizontal line
-					//across the bottom boundary of the sprite.
-					if((spriteDisplayCacheEntry.spriteRowIndex + 1) == (spriteHeightInCells * rowsPerTile))
-					{
-						SpriteBoundaryLineEntry spriteBoundaryLineEntry;
-						spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace + (int)(i * cellWidthInPixels);
-						spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
-						spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace + (int)(spriteDisplayCacheEntry.spriteRowIndex + 1);
-						spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace + (int)(spriteDisplayCacheEntry.spriteRowIndex + 1);
-						imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
-					}
+				//If this is the last line for the sprite, draw a horizontal line across
+				//the bottom boundary of the sprite.
+				if(((spriteDisplayCacheEntry.spriteRowIndex + 1) == (spriteHeightInCells * rowsPerTile)) || (interlaceMode2Active && ((spriteDisplayCacheEntry.spriteRowIndex + 2) >= (spriteHeightInCells * rowsPerTile))))
+				{
+					SpriteBoundaryLineEntry spriteBoundaryLineEntry;
+					spriteBoundaryLineEntry.linePosXStart = spritePosXInScreenSpace + (int)(i * cellWidthInPixels);
+					spriteBoundaryLineEntry.linePosXEnd = spritePosXInScreenSpace + (int)((i + 1) * cellWidthInPixels);
+					spriteBoundaryLineEntry.linePosYStart = spritePosYInScreenSpace + (((int)spriteDisplayCacheEntry.spriteRowIndex / spriteHeightDivider) + 1);
+					spriteBoundaryLineEntry.linePosYEnd = spritePosYInScreenSpace + (((int)spriteDisplayCacheEntry.spriteRowIndex / spriteHeightDivider) + 1);
+					imageBufferSpriteBoundaryLines[drawingImageBufferPlane].push_back(spriteBoundaryLineEntry);
 				}
 			}
 

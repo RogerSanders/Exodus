@@ -20,7 +20,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -96,7 +96,7 @@
 		<Configuration
 			Name="Debug|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -172,8 +172,9 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -253,7 +254,7 @@
 		<Configuration
 			Name="Release|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -590,7 +591,7 @@
 		<Configuration
 			Name="Release - PGOInstrument|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -671,7 +672,7 @@
 		<Configuration
 			Name="Release - PGOInstrument|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -753,7 +754,7 @@
 		<Configuration
 			Name="Release - PGOOptimise|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOOptimize.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOOptimize.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			ExcludeBuckets="7"
@@ -835,7 +836,7 @@
 		<Configuration
 			Name="Release - PGOOptimise|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOOptimize.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOOptimize.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			ExcludeBuckets="7"
@@ -918,7 +919,7 @@
 		<Configuration
 			Name="Release - PGOUpdate|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOUpdate.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOUpdate.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			ExcludeBuckets="7"
@@ -1000,7 +1001,7 @@
 		<Configuration
 			Name="Release - PGOUpdate|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOUpdate.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOUpdate.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			ExcludeBuckets="7"
@@ -1083,7 +1084,7 @@
 		<Configuration
 			Name="Release - PGORebuildOptimised|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -1163,7 +1164,7 @@
 		<Configuration
 			Name="Release - PGORebuildOptimised|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops"
+			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>

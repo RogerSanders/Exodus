@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 Processor::BreakpointView::BreakpointView(Processor* adevice)
-:device(adevice), initializedDialog(false), currentControlFocus(0)
+:device(adevice), initializedDialog(false), currentControlFocus(0), breakpoint(adevice->GetAddressBusWidth())
 {
 	breakpointListIndex = -1;
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Breakpoints");
@@ -38,7 +38,7 @@ INT_PTR Processor::BreakpointView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpa
 INT_PTR Processor::BreakpointView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetTimer(hwnd, 1, 100, NULL);
-	breakpoint.Initialize();
+	breakpoint.Initialize(device->GetAddressBusWidth());
 	UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
 	breakpointListIndex = -1;
 
@@ -135,7 +135,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				{
 					updateName = true;
 				}
-				breakpoint.SetLocationConditionData1(GetDlgItemHex(hwnd, LOWORD(wparam)), device->GetAddressBusWidth());
+				breakpoint.SetLocationConditionData1(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), breakpoint.GetLocationConditionData1());
 				if(updateName)
 				{
@@ -145,8 +145,12 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				}
 				break;}
 			case IDC_PROCESSOR_BREAK_LOCCONDDATA2:
-				breakpoint.SetLocationConditionData2(GetDlgItemHex(hwnd, LOWORD(wparam)), device->GetAddressBusWidth());
+				breakpoint.SetLocationConditionData2(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), breakpoint.GetLocationConditionData2());
+				break;
+			case IDC_PROCESSOR_BREAK_LOCMASK:
+				breakpoint.SetLocationMask(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), breakpoint.GetLocationMask());
 				break;
 			}
 		}
@@ -157,6 +161,9 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 
 		switch(LOWORD(wparam))
 		{
+		case IDC_PROCESSOR_BREAK_ENABLE:
+			breakpoint.SetEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
+			break;
 		case IDC_PROCESSOR_BREAK_LOG:
 			breakpoint.SetLogEvent(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;
@@ -195,7 +202,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			break;
 
 		case IDC_PROCESSOR_BREAK_NEW:
-			breakpoint.Initialize();
+			breakpoint.Initialize(device->GetAddressBusWidth());
 			UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
 			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_SETCURSEL, (WPARAM)-1, NULL);
 			breakpointListIndex = -1;
@@ -251,7 +258,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				device->breakpointExists = !device->breakpoints.empty();
 				breakpointsCopy = device->breakpoints;
 				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_DELETESTRING, breakpointListIndex, NULL);
-				if(breakpointListIndex >= breakpointsCopy.size())
+				if(breakpointListIndex >= (int)breakpointsCopy.size())
 				{
 					breakpointListIndex -= 1;
 				}
@@ -266,9 +273,31 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			}
 			else
 			{
-				breakpoint.Initialize();
+				breakpoint.Initialize(device->GetAddressBusWidth());
 			}
 			UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+			break;
+		case IDC_PROCESSOR_BREAK_ENABLEALL:
+			for(BreakpointList::iterator i = device->breakpoints.begin(); i != device->breakpoints.end(); ++i)
+			{
+				(*i)->SetEnabled(true);
+			}
+			if(breakpointListIndex != -1)
+			{
+				breakpoint.SetEnabled(true);
+				UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+			}
+			break;
+		case IDC_PROCESSOR_BREAK_DISABLEALL:
+			for(BreakpointList::iterator i = device->breakpoints.begin(); i != device->breakpoints.end(); ++i)
+			{
+				(*i)->SetEnabled(false);
+			}
+			if(breakpointListIndex != -1)
+			{
+				breakpoint.SetEnabled(false);
+				UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+			}
 			break;
 		case IDC_PROCESSOR_BREAK_DELETEALL:
 			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_RESETCONTENT, 0, NULL);
@@ -281,7 +310,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			breakpointsCopy.clear();
 
 			//Clear the current breakpoint info
-			breakpoint.Initialize();
+			breakpoint.Initialize(device->GetAddressBusWidth());
 			UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
 			breakpointListIndex = -1;
 			break;
@@ -315,6 +344,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 void Processor::BreakpointView::UpdateBreakpoint(HWND hwnd, const Breakpoint& breakpoint, unsigned int addressCharWidth)
 {
 	UpdateDlgItemString(hwnd, IDC_PROCESSOR_BREAK_NAME, breakpoint.GetName());
+	CheckDlgButton(hwnd, IDC_PROCESSOR_BREAK_ENABLE, (breakpoint.GetEnabled())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_PROCESSOR_BREAK_LOG, (breakpoint.GetLogEvent())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_PROCESSOR_BREAK_BREAK, (breakpoint.GetBreakEvent())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_PROCESSOR_BREAK_BREAKONCOUNTER, (breakpoint.GetBreakOnCounter())? BST_CHECKED: BST_UNCHECKED);
@@ -323,6 +353,7 @@ void Processor::BreakpointView::UpdateBreakpoint(HWND hwnd, const Breakpoint& br
 
 	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_BREAK_LOCCONDDATA1, addressCharWidth, breakpoint.GetLocationConditionData1());
 	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_BREAK_LOCCONDDATA2, addressCharWidth, breakpoint.GetLocationConditionData2());
+	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_BREAK_LOCMASK, addressCharWidth, breakpoint.GetLocationMask());
 	CheckDlgButton(hwnd, IDC_PROCESSOR_BREAK_LOCCONDNOT, (breakpoint.GetLocationConditionNot())? BST_CHECKED: BST_UNCHECKED);
 	switch(breakpoint.GetLocationCondition())
 	{

@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void IDeviceInfo::SetDeviceSettings(const std::wstring& adeviceName, IDevice* (aAllocator)(const wchar_t* instanceName, unsigned int moduleID), void (aDestructor)(IDevice*), unsigned int adeviceVersionNo)
+void IDeviceInfo::SetDeviceSettings(const std::wstring& adeviceName, IDevice* (aAllocator)(const wchar_t*, unsigned int), void (aDestructor)(IDevice*), unsigned int adeviceVersionNo)
 {
 	SetDeviceName(adeviceName);
 	SetDeviceVersionNo(adeviceVersionNo);

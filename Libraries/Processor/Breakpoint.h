@@ -10,11 +10,11 @@ public:
 	enum Condition;
 
 	//Constructors
-	inline Breakpoint();
+	inline Breakpoint(unsigned int addressBusWidth);
 	virtual ~Breakpoint();
 
 	//Initialization functions
-	inline void Initialize();
+	inline void Initialize(unsigned int addressBusWidth);
 
 	//Execute functions
 	inline void Commit();
@@ -24,6 +24,8 @@ public:
 	std::wstring GetLogString() const;
 
 	//Breakpoint event triggers
+	inline bool GetEnabled() const;
+	inline void SetEnabled(bool state);
 	inline bool GetLogEvent() const;
 	inline void SetLogEvent(bool state);
 	inline bool GetBreakEvent() const;
@@ -40,9 +42,11 @@ public:
 	inline Condition GetLocationCondition() const;
 	inline void SetLocationCondition(Condition condition);
 	inline unsigned int GetLocationConditionData1() const;
-	inline void SetLocationConditionData1(unsigned int data, unsigned int addressBusWidth);
+	inline void SetLocationConditionData1(unsigned int data);
 	inline unsigned int GetLocationConditionData2() const;
-	inline void SetLocationConditionData2(unsigned int data, unsigned int addressBusWidth);
+	inline void SetLocationConditionData2(unsigned int data);
+	inline unsigned int GetLocationMask() const;
+	inline void SetLocationMask(unsigned int data);
 	bool PassesLocationCondition(unsigned int location);
 
 	//Hit counter functions
@@ -66,6 +70,7 @@ private:
 	std::wstring name;
 
 	//Breakpoint event triggers
+	bool enabled;
 	bool logEvent;
 	bool breakEvent;
 
@@ -74,6 +79,7 @@ private:
 	Condition locationCondition;
 	unsigned int locationConditionData1;
 	unsigned int locationConditionData2;
+	unsigned int locationMask;
 
 	//Hit counter data
 	unsigned int hitCounter;

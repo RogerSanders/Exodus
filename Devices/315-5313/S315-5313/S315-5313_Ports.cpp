@@ -1558,13 +1558,15 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 //----------------------------------------------------------------------------------------
 Data S315_5313::GetHVCounter() const
 {
-	//##TODO## Implement support for HV counter latching. Hardware tests have shown that
-	//the current value of the HV counter is latched at the time the HV counter latch bit
-	//is enabled, and the returned value from the HV counter only changes while the bit is
-	//set if the HL line is asserted, latching the current HV counter value at that time.
-
 	//Since the status register has already been updated when the device was accessed,
-	//build the HV counter based on the current processor state.
+	//build the HV counter based on the current processor state. Note the implementation
+	//of HV counter latching we have below. Hardware tests have shown that the current
+	//value of the HV counter is latched at the time the HV counter latch bit is enabled,
+	//and the returned value from the HV counter only changes while the bit is set if the
+	//HL line is asserted, latching the current HV counter value at that time. This means
+	//we always return the latched HV counter data if the HV counter latch bit is enabled.
+	//The contents of this register are updated when the HL line triggers, or when the HV
+	//counter latch bit is first set.
 
 	//Build the 8-bit external hcounter
 	//The internal hcounter is 9-bit, and the external hcounter is 8-bit. The upper 8 bits
@@ -1573,7 +1575,7 @@ Data S315_5313::GetHVCounter() const
 	//Internal counter: 876543210
 	//External counter: 87654321
 	Data currentHCounter(9);
-	currentHCounter = (hvCounterLatched)? hcounterLatchedData: hcounter;
+	currentHCounter = (hvCounterLatchEnabled)? hcounterLatchedData: hcounter;
 	Data externalHCounter(8);
 	externalHCounter = currentHCounter.GetUpperBits(8);
 
@@ -1587,7 +1589,7 @@ Data S315_5313::GetHVCounter() const
 	//External, interlace normal:  76543218
 	//External, interlace double:  65432107
 	Data currentVCounter(9);
-	currentVCounter = (hvCounterLatched)? vcounterLatchedData: vcounter;
+	currentVCounter = (hvCounterLatchEnabled)? vcounterLatchedData: vcounter;
 	Data externalVCounter(8);
 	if(interlaceEnabled && interlaceDouble)
 	{
@@ -1743,7 +1745,21 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 	switch(registerNo)
 	{
 	case 0:
-		hvCounterLatchEnabled = data.GetBit(1);
+		if(hvCounterLatchEnabled != data.GetBit(1))
+		{
+			//If the HV counter latch enable bit has changed from 0 to 1, latch the
+			//current value of the HV counter as the latched HV counter data. Note that
+			//hardware tests have shown that this only occurs when the HV latch enable bit
+			//changes from 0 to 1, not when it is set to 1 again when it is already set,
+			//and writes to other registers appear to have no effect on the latched data.
+			//Note also that in hardware, this is most likely implemented simply by having
+			//an internal HV counter and an external HV counter, and the external HV
+			//counter is only updated with the internal contents when this register bit is
+			//set to 1, or the HL line is toggled.
+			hvCounterLatchEnabled = data.GetBit(1);
+			hcounterLatchedData = hcounter;
+			vcounterLatchedData = vcounter;
+		}
 		if(hintEnabled != data.GetBit(4))
 		{
 			//##DEBUG##

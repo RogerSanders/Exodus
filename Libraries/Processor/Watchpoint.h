@@ -6,10 +6,10 @@ class Watchpoint :public Breakpoint
 {
 public:
 	//Constructors
-	inline Watchpoint();
+	inline Watchpoint(unsigned int addressBusWidth);
 
 	//Initialization functions
-	inline void Initialize();
+	inline void Initialize(unsigned int addressBusWidth);
 
 	//Breakpoint logging functions
 	std::wstring GetLogString() const;

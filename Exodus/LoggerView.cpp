@@ -64,7 +64,7 @@ INT_PTR System::LoggerView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR System::LoggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	boost::mutex::scoped_lock lock(system->debugMutex);
+	boost::mutex::scoped_lock lock(system->eventLogMutex);
 	SendMessage(GetDlgItem(hwnd, IDC_LOGGER_LIST), WM_SETREDRAW, FALSE, 0);
 
 	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_LOGGER_LIST), LB_GETTOPINDEX, 0, 0);
@@ -74,11 +74,11 @@ INT_PTR System::LoggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	for(std::list<LogEntryInternal>::iterator i = system->log.begin(); i != system->log.end(); ++i)
 	{
 		//Add log entries which are not currently filtered
-		if((system->loggerLevel1Enabled && (i->eventLevel == 1)) ||
-			(system->loggerLevel2Enabled && (i->eventLevel == 2)) ||
-			(system->loggerLevel3Enabled && (i->eventLevel == 3)) ||
-			(system->loggerLevel3Enabled && (i->eventLevel == 4)) ||
-			(system->loggerLevel4Enabled && (i->eventLevel == 5)))
+		if((system->loggerLevel1Enabled && (i->eventLevel == ILogEntry::EVENTLEVEL_INFO))
+		|| (system->loggerLevel2Enabled && (i->eventLevel == ILogEntry::EVENTLEVEL_DEBUG))
+		|| (system->loggerLevel3Enabled && (i->eventLevel == ILogEntry::EVENTLEVEL_WARNING))
+		|| (system->loggerLevel4Enabled && (i->eventLevel == ILogEntry::EVENTLEVEL_ERROR))
+		|| (system->loggerLevel5Enabled && (i->eventLevel == ILogEntry::EVENTLEVEL_CRITICAL)))
 		{
 			std::wstringstream text;
 			text << i->eventTimeString << '\t' << i->eventLevelString << '\t' << i->source << L'\t' << i->text;
@@ -108,7 +108,7 @@ INT_PTR System::LoggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpara
 			int currentItemListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_LOGGER_LIST), LB_GETCURSEL, 0, 0);
 			unsigned int targetItemLogIndex = (unsigned int)SendMessage(GetDlgItem(hwnd, IDC_LOGGER_LIST), LB_GETITEMDATA, currentItemListIndex, NULL);
 
-			boost::mutex::scoped_lock lock(system->debugMutex);
+			boost::mutex::scoped_lock lock(system->eventLogMutex);
 			unsigned int currentItemLogIndex = 0;
 			for(std::list<LogEntryInternal>::iterator i = system->log.begin(); i != system->log.end(); ++i)
 			{

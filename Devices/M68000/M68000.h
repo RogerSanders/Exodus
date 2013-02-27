@@ -361,9 +361,11 @@ private:
 	bool wordIsPrefetched;
 	bool bwordIsPrecached;
 	M68000Word prefetchedWord;
-	M68000Word bprecachedWord;
+	M68000Word bprefetchedWord;
 	M68000Long prefetchedWordAddress;
-	M68000Long bprecachedWordAddress;
+	M68000Long bprefetchedWordAddress;
+	bool powerOnDelayPending;
+	bool bpowerOnDelayPending;
 
 	//Group 0 exception info
 	mutable bool group0ExceptionPending;

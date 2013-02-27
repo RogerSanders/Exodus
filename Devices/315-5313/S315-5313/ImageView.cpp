@@ -11,7 +11,7 @@ S315_5313::ImageView::ImageView(S315_5313* adevice)
 	hwndOpenGL = NULL;
 	hwndStatusBar = NULL;
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Image Window");
-	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 420, 313, false);
+	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 420, 313, true);
 	videoFixedAspectRatioCached = device->videoFixedAspectRatio;
 	imageAspectRatio = 4.0 / 3.0;
 	QueryPerformanceFrequency(&counterFrequency);
@@ -37,8 +37,8 @@ LRESULT S315_5313::ImageView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, 
 		return msgWM_SIZE(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
-	case WM_SETFOCUS:
-		return msgWM_SETFOCUS(hwnd, wparam, lparam);
+	case WM_PARENTNOTIFY:
+		return msgWM_PARENTNOTIFY(hwnd, wparam, lparam);
 	}
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
@@ -154,9 +154,23 @@ LRESULT S315_5313::ImageView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lpara
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT S315_5313::ImageView::msgWM_SETFOCUS(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT S315_5313::ImageView::msgWM_PARENTNOTIFY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
-	SetFocus(hwndOpenGL);
+	switch(LOWORD(wParam))
+	{
+	case WM_LBUTTONDOWN:{
+		//If the user has clicked on a child window within our window region, ensure that
+		//the child window gets focus.
+		POINT mousePos;
+		mousePos.x = LOWORD(lParam);
+		mousePos.y = HIWORD(lParam);
+		HWND targetWindow = ChildWindowFromPoint(hwnd, mousePos);
+		if(targetWindow != NULL)
+		{
+			SetFocus(targetWindow);
+		}
+		break;}
+	}
 	return 0;
 }
 
@@ -500,6 +514,10 @@ void S315_5313::ImageView::UpdateImage()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	//If this frame was the odd field in an interlaced display, offset the row number by
+	//0.5.
+	double rowScreenOffset = device->imageBufferOddInterlaceFrame[displayingImageBufferPlane]? 0.5: 0.0;
+
 	//Render each line of the output image, using hardware resampling to scale the line
 	//width to match the output surface width.
 	for(unsigned int rowNo = 0; rowNo < rowCount; ++rowNo)
@@ -509,20 +527,20 @@ void S315_5313::ImageView::UpdateImage()
 		glEnable(GL_TEXTURE_2D);
 		glBegin(GL_QUADS);
 			//Top-Left
-			glTexCoord2i(0, (int)rowNo);
-			glVertex2i(0, (int)rowNo);
+			glTexCoord2d(0.0, (double)rowNo + rowScreenOffset);
+			glVertex2d(0.0, (double)rowNo + rowScreenOffset);
 
 			//Top-Right
-			glTexCoord2i((int)lineWidth, (int)rowNo);
-			glVertex2i(1, (int)rowNo);
+			glTexCoord2d((double)lineWidth, (double)rowNo + rowScreenOffset);
+			glVertex2d(1.0, (double)rowNo + rowScreenOffset);
 
 			//Bottom-Right
-			glTexCoord2i((int)lineWidth, (int)(rowNo+1));
-			glVertex2i(1, (int)(rowNo+1));
+			glTexCoord2d((double)lineWidth, (double)(rowNo+1) + rowScreenOffset);
+			glVertex2d(1.0, (double)(rowNo+1) + rowScreenOffset);
 
 			//Bottom-Left
-			glTexCoord2i(0, (int)(rowNo+1));
-			glVertex2i(0, (int)(rowNo+1));
+			glTexCoord2d(0.0, (double)(rowNo+1) + rowScreenOffset);
+			glVertex2d(0.0, (double)(rowNo+1) + rowScreenOffset);
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
 
@@ -533,28 +551,28 @@ void S315_5313::ImageView::UpdateImage()
 			if(rowNo == device->imageBufferActiveScanPosYStart[displayingImageBufferPlane])
 			{
 				glBegin(GL_LINES);
-					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo);
-					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo);
-					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo);
-					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)(rowNo + 1));
-					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo);
-					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)(rowNo + 1));
+					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo + rowScreenOffset);
+					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo + rowScreenOffset);
+					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo + rowScreenOffset);
+					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)(rowNo + 1) + rowScreenOffset);
+					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo + rowScreenOffset);
+					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)(rowNo + 1) + rowScreenOffset);
 				glEnd();
 			}
 			else if(rowNo == device->imageBufferActiveScanPosYEnd[displayingImageBufferPlane])
 			{
 				glBegin(GL_LINES);
-					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo);
-					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo);
+					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo + rowScreenOffset);
+					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo + rowScreenOffset);
 				glEnd();
 			}
 			else if((rowNo > device->imageBufferActiveScanPosYStart[displayingImageBufferPlane]) && (rowNo < device->imageBufferActiveScanPosYEnd[displayingImageBufferPlane]))
 			{
 				glBegin(GL_LINES);
-					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo);
-					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)(rowNo + 1));
-					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo);
-					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)(rowNo + 1));
+					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo + rowScreenOffset);
+					glVertex2d((double)device->imageBufferActiveScanPosXStart[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)(rowNo + 1) + rowScreenOffset);
+					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)rowNo + rowScreenOffset);
+					glVertex2d((double)device->imageBufferActiveScanPosXEnd[displayingImageBufferPlane][rowNo] / (double)lineWidth, (double)(rowNo + 1) + rowScreenOffset);
 				glEnd();
 			}
 			glColor3d(1.0, 1.0, 1.0);
@@ -588,7 +606,7 @@ void S315_5313::ImageView::UpdateImage()
 		}
 
 		//Display the render position marker
-		glRectd((double)currentRenderPosScreenXStart, currentRenderPosScreenYStart, currentRenderPosScreenXEnd, currentRenderPosScreenYEnd);
+		glRectd((double)currentRenderPosScreenXStart, currentRenderPosScreenYStart + rowScreenOffset, currentRenderPosScreenXEnd, currentRenderPosScreenYEnd + rowScreenOffset);
 
 		//Restore the OpenGL colour setting
 		glColor3d(1.0, 1.0, 1.0);
@@ -604,10 +622,10 @@ void S315_5313::ImageView::UpdateImage()
 		double screenRegionYEnd = (double)rowCount * screenRegionPercentage;
 		glColor3d(0.8, 0.8, 0.0);
 		glBegin(GL_LINE_LOOP);
-		glVertex2d(screenRegionXStart, screenRegionYStart);
-		glVertex2d(screenRegionXEnd, screenRegionYStart);
-		glVertex2d(screenRegionXEnd, screenRegionYEnd);
-		glVertex2d(screenRegionXStart, screenRegionYEnd);
+			glVertex2d(screenRegionXStart, screenRegionYStart);
+			glVertex2d(screenRegionXEnd, screenRegionYStart);
+			glVertex2d(screenRegionXEnd, screenRegionYEnd);
+			glVertex2d(screenRegionXStart, screenRegionYEnd);
 		glEnd();
 		glColor3d(1.0, 1.0, 1.0);
 	}
@@ -638,13 +656,17 @@ void S315_5313::ImageView::UpdateImage()
 		{
 			SpriteBoundaryLineEntry& spriteBoundaryLineEntry = device->imageBufferSpriteBoundaryLines[displayingImageBufferPlane][i];
 			unsigned int displayLineWidth = device->imageBufferLineWidth[displayingImageBufferPlane][spriteBoundaryLineEntry.linePosYStart];
+			if(displayLineWidth <= 0)
+			{
+				continue;
+			}
 			double linePosXStart = (double)spriteBoundaryLineEntry.linePosXStart / (double)displayLineWidth;
 			double linePosXEnd = (double)spriteBoundaryLineEntry.linePosXEnd / (double)displayLineWidth;
 			double linePosYStart = (double)spriteBoundaryLineEntry.linePosYStart;
 			double linePosYEnd = (double)spriteBoundaryLineEntry.linePosYEnd;
 			glBegin(GL_LINES);
-				glVertex2d(linePosXStart, linePosYStart);
-				glVertex2d(linePosXEnd, linePosYEnd);
+				glVertex2d(linePosXStart, linePosYStart + rowScreenOffset);
+				glVertex2d(linePosXEnd, linePosYEnd + rowScreenOffset);
 			glEnd();
 		}
 	}

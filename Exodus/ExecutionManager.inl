@@ -121,9 +121,12 @@ void ExecutionManager::NotifyUpcomingTimeslice(double nanoseconds)
 	boost::mutex::scoped_lock lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYUPCOMINGTIMESLICE;
 	command.timeslice = nanoseconds;
-	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	if(totalDeviceCount > 0)
+	{
+		pendingDeviceCount = totalDeviceCount;
+		commandSent.notify_all();
+		commandProcessed.wait(lock);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -132,8 +135,11 @@ void ExecutionManager::NotifyBeforeExecuteCalled()
 	boost::mutex::scoped_lock lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYBEFOREEXECUTECALLED;
 	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	if(totalDeviceCount > 0)
+	{
+		commandSent.notify_all();
+		commandProcessed.wait(lock);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -142,8 +148,11 @@ void ExecutionManager::NotifyAfterExecuteCalled()
 	boost::mutex::scoped_lock lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYAFTEREXECUTECALLED;
 	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	if(totalDeviceCount > 0)
+	{
+		commandSent.notify_all();
+		commandProcessed.wait(lock);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -158,15 +167,21 @@ void ExecutionManager::ExecuteTimeslice(double nanoseconds)
 	command.type = DeviceContext::DeviceContextCommand::TYPE_EXECUTETIMESLICE;
 	command.timeslice = nanoseconds;
 	suspendedThreadCount = 0;
-	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	if(totalDeviceCount > 0)
+	{
+		pendingDeviceCount = totalDeviceCount;
+		commandSent.notify_all();
+		commandProcessed.wait(lock);
+	}
 
 	//Wait for all devices to finish executing the timeslice
 	command.type = DeviceContext::DeviceContextCommand::TYPE_WAITFOREXECUTECOMPLETE;
-	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	if(totalDeviceCount > 0)
+	{
+		pendingDeviceCount = totalDeviceCount;
+		commandSent.notify_all();
+		commandProcessed.wait(lock);
+	}
 
 	//Disable execution suspend features for devices that support it. Note that execution
 	//suspend may be disabled automatically before the timeslice is completed if all
@@ -179,9 +194,12 @@ void ExecutionManager::Commit()
 {
 	boost::mutex::scoped_lock lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_COMMIT;
-	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	if(totalDeviceCount > 0)
+	{
+		pendingDeviceCount = totalDeviceCount;
+		commandSent.notify_all();
+		commandProcessed.wait(lock);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -189,9 +207,12 @@ void ExecutionManager::Rollback()
 {
 	boost::mutex::scoped_lock lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_ROLLBACK;
-	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	if(totalDeviceCount > 0)
+	{
+		pendingDeviceCount = totalDeviceCount;
+		commandSent.notify_all();
+		commandProcessed.wait(lock);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -241,9 +262,12 @@ double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceConte
 {
 	boost::mutex::scoped_lock lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_GETNEXTTIMINGPOINT;
-	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	if(totalDeviceCount > 0)
+	{
+		pendingDeviceCount = totalDeviceCount;
+		commandSent.notify_all();
+		commandProcessed.wait(lock);
+	}
 
 	//Determine the maximum length of time all devices can run unsynchronized before the
 	//next timing point
@@ -280,7 +304,10 @@ void ExecutionManager::SuspendExecution()
 {
 	boost::mutex::scoped_lock lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_SUSPENDEXECUTION;
-	pendingDeviceCount = totalDeviceCount;
-	commandSent.notify_all();
-	commandProcessed.wait(lock);
+	if(totalDeviceCount > 0)
+	{
+		pendingDeviceCount = totalDeviceCount;
+		commandSent.notify_all();
+		commandProcessed.wait(lock);
+	}
 }

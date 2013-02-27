@@ -1884,6 +1884,22 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Extension System"
+			>
+			<Filter
+				Name="ExtensionInfo"
+				>
+				<File
+					RelativePath=".\ExtensionInfo.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ExtensionInfo.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
 		<File
 			RelativePath=".\Exodus.rc"
 			>

@@ -21,7 +21,8 @@ enum WC_GridList::WindowNotifications
 	GRID_NEWROWCOUNT = 100,
 	GRID_SHIFTROWSUP,
 	GRID_SHIFTROWSDOWN,
-	GRID_NEWSCROLLPOSITION
+	GRID_NEWSCROLLPOSITION,
+	GRID_ROWSELECTED
 };
 
 //----------------------------------------------------------------------------------------
@@ -53,9 +54,6 @@ struct WC_GridList::Grid_SetColumnInfo
 //----------------------------------------------------------------------------------------
 struct WC_GridList::Grid_GetColumnInfo
 {
-	Grid_GetColumnInfo()
-	{}
-
 	std::wstring name;
 	unsigned int columnID;
 	unsigned int width;
@@ -107,37 +105,33 @@ struct WC_GridList::Grid_SetRowColor
 //----------------------------------------------------------------------------------------
 struct WC_GridList::Grid_NewRowCount
 {
-	Grid_NewRowCount()
-	{}
-
 	unsigned int visibleRows;
 };
 
 //----------------------------------------------------------------------------------------
 struct WC_GridList::Grid_ShiftRowsUp
 {
-	Grid_ShiftRowsUp()
-	{}
-
 	unsigned int shiftCount;
 };
 
 //----------------------------------------------------------------------------------------
 struct WC_GridList::Grid_ShiftRowsDown
 {
-	Grid_ShiftRowsDown()
-	{}
-
 	unsigned int shiftCount;
 };
 
 //----------------------------------------------------------------------------------------
 struct WC_GridList::Grid_NewScrollPosition
 {
-	Grid_NewScrollPosition()
-	{}
-
 	unsigned int scrollPos;
+};
+
+//----------------------------------------------------------------------------------------
+struct WC_GridList::Grid_RowSelected
+{
+	unsigned int visibleRowNo;
+	bool keyPressedCtrl;
+	bool keyPressedShift;
 };
 
 //----------------------------------------------------------------------------------------

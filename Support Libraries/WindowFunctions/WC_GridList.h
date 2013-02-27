@@ -41,6 +41,7 @@ public:
 	struct Grid_ShiftRowsUp;
 	struct Grid_ShiftRowsDown;
 	struct Grid_NewScrollPosition;
+	struct Grid_RowSelected;
 
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -82,6 +83,9 @@ private:
 	LRESULT msgWM_SETFONT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_VSCROLL(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_HSCROLL(WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam);
 
 	LRESULT msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_DELETECOLUMN(WPARAM wParam, LPARAM lParam);

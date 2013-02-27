@@ -39,6 +39,8 @@ LRESULT Processor::DisassemblyView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wp
 		return msgWM_CLOSE(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
+	case WM_PARENTNOTIFY:
+		return msgWM_PARENTNOTIFY(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	case WM_SIZE:
@@ -119,7 +121,7 @@ LRESULT Processor::DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 {
 	//Obtain the current PC address, and check if it has changed since it was last
 	//inspected.
-	unsigned int newPC = device->GetCurrentPC();
+	unsigned int newPC = device->GetCurrentPC() & device->GetAddressBusMask();
 	bool pcCounterChanged = (currentPCLocation != newPC);
 	currentPCLocation = newPC;
 
@@ -127,9 +129,50 @@ LRESULT Processor::DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 	if(((pcCounterChanged && track) || forcePCSync)
 	&& ((currentPCLocation < firstVisibleValueLocation) || (currentPCLocation > lastVisibleValueLocation)))
 	{
-		//##TODO## Calculate the new start address of the window region, with one third of
-		//the window showing opcodes above the current PC location.
+		//Set the first visible location on the disassembly window to be the same as the
+		//current PC value
 		firstVisibleValueLocation = currentPCLocation;
+
+		//Obtain the address of the first opcode in the buffer
+		unsigned int minimumOpcodeByteSize = device->GetMinimumOpcodeByteSize();
+		unsigned int upperReadPosition = (readAbove > firstVisibleValueLocation)? 0: firstVisibleValueLocation - readAbove;
+		if(upperReadPosition < startLocation)
+		{
+			upperReadPosition = startLocation + (firstVisibleValueLocation % minimumOpcodeByteSize);
+		}
+
+		//Record the starting addresses of each opcode which precedes the target location
+		//within the buffer region
+		std::list<unsigned int> leadingRowsPC;
+		unsigned int offset = 0;
+		while((upperReadPosition + offset) < firstVisibleValueLocation)
+		{
+			//Record the address of this opcode
+			leadingRowsPC.push_back(upperReadPosition + offset);
+
+			//Read the opcode info
+			Processor::OpcodeInfo opcodeInfo = device->GetOpcodeInfo(upperReadPosition + offset);
+			unsigned int opcodeSize = minimumOpcodeByteSize;
+			if(opcodeInfo.valid)
+			{
+				opcodeSize = opcodeInfo.opcodeSize;
+			}
+
+			//Step to the next opcode
+			offset += opcodeSize;
+		}
+
+		//Adjust the first visible value on the disassembly window to take into account
+		//the requested number of leading rows.
+		unsigned int leadingRowCount = visibleRows / 3;
+		unsigned int currentLeadingRowNo = 0;
+		std::list<unsigned int>::const_reverse_iterator leadingRowsPCIterator = leadingRowsPC.rbegin();
+		while((leadingRowsPCIterator != leadingRowsPC.rend()) && (currentLeadingRowNo < leadingRowCount))
+		{
+			firstVisibleValueLocation = *leadingRowsPCIterator;
+			++currentLeadingRowNo;
+			++leadingRowsPCIterator;
+		}
 
 		//Update the vertical scroll settings
 		WC_GridList::Grid_SetVScrollInfo scrollInfo;
@@ -145,6 +188,10 @@ LRESULT Processor::DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 		if(currentPCLocation > endLocation)
 		{
 			endLocation = currentPCLocation + extensionSize;
+			if(endLocation > device->GetAddressBusMask())
+			{
+				endLocation = device->GetAddressBusMask();
+			}
 		}
 		if(currentPCLocation < startLocation)
 		{
@@ -172,6 +219,27 @@ LRESULT Processor::DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 }
 
 //----------------------------------------------------------------------------------------
+LRESULT Processor::DisassemblyView::msgWM_PARENTNOTIFY(HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	switch(LOWORD(wParam))
+	{
+	case WM_LBUTTONDOWN:{
+		//If the user has clicked on a child window within our window region, ensure that
+		//the child window gets focus.
+		POINT mousePos;
+		mousePos.x = LOWORD(lParam);
+		mousePos.y = HIWORD(lParam);
+		HWND targetWindow = ChildWindowFromPoint(hwnd, mousePos);
+		if(targetWindow != NULL)
+		{
+			SetFocus(targetWindow);
+		}
+		break;}
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
 LRESULT Processor::DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if(LOWORD(wparam) == CTL_GRIDLIST)
@@ -185,7 +253,6 @@ LRESULT Processor::DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPAR
 		else if(HIWORD(wparam) == WC_GridList::GRID_SHIFTROWSUP)
 		{
 			WC_GridList::Grid_ShiftRowsUp* info = (WC_GridList::Grid_ShiftRowsUp*)lparam;
-			unsigned int minimumOpcodeByteSize = device->GetMinimumOpcodeByteSize();
 			unsigned int shiftCount = 0;
 			while(shiftCount < info->shiftCount)
 			{
@@ -221,6 +288,18 @@ LRESULT Processor::DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPAR
 			WC_GridList::Grid_NewScrollPosition* info = (WC_GridList::Grid_NewScrollPosition*)lparam;
 			firstVisibleValueLocation = info->scrollPos - (info->scrollPos % device->GetMinimumOpcodeByteSize());
 			UpdateDisassembly();
+		}
+		else if(HIWORD(wparam) == WC_GridList::GRID_ROWSELECTED)
+		{
+			WC_GridList::Grid_RowSelected* info = (WC_GridList::Grid_RowSelected*)lparam;
+
+			//If the CTRL key was pressed when the row selection was made, toggle a
+			//breakpoint at the opcode being displayed on the target row. If the shift key
+			//was also pressed, just toggle the enable/disable state of the breakpoint.
+			if(info->keyPressedCtrl)
+			{
+				ToggleBreakpointStateAtRow(info->visibleRowNo, info->keyPressedShift);
+			}
 		}
 
 		//Update the vertical scroll settings
@@ -399,15 +478,15 @@ INT_PTR Processor::DisassemblyView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam,
 			switch(LOWORD(wparam))
 			{
 			case IDC_PROCESSOR_DISASSEMBLY_PANEL_START:
-				startLocation = GetDlgItemHex(hwnd, LOWORD(wparam));
+				startLocation = GetDlgItemHex(hwnd, LOWORD(wparam)) & device->GetAddressBusMask();
 				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), startLocation);
 				break;
 			case IDC_PROCESSOR_DISASSEMBLY_PANEL_END:
-				endLocation = GetDlgItemHex(hwnd, LOWORD(wparam));
+				endLocation = GetDlgItemHex(hwnd, LOWORD(wparam)) & device->GetAddressBusMask();
 				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), endLocation);
 				break;
 			case IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT:
-				firstVisibleValueLocation = GetDlgItemHex(hwnd, LOWORD(wparam));
+				firstVisibleValueLocation = GetDlgItemHex(hwnd, LOWORD(wparam)) & device->GetAddressBusMask();
 				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), firstVisibleValueLocation);
 				break;
 			case IDC_PROCESSOR_DISASSEMBLY_PANEL_READABOVE:
@@ -444,16 +523,15 @@ INT_PTR Processor::DisassemblyView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam,
 //----------------------------------------------------------------------------------------
 void Processor::DisassemblyView::UpdateDisassembly()
 {
-	unsigned int minimumOpcodeByteSize = device->GetMinimumOpcodeByteSize();
-
 	//Obtain the address of the first opcode in the buffer
-	unsigned int upperReadPosition = firstVisibleValueLocation - readAbove;
-	if((readAbove > firstVisibleValueLocation) || (upperReadPosition < startLocation))
+	unsigned int minimumOpcodeByteSize = device->GetMinimumOpcodeByteSize();
+	unsigned int upperReadPosition = (readAbove > firstVisibleValueLocation)? 0: firstVisibleValueLocation - readAbove;
+	if(upperReadPosition < startLocation)
 	{
 		upperReadPosition = startLocation + (firstVisibleValueLocation % minimumOpcodeByteSize);
 	}
 
-	//Read each opcode stored in the buffer
+	//Skip all opcodes in the buffer which occur before the visible region of the buffer
 	unsigned int offset = 0;
 	while((upperReadPosition + offset) < firstVisibleValueLocation)
 	{
@@ -507,10 +585,12 @@ void Processor::DisassemblyView::UpdateDisassembly()
 			//Look for any breakpoints which trigger at the target address
 			boost::mutex::scoped_lock lock(device->debugMutex);
 			bool breakpointAtLocation = false;
+			bool breakpointEnabled = false;
 			BreakpointList::iterator breakpointIterator = device->breakpoints.begin();
 			while(!breakpointAtLocation && (breakpointIterator != device->breakpoints.end()))
 			{
 				breakpointAtLocation = (*breakpointIterator)->PassesLocationCondition(rowPCLocation);
+				breakpointEnabled = (*breakpointIterator)->GetEnabled();
 				++breakpointIterator;
 			}
 
@@ -518,7 +598,7 @@ void Processor::DisassemblyView::UpdateDisassembly()
 			if(breakpointAtLocation)
 			{
 				setRowColor.defined = true;
-				setRowColor.colorBackground = WinColor(255, 128, 128);
+				setRowColor.colorBackground = breakpointEnabled? WinColor(255, 128, 128): WinColor(192, 0, 0);
 				setRowColor.colorTextFront = WinColor(0, 0, 0);
 				setRowColor.colorTextBack = setRowColor.colorBackground;
 			}
@@ -590,4 +670,108 @@ void Processor::DisassemblyView::UpdateDisassembly()
 
 	//Force the grid control to redraw now that we've updated the text
 	InvalidateRect(hwndGridList, NULL, FALSE);
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::DisassemblyView::ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool toggleEnableState)
+{
+	//Validate the specified row number
+	if(visibleRowNo >= visibleRows)
+	{
+		return;
+	}
+
+	//Obtain the address of the first opcode in the buffer
+	unsigned int minimumOpcodeByteSize = device->GetMinimumOpcodeByteSize();
+	unsigned int upperReadPosition = (readAbove > firstVisibleValueLocation)? 0: firstVisibleValueLocation - readAbove;
+	if(upperReadPosition < startLocation)
+	{
+		upperReadPosition = startLocation + (firstVisibleValueLocation % minimumOpcodeByteSize);
+	}
+
+	//Skip all opcodes in the buffer which occur before the visible region of the buffer
+	unsigned int offset = 0;
+	while((upperReadPosition + offset) < firstVisibleValueLocation)
+	{
+		//Read the opcode info
+		Processor::OpcodeInfo opcodeInfo = device->GetOpcodeInfo(upperReadPosition + offset);
+		unsigned int opcodeSize = minimumOpcodeByteSize;
+		if(opcodeInfo.valid)
+		{
+			opcodeSize = opcodeInfo.opcodeSize;
+		}
+
+		//Step to the next opcode
+		offset += opcodeSize;
+	}
+
+	//Locate the opcode which was selected in the disassembly window
+	unsigned int currentVisibleRowNo = 0;
+	while((currentVisibleRowNo < visibleRowNo) && ((upperReadPosition + offset) < endLocation))
+	{
+		//Read the opcode info
+		Processor::OpcodeInfo opcodeInfo = device->GetOpcodeInfo(upperReadPosition + offset);
+		unsigned int opcodeSize = minimumOpcodeByteSize;
+		if(opcodeInfo.valid)
+		{
+			opcodeSize = opcodeInfo.opcodeSize;
+		}
+
+		//Step to the next opcode
+		offset += opcodeSize;
+		++currentVisibleRowNo;
+	}
+	if(currentVisibleRowNo != visibleRowNo)
+	{
+		return;
+	}
+
+	//Calculate the address of the selected opcode
+	unsigned int targetOpcodeLocation = upperReadPosition + offset;
+
+	//Toggle a breakpoint at the target location
+	ToggleBreakpointStateAtAddress(targetOpcodeLocation, toggleEnableState);
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::DisassemblyView::ToggleBreakpointStateAtAddress(unsigned int pcLocation, bool toggleEnableState)
+{
+	//Look for any breakpoints which trigger at the target address
+	boost::mutex::scoped_lock lock(device->debugMutex);
+	bool breakpointAtLocation = false;
+	BreakpointList::iterator breakpointIterator = device->breakpoints.begin();
+	while(!breakpointAtLocation && (breakpointIterator != device->breakpoints.end()))
+	{
+		breakpointAtLocation = (*breakpointIterator)->PassesLocationCondition(pcLocation);
+		if(breakpointAtLocation)
+		{
+			continue;
+		}
+		++breakpointIterator;
+	}
+
+	//Perform the requested operation
+	if(toggleEnableState)
+	{
+		//Toggle the enable state for a breakpoint at the target address
+		if(breakpointAtLocation)
+		{
+			(*breakpointIterator)->SetEnabled(!(*breakpointIterator)->GetEnabled());
+		}
+	}
+	else
+	{
+		//Either add or remove a breakpoint for the target address
+		if(breakpointAtLocation)
+		{
+			device->breakpoints.erase(breakpointIterator);
+		}
+		else
+		{
+			Breakpoint* breakpoint = new Breakpoint(device->GetAddressBusWidth());
+			breakpoint->SetLocationConditionData1(pcLocation);
+			breakpoint->SetName(breakpoint->GenerateName(device->GetAddressBusCharWidth()));
+			device->breakpoints.push_back(breakpoint);
+		}
+	}
 }

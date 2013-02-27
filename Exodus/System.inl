@@ -37,6 +37,20 @@ struct System::DeviceLibraryEntry
 };
 
 //----------------------------------------------------------------------------------------
+struct System::ExtensionLibraryEntry
+{
+	ExtensionLibraryEntry()
+	:Allocator(0), Destructor(0), assemblyHandle(0), extensionVersionNo(0)
+	{}
+
+	unsigned int extensionVersionNo;
+	std::wstring deviceName;
+	IExtension* (*Allocator)(const wchar_t* instanceName, unsigned int moduleID);
+	void (*Destructor)(IExtension*);
+	IExtension::AssemblyHandle assemblyHandle;
+};
+
+//----------------------------------------------------------------------------------------
 struct System::LoadedDeviceInfo
 {
 	IDevice* device;
@@ -65,6 +79,34 @@ struct System::ImportedDeviceInfo
 	unsigned int exportingModuleID;
 	unsigned int importingModuleID;
 	std::wstring importingModuleDeviceInstanceName;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::LoadedExtensionInfo
+{
+	IExtension* extension;
+	std::wstring name;
+	unsigned int moduleID;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ExportedExtensionInfo
+{
+	IExtension* extension;
+	std::wstring exportingModuleExtensionInstanceName;
+	std::wstring importName;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ImportedExtensionInfo
+{
+	IExtension* extension;
+	std::wstring exportingModuleExtensionInstanceName;
+	std::wstring importName;
+	unsigned int connectorID;
+	unsigned int exportingModuleID;
+	unsigned int importingModuleID;
+	std::wstring importingModuleExtensionInstanceName;
 };
 
 //----------------------------------------------------------------------------------------
@@ -150,7 +192,30 @@ struct System::ImportedLineGroupInfo
 };
 
 //----------------------------------------------------------------------------------------
-struct System::ConnectorDetails
+struct System::LoadedModuleInfoInternal
+{
+	//Internal data
+	unsigned int moduleID;
+
+	//External information
+	std::wstring fileDir;
+	std::wstring fileName;
+
+	//Required metadata
+	bool programModule;
+	std::wstring systemClassName;
+	std::wstring className;
+	std::wstring instanceName;
+	std::wstring displayName;
+
+	//Optional metadata
+	std::wstring productionYear;
+	std::wstring manufacturerCode;
+	std::wstring manufacturerDisplayName;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ConnectorInfoInternal
 {
 	//Internal data
 	unsigned int connectorID;
@@ -163,9 +228,11 @@ struct System::ConnectorDetails
 
 	//Exported objects
 	std::map<std::wstring, ExportedDeviceInfo> exportedDeviceInfo;
+	std::map<std::wstring, ExportedExtensionInfo> exportedExtensionInfo;
 	std::map<std::wstring, ExportedBusInfo> exportedBusInfo;
 	std::map<std::wstring, ExportedClockSourceInfo> exportedClockSourceInfo;
 	std::map<std::wstring, ExportedSystemLineInfo> exportedSystemLineInfo;
+	std::map<std::wstring, ExportedSystemSettingInfo> exportedSystemSettingInfo;
 
 	//Importing module info
 	bool connectorUsed;
@@ -242,7 +309,9 @@ struct System::SystemSettingInfo
 	SystemSettingInfo()
 	:selectedOption(0), defaultOption(0)
 	{}
+	unsigned int moduleID;
 	std::wstring name;
+	unsigned int systemSettingID;
 	std::wstring displayName;
 	std::vector<SystemSettingOption> options;
 	unsigned int defaultOption;
@@ -306,6 +375,26 @@ struct System::ImportedSystemLineInfo
 };
 
 //----------------------------------------------------------------------------------------
+struct System::ExportedSystemSettingInfo
+{
+	unsigned int systemSettingID;
+	std::wstring exportingModuleSystemSettingName;
+	std::wstring importName;
+};
+
+//----------------------------------------------------------------------------------------
+struct System::ImportedSystemSettingInfo
+{
+	unsigned int systemSettingID;
+	std::wstring exportingModuleSystemSettingName;
+	std::wstring importName;
+	unsigned int connectorID;
+	unsigned int exportingModuleID;
+	unsigned int importingModuleID;
+	std::wstring importingModuleSystemSettingName;
+};
+
+//----------------------------------------------------------------------------------------
 struct System::SystemLineMapping
 {
 	SystemLineMapping()
@@ -347,6 +436,10 @@ struct System::EmbeddedROMInfo
 System::System(void* aassemblyHandle)
 :stopSystem(false), systemStopped(true), initialize(false), enableThrottling(true), runWhenProgramModuleLoaded(true), assemblyHandle(aassemblyHandle)
 {
+	//Initialize the extension interface pointers
+	systemExtensionInterface = this;
+	guiExtensionInterface = 0;
+
 	//Create the menu handlers
 	systemMenuHandler = new SystemMenuHandler(this);
 	systemMenuHandler->LoadMenuItems();
@@ -367,6 +460,7 @@ System::System(void* aassemblyHandle)
 	nextFreeConnectorID = 1000;
 	nextFreeLineGroupID = 2000;
 	nextFreeSystemLineID = 3000;
+	nextFreeSystemSettingID = 3000;
 }
 
 //----------------------------------------------------------------------------------------

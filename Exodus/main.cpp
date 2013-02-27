@@ -1,6 +1,7 @@
 #include "WindowFunctions/WindowFunctions.pkg"
 #include "Debug/Debug.pkg"
 #include "ExodusInterface.h"
+#include "System.h"
 #include "resource.h"
 
 //##TODO## Fix the static module linking process. We're not actively using it anymore, but
@@ -57,6 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//Create the main interface window
 	ExodusInterface exodusInterface(systemObject);
+	systemObject.BindToGUIExtensionInterface(&exodusInterface);
 	HWND hwnd = exodusInterface.CreateMainInterface(hInstance);
 	if(hwnd == NULL)
 	{

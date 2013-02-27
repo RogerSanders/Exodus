@@ -53,6 +53,12 @@ bool Device::AddReference(const wchar_t* referenceName, IDevice* target)
 }
 
 //----------------------------------------------------------------------------------------
+bool Device::AddReference(const wchar_t* referenceName, IExtension* target)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
 bool Device::AddReference(const wchar_t* referenceName, IBusInterface* target)
 {
 	return false;
@@ -66,6 +72,12 @@ bool Device::AddReference(const wchar_t* referenceName, IClockSource* target)
 
 //----------------------------------------------------------------------------------------
 bool Device::RemoveReference(IDevice* target)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Device::RemoveReference(IExtension* target)
 {
 	return false;
 }

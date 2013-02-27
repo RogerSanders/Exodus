@@ -7,6 +7,12 @@ bool IDevice::AddReference(const std::wstring& referenceName, IDevice* target)
 }
 
 //----------------------------------------------------------------------------------------
+bool IDevice::AddReference(const std::wstring& referenceName, IExtension* target)
+{
+	return AddReference(referenceName.c_str(), target);
+}
+
+//----------------------------------------------------------------------------------------
 bool IDevice::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
 	return AddReference(referenceName.c_str(), target);

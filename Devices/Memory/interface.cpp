@@ -73,7 +73,7 @@ extern "C" __declspec(dllexport) unsigned int GetInterfaceVersion()
 }
 
 //----------------------------------------------------------------------------------------
-extern "C" __declspec(dllexport) bool GetLibraryEntry(unsigned int entryNo, IDeviceInfo& entry)
+extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDeviceInfo& entry)
 {
 	switch(entryNo)
 	{
