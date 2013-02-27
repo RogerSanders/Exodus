@@ -10,7 +10,7 @@ System::SystemOptionMenuHandler::SystemOptionMenuHandler(System* adevice)
 //----------------------------------------------------------------------------------------
 //System setting functions
 //----------------------------------------------------------------------------------------
-unsigned int System::SystemOptionMenuHandler::AddSystemSettingMenuItem(unsigned int moduleID, std::wstring settingName, unsigned int settingOptionNo)
+unsigned int System::SystemOptionMenuHandler::AddSystemSettingMenuItem(unsigned int settingID, unsigned int settingOptionNo)
 {
 	//Retrieve the ID number to use for this menu item, and increment the ID number for
 	//the next menu item.
@@ -18,8 +18,7 @@ unsigned int System::SystemOptionMenuHandler::AddSystemSettingMenuItem(unsigned 
 
 	//Construct an object representing this menu entry
 	SettingMenuEntry menuEntry;
-	menuEntry.moduleID = moduleID;
-	menuEntry.settingName = settingName;
+	menuEntry.settingID = settingID;
 	menuEntry.optionID = settingOptionNo;
 
 	//Insert this menu entry into the list of menu items
@@ -35,38 +34,21 @@ unsigned int System::SystemOptionMenuHandler::AddSystemSettingMenuItem(unsigned 
 void System::SystemOptionMenuHandler::HandleMenuItemSelect(int menuItemID, IViewModelLauncher& aviewModelLauncher)
 {
 	//Retrieve the menu setting associated with this menu item
-	std::map<unsigned int, SettingMenuEntry>::iterator menuItemIterator = menuItems.find(menuItemID);
+	std::map<unsigned int, SettingMenuEntry>::const_iterator menuItemIterator = menuItems.find(menuItemID);
 	if(menuItemIterator == menuItems.end())
 	{
 		return;
 	}
-	SettingMenuEntry& menuItem = menuItemIterator->second;
-
-	//Retrieve the list of settings associated with the target module
-	System::ModuleSystemSettingMap::iterator moduleSettingsMapIterator = device->moduleSettings.find(menuItem.moduleID);
-	if(moduleSettingsMapIterator == device->moduleSettings.end())
-	{
-		return;
-	}
-	SystemSettingsList& moduleSettingsList = moduleSettingsMapIterator->second;
+	const SettingMenuEntry& menuItem = menuItemIterator->second;
 
 	//Locate the referenced module setting
 	SystemSettingInfo* settingInfo = 0;
-	bool settingFound = false;
-	System::SystemSettingsList::iterator moduleSettingsIterator = moduleSettingsList.begin();
-	while(!settingFound && (moduleSettingsIterator != moduleSettingsList.end()))
-	{
-		if(moduleSettingsIterator->name == menuItem.settingName)
-		{
-			settingFound = true;
-			settingInfo = &(*moduleSettingsIterator);
-		}
-		++moduleSettingsIterator;
-	}
-	if(!settingFound)
+	SystemSettingsMap::iterator systemSettingsIterator = device->systemSettings.find(menuItem.settingID);
+	if(systemSettingsIterator == device->systemSettings.end())
 	{
 		return;
 	}
+	settingInfo = &(systemSettingsIterator->second);
 
 	//Retrieve the info for the target option
 	if(menuItem.optionID >= (unsigned int)settingInfo->options.size())

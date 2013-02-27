@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <io.h>
 #include <vector>
+#include <dwmapi.h>
 
 //----------------------------------------------------------------------------------------
 //BindStdHandlesToConsole function
@@ -214,11 +215,6 @@ HGLRC CreateOpenGLWindow(HWND hwnd)
 }
 
 //----------------------------------------------------------------------------------------
-#ifndef DWMWA_EXTENDED_FRAME_BOUNDS
-volatile static LONG mutex_GetHiddenBorderDimensions = 0;
-volatile static HMODULE dllHandle_GetHiddenBorderDimensions = 0;
-static HRESULT (*volatile DwmGetWindowAttribute_GetHiddenBorderDimensions)(HWND, DWORD, PVOID, DWORD) = 0;
-#endif
 void GetHiddenBorderDimensions(HWND hwnd, int& borderLeft, int& borderRight, int& borderTop, int& borderBottom)
 {
 	//Set all the border sizes to zero to start with. If we manage to obtain information
@@ -233,62 +229,14 @@ void GetHiddenBorderDimensions(HWND hwnd, int& borderLeft, int& borderRight, int
 	//if Aero was not running, and the "Basic" theme was enabled. Reportedly, if our
 	//application is compiled to target Windows version 6 (Vista), GetWindowRect() returns
 	//the true dimensions, but this would cut out XP support from our app, which is
-	//undesirable at this time. There is a function, DwmGetWindowAttribute(), provided in
-	//Windows Vista and up, which can be called to explicitly retrieve the true window
-	//dimensions, but of course, we have to target Vista as well in order to have this
-	//function exposed to us. As a workaround, we use LoadLibrary() and GetProcAddress()
-	//to dynamically call this function if it is present. If it is not present, we are
-	//most likely running on a pre-Vista version of Windows, in which case there is no
-	//hidden border.
+	//undesirable at this time. To work around this, we need to call the
+	//DwmGetWindowAttribute() function, which explicitly returns the true window
+	//dimensions.
 	if(hwnd != 0)
 	{
-		bool foundExtendedWindowSize = false;
 		RECT extendedWindowRect;
-//Note that we use preprocessor macros here to detect whether the function we're about to
-//call is already defined. This is to make sure that our code will still compile and work
-//as expected if our target Windows version is updated later on to a version which
-//includes this function. We expect the hidden borders to be all 0 in this case anyway,
-//but we'll check it just to be sure.
-#ifndef DWMWA_EXTENDED_FRAME_BOUNDS
-		//Enter a spin lock until we can acquire the mutex
-		while(InterlockedCompareExchangeAcquire(&mutex_GetHiddenBorderDimensions, 1, 0) != 0) {}
-
-		//Attempt to load the target assembly if it hasn't already been loaded
-		if(dllHandle_GetHiddenBorderDimensions == NULL)
-		{
-			dllHandle_GetHiddenBorderDimensions = LoadLibrary(L"dwmapi.dll");
-		}
-
-		//Attempt to call the function in the target assembly
-		if(dllHandle_GetHiddenBorderDimensions != NULL)
-		{
-			//Attempt to bind to the target function if it hasn't already been bound
-			if(DwmGetWindowAttribute_GetHiddenBorderDimensions == 0)
-			{
-				DwmGetWindowAttribute_GetHiddenBorderDimensions = (HRESULT (*)(HWND, DWORD, PVOID, DWORD))GetProcAddress(dllHandle_GetHiddenBorderDimensions, "DwmGetWindowAttribute");
-			}
-
-			//Attempt to call the target function
-			if(DwmGetWindowAttribute_GetHiddenBorderDimensions != 0)
-			{
-				const DWORD DWMWA_EXTENDED_FRAME_BOUNDS = 9;
-				HRESULT (*DwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD) = DwmGetWindowAttribute_GetHiddenBorderDimensions;
-#endif
-				HRESULT dwmGetWindowAttributeResult;
-				dwmGetWindowAttributeResult = DwmGetWindowAttribute(hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, (LPVOID)&extendedWindowRect, sizeof(extendedWindowRect));
-				if(dwmGetWindowAttributeResult == S_OK)
-				{
-					foundExtendedWindowSize = true;
-				}
-#ifndef DWMWA_EXTENDED_FRAME_BOUNDS
-			}
-		}
-
-		//Release the mutex
-		InterlockedCompareExchangeRelease(&mutex_GetHiddenBorderDimensions, 0, 1);
-#endif
-
-		if(foundExtendedWindowSize)
+		HRESULT dwmGetWindowAttributeResult = DwmGetWindowAttribute(hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, (LPVOID)&extendedWindowRect, sizeof(extendedWindowRect));
+		if(dwmGetWindowAttributeResult == S_OK)
 		{
 			RECT windowRect;
 			if(GetWindowRect(hwnd, &windowRect) != 0)

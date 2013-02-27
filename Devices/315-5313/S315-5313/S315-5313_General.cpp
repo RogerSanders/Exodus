@@ -225,42 +225,24 @@ void S315_5313::Initialize()
 		clockSourceCLK1->TransparentSetClockDivider((double)initialClockDividerCLK1);
 	}
 
-	//Note that further testing has also shown that the VRAM is NOT initialized to all 0.
-	//It appears the VRAM is initialized with a logical, repeating pattern, but further
-	//tests must be carried out to determine what this pattern is. I would suggest reading
-	//the entire contents of VRAM, CRAM, and VSRAM back into RAM for analysis.
-	//##TODO## Confirm the default pattern for the VRAM
+	//Note that hardware tests have shown that the VRAM is NOT initialized to all 0. From
+	//a cold boot on a non-TMSS system, the VRAM appears as though it has been initialized
+	//with the pattern generated in the code below.
 	if(vram != 0)
 	{
 		vram->Initialize();
-		for(unsigned int i = 0; i < vramSize; i += 2)
+		static unsigned char vramInitialData[] = {0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00};
+		for(unsigned int i = 0; i < vramSize; ++i)
 		{
-			//##FIX## This is just a random value, not what the system actually has.
-			//Perform some hardware tests to determine an appropriate fill pattern for
-			//VRAM.
 			if(!vram->IsByteLocked(i))
 			{
-				vram->WriteLatest(i, 0xDE);
-			}
-			if(!vram->IsByteLocked(i+1))
-			{
-				vram->WriteLatest(i+1, 0xAD);
+				vram->WriteLatest(i, vramInitialData[i % 0x10]);
 			}
 		}
 	}
 
-	//The CRAM is initialized to 0x0EEE in all slots, except for the second entry in the
-	//second palette line, which is initialized to 0x0CEE. This means byte 0x22 in the
-	//CRAM is 0x0C instead of 0x0E.
-	//##TODO## Confirm the default pattern for the CRAM
-	//##TODO## Examine the joystick test program, which fails when we do this, but seems
-	//to work on the real hardware. It's possible that these initial memory patterns only
-	//apply when the target memory has not yet been written to, but that once a write is
-	//made, the memory is effectively cleared. Some uninitialized electrical pathway
-	//between the actual memory itself may be responsible for these readings. Perform
-	//hardware tests to confirm. Actually, upon consideration, we've only tested the
-	//joystick test program using the EverDrive. We need to test with the Tototek flash
-	//cart on a non-TMSS system to observe the correct behaviour.
+	//The CRAM is initialized to 0x0EEE in all slots. Note that sometimes random bits can
+	//end up set to 0, but the general pattern is all bits set.
 	if(cram != 0)
 	{
 		cram->Initialize();
@@ -275,19 +257,10 @@ void S315_5313::Initialize()
 				cram->WriteLatest(i+1, 0xEE);
 			}
 		}
-		if(!cram->IsByteLocked(0x22))
-		{
-			cram->WriteLatest(0x22, 0x0C);
-		}
-		if(!cram->IsByteLocked(0x23))
-		{
-			cram->WriteLatest(0x23, 0xEE);
-		}
 	}
 
-	//The VSRAM is initialized to 0x07FF, except for the entry at 0x00, which is 0x07DF,
-	//and the entry at 0x22, which is 0x07FB.
-	//##TODO## Confirm the default pattern for the VSRAM
+	//The VSRAM is initialized to 0x07FF in all slots. Note that sometimes random bits can
+	//end up set to 0, but the general pattern is all bits set.
 	if(vsram != 0)
 	{
 		vsram->Initialize();
@@ -377,7 +350,7 @@ void S315_5313::Initialize()
 	dmaTransferInvalidPortWriteCached = false;
 	dmaAdvanceUntilDMAComplete = false;
 	busGranted = false;
-	palModeLineState = true;
+	palModeLineState = false;
 	lineStateIPL = 0;
 	busRequestLineState = false;
 
@@ -421,22 +394,52 @@ void S315_5313::Reset()
 	//behaviour, as they use the hcounter as a random seed. Examples given include "X-Men
 	//2 Clone Wars" for character assignment, and Eternal Champions and Bonkers for the
 	//Sega logo.
-	hcounter = 0;
-	vcounter = 0;
-	hvCounterLatched = false;
+	//##NOTE## Subsequent hardware tests have shown this is actually not the case. We were
+	//never able to identify a single case, after repeated testing, in which the system
+	//could be made to appear to have started with a random HV counter location, when
+	//testing from the raw tototek flashcart on a non-TMSS Mega Drive. We tested with
+	//Bonkers, and in all cases, we got a Sega screen which showed explosions with the
+	//Sega logo then flashing into existence. When testing on a TMSS system, we always saw
+	//the Sega logo appear surrounded by flashing stars. Neither of these match the
+	//current behaviour of our emulator. We therefore have to perform tests to determine
+	//the exact value our HV counter should be initialized to on a cold boot. This is
+	//complicated by the fact that on a cold boot, there may be some hidden initialization
+	//time or analog system artifacts which affect the exact time at which the VDP and
+	//M68000 start executing relative to each other. We need to test until we get the
+	//correct behaviour.
+	//##NOTE## After hardware tests, here are the values we read for our initial HV
+	//counter values: (first read of 0x8400 in mode 4)
+	//0x8430, 0x8437, 0x843F, 0x8446, 0x844D, 0x8455, 0x845C, 0x8463, 0x846B, 0x8472,
+	//0x8479, 0x8481, 0x8588, ...
+	//##NOTE## Hardware tests using a logic analyzer have shown the VDP always starts from
+	//the beginning of HSYNC and VSYNC on a cold boot. The M68000 however powers up after
+	//the VDP. By the time the M68000 stars using the external bus, the VDP has already
+	//rendered over half of the first frame. This fits with our hardware tests, which show
+	//the first value read by the M68000 from the VDP VCounter is 0x84. Emulating this
+	//accurately is going to require us to introduce a power-on initialization delay into
+	//the M68000 execution sequence, which is returned in the execution time for the first
+	//execution step of the processor. The execution delay between the VDP and the M68000
+	//is measured to be approximately 13 milliseconds with a logic analyzer.
+	const HScanSettings& hscanSettings = GetHScanSettings(false, false);
+	const VScanSettings& vscanSettings = GetVScanSettings(false, false, false);
+	hcounter = hscanSettings.hsyncAsserted;
+	vcounter = vscanSettings.vsyncAssertedPoint;
+
 	hintCounter = 0;
 	vintPending = false;
 	hintPending = false;
 	exintPending = false;
 
-	//Cached register settings
-	hvCounterLatchEnabled = false;
+	//Active register settings
 	interlaceEnabled = false;
 	interlaceDouble = false;
 	screenModeRS0 = false;
 	screenModeRS1 = false;
 	screenModeV30 = false;
-	palMode = true;
+	palMode = false;
+
+	//Cached register settings
+	hvCounterLatchEnabled = false;
 	vintEnabled = false;
 	hintEnabled = false;
 	exintEnabled = false;
@@ -461,9 +464,9 @@ void S315_5313::Reset()
 	cachedDMASettingsChanged = false;
 
 	//Digital render data buffers
-	renderDigitalHCounterPos = 0;
-	renderDigitalVCounterPos = 0;
-	renderDigitalVCounterPosPreviousLine = 0x1FF;
+	renderDigitalHCounterPos = hcounter.GetData();
+	renderDigitalVCounterPos = vcounter.GetData();
+	renderDigitalVCounterPosPreviousLine = (vcounter.GetData() - 1) & vcounter.GetBitMask();
 	renderDigitalRemainingMclkCycles = 0;
 	renderDigitalScreenModeRS0Active = false;
 	renderDigitalScreenModeRS1Active = false;
@@ -1111,7 +1114,6 @@ void S315_5313::ExecuteRollback()
 	vcounter = bvcounter;
 	hcounterLatchedData = bhcounterLatchedData;
 	vcounterLatchedData = bvcounterLatchedData;
-	hvCounterLatched = bhvCounterLatched;
 	hintCounter = bhintCounter;
 	vintPending = bvintPending;
 	hintPending = bhintPending;
@@ -1121,14 +1123,16 @@ void S315_5313::ExecuteRollback()
 	dmaFillOperationRunning = bdmaFillOperationRunning;
 	vsramLastRenderReadCache = bvsramLastRenderReadCache;
 
-	//Cached register settings
-	hvCounterLatched = bhvCounterLatchEnabled;
+	//Active register settings
 	interlaceEnabled = binterlaceEnabled;
 	interlaceDouble = binterlaceDouble;
 	screenModeRS0 = bscreenModeRS0;
 	screenModeRS1 = bscreenModeRS1;
 	screenModeV30 = bscreenModeV30;
 	palMode = bpalMode;
+
+	//Cached register settings
+	hvCounterLatchEnabled = bhvCounterLatchEnabled;
 	vintEnabled = bvintEnabled;
 	hintEnabled = bhintEnabled;
 	exintEnabled = bexintEnabled;
@@ -1305,7 +1309,6 @@ void S315_5313::ExecuteCommit()
 	bvcounter = vcounter;
 	bhcounterLatchedData = hcounterLatchedData;
 	bvcounterLatchedData = vcounterLatchedData;
-	bhvCounterLatched = hvCounterLatched;
 	bhintCounter = hintCounter;
 	bvintPending = vintPending;
 	bhintPending = hintPending;
@@ -1315,14 +1318,16 @@ void S315_5313::ExecuteCommit()
 	bdmaFillOperationRunning = dmaFillOperationRunning;
 	bvsramLastRenderReadCache = vsramLastRenderReadCache;
 
-	//Cached register settings
-	bhvCounterLatched = hvCounterLatchEnabled;
+	//Active register settings
 	binterlaceEnabled = interlaceEnabled;
 	binterlaceDouble = interlaceDouble;
 	bscreenModeRS0 = screenModeRS0;
 	bscreenModeRS1 = screenModeRS1;
 	bscreenModeV30 = screenModeV30;
 	bpalMode = palMode;
+
+	//Cached register settings
+	bhvCounterLatchEnabled = hvCounterLatchEnabled;
 	bvintEnabled = vintEnabled;
 	bhintEnabled = hintEnabled;
 	bexintEnabled = exintEnabled;
@@ -2261,33 +2266,14 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 			//external interrupt.
 			exintPending = true;
 
-			//Latch the current hcounter and vcounter settings, if HV counter latching has
-			//been enabled.
-			//##TODO## Determine when the hvCounterLatched bit should be cleared. Is it
-			//cleared after the HV counter is read?
+			//Latch the current hcounter and vcounter settings. Note that if HV counter
+			//latching is not enabled, this data won't ever be used, as the current state
+			//of the HV counter is latched when HV counter latching is enabled.
 			//##TODO## Confirm what happens with the latched HV data when the interlace
 			//mode changes. Is it the internal value of the hcounter which is latched, or
 			//the external value?
-			//##TODO## Read the info from Eke at http://gendev.spritesmind.net/forum/viewtopic.php?t=787
-			//It says that setting the HV counter latch bit will always cause the HV
-			//counter to return a static value. It will be initialized to an unknown
-			//default value, and will be updated when HL is asserted. Confirm whether
-			//toggling HV counter latch from disabled to enabled latches the current
-			//counter value at the time it is enabled. Also confirm whether latching a
-			//value, disabling latching, then re-enabling latching returns the same
-			//previously latched value.
-			//##TODO## Confirm whether the VDP always latches the HV counter when the HL
-			//input line is asserted, but that value is only reported when the latch
-			//enable bit is set. Try triggering a HL latch for a known value when HV
-			//counter latch is disabled, then enable the HV counter latch, and see if the
-			//initial latch value is the same as the masked time when the HL trigger
-			//occurred.
-			if(hvCounterLatchEnabled)
-			{
-				hvCounterLatched = true;
-				hcounterLatchedData = hcounter.GetData();
-				vcounterLatchedData = vcounter.GetData();
-			}
+			hcounterLatchedData = hcounter.GetData();
+			vcounterLatchedData = vcounter.GetData();
 		}
 
 		//If we're passing the point at which the hint counter is advanced, advance the
@@ -3218,7 +3204,7 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 			Image lineImage(lineWidth, 1, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
 			for(unsigned int xpos = 0; xpos < lineWidth; ++xpos)
 			{
-				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&imageBuffer[drawingImageBufferPlane][((xpos * lineWidth) + ypos) * 4]);
+				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&imageBuffer[drawingImageBufferPlane][((ypos * imageBufferWidth) + xpos) * 4]);
 				lineImage.WritePixelData(xpos, ypos, 0, imageBufferEntry.r);
 				lineImage.WritePixelData(xpos, ypos, 1, imageBufferEntry.g);
 				lineImage.WritePixelData(xpos, ypos, 2, imageBufferEntry.b);
@@ -3241,7 +3227,7 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 		{
 			for(unsigned int xpos = 0; xpos < imageWidth; ++xpos)
 			{
-				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&imageBuffer[drawingImageBufferPlane][((xpos * imageWidth) + ypos) * 4]);
+				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&imageBuffer[drawingImageBufferPlane][((ypos * imageBufferWidth) + xpos) * 4]);
 				targetImage.WritePixelData(xpos, ypos, 0, imageBufferEntry.r);
 				targetImage.WritePixelData(xpos, ypos, 1, imageBufferEntry.g);
 				targetImage.WritePixelData(xpos, ypos, 2, imageBufferEntry.b);
@@ -3288,12 +3274,11 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 				else if(registerName == L"VCounter")			vcounter = (*i)->ExtractHexData<unsigned int>();
 				else if(registerName == L"HCounterLatchedData")	hcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
 				else if(registerName == L"VCounterLatchedData")	vcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"HVCounterLatched")	hvCounterLatched = (*i)->ExtractData<bool>();
 				else if(registerName == L"HIntCounter")			hintCounter = (*i)->ExtractHexData<unsigned int>();
 				else if(registerName == L"VIntPending")			vintPending = (*i)->ExtractData<bool>();
 				else if(registerName == L"HIntPending")			hintPending = (*i)->ExtractData<bool>();
 				else if(registerName == L"EXIntPending")		exintPending = (*i)->ExtractData<bool>();
-				//Cached register settings
+				//Active register settings
 				else if(registerName == L"InterlaceEnabled")	interlaceEnabled = (*i)->ExtractData<bool>();
 				else if(registerName == L"InterlaceDouble")		interlaceDouble = (*i)->ExtractData<bool>();
 				else if(registerName == L"ScreenModeRS0")		screenModeRS0 = (*i)->ExtractData<bool>();
@@ -3510,12 +3495,11 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChildHex(L"Register", vcounter.GetData(), vcounter.GetHexCharCount()).CreateAttribute(L"name", L"VCounter");
 	node.CreateChildHex(L"Register", hcounterLatchedData.GetData(), hcounterLatchedData.GetHexCharCount()).CreateAttribute(L"name", L"HCounterLatchedData");
 	node.CreateChildHex(L"Register", vcounterLatchedData.GetData(), vcounterLatchedData.GetHexCharCount()).CreateAttribute(L"name", L"VCounterLatchedData");
-	node.CreateChild(L"Register", hvCounterLatched).CreateAttribute(L"name", L"HVCounterLatched");
 	node.CreateChildHex(L"Register", hintCounter, 2).CreateAttribute(L"name", L"HIntCounter");
 	node.CreateChild(L"Register", vintPending).CreateAttribute(L"name", L"VIntPending");
 	node.CreateChild(L"Register", hintPending).CreateAttribute(L"name", L"HIntPending");
 	node.CreateChild(L"Register", exintPending).CreateAttribute(L"name", L"EXIntPending");
-	//Cached register settings
+	//Active register settings
 	node.CreateChild(L"Register", interlaceEnabled).CreateAttribute(L"name", L"InterlaceEnabled");
 	node.CreateChild(L"Register", interlaceDouble).CreateAttribute(L"name", L"InterlaceDouble");
 	node.CreateChild(L"Register", screenModeRS0).CreateAttribute(L"name", L"ScreenModeRS0");

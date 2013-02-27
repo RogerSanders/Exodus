@@ -33,6 +33,7 @@ private:
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_PARENTNOTIFY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_PAINT(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -49,6 +50,8 @@ private:
 
 	//Disassembly functions
 	void UpdateDisassembly();
+	void ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool toggleEnableState);
+	void ToggleBreakpointStateAtAddress(unsigned int pcLocation, bool toggleEnableState);
 
 private:
 	Processor* device;

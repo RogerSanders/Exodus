@@ -148,6 +148,9 @@ public:
 	unsigned int GetPCCharWidth() const;
 	unsigned int GetAddressBusCharWidth() const;
 	unsigned int GetDataBusCharWidth() const;
+	unsigned int GetPCMask() const;
+	unsigned int GetAddressBusMask() const;
+	unsigned int GetDataBusMask() const;
 
 	//Breakpoint functions
 	void CheckExecution(unsigned int location) const;

@@ -11,7 +11,7 @@ public:
 	SystemOptionMenuHandler(System* adevice);
 
 	//System setting functions
-	unsigned int AddSystemSettingMenuItem(unsigned int moduleID, std::wstring settingName, unsigned int settingOptionNo);
+	unsigned int AddSystemSettingMenuItem(unsigned int settingID, unsigned int settingOptionNo);
 
 	//Menu item handler functions
 	virtual void HandleMenuItemSelect(int menuItemID, IViewModelLauncher& aviewModelLauncher);
@@ -20,8 +20,7 @@ private:
 	//Structures
 	struct SettingMenuEntry
 	{
-		unsigned int moduleID;
-		std::wstring settingName;
+		unsigned int settingID;
 		unsigned int optionID;
 	};
 

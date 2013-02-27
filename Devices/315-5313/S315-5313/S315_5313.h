@@ -592,8 +592,6 @@ private:
 	Data bhcounterLatchedData;
 	Data vcounterLatchedData;
 	Data bvcounterLatchedData;
-	bool hvCounterLatched;
-	bool bhvCounterLatched;
 	unsigned int hintCounter;
 	unsigned int bhintCounter;
 	bool vintPending;
@@ -603,9 +601,7 @@ private:
 	bool exintPending;
 	bool bexintPending;
 
-	//Cached register settings
-	bool hvCounterLatchEnabled;
-	bool bhvCounterLatchEnabled;
+	//Active register settings
 	bool interlaceEnabled;
 	bool binterlaceEnabled;
 	bool interlaceDouble;
@@ -618,6 +614,10 @@ private:
 	bool bscreenModeV30;
 	bool palMode;
 	bool bpalMode;
+
+	//Cached register settings
+	bool hvCounterLatchEnabled;
+	bool bhvCounterLatchEnabled;
 	bool vintEnabled;
 	bool bvintEnabled;
 	bool hintEnabled;
@@ -865,6 +865,7 @@ private:
 	unsigned int drawingImageBufferPlane;
 	volatile bool frameReadyInImageBuffer;
 	unsigned char imageBuffer[imageBufferPlanes][imageBufferHeight * imageBufferWidth * 4];
+	bool imageBufferOddInterlaceFrame[imageBufferPlanes];
 	unsigned int imageBufferLineCount[imageBufferPlanes];
 	unsigned int imageBufferLineWidth[imageBufferPlanes][imageBufferHeight];
 	unsigned int imageBufferActiveScanPosXStart[imageBufferPlanes][imageBufferHeight];

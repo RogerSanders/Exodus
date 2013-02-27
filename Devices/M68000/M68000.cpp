@@ -241,19 +241,29 @@ bool M68000::ValidateDevice()
 //----------------------------------------------------------------------------------------
 void M68000::Initialize()
 {
+	//Note that hardware tests have shown that all registers are not initialized to 0 when
+	//the processor is first powered on. In fact, it would appear that most likely all
+	//that is initialized is what is initialized by a normal reset operation, namely, PC,
+	//SSP, and SR. We know that the data registers and address registers 0-6 are
+	//uninitialized, and contain values that are similar to 0xFFFFFFFF, but the precise
+	//bit values change on each boot attempt, usually with one or more bits in most
+	//registers reading as 0 instead of 1. We set all registers explicitly to 0xFFFFFFFF
+	//here, and allow the reset process to correctly initialize the registers that are set
+	//by that operation.
 	for(int i = 0; i < (addressRegCount - 1); ++i)
 	{
-		a[i] = 0;
+		a[i] = 0xFFFFFFFF;
 	}
 	for(int i = 0; i < dataRegCount; ++i)
 	{
-		d[i] = 0;
+		d[i] = 0xFFFFFFFF;
 	}
-	pc = 0;
-	sr = 0;
-	ssp = 0;
-	usp = 0;
+	sr = 0xFFFF;
+	pc = 0xFFFFFFFF;
+	ssp = 0xFFFFFFFF;
+	usp = 0xFFFFFFFF;
 	wordIsPrefetched = false;
+	powerOnDelayPending = true;
 
 	//Abandon currently pending interrupts, and restore normal processor state
 	interruptPendingLevel = 0;
@@ -836,7 +846,27 @@ double M68000::ExecuteStep()
 			}
 			cyclesExecuted = ProcessException(group0Vector).cycles;
 
-			//If we've triggered a double bus fault, enter the halted state
+			//Hardware tests on the Mega Drive have shown that the M68000 takes awhile to
+			//initialize itself and begin executing instructions after a cold boot. We
+			//have measured the approximate number of cycles for this case, and add it to
+			//the exception execution time below.
+			//##FIX## Mesure this to the exact cycle
+			//##TODO## It's possible that the bus arbiter actually just holds the M68000
+			//in a reset state for a period of time, and that's why this delay exists.
+			//Perform hardware tests to determine if this is the case.
+			//##FIX## We should actually add in this delay time on the very first step
+			//after initialization, not on the first exception. It's quite possible for
+			//the device to power up without bus ownership or in the reset state, in which
+			//case, this delay time should still be added to the first execution step, not
+			//the first exception that is processed.
+			if(powerOnDelayPending)
+			{
+				static const unsigned int powerOnInitializationTime = 104167;
+				cyclesExecuted += powerOnInitializationTime;
+				powerOnDelayPending = false;
+			}
+
+			//If we've triggered a double bus fault, enter the halted state.
 			if(group0ExceptionPending && (group0Vector != EX_RESET))
 			{
 				group0ExceptionPending = false;
@@ -846,7 +876,7 @@ double M68000::ExecuteStep()
 		}
 	}
 
-	//If we're in a halted state, terminate instruction processing
+	//If we're in a halted state, terminate instruction processing.
 	if(processorState == STATE_HALTED)
 	{
 		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
@@ -935,10 +965,10 @@ double M68000::ExecuteStep()
 		}
 	}
 
-	//If the processor isn't stopped, fetch the next opcode
+	//If the processor isn't stopped, fetch the next opcode.
 	if(processorState != STATE_STOPPED)
 	{
-		//Update the trace log, and test for breakpoints
+		//Update the trace log, and test for breakpoints.
 		RecordTrace(GetPC().GetData());
 		CheckExecution(GetPC().GetData());
 
@@ -1048,8 +1078,9 @@ void M68000::ExecuteRollback()
 	processorState = bprocessorState;
 	lastReadBusData = blastReadBusData;
 	wordIsPrefetched = bwordIsPrecached;
-	prefetchedWord = bprecachedWord;
-	prefetchedWordAddress = bprecachedWordAddress;
+	prefetchedWord = bprefetchedWord;
+	prefetchedWordAddress = bprefetchedWordAddress;
+	powerOnDelayPending = bpowerOnDelayPending;
 
 	for(unsigned int i = 0; i < addressRegCount - 1; ++i)
 	{
@@ -1103,8 +1134,9 @@ void M68000::ExecuteCommit()
 	bprocessorState = processorState;
 	blastReadBusData = lastReadBusData;
 	bwordIsPrecached = wordIsPrefetched;
-	bprecachedWord = prefetchedWord;
-	bprecachedWordAddress = prefetchedWordAddress;
+	bprefetchedWord = prefetchedWord;
+	bprefetchedWordAddress = prefetchedWordAddress;
+	bpowerOnDelayPending = powerOnDelayPending;
 
 	for(unsigned int i = 0; i < addressRegCount - 1; ++i)
 	{
@@ -2304,6 +2336,7 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 				else if(registerName == L"WordIsPrefetched")	wordIsPrefetched = (*i)->ExtractData<bool>();
 				else if(registerName == L"PrefetchedWord")	prefetchedWord = (*i)->ExtractHexData<unsigned int>();
 				else if(registerName == L"PrefetchedWordAddress")	prefetchedWordAddress = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"PowerOnDelayPending")	powerOnDelayPending = (*i)->ExtractData<bool>();
 
 				else if(registerName == L"Group0ExceptionPending")	group0ExceptionPending = (*i)->ExtractData<bool>();
 				else if(registerName == L"Group0InstructionRegister")	group0InstructionRegister = (*i)->ExtractHexData<unsigned int>();
@@ -2426,6 +2459,7 @@ void M68000::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Register", wordIsPrefetched).CreateAttribute(L"name", L"WordIsPrefetched");
 	node.CreateChildHex(L"Register", prefetchedWord.GetData(), prefetchedWord.GetHexCharCount()).CreateAttribute(L"name", L"PrefetchedWord");
 	node.CreateChildHex(L"Register", prefetchedWordAddress.GetData(), prefetchedWordAddress.GetHexCharCount()).CreateAttribute(L"name", L"PrefetchedWordAddress");
+	node.CreateChild(L"Register", powerOnDelayPending).CreateAttribute(L"name", L"PowerOnDelayPending");
 
 	node.CreateChild(L"Register", group0ExceptionPending).CreateAttribute(L"name", L"Group0ExceptionPending");
 	node.CreateChildHex(L"Register", group0InstructionRegister.GetData(), group0InstructionRegister.GetHexCharCount()).CreateAttribute(L"name", L"Group0InstructionRegister");

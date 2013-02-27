@@ -18,9 +18,11 @@ public:
 
 	//Reference functions
 	virtual bool AddReference(const wchar_t* referenceName, IDevice* target);
+	virtual bool AddReference(const wchar_t* referenceName, IExtension* target);
 	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
 	virtual bool AddReference(const wchar_t* referenceName, IClockSource* target);
 	virtual bool RemoveReference(IDevice* target);
+	virtual bool RemoveReference(IExtension* target);
 	virtual bool RemoveReference(IBusInterface* target);
 	virtual bool RemoveReference(IClockSource* target);
 

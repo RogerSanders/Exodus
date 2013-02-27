@@ -39,7 +39,7 @@ the slots.
 #define __EXODUSINTERFACE_H__
 #include <WindowFunctions/WindowFunctions.pkg>
 #include "SystemInterface/SystemInterface.pkg"
-#include "System.h"
+#include "ISystemExternal.h"
 #include "Image/Image.pkg"
 #include "ThreadLib/ThreadLib.pkg"
 #include "IViewModelManager.h"
@@ -51,7 +51,9 @@ the slots.
 #include <boost/thread/condition.hpp>
 #include "MenuSubmenu.h"
 
-class ExodusInterface :public IViewModelManager
+//##TODO## Implement a base interface which can be used by extensions
+//##TODO## 
+class ExodusInterface :public IViewModelManager, public IGUIExtensionInterface
 {
 public:
 	//Constructors
@@ -61,11 +63,14 @@ public:
 	HWND CreateMainInterface(HINSTANCE hinstance);
 	bool InitializeSystem();
 
+	//Main window functions
+	virtual void* GetMainWindowHandle() const;
+
 	//Savestate functions
 	void LoadState(const std::wstring& folder, bool debuggerState);
-	void LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType, bool debuggerState);
+	void LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, ISystemExternal::FileType fileType, bool debuggerState);
 	void SaveState(const std::wstring& folder, bool debuggerState);
-	void SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType, bool debuggerState);
+	void SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, ISystemExternal::FileType fileType, bool debuggerState);
 
 	//Savestate quick-select popup functions
 	void QuickLoadState(bool debuggerState);
@@ -85,13 +90,15 @@ public:
 	bool LoadModuleFromFile(const std::wstring& fileDir, const std::wstring& fileName);
 	bool SaveSystem(const std::wstring& folder);
 	bool SaveSystemToFile(const std::wstring& fileDir, const std::wstring& fileName);
-	void UnloadModule(unsigned int moduleID);
-	void UnloadAllModules();
+	virtual void UnloadModule(unsigned int moduleID);
+	virtual void UnloadAllModules();
 
 	//Global preference functions
 	void LoadPrefs(const std::wstring& filePath);
 	void SavePrefs(const std::wstring& filePath);
 	void ResolvePrefs();
+	virtual bool GetGlobalPreferenceEnableThrottling() const;
+	virtual bool GetGlobalPreferenceRunWhenProgramModuleLoaded() const;
 
 	//Assembly functions
 	bool LoadAssembliesFromFolder(const std::wstring& folder);
@@ -107,6 +114,22 @@ public:
 	virtual void WaitUntilViewModelClosed(IViewModel* aviewModel);
 	virtual void NotifyModelViewClosed(IViewModel* aviewModel);
 
+protected:
+	//Module functions
+	virtual bool LoadModuleFromFileInternal(const wchar_t* fileDir, const wchar_t* fileName);
+
+	//Global preference functions
+	virtual const wchar_t* GetGlobalPreferencePathModulesInternal() const;
+	virtual const wchar_t* GetGlobalPreferencePathSavestatesInternal() const;
+	virtual const wchar_t* GetGlobalPreferencePathWorkspacesInternal() const;
+	virtual const wchar_t* GetGlobalPreferencePathCapturesInternal() const;
+	virtual const wchar_t* GetGlobalPreferencePathAssembliesInternal() const;
+	virtual const wchar_t* GetGlobalPreferenceInitialSystemInternal() const;
+	virtual const wchar_t* GetGlobalPreferenceInitialWorkspaceInternal() const;
+
+	//Assembly functions
+	virtual bool LoadAssemblyInternal(const wchar_t* filePath);
+
 private:
 	//Enumerations
 	enum ViewOperationType;
@@ -118,8 +141,6 @@ private:
 		std::wstring pathModulesRaw;
 		std::wstring pathSavestates;
 		std::wstring pathSavestatesRaw;
-		std::wstring pathDebugSessions;
-		std::wstring pathDebugSessionsRaw;
 		std::wstring pathWorkspaces;
 		std::wstring pathWorkspacesRaw;
 		std::wstring pathCaptures;
@@ -180,7 +201,8 @@ private:
 	void BuildActiveWindowList();
 
 	//Menu functions
-	bool BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IMenuItem& amenuItem, unsigned int& nextMenuID);
+	bool BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IMenuItem& amenuItem, unsigned int& nextMenuID, int& insertPos);
+	bool BuildFileMenu();
 	bool BuildSystemMenu();
 	bool BuildSettingsMenu();
 	bool BuildDebugMenu();
@@ -213,6 +235,8 @@ private:
 
 private:
 	ISystemExternal& system;
+	HMENU fileMenu;
+	int fileMenuNonDynamicMenuItemCount;
 	HMENU systemMenu;
 	int systemMenuFirstItemIndex;
 	HMENU settingsMenu;
@@ -220,6 +244,7 @@ private:
 	HMENU debugMenu;
 	int debugMenuFirstItemIndex;
 	HWND moduleManagerDialog;
+	MenuSubmenu* fileSubmenu;
 	MenuSubmenu* systemSubmenu;
 	MenuSubmenu* settingsSubmenu;
 	MenuSubmenu* debugSubmenu;

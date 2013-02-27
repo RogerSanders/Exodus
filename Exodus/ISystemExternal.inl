@@ -26,36 +26,6 @@ struct ISystemExternal::StateInfo
 };
 
 //----------------------------------------------------------------------------------------
-struct ISystemExternal::LoadedModuleInfo
-{
-	LoadedModuleInfo()
-	:systemModule(false), programModule(false)
-	{}
-
-	//Internal data
-	unsigned int moduleID;
-
-	//External information
-	std::wstring fileDir;
-	std::wstring fileName;
-
-	//Required metadata
-	bool systemModule;
-	bool programModule;
-	std::wstring systemClassName;
-	std::wstring className;
-	std::wstring instanceName;
-	std::wstring displayName;
-	//##TODO## Consider making this mandatory
-	//unsigned int versionNumber;
-
-	//Optional metadata
-	std::wstring productionYear;
-	std::wstring manufacturerCode;
-	std::wstring manufacturerDisplayName;
-};
-
-//----------------------------------------------------------------------------------------
 struct ISystemExternal::ModuleRelationship
 {
 	//Saved module info
@@ -101,24 +71,6 @@ struct ISystemExternal::SavedRelationshipModule
 struct ISystemExternal::ConnectorMapping
 {
 	unsigned int connectorID;
-	std::wstring importingModuleConnectorInstanceName;
-};
-
-//----------------------------------------------------------------------------------------
-struct ISystemExternal::ConnectorInfo
-{
-	//Internal data
-	unsigned int connectorID;
-
-	//Exporting module info
-	unsigned int exportingModuleID;
-	std::wstring connectorClassName;
-	std::wstring exportingModuleConnectorInstanceName;
-	std::wstring systemClassName;
-
-	//Importing module info
-	bool connectorUsed;
-	unsigned int importingModuleID;
 	std::wstring importingModuleConnectorInstanceName;
 };
 

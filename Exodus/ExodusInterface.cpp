@@ -17,6 +17,9 @@
 ExodusInterface::ExodusInterface(ISystemExternal& asystem)
 :system(asystem), moduleManagerDialog(NULL)
 {
+	//Provide a reference to the GUI extension interface for the system
+	system.BindToGUIExtensionInterface(this);
+
 	//Set the size of the savestate window cell array
 	cell.resize(cellCount);
 
@@ -24,6 +27,7 @@ ExodusInterface::ExodusInterface(ISystemExternal& asystem)
 	nextFreeMenuID = 1;
 
 	//Create our submenu objects
+	fileSubmenu = new MenuSubmenu(L"File");
 	systemSubmenu = new MenuSubmenu(L"System");
 	settingsSubmenu = new MenuSubmenu(L"System");
 	debugSubmenu = new MenuSubmenu(L"Debug");
@@ -59,6 +63,7 @@ ExodusInterface::ExodusInterface(ISystemExternal& asystem)
 ExodusInterface::~ExodusInterface()
 {
 	//delete our submenu objects
+	delete fileSubmenu;
 	delete systemSubmenu;
 	delete settingsSubmenu;
 	delete debugSubmenu;
@@ -116,6 +121,28 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	//Retrieve the handle for the menu
 	HMENU mainMenu = GetMenu(mainWindowHandle);
 	if(mainMenu == NULL)
+	{
+		return NULL;
+	}
+
+	//Obtain the location of the dynamic portion of the file menu
+	MENUITEMINFO fileMenuItemInfo;
+	fileMenuItemInfo.cbSize = sizeof(MENUITEMINFO);
+	fileMenuItemInfo.fMask = MIIM_SUBMENU;
+	BOOL getFileMenuItemInfoReturn = GetMenuItemInfo(mainMenu, 0, TRUE, &fileMenuItemInfo);
+	if(getFileMenuItemInfoReturn == 0)
+	{
+		return NULL;
+	}
+	if(fileMenuItemInfo.hSubMenu == NULL)
+	{
+		return NULL;
+	}
+	fileMenu = fileMenuItemInfo.hSubMenu;
+	fileMenuNonDynamicMenuItemCount = GetMenuItemCount(fileMenu)-1;
+
+	//Build the dynamic portion of the file menu
+	if(!BuildFileMenu())
 	{
 		return NULL;
 	}
@@ -317,6 +344,14 @@ bool ExodusInterface::InitializeSystem()
 }
 
 //----------------------------------------------------------------------------------------
+//Main window functions
+//----------------------------------------------------------------------------------------
+void* ExodusInterface::GetMainWindowHandle() const
+{
+	return mainWindowHandle;
+}
+
+//----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
 std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
@@ -328,14 +363,14 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 	std::list<unsigned int> loadedModuleIDs = system.GetLoadedModuleIDs();
 	for(std::list<unsigned int>::const_iterator i = loadedModuleIDs.begin(); i != loadedModuleIDs.end(); ++i)
 	{
-		ISystemExternal::LoadedModuleInfo moduleInfo;
+		LoadedModuleInfo moduleInfo;
 		if(system.GetLoadedModuleInfo(*i, moduleInfo))
 		{
-			std::wstring moduleIdentifierString = moduleInfo.systemClassName + L"." + moduleInfo.className + L"." + moduleInfo.instanceName;
+			std::wstring moduleIdentifierString = moduleInfo.GetSystemClassName() + L"." + moduleInfo.GetClassName() + L"." + moduleInfo.GetInstanceName();
 			moduleIdentifierStrings.push_back(moduleIdentifierString);
-			if(moduleInfo.programModule)
+			if(moduleInfo.GetIsProgramModule())
 			{
-				loadedProgramModuleInstanceNames.push_back(moduleInfo.instanceName);
+				loadedProgramModuleInstanceNames.push_back(moduleInfo.GetInstanceName());
 			}
 		}
 	}
@@ -345,29 +380,29 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 	std::list<unsigned int> connectorIDs = system.GetConnectorIDs();
 	for(std::list<unsigned int>::const_iterator i = connectorIDs.begin(); i != connectorIDs.end(); ++i)
 	{
-		ISystemExternal::ConnectorInfo connectorInfo;
+		ConnectorInfo connectorInfo;
 		if(system.GetConnectorInfo(*i, connectorInfo))
 		{
 			//If this connector is used, add information about the connector mapping to
 			//the list of connector mappings.
-			if(connectorInfo.connectorUsed)
+			if(connectorInfo.GetIsConnectorUsed())
 			{
 				//Load information on the module which exports this connector
-				ISystemExternal::LoadedModuleInfo exportingModuleInfo;
-				if(!system.GetLoadedModuleInfo(connectorInfo.exportingModuleID, exportingModuleInfo))
+				LoadedModuleInfo exportingModuleInfo;
+				if(!system.GetLoadedModuleInfo(connectorInfo.GetExportingModuleID(), exportingModuleInfo))
 				{
 					continue;
 				}
 
 				//Load information on the module which imports this connector
-				ISystemExternal::LoadedModuleInfo importingModuleInfo;
-				if(!system.GetLoadedModuleInfo(connectorInfo.importingModuleID, importingModuleInfo))
+				LoadedModuleInfo importingModuleInfo;
+				if(!system.GetLoadedModuleInfo(connectorInfo.GetImportingModuleID(), importingModuleInfo))
 				{
 					continue;
 				}
 
 				//Build a string describing the connector mapping
-				std::wstring connectorMappingString = L"(" + importingModuleInfo.systemClassName + L"." + importingModuleInfo.className + L"." + importingModuleInfo.instanceName + L"." + connectorInfo.importingModuleConnectorInstanceName + L"@" + exportingModuleInfo.systemClassName + L"." + exportingModuleInfo.className + L"." + exportingModuleInfo.instanceName + L"." + connectorInfo.exportingModuleConnectorInstanceName + L")";
+				std::wstring connectorMappingString = L"(" + importingModuleInfo.GetSystemClassName() + L"." + importingModuleInfo.GetClassName() + L"." + importingModuleInfo.GetInstanceName() + L"." + connectorInfo.GetImportingModuleConnectorInstanceName() + L"@" + exportingModuleInfo.GetSystemClassName() + L"." + exportingModuleInfo.GetClassName() + L"." + exportingModuleInfo.GetInstanceName() + L"." + connectorInfo.GetExportingModuleConnectorInstanceName() + L")";
 
 				//Add the connector mapping string to the list of connector mappings
 				connectorMappingStrings.push_back(connectorMappingString);
@@ -465,10 +500,10 @@ void ExodusInterface::LoadState(const std::wstring& folder, bool debuggerState)
 		std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
 		PathRemoveFileSpec(openFileParams.lpstrFile);
 		std::wstring fileDir = openFileParams.lpstrFile;
-		System::FileType fileType = System::FILETYPE_ZIP;
+		ISystemExternal::FileType fileType = ISystemExternal::FILETYPE_ZIP;
 		if(fileExt == L"xml")
 		{
-			fileType = System::FILETYPE_XML;
+			fileType = ISystemExternal::FILETYPE_XML;
 		}
 		LoadStateFromFile(fileDir, fileName, fileType, debuggerState);
 	}
@@ -480,7 +515,7 @@ void ExodusInterface::LoadState(const std::wstring& folder, bool debuggerState)
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType, bool debuggerState)
+void ExodusInterface::LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, ISystemExternal::FileType fileType, bool debuggerState)
 {
 	system.LoadState(fileDir, fileName, fileType, debuggerState);
 }
@@ -521,10 +556,10 @@ void ExodusInterface::SaveState(const std::wstring& folder, bool debuggerState)
 		std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
 		PathRemoveFileSpec(openFileParams.lpstrFile);
 		std::wstring fileDir = openFileParams.lpstrFile;
-		System::FileType fileType = System::FILETYPE_ZIP;
+		ISystemExternal::FileType fileType = ISystemExternal::FILETYPE_ZIP;
 		if(fileExt == L"xml")
 		{
-			fileType = System::FILETYPE_XML;
+			fileType = ISystemExternal::FILETYPE_XML;
 		}
 		SaveStateToFile(fileDir, fileName, fileType, debuggerState);
 	}
@@ -536,7 +571,7 @@ void ExodusInterface::SaveState(const std::wstring& folder, bool debuggerState)
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, System::FileType fileType, bool debuggerState)
+void ExodusInterface::SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, ISystemExternal::FileType fileType, bool debuggerState)
 {
 	system.SaveState(fileDir, fileName, fileType, debuggerState);
 }
@@ -556,7 +591,7 @@ void ExodusInterface::QuickLoadState(bool debuggerState)
 	{
 		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L".exs";
 	}
-	LoadStateFromFile(prefs.pathSavestates, fileName, System::FILETYPE_ZIP, debuggerState);
+	LoadStateFromFile(prefs.pathSavestates, fileName, ISystemExternal::FILETYPE_ZIP, debuggerState);
 }
 
 //----------------------------------------------------------------------------------------
@@ -572,7 +607,7 @@ void ExodusInterface::QuickSaveState(bool debuggerState)
 	{
 		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L".exs";
 	}
-	SaveStateToFile(prefs.pathSavestates, fileName, System::FILETYPE_ZIP, debuggerState);
+	SaveStateToFile(prefs.pathSavestates, fileName, ISystemExternal::FILETYPE_ZIP, debuggerState);
 	PostMessage(cell[selectedSaveCell].hwnd, WM_USER, 0, (LPARAM)this);
 }
 
@@ -674,7 +709,7 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
 	{
 		return false;
 	}
-	file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF16);
+	file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
 	file.ProcessByteOrderMark();
 
 	//Attempt to load an XML structure from the file
@@ -704,7 +739,7 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
 		//Iterate through each valid window entry in the file, and open matching windows
 		//with the specified properties. Z-Order is based on the order the windows are
 		//listed in the file.
-		System::ModuleRelationshipMap relationshipMap;
+		ISystemExternal::ModuleRelationshipMap relationshipMap;
 		std::list<WorkspaceViewEntryDetails> loadedWorkspaceViewInfo;
 		std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
 		for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
@@ -763,10 +798,10 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
 							unsigned int savedModuleID = moduleIDAttribute->ExtractValue<unsigned int>();
 
 							//Attempt to restore the view model state
-							System::ModuleRelationshipMap::const_iterator relationshipMapIterator = relationshipMap.find(savedModuleID);
+							ISystemExternal::ModuleRelationshipMap::const_iterator relationshipMapIterator = relationshipMap.find(savedModuleID);
 							if(relationshipMapIterator != relationshipMap.end())
 							{
-								const System::ModuleRelationship& moduleRelationship = relationshipMapIterator->second;
+								const ISystemExternal::ModuleRelationship& moduleRelationship = relationshipMapIterator->second;
 								if(moduleRelationship.foundMatch)
 								{
 									//If we found a matching loaded module for the saved
@@ -923,7 +958,7 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& fileName)
 	}
 
 	//Save the workspace XML tree to the target workspace file
-	Stream::File file(Stream::IStream::TEXTENCODING_UTF16);
+	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
 	if(!file.Open(fileName, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 	{
 		return false;
@@ -965,15 +1000,23 @@ bool ExodusInterface::LoadModule(const std::wstring& folder)
 		PathRemoveFileSpec(openFileParams.lpstrFile);
 		std::wstring fileDir = openFileParams.lpstrFile;
 		//##TODO## Implement file types for modules
-		System::FileType fileType = System::FILETYPE_ZIP;
+		ISystemExternal::FileType fileType = ISystemExternal::FILETYPE_ZIP;
 		if(fileExt == L"xml")
 		{
-			fileType = System::FILETYPE_XML;
+			fileType = ISystemExternal::FILETYPE_XML;
 		}
 		result = LoadModuleFromFile(fileDir, fileName);
 	}
 
 	return result;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::LoadModuleFromFileInternal(const wchar_t* fileDir, const wchar_t* fileName)
+{
+	std::wstring fileDirString = fileDir;
+	std::wstring fileNameString = fileName;
+	return LoadModuleFromFile(fileDirString, fileNameString);
 }
 
 //----------------------------------------------------------------------------------------
@@ -985,8 +1028,8 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 	viewEventProcessingPaused = true;
 
 	//Read the connector info for the module
-	System::ConnectorImportList connectorsImported;
-	System::ConnectorExportList connectorsExported;
+	ISystemExternal::ConnectorImportList connectorsImported;
+	ISystemExternal::ConnectorExportList connectorsExported;
 	std::wstring systemClassName;
 	if(!system.ReadModuleConnectorInfo(fileDir, fileName, systemClassName, connectorsImported, connectorsExported))
 	{
@@ -1002,21 +1045,21 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 	//Map all imported connectors to available connectors in the system
 	//##TODO## Cache this information in our module database when the modules are scanned,
 	//so that we only have to access the module definition file once for a module load.
-	System::ConnectorMappingList connectorMappings;
+	ISystemExternal::ConnectorMappingList connectorMappings;
 	std::list<unsigned int> loadedConnectorIDList = system.GetConnectorIDs();
-	for(System::ConnectorImportList::const_iterator i = connectorsImported.begin(); i != connectorsImported.end(); ++i)
+	for(ISystemExternal::ConnectorImportList::const_iterator i = connectorsImported.begin(); i != connectorsImported.end(); ++i)
 	{
 		//Build a list of all available, loaded connectors which match the desired type.
-		std::list<System::ConnectorInfo> availableConnectors;
+		std::list<ConnectorInfo> availableConnectors;
 		std::list<unsigned int>::const_iterator loadedConnectorID = loadedConnectorIDList.begin();
 		while(loadedConnectorID != loadedConnectorIDList.end())
 		{
-			System::ConnectorInfo connectorInfo;
+			ConnectorInfo connectorInfo;
 			if(system.GetConnectorInfo(*loadedConnectorID, connectorInfo))
 			{
 				//If this connector matches the connector type the module wants to import,
 				//and the connector is free, add it to the available connector list.
-				if(!connectorInfo.connectorUsed && (connectorInfo.systemClassName == systemClassName) && (i->className == connectorInfo.connectorClassName))
+				if(!connectorInfo.GetIsConnectorUsed() && (connectorInfo.GetSystemClassName() == systemClassName) && (i->className == connectorInfo.GetConnectorClassName()))
 				{
 					availableConnectors.push_back(connectorInfo);
 				}
@@ -1040,9 +1083,9 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 		if(availableConnectors.size() == 1)
 		{
 			//If only one connector was found that matches the required type, map it.
-			System::ConnectorInfo connector = *availableConnectors.begin();
-			System::ConnectorMapping connectorMapping;
-			connectorMapping.connectorID = connector.connectorID;
+			ConnectorInfo connector = *availableConnectors.begin();
+			ISystemExternal::ConnectorMapping connectorMapping;
+			connectorMapping.connectorID = connector.GetConnectorID();
 			connectorMapping.importingModuleConnectorInstanceName = i->instanceName;
 			connectorMappings.push_back(connectorMapping);
 		}
@@ -1070,8 +1113,8 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 			}
 
 			//Map the selected connector
-			System::ConnectorMapping connectorMapping;
-			connectorMapping.connectorID = mapConnectorDialogParams.selectedConnector.connectorID;
+			ISystemExternal::ConnectorMapping connectorMapping;
+			connectorMapping.connectorID = mapConnectorDialogParams.selectedConnector.GetConnectorID();
 			connectorMapping.importingModuleConnectorInstanceName = i->instanceName;
 			connectorMappings.push_back(connectorMapping);
 		}
@@ -1087,8 +1130,9 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 	bool moduleLoadSucceeded = (dialogBoxParamResult == 1);
 	if(moduleLoadSucceeded)
 	{
-		//Since the system loaded successfully, construct the settings and debug menus.
-		result = BuildSystemMenu();
+		//Since the system loaded successfully, construct our dynamic menus.
+		result = BuildFileMenu();
+		result &= BuildSystemMenu();
 		result &= BuildSettingsMenu();
 		result &= BuildDebugMenu();
 		if(!result)
@@ -1128,21 +1172,14 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 //----------------------------------------------------------------------------------------
 bool ExodusInterface::SaveSystem(const std::wstring& folder)
 {
-	//Pre-initialize the target filename with the name of the currently loaded ROM file
-	TCHAR fileName[MAX_PATH];
-	std::wstring savestateAutoFileNamePrefix = GetSavestateAutoFileNamePrefix();
-	for(unsigned int i = 0; i < savestateAutoFileNamePrefix.size(); ++i)
-	{
-		fileName[i] = savestateAutoFileNamePrefix[i];
-	}
-	fileName[savestateAutoFileNamePrefix.size()] = L'\0';
-
 	//Get filename
+	TCHAR fileName[MAX_PATH];
 	OPENFILENAME openFileParams;
 	ZeroMemory(&openFileParams, sizeof(openFileParams));
 	openFileParams.lStructSize = sizeof(openFileParams);
 	openFileParams.hwndOwner = mainWindowHandle;
 	openFileParams.lpstrFile = fileName;
+	openFileParams.lpstrFile[0] = '\0';
 	openFileParams.nMaxFile = sizeof(fileName);
 	openFileParams.lpstrFilter = L"Module Definitions (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
 	openFileParams.lpstrDefExt = L"xml";
@@ -1182,6 +1219,7 @@ void ExodusInterface::UnloadModule(unsigned int moduleID)
 	dialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), mainWindowHandle, UnloadModuleProc, (LPARAM)this);
 
 	//Initialize the menu
+	BuildFileMenu();
 	BuildSystemMenu();
 	BuildSettingsMenu();
 	BuildDebugMenu();
@@ -1206,6 +1244,7 @@ void ExodusInterface::UnloadAllModules()
 		dialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), mainWindowHandle, UnloadModuleProc, (LPARAM)this);
 
 		//Initialize the menu
+		BuildFileMenu();
 		BuildSystemMenu();
 		BuildSettingsMenu();
 		BuildDebugMenu();
@@ -1228,7 +1267,7 @@ void ExodusInterface::LoadPrefs(const std::wstring& filePath)
 	Stream::File file;
 	if(file.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
 	{
-		file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF16);
+		file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
 		file.ProcessByteOrderMark();
 		HeirarchicalStorageTree tree;
 		if(tree.LoadTree(file))
@@ -1302,7 +1341,7 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 	rootNode.CreateChild(L"EnableThrottling").SetData(prefs.enableThrottling);
 	rootNode.CreateChild(L"RunWhenProgramModuleLoaded").SetData(prefs.runWhenProgramModuleLoaded);
 
-	Stream::File file(Stream::IStream::TEXTENCODING_UTF16);
+	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
 	if(file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 	{
 		file.InsertByteOrderMark();
@@ -1366,6 +1405,60 @@ void ExodusInterface::ResolvePrefs()
 }
 
 //----------------------------------------------------------------------------------------
+const wchar_t* ExodusInterface::GetGlobalPreferencePathModulesInternal() const
+{
+	return prefs.pathModules.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ExodusInterface::GetGlobalPreferencePathSavestatesInternal() const
+{
+	return prefs.pathSavestates.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ExodusInterface::GetGlobalPreferencePathWorkspacesInternal() const
+{
+	return prefs.pathWorkspaces.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ExodusInterface::GetGlobalPreferencePathCapturesInternal() const
+{
+	return prefs.pathCaptures.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ExodusInterface::GetGlobalPreferencePathAssembliesInternal() const
+{
+	return prefs.pathAssemblies.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ExodusInterface::GetGlobalPreferenceInitialSystemInternal() const
+{
+	return prefs.loadSystem.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ExodusInterface::GetGlobalPreferenceInitialWorkspaceInternal() const
+{
+	return prefs.loadWorkspace.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::GetGlobalPreferenceEnableThrottling() const
+{
+	return prefs.enableThrottling;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::GetGlobalPreferenceRunWhenProgramModuleLoaded() const
+{
+	return prefs.runWhenProgramModuleLoaded;
+}
+
+//----------------------------------------------------------------------------------------
 //Assembly functions
 //----------------------------------------------------------------------------------------
 bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
@@ -1409,6 +1502,13 @@ bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 }
 
 //----------------------------------------------------------------------------------------
+bool ExodusInterface::LoadAssemblyInternal(const wchar_t* filePath)
+{
+	std::wstring filePathString = filePath;
+	return LoadAssembly(filePathString);
+}
+
+//----------------------------------------------------------------------------------------
 bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 {
 	//Attach the assembly to the process
@@ -1432,70 +1532,87 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 	{
 		//##DEBUG##
 		std::wcout << "Error loading assembly " << filePath << "!\n"
-			<< "This assembly doesn't appear to be a valid plugin!\n";
+		           << "This assembly doesn't appear to be a valid plugin!\n";
 		FreeLibrary(dllHandle);
 		return false;
 	}
 
 	//Validate the interface version of the assembly
-	if(GetInterfaceVersion() != EXODUS_INTERFACEVERSION)
+	if(GetInterfaceVersion() < EXODUS_INTERFACEVERSION)
 	{
 		//##DEBUG##
 		std::wcout << "Error loading assembly " << filePath << "!\n"
-			<< "This assembly has an interface version number of " << GetInterfaceVersion() << ". An interface\n"
-			<< "version of " << EXODUS_INTERFACEVERSION << " is required.\n";
+		           << "This assembly has an interface version number of " << GetInterfaceVersion() << ". A minimum interface\n"
+		           << "version of " << EXODUS_INTERFACEVERSION << " is required.\n";
 		FreeLibrary(dllHandle);
 		return false;
 	}
 
 	//Obtain pointers to all the interface functions for the assembly
-	bool (*GetLibraryEntry)(unsigned int entryNo, DeviceInfo& entry);
-	GetLibraryEntry = (bool (*)(unsigned int entryNo, DeviceInfo& entry))GetProcAddress(dllHandle, "GetLibraryEntry");
-	if(GetLibraryEntry == 0)
+	bool (*GetDeviceEntry)(unsigned int entryNo, IDeviceInfo& entry);
+	bool (*GetExtensionEntry)(unsigned int entryNo, IExtensionInfo& entry);
+	GetDeviceEntry = (bool (*)(unsigned int entryNo, IDeviceInfo& entry))GetProcAddress(dllHandle, "GetDeviceEntry");
+	GetExtensionEntry = (bool (*)(unsigned int entryNo, IExtensionInfo& entry))GetProcAddress(dllHandle, "GetExtensionEntry");
+	if((GetDeviceEntry == 0) && (GetExtensionEntry == 0))
 	{
 		//##DEBUG##
 		std::wcout << "Error loading assembly " << filePath << "!\n"
-			<< "The assembly appears to be a plugin, but is missing required exports!\n";
+		           << "The assembly appears to be a plugin, but is missing required exports!\n";
 		FreeLibrary(dllHandle);
 		return false;
 	}
 
-	//This check is no longer required now that our interfaces no longer pass stl objects
-	//between modules.
-	////Validate the STL version of the assembly
-	//if(GetSTLVersion() != EXODUS_STLVERSION)
-	//{
-	//	//##DEBUG##
-	//	std::wcout << "Error loading module " << filePath << "!\n"
-	//		<< "This assembly was compiled with STL version " << std::hex << std::uppercase << GetSTLVersion() << ". This assembly must use STL\n"
-	//		<< "version " << std::hex << std::uppercase << EXODUS_STLVERSION << " to be compatible. All assemblies and the emulator must share the\n"
-	//		<< "same STL version.\n";
-	//	FreeLibrary(dllHandle);
-	//	return false;
-	//}
-
 	//Register each device in the assembly
-	bool result = false;
-	unsigned int entryNo = 0;
-	DeviceInfo entry;
-	while(GetLibraryEntry(entryNo, entry))
+	bool result = true;
+	if(GetDeviceEntry != 0)
 	{
-		//##DEBUG##
-		std::wcout << L"Registering device \"" << entry.GetDeviceName() << "\"...";
+		unsigned int entryNo = 0;
+		DeviceInfo entry;
+		while(GetDeviceEntry(entryNo, entry))
+		{
+			//##DEBUG##
+			std::wcout << L"Registering device \"" << entry.GetDeviceName() << "\"...";
 
-		if(system.RegisterDevice(entry, (IDevice::AssemblyHandle)dllHandle))
-		{
-			result = true;
-			//##DEBUG##
-			std::wcout << L"Done.\n";
+			if(system.RegisterDevice(entry, (IDevice::AssemblyHandle)dllHandle))
+			{
+				//##DEBUG##
+				std::wcout << L"Done.\n";
+			}
+			else
+			{
+				//##DEBUG##
+				result = false;
+				std::wcout << L"Failed! Check system log.\n";
+			}
+			++entryNo;
 		}
-		else
-		{
-			//##DEBUG##
-			std::wcout << L"Failed! Check system log.\n";
-		}
-		++entryNo;
 	}
+
+	//Register each extension in the assembly
+	if(GetExtensionEntry != 0)
+	{
+		unsigned int entryNo = 0;
+		ExtensionInfo entry;
+		while(GetExtensionEntry(entryNo, entry))
+		{
+			//##DEBUG##
+			std::wcout << L"Registering extension \"" << entry.GetExtensionName() << "\"...";
+
+			if(system.RegisterExtension(entry, (IExtension::AssemblyHandle)dllHandle))
+			{
+				//##DEBUG##
+				std::wcout << L"Done.\n";
+			}
+			else
+			{
+				//##DEBUG##
+				result = false;
+				std::wcout << L"Failed! Check system log.\n";
+			}
+			++entryNo;
+		}
+	}
+
 	return result;
 }
 
@@ -1964,18 +2081,29 @@ void ExodusInterface::BuildActiveWindowList()
 //----------------------------------------------------------------------------------------
 //Menu functions
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IMenuItem& amenuItem, unsigned int& nextMenuID)
+bool ExodusInterface::BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IMenuItem& amenuItem, unsigned int& nextMenuID, int& insertPos)
 {
 	bool result = true;
 
 	if(amenuItem.GetType() == IMenuItem::TYPE_SEPARATOR)
 	{
 		IMenuSeparator& menuItem = *((IMenuSeparator*)(&amenuItem));
-		BOOL appendMenuReturn;
-		appendMenuReturn = AppendMenu(parentMenu, MF_SEPARATOR, 0, NULL);
-		if(appendMenuReturn == 0)
+		MENUITEMINFO menuItemInfo;
+		menuItemInfo.cbSize = sizeof(MENUITEMINFO);
+		menuItemInfo.fMask = MIIM_FTYPE;
+		menuItemInfo.fType = MF_SEPARATOR;
+		BOOL insertMenuItemReturn;
+		insertMenuItemReturn = InsertMenuItem(parentMenu, insertPos, TRUE, &menuItemInfo);
+		if(insertMenuItemReturn == 0)
 		{
 			result = false;
+		}
+		else
+		{
+			if(insertPos >= 0)
+			{
+				++insertPos;
+			}
 		}
 	}
 	else if(amenuItem.GetType() == IMenuItem::TYPE_SUBMENU)
@@ -1990,21 +2118,33 @@ bool ExodusInterface::BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IM
 			}
 			else
 			{
-				BOOL appendMenuReturn;
-				appendMenuReturn = AppendMenu(parentMenu, MF_POPUP | MF_STRING, (UINT_PTR)deviceMenu, menuItem.GetMenuName().c_str());
-				if(appendMenuReturn == 0)
+				std::wstring menuItemName = menuItem.GetMenuName();
+				MENUITEMINFO menuItemInfo;
+				menuItemInfo.cbSize = sizeof(MENUITEMINFO);
+				menuItemInfo.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_SUBMENU;
+				menuItemInfo.fType = MF_STRING;
+				menuItemInfo.hSubMenu = deviceMenu;
+				menuItemInfo.dwTypeData = &menuItemName[0];
+				BOOL insertMenuItemReturn;
+				insertMenuItemReturn = InsertMenuItem(parentMenu, insertPos, TRUE, &menuItemInfo);
+				if(insertMenuItemReturn == 0)
 				{
 					result = false;
 				}
 				else
 				{
+					if(insertPos >= 0)
+					{
+						++insertPos;
+					}
+					int childMenuItemInsertPos = -1;
 					std::list<IMenuSegment*> menuSegments = menuItem.GetMenuSegments();
 					for(std::list<IMenuSegment*>::iterator menuSegment = menuSegments.begin(); menuSegment != menuSegments.end(); ++menuSegment)
 					{
 						std::list<IMenuItem*> menuItems = (*menuSegment)->GetMenuItems();
 						for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 						{
-							result &= BuildMenuRecursive(parentWindow, deviceMenu, *(*i), nextMenuID);
+							result &= BuildMenuRecursive(parentWindow, deviceMenu, *(*i), nextMenuID, childMenuItemInsertPos);
 						}
 					}
 				}
@@ -2014,19 +2154,27 @@ bool ExodusInterface::BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IM
 	else if(amenuItem.GetType() == IMenuItem::TYPE_SELECTABLEOPTION)
 	{
 		MenuSelectableOption& menuItem = *((MenuSelectableOption*)(&amenuItem));
-		UINT menuFlags = MF_STRING;
-		if(menuItem.GetCheckedState())
-		{
-			menuFlags |= MF_CHECKED;
-		}
-		BOOL appendMenuReturn;
-		appendMenuReturn = AppendMenu(parentMenu, menuFlags, nextMenuID, menuItem.GetName().c_str());
-		if(appendMenuReturn == 0)
+		std::wstring menuItemName = menuItem.GetName();
+		MENUITEMINFO menuItemInfo;
+		menuItemInfo.cbSize = sizeof(MENUITEMINFO);
+		menuItemInfo.fMask = MIIM_FTYPE | MIIM_STATE | MIIM_ID | MIIM_STRING;
+		menuItemInfo.fType = MF_STRING;
+		menuItemInfo.fState = (menuItem.GetCheckedState()? MFS_CHECKED: 0);
+		menuItemInfo.wID = nextMenuID;
+		menuItemInfo.dwTypeData = &menuItemName[0];
+		BOOL insertMenuItemReturn;
+		insertMenuItemReturn = InsertMenuItem(parentMenu, insertPos, TRUE, &menuItemInfo);
+		if(insertMenuItemReturn == 0)
 		{
 			result = false;
 		}
 		else
 		{
+			if(insertPos >= 0)
+			{
+				++insertPos;
+			}
+
 			//Associate nextMenuID with this menu item
 			menuItem.SetPhysicalMenuHandle(parentMenu);
 			menuItem.SetPhysicalMenuItemID(nextMenuID);
@@ -2036,6 +2184,48 @@ bool ExodusInterface::BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IM
 		}
 	}
 
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::BuildFileMenu()
+{
+	bool result = true;
+
+	//Clear all existing dynamic items from the physical file menu
+	int menuItemCount = GetMenuItemCount(fileMenu);
+	int currentDyanmicMenuItemCount = menuItemCount - fileMenuNonDynamicMenuItemCount;
+	for(int i = 0; i < currentDyanmicMenuItemCount; ++i)
+	{
+		DeleteMenu(fileMenu, 0, MF_BYPOSITION);
+	}
+
+	//Clear all items from our file submenu structure
+	fileSubmenu->DeleteAllMenuSegments();
+
+	//Add menu items to the submenu
+	system.BuildFileOpenMenu(*fileSubmenu, *this);
+
+	//If at least one menu item is defined, add a separator to the end of the menu item
+	//list, to divide our dynamic menu items from the predefined menu items.
+	if(!fileSubmenu->NoMenuItemsExist())
+	{
+		fileSubmenu->CreateMenuSegment().AddMenuItemSeparator();
+	}
+
+	//Build the actual menu using the menu structure
+	int insertPos = 0;
+	std::list<IMenuSegment*> menuSegments = fileSubmenu->GetMenuSegments();
+	for(std::list<IMenuSegment*>::iterator menuSegment = menuSegments.begin(); menuSegment != menuSegments.end(); ++menuSegment)
+	{
+		std::list<IMenuItem*> menuItems = (*menuSegment)->GetMenuItems();
+		for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+		{
+			result &= BuildMenuRecursive(mainWindowHandle, fileMenu, *(*i), nextFreeMenuID, insertPos);
+		}
+	}
+
+	DrawMenuBar(mainWindowHandle);
 	return result;
 }
 
@@ -2052,20 +2242,21 @@ bool ExodusInterface::BuildSystemMenu()
 		DeleteMenu(systemMenu, menuItemIndex, MF_BYPOSITION);
 	}
 
-	//Clear all items from our debug submenu structure
+	//Clear all items from our submenu structure
 	systemSubmenu->DeleteAllMenuSegments();
 
-	//Add system menu items to the submenu
+	//Add menu items to the submenu
 	system.BuildSystemMenu(*systemSubmenu, *this);
 
 	//Build the actual menu using the menu structure
+	int insertPos = -1;
 	std::list<IMenuSegment*> menuSegments = systemSubmenu->GetMenuSegments();
 	for(std::list<IMenuSegment*>::iterator menuSegment = menuSegments.begin(); menuSegment != menuSegments.end(); ++menuSegment)
 	{
 		std::list<IMenuItem*> menuItems = (*menuSegment)->GetMenuItems();
 		for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 		{
-			result &= BuildMenuRecursive(mainWindowHandle, systemMenu, *(*i), nextFreeMenuID);
+			result &= BuildMenuRecursive(mainWindowHandle, systemMenu, *(*i), nextFreeMenuID, insertPos);
 		}
 	}
 
@@ -2086,20 +2277,21 @@ bool ExodusInterface::BuildSettingsMenu()
 		DeleteMenu(settingsMenu, menuItemIndex, MF_BYPOSITION);
 	}
 
-	//Clear all items from our debug submenu structure
+	//Clear all items from our submenu structure
 	settingsSubmenu->DeleteAllMenuSegments();
 
-	//Add settings menu items to the submenu
+	//Add menu items to the submenu
 	system.BuildSettingsMenu(*settingsSubmenu, *this);
 
 	//Build the actual menu using the menu structure
+	int insertPos = -1;
 	std::list<IMenuSegment*> menuSegments = settingsSubmenu->GetMenuSegments();
 	for(std::list<IMenuSegment*>::iterator menuSegment = menuSegments.begin(); menuSegment != menuSegments.end(); ++menuSegment)
 	{
 		std::list<IMenuItem*> menuItems = (*menuSegment)->GetMenuItems();
 		for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 		{
-			result &= BuildMenuRecursive(mainWindowHandle, settingsMenu, *(*i), nextFreeMenuID);
+			result &= BuildMenuRecursive(mainWindowHandle, settingsMenu, *(*i), nextFreeMenuID, insertPos);
 		}
 	}
 
@@ -2120,20 +2312,21 @@ bool ExodusInterface::BuildDebugMenu()
 		DeleteMenu(debugMenu, menuItemIndex, MF_BYPOSITION);
 	}
 
-	//Clear all items from our debug submenu structure
+	//Clear all items from our submenu structure
 	debugSubmenu->DeleteAllMenuSegments();
 
-	//Add debug menu items to the submenu
+	//Add menu items to the submenu
 	system.BuildDebugMenu(*debugSubmenu, *this);
 
 	//Build the actual menu using the menu structure
+	int insertPos = -1;
 	std::list<IMenuSegment*> menuSegments = debugSubmenu->GetMenuSegments();
 	for(std::list<IMenuSegment*>::iterator menuSegment = menuSegments.begin(); menuSegment != menuSegments.end(); ++menuSegment)
 	{
 		std::list<IMenuItem*> menuItems = (*menuSegment)->GetMenuItems();
 		for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 		{
-			result &= BuildMenuRecursive(mainWindowHandle, debugMenu, *(*i), nextFreeMenuID);
+			result &= BuildMenuRecursive(mainWindowHandle, debugMenu, *(*i), nextFreeMenuID, insertPos);
 		}
 	}
 
@@ -2778,7 +2971,7 @@ INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPAR
 		if(validateSelection)
 		{
 			int currentItemListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_GETCURSEL, 0, 0);
-			System::ConnectorInfo* targetItemConnectorInfo = (System::ConnectorInfo*)SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_GETITEMDATA, currentItemListIndex, NULL);
+			ConnectorInfo* targetItemConnectorInfo = (ConnectorInfo*)SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_GETITEMDATA, currentItemListIndex, NULL);
 			if(targetItemConnectorInfo != 0)
 			{
 				state->selectedConnector = *targetItemConnectorInfo;
@@ -2792,13 +2985,13 @@ INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPAR
 		state = (MapConnectorDialogParams*)lParam;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
-		for(std::list<System::ConnectorInfo>::iterator i = state->connectorList.begin(); i != state->connectorList.end(); ++i)
+		for(std::list<ConnectorInfo>::iterator i = state->connectorList.begin(); i != state->connectorList.end(); ++i)
 		{
-			System::LoadedModuleInfo moduleInfo;
-			if(state->system->GetLoadedModuleInfo(i->exportingModuleID, moduleInfo))
+			LoadedModuleInfo moduleInfo;
+			if(state->system->GetLoadedModuleInfo(i->GetExportingModuleID(), moduleInfo))
 			{
 				std::wstringstream text;
-				text << moduleInfo.instanceName << L"." << i->exportingModuleConnectorInstanceName;
+				text << moduleInfo.GetInstanceName() << L"." << i->GetExportingModuleConnectorInstanceName();
 				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_ADDSTRING, 0, (LPARAM)text.str().c_str());
 				SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)&(*i));
 			}
@@ -2837,6 +3030,11 @@ INT_PTR CALLBACK ExodusInterface::LoadModuleProc(HWND hwnd, UINT Message, WPARAM
 		}
 		else
 		{
+			std::wstring currentModuleName = state->system.LoadModuleSynchronousCurrentModuleName();
+			if(!currentModuleName.empty())
+			{
+				UpdateDlgItemString(hwnd, IDC_LOADMODULE_MODULETEXT, currentModuleName);
+			}
 			float progress = state->system.LoadModuleSynchronousProgress();
 			int progressInt = (int)((progress * 100) + 0.5);
 			SendMessage(GetDlgItem(hwnd, IDC_LOADMODULE_PROGRESS), PBM_SETPOS, (WPARAM)progressInt, 0);
@@ -2878,6 +3076,14 @@ INT_PTR CALLBACK ExodusInterface::UnloadModuleProc(HWND hwnd, UINT Message, WPAR
 		{
 			KillTimer(hwnd, 1);
 			EndDialog(hwnd, 0);
+		}
+		else
+		{
+			std::wstring currentModuleName = state->system.UnloadModuleSynchronousCurrentModuleName();
+			if(!currentModuleName.empty())
+			{
+				UpdateDlgItemString(hwnd, IDC_UNLOADMODULE_MODULETEXT, currentModuleName);
+			}
 		}
 		break;}
 	case WM_CLOSE:
@@ -2968,15 +3174,15 @@ INT_PTR CALLBACK ExodusInterface::ModuleManagerProc(HWND hwnd, UINT Message, WPA
 		LRESULT selected = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETCURSEL, 0, 0);
 		SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_RESETCONTENT, 0, NULL);
 		std::list<unsigned int> loadedModuleIDs = state->system.GetLoadedModuleIDs();
-		for(std::list<unsigned int>::iterator i = loadedModuleIDs.begin(); i != loadedModuleIDs.end(); ++i)
+		for(std::list<unsigned int>::const_iterator i = loadedModuleIDs.begin(); i != loadedModuleIDs.end(); ++i)
 		{
-			ISystemExternal::LoadedModuleInfo moduleInfo;
+			LoadedModuleInfo moduleInfo;
 			if(state->system.GetLoadedModuleInfo(*i, moduleInfo))
 			{
 				std::wstringstream text;
-				text << moduleInfo.displayName << " (" << moduleInfo.className << ")";
+				text << moduleInfo.GetDisplayName() << " (" << moduleInfo.GetClassName() << ")";
 				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_ADDSTRING, 0, (LPARAM)text.str().c_str());
-				SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)moduleInfo.moduleID);
+				SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)moduleInfo.GetModuleID());
 			}
 		}
 		SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_SETCURSEL, selected, 0);
@@ -3569,8 +3775,8 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		std::wstring savePostfix = state->slotName;
 		std::wstring saveFileName = exodusInterface->GetSavestateAutoFileNamePrefix() + L" - " + savePostfix + L".exs";
 		std::wstring debuggerSaveFileName = exodusInterface->GetSavestateAutoFileNamePrefix() + L" - " + savePostfix + L" - DebugState" + L".exs";
-		System::StateInfo stateInfo = exodusInterface->system.GetStateInfo(exodusInterface->prefs.pathSavestates, saveFileName, System::FILETYPE_ZIP);
-		System::StateInfo debuggerStateInfo = exodusInterface->system.GetStateInfo(exodusInterface->prefs.pathSavestates, debuggerSaveFileName, System::FILETYPE_ZIP);
+		ISystemExternal::StateInfo stateInfo = exodusInterface->system.GetStateInfo(exodusInterface->prefs.pathSavestates, saveFileName, ISystemExternal::FILETYPE_ZIP);
+		ISystemExternal::StateInfo debuggerStateInfo = exodusInterface->system.GetStateInfo(exodusInterface->prefs.pathSavestates, debuggerSaveFileName, ISystemExternal::FILETYPE_ZIP);
 		if((state->savestatePresent == stateInfo.valid)
 		&& (state->debugStatePresent == debuggerStateInfo.valid)
 		&& (state->date == (state->savestatePresent? stateInfo.creationDate: debuggerStateInfo.creationDate))

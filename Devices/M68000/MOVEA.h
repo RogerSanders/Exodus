@@ -80,31 +80,31 @@ public:
 		switch(targetMode)
 		{
 		case EffectiveAddress::DATAREG_DIRECT:
-			sourceIndex = 0;
+			targetIndex = 0;
 			break;
 		case EffectiveAddress::ADDREG_DIRECT:
-			sourceIndex = 1;
+			targetIndex = 1;
 			break;
 		case EffectiveAddress::ADDREG_INDIRECT:
-			sourceIndex = 2;
+			targetIndex = 2;
 			break;
 		case EffectiveAddress::ADDREG_INDIRECT_POSTINC:
-			sourceIndex = 3;
+			targetIndex = 3;
 			break;
 		case EffectiveAddress::ADDREG_INDIRECT_PREDEC:
-			sourceIndex = 4;
+			targetIndex = 4;
 			break;
 		case EffectiveAddress::ADDREG_INDIRECT_DISPLACE:
-			sourceIndex = 5;
+			targetIndex = 5;
 			break;
 		case EffectiveAddress::ADDREG_INDIRECT_INDEX_8BIT:
-			sourceIndex = 6;
+			targetIndex = 6;
 			break;
 		case EffectiveAddress::ABS_WORD:
-			sourceIndex = 7;
+			targetIndex = 7;
 			break;
 		case EffectiveAddress::ABS_LONG:
-			sourceIndex = 8;
+			targetIndex = 8;
 			break;
 		}
 		if(size != BITCOUNT_LONG)

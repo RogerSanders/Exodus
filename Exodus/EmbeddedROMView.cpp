@@ -120,7 +120,7 @@ INT_PTR System::EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lp
 			std::wstring importedConnectorName;
 			for(ConnectorDetailsMap::const_iterator connectorDetailsMapIterator = system->connectorDetailsMap.begin(); connectorDetailsMapIterator != system->connectorDetailsMap.end(); ++connectorDetailsMapIterator)
 			{
-				const ConnectorDetails& connectorDetails = connectorDetailsMapIterator->second;
+				const ConnectorInfoInternal& connectorDetails = connectorDetailsMapIterator->second;
 				if(connectorDetails.connectorUsed && (connectorDetails.importingModuleID == deviceModuleID))
 				{
 					multipleImportedConnectorsFound = importedConnectorFound;

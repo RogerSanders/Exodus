@@ -120,7 +120,7 @@ struct ExodusInterface::MapConnectorDialogParams
 	{}
 
 	bool selectionMade;
-	std::list<System::ConnectorInfo> connectorList;
-	System::ConnectorInfo selectedConnector;
+	std::list<ConnectorInfo> connectorList;
+	ConnectorInfo selectedConnector;
 	ISystemExternal* system;
 };

@@ -1,17 +1,18 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Watchpoint::Watchpoint()
+Watchpoint::Watchpoint(unsigned int addressBusWidth)
+:Breakpoint(addressBusWidth)
 {
-	Initialize();
+	Initialize(addressBusWidth);
 }
 
 //----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
-void Watchpoint::Initialize()
+void Watchpoint::Initialize(unsigned int addressBusWidth)
 {
-	Breakpoint::Initialize();
+	Breakpoint::Initialize(addressBusWidth);
 	read = true;
 	write = true;
 

@@ -60,6 +60,12 @@
 #include "IMenuSeparator.h"
 #include "IMenuSubmenu.h"
 #include "MenuHandlerBase.h"
+#include "IExtension.h"
+#include "IExtensionInfo.h"
+#include "ILoadedModuleInfo.h"
+#include "LoadedModuleInfo.h"
+#include "IConnectorInfo.h"
+#include "ConnectorInfo.h"
 #endif
 
 #endif

@@ -79,6 +79,12 @@ LRESULT WC_GridList::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgWM_VSCROLL(wParam, lParam);
 	case WM_HSCROLL:
 		return msgWM_HSCROLL(wParam, lParam);
+	case WM_KEYDOWN:
+		return msgWM_KEYDOWN(wParam, lParam);
+	case WM_LBUTTONDOWN:
+		return msgWM_LBUTTONDOWN(wParam, lParam);
+	case WM_MOUSEWHEEL:
+		return msgWM_MOUSEWHEEL(wParam, lParam);
 
 	case GRID_INSERTCOLUMN:
 		return msgGRID_INSERTCOLUMN(wParam, lParam);
@@ -563,6 +569,105 @@ LRESULT WC_GridList::msgWM_HSCROLL(WPARAM wParam, LPARAM lParam)
 
 	//Force the control to redraw
 	InvalidateRect(hwnd, NULL, FALSE);
+
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_GridList::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
+{
+	unsigned int virtualKeyCode = (unsigned int)wParam;
+
+	switch(virtualKeyCode)
+	{
+	default:
+		return 0;
+	case VK_UP:{
+		Grid_ShiftRowsUp info;
+		info.shiftCount = 1;
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+		break;}
+	case VK_DOWN:{
+		Grid_ShiftRowsDown info;
+		info.shiftCount = 1;
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+		break;}
+	case VK_PRIOR:{
+		Grid_ShiftRowsUp info;
+		info.shiftCount = visibleRows;
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+		break;}
+	case VK_NEXT:{
+		Grid_ShiftRowsDown info;
+		info.shiftCount = visibleRows;
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+		break;}
+	case VK_HOME:{
+		Grid_NewScrollPosition info;
+		info.scrollPos = 0;
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+		break;}
+	case VK_END:{
+		Grid_NewScrollPosition info;
+		info.scrollPos = (vscrollMax > 0)? (unsigned int)vscrollMax - 1: 0;
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+		break;}
+	}
+
+	//Force the entire control to redraw
+	InvalidateRect(hwnd, NULL, FALSE);
+
+	//Make the redraw operation happen immediately. We do this because it's been noted
+	//that when doing the page up/down steps, it's possible for the operation to be slow
+	//enough that the control is never redrawn between key repeat messages, causing the
+	//interface to not actually update while the user is scrolling.
+	UpdateWindow(hwnd);
+
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_GridList::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
+{
+	//Convert the cursor position to row number
+	int cursorPosX = LOWORD(lParam);
+	int cursorPosY = HIWORD(lParam);
+	int selectedRowNo = (cursorPosY - (headerPosY + headerHeight)) / fontHeight;
+
+	//Notify the parent window of the row selection
+	if(selectedRowNo >= 0)
+	{
+		Grid_RowSelected info;
+		info.visibleRowNo = (unsigned int)selectedRowNo;
+		info.keyPressedCtrl = (wParam & MK_CONTROL) != 0;
+		info.keyPressedShift = (wParam & MK_SHIFT) != 0;
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_ROWSELECTED), (LPARAM)&info);
+	}
+
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_GridList::msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam)
+{
+	//Calculate the number of lines to scroll in the window. We displace the view pos
+	//by a minimum of 3 lines per division of the scroll wheel. We also invert the
+	//sign, since we want a scroll down to increase the view position.
+	int scrollUnits = ((short)HIWORD(wParam) / WHEEL_DELTA);
+	scrollUnits *= -3;
+
+	if(scrollUnits < 0)
+	{
+		Grid_ShiftRowsUp info;
+		info.shiftCount = (unsigned int)(-scrollUnits);
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+	}
+	else
+	{
+		Grid_ShiftRowsDown info;
+		info.shiftCount = (unsigned int)scrollUnits;
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+	}
 
 	return 0;
 }

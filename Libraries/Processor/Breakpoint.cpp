@@ -25,19 +25,20 @@ std::wstring Breakpoint::GetLogString() const
 bool Breakpoint::PassesLocationCondition(unsigned int location)
 {
 	bool result = true;
+	unsigned int locationMasked = (location & locationMask);
 	switch(GetLocationCondition())
 	{
 	case CONDITION_EQUAL:
-		result = (location == GetLocationConditionData1());
+		result = (locationMasked == GetLocationConditionData1());
 		break;
 	case CONDITION_GREATER:
-		result = (location > GetLocationConditionData1());
+		result = (locationMasked > GetLocationConditionData1());
 		break;
 	case CONDITION_LESS:
-		result = (location < GetLocationConditionData1());
+		result = (locationMasked < GetLocationConditionData1());
 		break;
 	case CONDITION_GREATER_AND_LESS:
-		result = (location > GetLocationConditionData1()) && (location < GetLocationConditionData2());
+		result = (locationMasked > GetLocationConditionData1()) && (locationMasked < GetLocationConditionData2());
 		break;
 	}
 	result ^= GetLocationConditionNot();
@@ -76,6 +77,7 @@ std::wstring Breakpoint::GenerateName(unsigned int addressCharWidth) const
 void Breakpoint::LoadState(IHeirarchicalStorageNode& node)
 {
 	node.ExtractAttribute(L"Name", name);
+	node.ExtractAttribute(L"Enabled", enabled);
 	node.ExtractAttribute(L"LogEvent", logEvent);
 	node.ExtractAttribute(L"BreakEvent", breakEvent);
 	node.ExtractAttribute(L"LocationConditionNot", locationConditionNot);
@@ -84,6 +86,7 @@ void Breakpoint::LoadState(IHeirarchicalStorageNode& node)
 	locationCondition = (Condition)locationConditionAsInt;
 	node.ExtractAttributeHex(L"LocationConditionData1", locationConditionData1);
 	node.ExtractAttributeHex(L"LocationConditionData2", locationConditionData2);
+	node.ExtractAttributeHex(L"LocationMask", locationMask);
 	node.ExtractAttribute(L"HitCounter", hitCounter);
 	node.ExtractAttribute(L"HitCounterIncrement", hitCounterIncrement);
 	node.ExtractAttribute(L"BreakOnCounter", breakOnCounter);
@@ -94,12 +97,14 @@ void Breakpoint::LoadState(IHeirarchicalStorageNode& node)
 void Breakpoint::SaveState(IHeirarchicalStorageNode& node) const
 {
 	node.CreateAttribute(L"Name", name);
+	node.CreateAttribute(L"Enabled", enabled);
 	node.CreateAttribute(L"LogEvent", logEvent);
 	node.CreateAttribute(L"BreakEvent", breakEvent);
 	node.CreateAttribute(L"LocationConditionNot", locationConditionNot);
 	node.CreateAttribute(L"LocationCondition", (unsigned int)locationCondition);
 	node.CreateAttributeHex(L"LocationConditionData1", locationConditionData1, 8);
 	node.CreateAttributeHex(L"LocationConditionData2", locationConditionData2, 8);
+	node.CreateAttributeHex(L"LocationMask", locationMask, 8);
 	node.CreateAttribute(L"HitCounter", hitCounter);
 	node.CreateAttribute(L"HitCounterIncrement", hitCounterIncrement);
 	node.CreateAttribute(L"BreakOnCounter", breakOnCounter);

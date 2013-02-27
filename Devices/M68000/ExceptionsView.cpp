@@ -213,7 +213,7 @@ INT_PTR M68000::ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 				device->exceptionListEmpty = device->exceptionList.empty();
 				exceptionListCopy = device->exceptionList;
 				SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_DELETESTRING, exceptionListIndex, NULL);
-				if(exceptionListIndex >= exceptionListCopy.size())
+				if(exceptionListIndex >= (int)exceptionListCopy.size())
 				{
 					exceptionListIndex -= 1;
 				}

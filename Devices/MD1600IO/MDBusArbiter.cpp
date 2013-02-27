@@ -64,10 +64,7 @@ void MDBusArbiter::Initialize()
 	z80BankswitchDataNew = 0;
 
 	//Initialize the external line state
-	//##TODO## Change this back once we actually have an external line implemented which
-	//asserts the CART_IN line.
-	//	cartInLineState = false;
-	cartInLineState = true;
+	cartInLineState = false;
 	z80BusRequestLineState = false;
 	z80BusGrantLineState = false;
 	//Note that the Z80 reset line is asserted when this device is initialized

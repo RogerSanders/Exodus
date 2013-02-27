@@ -33,6 +33,7 @@
 #pragma comment(lib, "OpenGL32")
 #pragma comment(lib, "GLu32")
 #pragma comment(lib, "comctl32")
+#pragma comment(lib, "dwmapi")
 #endif
 
 #endif

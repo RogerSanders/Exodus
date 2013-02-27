@@ -4,11 +4,12 @@
 #include <list>
 #include "IBusInterface.h"
 #include "IClockSource.h"
-#include "IMenuSubmenu.h"
+#include "IMenuSegment.h"
 #include "ImageInterface/ImageInterface.pkg"
 class IHeirarchicalStorageNode;
 class Data;
 class IDeviceContext;
+class IExtension;
 
 //##TODO## Add versioning to this interface, and all other system interfaces, so we can
 //extend them in the future, without breaking compatibility with existing plugins.
@@ -26,6 +27,7 @@ public:
 	//Typedefs
 	typedef void* AssemblyHandle;
 
+public:
 	//Constructors
 	virtual ~IDevice() = 0 {}
 
@@ -39,11 +41,14 @@ public:
 	//Reference functions
 	inline bool AddReference(const std::wstring& referenceName, IDevice* target);
 	virtual bool AddReference(const wchar_t* referenceName, IDevice* target) = 0;
+	inline bool AddReference(const std::wstring& referenceName, IExtension* target);
+	virtual bool AddReference(const wchar_t* referenceName, IExtension* target) = 0;
 	inline bool AddReference(const std::wstring& referenceName, IBusInterface* target);
 	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target) = 0;
 	inline bool AddReference(const std::wstring& referenceName, IClockSource* target);
 	virtual bool AddReference(const wchar_t* referenceName, IClockSource* target) = 0;
 	virtual bool RemoveReference(IDevice* target) = 0;
+	virtual bool RemoveReference(IExtension* target) = 0;
 	virtual bool RemoveReference(IBusInterface* target) = 0;
 	virtual bool RemoveReference(IClockSource* target) = 0;
 
@@ -142,6 +147,8 @@ public:
 	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	//##TODO## Consider removing global debug menu items. What were they supposed to be
 	//for anyway? It seems likely that the system menu removes the need for this option.
+	//It's also obvious that this feature isn't really compatible with multiple instances
+	//of a device. Global system extensions further eliminate any need for this feature.
 	virtual void AddGlobalDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	inline void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);

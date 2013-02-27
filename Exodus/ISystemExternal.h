@@ -2,11 +2,20 @@
 #define __ISYSTEMEXTERNAL_H__
 #include "SystemInterface/SystemInterface.pkg"
 #include "DeviceInfo.h"
+#include "ExtensionInfo.h"
 #include <string>
 #include <list>
 #include <map>
 
-class ISystemExternal
+//##TODO##
+//Rename and simplify the base system interfaces. Here is what we have currently:
+//-ISystemExternal: Used by ExodusInterface (non-exportable)
+//-ISystemInternal: Used by DeviceContext (non-exportable)
+//Here is what we need:
+//-ISystemExtensionInterface: Used by extensions (exportable)
+//-ISystemGuiInterface: Used by ExodusInterface (ideally exportable)
+//-ISystemDeviceContextInterface: Used by DeviceContext (non-exportable)
+class ISystemExternal :public ISystemExtensionInterface
 {
 public:
 	//Enumerations
@@ -14,13 +23,11 @@ public:
 
 	//Structures
 	struct StateInfo;
-	struct LoadedModuleInfo;
 	struct ModuleRelationship;
 	struct SavedRelationshipImportConnector;
 	struct SavedRelationshipExportConnector;
 	struct SavedRelationshipModule;
 	struct ConnectorMapping;
-	struct ConnectorInfo;
 	struct ConnectorDefinitionImport;
 	struct ConnectorDefinitionExport;
 
@@ -38,6 +45,9 @@ public:
 	//Constructors
 	virtual ~ISystemExternal() = 0 {}
 
+	//Initialization functions
+	virtual void BindToGUIExtensionInterface(IGUIExtensionInterface* aguiExtensionInterface) = 0;
+
 	//Savestate functions
 	//##TODO## Consider not making the name of a savestate xml file within a zip archive
 	//be hardcoded to "save.xml". Come up with a way for the name within the archive to
@@ -47,7 +57,6 @@ public:
 	virtual bool SaveState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState) = 0;
 	virtual StateInfo GetStateInfo(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) const = 0;
 	virtual bool LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const = 0;
-	virtual bool DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfo& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const = 0;
 	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false, const std::wstring& relativePathBase = L"") const = 0;
 
 	//Path functions
@@ -55,19 +64,19 @@ public:
 	virtual void SetCapturePath(const std::wstring& apath) = 0;
 
 	//System interface functions
-	virtual void Initialize() = 0;
-	virtual void RunSystem() = 0;
-	virtual void StopSystem() = 0;
 	virtual void FlagStopSystem() = 0;
 	virtual bool GetThrottlingState() const = 0;
 	virtual void SetThrottlingState(bool state) = 0;
 	virtual bool GetRunWhenProgramModuleLoadedState() const = 0;
 	virtual void SetRunWhenProgramModuleLoadedState(bool state) = 0;
-	virtual bool SystemRunning() const = 0;
 
 	//Device registration
 	virtual bool RegisterDevice(const DeviceInfo& entry, IDevice::AssemblyHandle assemblyHandle) = 0;
 	virtual void UnregisterDevice(const std::wstring deviceName) = 0;
+
+	//Extension registration
+	virtual bool RegisterExtension(const ExtensionInfo& entry, IExtension::AssemblyHandle assemblyHandle) = 0;
+	virtual void UnregisterExtension(const std::wstring extensionName) = 0;
 
 	//Module loading and unloading
 	//##TODO## Add the use of FileType to module loading, so that a module definition can
@@ -90,16 +99,11 @@ public:
 	virtual bool UnloadAllModulesSynchronousComplete() const = 0;
 	virtual void UnloadAllModules() = 0;
 	virtual bool ReadModuleConnectorInfo(const std::wstring& fileDir, const std::wstring& fileName, std::wstring& systemClassName, ConnectorImportList& connectorsImported, ConnectorExportList& connectorsExported) const = 0;
-
-	//Loaded module info functions
-	virtual std::list<unsigned int> GetLoadedModuleIDs() const = 0;
-	virtual bool GetLoadedModuleInfo(unsigned int moduleID, LoadedModuleInfo& moduleInfo) const = 0;
-
-	//Connector info functions
-	virtual std::list<unsigned int> GetConnectorIDs() const = 0;
-	virtual bool GetConnectorInfo(unsigned int connectorID, ConnectorInfo& connectorInfo) const = 0;
+	virtual std::wstring LoadModuleSynchronousCurrentModuleName() const = 0;
+	virtual std::wstring UnloadModuleSynchronousCurrentModuleName() const = 0;
 
 	//View functions
+	virtual void BuildFileOpenMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) = 0;

@@ -139,6 +139,8 @@
 #define IDC_EMBEDDEDROM_BROWSE          1458
 #define IDC_EMBEDDEDROM_RELOAD          1459
 #define IDC_EMBEDDEDROM_APPLY           1460
+#define IDC_LOADMODULE_MODULETEXT       1461
+#define IDC_UNLOADMODULE_MODULETEXT     1462
 #define IDC_YM2612_REGISTERS_AB2        1558
 #define IDC_YM2612_REGISTERS_104        32782
 #define IDC_YM2612_DEBUGGER_1           32821
@@ -207,14 +209,17 @@
 #define ID_Menu40105                    40105
 #define ID_SYSTEM_DYNAMICPLACEHOLDER    40106
 #define ID_SETTINGS_DYNAMICPLACEHOLDER  40109
+#define ID_FILE_OPENROMFILE             40110
+#define ID_FILE_CLOSEROMFILE            40111
+#define ID_FILE_DYNAMICPLACEHOLDER      40112
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        173
-#define _APS_NEXT_COMMAND_VALUE         40110
-#define _APS_NEXT_CONTROL_VALUE         1461
+#define _APS_NEXT_COMMAND_VALUE         40113
+#define _APS_NEXT_CONTROL_VALUE         1463
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

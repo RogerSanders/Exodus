@@ -227,6 +227,24 @@ unsigned int Processor::GetDataBusCharWidth() const
 }
 
 //----------------------------------------------------------------------------------------
+unsigned int Processor::GetPCMask() const
+{
+	return ((1 << GetPCWidth()) - 1);
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Processor::GetAddressBusMask() const
+{
+	return ((1 << GetAddressBusWidth()) - 1);
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Processor::GetDataBusMask() const
+{
+	return ((1 << GetDataBusWidth()) - 1);
+}
+
+//----------------------------------------------------------------------------------------
 //Breakpoint functions
 //----------------------------------------------------------------------------------------
 void Processor::CheckExecution(unsigned int location) const
@@ -242,7 +260,7 @@ void Processor::CheckExecution(unsigned int location) const
 		{
 			Breakpoint* breakpoint = *i;
 			//Evaluate location
-			if(breakpoint->PassesLocationCondition(location))
+			if(breakpoint->GetEnabled() && breakpoint->PassesLocationCondition(location))
 			{
 				//Update hitcounter
 				if(breakpoint->CheckHitCounter())
@@ -290,7 +308,7 @@ void Processor::CheckMemoryRead(unsigned int location, unsigned int data) const
 		{
 			//Evaluate location
 			Watchpoint* watchpoint = *i;
-			if(watchpoint->PassesLocationCondition(location) && watchpoint->GetOnRead() && watchpoint->PassesReadCondition(data))
+			if(watchpoint->GetEnabled() && watchpoint->PassesLocationCondition(location) && watchpoint->GetOnRead() && watchpoint->PassesReadCondition(data))
 			{
 				//Update hitcounter
 				if(watchpoint->CheckHitCounter())
@@ -328,7 +346,7 @@ void Processor::CheckMemoryWrite(unsigned int location, unsigned int data) const
 		for(WatchpointList::iterator i = watchpoints.begin(); i != watchpoints.end(); ++i)
 		{
 			Watchpoint* watchpoint = *i;
-			if(watchpoint->PassesLocationCondition(location) && watchpoint->GetOnWrite() && watchpoint->PassesWriteCondition(data))
+			if(watchpoint->GetEnabled() && watchpoint->PassesLocationCondition(location) && watchpoint->GetOnWrite() && watchpoint->PassesWriteCondition(data))
 			{
 				//Update hitcounter
 				if(watchpoint->CheckHitCounter())
@@ -957,7 +975,7 @@ void Processor::LoadDebuggerState(IHeirarchicalStorageNode& node)
 				IHeirarchicalStorageNode& childNode = *(*childNodeIterator);
 				if(childNode.GetName() == L"Breakpoint")
 				{
-					Breakpoint* breakpoint = new Breakpoint();
+					Breakpoint* breakpoint = new Breakpoint(GetAddressBusWidth());
 					breakpoint->LoadState(childNode);
 					breakpoints.push_back(breakpoint);
 				}
@@ -978,7 +996,7 @@ void Processor::LoadDebuggerState(IHeirarchicalStorageNode& node)
 				IHeirarchicalStorageNode& childNode = *(*childNodeIterator);
 				if(childNode.GetName() == L"Watchpoint")
 				{
-					Watchpoint* watchpoint = new Watchpoint();
+					Watchpoint* watchpoint = new Watchpoint(GetAddressBusWidth());
 					watchpoint->LoadState(childNode);
 					watchpoints.push_back(watchpoint);
 				}
