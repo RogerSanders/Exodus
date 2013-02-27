@@ -1,5 +1,5 @@
 ﻿<System>
-	<Info CreationDate="2013-2-27" CreationTime="17:19:36" />
+	<Info CreationDate="2013-2-28" CreationTime="9:10:15" />
 	<ModuleRelationships>
 		<Module ModuleID="0" SystemClassName="SegaMegaDrive" ModuleClassName="SegaMegaDrive" ModuleInstanceName="MD1600" FileDir="." FileName="Sega Mega Drive 1600.xml">
 			<ExportConnector ConnectorClassName="ControlPort" ConnectorInstanceName="Control Port 1" />
@@ -44,8 +44,8 @@
 	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="V" DeviceKeyCode="Start" />
 	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="X" DeviceKeyCode="B" />
 	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="Z" DeviceKeyCode="A" />
-	<System.SelectSettingOption ModuleID="285285152" SettingName="Region" OptionName="U" />
-	<System.SelectSettingOption ModuleID="285285152" SettingName="Soft Reset" OptionName="Off" />
-	<System.SelectSettingOption ModuleID="285285152" SettingName="TMSS" OptionName="Boot ROM without VDP Lockout" />
+	<System.SelectSettingOption ModuleID="0" SettingName="Region" OptionName="U" />
+	<System.SelectSettingOption ModuleID="0" SettingName="Soft Reset" OptionName="Off" />
+	<System.SelectSettingOption ModuleID="0" SettingName="TMSS" OptionName="Boot ROM without VDP Lockout" />
 	<System.LoadEmbeddedROMData ModuleID="0" DeviceInstanceName="Boot ROM" InterfaceNumber="0" FilePath=".\Genesis TMSS BIOS (U) [c][!].gen" />
 </System>

@@ -216,7 +216,7 @@ void DeviceContext::SetTransientExecutionActive(bool state)
 	//If a transient execution device has just stopped executing, evaluate whether all
 	//remaining devices in the system are suspended or blocked, and unblock them in this
 	//case.
-	if(!state)
+	if(!state && (commandMutexPointer != 0))
 	{
 		//Obtain a lock on the shared command mutex. We need to do this so that we can
 		//safely work with the result of the suspendedThreadCount variable.

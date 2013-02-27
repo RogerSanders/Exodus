@@ -194,8 +194,13 @@ struct System::ImportedLineGroupInfo
 //----------------------------------------------------------------------------------------
 struct System::LoadedModuleInfoInternal
 {
+	LoadedModuleInfoInternal()
+	:moduleValidated(false)
+	{}
+
 	//Internal data
 	unsigned int moduleID;
+	bool moduleValidated;
 
 	//External information
 	std::wstring fileDir;
