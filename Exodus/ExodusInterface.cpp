@@ -344,6 +344,20 @@ bool ExodusInterface::InitializeSystem()
 }
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int ExodusInterface::GetIViewModelLauncherVersion() const
+{
+	return ThisIViewModelLauncherVersion();
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int ExodusInterface::GetIGUIExtensionInterfaceVersion() const
+{
+	return ThisIGUIExtensionInterfaceVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Main window functions
 //----------------------------------------------------------------------------------------
 void* ExodusInterface::GetMainWindowHandle() const

@@ -6,22 +6,25 @@
 class DeviceInfo :public IDeviceInfo
 {
 public:
+	//Interface version functions
+	virtual unsigned int GetIDeviceInfoVersion() const;
+
+	//Setters
 	virtual void SetDeviceVersionNo(unsigned int adeviceVersionNo);
-	virtual void SetDeviceAllocators(IDevice* (aAllocator)(const wchar_t*, unsigned int), void (aDestructor)(IDevice*));
+	virtual void SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor);
+
+	//Getters
 	unsigned int GetDeviceVersionNo() const;
 	std::wstring GetDeviceName() const;
-
 	//This is much neater using a typedef. See below for the correct syntax without a
 	//typedef for the function pointers:
 	//IDevice* (*GetAllocator() const)(const wchar_t*, unsigned int);
 	//void (*GetDestructor() const)(IDevice*);
-	//##TODO## Place these typedefs in the base interface, and use them everywhere.
-	typedef IDevice* (*AllocatorPointer)(const wchar_t*, unsigned int);
-	typedef void (*DestructorPointer)(IDevice*);
 	AllocatorPointer GetAllocator() const;
 	DestructorPointer GetDestructor() const;
 
 protected:
+	//Setters
 	virtual void SetDeviceNameInternal(const wchar_t* adeviceName);
 
 private:

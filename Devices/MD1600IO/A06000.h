@@ -15,7 +15,8 @@ public:
 	virtual void Initialize();
 
 	//Reference functions
-	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
+	using Device::AddReference;
+	virtual bool AddReference(const std::wstring& referenceName, IBusInterface* target);
 	virtual bool RemoveReference(IBusInterface* target);
 
 	//Execute functions

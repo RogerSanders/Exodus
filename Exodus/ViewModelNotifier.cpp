@@ -8,6 +8,14 @@ ViewModelNotifier::ViewModelNotifier(IViewModelManager& aviewManager, IViewModel
 {}
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int ViewModelNotifier::GetIViewModelNotifierVersion() const
+{
+	return ThisIViewModelNotifierVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Notification functions
 //----------------------------------------------------------------------------------------
 void ViewModelNotifier::NotifyViewClosed()

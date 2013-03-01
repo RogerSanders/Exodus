@@ -45,10 +45,9 @@ bool MDControl6::ValidateDevice()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool MDControl6::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool MDControl6::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
+	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
 	}
@@ -134,34 +133,33 @@ void MDControl6::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int MDControl6::GetLineID(const wchar_t* lineName) const
+unsigned int MDControl6::GetLineID(const std::wstring& lineName) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"D0")
+	if(lineName == L"D0")
 	{
 		return LINE_D0;
 	}
-	else if(lineNameString == L"D1")
+	else if(lineName == L"D1")
 	{
 		return LINE_D1;
 	}
-	else if(lineNameString == L"D2")
+	else if(lineName == L"D2")
 	{
 		return LINE_D2;
 	}
-	else if(lineNameString == L"D3")
+	else if(lineName == L"D3")
 	{
 		return LINE_D3;
 	}
-	else if(lineNameString == L"TL")
+	else if(lineName == L"TL")
 	{
 		return LINE_TL;
 	}
-	else if(lineNameString == L"TR")
+	else if(lineName == L"TR")
 	{
 		return LINE_TR;
 	}
-	else if(lineNameString == L"TH")
+	else if(lineName == L"TH")
 	{
 		return LINE_TH;
 	}
@@ -169,7 +167,7 @@ unsigned int MDControl6::GetLineID(const wchar_t* lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* MDControl6::GetLineName(unsigned int lineID) const
+std::wstring MDControl6::GetLineName(unsigned int lineID) const
 {
 	switch(lineID)
 	{
@@ -650,54 +648,53 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 //----------------------------------------------------------------------------------------
 //Input functions
 //----------------------------------------------------------------------------------------
-unsigned int MDControl6::GetKeyCodeID(const wchar_t* keyCodeName) const
+unsigned int MDControl6::GetKeyCodeID(const std::wstring& keyCodeName) const
 {
-	std::wstring keyCodeNameString = keyCodeName;
-	if(keyCodeNameString == L"Up")
+	if(keyCodeName == L"Up")
 	{
 		return BUTTON_UP+1;
 	}
-	else if(keyCodeNameString == L"Down")
+	else if(keyCodeName == L"Down")
 	{
 		return BUTTON_DOWN+1;
 	}
-	else if(keyCodeNameString == L"Left")
+	else if(keyCodeName == L"Left")
 	{
 		return BUTTON_LEFT+1;
 	}
-	else if(keyCodeNameString == L"Right")
+	else if(keyCodeName == L"Right")
 	{
 		return BUTTON_RIGHT+1;
 	}
-	else if(keyCodeNameString == L"A")
+	else if(keyCodeName == L"A")
 	{
 		return BUTTON_A+1;
 	}
-	else if(keyCodeNameString == L"B")
+	else if(keyCodeName == L"B")
 	{
 		return BUTTON_B+1;
 	}
-	else if(keyCodeNameString == L"C")
+	else if(keyCodeName == L"C")
 	{
 		return BUTTON_C+1;
 	}
-	else if(keyCodeNameString == L"Start")
+	else if(keyCodeName == L"Start")
 	{
 		return BUTTON_START+1;
 	}
-	else if(keyCodeNameString == L"X")
+	else if(keyCodeName == L"X")
 	{
 		return BUTTON_X+1;
 	}
-	else if(keyCodeNameString == L"Y")
+	else if(keyCodeName == L"Y")
 	{
 		return BUTTON_Y+1;
 	}
-	else if(keyCodeNameString == L"Z")
+	else if(keyCodeName == L"Z")
 	{
 		return BUTTON_Z+1;
 	}
-	else if(keyCodeNameString == L"Mode")
+	else if(keyCodeName == L"Mode")
 	{
 		return BUTTON_MODE+1;
 	}
@@ -705,7 +702,7 @@ unsigned int MDControl6::GetKeyCodeID(const wchar_t* keyCodeName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* MDControl6::GetKeyCodeName(unsigned int keyCodeID) const
+std::wstring MDControl6::GetKeyCodeName(unsigned int keyCodeID) const
 {
 	switch(keyCodeID)
 	{

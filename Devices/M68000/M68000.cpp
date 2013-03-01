@@ -297,10 +297,9 @@ void M68000::Reset()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool M68000::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool M68000::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
+	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
 	}
@@ -1292,30 +1291,29 @@ unsigned int M68000::GetMinimumOpcodeByteSize() const
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int M68000::GetLineID(const wchar_t* lineName) const
+unsigned int M68000::GetLineID(const std::wstring& lineName) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"RESET") //IO
+	if(lineName == L"RESET") //IO
 	{
 		return LINE_RESET;
 	}
-	else if(lineNameString == L"BR") //I
+	else if(lineName == L"BR") //I
 	{
 		return LINE_BR;
 	}
-	else if(lineNameString == L"BG") //O
+	else if(lineName == L"BG") //O
 	{
 		return LINE_BG;
 	}
-	else if(lineNameString == L"HALT") //I
+	else if(lineName == L"HALT") //I
 	{
 		return LINE_HALT;
 	}
-	else if(lineNameString == L"IPL") //I
+	else if(lineName == L"IPL") //I
 	{
 		return LINE_IPL;
 	}
-	else if(lineNameString == L"VPA") //I
+	else if(lineName == L"VPA") //I
 	{
 		return LINE_VPA;
 	}
@@ -1323,7 +1321,7 @@ unsigned int M68000::GetLineID(const wchar_t* lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* M68000::GetLineName(unsigned int lineID) const
+std::wstring M68000::GetLineName(unsigned int lineID) const
 {
 	switch(lineID)
 	{
@@ -1681,10 +1679,9 @@ void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData,
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int M68000::GetClockSourceID(const wchar_t* clockSourceName) const
+unsigned int M68000::GetClockSourceID(const std::wstring& clockSourceName) const
 {
-	std::wstring lineNameString = clockSourceName;
-	if(lineNameString == L"CLK")
+	if(clockSourceName == L"CLK")
 	{
 		return CLOCK_CLK;
 	}
@@ -1692,7 +1689,7 @@ unsigned int M68000::GetClockSourceID(const wchar_t* clockSourceName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* M68000::GetClockSourceName(unsigned int clockSourceID) const
+std::wstring M68000::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch(clockSourceID)
 	{
@@ -2199,38 +2196,37 @@ void M68000::WriteMemoryTransparent(const M68000Long& location, const Data& data
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int M68000::GetCELineID(const wchar_t* lineName, bool inputLine) const
+unsigned int M68000::GetCELineID(const std::wstring& lineName, bool inputLine) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"LDS")
+	if(lineName == L"LDS")
 	{
 		return CELINE_LDS;
 	}
-	else if(lineNameString == L"UDS")
+	else if(lineName == L"UDS")
 	{
 		return CELINE_UDS;
 	}
-	else if(lineNameString == L"R/W")
+	else if(lineName == L"R/W")
 	{
 		return CELINE_RW;
 	}
-	else if(lineNameString == L"AS")
+	else if(lineName == L"AS")
 	{
 		return CELINE_AS;
 	}
-	else if(lineNameString == L"FC")
+	else if(lineName == L"FC")
 	{
 		return CELINE_FC;
 	}
-	else if(lineNameString == L"FCCPUSpace")
+	else if(lineName == L"FCCPUSpace")
 	{
 		return CELINE_FCCPUSPACE;
 	}
-	else if(lineNameString == L"RMWCycleInProgress")
+	else if(lineName == L"RMWCycleInProgress")
 	{
 		return CELINE_RMWCYCLEINPROGRESS;
 	}
-	else if(lineNameString == L"RMWCycleFirstOperation")
+	else if(lineName == L"RMWCycleFirstOperation")
 	{
 		return CELINE_RMWCYCLEFIRSTOPERATION;
 	}

@@ -560,10 +560,9 @@ void S315_5313::SuspendExecution()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
+bool S315_5313::AddReference(const std::wstring& referenceName, IDevice* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"VRAM")
+	if(referenceName == L"VRAM")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
 		if(device != 0)
@@ -571,7 +570,7 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
 			vram = device->GetTimedBuffer();
 		}
 	}
-	else if(referenceNameString == L"CRAM")
+	else if(referenceName == L"CRAM")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
 		if(device != 0)
@@ -579,7 +578,7 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
 			cram = device->GetTimedBuffer();
 		}
 	}
-	else if(referenceNameString == L"VSRAM")
+	else if(referenceName == L"VSRAM")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
 		if(device != 0)
@@ -587,7 +586,7 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
 			vsram = device->GetTimedBuffer();
 		}
 	}
-	else if(referenceNameString == L"SpriteCache")
+	else if(referenceName == L"SpriteCache")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
 		if(device != 0)
@@ -595,7 +594,7 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
 			spriteCache = device->GetTimedBuffer();
 		}
 	}
-	else if(referenceNameString == L"PSG")
+	else if(referenceName == L"PSG")
 	{
 		psg = target;
 	}
@@ -607,10 +606,9 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IDevice* target)
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool S315_5313::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
+	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
 	}
@@ -622,11 +620,10 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IBusInterface* target
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::AddReference(const wchar_t* referenceName, IClockSource* target)
+bool S315_5313::AddReference(const std::wstring& referenceName, IClockSource* target)
 {
 	bool result = false;
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"CLK0")
+	if(referenceName == L"CLK0")
 	{
 		if(target->GetClockType() == IClockSource::CLOCKTYPE_DIVIDER)
 		{
@@ -634,7 +631,7 @@ bool S315_5313::AddReference(const wchar_t* referenceName, IClockSource* target)
 			result = true;
 		}
 	}
-	else if(referenceNameString == L"CLK1")
+	else if(referenceName == L"CLK1")
 	{
 		if(target->GetClockType() == IClockSource::CLOCKTYPE_DIVIDER)
 		{

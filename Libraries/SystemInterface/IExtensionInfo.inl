@@ -1,7 +1,15 @@
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int IExtensionInfo::ThisIExtensionInfoVersion()
+{
+	return 1;
+}
+
+//----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void IExtensionInfo::SetExtensionSettings(const std::wstring& aextensionName, IExtension* (aAllocator)(const wchar_t*, unsigned int), void (aDestructor)(IExtension*), unsigned int aextensionVersionNo)
+void IExtensionInfo::SetExtensionSettings(const std::wstring& aextensionName, AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int aextensionVersionNo)
 {
 	SetExtensionName(aextensionName);
 	SetExtensionVersionNo(aextensionVersionNo);

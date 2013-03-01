@@ -1,4 +1,12 @@
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int IGUIExtensionInterface::ThisIGUIExtensionInterfaceVersion()
+{
+	return 1;
+}
+
+//----------------------------------------------------------------------------------------
 //Module functions
 //----------------------------------------------------------------------------------------
 bool IGUIExtensionInterface::LoadModuleFromFile(const std::wstring& fileDir, const std::wstring& fileName)

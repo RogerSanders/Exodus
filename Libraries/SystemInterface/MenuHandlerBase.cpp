@@ -61,6 +61,14 @@ void MenuHandlerBase::ClearMenuItems()
 }
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int MenuHandlerBase::GetIMenuHandlerVersion() const
+{
+	return ThisIMenuHandlerVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Menu binding functions
 //----------------------------------------------------------------------------------------
 void MenuHandlerBase::AddMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& aviewModelLauncher)

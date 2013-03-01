@@ -38,14 +38,13 @@ void A06000::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool A06000::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool A06000::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"M68000Bus")
+	if(referenceName == L"M68000Bus")
 	{
 		m68kMemoryBus = target;
 	}
-	else if(referenceNameString == L"Z80Bus")
+	else if(referenceName == L"Z80Bus")
 	{
 		z80MemoryBus = target;
 	}

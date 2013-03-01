@@ -11,12 +11,20 @@ public:
 	MenuSubmenu(const std::wstring& aname);
 	~MenuSubmenu();
 
+	//Interface version functions
+	virtual unsigned int GetIMenuItemVersion() const;
+	virtual unsigned int GetIMenuSubmenuVersion() const;
+
 	//Type functions
 	virtual Type GetType() const;
+
+	//Menu name functions
+	std::wstring GetMenuName() const;
 
 	//Item management functions
 	virtual bool NoMenuSegmentsExist() const;
 	virtual bool NoMenuItemsExist() const;
+	std::list<IMenuSegment*> GetMenuSegments() const;
 
 	//Menu segment creation and deletion
 	virtual IMenuSegment& CreateMenuSegment();
@@ -25,13 +33,13 @@ public:
 
 protected:
 	//Menu name functions
-	virtual wchar_t* GetMenuNameInternal() const;
+	virtual const wchar_t* GetMenuNameInternal() const;
 
 	//Item management functions
-	virtual IMenuSegment** GetMenuSegmentList(unsigned int& itemCount);
+	virtual void GetMenuSegmentsInternal(IMenuSegment* itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const;
 
 private:
-	mutable std::wstring name;
+	std::wstring name;
 	std::vector<IMenuSegment*> menuSegments;
 };
 

@@ -13,6 +13,10 @@ public:
 	//Constructors
 	virtual ~IDeviceContext() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisIDeviceContextVersion();
+	virtual unsigned int GetIDeviceContextVersion() const = 0;
+
 	//Timing functions
 	virtual double GetCurrentTimesliceProgress() const = 0;
 	virtual void SetCurrentTimesliceProgress(double executionProgress) = 0;

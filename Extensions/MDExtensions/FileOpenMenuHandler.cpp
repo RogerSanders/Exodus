@@ -8,6 +8,14 @@ MegaDriveROMLoader::FileOpenMenuHandler::FileOpenMenuHandler(MegaDriveROMLoader*
 {}
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int MegaDriveROMLoader::FileOpenMenuHandler::GetIMenuHandlerVersion() const
+{
+	return ThisIMenuHandlerVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Menu item handler functions
 //----------------------------------------------------------------------------------------
 void MegaDriveROMLoader::FileOpenMenuHandler::AddMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& aviewModelLauncher)

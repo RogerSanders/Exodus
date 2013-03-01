@@ -13,8 +13,12 @@ public:
 		MENUITEM_CLOSEMEGADRIVEROM
 	};
 
+public:
 	//Constructors
 	FileOpenMenuHandler(MegaDriveROMLoader* adevice);
+
+	//Interface version functions
+	virtual unsigned int GetIMenuHandlerVersion() const;
 
 	//Menu item handler functions
 	void AddMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& aviewModelLauncher);

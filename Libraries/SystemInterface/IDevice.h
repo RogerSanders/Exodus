@@ -10,19 +10,13 @@ class IHeirarchicalStorageNode;
 class Data;
 class IDeviceContext;
 class IExtension;
+class IViewModelLauncher;
 
-//##TODO## Add versioning to this interface, and all other system interfaces, so we can
-//extend them in the future, without breaking compatibility with existing plugins.
 class IDevice
 {
 public:
 	//Enumerations
-	enum UpdateMethod
-	{
-		UPDATEMETHOD_NONE,
-		UPDATEMETHOD_STEP,
-		UPDATEMETHOD_TIMESLICE
-	};
+	enum UpdateMethod;
 
 	//Typedefs
 	typedef void* AssemblyHandle;
@@ -30,6 +24,10 @@ public:
 public:
 	//Constructors
 	virtual ~IDevice() = 0 {}
+
+	//Interface version functions
+	static inline unsigned int ThisIDeviceVersion();
+	virtual unsigned int GetIDeviceVersion() const = 0;
 
 	//Initialization functions
 	virtual bool BindToDeviceContext(IDeviceContext* adeviceContext) = 0;
@@ -40,13 +38,9 @@ public:
 
 	//Reference functions
 	inline bool AddReference(const std::wstring& referenceName, IDevice* target);
-	virtual bool AddReference(const wchar_t* referenceName, IDevice* target) = 0;
 	inline bool AddReference(const std::wstring& referenceName, IExtension* target);
-	virtual bool AddReference(const wchar_t* referenceName, IExtension* target) = 0;
 	inline bool AddReference(const std::wstring& referenceName, IBusInterface* target);
-	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target) = 0;
 	inline bool AddReference(const std::wstring& referenceName, IClockSource* target);
-	virtual bool AddReference(const wchar_t* referenceName, IClockSource* target) = 0;
 	virtual bool RemoveReference(IDevice* target) = 0;
 	virtual bool RemoveReference(IExtension* target) = 0;
 	virtual bool RemoveReference(IBusInterface* target) = 0;
@@ -95,7 +89,6 @@ public:
 
 	//CE line state functions
 	inline unsigned int GetCELineID(const std::wstring& lineName, bool inputLine) const;
-	virtual unsigned int GetCELineID(const wchar_t* lineName, bool inputLine) const = 0;
 	virtual void SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber) = 0;
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber) = 0;
 	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const = 0;
@@ -117,8 +110,7 @@ public:
 
 	//Line functions
 	inline unsigned int GetLineID(const std::wstring& lineName) const;
-	virtual unsigned int GetLineID(const wchar_t* lineName) const = 0;
-	virtual const wchar_t* GetLineName(unsigned int lineID) const = 0;
+	inline std::wstring GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const = 0;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData) = 0;
@@ -129,15 +121,13 @@ public:
 
 	//Clock source functions
 	inline unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
-	virtual unsigned int GetClockSourceID(const wchar_t* clockSourceName) const = 0;
-	virtual const wchar_t* GetClockSourceName(unsigned int clockSourceID) const = 0;
+	inline std::wstring GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate) = 0;
 
 	//Input functions
 	inline unsigned int GetKeyCodeID(const std::wstring& keyCodeName) const;
-	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const = 0;
-	virtual const wchar_t* GetKeyCodeName(unsigned int keyCodeID) const = 0;
+	inline std::wstring GetKeyCodeName(unsigned int keyCodeID) const;
 	virtual void HandleInputKeyDown(unsigned int keyCodeID) = 0;
 	virtual void HandleInputKeyUp(unsigned int keyCodeID) = 0;
 
@@ -152,15 +142,38 @@ public:
 	virtual void AddGlobalDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	inline void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
 	inline void OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher) = 0;
 
 protected:
+	//Reference functions
+	virtual bool AddReferenceInternal(const wchar_t* referenceName, IDevice* target) = 0;
+	virtual bool AddReferenceInternal(const wchar_t* referenceName, IExtension* target) = 0;
+	virtual bool AddReferenceInternal(const wchar_t* referenceName, IBusInterface* target) = 0;
+	virtual bool AddReferenceInternal(const wchar_t* referenceName, IClockSource* target) = 0;
+
 	//Name functions
 	virtual const wchar_t* GetDeviceClassNameInternal() const = 0;
 	virtual const wchar_t* GetDeviceInstanceNameInternal() const = 0;
 	virtual const wchar_t* GetModuleDisplayNameInternal() const = 0;
+
+	//CE line state functions
+	virtual unsigned int GetCELineIDInternal(const wchar_t* lineName, bool inputLine) const = 0;
+
+	//Line functions
+	virtual unsigned int GetLineIDInternal(const wchar_t* lineName) const = 0;
+	virtual const wchar_t* GetLineNameInternal(unsigned int lineID) const = 0;
+
+	//Clock source functions
+	virtual unsigned int GetClockSourceIDInternal(const wchar_t* clockSourceName) const = 0;
+	virtual const wchar_t* GetClockSourceNameInternal(unsigned int clockSourceID) const = 0;
+
+	//Input functions
+	virtual unsigned int GetKeyCodeIDInternal(const wchar_t* keyCodeName) const = 0;
+	virtual const wchar_t* GetKeyCodeNameInternal(unsigned int keyCodeID) const = 0;
+
+	//Window functions
+	virtual void RestoreViewModelStateInternal(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual void OpenViewModelInternal(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher) = 0;
 };
 
 #include "IDevice.inl"

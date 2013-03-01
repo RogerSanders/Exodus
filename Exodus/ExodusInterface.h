@@ -63,6 +63,10 @@ public:
 	HWND CreateMainInterface(HINSTANCE hinstance);
 	bool InitializeSystem();
 
+	//Interface version functions
+	virtual unsigned int GetIViewModelLauncherVersion() const;
+	virtual unsigned int GetIGUIExtensionInterfaceVersion() const;
+
 	//Main window functions
 	virtual void* GetMainWindowHandle() const;
 

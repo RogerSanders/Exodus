@@ -11,6 +11,10 @@ public:
 	//Constructors
 	virtual ~IViewModel() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisIViewModelVersion();
+	virtual unsigned int GetIViewModelVersion() const = 0;
+
 	//View management functions
 	virtual bool OpenView(IViewModelNotifier* anotifier, void* aparentWindow, int xpos, int ypos) = 0;
 	virtual void CloseView() = 0;

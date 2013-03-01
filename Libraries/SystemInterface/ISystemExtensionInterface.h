@@ -11,6 +11,10 @@ public:
 	//Constructors
 	virtual ~ISystemExtensionInterface() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisISystemExtensionInterfaceVersion();
+	virtual unsigned int GetISystemExtensionInterfaceVersion() const = 0;
+
 	//Logging functions
 	virtual void WriteLogEvent(const ILogEntry& entry) const = 0;
 

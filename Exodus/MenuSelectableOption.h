@@ -8,7 +8,12 @@ public:
 	//Constructors
 	MenuSelectableOption(IMenuHandler& amenuHandler, int amenuItemID, const std::wstring& aname);
 
+	//Interface version functions
+	virtual unsigned int GetIMenuItemVersion() const;
+	virtual unsigned int GetIMenuSelectableOptionVersion() const;
+
 	//Menu handler functions
+	std::wstring GetName() const;
 	virtual IMenuHandler& GetMenuHandler() const;
 	virtual int GetMenuItemID() const;
 

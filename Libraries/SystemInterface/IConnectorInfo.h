@@ -8,6 +8,10 @@ public:
 	//Constructors
 	virtual ~IConnectorInfo() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisIConnectorInfoVersion();
+	virtual unsigned int GetIConnectorInfoVersion() const = 0;
+
 	//Internal data
 	virtual unsigned int GetConnectorID() const = 0;
 	virtual void SetConnectorID(unsigned int aconnectorID) = 0;

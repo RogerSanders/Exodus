@@ -8,6 +8,10 @@ public:
 	//Constructors
 	virtual ~IGUIExtensionInterface() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisIGUIExtensionInterfaceVersion();
+	virtual unsigned int GetIGUIExtensionInterfaceVersion() const = 0;
+
 	//Main window functions
 	virtual void* GetMainWindowHandle() const = 0;
 

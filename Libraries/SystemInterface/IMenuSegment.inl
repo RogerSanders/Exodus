@@ -1,21 +1,35 @@
-#include "IMenuHandler.h"
-#include "IMenuSeparator.h"
-#include "IMenuSubmenu.h"
-#include "IMenuSelectableOption.h"
+//----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int IMenuSegment::ThisIMenuSegmentVersion()
+{
+	return 1;
+}
 
 //----------------------------------------------------------------------------------------
 //Item management functions
 //----------------------------------------------------------------------------------------
-std::list<IMenuItem*> IMenuSegment::GetMenuItems()
+std::list<IMenuItem*> IMenuSegment::GetMenuItems() const
 {
-	std::list<IMenuItem*> list;
-	unsigned int itemCount;
-	IMenuItem** itemBuffer = GetMenuItemList(itemCount);
-	for(unsigned int i = 0; i < itemCount; ++i)
+	//Obtain the set of items in an array
+	std::vector<IMenuItem*> itemArray;
+	unsigned int arraySize = 0;
+	unsigned int requiredArraySize = 1;
+	bool itemsRetrieved = false;
+	while(!itemsRetrieved)
 	{
-		list.push_back(*(itemBuffer + i));
+		arraySize = requiredArraySize;
+		itemArray.resize(arraySize);
+		GetMenuItemsInternal(&itemArray[0], arraySize, requiredArraySize, itemsRetrieved);
 	}
-	return list;
+
+	//Load the set of items into our list structure, and return it to the caller.
+	std::list<IMenuItem*> items;
+	for(unsigned int i = 0; i < requiredArraySize; ++i)
+	{
+		items.push_back(itemArray[i]);
+	}
+	return items;
 }
 
 //----------------------------------------------------------------------------------------
@@ -23,11 +37,11 @@ std::list<IMenuItem*> IMenuSegment::GetMenuItems()
 //----------------------------------------------------------------------------------------
 IMenuSubmenu& IMenuSegment::AddMenuItemSubmenu(const std::wstring& name)
 {
-	return AddMenuItemSubmenu(name.c_str());
+	return AddMenuItemSubmenuInternal(name.c_str());
 }
 
 //----------------------------------------------------------------------------------------
 IMenuSelectableOption& IMenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& name)
 {
-	return AddMenuItemSelectableOption(menuHandler, menuItemID, name.c_str());
+	return AddMenuItemSelectableOptionInternal(menuHandler, menuItemID, name.c_str());
 }

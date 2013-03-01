@@ -67,6 +67,9 @@ public:
 	inline System(void* aassemblyHandle);
 	inline ~System();
 
+	//Interface version functions
+	virtual unsigned int GetISystemExtensionInterfaceVersion() const;
+
 	//Initialization functions
 	virtual void BindToGUIExtensionInterface(IGUIExtensionInterface* aguiExtensionInterface);
 

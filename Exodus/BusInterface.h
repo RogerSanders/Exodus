@@ -68,6 +68,9 @@ public:
 	bool Construct(IHeirarchicalStorageNode& node);
 	bool Construct(const BusInterfaceParams& params);
 
+	//Interface version functions
+	virtual unsigned int GetIBusInterfaceVersion() const;
+
 	//Unmapping functions
 	void RemoveAllReferencesToDevice(IDevice* device);
 

@@ -10,6 +10,9 @@ public:
 	//Constructors
 	SystemOptionMenuHandler(System* adevice);
 
+	//Interface version functions
+	virtual unsigned int GetIMenuHandlerVersion() const;
+
 	//System setting functions
 	unsigned int AddSystemSettingMenuItem(unsigned int settingID, unsigned int settingOptionNo);
 

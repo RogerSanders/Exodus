@@ -356,10 +356,9 @@ void YM2612::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool YM2612::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool YM2612::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
+	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
 	}
@@ -387,10 +386,9 @@ bool YM2612::RemoveReference(IBusInterface* target)
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetLineID(const wchar_t* lineName) const
+unsigned int YM2612::GetLineID(const std::wstring& lineName) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"IRQ")
+	if(lineName == L"IRQ")
 	{
 		return LINE_IRQ;
 	}
@@ -398,7 +396,7 @@ unsigned int YM2612::GetLineID(const wchar_t* lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* YM2612::GetLineName(unsigned int lineID) const
+std::wstring YM2612::GetLineName(unsigned int lineID) const
 {
 	switch(lineID)
 	{
@@ -440,10 +438,9 @@ void YM2612::NegateCurrentOutputLineState() const
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetClockSourceID(const wchar_t* clockSourceName) const
+unsigned int YM2612::GetClockSourceID(const std::wstring& clockSourceName) const
 {
-	std::wstring lineNameString = clockSourceName;
-	if(lineNameString == L"0M")
+	if(clockSourceName == L"0M")
 	{
 		return CLOCK_0M;
 	}
@@ -451,7 +448,7 @@ unsigned int YM2612::GetClockSourceID(const wchar_t* clockSourceName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* YM2612::GetClockSourceName(unsigned int clockSourceID) const
+std::wstring YM2612::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch(clockSourceID)
 	{

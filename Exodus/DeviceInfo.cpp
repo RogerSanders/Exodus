@@ -1,13 +1,23 @@
 #include "DeviceInfo.h"
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int DeviceInfo::GetIDeviceInfoVersion() const
+{
+	return ThisIDeviceInfoVersion();
+}
+
+//----------------------------------------------------------------------------------------
+//Setters
+//----------------------------------------------------------------------------------------
 void DeviceInfo::SetDeviceVersionNo(unsigned int adeviceVersionNo)
 {
 	deviceVersionNo = adeviceVersionNo;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceAllocators(IDevice* (aAllocator)(const wchar_t*, unsigned int), void (aDestructor)(IDevice*))
+void DeviceInfo::SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
 {
 	Allocator = aAllocator;
 	Destructor = aDestructor;
@@ -19,6 +29,8 @@ void DeviceInfo::SetDeviceNameInternal(const wchar_t* adeviceName)
 	deviceName = adeviceName;
 }
 
+//----------------------------------------------------------------------------------------
+//Getters
 //----------------------------------------------------------------------------------------
 unsigned int DeviceInfo::GetDeviceVersionNo() const
 {

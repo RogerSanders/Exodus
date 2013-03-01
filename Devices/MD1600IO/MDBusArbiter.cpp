@@ -82,10 +82,9 @@ void MDBusArbiter::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool MDBusArbiter::AddReference(const wchar_t* referenceName, IDevice* target)
+bool MDBusArbiter::AddReference(const std::wstring& referenceName, IDevice* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BootROM")
+	if(referenceName == L"BootROM")
 	{
 		bootROM = target;
 	}
@@ -97,14 +96,13 @@ bool MDBusArbiter::AddReference(const wchar_t* referenceName, IDevice* target)
 }
 
 //----------------------------------------------------------------------------------------
-bool MDBusArbiter::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool MDBusArbiter::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"M68000Bus")
+	if(referenceName == L"M68000Bus")
 	{
 		m68kMemoryBus = target;
 	}
-	else if(referenceNameString == L"Z80Bus")
+	else if(referenceName == L"Z80Bus")
 	{
 		z80MemoryBus = target;
 	}
@@ -789,70 +787,69 @@ bool MDBusArbiter::WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data 
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int MDBusArbiter::GetCELineID(const wchar_t* lineName, bool inputLine) const
+unsigned int MDBusArbiter::GetCELineID(const std::wstring& lineName, bool inputLine) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"R/W")
+	if(lineName == L"R/W")
 	{
 		return CELINE_RW;
 	}
-	else if(lineNameString == L"OE0")
+	else if(lineName == L"OE0")
 	{
 		return CELINE_OE0;
 	}
-	else if(lineNameString == L"UDS")
+	else if(lineName == L"UDS")
 	{
 		return CELINE_UDS;
 	}
-	else if(lineNameString == L"LDS")
+	else if(lineName == L"LDS")
 	{
 		return CELINE_LDS;
 	}
-	else if(lineNameString == L"CE0")
+	else if(lineName == L"CE0")
 	{
 		return CELINE_CE0;
 	}
-	else if(lineNameString == L"BootROM")
+	else if(lineName == L"BootROM")
 	{
 		return CELINE_BOOTROM;
 	}
-	else if(lineNameString == L"ROM")
+	else if(lineName == L"ROM")
 	{
 		return CELINE_ROM;
 	}
-	else if(lineNameString == L"ASEL")
+	else if(lineName == L"ASEL")
 	{
 		return CELINE_ASEL;
 	}
-	else if(lineNameString == L"FDC")
+	else if(lineName == L"FDC")
 	{
 		return CELINE_FDC;
 	}
-	else if(lineNameString == L"FDWR")
+	else if(lineName == L"FDWR")
 	{
 		return CELINE_FDWR;
 	}
-	else if(lineNameString == L"TIME")
+	else if(lineName == L"TIME")
 	{
 		return CELINE_TIME;
 	}
-	else if(lineNameString == L"IO")
+	else if(lineName == L"IO")
 	{
 		return CELINE_IO;
 	}
-	else if(lineNameString == L"EOE")
+	else if(lineName == L"EOE")
 	{
 		return CELINE_EOE;
 	}
-	else if(lineNameString == L"NOE")
+	else if(lineName == L"NOE")
 	{
 		return CELINE_NOE;
 	}
-	else if(lineNameString == L"ZRAM")
+	else if(lineName == L"ZRAM")
 	{
 		return CELINE_ZRAM;
 	}
-	else if(lineNameString == L"SOUND")
+	else if(lineName == L"SOUND")
 	{
 		return CELINE_SOUND;
 	}
@@ -1012,46 +1009,45 @@ unsigned int MDBusArbiter::BuildCELineZ80(unsigned int targetAddress) const
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int MDBusArbiter::GetLineID(const wchar_t* lineName) const
+unsigned int MDBusArbiter::GetLineID(const std::wstring& lineName) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"CART")
+	if(lineName == L"CART")
 	{
 		return LINE_CART;
 	}
-	else if(lineNameString == L"VPA")
+	else if(lineName == L"VPA")
 	{
 		return LINE_VPA;
 	}
-	else if(lineNameString == L"INTAK")
+	else if(lineName == L"INTAK")
 	{
 		return LINE_INTAK;
 	}
-	else if(lineNameString == L"BR")
+	else if(lineName == L"BR")
 	{
 		return LINE_BR;
 	}
-	else if(lineNameString == L"BG")
+	else if(lineName == L"BG")
 	{
 		return LINE_BG;
 	}
-	else if(lineNameString == L"ZBR")
+	else if(lineName == L"ZBR")
 	{
 		return LINE_ZBR;
 	}
-	else if(lineNameString == L"ZBAK")
+	else if(lineName == L"ZBAK")
 	{
 		return LINE_ZBAK;
 	}
-	else if(lineNameString == L"ZRES")
+	else if(lineName == L"ZRES")
 	{
 		return LINE_ZRES;
 	}
-	else if(lineNameString == L"ActivateTMSS")
+	else if(lineName == L"ActivateTMSS")
 	{
 		return LINE_ACTIVATETMSS;
 	}
-	else if(lineNameString == L"ActivateBootROM")
+	else if(lineName == L"ActivateBootROM")
 	{
 		return LINE_ACTIVATEBOOTROM;
 	}
@@ -1059,7 +1055,7 @@ unsigned int MDBusArbiter::GetLineID(const wchar_t* lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* MDBusArbiter::GetLineName(unsigned int lineID) const
+std::wstring MDBusArbiter::GetLineName(unsigned int lineID) const
 {
 	switch(lineID)
 	{

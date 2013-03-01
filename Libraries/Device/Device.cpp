@@ -14,6 +14,14 @@ Device::~Device()
 }
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int Device::GetIDeviceVersion() const
+{
+	return ThisIDeviceVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
 bool Device::BindToDeviceContext(IDeviceContext* adeviceContext)
@@ -47,27 +55,51 @@ void Device::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool Device::AddReference(const wchar_t* referenceName, IDevice* target)
+bool Device::AddReference(const std::wstring& referenceName, IDevice* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReference(const wchar_t* referenceName, IExtension* target)
+bool Device::AddReference(const std::wstring& referenceName, IExtension* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool Device::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReference(const wchar_t* referenceName, IClockSource* target)
+bool Device::AddReference(const std::wstring& referenceName, IClockSource* target)
 {
 	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Device::AddReferenceInternal(const wchar_t* referenceName, IDevice* target)
+{
+	return AddReference(referenceName, target);
+}
+
+//----------------------------------------------------------------------------------------
+bool Device::AddReferenceInternal(const wchar_t* referenceName, IExtension* target)
+{
+	return AddReference(referenceName, target);
+}
+
+//----------------------------------------------------------------------------------------
+bool Device::AddReferenceInternal(const wchar_t* referenceName, IBusInterface* target)
+{
+	return AddReference(referenceName, target);
+}
+
+//----------------------------------------------------------------------------------------
+bool Device::AddReferenceInternal(const wchar_t* referenceName, IClockSource* target)
+{
+	return AddReference(referenceName, target);
 }
 
 //----------------------------------------------------------------------------------------
@@ -263,7 +295,7 @@ const wchar_t* Device::GetDeviceInstanceNameInternal() const
 //----------------------------------------------------------------------------------------
 const wchar_t* Device::GetModuleDisplayNameInternal() const
 {
-	moduleDisplayNameCached = deviceContext->GetModuleDisplayName();
+	moduleDisplayNameCached = GetModuleDisplayName();
 	return moduleDisplayNameCached.c_str();
 }
 
@@ -308,9 +340,15 @@ void Device::SaveDebuggerState(IHeirarchicalStorageNode& node) const
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetCELineID(const wchar_t* lineName, bool inputLine) const
+unsigned int Device::GetCELineID(const std::wstring& lineName, bool inputLine) const
 {
 	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Device::GetCELineIDInternal(const wchar_t* lineName, bool inputLine) const
+{
+	return GetCELineID(lineName, inputLine);
 }
 
 //----------------------------------------------------------------------------------------
@@ -392,15 +430,28 @@ void Device::TransparentWritePort(unsigned int interfaceNumber, unsigned int loc
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetLineID(const wchar_t* lineName) const
+unsigned int Device::GetLineID(const std::wstring& lineName) const
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetLineName(unsigned int lineID) const
+std::wstring Device::GetLineName(unsigned int lineID) const
 {
 	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Device::GetLineIDInternal(const wchar_t* lineName) const
+{
+	return GetLineID(lineName);
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* Device::GetLineNameInternal(unsigned int lineID) const
+{
+	lineNameCached = GetLineName(lineID);
+	return lineNameCached.c_str();
 }
 
 //----------------------------------------------------------------------------------------
@@ -441,15 +492,28 @@ void Device::NegateCurrentOutputLineState() const
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetClockSourceID(const wchar_t* lineName) const
+unsigned int Device::GetClockSourceID(const std::wstring& clockSourceName) const
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetClockSourceName(unsigned int lineID) const
+std::wstring Device::GetClockSourceName(unsigned int clockSourceID) const
 {
 	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Device::GetClockSourceIDInternal(const wchar_t* clockSourceName) const
+{
+	return GetClockSourceID(clockSourceName);
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* Device::GetClockSourceNameInternal(unsigned int clockSourceID) const
+{
+	clockSourceNameCached = GetClockSourceName(clockSourceID);
+	return clockSourceNameCached.c_str();
 }
 
 //----------------------------------------------------------------------------------------
@@ -463,15 +527,28 @@ void Device::TransparentSetClockSourceRate(unsigned int clockInput, double clock
 //----------------------------------------------------------------------------------------
 //Input functions
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetKeyCodeID(const wchar_t* keyCodeName) const
+unsigned int Device::GetKeyCodeID(const std::wstring& keyCodeName) const
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetKeyCodeName(unsigned int keyCodeID) const
+std::wstring Device::GetKeyCodeName(unsigned int keyCodeID) const
 {
 	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Device::GetKeyCodeIDInternal(const wchar_t* keyCodeName) const
+{
+	return GetKeyCodeID(keyCodeName);
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* Device::GetKeyCodeNameInternal(unsigned int keyCodeID) const
+{
+	keyCodeNameCached = GetKeyCodeName(keyCodeID);
+	return keyCodeNameCached.c_str();
 }
 
 //----------------------------------------------------------------------------------------
@@ -509,23 +586,21 @@ void Device::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& vi
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::RestoreViewModelState(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
-{
-	std::wstring menuHandlerNameString = menuHandlerName;
-	RestoreViewModelState(menuHandlerNameString, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
-}
-
-//----------------------------------------------------------------------------------------
 void Device::RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::OpenViewModel(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+void Device::OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+{}
+
+//----------------------------------------------------------------------------------------
+void Device::RestoreViewModelStateInternal(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	std::wstring menuHandlerNameString = menuHandlerName;
-	OpenViewModel(menuHandlerNameString, viewModelID, viewModelLauncher);
+	RestoreViewModelState(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
-void Device::OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
-{}
+void Device::OpenViewModelInternal(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+{
+	OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
+}

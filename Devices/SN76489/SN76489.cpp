@@ -132,10 +132,9 @@ void SN76489::Initialize()
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int SN76489::GetClockSourceID(const wchar_t* clockSourceName) const
+unsigned int SN76489::GetClockSourceID(const std::wstring& clockSourceName) const
 {
-	std::wstring lineNameString = clockSourceName;
-	if(lineNameString == L"CLOCK")
+	if(clockSourceName == L"CLOCK")
 	{
 		return CLOCK_CLOCK;
 	}
@@ -143,7 +142,7 @@ unsigned int SN76489::GetClockSourceID(const wchar_t* clockSourceName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* SN76489::GetClockSourceName(unsigned int clockSourceID) const
+std::wstring SN76489::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch(clockSourceID)
 	{

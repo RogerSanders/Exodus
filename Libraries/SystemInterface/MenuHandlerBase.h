@@ -3,6 +3,9 @@
 #include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
 #include "IMenuHandler.h"
 #include "IMenuSegment.h"
+#include "IMenuSelectableOption.h"
+#include "IMenuSubmenu.h"
+#include "IMenuSeparator.h"
 #include <map>
 #include <list>
 #include <string>
@@ -20,6 +23,9 @@ public:
 	virtual ~MenuHandlerBase();
 	void LoadMenuItems();
 	void ClearMenuItems();
+
+	//Interface version functions
+	virtual unsigned int GetIMenuHandlerVersion() const;
 
 	//Menu binding functions
 	void AddMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& aviewModelLauncher);

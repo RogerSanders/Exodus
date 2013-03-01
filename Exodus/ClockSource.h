@@ -16,6 +16,9 @@ public:
 	bool Construct(const ClockSourceParams& params);
 	static bool DecodeClockTypeString(const std::wstring& clockTypeString, ClockType& aclockType);
 
+	//Interface version functions
+	virtual unsigned int GetIClockSourceVersion() const;
+
 	//Reference functions
 	bool AddReference(IBusInterface* target);
 	void RemoveReference(IBusInterface* target);

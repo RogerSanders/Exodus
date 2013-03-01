@@ -20,6 +20,14 @@ MenuSegment::~MenuSegment()
 }
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int MenuSegment::GetIMenuSegmentVersion() const
+{
+	return ThisIMenuSegmentVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Item management functions
 //----------------------------------------------------------------------------------------
 bool MenuSegment::NoMenuItemsExist() const
@@ -28,14 +36,34 @@ bool MenuSegment::NoMenuItemsExist() const
 }
 
 //----------------------------------------------------------------------------------------
-IMenuItem** MenuSegment::GetMenuItemList(unsigned int& itemCount)
+std::list<IMenuItem*> MenuSegment::GetMenuItems() const
 {
-	itemCount = (unsigned int)menuItems.size();
-	if(itemCount > 0)
+	std::list<IMenuItem*> menuItemList;
+	for(unsigned int i = 0; i < (unsigned int)menuItems.size(); ++i)
 	{
-		return (IMenuItem**)&menuItems[0];
+		menuItemList.push_back(menuItems[i]);
 	}
-	return (IMenuItem**)0;
+	return menuItemList;
+}
+
+//----------------------------------------------------------------------------------------
+void MenuSegment::GetMenuItemsInternal(IMenuItem* itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const
+{
+	//Ensure that the supplied array is big enough to hold all the items
+	requiredSize = (unsigned int)menuItems.size();
+	if(requiredSize > arraySize)
+	{
+		itemsRetrieved = false;
+		return;
+	}
+
+	//Write all the items to the array
+	unsigned int arrayIndex = 0;
+	for(unsigned int i = 0; i < (unsigned int)menuItems.size(); ++i)
+	{
+		itemArray[arrayIndex++] = menuItems[i];
+	}
+	itemsRetrieved = true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -49,7 +77,7 @@ IMenuSeparator& MenuSegment::AddMenuItemSeparator()
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const wchar_t* name)
+IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const std::wstring& name)
 {
 	IMenuSubmenu* newMenuItem = new MenuSubmenu(name);
 	menuItems.push_back(newMenuItem);
@@ -57,11 +85,23 @@ IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const wchar_t* name)
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const wchar_t* name)
+IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& name)
 {
 	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, name);
 	menuItems.push_back(newMenuItem);
 	return *newMenuItem;
+}
+
+//----------------------------------------------------------------------------------------
+IMenuSubmenu& MenuSegment::AddMenuItemSubmenuInternal(const wchar_t* name)
+{
+	return AddMenuItemSubmenu(name);
+}
+
+//----------------------------------------------------------------------------------------
+IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const wchar_t* name)
+{
+	return AddMenuItemSelectableOption(menuHandler, menuItemID, name);
 }
 
 //----------------------------------------------------------------------------------------

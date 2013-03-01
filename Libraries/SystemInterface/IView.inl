@@ -5,3 +5,11 @@ std::wstring IView::GetViewTitle() const
 {
 	return GetViewTitleInternal();
 }
+
+//----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int IView::ThisIViewVersion()
+{
+	return 1;
+}
