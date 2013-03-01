@@ -7,6 +7,10 @@
 class IMenuSelectableOption :public IMenuItem
 {
 public:
+	//Interface version functions
+	static inline unsigned int ThisIMenuSelectableOptionVersion();
+	virtual unsigned int GetIMenuSelectableOptionVersion() const = 0;
+
 	//Menu handler functions
 	inline std::wstring GetName() const;
 	virtual IMenuHandler& GetMenuHandler() const = 0;

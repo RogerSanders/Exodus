@@ -8,7 +8,27 @@ MenuSelectableOption::MenuSelectableOption(IMenuHandler& amenuHandler, int amenu
 {}
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int MenuSelectableOption::GetIMenuItemVersion() const
+{
+	return ThisIMenuItemVersion();
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int MenuSelectableOption::GetIMenuSelectableOptionVersion() const
+{
+	return ThisIMenuSelectableOptionVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Menu handler functions
+//----------------------------------------------------------------------------------------
+std::wstring MenuSelectableOption::GetName() const
+{
+	return name;
+}
+
 //----------------------------------------------------------------------------------------
 const wchar_t* MenuSelectableOption::GetNameInternal() const
 {

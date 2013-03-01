@@ -13,6 +13,14 @@
 #include <iomanip>
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int System::GetISystemExtensionInterfaceVersion() const
+{
+	return ThisISystemExtensionInterfaceVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
 void System::BindToGUIExtensionInterface(IGUIExtensionInterface* aguiExtensionInterface)

@@ -14,6 +14,10 @@ public:
 	//Constructors
 	virtual ~IBusInterface() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisIBusInterfaceVersion();
+	virtual unsigned int GetIBusInterfaceVersion() const = 0;
+
 	//Memory interface functions
 	virtual AccessResult ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext = 0) = 0;
 	virtual AccessResult WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext = 0) = 0;

@@ -46,6 +46,9 @@ public:
 	//Constructors
 	inline DeviceContext(IDevice* adevice);
 
+	//Interface version functions
+	virtual unsigned int GetIDeviceContextVersion() const;
+
 	//Execute functions
 	inline void NotifyUpcomingTimeslice(double nanoseconds);
 	inline void NotifyBeforeExecuteCalled();
@@ -86,6 +89,8 @@ public:
 	virtual void StopSystem();
 	virtual void RunSystem();
 	virtual void ExecuteDeviceStep();
+	inline std::wstring GetCapturePath() const;
+	inline std::wstring GetModuleDisplayName() const;
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const;

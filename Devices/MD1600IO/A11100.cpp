@@ -39,10 +39,9 @@ void A11100::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool A11100::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool A11100::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
+	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
 	}
@@ -218,18 +217,17 @@ IBusInterface::AccessResult A11100::WriteInterface(unsigned int interfaceNumber,
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int A11100::GetLineID(const wchar_t* lineName) const
+unsigned int A11100::GetLineID(const std::wstring& lineName) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"RESET")
+	if(lineName == L"RESET")
 	{
 		return LINE_RESET;
 	}
-	else if(lineNameString == L"BUSREQ")
+	else if(lineName == L"BUSREQ")
 	{
 		return LINE_BUSREQ;
 	}
-	else if(lineNameString == L"BUSACK")
+	else if(lineName == L"BUSACK")
 	{
 		return LINE_BUSACK;
 	}
@@ -237,7 +235,7 @@ unsigned int A11100::GetLineID(const wchar_t* lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* A11100::GetLineName(unsigned int lineID) const
+std::wstring A11100::GetLineName(unsigned int lineID) const
 {
 	switch(lineID)
 	{

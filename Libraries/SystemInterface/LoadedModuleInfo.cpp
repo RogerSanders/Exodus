@@ -1,6 +1,21 @@
 #include "LoadedModuleInfo.h"
 
 //----------------------------------------------------------------------------------------
+//Constructors
+//----------------------------------------------------------------------------------------
+LoadedModuleInfo::LoadedModuleInfo()
+:moduleID(0), programModule(false)
+{}
+
+//----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int LoadedModuleInfo::GetILoadedModuleInfoVersion() const
+{
+	return ThisILoadedModuleInfoVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Internal data
 //----------------------------------------------------------------------------------------
 unsigned int LoadedModuleInfo::GetModuleID() const

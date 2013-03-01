@@ -1,6 +1,21 @@
 #include "ConnectorInfo.h"
 
 //----------------------------------------------------------------------------------------
+//Constructors
+//----------------------------------------------------------------------------------------
+ConnectorInfo::ConnectorInfo()
+:connectorID(0), exportingModuleID(0), connectorUsed(false), importingModuleID(0)
+{}
+
+//----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int ConnectorInfo::GetIConnectorInfoVersion() const
+{
+	return ThisIConnectorInfoVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Internal data
 //----------------------------------------------------------------------------------------
 unsigned int ConnectorInfo::GetConnectorID() const

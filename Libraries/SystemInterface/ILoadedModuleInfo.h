@@ -8,6 +8,10 @@ public:
 	//Constructors
 	virtual ~ILoadedModuleInfo() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisILoadedModuleInfoVersion();
+	virtual unsigned int GetILoadedModuleInfoVersion() const = 0;
+
 	//Internal data
 	virtual unsigned int GetModuleID() const = 0;
 	virtual void SetModuleID(unsigned int amoduleID) = 0;

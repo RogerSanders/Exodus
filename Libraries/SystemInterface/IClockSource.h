@@ -12,6 +12,10 @@ public:
 	//Constructors
 	virtual ~IClockSource() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisIClockSourceVersion();
+	virtual unsigned int GetIClockSourceVersion() const = 0;
+
 	//Clock type functions
 	virtual ClockType GetClockType() const = 0;
 

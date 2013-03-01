@@ -1,13 +1,23 @@
 #include "ExtensionInfo.h"
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int ExtensionInfo::GetIExtensionInfoVersion() const
+{
+	return ThisIExtensionInfoVersion();
+}
+
+//----------------------------------------------------------------------------------------
+//Setters
+//----------------------------------------------------------------------------------------
 void ExtensionInfo::SetExtensionVersionNo(unsigned int aextensionVersionNo)
 {
 	extensionVersionNo = aextensionVersionNo;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionAllocators(IExtension* (aAllocator)(const wchar_t*, unsigned int), void (aDestructor)(IExtension*))
+void ExtensionInfo::SetExtensionAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
 {
 	Allocator = aAllocator;
 	Destructor = aDestructor;
@@ -19,6 +29,8 @@ void ExtensionInfo::SetExtensionNameInternal(const wchar_t* aextensionName)
 	extensionName = aextensionName;
 }
 
+//----------------------------------------------------------------------------------------
+//Getters
 //----------------------------------------------------------------------------------------
 unsigned int ExtensionInfo::GetExtensionVersionNo() const
 {

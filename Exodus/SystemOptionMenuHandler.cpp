@@ -8,6 +8,14 @@ System::SystemOptionMenuHandler::SystemOptionMenuHandler(System* adevice)
 {}
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int System::SystemOptionMenuHandler::GetIMenuHandlerVersion() const
+{
+	return ThisIMenuHandlerVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //System setting functions
 //----------------------------------------------------------------------------------------
 unsigned int System::SystemOptionMenuHandler::AddSystemSettingMenuItem(unsigned int settingID, unsigned int settingOptionNo)

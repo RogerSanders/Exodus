@@ -8,6 +8,14 @@ ViewBase::ViewBase()
 {}
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int ViewBase::GetIViewVersion() const
+{
+	return ThisIViewVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Window settings
 //----------------------------------------------------------------------------------------
 void ViewBase::SetWindowSettings(const std::wstring& awindowTitle, DWORD awindowStyle, DWORD aextendedWindowStyle, unsigned int awidth, unsigned int aheight, bool aresizable)
@@ -175,6 +183,20 @@ void ViewBase::ActivateView()
 }
 
 //----------------------------------------------------------------------------------------
+//Title functions
+//----------------------------------------------------------------------------------------
+std::wstring ViewBase::GetViewTitle() const
+{
+	return windowTitle;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ViewBase::GetViewTitleInternal() const
+{
+	return windowTitle.c_str();
+}
+
+//----------------------------------------------------------------------------------------
 //Position and size functions
 //----------------------------------------------------------------------------------------
 bool ViewBase::CanResizeView() const
@@ -305,14 +327,6 @@ std::wstring ViewBase::GetLockingSupportedMessage() const
 	       L"register, hold the CTRL key while clicking on a control. "
 	       L"Controls that support locking will change colour to indicate "
 	       L"when they are locked.";
-}
-
-//----------------------------------------------------------------------------------------
-//Title functions
-//----------------------------------------------------------------------------------------
-const wchar_t* ViewBase::GetViewTitleInternal() const
-{
-	return windowTitle.c_str();
 }
 
 //----------------------------------------------------------------------------------------

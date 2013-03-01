@@ -105,6 +105,14 @@ bool ClockSource::DecodeClockTypeString(const std::wstring& clockTypeString, Clo
 }
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int ClockSource::GetIClockSourceVersion() const
+{
+	return ThisIClockSourceVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
 bool ClockSource::AddReference(IBusInterface* target)

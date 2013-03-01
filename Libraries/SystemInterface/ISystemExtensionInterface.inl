@@ -1,4 +1,12 @@
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int ISystemExtensionInterface::ThisISystemExtensionInterfaceVersion()
+{
+	return 1;
+}
+
+//----------------------------------------------------------------------------------------
 //Loaded module info functions
 //----------------------------------------------------------------------------------------
 std::list<unsigned int> ISystemExtensionInterface::GetLoadedModuleIDs() const

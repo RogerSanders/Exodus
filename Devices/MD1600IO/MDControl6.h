@@ -28,7 +28,8 @@ public:
 	virtual bool ValidateDevice();
 
 	//Reference functions
-	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
+	using Device::AddReference;
+	virtual bool AddReference(const std::wstring& referenceName, IBusInterface* target);
 	virtual bool RemoveReference(IBusInterface* target);
 
 	//Execute functions
@@ -38,8 +39,8 @@ public:
 	virtual void ExecuteCommit();
 
 	//Line functions
-	virtual unsigned int GetLineID(const wchar_t* lineName) const;
-	virtual const wchar_t* GetLineName(unsigned int lineID) const;
+	virtual unsigned int GetLineID(const std::wstring& lineName) const;
+	virtual std::wstring GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
@@ -51,8 +52,8 @@ public:
 	static bool GetDesiredLineState(unsigned int currentBankswitchCounter, unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, unsigned int lineID);
 
 	//Input functions
-	virtual unsigned int GetKeyCodeID(const wchar_t* keyCodeName) const;
-	virtual const wchar_t* GetKeyCodeName(unsigned int keyCodeID) const;
+	virtual unsigned int GetKeyCodeID(const std::wstring& keyCodeName) const;
+	virtual std::wstring GetKeyCodeName(unsigned int keyCodeID) const;
 	virtual void HandleInputKeyDown(unsigned int keyCodeID);
 	virtual void HandleInputKeyUp(unsigned int keyCodeID);
 

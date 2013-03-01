@@ -286,6 +286,22 @@ bool DeviceContext::ActiveDevice() const
 }
 
 //----------------------------------------------------------------------------------------
+//System message functions
+//----------------------------------------------------------------------------------------
+std::wstring DeviceContext::GetCapturePath() const
+{
+	return systemObject->GetCapturePath();
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring DeviceContext::GetModuleDisplayName() const
+{
+	std::wstring moduleDisplayName;
+	systemObject->GetModuleDisplayName(device->GetDeviceModuleID(), moduleDisplayName);
+	return moduleDisplayName;
+}
+
+//----------------------------------------------------------------------------------------
 //Dependent device functions
 //----------------------------------------------------------------------------------------
 void DeviceContext::AddDeviceDependency(DeviceContext* targetDevice)

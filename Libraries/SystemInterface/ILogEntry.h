@@ -8,8 +8,13 @@ public:
 	//Enumerations
 	enum EventLevel;
 
+public:
 	//Constructors
 	virtual ~ILogEntry() = 0 {}
+
+	//Interface version functions
+	static inline unsigned int ThisILogEntryVersion();
+	virtual unsigned int GetILogEntryVersion() const = 0;
 
 	//Getters
 	virtual EventLevel GetEventLevel() const = 0;

@@ -77,18 +77,17 @@ VDP::~VDP()
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int VDP::GetLineID(const wchar_t* lineName) const
+unsigned int VDP::GetLineID(const std::wstring& lineName) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"IPL")
+	if(lineName == L"IPL")
 	{
 		return LINE_IPL;
 	}
-	else if(lineNameString == L"INT")
+	else if(lineName == L"INT")
 	{
 		return LINE_INT;
 	}
-	else if(lineNameString == L"INTAK")
+	else if(lineName == L"INTAK")
 	{
 		return LINE_INTAK;
 	}
@@ -96,7 +95,7 @@ unsigned int VDP::GetLineID(const wchar_t* lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* VDP::GetLineName(unsigned int lineID) const
+std::wstring VDP::GetLineName(unsigned int lineID) const
 {
 	switch(lineID)
 	{
@@ -248,18 +247,17 @@ void VDP::SuspendExecution()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool VDP::AddReference(const wchar_t* referenceName, IDevice* target)
+bool VDP::AddReference(const std::wstring& referenceName, IDevice* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"VRAM")
+	if(referenceName == L"VRAM")
 	{
 		vram = (TimedRAM*)target;
 	}
-	else if(referenceNameString == L"CRAM")
+	else if(referenceName == L"CRAM")
 	{
 		cram = (TimedRAM*)target;
 	}
-	else if(referenceNameString == L"VSRAM")
+	else if(referenceName == L"VSRAM")
 	{
 		vsram = (TimedRAM*)target;
 	}
@@ -271,10 +269,9 @@ bool VDP::AddReference(const wchar_t* referenceName, IDevice* target)
 }
 
 //----------------------------------------------------------------------------------------
-bool VDP::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool VDP::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
+	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
 	}
@@ -708,50 +705,49 @@ void VDP::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int VDP::GetCELineID(const wchar_t* lineName, bool inputLine) const
+unsigned int VDP::GetCELineID(const std::wstring& lineName, bool inputLine) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"LDS")
+	if(lineName == L"LDS")
 	{
 		return CELINE_LDS;
 	}
-	else if(lineNameString == L"UDS")
+	else if(lineName == L"UDS")
 	{
 		return CELINE_UDS;
 	}
-	else if(lineNameString == L"R/W")
+	else if(lineName == L"R/W")
 	{
 		return CELINE_RW;
 	}
-	else if(lineNameString == L"AS")
+	else if(lineName == L"AS")
 	{
 		return CELINE_AS;
 	}
-	else if(lineNameString == L"RMWCycleInProgress")
+	else if(lineName == L"RMWCycleInProgress")
 	{
 		return CELINE_RMWCYCLEINPROGRESS;
 	}
-	else if(lineNameString == L"RMWCycleFirstOperation")
+	else if(lineName == L"RMWCycleFirstOperation")
 	{
 		return CELINE_RMWCYCLEFIRSTOPERATION;
 	}
-	else if(lineNameString == L"LWR")
+	else if(lineName == L"LWR")
 	{
 		return CELINE_LWR;
 	}
-	else if(lineNameString == L"UWR")
+	else if(lineName == L"UWR")
 	{
 		return CELINE_UWR;
 	}
-	else if(lineNameString == L"CAS0")
+	else if(lineName == L"CAS0")
 	{
 		return CELINE_CAS0;
 	}
-	else if(lineNameString == L"RAS0")
+	else if(lineName == L"RAS0")
 	{
 		return CELINE_RAS0;
 	}
-	else if(lineNameString == L"OE0")
+	else if(lineName == L"OE0")
 	{
 		return CELINE_OE0;
 	}

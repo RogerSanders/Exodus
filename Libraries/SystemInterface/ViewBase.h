@@ -11,6 +11,9 @@ public:
 	//Constructors
 	ViewBase();
 
+	//Interface version functions
+	virtual unsigned int GetIViewVersion() const;
+
 	//Window settings
 	void SetWindowSettings(const std::wstring& awindowTitle, DWORD awindowStyle, DWORD aextendedWindowStyle, unsigned int awidth, unsigned int aheight, bool aresizable = false);
 	void SetDialogTemplateSettings(const std::wstring& awindowTitle, void* aassemblyHandle, LPCWSTR atemplateName, bool aresizable = false);
@@ -21,6 +24,9 @@ public:
 	virtual void ShowView();
 	virtual void HideView();
 	virtual void ActivateView();
+
+	//Title functions
+	std::wstring GetViewTitle() const;
 
 	//Position and size functions
 	virtual bool CanResizeView() const;

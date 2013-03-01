@@ -1,10 +1,16 @@
 #ifndef __LOADEDMODULEINFO_H__
 #define __LOADEDMODULEINFO_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ILoadedModuleInfo.h"
 
 class LoadedModuleInfo :public ILoadedModuleInfo
 {
 public:
+	//Constructors
+	LoadedModuleInfo();
+
+	//Interface version functions
+	virtual unsigned int GetILoadedModuleInfoVersion() const;
+
 	//Internal data
 	virtual unsigned int GetModuleID() const;
 	virtual void SetModuleID(unsigned int amoduleID);

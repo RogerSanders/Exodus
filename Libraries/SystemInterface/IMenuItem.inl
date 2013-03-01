@@ -7,3 +7,11 @@ enum IMenuItem::Type
 	TYPE_SUBMENU,
 	TYPE_SELECTABLEOPTION
 };
+
+//----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int IMenuItem::ThisIMenuItemVersion()
+{
+	return 1;
+}

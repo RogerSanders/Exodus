@@ -139,6 +139,14 @@ bool BusInterface::Construct(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int BusInterface::GetIBusInterfaceVersion() const
+{
+	return ThisIBusInterfaceVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Unmapping functions
 //----------------------------------------------------------------------------------------
 void BusInterface::RemoveAllReferencesToDevice(IDevice* device)

@@ -665,6 +665,10 @@
 					RelativePath=".\IViewModelNotifier.h"
 					>
 				</File>
+				<File
+					RelativePath=".\IViewModelNotifier.inl"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="IViewModel"
@@ -695,6 +699,10 @@
 				>
 				<File
 					RelativePath=".\IViewModelLauncher.h"
+					>
+				</File>
+				<File
+					RelativePath=".\IViewModelLauncher.inl"
 					>
 				</File>
 			</Filter>
@@ -757,6 +765,10 @@
 					RelativePath=".\IMenuSeparator.h"
 					>
 				</File>
+				<File
+					RelativePath=".\IMenuSeparator.inl"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="IMenuSubmenu"
@@ -787,6 +799,10 @@
 				>
 				<File
 					RelativePath=".\IMenuHandler.h"
+					>
+				</File>
+				<File
+					RelativePath=".\IMenuHandler.inl"
 					>
 				</File>
 			</Filter>

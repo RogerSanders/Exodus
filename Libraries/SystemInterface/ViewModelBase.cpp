@@ -17,6 +17,14 @@ ViewModelBase::ViewModelBase(const std::wstring& amenuHandlerName, int aviewMode
 }
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int ViewModelBase::GetIViewModelVersion() const
+{
+	return ThisIViewModelVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //View management functions
 //----------------------------------------------------------------------------------------
 bool ViewModelBase::OpenView(IViewModelNotifier* anotifier, void* aparentWindow, int xpos, int ypos)
@@ -111,6 +119,90 @@ void ViewModelBase::NotifyViewClosed(IView* aview)
 }
 
 //----------------------------------------------------------------------------------------
+IView* ViewModelBase::GetOpenView() const
+{
+	return view;
+}
+
+//----------------------------------------------------------------------------------------
+//View owner functions
+//----------------------------------------------------------------------------------------
+bool ViewModelBase::IsViewOwnerDevice() const
+{
+	return viewOwnerIsDevice;
+}
+
+//----------------------------------------------------------------------------------------
+bool ViewModelBase::IsViewOwnerSystem() const
+{
+	return viewOwnerIsSystem;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ViewModelBase::GetViewOwnerDeviceInstanceName() const
+{
+	return viewOwnerDeviceInstanceName;
+}
+
+//----------------------------------------------------------------------------------------
+void ViewModelBase::SetViewOwnerAsDevice(const std::wstring& deviceInstanceName, unsigned int moduleID)
+{
+	viewOwnerIsDevice = true;
+	viewOwnerIsSystem = false;
+	viewOwnerDeviceInstanceName = deviceInstanceName;
+	viewOwnerModuleID = moduleID;
+}
+
+//----------------------------------------------------------------------------------------
+void ViewModelBase::SetViewOwnerAsDeviceInternal(const wchar_t* deviceInstanceName, unsigned int moduleID)
+{
+	SetViewOwnerAsDevice(deviceInstanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ViewModelBase::GetViewOwnerDeviceInstanceNameInternal() const
+{
+	return viewOwnerDeviceInstanceName.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+void ViewModelBase::SetViewOwnerAsSystem()
+{
+	viewOwnerIsSystem = true;
+	viewOwnerIsDevice = false;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int ViewModelBase::GetViewOwnerModuleID() const
+{
+	return viewOwnerModuleID;
+}
+
+//----------------------------------------------------------------------------------------
+//Title functions
+//----------------------------------------------------------------------------------------
+std::wstring ViewModelBase::GetViewTitle() const
+{
+	std::wstring viewTitle;
+	if(viewOpen)
+	{
+		viewTitle = view->GetViewTitle();
+	}
+	return viewTitle;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ViewModelBase::GetViewTitleInternal() const
+{
+	viewTitleCached.clear();
+	if(viewOpen)
+	{
+		viewTitleCached = view->GetViewTitle();
+	}
+	return viewTitleCached.c_str();
+}
+
+//----------------------------------------------------------------------------------------
 //Position and size functions
 //----------------------------------------------------------------------------------------
 bool ViewModelBase::CanResizeView() const
@@ -177,6 +269,18 @@ int ViewModelBase::GetViewID() const
 }
 
 //----------------------------------------------------------------------------------------
+std::wstring ViewModelBase::GetMenuHandlerName() const
+{
+	return menuHandlerName;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ViewModelBase::GetMenuHandlerNameInternal() const
+{
+	return menuHandlerName.c_str();
+}
+
+//----------------------------------------------------------------------------------------
 bool ViewModelBase::SaveViewLayoutState(IHeirarchicalStorageNode& node) const
 {
 	if(viewOpen)
@@ -204,75 +308,4 @@ bool ViewModelBase::DoesWindowHandleMatchView(void* awindowHandle) const
 		return view->DoesWindowHandleMatchView(awindowHandle);
 	}
 	return false;
-}
-
-//----------------------------------------------------------------------------------------
-//View owner functions
-//----------------------------------------------------------------------------------------
-bool ViewModelBase::IsViewOwnerDevice() const
-{
-	return viewOwnerIsDevice;
-}
-
-//----------------------------------------------------------------------------------------
-bool ViewModelBase::IsViewOwnerSystem() const
-{
-	return viewOwnerIsSystem;
-}
-
-//----------------------------------------------------------------------------------------
-void ViewModelBase::SetViewOwnerAsSystem()
-{
-	viewOwnerIsSystem = true;
-	viewOwnerIsDevice = false;
-}
-
-//----------------------------------------------------------------------------------------
-void ViewModelBase::SetViewOwnerAsDeviceInternal(const wchar_t* deviceInstanceName, unsigned int moduleID)
-{
-	viewOwnerIsDevice = true;
-	viewOwnerIsSystem = false;
-	viewOwnerDeviceInstanceName = deviceInstanceName;
-	viewOwnerModuleID = moduleID;
-}
-
-//----------------------------------------------------------------------------------------
-const wchar_t* ViewModelBase::GetViewOwnerDeviceInstanceNameInternal() const
-{
-	return viewOwnerDeviceInstanceName.c_str();
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int ViewModelBase::GetViewOwnerModuleID() const
-{
-	return viewOwnerModuleID;
-}
-
-//----------------------------------------------------------------------------------------
-//Title functions
-//----------------------------------------------------------------------------------------
-const wchar_t* ViewModelBase::GetViewTitleInternal() const
-{
-	viewTitleCache.clear();
-	if(viewOpen)
-	{
-		viewTitleCache = view->GetViewTitle();
-	}
-	return viewTitleCache.c_str();
-}
-
-//----------------------------------------------------------------------------------------
-//State functions
-//----------------------------------------------------------------------------------------
-const wchar_t* ViewModelBase::GetMenuHandlerNameInternal() const
-{
-	return menuHandlerName.c_str();
-}
-
-//----------------------------------------------------------------------------------------
-//View management functions
-//----------------------------------------------------------------------------------------
-IView* ViewModelBase::GetOpenView() const
-{
-	return view;
 }

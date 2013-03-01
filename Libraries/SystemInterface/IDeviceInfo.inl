@@ -1,7 +1,15 @@
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int IDeviceInfo::ThisIDeviceInfoVersion()
+{
+	return 1;
+}
+
+//----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void IDeviceInfo::SetDeviceSettings(const std::wstring& adeviceName, IDevice* (aAllocator)(const wchar_t*, unsigned int), void (aDestructor)(IDevice*), unsigned int adeviceVersionNo)
+void IDeviceInfo::SetDeviceSettings(const std::wstring& adeviceName, AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int adeviceVersionNo)
 {
 	SetDeviceName(adeviceName);
 	SetDeviceVersionNo(adeviceVersionNo);

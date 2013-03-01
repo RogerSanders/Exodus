@@ -3,30 +3,29 @@
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::GetLineID(const wchar_t* lineName) const
+unsigned int S315_5313::GetLineID(const std::wstring& lineName) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"IPL")		//O
+	if(lineName == L"IPL")		//O
 	{
 		return LINE_IPL;
 	}
-	else if(lineNameString == L"INT")	//O
+	else if(lineName == L"INT")	//O
 	{
 		return LINE_INT;
 	}
-	else if(lineNameString == L"INTAK")	//I
+	else if(lineName == L"INTAK")	//I
 	{
 		return LINE_INTAK;
 	}
-	else if(lineNameString == L"BR")	//O
+	else if(lineName == L"BR")	//O
 	{
 		return LINE_BR;
 	}
-	else if(lineNameString == L"BG")	//I
+	else if(lineName == L"BG")	//I
 	{
 		return LINE_BG;
 	}
-	else if(lineNameString == L"PAL")	//I
+	else if(lineName == L"PAL")	//I
 	{
 		return LINE_PAL;
 	}
@@ -34,7 +33,7 @@ unsigned int S315_5313::GetLineID(const wchar_t* lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* S315_5313::GetLineName(unsigned int lineID) const
+std::wstring S315_5313::GetLineName(unsigned int lineID) const
 {
 	switch(lineID)
 	{
@@ -631,10 +630,9 @@ void S315_5313::UpdateLineStateChangePrediction(unsigned int lineNo, unsigned in
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::GetClockSourceID(const wchar_t* clockSourceName) const
+unsigned int S315_5313::GetClockSourceID(const std::wstring& clockSourceName) const
 {
-	std::wstring lineNameString = clockSourceName;
-	if(lineNameString == L"MCLK")
+	if(clockSourceName == L"MCLK")
 	{
 		return CLOCK_MCLK;
 	}
@@ -642,7 +640,7 @@ unsigned int S315_5313::GetClockSourceID(const wchar_t* clockSourceName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* S315_5313::GetClockSourceName(unsigned int clockSourceID) const
+std::wstring S315_5313::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch(clockSourceID)
 	{
@@ -679,50 +677,49 @@ void S315_5313::TransparentSetClockSourceRate(unsigned int clockInput, double cl
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::GetCELineID(const wchar_t* lineName, bool inputLine) const
+unsigned int S315_5313::GetCELineID(const std::wstring& lineName, bool inputLine) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"LDS")
+	if(lineName == L"LDS")
 	{
 		return CELINE_LDS;
 	}
-	else if(lineNameString == L"UDS")
+	else if(lineName == L"UDS")
 	{
 		return CELINE_UDS;
 	}
-	else if(lineNameString == L"R/W")
+	else if(lineName == L"R/W")
 	{
 		return CELINE_RW;
 	}
-	else if(lineNameString == L"AS")
+	else if(lineName == L"AS")
 	{
 		return CELINE_AS;
 	}
-	else if(lineNameString == L"RMWCycleInProgress")
+	else if(lineName == L"RMWCycleInProgress")
 	{
 		return CELINE_RMWCYCLEINPROGRESS;
 	}
-	else if(lineNameString == L"RMWCycleFirstOperation")
+	else if(lineName == L"RMWCycleFirstOperation")
 	{
 		return CELINE_RMWCYCLEFIRSTOPERATION;
 	}
-	else if(lineNameString == L"LWR")
+	else if(lineName == L"LWR")
 	{
 		return CELINE_LWR;
 	}
-	else if(lineNameString == L"UWR")
+	else if(lineName == L"UWR")
 	{
 		return CELINE_UWR;
 	}
-	else if(lineNameString == L"CAS0")
+	else if(lineName == L"CAS0")
 	{
 		return CELINE_CAS0;
 	}
-	else if(lineNameString == L"RAS0")
+	else if(lineName == L"RAS0")
 	{
 		return CELINE_RAS0;
 	}
-	else if(lineNameString == L"OE0")
+	else if(lineName == L"OE0")
 	{
 		return CELINE_OE0;
 	}

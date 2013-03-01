@@ -9,6 +9,9 @@ public:
 	//Constructors
 	ViewModelNotifier(IViewModelManager& aviewManager, IViewModel* aviewModel);
 
+	//Interface version functions
+	virtual unsigned int GetIViewModelNotifierVersion() const;
+
 	//Notification functions
 	virtual void NotifyViewClosed();
 

@@ -9,6 +9,9 @@ public:
 	//Constructors
 	ViewModelBase(const std::wstring& amenuHandlerName, int aviewModelID, bool aownerIsSystem, bool aownerIsDevice, const std::wstring& adeviceInstanceName, unsigned int amoduleID);
 
+	//Interface version functions
+	virtual unsigned int GetIViewModelVersion() const;
+
 	//View creation and deletion
 	virtual IView* CreateView() = 0;
 	virtual void DeleteView(IView* aview) = 0;
@@ -24,8 +27,13 @@ public:
 	//View owner functions
 	virtual bool IsViewOwnerDevice() const;
 	virtual bool IsViewOwnerSystem() const;
+	std::wstring GetViewOwnerDeviceInstanceName() const;
+	void SetViewOwnerAsDevice(const std::wstring& deviceInstanceName, unsigned int moduleID);
 	virtual void SetViewOwnerAsSystem();
 	virtual unsigned int GetViewOwnerModuleID() const;
+
+	//Title functions
+	std::wstring GetViewTitle() const;
 
 	//Position and size functions
 	virtual bool CanResizeView() const;
@@ -40,11 +48,15 @@ public:
 
 	//State functions
 	virtual int GetViewID() const;
+	std::wstring GetMenuHandlerName() const;
 	virtual bool SaveViewLayoutState(IHeirarchicalStorageNode& node) const;
 	virtual bool LoadViewLayoutState(IHeirarchicalStorageNode& node);
 	virtual bool DoesWindowHandleMatchView(void* awindowHandle) const;
 
 protected:
+	//View management functions
+	IView* GetOpenView() const;
+
 	//View owner functions
 	virtual void SetViewOwnerAsDeviceInternal(const wchar_t* deviceInstanceName, unsigned int moduleID);
 	virtual const wchar_t* GetViewOwnerDeviceInstanceNameInternal() const;
@@ -54,9 +66,6 @@ protected:
 
 	//State functions
 	virtual const wchar_t* GetMenuHandlerNameInternal() const;
-
-	//View management functions
-	IView* GetOpenView() const;
 
 private:
 	bool viewOpen;
@@ -68,8 +77,7 @@ private:
 	std::wstring viewOwnerDeviceInstanceName;
 	unsigned int viewOwnerModuleID;
 	std::wstring menuHandlerName;
-
-	mutable std::wstring viewTitleCache;
+	mutable std::wstring viewTitleCached;
 };
 
 #endif

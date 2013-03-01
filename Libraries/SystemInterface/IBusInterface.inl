@@ -26,3 +26,11 @@ struct IBusInterface::AccessResult
 	unsigned int accessMask;
 	double executionTime;
 };
+
+//----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int IBusInterface::ThisIBusInterfaceVersion()
+{
+	return 1;
+}

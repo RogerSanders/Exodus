@@ -89,14 +89,13 @@ void A10000::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool A10000::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool A10000::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
+	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
 	}
-	else if(referenceNameString == L"ControlPortBus")
+	else if(referenceName == L"ControlPortBus")
 	{
 		controlPortBus = target;
 	}
@@ -210,109 +209,108 @@ void A10000::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int A10000::GetLineID(const wchar_t* lineName) const
+unsigned int A10000::GetLineID(const std::wstring& lineName) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"PORT1_D0")
+	if(lineName == L"PORT1_D0")
 	{
 		return LINE_PORT1_D0;
 	}
-	else if(lineNameString == L"PORT1_D1")
+	else if(lineName == L"PORT1_D1")
 	{
 		return LINE_PORT1_D1;
 	}
-	else if(lineNameString == L"PORT1_D2")
+	else if(lineName == L"PORT1_D2")
 	{
 		return LINE_PORT1_D2;
 	}
-	else if(lineNameString == L"PORT1_D3")
+	else if(lineName == L"PORT1_D3")
 	{
 		return LINE_PORT1_D3;
 	}
-	else if(lineNameString == L"PORT1_TL")
+	else if(lineName == L"PORT1_TL")
 	{
 		return LINE_PORT1_TL;
 	}
-	else if(lineNameString == L"PORT1_TR")
+	else if(lineName == L"PORT1_TR")
 	{
 		return LINE_PORT1_TR;
 	}
-	else if(lineNameString == L"PORT1_TH")
+	else if(lineName == L"PORT1_TH")
 	{
 		return LINE_PORT1_TH;
 	}
 
-	else if(lineNameString == L"PORT2_D0")
+	else if(lineName == L"PORT2_D0")
 	{
 		return LINE_PORT2_D0;
 	}
-	else if(lineNameString == L"PORT2_D1")
+	else if(lineName == L"PORT2_D1")
 	{
 		return LINE_PORT2_D1;
 	}
-	else if(lineNameString == L"PORT2_D2")
+	else if(lineName == L"PORT2_D2")
 	{
 		return LINE_PORT2_D2;
 	}
-	else if(lineNameString == L"PORT2_D3")
+	else if(lineName == L"PORT2_D3")
 	{
 		return LINE_PORT2_D3;
 	}
-	else if(lineNameString == L"PORT2_TL")
+	else if(lineName == L"PORT2_TL")
 	{
 		return LINE_PORT2_TL;
 	}
-	else if(lineNameString == L"PORT2_TR")
+	else if(lineName == L"PORT2_TR")
 	{
 		return LINE_PORT2_TR;
 	}
-	else if(lineNameString == L"PORT2_TH")
+	else if(lineName == L"PORT2_TH")
 	{
 		return LINE_PORT2_TH;
 	}
 
-	else if(lineNameString == L"PORT3_D0")
+	else if(lineName == L"PORT3_D0")
 	{
 		return LINE_PORT3_D0;
 	}
-	else if(lineNameString == L"PORT3_D1")
+	else if(lineName == L"PORT3_D1")
 	{
 		return LINE_PORT3_D1;
 	}
-	else if(lineNameString == L"PORT3_D2")
+	else if(lineName == L"PORT3_D2")
 	{
 		return LINE_PORT3_D2;
 	}
-	else if(lineNameString == L"PORT3_D3")
+	else if(lineName == L"PORT3_D3")
 	{
 		return LINE_PORT3_D3;
 	}
-	else if(lineNameString == L"PORT3_TL")
+	else if(lineName == L"PORT3_TL")
 	{
 		return LINE_PORT3_TL;
 	}
-	else if(lineNameString == L"PORT3_TR")
+	else if(lineName == L"PORT3_TR")
 	{
 		return LINE_PORT3_TR;
 	}
-	else if(lineNameString == L"PORT3_TH")
+	else if(lineName == L"PORT3_TH")
 	{
 		return LINE_PORT3_TH;
 	}
 
-	else if(lineNameString == L"JAP")
+	else if(lineName == L"JAP")
 	{
 		return LINE_JAP;
 	}
-	else if(lineNameString == L"NTSC")
+	else if(lineName == L"NTSC")
 	{
 		return LINE_NTSC;
 	}
-	else if(lineNameString == L"DISK")
+	else if(lineName == L"DISK")
 	{
 		return LINE_DISK;
 	}
-	else if(lineNameString == L"HL")
+	else if(lineName == L"HL")
 	{
 		return LINE_HL;
 	}
@@ -320,7 +318,7 @@ unsigned int A10000::GetLineID(const wchar_t* lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* A10000::GetLineName(unsigned int lineID) const
+std::wstring A10000::GetLineName(unsigned int lineID) const
 {
 	switch(lineID)
 	{

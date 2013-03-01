@@ -3,6 +3,14 @@
 #include "Debug/Debug.pkg"
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int DeviceContext::GetIDeviceContextVersion() const
+{
+	return ThisIDeviceContextVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Timing functions
 //----------------------------------------------------------------------------------------
 double DeviceContext::GetCurrentTimesliceProgress() const

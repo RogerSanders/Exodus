@@ -15,6 +15,9 @@ public:
 	inline LogEntry(EventLevel alevel, const std::wstring& asource, const std::wstring& atext);
 	inline LogEntry(const LogEntry& object);
 
+	//Interface version functions
+	virtual unsigned int GetILogEntryVersion() const;
+
 	//Getters
 	virtual EventLevel GetEventLevel() const;
 

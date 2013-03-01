@@ -7,3 +7,11 @@ enum IClockSource::ClockType
 	CLOCKTYPE_DIVIDER,
 	CLOCKTYPE_MULTIPLIER
 };
+
+//----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int IClockSource::ThisIClockSourceVersion()
+{
+	return 1;
+}

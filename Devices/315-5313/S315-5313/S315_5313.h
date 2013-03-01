@@ -47,8 +47,8 @@ public:
 	virtual ~S315_5313();
 
 	//Line functions
-	virtual unsigned int GetLineID(const wchar_t* lineName) const;
-	virtual const wchar_t* GetLineName(unsigned int lineID) const;
+	virtual unsigned int GetLineID(const std::wstring& lineName) const;
+	virtual std::wstring GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
@@ -57,8 +57,8 @@ public:
 	virtual void NegateCurrentOutputLineState() const;
 
 	//Clock source functions
-	virtual unsigned int GetClockSourceID(const wchar_t* clockSourceName) const;
-	virtual const wchar_t* GetClockSourceName(unsigned int clockSourceID) const;
+	virtual unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
+	virtual std::wstring GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 
@@ -76,9 +76,10 @@ public:
 	virtual void SuspendExecution();
 
 	//Reference functions
-	virtual bool AddReference(const wchar_t* referenceName, IDevice* target);
-	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target);
-	virtual bool AddReference(const wchar_t* referenceName, IClockSource* target);
+	using Device::AddReference;
+	virtual bool AddReference(const std::wstring& referenceName, IDevice* target);
+	virtual bool AddReference(const std::wstring& referenceName, IBusInterface* target);
+	virtual bool AddReference(const std::wstring& referenceName, IClockSource* target);
 	virtual bool RemoveReference(IDevice* target);
 	virtual bool RemoveReference(IBusInterface* target);
 	virtual bool RemoveReference(IClockSource* target);
@@ -101,7 +102,7 @@ public:
 	virtual void ExecuteCommit();
 
 	//CE line state functions
-	virtual unsigned int GetCELineID(const wchar_t* lineName, bool inputLine) const;
+	virtual unsigned int GetCELineID(const std::wstring& lineName, bool inputLine) const;
 	virtual void SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;

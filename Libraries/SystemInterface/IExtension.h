@@ -18,6 +18,10 @@ public:
 	//Constructors
 	virtual ~IExtension() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisIExtensionVersion();
+	virtual unsigned int GetIExtensionVersion() const = 0;
+
 	//Initialization functions
 	virtual bool BindToSystemInterface(ISystemExtensionInterface* asystemInterface) = 0;
 	virtual bool BindToGUIInterface(IGUIExtensionInterface* aguiInterface) = 0;
@@ -27,13 +31,9 @@ public:
 
 	//Reference functions
 	inline bool AddReference(const std::wstring& referenceName, IDevice* target);
-	virtual bool AddReference(const wchar_t* referenceName, IDevice* target) = 0;
 	inline bool AddReference(const std::wstring& referenceName, IExtension* target);
-	virtual bool AddReference(const wchar_t* referenceName, IExtension* target) = 0;
 	inline bool AddReference(const std::wstring& referenceName, IBusInterface* target);
-	virtual bool AddReference(const wchar_t* referenceName, IBusInterface* target) = 0;
 	inline bool AddReference(const std::wstring& referenceName, IClockSource* target);
-	virtual bool AddReference(const wchar_t* referenceName, IClockSource* target) = 0;
 	virtual bool RemoveReference(IDevice* target) = 0;
 	virtual bool RemoveReference(IExtension* target) = 0;
 	virtual bool RemoveReference(IBusInterface* target) = 0;
@@ -57,14 +57,22 @@ public:
 	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void AddGlobalSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	inline void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
 	inline void OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher) = 0;
 
 protected:
+	//Reference functions
+	virtual bool AddReferenceInternal(const wchar_t* referenceName, IDevice* target) = 0;
+	virtual bool AddReferenceInternal(const wchar_t* referenceName, IExtension* target) = 0;
+	virtual bool AddReferenceInternal(const wchar_t* referenceName, IBusInterface* target) = 0;
+	virtual bool AddReferenceInternal(const wchar_t* referenceName, IClockSource* target) = 0;
+
 	//Name functions
 	virtual const wchar_t* GetExtensionClassNameInternal() const = 0;
 	virtual const wchar_t* GetExtensionInstanceNameInternal() const = 0;
+
+	//Window functions
+	virtual void RestoreViewModelStateInternal(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual void OpenViewModelInternal(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher) = 0;
 };
 
 #include "IExtension.inl"

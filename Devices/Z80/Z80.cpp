@@ -368,10 +368,9 @@ void Z80::Reset()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool Z80::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool Z80::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	std::wstring referenceNameString = referenceName;
-	if(referenceNameString == L"BusInterface")
+	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
 	}
@@ -504,26 +503,25 @@ void Z80::NotifyUpcomingTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int Z80::GetLineID(const wchar_t* lineName) const
+unsigned int Z80::GetLineID(const std::wstring& lineName) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"RESET")
+	if(lineName == L"RESET")
 	{
 		return LINE_RESET;
 	}
-	else if(lineNameString == L"BUSREQ")
+	else if(lineName == L"BUSREQ")
 	{
 		return LINE_BUSREQ;
 	}
-	else if(lineNameString == L"BUSACK")
+	else if(lineName == L"BUSACK")
 	{
 		return LINE_BUSACK;
 	}
-	else if(lineNameString == L"INT")
+	else if(lineName == L"INT")
 	{
 		return LINE_INT;
 	}
-	else if(lineNameString == L"NMI")
+	else if(lineName == L"NMI")
 	{
 		return LINE_NMI;
 	}
@@ -531,7 +529,7 @@ unsigned int Z80::GetLineID(const wchar_t* lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Z80::GetLineName(unsigned int lineID) const
+std::wstring Z80::GetLineName(unsigned int lineID) const
 {
 	switch(lineID)
 	{
@@ -725,10 +723,9 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, bo
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int Z80::GetClockSourceID(const wchar_t* clockSourceName) const
+unsigned int Z80::GetClockSourceID(const std::wstring& clockSourceName) const
 {
-	std::wstring lineNameString = clockSourceName;
-	if(lineNameString == L"CLK")
+	if(clockSourceName == L"CLK")
 	{
 		return CLOCK_CLK;
 	}
@@ -736,7 +733,7 @@ unsigned int Z80::GetClockSourceID(const wchar_t* clockSourceName) const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Z80::GetClockSourceName(unsigned int clockSourceID) const
+std::wstring Z80::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch(clockSourceID)
 	{
@@ -1360,14 +1357,13 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int Z80::GetCELineID(const wchar_t* lineName, bool inputLine) const
+unsigned int Z80::GetCELineID(const std::wstring& lineName, bool inputLine) const
 {
-	std::wstring lineNameString = lineName;
-	if(lineNameString == L"RD")
+	if(lineName == L"RD")
 	{
 		return CELINE_RD;
 	}
-	else if(lineNameString == L"WR")
+	else if(lineName == L"WR")
 	{
 		return CELINE_WR;
 	}

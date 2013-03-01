@@ -9,6 +9,14 @@ Extension::~Extension()
 {}
 
 //----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int Extension::GetIExtensionVersion() const
+{
+	return ThisIExtensionVersion();
+}
+
+//----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
 bool Extension::BindToSystemInterface(ISystemExtensionInterface* asystemInterface)
@@ -45,27 +53,51 @@ bool Extension::ValidateExtension()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool Extension::AddReference(const wchar_t* referenceName, IDevice* target)
+bool Extension::AddReference(const std::wstring& referenceName, IDevice* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReference(const wchar_t* referenceName, IExtension* target)
+bool Extension::AddReference(const std::wstring& referenceName, IExtension* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReference(const wchar_t* referenceName, IBusInterface* target)
+bool Extension::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReference(const wchar_t* referenceName, IClockSource* target)
+bool Extension::AddReference(const std::wstring& referenceName, IClockSource* target)
 {
 	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::AddReferenceInternal(const wchar_t* referenceName, IDevice* target)
+{
+	return AddReference(referenceName, target);
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::AddReferenceInternal(const wchar_t* referenceName, IExtension* target)
+{
+	return AddReference(referenceName, target);
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::AddReferenceInternal(const wchar_t* referenceName, IBusInterface* target)
+{
+	return AddReference(referenceName, target);
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::AddReferenceInternal(const wchar_t* referenceName, IClockSource* target)
+{
+	return AddReference(referenceName, target);
 }
 
 //----------------------------------------------------------------------------------------
@@ -171,23 +203,21 @@ void Extension::AddGlobalSettingsMenuItems(IMenuSegment& menuSegment, IViewModel
 {}
 
 //----------------------------------------------------------------------------------------
-void Extension::RestoreViewModelState(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
-{
-	std::wstring menuHandlerNameString = menuHandlerName;
-	RestoreViewModelState(menuHandlerNameString, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
-}
-
-//----------------------------------------------------------------------------------------
 void Extension::RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {}
 
 //----------------------------------------------------------------------------------------
-void Extension::OpenViewModel(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+void Extension::OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+{}
+
+//----------------------------------------------------------------------------------------
+void Extension::RestoreViewModelStateInternal(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	std::wstring menuHandlerNameString = menuHandlerName;
-	OpenViewModel(menuHandlerNameString, viewModelID, viewModelLauncher);
+	RestoreViewModelState(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
-void Extension::OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
-{}
+void Extension::OpenViewModelInternal(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+{
+	OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
+}

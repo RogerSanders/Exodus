@@ -1169,18 +1169,18 @@
 				RelativePath=".\MegaDriveROMLoader.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="FileOpenMenuHandler"
-			>
-			<File
-				RelativePath=".\FileOpenMenuHandler.cpp"
+			<Filter
+				Name="FileOpenMenuHandler"
 				>
-			</File>
-			<File
-				RelativePath=".\FileOpenMenuHandler.h"
-				>
-			</File>
+				<File
+					RelativePath=".\FileOpenMenuHandler.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\FileOpenMenuHandler.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\interface.cpp"

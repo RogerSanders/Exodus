@@ -9,6 +9,10 @@ public:
 	//Constructors
 	virtual ~IView() = 0 {}
 
+	//Interface version functions
+	static inline unsigned int ThisIViewVersion();
+	virtual unsigned int GetIViewVersion() const = 0;
+
 	//View management functions
 	virtual bool OpenView(void* aparentWindow, IViewModel* aviewModel, int xpos, int ypos) = 0;
 	virtual void CloseView() = 0;

@@ -1,10 +1,16 @@
 #ifndef __CONNECTORINFO_H__
 #define __CONNECTORINFO_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "IConnectorInfo.h"
 
 class ConnectorInfo :public IConnectorInfo
 {
 public:
+	//Constructors
+	ConnectorInfo();
+
+	//Interface version functions
+	virtual unsigned int GetIConnectorInfoVersion() const;
+
 	//Internal data
 	virtual unsigned int GetConnectorID() const;
 	virtual void SetConnectorID(unsigned int aconnectorID);
