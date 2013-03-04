@@ -520,6 +520,7 @@ void S315_5313::BeginExecution()
 	//Initialize the render worker thread state
 	pendingRenderOperationCount = 0;
 	renderThreadLagging = false;
+	timesliceRenderInfoList.clear();
 	regTimesliceList.clear();
 	vramTimesliceList.clear();
 	cramTimesliceList.clear();
