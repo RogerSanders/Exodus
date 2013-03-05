@@ -7,7 +7,7 @@ class System::InputMappingDetailsViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	InputMappingDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, System* adevice, IDevice* atargetDevice);
+	InputMappingDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, System* adevice, IDevice* atargetDevice);
 
 	//Target device functions
 	void SetTargetDevice(IDevice* atargetDevice);

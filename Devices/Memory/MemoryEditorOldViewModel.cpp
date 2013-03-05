@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MemoryRead::MemoryEditorOldViewModel::MemoryEditorOldViewModel(const std::wstring& amenuHandlerName, int aviewModelID, MemoryRead* adevice, unsigned int atargetMemoryAddress)
-:ViewModelBase(amenuHandlerName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
+MemoryRead::MemoryEditorOldViewModel::MemoryEditorOldViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, MemoryRead* adevice, unsigned int atargetMemoryAddress)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
 {
 	targetMemoryAddress = atargetMemoryAddress;
 }

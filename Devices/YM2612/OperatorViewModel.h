@@ -7,7 +7,7 @@ class YM2612::OperatorViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	OperatorViewModel(const std::wstring& amenuHandlerName, int aviewModelID, YM2612* adevice, unsigned int achannelNo = 0, unsigned int aoperatorNo = 0);
+	OperatorViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, YM2612* adevice, unsigned int achannelNo = 0, unsigned int aoperatorNo = 0);
 
 	//Operator functions
 	void SetTargetOperator(unsigned int achannelNo, unsigned int aoperatorNo);

@@ -578,29 +578,25 @@ void Device::AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher&
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::AddGlobalDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
-{}
-
-//----------------------------------------------------------------------------------------
 void Device::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Device::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+void Device::OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::RestoreViewModelStateInternal(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Device::RestoreViewModelStateInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	RestoreViewModelState(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
+	RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
-void Device::OpenViewModelInternal(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+void Device::OpenViewModelInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IViewModelLauncher& viewModelLauncher)
 {
-	OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
+	OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
 }

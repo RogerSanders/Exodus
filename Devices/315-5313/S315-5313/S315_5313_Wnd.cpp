@@ -19,19 +19,19 @@ void S315_5313::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher&
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void S315_5313::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	Device::RestoreViewModelState(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
-	settingsMenuHandler->RestoreMenuViewModelOpen(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
-	debugMenuHandler->RestoreMenuViewModelOpen(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
+	Device::RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
+	settingsMenuHandler->RestoreMenuViewModelOpen(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
+	debugMenuHandler->RestoreMenuViewModelOpen(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+void S315_5313::OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher)
 {
-	Device::OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
-	settingsMenuHandler->OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
-	debugMenuHandler->OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
+	Device::OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
+	settingsMenuHandler->OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
+	debugMenuHandler->OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------

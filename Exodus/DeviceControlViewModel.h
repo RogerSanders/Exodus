@@ -7,7 +7,7 @@ class System::DeviceControlViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	DeviceControlViewModel(const std::wstring& amenuHandlerName, int aviewModelID, System* adevice);
+	DeviceControlViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, System* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

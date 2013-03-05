@@ -12,17 +12,17 @@ void Z80::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewM
 }
 
 //----------------------------------------------------------------------------------------
-void Z80::RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Z80::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	Processor::RestoreViewModelState(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
-	menuHandler->RestoreMenuViewModelOpen(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
+	Processor::RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
+	menuHandler->RestoreMenuViewModelOpen(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
-void Z80::OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+void Z80::OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher)
 {
-	Processor::OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
-	menuHandler->OpenViewModel(menuHandlerName, viewModelID, viewModelLauncher);
+	Processor::OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
+	menuHandler->OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
 }
 
 } //Close namespace Z80

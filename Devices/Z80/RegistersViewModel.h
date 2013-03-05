@@ -8,7 +8,7 @@ class Z80::RegistersViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	RegistersViewModel(const std::wstring& amenuHandlerName, int aviewModelID, Z80* adevice);
+	RegistersViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, Z80* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

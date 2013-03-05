@@ -7,7 +7,7 @@ class MemoryRead::MemoryViewerOldViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	MemoryViewerOldViewModel(const std::wstring& amenuHandlerName, int aviewModelID, MemoryRead* adevice);
+	MemoryViewerOldViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, MemoryRead* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

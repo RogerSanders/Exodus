@@ -43,7 +43,8 @@ public:
 
 	//State functions
 	virtual int GetViewID() const = 0;
-	inline std::wstring GetMenuHandlerName() const;
+	inline std::wstring GetViewModelGroupName() const;
+	inline std::wstring GetViewModelName() const;
 	virtual bool SaveViewLayoutState(IHeirarchicalStorageNode& node) const = 0;
 	virtual bool LoadViewLayoutState(IHeirarchicalStorageNode& node) = 0;
 	virtual bool DoesWindowHandleMatchView(void* awindowHandle) const = 0;
@@ -57,7 +58,8 @@ protected:
 	virtual const wchar_t* GetViewTitleInternal() const = 0;
 
 	//State functions
-	virtual const wchar_t* GetMenuHandlerNameInternal() const = 0;
+	virtual const wchar_t* GetViewModelGroupNameInternal() const = 0;
+	virtual const wchar_t* GetViewModelNameInternal() const = 0;
 };
 
 #include "IViewModel.inl"

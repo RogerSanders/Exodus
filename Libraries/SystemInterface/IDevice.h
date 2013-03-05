@@ -135,14 +135,9 @@ public:
 	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle) = 0;
 	virtual AssemblyHandle GetAssemblyHandle() const = 0;
 	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
-	//##TODO## Consider removing global debug menu items. What were they supposed to be
-	//for anyway? It seems likely that the system menu removes the need for this option.
-	//It's also obvious that this feature isn't really compatible with multiple instances
-	//of a device. Global system extensions further eliminate any need for this feature.
-	virtual void AddGlobalDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
-	inline void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	inline void OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher);
+	inline void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	inline void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
 
 protected:
 	//Reference functions
@@ -172,8 +167,8 @@ protected:
 	virtual const wchar_t* GetKeyCodeNameInternal(unsigned int keyCodeID) const = 0;
 
 	//Window functions
-	virtual void RestoreViewModelStateInternal(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
-	virtual void OpenViewModelInternal(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual void RestoreViewModelStateInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual void OpenViewModelInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IViewModelLauncher& viewModelLauncher) = 0;
 };
 
 #include "IDevice.inl"

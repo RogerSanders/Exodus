@@ -7,7 +7,7 @@ class YM2612::DebuggerViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	DebuggerViewModel(const std::wstring& amenuHandlerName, int aviewModelID, YM2612* adevice);
+	DebuggerViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, YM2612* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

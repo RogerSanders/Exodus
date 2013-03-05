@@ -7,7 +7,7 @@ class VDP::ImageViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	ImageViewModel(const std::wstring& amenuHandlerName, int aviewModelID, VDP* adevice);
+	ImageViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, VDP* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

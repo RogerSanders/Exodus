@@ -5,8 +5,8 @@ namespace M68000{
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-M68000::ExceptionsViewModel::ExceptionsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, M68000* adevice)
-:ViewModelBase(amenuHandlerName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
+M68000::ExceptionsViewModel::ExceptionsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, M68000* adevice)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------

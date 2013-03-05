@@ -7,7 +7,7 @@ class System::LoggerDetailsViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	LoggerDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, System* adevice, const LogEntryInternal& alogEntry);
+	LoggerDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, System* adevice, const LogEntryInternal& alogEntry);
 
 	//Log entry functions
 	void SetLogEntry(const LogEntryInternal& alogEntry);

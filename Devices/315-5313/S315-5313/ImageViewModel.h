@@ -7,7 +7,7 @@ class S315_5313::ImageViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	ImageViewModel(const std::wstring& amenuHandlerName, int aviewModelID, S315_5313* adevice);
+	ImageViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, S315_5313* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

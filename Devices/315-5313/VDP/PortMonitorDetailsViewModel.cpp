@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-VDP::PortMonitorDetailsViewModel::PortMonitorDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, VDP* adevice, const PortMonitorEntry& aentry)
-:ViewModelBase(amenuHandlerName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice), entry(aentry)
+VDP::PortMonitorDetailsViewModel::PortMonitorDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, VDP* adevice, const PortMonitorEntry& aentry)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice), entry(aentry)
 {}
 
 //----------------------------------------------------------------------------------------

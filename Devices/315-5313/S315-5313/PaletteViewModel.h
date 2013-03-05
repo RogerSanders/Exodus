@@ -7,7 +7,7 @@ class S315_5313::PaletteViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	PaletteViewModel(const std::wstring& amenuHandlerName, int aviewModelID, S315_5313* adevice);
+	PaletteViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, S315_5313* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

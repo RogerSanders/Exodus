@@ -31,7 +31,13 @@ std::wstring IViewModel::GetViewTitle() const
 //----------------------------------------------------------------------------------------
 //State functions
 //----------------------------------------------------------------------------------------
-std::wstring IViewModel::GetMenuHandlerName() const
+std::wstring IViewModel::GetViewModelGroupName() const
 {
-	return GetMenuHandlerNameInternal();
+	return GetViewModelGroupNameInternal();
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring IViewModel::GetViewModelName() const
+{
+	return GetViewModelNameInternal();
 }

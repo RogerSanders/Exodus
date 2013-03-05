@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-YM2612::OperatorViewModel::OperatorViewModel(const std::wstring& amenuHandlerName, int aviewModelID, YM2612* adevice, unsigned int achannelNo, unsigned int aoperatorNo)
-:ViewModelBase(amenuHandlerName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
+YM2612::OperatorViewModel::OperatorViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, YM2612* adevice, unsigned int achannelNo, unsigned int aoperatorNo)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
 {
 	channelNo = achannelNo;
 	operatorNo = aoperatorNo;

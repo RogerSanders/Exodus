@@ -742,11 +742,11 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
 			IViewModel* viewModel = i->first;
 			if(viewModel->IsViewOwnerSystem())
 			{
-				existingViewInfo.push_back(WorkspaceViewEntryDetails(viewModel->GetViewID(), viewModel->GetMenuHandlerName(), true, L"", viewModel));
+				existingViewInfo.push_back(WorkspaceViewEntryDetails(viewModel->GetViewModelGroupName(), viewModel->GetViewModelName(), true, L"", viewModel));
 			}
 			else
 			{
-				existingViewInfo.push_back(WorkspaceViewEntryDetails(viewModel->GetViewID(), viewModel->GetMenuHandlerName(), false, viewModel->GetViewOwnerDeviceInstanceName(), viewModel));
+				existingViewInfo.push_back(WorkspaceViewEntryDetails(viewModel->GetViewModelGroupName(), viewModel->GetViewModelName(), false, viewModel->GetViewOwnerDeviceInstanceName(), viewModel));
 			}
 		}
 
@@ -760,23 +760,21 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
 		{
 			if((*i)->GetName() == L"Window")
 			{
-				IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"Name");
+				IHeirarchicalStorageAttribute* ownerAttribute = (*i)->GetAttribute(L"Owner");
+				IHeirarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
+				IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = (*i)->GetAttribute(L"DeviceInstanceName");
+				IHeirarchicalStorageAttribute* viewModelGroupNameAttribute = (*i)->GetAttribute(L"ViewModelGroupName");
+				IHeirarchicalStorageAttribute* viewModelNameAttribute = (*i)->GetAttribute(L"ViewModelName");
 				IHeirarchicalStorageAttribute* xposAttribute = (*i)->GetAttribute(L"XPos");
 				IHeirarchicalStorageAttribute* yposAttribute = (*i)->GetAttribute(L"YPos");
 				IHeirarchicalStorageAttribute* widthAttribute = (*i)->GetAttribute(L"Width");
 				IHeirarchicalStorageAttribute* heightAttribute = (*i)->GetAttribute(L"Height");
-				IHeirarchicalStorageAttribute* menuHandlerNameAttribute = (*i)->GetAttribute(L"MenuHandlerName");
-				IHeirarchicalStorageAttribute* viewIDAttribute = (*i)->GetAttribute(L"ViewID");
-				IHeirarchicalStorageAttribute* ownerAttribute = (*i)->GetAttribute(L"Owner");
-				IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = (*i)->GetAttribute(L"DeviceInstanceName");
-				IHeirarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
-
-				if((ownerAttribute != 0) && (menuHandlerNameAttribute != 0) && (viewIDAttribute != 0) && (xposAttribute != 0) && (yposAttribute != 0))
+				if((ownerAttribute != 0) && (viewModelGroupNameAttribute != 0) && (viewModelNameAttribute != 0) && (xposAttribute != 0) && (yposAttribute != 0))
 				{
 					//Extract the basic attributes which are defined for all entries
 					std::wstring owner = ownerAttribute->GetValue();
-					std::wstring menuHandlerName = menuHandlerNameAttribute->GetValue();
-					int viewID = viewIDAttribute->ExtractValue<int>();
+					std::wstring viewModelGroupName = viewModelGroupNameAttribute->GetValue();
+					std::wstring viewModelName = viewModelNameAttribute->GetValue();
 					int xpos = xposAttribute->ExtractValue<int>();
 					int ypos = yposAttribute->ExtractValue<int>();
 
@@ -801,8 +799,8 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
 					//Restore the view
 					if(owner == L"System")
 					{
-						loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewID, menuHandlerName, true, L""));
-						system.RestoreViewModelState(menuHandlerName, viewID, *(*i), xpos, ypos, width, height, *this);
+						loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewModelGroupName, viewModelName, true, L""));
+						system.RestoreViewModelState(viewModelGroupName, viewModelName, *(*i), xpos, ypos, width, height, *this);
 					}
 					else if(owner == L"Device")
 					{
@@ -820,11 +818,11 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
 								{
 									//If we found a matching loaded module for the saved
 									//data, attempt to restore the view model state.
-									if(system.RestoreViewModelStateForDevice(moduleRelationship.loadedModuleID, deviceInstanceName, menuHandlerName, viewID, *(*i), xpos, ypos, width, height, *this))
+									if(system.RestoreViewModelStateForDevice(moduleRelationship.loadedModuleID, deviceInstanceName, viewModelGroupName, viewModelName, *(*i), xpos, ypos, width, height, *this))
 									{
 										//If the view model state was restored, save info
 										//about this view.
-										loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewID, menuHandlerName, false, deviceInstanceName));
+										loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewModelGroupName, viewModelName, false, deviceInstanceName));
 									}
 								}
 							}
@@ -848,8 +846,8 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
 			bool viewReferenced = false;
 			for(std::list<WorkspaceViewEntryDetails>::const_iterator loadedViewDetails = loadedWorkspaceViewInfo.begin(); loadedViewDetails != loadedWorkspaceViewInfo.end(); ++loadedViewDetails)
 			{
-				if((existingViewDetails->viewID == loadedViewDetails->viewID) &&
-				   (existingViewDetails->menuHandlerName == loadedViewDetails->menuHandlerName) &&
+				if((existingViewDetails->viewModelGroupName == loadedViewDetails->viewModelGroupName) &&
+				   (existingViewDetails->viewModelName == loadedViewDetails->viewModelName) &&
 				   (existingViewDetails->ownerIsSystem == loadedViewDetails->ownerIsSystem) &&
 				   (existingViewDetails->deviceInstanceName == loadedViewDetails->deviceInstanceName))
 				{
@@ -949,9 +947,8 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& fileName)
 				{
 					node.CreateAttribute(L"Owner", "Unknown");
 				}
-				node.CreateAttribute(L"MenuHandlerName", viewModel->GetMenuHandlerName());
-				node.CreateAttribute(L"ViewID", viewModel->GetViewID());
-				node.CreateAttribute(L"Name", viewModel->GetViewTitle());
+				node.CreateAttribute(L"ViewModelGroupName", viewModel->GetViewModelGroupName());
+				node.CreateAttribute(L"ViewModelName", viewModel->GetViewModelName());
 				node.CreateAttribute(L"XPos", windowPosX);
 				node.CreateAttribute(L"YPos", windowPosY);
 

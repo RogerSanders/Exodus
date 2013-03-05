@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-VDP::SpriteListDetailsViewModel::SpriteListDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, VDP* adevice, unsigned int aspriteMappingAddress, unsigned int aspriteIndex)
-:ViewModelBase(amenuHandlerName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
+VDP::SpriteListDetailsViewModel::SpriteListDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, VDP* adevice, unsigned int aspriteMappingAddress, unsigned int aspriteIndex)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
 {
 	spriteMappingAddress = aspriteMappingAddress;
 	spriteIndex = aspriteIndex;

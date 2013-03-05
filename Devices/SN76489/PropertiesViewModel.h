@@ -7,7 +7,7 @@ class SN76489::PropertiesViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	PropertiesViewModel(const std::wstring& amenuHandlerName, int aviewModelID, SN76489* adevice);
+	PropertiesViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, SN76489* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

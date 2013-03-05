@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-System::InputMappingDetailsViewModel::InputMappingDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, System* adevice, IDevice* atargetDevice)
-:ViewModelBase(amenuHandlerName, aviewModelID, true, false, L"", 0), device(adevice), targetDevice(atargetDevice)
+System::InputMappingDetailsViewModel::InputMappingDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, System* adevice, IDevice* atargetDevice)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, true, false, L"", 0), device(adevice), targetDevice(atargetDevice)
 {}
 
 //----------------------------------------------------------------------------------------

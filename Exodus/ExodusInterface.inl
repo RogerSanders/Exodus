@@ -101,14 +101,14 @@ struct ExodusInterface::ViewOperation
 //----------------------------------------------------------------------------------------
 struct ExodusInterface::WorkspaceViewEntryDetails
 {
-	WorkspaceViewEntryDetails(int aviewID, const std::wstring& amenuHandlerName, bool aownerIsSystem, const std::wstring& adeviceInstanceName, IViewModel* aviewModel = 0)
-	:viewID(aviewID), menuHandlerName(amenuHandlerName), ownerIsSystem(aownerIsSystem), deviceInstanceName(adeviceInstanceName), viewModel(aviewModel)
+	WorkspaceViewEntryDetails(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, bool aownerIsSystem, const std::wstring& adeviceInstanceName, IViewModel* aviewModel = 0)
+	:viewModelGroupName(aviewModelGroupName), viewModelName(aviewModelName), ownerIsSystem(aownerIsSystem), deviceInstanceName(adeviceInstanceName), viewModel(aviewModel)
 	{}
 
 	bool ownerIsSystem;
 	std::wstring deviceInstanceName;
-	std::wstring menuHandlerName;
-	int viewID;
+	std::wstring viewModelName;
+	std::wstring viewModelGroupName;
 	IViewModel* viewModel;
 };
 

@@ -7,7 +7,7 @@ class VDP::RegistersViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	RegistersViewModel(const std::wstring& amenuHandlerName, int aviewModelID, VDP* adevice);
+	RegistersViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, VDP* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

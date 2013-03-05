@@ -7,7 +7,7 @@ class VDP::VRAMViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	VRAMViewModel(const std::wstring& amenuHandlerName, int aviewModelID, VDP* adevice);
+	VRAMViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, VDP* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

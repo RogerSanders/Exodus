@@ -7,7 +7,7 @@ class VDP::SpriteListDetailsViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	SpriteListDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, VDP* adevice, unsigned int aspriteMappingAddress = 0, unsigned int aspriteIndex = 0);
+	SpriteListDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, VDP* adevice, unsigned int aspriteMappingAddress = 0, unsigned int aspriteIndex = 0);
 
 	//Sprite address functions
 	void SetSpriteAddress(unsigned int aspriteMappingAddress, unsigned int aspriteIndex);

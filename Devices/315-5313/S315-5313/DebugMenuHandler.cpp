@@ -14,7 +14,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 S315_5313::DebugMenuHandler::DebugMenuHandler(S315_5313* adevice)
-:device(adevice)
+:MenuHandlerBase(L"VDPDebugMenu"), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ void S315_5313::DebugMenuHandler::OpenSpriteListDetailsView(unsigned int asprite
 	}
 	else
 	{
-		viewModelBase = new SpriteListDetailsViewModel(GetMenuHandlerName(), MENUITEM_SPRITELISTDETAILS, device, aspriteIndex);
+		viewModelBase = new SpriteListDetailsViewModel(GetMenuHandlerName(), GetMenuItemName(MENUITEM_SPRITELISTDETAILS), MENUITEM_SPRITELISTDETAILS, device, aspriteIndex);
 		if(!AddCreatedViewModel(MENUITEM_SPRITELISTDETAILS, viewModelBase))
 		{
 			delete viewModelBase;
@@ -55,7 +55,7 @@ void S315_5313::DebugMenuHandler::OpenPortMonitorDetailsView(const PortMonitorEn
 	}
 	else
 	{
-		viewModelBase = new PortMonitorDetailsViewModel(GetMenuHandlerName(), MENUITEM_PORTMONITORDETAILS, device, aentry);
+		viewModelBase = new PortMonitorDetailsViewModel(GetMenuHandlerName(), GetMenuItemName(MENUITEM_PORTMONITORDETAILS), MENUITEM_PORTMONITORDETAILS, device, aentry);
 		if(!AddCreatedViewModel(MENUITEM_PORTMONITORDETAILS, viewModelBase))
 		{
 			delete viewModelBase;
@@ -66,47 +66,41 @@ void S315_5313::DebugMenuHandler::OpenPortMonitorDetailsView(const PortMonitorEn
 //----------------------------------------------------------------------------------------
 //Management functions
 //----------------------------------------------------------------------------------------
-std::wstring S315_5313::DebugMenuHandler::GetMenuHandlerName() const
-{
-	return L"VDPDebugMenu";
-}
-
-//----------------------------------------------------------------------------------------
 void S315_5313::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_VRAMVIEWER, L"VRAM Pattern Viewer", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_PALETTEVIEWER, L"Palette", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_IMAGE, L"Image", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_LAYERREMOVAL, L"Layer Removal", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_SETTINGS, L"Debug Settings", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELIST, L"Sprite List", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELISTDETAILS, L"Sprite List Details", true, true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITOR, L"Port Monitor", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITORDETAILS, L"Port Monitor Details", true, true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_VRAMVIEWER, L"VRAMPatterns", L"VRAM Pattern Viewer", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_PALETTEVIEWER, L"Palette", L"Palette", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_IMAGE, L"Image", L"Image", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", L"Registers", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_LAYERREMOVAL, L"LayerRemoval", L"Layer Removal", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_SETTINGS, L"DebugSettings", L"Debug Settings", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELIST, L"SpriteList", L"Sprite List", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELISTDETAILS, L"SpriteListDetails", L"Sprite List Details", true, true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITOR, L"PortMonitor", L"Port Monitor", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITORDETAILS, L"PortMonitorDetails", L"Port Monitor Details", true, true));
 }
 
 //----------------------------------------------------------------------------------------
-IViewModel* S315_5313::DebugMenuHandler::CreateViewModelForItem(int menuItemID)
+IViewModel* S315_5313::DebugMenuHandler::CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName)
 {
 	switch(menuItemID)
 	{
 	case MENUITEM_VRAMVIEWER:
-		return new VRAMViewModel(GetMenuHandlerName(), MENUITEM_VRAMVIEWER, device);
+		return new VRAMViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_VRAMVIEWER, device);
 	case MENUITEM_PALETTEVIEWER:
-		return new PaletteViewModel(GetMenuHandlerName(), MENUITEM_PALETTEVIEWER, device);
+		return new PaletteViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_PALETTEVIEWER, device);
 	case MENUITEM_IMAGE:
-		return new ImageViewModel(GetMenuHandlerName(), MENUITEM_IMAGE, device);
+		return new ImageViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_IMAGE, device);
 	case MENUITEM_REGISTERS:
-		return new RegistersViewModel(GetMenuHandlerName(), MENUITEM_REGISTERS, device);
+		return new RegistersViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_REGISTERS, device);
 	case MENUITEM_LAYERREMOVAL:
-		return new LayerRemovalViewModel(GetMenuHandlerName(), MENUITEM_LAYERREMOVAL, device);
+		return new LayerRemovalViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_LAYERREMOVAL, device);
 	case MENUITEM_SETTINGS:
-		return new DebugSettingsViewModel(GetMenuHandlerName(), MENUITEM_SETTINGS, device);
+		return new DebugSettingsViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_SETTINGS, device);
 	case MENUITEM_SPRITELIST:
-		return new SpriteListViewModel(GetMenuHandlerName(), MENUITEM_SPRITELIST, device);
+		return new SpriteListViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_SPRITELIST, device);
 	case MENUITEM_PORTMONITOR:
-		return new PortMonitorViewModel(GetMenuHandlerName(), MENUITEM_PORTMONITOR, device);
+		return new PortMonitorViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_PORTMONITOR, device);
 	}
 	return 0;
 }

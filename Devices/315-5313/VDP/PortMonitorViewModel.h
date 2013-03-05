@@ -7,7 +7,7 @@ class VDP::PortMonitorViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	PortMonitorViewModel(const std::wstring& amenuHandlerName, int aviewModelID, VDP* adevice);
+	PortMonitorViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, VDP* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

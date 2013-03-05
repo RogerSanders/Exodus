@@ -19,7 +19,7 @@ class MenuHandlerBase :public IMenuHandler
 {
 public:
 	//Constructors
-	MenuHandlerBase();
+	MenuHandlerBase(const std::wstring& amenuHandlerName);
 	virtual ~MenuHandlerBase();
 	void LoadMenuItems();
 	void ClearMenuItems();
@@ -32,8 +32,8 @@ public:
 
 	//Menu item handler functions
 	virtual void HandleMenuItemSelect(int menuItemID, IViewModelLauncher& aviewModelLauncher);
-	void RestoreMenuViewModelOpen(const std::wstring& menuHandlerName, int menuItemID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& aviewModelLauncher);
-	void OpenViewModel(const std::wstring& menuHandlerName, int menuItemID, IViewModelLauncher& aviewModelLauncher);
+	void RestoreMenuViewModelOpen(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& aviewModelLauncher);
+	void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& aviewModelLauncher);
 
 protected:
 	//Structures
@@ -41,11 +41,12 @@ protected:
 
 protected:
 	//Management functions
-	virtual std::wstring GetMenuHandlerName() const = 0;
+	std::wstring GetMenuHandlerName() const;
+	std::wstring GetMenuItemName(int menuItemID) const;
 	IViewModel* GetViewModelIfOpen(int menuItemID);
 	bool AddCreatedViewModel(int menuItemID, IViewModel* viewModel);
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const = 0;
-	virtual IViewModel* CreateViewModelForItem(int menuItemID) = 0;
+	virtual IViewModel* CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName) = 0;
 	virtual void DeleteViewModelForItem(int menuItemID, IViewModel* viewModel) = 0;
 	virtual void HandleMenuItemSelectNonViewModel(int menuItemID, IViewModelLauncher& aviewModelLauncher);
 
@@ -61,6 +62,7 @@ private:
 private:
 	typedef std::map<int, MenuItemInternal> MenuItems;
 	typedef std::pair<int, MenuItemInternal> MenuItemsEntry;
+	std::wstring menuHandlerName;
 	MenuItems menuItems;
 	std::list<int> menuItemOrder;
 	IViewModelLauncher* viewModelLauncher;
