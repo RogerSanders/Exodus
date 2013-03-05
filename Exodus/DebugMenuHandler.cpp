@@ -5,30 +5,24 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 System::DebugMenuHandler::DebugMenuHandler(System* adevice)
-:device(adevice)
+:MenuHandlerBase(L"SystemDebugMenu"), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------
 //Management functions
 //----------------------------------------------------------------------------------------
-std::wstring System::DebugMenuHandler::GetMenuHandlerName() const
-{
-	return L"DebugMenu";
-}
-
-//----------------------------------------------------------------------------------------
 void System::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_DEVICECONTROL, L"Device Control", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_DEVICECONTROL, L"DeviceControl", L"Device Control", true));
 }
 
 //----------------------------------------------------------------------------------------
-IViewModel* System::DebugMenuHandler::CreateViewModelForItem(int menuItemID)
+IViewModel* System::DebugMenuHandler::CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName)
 {
 	switch(menuItemID)
 	{
 	case MENUITEM_DEVICECONTROL:
-		return new DeviceControlViewModel(GetMenuHandlerName(), MENUITEM_DEVICECONTROL, device);
+		return new DeviceControlViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_DEVICECONTROL, device);
 	}
 	return 0;
 }

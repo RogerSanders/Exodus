@@ -7,7 +7,7 @@ class VDP::SpriteListViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	SpriteListViewModel(const std::wstring& amenuHandlerName, int aviewModelID, VDP* adevice);
+	SpriteListViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, VDP* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

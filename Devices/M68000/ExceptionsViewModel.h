@@ -8,7 +8,7 @@ class M68000::ExceptionsViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	ExceptionsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, M68000* adevice);
+	ExceptionsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, M68000* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

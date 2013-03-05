@@ -126,26 +126,6 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewM
 	debugMenuHandler->AddMenuItems(menuSegmentForSystem, viewModelLauncher);
 	IMenuSeparator& menuSystemItemsSeparator = menuSegmentForSystem.AddMenuItemSeparator();
 
-	//Add global debug menu entries, which appear above our device submenus
-	IMenuSegment& menuSegmentForGlobalItems = menuSubmenu.CreateMenuSegment();
-	for(DeviceArray::const_iterator i = devices.begin(); i != devices.end(); ++i)
-	{
-		IDeviceContext* device = *i;
-		device->GetTargetDevice()->AddGlobalDebugMenuItems(menuSegmentForGlobalItems, viewModelLauncher);
-	}
-
-	//Add a separator after the global debug menu entries if items were added, otherwise
-	//remove the global debug menu segment.
-	bool menuGlobalItemsSeparatorExists = true;
-	IMenuSegment& menuGlobalItemsSeparatorSegment = menuSubmenu.CreateMenuSegment();
-	IMenuSeparator& menuGlobalItemsSeparator = menuGlobalItemsSeparatorSegment.AddMenuItemSeparator();
-	if(menuSegmentForGlobalItems.NoMenuItemsExist())
-	{
-		menuSubmenu.DeleteMenuSegment(menuSegmentForGlobalItems);
-		menuSubmenu.DeleteMenuSegment(menuGlobalItemsSeparatorSegment);
-		menuGlobalItemsSeparatorExists = false;
-	}
-
 	//Build our module submenus
 	IMenuSegment& menuSegmentForModules = menuSubmenu.CreateMenuSegment();
 	for(LoadedModuleInfoList::const_iterator i = loadedModuleInfoList.begin(); i != loadedModuleInfoList.end(); ++i)
@@ -181,25 +161,18 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewM
 	if(menuSegmentForModules.NoMenuItemsExist())
 	{
 		menuSubmenu.DeleteMenuSegment(menuSegmentForModules);
-		if(menuGlobalItemsSeparatorExists)
-		{
-			menuGlobalItemsSeparatorSegment.DeleteMenuItem(menuGlobalItemsSeparator);
-		}
-		else
-		{
-			menuSegmentForSystem.DeleteMenuItem(menuSystemItemsSeparator);
-		}
+		menuSegmentForSystem.DeleteMenuItem(menuSystemItemsSeparator);
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void System::RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void System::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	debugMenuHandler->RestoreMenuViewModelOpen(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
+	debugMenuHandler->RestoreMenuViewModelOpen(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewModelStateForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName, const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+bool System::RestoreViewModelStateForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName, const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	//Attempt to find the referenced device
 	IDevice* device = GetDevice(moduleID, deviceInstanceName);
@@ -209,7 +182,7 @@ bool System::RestoreViewModelStateForDevice(unsigned int moduleID, const std::ws
 	}
 
 	//Restore the view model state
-	device->RestoreViewModelState(menuHandlerName, viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
+	device->RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 	return true;
 }
 

@@ -56,8 +56,8 @@ public:
 	virtual void AddFileOpenMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void AddGlobalSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher) = 0;
-	inline void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	inline void OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher);
+	inline void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	inline void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
 
 protected:
 	//Reference functions
@@ -71,8 +71,8 @@ protected:
 	virtual const wchar_t* GetExtensionInstanceNameInternal() const = 0;
 
 	//Window functions
-	virtual void RestoreViewModelStateInternal(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
-	virtual void OpenViewModelInternal(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual void RestoreViewModelStateInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual void OpenViewModelInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IViewModelLauncher& viewModelLauncher) = 0;
 };
 
 #include "IExtension.inl"

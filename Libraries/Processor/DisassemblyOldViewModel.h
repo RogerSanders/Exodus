@@ -7,7 +7,7 @@ class Processor::DisassemblyOldViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	DisassemblyOldViewModel(const std::wstring& amenuHandlerName, int aviewModelID, Processor* adevice);
+	DisassemblyOldViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, Processor* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

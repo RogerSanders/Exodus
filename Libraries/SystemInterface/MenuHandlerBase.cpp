@@ -5,8 +5,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MenuHandlerBase::MenuHandlerBase()
-:deleteThreadCount(0), viewModelLauncher(0)
+MenuHandlerBase::MenuHandlerBase(const std::wstring& amenuHandlerName)
+:menuHandlerName(amenuHandlerName), deleteThreadCount(0), viewModelLauncher(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ void MenuHandlerBase::LoadMenuItems()
 	{
 		//Add the menu item to our internal structures
 		menuItemOrder.push_back(i->menuItemID);
-		menuItems.insert(MenuItemsEntry(i->menuItemID, MenuItemInternal(i->menuItemID, i->menuItemName, i->menuItemOpensViewModel, i->hiddenMenuItem)));
+		menuItems.insert(MenuItemsEntry(i->menuItemID, MenuItemInternal(i->menuItemID, i->menuItemName, i->menuItemTitle, i->menuItemOpensViewModel, i->hiddenMenuItem)));
 	}
 }
 
@@ -80,18 +80,18 @@ void MenuHandlerBase::AddMenuItems(IMenuSegment& menuSegment, IViewModelLauncher
 	}
 
 	//Process each menu item
-	for(std::list<int>::const_iterator menuItemOrderIterator = menuItemOrder.begin(); menuItemOrderIterator != menuItemOrder.end(); ++menuItemOrderIterator)
+	for(std::list<int>::const_iterator i = menuItemOrder.begin(); i != menuItemOrder.end(); ++i)
 	{
 		//Attempt to locate the menu item
-		MenuItems::iterator i = menuItems.find(*menuItemOrderIterator);
-		if(i != menuItems.end())
+		MenuItems::iterator menuItemIterator = menuItems.find(*i);
+		if(menuItemIterator != menuItems.end())
 		{
-			MenuItemInternal& menuItem = i->second;
+			MenuItemInternal& menuItem = menuItemIterator->second;
 
 			//If the item isn't hidden from the menu, add it to the menu structure.
 			if(!menuItem.hiddenMenuItem)
 			{
-				menuSegment.AddMenuItemSelectableOption(*this, menuItem.menuItemID, menuItem.menuItemName);
+				menuSegment.AddMenuItemSelectableOption(*this, menuItem.menuItemID, menuItem.menuItemTitle);
 			}
 		}
 	}
@@ -109,10 +109,10 @@ void MenuHandlerBase::HandleMenuItemSelect(int menuItemID, IViewModelLauncher& a
 	}
 
 	//Attempt to locate the menu item
-	MenuItems::iterator i = menuItems.find(menuItemID);
-	if(i != menuItems.end())
+	MenuItems::iterator menuItemIterator = menuItems.find(menuItemID);
+	if(menuItemIterator != menuItems.end())
 	{
-		MenuItemInternal& menuItem = i->second;
+		MenuItemInternal& menuItem = menuItemIterator->second;
 
 		//Check if this menu item opens a view model
 		if(!menuItem.menuItemOpensViewModel)
@@ -128,7 +128,7 @@ void MenuHandlerBase::HandleMenuItemSelect(int menuItemID, IViewModelLauncher& a
 			if(viewModel == 0)
 			{
 				//If the view isn't currently open, create and open the view.
-				viewModel = CreateViewModelForItem(menuItemID);
+				viewModel = CreateViewModelForItem(menuItemID, menuItem.menuItemName);
 				if(viewModel != 0)
 				{
 					menuItem.viewModel = viewModel;
@@ -153,7 +153,7 @@ void MenuHandlerBase::HandleMenuItemSelect(int menuItemID, IViewModelLauncher& a
 }
 
 //----------------------------------------------------------------------------------------
-void MenuHandlerBase::RestoreMenuViewModelOpen(const std::wstring& menuHandlerName, int menuItemID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& aviewModelLauncher)
+void MenuHandlerBase::RestoreMenuViewModelOpen(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& aviewModelLauncher)
 {
 	//Save a reference to the viewModelLauncher
 	if(viewModelLauncher == 0)
@@ -162,68 +162,79 @@ void MenuHandlerBase::RestoreMenuViewModelOpen(const std::wstring& menuHandlerNa
 	}
 
 	//Ensure the menu handler name matches
-	if(GetMenuHandlerName() != menuHandlerName)
+	if(menuHandlerName != viewModelGroupName)
 	{
 		return;
 	}
 
-	//Attempt to locate the menu item
-	MenuItems::iterator i = menuItems.find(menuItemID);
-	if(i != menuItems.end())
+	//Attempt to retrieve the target menu item
+	MenuItemInternal* menuItem = 0;
+	bool foundMenuItem = false;
+	MenuItems::iterator menuItemIterator = menuItems.begin();
+	while(!foundMenuItem && (menuItemIterator != menuItems.end()))
 	{
-		MenuItemInternal& menuItem = i->second;
-
-		//Check if this menu item opens a view model
-		if(menuItem.menuItemOpensViewModel)
+		if(menuItemIterator->second.menuItemName == viewModelName)
 		{
-			//Check if the view is currently open
-			IViewModel* viewModel = menuItem.viewModel;
-			if(viewModel == 0)
+			menuItem = &menuItemIterator->second;
+			foundMenuItem = true;
+		}
+		++menuItemIterator;
+	}
+	if(!foundMenuItem)
+	{
+		return;
+	}
+
+	//Check if this menu item opens a view model
+	if(menuItem->menuItemOpensViewModel)
+	{
+		//Check if the view is currently open
+		IViewModel* viewModel = menuItem->viewModel;
+		if(viewModel == 0)
+		{
+			//If the view isn't currently open, create and open the view, restoring the
+			//view state.
+			viewModel = CreateViewModelForItem(menuItem->menuItemID, menuItem->menuItemName);
+			if(viewModel != 0)
 			{
-				//If the view isn't currently open, create and open the view, restoring
-				//the view state.
-				viewModel = CreateViewModelForItem(menuItemID);
-				if(viewModel != 0)
+				menuItem->viewModel = viewModel;
+				if(!aviewModelLauncher.OpenViewModel(viewModel, false, true))
 				{
-					menuItem.viewModel = viewModel;
-					if(!aviewModelLauncher.OpenViewModel(viewModel, false, true))
+					menuItem->viewModel = 0;
+					DeleteViewModelForItem(menuItem->menuItemID, viewModel);
+				}
+				else
+				{
+					//Note that this is safe, since we're guaranteed that this function is
+					//not called in the context of the UI thread.
+					aviewModelLauncher.WaitUntilViewModelOpened(viewModel);
+					viewModel->LoadViewLayoutState(node);
+					viewModel->SetViewPosition(xpos, ypos);
+					if((width > 0) && (height > 0))
 					{
-						menuItem.viewModel = 0;
-						DeleteViewModelForItem(menuItemID, viewModel);
+						viewModel->SetViewSize(width, height);
 					}
-					else
-					{
-						//Note that this is safe, since we're guaranteed that this
-						//function is not called in the context of the UI thread.
-						aviewModelLauncher.WaitUntilViewModelOpened(viewModel);
-						viewModel->LoadViewLayoutState(node);
-						viewModel->SetViewPosition(xpos, ypos);
-						if((width > 0) && (height > 0))
-						{
-							viewModel->SetViewSize(width, height);
-						}
-						aviewModelLauncher.ShowViewModel(viewModel);
-						DeleteViewModelOnClose(menuItemID);
-					}
+					aviewModelLauncher.ShowViewModel(viewModel);
+					DeleteViewModelOnClose(menuItem->menuItemID);
 				}
 			}
-			else
+		}
+		else
+		{
+			//If the view is currently open, restore the view state, and activate it.
+			viewModel->LoadViewLayoutState(node);
+			viewModel->SetViewPosition(xpos, ypos);
+			if((width > 0) && (height > 0))
 			{
-				//If the view is currently open, restore the view state, and activate it.
-				viewModel->LoadViewLayoutState(node);
-				viewModel->SetViewPosition(xpos, ypos);
-				if((width > 0) && (height > 0))
-				{
-					viewModel->SetViewSize(width, height);
-				}
-				aviewModelLauncher.ActivateViewModel(viewModel);
+				viewModel->SetViewSize(width, height);
 			}
+			aviewModelLauncher.ActivateViewModel(viewModel);
 		}
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void MenuHandlerBase::OpenViewModel(const std::wstring& menuHandlerName, int menuItemID, IViewModelLauncher& aviewModelLauncher)
+void MenuHandlerBase::OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& aviewModelLauncher)
 {
 	//Save a reference to the viewModelLauncher
 	if(viewModelLauncher == 0)
@@ -232,27 +243,68 @@ void MenuHandlerBase::OpenViewModel(const std::wstring& menuHandlerName, int men
 	}
 
 	//Ensure the menu handler name matches
-	if(GetMenuHandlerName() != menuHandlerName)
+	if(menuHandlerName != viewModelGroupName)
+	{
+		return;
+	}
+
+	//Attempt to retrieve the target menu item
+	const MenuItemInternal* menuItem = 0;
+	bool foundMenuItem = false;
+	MenuItems::const_iterator menuItemIterator = menuItems.begin();
+	while(!foundMenuItem && (menuItemIterator != menuItems.end()))
+	{
+		if(menuItemIterator->second.menuItemName == viewModelName)
+		{
+			menuItem = &menuItemIterator->second;
+			foundMenuItem = true;
+		}
+		++menuItemIterator;
+	}
+	if(!foundMenuItem)
 	{
 		return;
 	}
 
 	//Handle the menu item selection as normal
-	HandleMenuItemSelect(menuItemID, aviewModelLauncher);
+	HandleMenuItemSelect(menuItem->menuItemID, aviewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
 //Management functions
+//----------------------------------------------------------------------------------------
+std::wstring MenuHandlerBase::GetMenuHandlerName() const
+{
+	return menuHandlerName;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring MenuHandlerBase::GetMenuItemName(int menuItemID) const
+{
+	std::wstring menuItemName;
+
+	//Attempt to locate the menu item
+	MenuItems::const_iterator menuItemIterator = menuItems.find(menuItemID);
+	if(menuItemIterator != menuItems.end())
+	{
+		//Return the name of the menu item
+		const MenuItemInternal& menuItem = menuItemIterator->second;
+		menuItemName = menuItem.menuItemName;
+	}
+
+	return menuItemName;
+}
+
 //----------------------------------------------------------------------------------------
 IViewModel* MenuHandlerBase::GetViewModelIfOpen(int menuItemID)
 {
 	IViewModel* viewModel = 0;
 
 	//Attempt to locate the menu item
-	MenuItems::iterator i = menuItems.find(menuItemID);
-	if(i != menuItems.end())
+	MenuItems::const_iterator menuItemIterator = menuItems.find(menuItemID);
+	if(menuItemIterator != menuItems.end())
 	{
-		MenuItemInternal& menuItem = i->second;
+		const MenuItemInternal& menuItem = menuItemIterator->second;
 
 		//Check if this menu item opens a view model
 		if(menuItem.menuItemOpensViewModel)
@@ -271,10 +323,10 @@ bool MenuHandlerBase::AddCreatedViewModel(int menuItemID, IViewModel* viewModel)
 	bool result = false;
 
 	//Attempt to locate the menu item
-	MenuItems::iterator i = menuItems.find(menuItemID);
-	if(i != menuItems.end())
+	MenuItems::iterator menuItemIterator = menuItems.find(menuItemID);
+	if(menuItemIterator != menuItems.end())
 	{
-		MenuItemInternal& menuItem = i->second;
+		MenuItemInternal& menuItem = menuItemIterator->second;
 
 		//Check if this menu item opens a view model
 		if(menuItem.menuItemOpensViewModel)
@@ -322,10 +374,10 @@ void MenuHandlerBase::DeleteViewModelOnClose(int menuItemID)
 void MenuHandlerBase::DeleteViewModelHandler(int menuItemID)
 {
 	//Attempt to locate the menu item
-	MenuItems::iterator i = menuItems.find(menuItemID);
-	if(i != menuItems.end())
+	MenuItems::iterator menuItemIterator = menuItems.find(menuItemID);
+	if(menuItemIterator != menuItems.end())
 	{
-		MenuItemInternal& menuItem = i->second;
+		MenuItemInternal& menuItem = menuItemIterator->second;
 
 		//Check if this menu item opens a view model
 		if(menuItem.menuItemOpensViewModel)

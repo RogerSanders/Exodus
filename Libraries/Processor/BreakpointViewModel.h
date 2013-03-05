@@ -7,7 +7,7 @@ class Processor::BreakpointViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	BreakpointViewModel(const std::wstring& amenuHandlerName, int aviewModelID, Processor* adevice);
+	BreakpointViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, Processor* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

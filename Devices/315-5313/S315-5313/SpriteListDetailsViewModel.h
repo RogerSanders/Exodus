@@ -7,7 +7,7 @@ class S315_5313::SpriteListDetailsViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	SpriteListDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, S315_5313* adevice, unsigned int aspriteIndex = 0);
+	SpriteListDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, S315_5313* adevice, unsigned int aspriteIndex = 0);
 
 	//Sprite index functions
 	void SetSpriteIndex(unsigned int aspriteIndex);

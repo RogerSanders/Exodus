@@ -7,7 +7,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 System::SettingsMenuHandler::SettingsMenuHandler(System* adevice)
-:device(adevice)
+:MenuHandlerBase(L"SystemSettingsMenu"), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ void System::SettingsMenuHandler::OpenInputMappingDetailsView(IDevice* targetDev
 	}
 	else
 	{
-		viewModelBase = new InputMappingDetailsViewModel(GetMenuHandlerName(), MENUITEM_INPUTMAPPINGDETAILS, device, targetDevice);
+		viewModelBase = new InputMappingDetailsViewModel(GetMenuHandlerName(), GetMenuItemName(MENUITEM_INPUTMAPPINGDETAILS), MENUITEM_INPUTMAPPINGDETAILS, device, targetDevice);
 		if(!AddCreatedViewModel(MENUITEM_INPUTMAPPINGDETAILS, viewModelBase))
 		{
 			delete viewModelBase;
@@ -47,28 +47,22 @@ void System::SettingsMenuHandler::CloseInputMappingDetailsView()
 //----------------------------------------------------------------------------------------
 //Management functions
 //----------------------------------------------------------------------------------------
-std::wstring System::SettingsMenuHandler::GetMenuHandlerName() const
-{
-	return L"SettingsMenu";
-}
-
-//----------------------------------------------------------------------------------------
 void System::SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_INPUTMAPPING, L"Input Mapping", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_INPUTMAPPINGDETAILS, L"Input Mapping Details", true, true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_EMBEDDEDROM, L"Embedded ROM Selection", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_INPUTMAPPING, L"InputMapping", L"Input Mapping", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_INPUTMAPPINGDETAILS, L"InputMappingDetails", L"Input Mapping Details", true, true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_EMBEDDEDROM, L"EmbeddedROMControl", L"Embedded ROM Selection", true));
 }
 
 //----------------------------------------------------------------------------------------
-IViewModel* System::SettingsMenuHandler::CreateViewModelForItem(int menuItemID)
+IViewModel* System::SettingsMenuHandler::CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName)
 {
 	switch(menuItemID)
 	{
 	case MENUITEM_INPUTMAPPING:
-		return new InputMappingViewModel(GetMenuHandlerName(), MENUITEM_INPUTMAPPING, device);
+		return new InputMappingViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_INPUTMAPPING, device);
 	case MENUITEM_EMBEDDEDROM:
-		return new EmbeddedROMViewModel(GetMenuHandlerName(), MENUITEM_EMBEDDEDROM, device);
+		return new EmbeddedROMViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_EMBEDDEDROM, device);
 	}
 	return 0;
 }

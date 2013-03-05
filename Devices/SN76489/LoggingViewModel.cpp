@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SN76489::LoggingViewModel::LoggingViewModel(const std::wstring& amenuHandlerName, int aviewModelID, SN76489* adevice)
-:ViewModelBase(amenuHandlerName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
+SN76489::LoggingViewModel::LoggingViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, SN76489* adevice)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------

@@ -7,7 +7,7 @@ class YM2612::LoggingViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	LoggingViewModel(const std::wstring& amenuHandlerName, int aviewModelID, YM2612* adevice);
+	LoggingViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, YM2612* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

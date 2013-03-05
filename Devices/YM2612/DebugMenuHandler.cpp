@@ -8,7 +8,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 YM2612::DebugMenuHandler::DebugMenuHandler(YM2612* adevice)
-:device(adevice)
+:MenuHandlerBase(L"YM2612DebugMenu"), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ void YM2612::DebugMenuHandler::OpenOperatorView(unsigned int achannelNo, unsigne
 	}
 	else
 	{
-		viewModelBase = new OperatorViewModel(GetMenuHandlerName(), MENUITEM_OPERATOR, device, achannelNo, aoperatorNo);
+		viewModelBase = new OperatorViewModel(GetMenuHandlerName(), GetMenuItemName(MENUITEM_OPERATOR), MENUITEM_OPERATOR, device, achannelNo, aoperatorNo);
 		if(!AddCreatedViewModel(MENUITEM_OPERATOR, viewModelBase))
 		{
 			delete viewModelBase;
@@ -38,33 +38,27 @@ void YM2612::DebugMenuHandler::OpenOperatorView(unsigned int achannelNo, unsigne
 //----------------------------------------------------------------------------------------
 //Management functions
 //----------------------------------------------------------------------------------------
-std::wstring YM2612::DebugMenuHandler::GetMenuHandlerName() const
-{
-	return L"YM2612DebugMenu";
-}
-
-//----------------------------------------------------------------------------------------
 void YM2612::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_DEBUGGER, L"Debugger", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_OPERATOR, L"Operator", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Raw Registers", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_WAV_FILE_LOGGING, L"WAV File Logging", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_DEBUGGER, L"Debugger", L"Debugger", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_OPERATOR, L"Operator", L"Operator", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", L"Raw Registers", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_WAV_FILE_LOGGING, L"OutputLogging", L"WAV File Logging", true));
 }
 
 //----------------------------------------------------------------------------------------
-IViewModel* YM2612::DebugMenuHandler::CreateViewModelForItem(int menuItemID)
+IViewModel* YM2612::DebugMenuHandler::CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName)
 {
 	switch(menuItemID)
 	{
 	case MENUITEM_DEBUGGER:
-		return new DebuggerViewModel(GetMenuHandlerName(), MENUITEM_DEBUGGER, device);
+		return new DebuggerViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_DEBUGGER, device);
 	case MENUITEM_OPERATOR:
-		return new OperatorViewModel(GetMenuHandlerName(), MENUITEM_OPERATOR, device);
+		return new OperatorViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_OPERATOR, device);
 	case MENUITEM_REGISTERS:
-		return new RegistersViewModel(GetMenuHandlerName(), MENUITEM_REGISTERS, device);
+		return new RegistersViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_REGISTERS, device);
 	case MENUITEM_WAV_FILE_LOGGING:
-		return new LoggingViewModel(GetMenuHandlerName(), MENUITEM_WAV_FILE_LOGGING, device);
+		return new LoggingViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_WAV_FILE_LOGGING, device);
 	}
 	return 0;
 }

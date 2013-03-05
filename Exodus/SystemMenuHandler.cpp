@@ -6,7 +6,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 System::SystemMenuHandler::SystemMenuHandler(System* adevice)
-:device(adevice)
+:MenuHandlerBase(L"SystemMenu"), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ void System::SystemMenuHandler::OpenLoggerDetailsView(const LogEntryInternal& al
 	}
 	else
 	{
-		viewModelBase = new LoggerDetailsViewModel(GetMenuHandlerName(), MENUITEM_LOGGERDETAILS, device, alogEntry);
+		viewModelBase = new LoggerDetailsViewModel(GetMenuHandlerName(), GetMenuItemName(MENUITEM_LOGGERDETAILS), MENUITEM_LOGGERDETAILS, device, alogEntry);
 		if(!AddCreatedViewModel(MENUITEM_LOGGERDETAILS, viewModelBase))
 		{
 			delete viewModelBase;
@@ -36,25 +36,19 @@ void System::SystemMenuHandler::OpenLoggerDetailsView(const LogEntryInternal& al
 //----------------------------------------------------------------------------------------
 //Management functions
 //----------------------------------------------------------------------------------------
-std::wstring System::SystemMenuHandler::GetMenuHandlerName() const
-{
-	return L"SystemMenu";
-}
-
-//----------------------------------------------------------------------------------------
 void System::SystemMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_LOGGER, L"Event Log", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_LOGGERDETAILS, L"Event Log Entry", true, true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_LOGGER, L"EventLog", L"Event Log", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_LOGGERDETAILS, L"EventLogEntry", L"Event Log Entry", true, true));
 }
 
 //----------------------------------------------------------------------------------------
-IViewModel* System::SystemMenuHandler::CreateViewModelForItem(int menuItemID)
+IViewModel* System::SystemMenuHandler::CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName)
 {
 	switch(menuItemID)
 	{
 	case MENUITEM_LOGGER:
-		return new LoggerViewModel(GetMenuHandlerName(), MENUITEM_LOGGER, device);
+		return new LoggerViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_LOGGER, device);
 	}
 	return 0;
 }

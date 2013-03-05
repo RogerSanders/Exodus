@@ -7,7 +7,7 @@ class Processor::TraceViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	TraceViewModel(const std::wstring& amenuHandlerName, int aviewModelID, Processor* adevice);
+	TraceViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, Processor* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

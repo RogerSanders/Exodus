@@ -7,7 +7,7 @@ class ViewModelBase :public IViewModel
 {
 public:
 	//Constructors
-	ViewModelBase(const std::wstring& amenuHandlerName, int aviewModelID, bool aownerIsSystem, bool aownerIsDevice, const std::wstring& adeviceInstanceName, unsigned int amoduleID);
+	ViewModelBase(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, bool aownerIsSystem, bool aownerIsDevice, const std::wstring& adeviceInstanceName, unsigned int amoduleID);
 
 	//Interface version functions
 	virtual unsigned int GetIViewModelVersion() const;
@@ -48,7 +48,8 @@ public:
 
 	//State functions
 	virtual int GetViewID() const;
-	std::wstring GetMenuHandlerName() const;
+	std::wstring GetViewModelGroupName() const;
+	std::wstring GetViewModelName() const;
 	virtual bool SaveViewLayoutState(IHeirarchicalStorageNode& node) const;
 	virtual bool LoadViewLayoutState(IHeirarchicalStorageNode& node);
 	virtual bool DoesWindowHandleMatchView(void* awindowHandle) const;
@@ -65,7 +66,8 @@ protected:
 	virtual const wchar_t* GetViewTitleInternal() const;
 
 	//State functions
-	virtual const wchar_t* GetMenuHandlerNameInternal() const;
+	virtual const wchar_t* GetViewModelGroupNameInternal() const;
+	virtual const wchar_t* GetViewModelNameInternal() const;
 
 private:
 	bool viewOpen;
@@ -76,7 +78,8 @@ private:
 	bool viewOwnerIsSystem;
 	std::wstring viewOwnerDeviceInstanceName;
 	unsigned int viewOwnerModuleID;
-	std::wstring menuHandlerName;
+	std::wstring viewModelGroupName;
+	std::wstring viewModelName;
 	mutable std::wstring viewTitleCached;
 };
 

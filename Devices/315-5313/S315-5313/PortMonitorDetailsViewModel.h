@@ -7,7 +7,7 @@ class S315_5313::PortMonitorDetailsViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	PortMonitorDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, S315_5313* adevice, const PortMonitorEntry& aentry);
+	PortMonitorDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, S315_5313* adevice, const PortMonitorEntry& aentry);
 
 	//Port monitor entry functions
 	void SetPortMonitorEntry(const PortMonitorEntry& aentry);

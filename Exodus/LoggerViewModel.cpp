@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-System::LoggerViewModel::LoggerViewModel(const std::wstring& amenuHandlerName, int aviewModelID, System* adevice)
-:ViewModelBase(amenuHandlerName, aviewModelID, true, false, L"", 0), device(adevice)
+System::LoggerViewModel::LoggerViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, System* adevice)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, true, false, L"", 0), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------

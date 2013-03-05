@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Processor::WatchpointViewModel::WatchpointViewModel(const std::wstring& amenuHandlerName, int aviewModelID, Processor* adevice)
-:ViewModelBase(amenuHandlerName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
+Processor::WatchpointViewModel::WatchpointViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, Processor* adevice)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------

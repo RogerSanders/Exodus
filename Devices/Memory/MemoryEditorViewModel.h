@@ -7,7 +7,7 @@ class MemoryRead::MemoryEditorViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	MemoryEditorViewModel(const std::wstring& amenuHandlerName, int aviewModelID, MemoryRead* adevice);
+	MemoryEditorViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, MemoryRead* adevice);
 
 	//View creation and deletion
 	virtual IView* CreateView();

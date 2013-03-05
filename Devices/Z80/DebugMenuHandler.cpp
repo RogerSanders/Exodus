@@ -6,30 +6,24 @@ namespace Z80{
 //Constructors
 //----------------------------------------------------------------------------------------
 Z80::DebugMenuHandler::DebugMenuHandler(Z80* adevice)
-:device(adevice)
+:MenuHandlerBase(L"Z80DebugMenu"), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------
 //Management functions
 //----------------------------------------------------------------------------------------
-std::wstring Z80::DebugMenuHandler::GetMenuHandlerName() const
-{
-	return L"Z80DebugMenu";
-}
-
-//----------------------------------------------------------------------------------------
 void Z80::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", L"Registers", true));
 }
 
 //----------------------------------------------------------------------------------------
-IViewModel* Z80::DebugMenuHandler::CreateViewModelForItem(int menuItemID)
+IViewModel* Z80::DebugMenuHandler::CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName)
 {
 	switch(menuItemID)
 	{
 	case MENUITEM_REGISTERS:
-		return new RegistersViewModel(GetMenuHandlerName(), MENUITEM_REGISTERS, device);
+		return new RegistersViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_REGISTERS, device);
 	}
 	return 0;
 }

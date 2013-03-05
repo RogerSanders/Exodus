@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-S315_5313::SpriteListDetailsViewModel::SpriteListDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, S315_5313* adevice, unsigned int aspriteIndex)
-:ViewModelBase(amenuHandlerName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
+S315_5313::SpriteListDetailsViewModel::SpriteListDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, S315_5313* adevice, unsigned int aspriteIndex)
+:ViewModelBase(aviewModelGroupName, aviewModelName, aviewModelID, false, true, adevice->GetDeviceInstanceName(), adevice->GetDeviceModuleID()), device(adevice)
 {
 	spriteIndex = aspriteIndex;
 }

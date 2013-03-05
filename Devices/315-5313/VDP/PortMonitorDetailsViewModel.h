@@ -7,7 +7,7 @@ class VDP::PortMonitorDetailsViewModel :public ViewModelBase
 {
 public:
 	//Constructors
-	PortMonitorDetailsViewModel(const std::wstring& amenuHandlerName, int aviewModelID, VDP* adevice, const PortMonitorEntry& aentry);
+	PortMonitorDetailsViewModel(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, VDP* adevice, const PortMonitorEntry& aentry);
 
 	//Port monitor entry functions
 	void SetPortMonitorEntry(const PortMonitorEntry& aentry);

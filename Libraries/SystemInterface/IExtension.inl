@@ -47,13 +47,13 @@ std::wstring IExtension::GetExtensionInstanceName() const
 //----------------------------------------------------------------------------------------
 //Window functions
 //----------------------------------------------------------------------------------------
-void IExtension::RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void IExtension::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	RestoreViewModelStateInternal(menuHandlerName.c_str(), viewModelID, node, xpos, ypos, width, height, viewModelLauncher);
+	RestoreViewModelStateInternal(viewModelGroupName.c_str(), viewModelName.c_str(), node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
-void IExtension::OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher)
+void IExtension::OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher)
 {
-	OpenViewModelInternal(menuHandlerName.c_str(), viewModelID, viewModelLauncher);
+	OpenViewModelInternal(viewModelGroupName.c_str(), viewModelName.c_str(), viewModelLauncher);
 }

@@ -5,30 +5,24 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 S315_5313::SettingsMenuHandler::SettingsMenuHandler(S315_5313* adevice)
-:device(adevice)
+:MenuHandlerBase(L"VDPSettingsMenu"), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------
 //Management functions
 //----------------------------------------------------------------------------------------
-std::wstring S315_5313::SettingsMenuHandler::GetMenuHandlerName() const
-{
-	return L"VDPSettingsMenu";
-}
-
-//----------------------------------------------------------------------------------------
 void S315_5313::SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_SETTINGS, L"Settings", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_SETTINGS, L"Settings", L"Settings", true));
 }
 
 //----------------------------------------------------------------------------------------
-IViewModel* S315_5313::SettingsMenuHandler::CreateViewModelForItem(int menuItemID)
+IViewModel* S315_5313::SettingsMenuHandler::CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName)
 {
 	switch(menuItemID)
 	{
 	case MENUITEM_SETTINGS:
-		return new SettingsViewModel(GetMenuHandlerName(), MENUITEM_SETTINGS, device);
+		return new SettingsViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_SETTINGS, device);
 	}
 	return 0;
 }

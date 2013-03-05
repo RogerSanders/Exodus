@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ViewModelBase::ViewModelBase(const std::wstring& amenuHandlerName, int aviewModelID, bool aownerIsSystem, bool aownerIsDevice, const std::wstring& adeviceInstanceName, unsigned int amoduleID)
-:menuHandlerName(amenuHandlerName), viewModelID(aviewModelID), view(0), notifier(0), viewOpen(false), viewOwnerIsDevice(false), viewOwnerIsSystem(false)
+ViewModelBase::ViewModelBase(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, int aviewModelID, bool aownerIsSystem, bool aownerIsDevice, const std::wstring& adeviceInstanceName, unsigned int amoduleID)
+:viewModelGroupName(aviewModelGroupName), viewModelName(aviewModelName), viewModelID(aviewModelID), view(0), notifier(0), viewOpen(false), viewOwnerIsDevice(false), viewOwnerIsSystem(false)
 {
 	if(aownerIsSystem)
 	{
@@ -269,15 +269,27 @@ int ViewModelBase::GetViewID() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ViewModelBase::GetMenuHandlerName() const
+std::wstring ViewModelBase::GetViewModelGroupName() const
 {
-	return menuHandlerName;
+	return viewModelGroupName;
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ViewModelBase::GetMenuHandlerNameInternal() const
+std::wstring ViewModelBase::GetViewModelName() const
 {
-	return menuHandlerName.c_str();
+	return viewModelName;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ViewModelBase::GetViewModelGroupNameInternal() const
+{
+	return viewModelGroupName.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* ViewModelBase::GetViewModelNameInternal() const
+{
+	return viewModelName.c_str();
 }
 
 //----------------------------------------------------------------------------------------

@@ -276,8 +276,8 @@ struct System::ViewModelOpenRequest
 {
 	bool ownerSystem;
 	unsigned int moduleID;
-	std::wstring menuHandlerName;
-	int viewID;
+	std::wstring viewModelGroupName;
+	std::wstring viewModelName;
 	std::wstring deviceInstanceName;
 };
 

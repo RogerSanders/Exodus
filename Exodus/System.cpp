@@ -5054,24 +5054,24 @@ bool System::LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, uns
 {
 	//Extract the Owner, MenuHandlerName, and ViewID attributes
 	IHeirarchicalStorageAttribute* ownerAttribute = node.GetAttribute(L"Owner");
-	IHeirarchicalStorageAttribute* menuHandlerNameAttribute = node.GetAttribute(L"MenuHandlerName");
-	IHeirarchicalStorageAttribute* viewIDAttribute = node.GetAttribute(L"ViewID");
-	if((ownerAttribute == 0) || (menuHandlerNameAttribute == 0) || (viewIDAttribute == 0))
+	IHeirarchicalStorageAttribute* viewModelGroupAttribute = node.GetAttribute(L"ViewModelGroupName");
+	IHeirarchicalStorageAttribute* viewModelNameAttribute = node.GetAttribute(L"ViewModelName");
+	if((ownerAttribute == 0) || (viewModelGroupAttribute == 0) || (viewModelNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either Owner, MenuHandlerName, or ViewID attribute for System.OpenViewModel!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either Owner, ViewModelGroupName, or ViewModelName attribute for System.OpenViewModel!"));
 		return false;
 	}
 	std::wstring owner = ownerAttribute->GetValue();
-	std::wstring menuHandlerName = menuHandlerNameAttribute->GetValue();
-	int viewID = viewIDAttribute->ExtractValue<int>();
+	std::wstring viewModelGroupName = viewModelGroupAttribute->GetValue();
+	std::wstring viewModelName = viewModelNameAttribute->GetValue();
 
 	if(owner == L"System")
 	{
 		//Add the open request to the queue
 		ViewModelOpenRequest openRequest;
 		openRequest.ownerSystem = true;
-		openRequest.menuHandlerName = menuHandlerName;
-		openRequest.viewID = viewID;
+		openRequest.viewModelGroupName = viewModelGroupName;
+		openRequest.viewModelName = viewModelName;
 		viewModelOpenRequests.push_back(openRequest);
 	}
 	else if(owner == L"Device")
@@ -5089,8 +5089,8 @@ bool System::LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, uns
 		ViewModelOpenRequest openRequest;
 		openRequest.ownerSystem = false;
 		openRequest.moduleID = moduleID;
-		openRequest.menuHandlerName = menuHandlerName;
-		openRequest.viewID = viewID;
+		openRequest.viewModelGroupName = viewModelGroupName;
+		openRequest.viewModelName = viewModelName;
 		openRequest.deviceInstanceName = deviceInstanceName;
 		viewModelOpenRequests.push_back(openRequest);
 	}
@@ -6413,7 +6413,7 @@ bool System::LoadModule_ProcessViewModelQueue(const std::list<ViewModelOpenReque
 		if(request.ownerSystem)
 		{
 			//Open the view
-			debugMenuHandler->OpenViewModel(request.menuHandlerName, request.viewID, aviewModelLauncher);
+			debugMenuHandler->OpenViewModel(request.viewModelGroupName, request.viewModelName, aviewModelLauncher);
 		}
 		else
 		{
@@ -6426,7 +6426,7 @@ bool System::LoadModule_ProcessViewModelQueue(const std::list<ViewModelOpenReque
 			}
 
 			//Open the view
-			device->OpenViewModel(request.menuHandlerName, request.viewID, aviewModelLauncher);
+			device->OpenViewModel(request.viewModelGroupName, request.viewModelName, aviewModelLauncher);
 		}
 	}
 	return result;

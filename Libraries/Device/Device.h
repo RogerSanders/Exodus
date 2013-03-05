@@ -120,10 +120,9 @@ public:
 	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle);
 	virtual AssemblyHandle GetAssemblyHandle() const;
 	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void AddGlobalDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const std::wstring& menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
 
 protected:
 	//Reference functions
@@ -153,8 +152,8 @@ protected:
 	virtual const wchar_t* GetKeyCodeNameInternal(unsigned int keyCodeID) const;
 
 	//Window functions
-	virtual void RestoreViewModelStateInternal(const wchar_t* menuHandlerName, int viewModelID, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModelInternal(const wchar_t* menuHandlerName, int viewModelID, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelStateInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void OpenViewModelInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IViewModelLauncher& viewModelLauncher);
 
 private:
 	std::wstring className;
