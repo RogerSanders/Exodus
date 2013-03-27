@@ -19,7 +19,7 @@ char HexNybbleToChar(unsigned int nybble);
 wchar_t HexNybbleToWChar(unsigned int nybble);
 unsigned int HexCharToNybble(char nybble);
 unsigned int HexWCharToNybble(wchar_t nybble);
-template<class T> void IntToString(T& data, std::wstring& string);
+template<class T> void IntToString(T data, std::wstring& string);
 template<class T> void IntToStringBase16(T data, std::wstring& string, unsigned int charLength = 0, bool includePrefix = true);
 template<class T> void IntToStringBase10(T data, std::wstring& string);
 template<class T> void IntToStringBase8(T data, std::wstring& string, bool includePrefix = true);

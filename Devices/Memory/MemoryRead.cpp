@@ -5,19 +5,18 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 MemoryRead::MemoryRead(const std::wstring& aclassName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(aclassName, ainstanceName, amoduleID), interfaceSize(0)
-{
-	//Create the menu handler
-	menuHandler = new DebugMenuHandler(this);
-	menuHandler->LoadMenuItems();
-}
+:Device(aclassName, ainstanceName, amoduleID), menuHandler(0), interfaceSize(0)
+{}
 
 //----------------------------------------------------------------------------------------
 MemoryRead::~MemoryRead()
 {
 	//Delete the menu handler
-	menuHandler->ClearMenuItems();
-	delete menuHandler;
+	if(menuHandler != 0)
+	{
+		menuHandler->ClearMenuItems();
+		delete menuHandler;
+	}
 }
 
 //----------------------------------------------------------------------------------------

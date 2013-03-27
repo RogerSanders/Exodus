@@ -20,7 +20,7 @@ public:
 		return L"JR";
 	}
 
-	virtual Disassembly Z80Disassemble() const
+	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
 		if(conditionCode == CONDITIONCODE_NONE)
 		{
@@ -32,7 +32,7 @@ public:
 		}
 	}
 
-	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
+	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		source.SetIndexState(GetIndexState(), GetIndexOffset());
 

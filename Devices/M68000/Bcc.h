@@ -20,12 +20,19 @@ public:
 		return L"Bcc";
 	}
 
-	virtual Disassembly M68000Disassemble() const
+	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"B" + DisassembleConditionCode(conditionCode) + L"." + DisassembleSize(size), target.Disassemble(), target.DisassembleImmediateAsPCDisplacement());
+		if(labelSettings.enableSubstitution)
+		{
+			return Disassembly(L"B" + DisassembleConditionCode(conditionCode) + L"." + DisassembleSize(size), target.DisassembleImmediateAsPCDisplacement(labelSettings));
+		}
+		else
+		{
+			return Disassembly(L"B" + DisassembleConditionCode(conditionCode) + L"." + DisassembleSize(size), target.DisassembleImmediateAsPCDisplacement(labelSettings), target.DisassembleImmediateAsPCDisplacementTargetAddressString());
+		}
 	}
 
-	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
+	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
 	{
 //	-----------------------------------------------------------------
 //	|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
@@ -86,6 +93,24 @@ public:
 
 		//Return the execution time
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
+	}
+
+	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
+	{
+		//Return the address directly after this opcode, and the possible branch location
+		//from executing this opcode, as the possible resultant PC locations from
+		//executing this opcode.
+		undeterminedResultantPCLocation = false;
+		unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
+		unsigned int branchOpcodeAddress = (target.GetSavedPC() + target.ExtractProcessedImmediateData()).GetData();
+		resultantPCLocations.insert(nextOpcodeAddress);
+		resultantPCLocations.insert(branchOpcodeAddress);
+	}
+
+	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
+	{
+		unsigned int branchOpcodeAddress = (target.GetSavedPC() + target.ExtractProcessedImmediateData()).GetData();
+		labelTargetLocations.insert(branchOpcodeAddress);
 	}
 
 private:

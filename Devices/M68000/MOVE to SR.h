@@ -25,12 +25,12 @@ public:
 		return L"MOVE to SR";
 	}
 
-	virtual Disassembly M68000Disassemble() const
+	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"MOVE", source.Disassemble() + L", SR");
+		return Disassembly(L"MOVE", source.Disassemble(labelSettings) + L", SR");
 	}
 
-	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
+	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
 	{
 //	-----------------------------------------------------------------
 //	|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
@@ -58,6 +58,11 @@ public:
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
+	}
+
+	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
+	{
+		source.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:

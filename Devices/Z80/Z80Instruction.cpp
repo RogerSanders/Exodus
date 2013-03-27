@@ -44,7 +44,7 @@ std::wstring Z80Instruction::GetOpcodeName() const
 }
 
 //----------------------------------------------------------------------------------------
-Z80Instruction::Disassembly Z80Instruction::Z80Disassemble() const
+Z80Instruction::Disassembly Z80Instruction::Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 {
 	return Disassembly();
 }

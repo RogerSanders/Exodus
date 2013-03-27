@@ -8,6 +8,8 @@
 //----------------------------------------------------------------------------------------
 S315_5313::S315_5313(const std::wstring& ainstanceName, unsigned int amoduleID)
 :Device(L"315-5313", ainstanceName, amoduleID),
+settingsMenuHandler(0),
+debugMenuHandler(0),
 reg(registerCount, false, Data(8)),
 status(10),
 bstatus(10),
@@ -49,12 +51,6 @@ renderPatternDataCacheSprite(maxCellsPerRow, Data(32)),
 renderSpriteDisplayCache(maxSpriteDisplayCacheSize),
 renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 {
-	//Create the menu handlers
-	settingsMenuHandler = new SettingsMenuHandler(this);
-	settingsMenuHandler->LoadMenuItems();
-	debugMenuHandler = new DebugMenuHandler(this);
-	debugMenuHandler->LoadMenuItems();
-
 	fifoBuffer.resize(fifoBufferSize);
 	bfifoBuffer.resize(fifoBufferSize);
 
@@ -150,10 +146,16 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 S315_5313::~S315_5313()
 {
 	//Delete the menu handlers
-	settingsMenuHandler->ClearMenuItems();
-	delete settingsMenuHandler;
-	debugMenuHandler->ClearMenuItems();
-	delete debugMenuHandler;
+	if(settingsMenuHandler != 0)
+	{
+		settingsMenuHandler->ClearMenuItems();
+		delete settingsMenuHandler;
+	}
+	if(debugMenuHandler != 0)
+	{
+		debugMenuHandler->ClearMenuItems();
+		delete debugMenuHandler;
+	}
 }
 
 //----------------------------------------------------------------------------------------

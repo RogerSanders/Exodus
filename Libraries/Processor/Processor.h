@@ -114,8 +114,14 @@ actually executed are disassembled correctly.
 class Processor :public Device
 {
 public:
+	//Enumerations
+	enum DisassemblyDataType;
+
 	//Structures
 	struct OpcodeInfo;
+	struct LabelSubstitutionSettings;
+	struct LabelSubstitutionEntry;
+	struct LabelEntry;
 
 public:
 	//Constructors
@@ -138,13 +144,14 @@ public:
 	double CalculateExecutionTime(unsigned int cycles) const;
 
 	//Instruction functions
-	virtual OpcodeInfo GetOpcodeInfo(unsigned int location);
-	virtual Data GetRawData(unsigned int location);
+	virtual OpcodeInfo GetOpcodeInfo(unsigned int location) const;
+	virtual Data GetRawData(unsigned int location) const;
 	virtual unsigned int GetCurrentPC() const = 0;
 	virtual unsigned int GetPCWidth() const = 0;
 	virtual unsigned int GetAddressBusWidth() const = 0;
 	virtual unsigned int GetDataBusWidth() const = 0;
 	virtual unsigned int GetMinimumOpcodeByteSize() const = 0;
+	virtual unsigned int GetMinimumDataByteSize() const = 0;
 	unsigned int GetPCCharWidth() const;
 	unsigned int GetAddressBusCharWidth() const;
 	unsigned int GetDataBusCharWidth() const;
@@ -178,19 +185,26 @@ public:
 	void SetTraceEnabled(bool astate);
 	unsigned int GetTraceLength() const;
 	void SetTraceLength(unsigned int length);
-	bool GetTraceCoverageEnabled() const;
-	void SetTraceCoverageEnabled(bool astate);
-	unsigned int GetTraceCoverageStart() const;
-	void SetTraceCoverageStart(unsigned int astart);
-	unsigned int GetTraceCoverageEnd() const;
-	void SetTraceCoverageEnd(unsigned int aend);
 
-	//Disassembly functions
+	//Active disassembly functions
+	bool ActiveDisassemblyEnabled() const;
 	void EnableActiveDisassembly(unsigned int startLocation, unsigned int endLocation);
 	void DisableActiveDisassembly();
-	void AddDisassemblyAddressInfoCode(unsigned int location, unsigned int dataSize);
-	void AddDisassemblyAddressInfoData(unsigned int location, unsigned int dataSize);
+	void ClearActiveDisassembly();
+	unsigned int MakeDataArrayAtLocation(unsigned int location, unsigned int dataSize, DisassemblyDataType dataType);
+	void AddDisassemblyAddressInfoCode(unsigned int location, unsigned int dataSize, const std::wstring& comment = L"");
+	void AddDisassemblyAddressInfoData(unsigned int location, unsigned int dataSize, DisassemblyDataType dataType, unsigned int arrayID = 0, const std::wstring& comment = L"");
 	void AddDisassemblyAddressInfoOffset(unsigned int location, unsigned int dataSize, bool offsetToCode, bool relativeOffset, unsigned int relativeOffsetBaseAddress);
+	void AddDisassemblyPossibleBranchTable(unsigned int baseAddress, unsigned int confirmedEntry, unsigned int entrySize);
+	virtual bool ActiveDisassemblySupported() const;
+	virtual bool GetLeadingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
+	virtual bool GetTrailingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
+	virtual bool FormatOpcodeForDisassembly(unsigned int opcodeAddress, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& opcodeArguments, std::wstring& opcodeComments) const;
+	virtual bool FormatDataForDisassembly(const std::vector<Data>& dataElements, unsigned int dataElementByteSize, DisassemblyDataType dataType, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& formattedData) const;
+	virtual bool FormatOffsetForDisassembly(const Data& offsetData, bool relativeOffset, unsigned int relativeOffsetBaseAddress, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& formattedOffset) const;
+	virtual bool FormatCommentForDisassembly(const std::wstring& rawComment, std::wstring& formattedComment) const;
+	virtual bool FormatLabelPlacementForDisassembly(const std::wstring& rawLabel, std::wstring& formattedLabel) const;
+	virtual bool FormatLabelUsageForDisassembly(const std::wstring& rawLabel, int labelOffset, std::wstring& formattedLabel) const;
 
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
@@ -201,13 +215,14 @@ public:
 	void SaveCallStack(IHeirarchicalStorageNode& node) const;
 
 	//Window functions
+	void CreateMenuHandlers();
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
 
 private:
 	//Enumerations
-	enum DisassemblyDataType;
+	enum DisassemblyEntryType;
 
 	//Structures
 	struct BreakpointCallbackParams;
@@ -215,6 +230,8 @@ private:
 	struct TraceLogEntry;
 	struct DisassemblyAddressInfo;
 	struct DisassemblyArrayInfo;
+	struct DisassemblyJumpTableInfo;
+	struct ActiveDisassemblyAnalysisData;
 
 	//View and menu classes
 	class DebugMenuHandler;
@@ -225,6 +242,7 @@ private:
 	class TraceViewModel;
 	class DisassemblyViewModel;
 	class DisassemblyOldViewModel;
+	class ActiveDisassemblyViewModel;
 	class ControlView;
 	class BreakpointView;
 	class WatchpointView;
@@ -232,6 +250,7 @@ private:
 	class TraceView;
 	class DisassemblyView;
 	class DisassemblyOldView;
+	class ActiveDisassemblyView;
 	friend class ControlViewModel;
 	friend class BreakpointViewModel;
 	friend class WatchpointViewModel;
@@ -239,6 +258,7 @@ private:
 	friend class TraceViewModel;
 	friend class DisassemblyViewModel;
 	friend class DisassemblyOldViewModel;
+	friend class ActiveDisassemblyViewModel;
 	friend class ControlView;
 	friend class BreakpointView;
 	friend class WatchpointView;
@@ -246,10 +266,33 @@ private:
 	friend class TraceView;
 	friend class DisassemblyView;
 	friend class DisassemblyOldView;
+	friend class ActiveDisassemblyView;
 
 	//Typedefs
 	typedef std::map<unsigned int, DisassemblyArrayInfo> DisassemblyArrayInfoMap;
 	typedef std::pair<unsigned int, DisassemblyArrayInfo> DisassemblyArrayInfoMapEntry;
+	typedef std::map<unsigned int, DisassemblyJumpTableInfo> DisassemblyJumpTableInfoMap;
+	typedef std::pair<unsigned int, DisassemblyJumpTableInfo> DisassemblyJumpTableInfoMapEntry;
+
+private:
+	//Active disassembly functions
+	void AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* newEntry);
+	bool PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsigned int maxAddress, ActiveDisassemblyAnalysisData& analysis) const;
+	bool ActiveDisassemblyEntrySeemsToBePartOfArray(ActiveDisassemblyAnalysisData& analysis, const DisassemblyAddressInfo* currentEntry, unsigned int firstKnownEntryLocation, unsigned int lastKnownEntryLocation, unsigned int entrySize, DisassemblyEntryType offsetType, bool relativeOffset, unsigned int relativeOffsetBaseAddress) const;
+	void ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisassemblyAnalysisData& analysis, std::map<unsigned int, const DisassemblyAddressInfo*> knownOffsetArrayEntries, unsigned int firstKnownEntryLocation, unsigned int lastKnownEntryLocation, unsigned int entrySize, DisassemblyEntryType offsetType, bool relativeOffset, unsigned int relativeOffsetBaseAddress) const;
+	bool ActiveDisassemblySuspectedJumpTableSeemsToBeValid(ActiveDisassemblyAnalysisData& analysis, const DisassemblyJumpTableInfo& jumpTableInfo) const;
+	void ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisassemblyAnalysisData& analysis, const DisassemblyJumpTableInfo& jumpTableInfo) const;
+	void ActiveDisassemblyGenerateLabelsForOffset(ActiveDisassemblyAnalysisData& analysis, const DisassemblyAddressInfo* entry, bool predicted) const;
+	void ActiveDisassemblyAddLabelForTarget(ActiveDisassemblyAnalysisData& analysis, unsigned int targetAddress, bool predicted) const;
+	static bool ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dataType, unsigned int dataElementByteSize, const std::list<Data>& dataElements);
+	static bool ActiveDisassemblyDecodeIDADataString(unsigned int byteSize, DisassemblyDataType dataType, std::wstring& outputString);
+	static bool ActiveDisassemblyDecodeIDAOffsetString(unsigned int byteSize, std::wstring& outputString);
+	static std::wstring ActiveDisassemblyGenerateCommentForDataArrayLine(unsigned int dataEntryCountAlreadyWritten, unsigned int arrayStartLocation, unsigned int arrayEndLocation, bool unknownData, unsigned int addressCharWidth);
+	static std::wstring ActiveDisassemblyGenerateTextLabelForDataType(DisassemblyDataType dataType);
+	bool ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassemblyAnalysisData& analysis, const std::wstring& filePath) const;
+	bool ActiveDisassemblyWriteDataArrayToASMFile(Stream::ViewText& asmFileView, const std::list<Data>& dataElements, unsigned int arrayStartLocation, unsigned int dataElementByteSize, DisassemblyDataType dataType, bool unknownData, const LabelSubstitutionSettings& labelSettings, const std::wstring& filePath) const;
+	bool ActiveDisassemblyExportAnalysisToTextFile(const ActiveDisassemblyAnalysisData& analysis, const std::wstring& filePath) const;
+	bool ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassemblyAnalysisData& analysis, const std::wstring& filePath) const;
 
 private:
 	//Menu handling
@@ -290,19 +333,36 @@ private:
 	bool traceEnabled;
 	bool traceDisassemble;
 	unsigned int traceLength;
-	bool traceCoverageEnabled;
-	unsigned int traceCoverageStart;
-	unsigned int traceCoverageEnd;
-	std::set<unsigned int> traceCoverage;
 
-	//Disassembly
-	bool activeDisassembly;
+	//Active Disassembly
+	bool activeDisassemblyEnabled;
+	unsigned int activeDisassemblyArrayNextFreeID;
 	unsigned int activeDisassemblyStartLocation;
 	unsigned int activeDisassemblyEndLocation;
-	unsigned int disassemblyArrayNextFreeID;
-	std::vector<std::list<DisassemblyAddressInfo*>> disassemblyAddressInfo;
-	std::set<DisassemblyAddressInfo*> disassemblyAddressInfoSet;
-	DisassemblyArrayInfoMap disassemblyArrayInfo;
+	std::vector<std::list<DisassemblyAddressInfo*>> activeDisassemblyAddressInfo;
+	std::set<DisassemblyAddressInfo*> activeDisassemblyAddressInfoSet;
+	DisassemblyArrayInfoMap activeDisassemblyArrayInfo;
+	DisassemblyJumpTableInfoMap activeDisassemblyJumpTableInfo;
+	unsigned int activeDisassemblyAnalysisStartLocation;
+	unsigned int activeDisassemblyAnalysisEndLocation;
+	bool activeDisassemblyAnalyzeCode;
+	bool activeDisassemblyAnalyzeData;
+	bool activeDisassemblyAnalyzeCodeOffsets;
+	bool activeDisassemblyAnalyzeDataOffsets;
+	bool activeDisassemblyAnalyzePredictedArrays;
+	bool activeDisassemblyAnalyzePredictedJumpTables;
+	bool activeDisassemblyExploreCodePaths;
+	bool activeDisassemblyPerformLabelSubstitution;
+	bool activeDisassemblyDetectOffsets;
+	bool activeDisassemblyDetectJumpTables;
+	bool activeDisassemblyDetectData;
+	bool activeDisassemblyDetectDataArrays;
+	bool activeDisassemblyDetectTextData;
+	double activeDisassemblyOffsetArrayIncreaseTolerance;
+	unsigned int activeDisassemblyMinimumArrayEntryCount;
+	unsigned int activeDisassemblyOffsetArrayDistanceTolerance;
+	unsigned int activeDisassemblyJumpTableDistanceTolerance;
+	ActiveDisassemblyAnalysisData* activeDisassemblyAnalysis;
 
 	//Debug
 	mutable boost::mutex debugMutex;

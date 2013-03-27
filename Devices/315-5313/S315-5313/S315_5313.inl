@@ -1405,9 +1405,10 @@ void S315_5313::M5SetLSCR(const AccessTarget& accessTarget, bool data)
 //      varying clock rate which increases the clock rate for active scan, while slowing
 //      it during HSYNC to keep the overall drawing time of a line in H40 mode the same as
 //      in H32 mode, which allows a normal TV to lock onto the signal.
-//##TODO## According to notes from Charles Macdonald in c2tech.txt, it sounds like the U1
-//bit may make the VSYNC line output the dot clock, not the HSYNC line. Perform hardware
-//tests on all these bits to determine exactly what they do.
+//##TODO## The VDP pinout information in the newly obtained Mega Drive service manuals
+//indicate that both CSYNC and HSYNC lines are I/O lines, with the sync information able
+//to be input over these lines. It's possible the U2 register here enables external HSYNC
+//input.
 //----------------------------------------------------------------------------------------
 bool S315_5313::M5GetRS0(const AccessTarget& accessTarget) const
 {

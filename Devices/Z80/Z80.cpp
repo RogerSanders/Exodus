@@ -7,7 +7,7 @@ namespace Z80{
 
 //----------------------------------------------------------------------------------------
 Z80::Z80(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Processor(L"Z80", ainstanceName, amoduleID), opcodeTable(8), opcodeTableCB(8), opcodeTableED(8), opcodeBuffer(0), memoryBus(0)
+:Processor(L"Z80", ainstanceName, amoduleID), menuHandler(0), opcodeTable(8), opcodeTableCB(8), opcodeTableED(8), opcodeBuffer(0), memoryBus(0)
 {
 	//Set the default state for our device preferences
 	suspendWhenBusReleased = false;
@@ -15,10 +15,6 @@ Z80::Z80(const std::wstring& ainstanceName, unsigned int amoduleID)
 	//Initialize our CE line state
 	ceLineMaskRD = 0;
 	ceLineMaskWR = 0;
-
-	//Create the menu handler
-	menuHandler = new DebugMenuHandler(this);
-	menuHandler->LoadMenuItems();
 }
 
 //----------------------------------------------------------------------------------------
@@ -42,8 +38,11 @@ Z80::~Z80()
 	}
 
 	//Delete the menu handler
-	menuHandler->ClearMenuItems();
-	delete menuHandler;
+	if(menuHandler != 0)
+	{
+		menuHandler->ClearMenuItems();
+		delete menuHandler;
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -1121,7 +1120,7 @@ double Z80::ExecuteStep()
 }
 
 //----------------------------------------------------------------------------------------
-Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location)
+Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location) const
 {
 	OpcodeInfo opcodeInfo;
 	opcodeInfo.valid = false;
@@ -1204,7 +1203,9 @@ Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location)
 		nextOpcode->SetIndexOffset(indexOffset, mandatoryIndexOffset);
 
 		nextOpcode->Z80Decode(this, nextOpcode->GetInstructionLocation(), nextOpcode->GetInstructionRegister(), nextOpcode->GetTransparentFlag());
-		Z80Instruction::Disassembly disassembly = nextOpcode->Z80Disassemble();
+		LabelSubstitutionSettings labelSettings;
+		labelSettings.enableSubstitution = false;
+		Z80Instruction::Disassembly disassembly = nextOpcode->Z80Disassemble(labelSettings);
 
 		opcodeInfo.valid = true;
 		opcodeInfo.opcodeSize = nextOpcode->GetInstructionSize();
@@ -1219,7 +1220,7 @@ Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location)
 }
 
 //----------------------------------------------------------------------------------------
-Data Z80::GetRawData(unsigned int location)
+Data Z80::GetRawData(unsigned int location) const
 {
 	Z80Byte data;
 	ReadMemory(location, data, true);
@@ -1252,6 +1253,12 @@ unsigned int Z80::GetDataBusWidth() const
 
 //----------------------------------------------------------------------------------------
 unsigned int Z80::GetMinimumOpcodeByteSize() const
+{
+	return 1;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetMinimumDataByteSize() const
 {
 	return 1;
 }

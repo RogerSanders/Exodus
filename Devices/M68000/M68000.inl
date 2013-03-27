@@ -427,6 +427,7 @@ void M68000::SetA(unsigned int index, const M68000Long& data)
 	}
 	else
 	{
+		aDisassemblyInfo[index].addressRegisterLastUsedInPostIncMode = false;
 		a[index] = data;
 	}
 }

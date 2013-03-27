@@ -20,8 +20,6 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\OutputDirectory.vsprops;..\..\SymbolGeneration.vsprops;..\..\CompileWarningLevel.vsprops;..\..\IntermediateDirectory.vsprops"
 			CharacterSet="1"
@@ -96,8 +94,6 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\OutputDirectory.vsprops;..\..\SymbolGeneration.vsprops;..\..\CompileWarningLevel.vsprops;..\..\IntermediateDirectory.vsprops"
 			CharacterSet="1"
@@ -173,8 +169,6 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\OutputDirectory.vsprops;..\..\SymbolGeneration.vsprops;..\..\CompileWarningLevel.vsprops;..\..\IntermediateDirectory.vsprops;..\..\ReleaseOptimization.vsprops"
 			CharacterSet="1"
@@ -249,8 +243,6 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\OutputDirectory.vsprops;..\..\SymbolGeneration.vsprops;..\..\CompileWarningLevel.vsprops;..\..\IntermediateDirectory.vsprops;..\..\ReleaseOptimization.vsprops"
 			CharacterSet="1"
@@ -326,8 +318,6 @@
 		</Configuration>
 		<Configuration
 			Name="Release - PGORebuildOptimised|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\OutputDirectory.vsprops;..\..\SymbolGeneration.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops"
 			CharacterSet="1"
@@ -402,8 +392,6 @@
 		</Configuration>
 		<Configuration
 			Name="Release - PGORebuildOptimised|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\OutputDirectory.vsprops;..\..\SymbolGeneration.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops"
 			CharacterSet="1"
@@ -479,8 +467,6 @@
 		</Configuration>
 		<Configuration
 			Name="Release - PGOInstrument|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\OutputDirectory.vsprops;..\..\SymbolGeneration.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops"
 			CharacterSet="1"
@@ -555,8 +541,6 @@
 		</Configuration>
 		<Configuration
 			Name="Release - PGOInstrument|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="..\..\OutputDirectory.vsprops;..\..\SymbolGeneration.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops"
 			CharacterSet="1"

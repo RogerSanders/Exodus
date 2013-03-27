@@ -20,12 +20,12 @@ public:
 		return L"RLC";
 	}
 
-	virtual Disassembly Z80Disassemble() const
+	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
 		return Disassembly(GetOpcodeName(), target.Disassemble());
 	}
 
-	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
+	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
 		doubleOutput = false;

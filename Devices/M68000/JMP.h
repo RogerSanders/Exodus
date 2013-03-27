@@ -59,12 +59,12 @@ public:
 		return L"JMP";
 	}
 
-	virtual Disassembly M68000Disassemble() const
+	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), target.Disassemble());
+		return Disassembly(GetOpcodeName(), target.Disassemble(labelSettings));
 	}
 
-	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
+	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
 	{
 //	-----------------------------------------------------------------
 //	|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
@@ -99,8 +99,40 @@ public:
 		target.GetAddress(cpu, address);
 		cpu->SetPC(address);
 
+		//Detect possible jump tables for active disassembly
+		if(cpu->ActiveDisassemblyEnabled() && ((target.GetAddressMode() == EffectiveAddress::ADDREG_INDIRECT_INDEX_8BIT) || (target.GetAddressMode() == EffectiveAddress::PC_INDIRECT_INDEX_8BIT)))
+		{
+			M68000Long baseAddress;
+			target.GetAddressDisplacementTargetNoIndex(cpu, baseAddress);
+			cpu->AddDisassemblyPossibleBranchTable(baseAddress.GetData(), address.GetData(), GetInstructionSize());
+		}
+
 		//Return the execution time
 		return GetExecuteCycleCount();
+	}
+
+	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
+	{
+		//Return the jump location from executing this opcode, if it can be determined
+		//statically, as the possible resultant PC location from executing this opcode. If
+		//the jump location cannot be determined at this time because it relies on
+		//register contents, flag that there is an undetermined resultant PC location from
+		//executing this opcode.
+		undeterminedResultantPCLocation = false;
+		M68000Long jumpOpcodeAddress;
+		if(target.GetAddressTransparent(jumpOpcodeAddress))
+		{
+			resultantPCLocations.insert(jumpOpcodeAddress.GetData());
+		}
+		else
+		{
+			undeterminedResultantPCLocation = true;
+		}
+	}
+
+	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
+	{
+		target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:

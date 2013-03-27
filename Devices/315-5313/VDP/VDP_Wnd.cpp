@@ -7,6 +7,11 @@
 void VDP::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
 {
 	Device::AddDebugMenuItems(menuSegment, viewModelLauncher);
+	if(menuHandler == 0)
+	{
+		menuHandler = new DebugMenuHandler(this);
+		menuHandler->LoadMenuItems();
+	}
 	menuHandler->AddMenuItems(menuSegment, viewModelLauncher);
 }
 

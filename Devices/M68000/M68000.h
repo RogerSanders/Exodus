@@ -173,13 +173,14 @@ public:
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
 	virtual void NotifyAfterExecuteStepFinishedTimeslice();
-	virtual OpcodeInfo GetOpcodeInfo(unsigned int location);
-	virtual Data GetRawData(unsigned int location);
+	virtual OpcodeInfo GetOpcodeInfo(unsigned int location) const;
+	virtual Data GetRawData(unsigned int location) const;
 	virtual unsigned int GetCurrentPC() const;
 	virtual unsigned int GetPCWidth() const;
 	virtual unsigned int GetAddressBusWidth() const;
 	virtual unsigned int GetDataBusWidth() const;
 	virtual unsigned int GetMinimumOpcodeByteSize() const;
+	virtual unsigned int GetMinimumDataByteSize() const;
 
 	//Line functions
 	virtual unsigned int GetLineID(const std::wstring& lineName) const;
@@ -201,6 +202,10 @@ public:
 	void ApplyClockStateChange(unsigned int targetClock, double clockRate);
 
 	//Disassembly functions
+	bool DisassemblyGetAddressRegisterLastAccessedInPostIncMode(unsigned int regNo) const;
+	void DisassemblySetAddressRegisterLastAccessedInPostIncMode(unsigned int regNo, bool state);
+	unsigned int DisassemblyGetAddressRegisterCurrentArrayID(unsigned int regNo) const;
+	void DisassemblySetAddressRegisterCurrentArrayID(unsigned int regNo, unsigned int state);
 	bool DisassemblyGetAddressRegisterUnmodified(unsigned int regNo, unsigned int& sourceLocation) const;
 	bool DisassemblyGetDataRegisterUnmodified(unsigned int regNo, unsigned int& sourceLocation) const;
 	void DisassemblySetAddressRegisterUnmodified(unsigned int regNo, bool state, unsigned int dataSize = 0, unsigned int sourceLocation = 0);
@@ -263,7 +268,7 @@ public:
 	void TriggerExternalReset(double resetTimeBegin, double resetTimeEnd);
 
 	//Memory access functions
-	FunctionCode GetFunctionCode(bool programReference);
+	FunctionCode GetFunctionCode(bool programReference) const;
 	double ReadMemory(const M68000Long& location, Data& data, FunctionCode code, bool transparent, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
 	double ReadMemory(const M68000Long& location, Data& data, FunctionCode code, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
 	void ReadMemoryTransparent(const M68000Long& location, Data& data, FunctionCode code, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
@@ -277,6 +282,17 @@ public:
 	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
 	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const;
 
+	//Active disassembly functions
+	virtual bool ActiveDisassemblySupported() const;
+	virtual bool GetLeadingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
+	virtual bool GetTrailingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
+	virtual bool FormatOpcodeForDisassembly(unsigned int opcodeAddress, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& opcodeArguments, std::wstring& opcodeComments) const;
+	virtual bool FormatDataForDisassembly(const std::vector<Data>& dataElements, unsigned int dataElementByteSize, DisassemblyDataType dataType, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& formattedData) const;
+	virtual bool FormatOffsetForDisassembly(const Data& offsetData, bool relativeOffset, unsigned int relativeOffsetBaseAddress, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& formattedOffset) const;
+	virtual bool FormatCommentForDisassembly(const std::wstring& rawComment, std::wstring& formattedComment) const;
+	virtual bool FormatLabelPlacementForDisassembly(const std::wstring& rawLabel, std::wstring& formattedLabel) const;
+	virtual bool FormatLabelUsageForDisassembly(const std::wstring& rawLabel, int labelOffset, std::wstring& formattedLabel) const;
+
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
 	virtual void SaveState(IHeirarchicalStorageNode& node) const;
@@ -284,6 +300,7 @@ public:
 	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 
 	//Window functions
+	void CreateMenuHandlers();
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
@@ -301,10 +318,12 @@ private:
 	struct RegisterDisassemblyInfo
 	{
 		RegisterDisassemblyInfo()
-		:unmodified(false)
+		:unmodified(false), addressRegisterLastUsedInPostIncMode(false)
 		{}
 
 		bool unmodified;
+		bool addressRegisterLastUsedInPostIncMode;
+		unsigned int currentArrayID;
 		unsigned int sourceLocation;
 		unsigned int dataSize;
 	};

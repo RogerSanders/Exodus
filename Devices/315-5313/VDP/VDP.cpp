@@ -8,12 +8,8 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 VDP::VDP(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"VDP", ainstanceName, amoduleID), reg(registerCount, false, 0), statusRegister(statusRegisterBitCount), bstatusRegister(statusRegisterBitCount)
+:Device(L"VDP", ainstanceName, amoduleID), menuHandler(0), reg(registerCount, false, 0), statusRegister(statusRegisterBitCount), bstatusRegister(statusRegisterBitCount)
 {
-	//Create the menu handler
-	menuHandler = new DebugMenuHandler(this);
-	menuHandler->LoadMenuItems();
-
 	memoryBus = 0;
 	vram = 0;
 	cram = 0;
@@ -70,8 +66,11 @@ VDP::VDP(const std::wstring& ainstanceName, unsigned int amoduleID)
 VDP::~VDP()
 {
 	//Delete the menu handler
-	menuHandler->ClearMenuItems();
-	delete menuHandler;
+	if(menuHandler != 0)
+	{
+		menuHandler->ClearMenuItems();
+		delete menuHandler;
+	}
 }
 
 //----------------------------------------------------------------------------------------

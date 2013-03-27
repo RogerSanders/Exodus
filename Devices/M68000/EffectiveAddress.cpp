@@ -71,7 +71,7 @@ const ExecuteTime EffectiveAddress::executeTime32[] = {
 //----------------------------------------------------------------------------------------
 //Decode functions
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::Decode(unsigned int areg, unsigned int amode, Bitcount asize, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::Decode(unsigned int areg, unsigned int amode, Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	savedPC = location;
 	switch(amode)
@@ -131,7 +131,7 @@ bool EffectiveAddress::GetAddress(const M68000* cpu, Data& aaddress) const
 	{
 	default:
 		ReleaseAssert(false);
-		break;
+		return false;
 	case ADDREG_INDIRECT:
 		cpu->GetA(reg, aaddress);
 		break;
@@ -186,6 +186,46 @@ bool EffectiveAddress::GetAddress(const M68000* cpu, Data& aaddress) const
 }
 
 //----------------------------------------------------------------------------------------
+bool EffectiveAddress::GetAddressTransparent(Data& aaddress) const
+{
+	switch(mode)
+	{
+	default:
+		return false;
+	case PC_INDIRECT_DISPLACE:
+		aaddress = savedPC;
+		aaddress += displacement.SignExtend(BITCOUNT_LONG);
+		break;
+	case ABS_WORD:
+	case ABS_LONG:
+		aaddress = address.SignExtend(BITCOUNT_LONG);
+		break;
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool EffectiveAddress::GetAddressDisplacementTargetNoIndex(M68000* cpu, Data& aaddress) const
+{
+	switch(mode)
+	{
+	default:
+		return false;
+	case ADDREG_INDIRECT_DISPLACE:
+	case ADDREG_INDIRECT_INDEX_8BIT:
+		cpu->GetA(reg, aaddress);
+		aaddress += displacement.SignExtend(BITCOUNT_LONG);
+		break;
+	case PC_INDIRECT_DISPLACE:
+	case PC_INDIRECT_INDEX_8BIT:
+		aaddress = savedPC;
+		aaddress += displacement.SignExtend(BITCOUNT_LONG);
+		break;
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 //Data transfer
 //----------------------------------------------------------------------------------------
 double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
@@ -203,16 +243,38 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		cpu->GetA(reg, target);
 		break;
 	case ADDREG_INDIRECT:{
+		unsigned int originalAddressSourceLocation;
+		if(cpu->DisassemblyGetAddressRegisterUnmodified(reg, originalAddressSourceLocation))
+		{
+			cpu->AddDisassemblyAddressInfoOffset(originalAddressSourceLocation, cpu->DisassemblyGetAddressRegisterUnmodifiedSize(reg), false, false, 0);
+		}
+
 		M68000Long address;
 		cpu->GetA(reg, address);
 		additionalTime = cpu->ReadMemory(address, target, cpu->GetFunctionCode(false), savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
-		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize());
+		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER);
 		break;}
 	case ADDREG_INDIRECT_POSTINC:{
+		unsigned int originalAddressSourceLocation;
+		if(cpu->DisassemblyGetAddressRegisterUnmodified(reg, originalAddressSourceLocation))
+		{
+			cpu->AddDisassemblyAddressInfoOffset(originalAddressSourceLocation, cpu->DisassemblyGetAddressRegisterUnmodifiedSize(reg), false, false, 0);
+		}
+
 		M68000Long address;
 		cpu->GetA(reg, address);
 		additionalTime = cpu->ReadMemory(address, target, cpu->GetFunctionCode(false), savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
-		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize());
+		unsigned int arrayID = 0;
+		if(!cpu->DisassemblyGetAddressRegisterLastAccessedInPostIncMode(reg))
+		{
+			arrayID = cpu->MakeDataArrayAtLocation(address.GetData(), target.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER);
+			cpu->DisassemblySetAddressRegisterCurrentArrayID(reg, arrayID);
+		}
+		else
+		{
+			arrayID = cpu->DisassemblyGetAddressRegisterCurrentArrayID(reg);
+		}
+		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER, arrayID);
 		//Adjust the address register. We've got a little bit of code here to prevent
 		//the stack pointer from ending up on an odd address when using byte access.
 		//See the M68000 Programmer's Manual, section 2.6.1 for more info. The
@@ -224,6 +286,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		offset = ((reg == M68000::SP) && (target.GetBitCount() == BITCOUNT_BYTE))? 2: target.GetByteSize();
 		address += offset;
 		cpu->SetA(reg, address);
+		cpu->DisassemblySetAddressRegisterLastAccessedInPostIncMode(reg, true);
 		cpu->DisassemblySetAddressRegisterUnmodified(reg, false);
 		break;}
 	case ADDREG_INDIRECT_PREDEC:{
@@ -242,17 +305,29 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		cpu->SetA(reg, address);
 
 		additionalTime = cpu->ReadMemory(address, target, cpu->GetFunctionCode(false), savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
-		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize());
+		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER);
 		cpu->DisassemblySetAddressRegisterUnmodified(reg, false);
 		break;}
 	case ADDREG_INDIRECT_DISPLACE:{
+		unsigned int originalAddressSourceLocation;
+		if(cpu->DisassemblyGetAddressRegisterUnmodified(reg, originalAddressSourceLocation))
+		{
+			cpu->AddDisassemblyAddressInfoOffset(originalAddressSourceLocation, cpu->DisassemblyGetAddressRegisterUnmodifiedSize(reg), false, false, 0);
+		}
+
 		M68000Long address;
 		cpu->GetA(reg, address);
 		address += M68000Long(displacement.SignExtend(BITCOUNT_LONG));
 		additionalTime = cpu->ReadMemory(address, target, cpu->GetFunctionCode(false), savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
-		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize());
+		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER);
 		break;}
 	case ADDREG_INDIRECT_INDEX_8BIT:{
+		unsigned int originalAddressSourceLocation;
+		if(cpu->DisassemblyGetAddressRegisterUnmodified(reg, originalAddressSourceLocation))
+		{
+			cpu->AddDisassemblyAddressInfoOffset(originalAddressSourceLocation, cpu->DisassemblyGetAddressRegisterUnmodifiedSize(reg), false, false, 0);
+		}
+
 		M68000Long address;
 		cpu->GetA(reg, address);
 
@@ -270,14 +345,14 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		address += M68000Long(displacement.SignExtend(BITCOUNT_LONG));
 		address += M68000Long(index.SignExtend(BITCOUNT_LONG));
 		additionalTime = cpu->ReadMemory(address, target, cpu->GetFunctionCode(false), savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
-		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize());
+		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER);
 		break;}
 	case PC_INDIRECT_DISPLACE:{
 		M68000Long address;
 		address = savedPC;
 		address += M68000Long(displacement.SignExtend(BITCOUNT_LONG));
 		additionalTime = cpu->ReadMemory(address, target, cpu->GetFunctionCode(true), savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
-		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize());
+		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER);
 		break;}
 	case PC_INDIRECT_INDEX_8BIT:{
 		M68000Long address;
@@ -297,13 +372,13 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		address += M68000Long(displacement.SignExtend(BITCOUNT_LONG));
 		address += M68000Long(index.SignExtend(BITCOUNT_LONG));
 		additionalTime = cpu->ReadMemory(address, target, cpu->GetFunctionCode(true), savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
-		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize());
+		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER);
 		break;}
 
 	case ABS_WORD:
 	case ABS_LONG:
 		additionalTime = cpu->ReadMemory(M68000Long(address.SignExtend(BITCOUNT_LONG)), target, cpu->GetFunctionCode(false), savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
-		cpu->AddDisassemblyAddressInfoData(address.SignExtend(BITCOUNT_LONG).GetData(), target.GetByteSize());
+		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER);
 		break;
 
 	case IMMEDIATE:
@@ -657,7 +732,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryReadV2(M68000* cpu, unsigned 
 //----------------------------------------------------------------------------------------
 //Disassembly functions
 //----------------------------------------------------------------------------------------
-std::wstring EffectiveAddress::Disassemble() const
+std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 {
 	std::wstringstream stream;
 
@@ -681,17 +756,32 @@ std::wstring EffectiveAddress::Disassemble() const
 	case ADDREG_INDIRECT_PREDEC:
 		stream << L"-(A" << reg << L")";
 		break;
-	case ADDREG_INDIRECT_DISPLACE:
-		stream << L"($" << std::setw(displacement.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << displacement.GetData();
-		stream << L",A" << reg << L")";
-		break;
+	case ADDREG_INDIRECT_DISPLACE:{
+		Data displacementExtended = displacement.SignExtend(BITCOUNT_LONG);
+		if(displacementExtended.Negative())
+		{
+			stream << L"-$" << std::hex << std::uppercase << 0 - displacementExtended.GetData();
+		}
+		else
+		{
+			stream << L"$" << std::hex << std::uppercase << displacementExtended.GetData();
+		}
+		stream << L"(A" << reg << L")";
+		break;}
 	case ADDREG_INDIRECT_INDEX_8BIT:
-		stream << L"(";
 		if(displacement.NonZero())
 		{
-			stream << L"$" << std::setw(displacement.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << displacement.GetData() << L",";
+			Data displacementExtended = displacement.SignExtend(BITCOUNT_LONG);
+			if(displacementExtended.Negative())
+			{
+				stream << L"-$" << std::hex << std::uppercase << 0 - displacementExtended.GetData();
+			}
+			else
+			{
+				stream << L"$" << std::hex << std::uppercase << displacementExtended.GetData();
+			}
 		}
-		stream << L"A" << reg << L",";
+		stream << L"(A" << reg << L",";
 		if(!useAddressRegister)
 		{
 			stream << L"D";
@@ -702,17 +792,56 @@ std::wstring EffectiveAddress::Disassemble() const
 		}
 		stream << indexReg << "." << M68000Instruction::DisassembleSize(indexSize) << L")";
 		break;
-	case PC_INDIRECT_DISPLACE:
-		stream << L"($" << std::setw(displacement.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << displacement.GetData();
-		stream << L",PC)";
-		break;
-	case PC_INDIRECT_INDEX_8BIT:
-		stream << L"(";
-		if(displacement.NonZero())
+	case PC_INDIRECT_DISPLACE:{
+		Data targetAddress(BITCOUNT_LONG);
+		targetAddress = savedPC.GetData() + displacement.SignExtend(BITCOUNT_LONG).GetData();
+		bool labelWritten = false;
+		if(labelSettings.enableSubstitution)
 		{
-			stream << L"$" << std::setw(displacement.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << displacement.GetData() << L",";
+			std::map<unsigned int, M68000::LabelSubstitutionEntry>::const_iterator labelIterator = labelSettings.labelTargetsAddressingLocation.find(targetAddress.GetData());
+			if(labelIterator != labelSettings.labelTargetsAddressingLocation.end())
+			{
+				stream << labelIterator->second.usageLabel << L"(PC)";
+				labelWritten = true;
+			}
 		}
-		stream << L"PC,";
+		if(!labelWritten)
+		{
+			if(targetAddress.Negative())
+			{
+				stream << L"*-$" << std::hex << std::uppercase << 0 - targetAddress.GetData();
+			}
+			else
+			{
+				stream << L"*+$" << std::hex << std::uppercase << targetAddress.GetData();
+			}
+		}
+		break;}
+	case PC_INDIRECT_INDEX_8BIT:{
+		Data targetAddress(BITCOUNT_LONG);
+		targetAddress = savedPC.GetData() + displacement.SignExtend(BITCOUNT_LONG).GetData();
+		bool labelWritten = false;
+		if(labelSettings.enableSubstitution)
+		{
+			std::map<unsigned int, M68000::LabelSubstitutionEntry>::const_iterator labelIterator = labelSettings.labelTargetsAddressingLocation.find(targetAddress.GetData());
+			if(labelIterator != labelSettings.labelTargetsAddressingLocation.end())
+			{
+				stream << labelIterator->second.usageLabel;
+				labelWritten = true;
+			}
+		}
+		if(!labelWritten)
+		{
+			if(targetAddress.Negative())
+			{
+				stream << L"*-$" << std::hex << std::uppercase << 0 - targetAddress.GetData();
+			}
+			else
+			{
+				stream << L"*+$" << std::hex << std::uppercase << targetAddress.GetData();
+			}
+		}
+		stream << L"(PC,";
 		if(!useAddressRegister)
 		{
 			stream << L"D";
@@ -722,20 +851,61 @@ std::wstring EffectiveAddress::Disassemble() const
 			stream << L"A";
 		}
 		stream << indexReg << "." << M68000Instruction::DisassembleSize(indexSize) << L")";
-		break;
+		break;}
 	case ABS_WORD:
-		stream << L'$' << std::setw(address.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << address.GetData();
-		break;
-	case ABS_LONG:
-		stream << L'$' << std::setw(address.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << address.GetData();
-		break;
+	case ABS_LONG:{
+		Data targetAddress(BITCOUNT_LONG);
+		targetAddress = address.SignExtend(BITCOUNT_LONG);
+		bool labelWritten = false;
+		if(labelSettings.enableSubstitution)
+		{
+			std::map<unsigned int, M68000::LabelSubstitutionEntry>::const_iterator labelIterator = labelSettings.labelTargetsAddressingLocation.find(targetAddress.GetData());
+			if(labelIterator != labelSettings.labelTargetsAddressingLocation.end())
+			{
+				stream << labelIterator->second.usageLabel;
+				labelWritten = true;
+			}
+		}
+		if(!labelWritten)
+		{
+			stream << L'$' << std::setw(targetAddress.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << targetAddress.GetData();
+			if(address.GetBitCount() < BITCOUNT_LONG)
+			{
+				stream << L"." << M68000Instruction::DisassembleSize((Bitcount)address.GetBitCount());
+			}
+		}
+		break;}
 	case IMMEDIATE:
 		stream << L'#';
-		if(data.GetData() > 9)
+		if(dataSignExtended)
 		{
-			stream << L'$' << std::setw(data.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase;
+			Data dataModified = data.SignExtend(BITCOUNT_LONG);
+			if(dataModified.Negative())
+			{
+				stream << L"-";
+				if((0 - dataModified.GetData()) > 9)
+				{
+					stream << L'$' << std::setw(dataModified.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase;
+				}
+				stream << 0 - dataModified.GetData();
+			}
+			else
+			{
+				if(dataModified.GetData() > 9)
+				{
+					stream << L'$' << std::setw(dataModified.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase;
+				}
+				stream << dataModified.GetData();
+			}
 		}
-		stream << data.GetData();
+		else
+		{
+			if(data.GetData() > 9)
+			{
+				stream << L'$' << std::setw(data.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase;
+			}
+			stream << data.GetData();
+		}
 		break;
 	}
 
@@ -743,12 +913,60 @@ std::wstring EffectiveAddress::Disassemble() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacement() const
+std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacement(const M68000::LabelSubstitutionSettings& labelSettings) const
+{
+	M68000Long targetAddress = savedPC + M68000Long(data.SignExtend(BITCOUNT_LONG));
+	std::wstringstream stream;
+	bool labelWritten = false;
+	if(labelSettings.enableSubstitution)
+	{
+		std::map<unsigned int, M68000::LabelSubstitutionEntry>::const_iterator labelIterator = labelSettings.labelTargetsAddressingLocation.find(targetAddress.GetData());
+		if(labelIterator != labelSettings.labelTargetsAddressingLocation.end())
+		{
+			stream << labelIterator->second.usageLabel;
+			labelWritten = true;
+		}
+	}
+	if(!labelWritten)
+	{
+		if(targetAddress.Negative())
+		{
+			stream << L"*-$" << std::hex << std::uppercase << 0 - data.GetData();
+		}
+		else
+		{
+			stream << L"*+$" << std::hex << std::uppercase << data.GetData();
+		}
+	}
+	return stream.str();
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacementTargetAddressString() const
 {
 	M68000Long newPC = savedPC + M68000Long(data.SignExtend(BITCOUNT_LONG));
 	std::wstringstream stream;
 	stream << std::setw(newPC.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << newPC.GetData();
 	return stream.str();
+}
+
+//----------------------------------------------------------------------------------------
+void EffectiveAddress::AddLabelTargetsToSet(std::set<unsigned int>& labelTargetLocations) const
+{
+	switch(mode)
+	{
+	case PC_INDIRECT_DISPLACE:
+	case PC_INDIRECT_INDEX_8BIT:{
+		Data targetAddress(BITCOUNT_LONG);
+		targetAddress = savedPC.GetData() + displacement.SignExtend(BITCOUNT_LONG).GetData();
+		labelTargetLocations.insert(targetAddress.GetData());
+		break;}
+	case ABS_WORD:
+	case ABS_LONG:{
+		M68000Long targetAddress = address.SignExtend(BITCOUNT_LONG).GetData();
+		labelTargetLocations.insert(targetAddress.GetData());
+		break;}
+	}
 }
 
 } //Close namespace M68000

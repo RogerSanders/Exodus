@@ -172,7 +172,6 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops"
 			CharacterSet="1"
