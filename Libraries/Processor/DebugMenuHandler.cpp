@@ -6,6 +6,7 @@
 #include "TraceViewModel.h"
 #include "DisassemblyOldViewModel.h"
 #include "DisassemblyViewModel.h"
+#include "ActiveDisassemblyViewModel.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -26,6 +27,10 @@ void Processor::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& me
 	menuItems.push_back(MenuItemDefinition(MENUITEM_TRACE, L"Trace", L"Trace", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_DISASSEMBLY, L"Disassembly", L"Disassembly", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_DISASSEMBLYOLD, L"OldDisassembly", L"Old Disassembly", true));
+	if(device->ActiveDisassemblySupported())
+	{
+		menuItems.push_back(MenuItemDefinition(MENUITEM_ACTIVEDISASSEMBLY, L"ActiveDisassembly", L"Active Disassembly", true));
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -47,6 +52,8 @@ IViewModel* Processor::DebugMenuHandler::CreateViewModelForItem(int menuItemID, 
 		return new DisassemblyViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_DISASSEMBLY, device);
 	case MENUITEM_DISASSEMBLYOLD:
 		return new DisassemblyOldViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_DISASSEMBLYOLD, device);
+	case MENUITEM_ACTIVEDISASSEMBLY:
+		return new ActiveDisassemblyViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_ACTIVEDISASSEMBLY, device);
 	}
 	return 0;
 }

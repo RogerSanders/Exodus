@@ -1,13 +1,21 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
+enum Processor::DisassemblyEntryType
+{
+	DISASSEMBLYENTRYTYPE_CODE,
+	DISASSEMBLYENTRYTYPE_CODE_AUTODETECT,
+	DISASSEMBLYENTRYTYPE_DATA,
+	DISASSEMBLYENTRYTYPE_OFFSETCODE,
+	DISASSEMBLYENTRYTYPE_OFFSETDATA
+};
+
+//----------------------------------------------------------------------------------------
 enum Processor::DisassemblyDataType
 {
-	DISASSEMBLYDATATYPE_CODE,
-	DISASSEMBLYDATATYPE_CODE_AUTODETECT,
-	DISASSEMBLYDATATYPE_DATA,
-	DISASSEMBLYDATATYPE_OFFSETCODE,
-	DISASSEMBLYDATATYPE_OFFSETDATA
+	DISASSEMBLYDATATYPE_INTEGER,
+	DISASSEMBLYDATATYPE_FLOAT,
+	DISASSEMBLYDATATYPE_CHARACTER
 };
 
 //----------------------------------------------------------------------------------------
@@ -16,7 +24,7 @@ enum Processor::DisassemblyDataType
 struct Processor::OpcodeInfo
 {
 	OpcodeInfo()
-	:valid(false), opcodeSize(1)
+	:valid(false), opcodeSize(1), undeterminedResultantPCLocation(false)
 	{}
 
 	bool valid;
@@ -24,6 +32,44 @@ struct Processor::OpcodeInfo
 	std::wstring disassemblyOpcode;
 	std::wstring disassemblyArguments;
 	std::wstring disassemblyComment;
+	std::set<unsigned int> labelTargetLocations;
+	std::set<unsigned int> resultantPCLocations;
+	bool undeterminedResultantPCLocation;
+};
+
+//----------------------------------------------------------------------------------------
+struct Processor::LabelSubstitutionSettings
+{
+	LabelSubstitutionSettings()
+	:enableSubstitution(false), observedLabelCount(0), detectedLabelCount(0)
+	{}
+
+	bool enableSubstitution;
+	std::map<unsigned int, LabelSubstitutionEntry> labelTargetsAddressingLocation;
+	std::map<unsigned int, LabelEntry> labelTargetsAtLocation;
+	unsigned int observedLabelCount;
+	unsigned int detectedLabelCount;
+};
+
+//----------------------------------------------------------------------------------------
+struct Processor::LabelSubstitutionEntry
+{
+	unsigned int targetAddress;
+	unsigned int labelLocation;
+	int locationOffset;
+	std::wstring usageLabel;
+};
+
+//----------------------------------------------------------------------------------------
+struct Processor::LabelEntry
+{
+	LabelEntry()
+	:predicted(true)
+	{}
+
+	unsigned int location;
+	std::wstring label;
+	bool predicted;
 };
 
 //----------------------------------------------------------------------------------------
@@ -63,33 +109,108 @@ struct Processor::TraceLogEntry
 struct Processor::DisassemblyAddressInfo
 {
 	DisassemblyAddressInfo()
-	:conflictsWithKnownCode(false)
+	:conflictsWithKnownCode(false), arrayStartingHereDefined(false), entryDefinedOutsideArray(false)
 	{}
 
-	//Data info
-	DisassemblyDataType dataType;
+	//Comment info
+	std::wstring comment;
+
+	//Entry info
+	DisassemblyEntryType entryType;
 	unsigned int baseMemoryAddress;
 	unsigned int memoryBlockSize;
 
+	//Data info
+	DisassemblyDataType dataType;
+
 	//Conflict info
 	bool conflictsWithKnownCode;
-
-	//Opcode info
-	Processor::OpcodeInfo opcodeInfo;
 
 	//Offset info
 	bool relativeOffset;
 	unsigned int relativeOffsetBaseAddress;
 
 	//Array info
-	std::set<unsigned int> arrayIDs;
+	bool entryDefinedOutsideArray;
+	bool arrayStartingHereDefined;
+	unsigned int arrayIDStartingHere;
+	std::set<unsigned int> arraysMemberOf;
 };
 
 //----------------------------------------------------------------------------------------
 struct Processor::DisassemblyArrayInfo
 {
+	DisassemblyArrayInfo()
+	:conflictsWithKnownCode(false)
+	{}
+
 	unsigned int arrayID;
 	unsigned int baseMemoryAddress;
 	unsigned int arrayEntrySize;
 	unsigned int arrayEntryCount;
+	DisassemblyDataType dataType;
+	bool conflictsWithKnownCode;
+};
+
+//----------------------------------------------------------------------------------------
+struct Processor::DisassemblyJumpTableInfo
+{
+	unsigned int baseMemoryAddress;
+	unsigned int entrySize;
+	std::set<unsigned int> knownEntries;
+};
+
+//----------------------------------------------------------------------------------------
+struct Processor::ActiveDisassemblyAnalysisData
+{
+	~ActiveDisassemblyAnalysisData()
+	{
+		Initialize();
+	}
+	void Initialize()
+	{
+		//Erase all our allocated data items
+		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = disassemblyCodeSorted.begin(); i != disassemblyCodeSorted.end(); ++i)
+		{
+			delete i->second;
+		}
+		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = predictedCodeEntries.begin(); i != predictedCodeEntries.end(); ++i)
+		{
+			delete i->second;
+		}
+		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = predictedDataEntries.begin(); i != predictedDataEntries.end(); ++i)
+		{
+			delete i->second;
+		}
+		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = predictedOffsetEntries.begin(); i != predictedOffsetEntries.end(); ++i)
+		{
+			delete i->second;
+		}
+		disassemblyCodeSorted.clear();
+		disassemblyDataSorted.clear();
+		disassemblyOffsetSorted.clear();
+		disassemblyArraySorted.clear();
+		predictedCodeEntries.clear();
+		predictedDataEntries.clear();
+		predictedOffsetEntries.clear();
+		disassemblyAddressInfo.clear();
+		labelSettings.labelTargetsAddressingLocation.clear();
+		labelSettings.labelTargetsAtLocation.clear();
+	}
+
+	unsigned int minAddress;
+	unsigned int maxAddress;
+	double offsetArrayIncreaseTolerance;
+	unsigned int minimumArrayEntryCount;
+	unsigned int offsetArrayDistanceTolerance;
+	unsigned int jumpTableDistanceTolerance;
+	Processor::LabelSubstitutionSettings labelSettings;
+	std::map<unsigned int, DisassemblyAddressInfo*> disassemblyCodeSorted;
+	std::map<unsigned int, DisassemblyAddressInfo*> disassemblyDataSorted;
+	std::map<unsigned int, DisassemblyAddressInfo*> disassemblyOffsetSorted;
+	std::map<unsigned int, DisassemblyArrayInfo> disassemblyArraySorted;
+	std::map<unsigned int, DisassemblyAddressInfo*> predictedCodeEntries;
+	std::map<unsigned int, DisassemblyAddressInfo*> predictedDataEntries;
+	std::map<unsigned int, DisassemblyAddressInfo*> predictedOffsetEntries;
+	std::vector<std::list<DisassemblyAddressInfo*>> disassemblyAddressInfo;
 };

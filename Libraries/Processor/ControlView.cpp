@@ -55,7 +55,7 @@ INT_PTR Processor::ControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lpa
 {
 	initializedDialog = true;
 	CheckDlgButton(hwnd, IDC_PROCESSOR_CONTROL_ENABLED, (device->GetDeviceContext()->DeviceEnabled())? BST_CHECKED: BST_UNCHECKED);
-	if(currentControlFocus != IDC_PROCESSOR_CONTROL_CLOCK)	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, (unsigned int)device->GetClockSpeed());
+	if(currentControlFocus != IDC_PROCESSOR_CONTROL_CLOCK)	UpdateDlgItemDouble(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, device->GetClockSpeed());
 
 	return TRUE;
 }
@@ -87,7 +87,7 @@ INT_PTR Processor::ControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 		{
 		case IDC_PROCESSOR_RESTORE_CLOCKSPEED:
 			device->RestoreClockSpeed();
-			UpdateDlgItemBin(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, (unsigned int)device->GetClockSpeed());
+			UpdateDlgItemDouble(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, device->GetClockSpeed());
 			break;
 		case IDC_PROCESSOR_CONTROL_ENABLED:
 			device->GetDeviceContext()->SetDeviceEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);

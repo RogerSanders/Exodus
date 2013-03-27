@@ -68,9 +68,25 @@ std::wstring M68000Instruction::GetOpcodeName() const
 }
 
 //----------------------------------------------------------------------------------------
-M68000Instruction::Disassembly M68000Instruction::M68000Disassemble() const
+M68000Instruction::Disassembly M68000Instruction::M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 {
 	return Disassembly();
+}
+
+//----------------------------------------------------------------------------------------
+void M68000Instruction::GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
+{
+	//Return the address directly after this opcode as the only resultant PC location from
+	//executing this opcode. Note that when overriding this function for opcodes that do
+	//branching we ignore exception locations, so opcodes which explicitly or implicitly
+	//invoke exception handlers don't return the location of those exception handlers as
+	//resultant locations, and any branching that can also return, such as jump opcodes or
+	//calls to exception handlers, must also flag the following instruction as a resultant
+	//PC location, even though other opcodes may always be executed before the following
+	//opcode.
+	undeterminedResultantPCLocation = false;
+	unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
+	resultantPCLocations.insert(nextOpcodeAddress);
 }
 
 //----------------------------------------------------------------------------------------

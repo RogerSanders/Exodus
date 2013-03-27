@@ -88,13 +88,16 @@ public:
 
 	//Instruction functions
 	virtual double ExecuteStep();
-	virtual OpcodeInfo GetOpcodeInfo(unsigned int location);
-	virtual Data GetRawData(unsigned int location);
+	virtual OpcodeInfo GetOpcodeInfo(unsigned int location) const;
+	virtual Data GetRawData(unsigned int location) const;
+	//##TODO##
+	//virtual bool FormatDataForDisassembly(const std::vector<Data>& dataElements, unsigned int outputElementBitCount, std::wstring& disassembly) const;
 	virtual unsigned int GetCurrentPC() const;
 	virtual unsigned int GetPCWidth() const;
 	virtual unsigned int GetAddressBusWidth() const;
 	virtual unsigned int GetDataBusWidth() const;
 	virtual unsigned int GetMinimumOpcodeByteSize() const;
+	virtual unsigned int GetMinimumDataByteSize() const;
 
 	//Register functions
 	inline Z80Byte GetA() const;
@@ -251,6 +254,7 @@ public:
 	virtual void SaveState(IHeirarchicalStorageNode& node) const;
 
 	//Window functions
+	void CreateMenuHandlers();
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);

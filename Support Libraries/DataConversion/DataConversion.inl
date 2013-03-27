@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------------
-template<class T> void IntToString(T& data, std::wstring& string)
+template<class T> void IntToString(T data, std::wstring& string)
 {
 	IntToStringBase10(data, string);
 }
@@ -34,6 +34,12 @@ template<class T> void IntToStringBase16(T data, std::wstring& string, unsigned 
 //----------------------------------------------------------------------------------------
 template<class T> void IntToStringBase10(T data, std::wstring& string)
 {
+	if(data == 0)
+	{
+		string = L"0";
+		return;
+	}
+
 	string.clear();
 	bool negative = false;
 	if(data < 0)

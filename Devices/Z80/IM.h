@@ -24,14 +24,14 @@ public:
 		return L"IM";
 	}
 
-	virtual Disassembly Z80Disassemble() const
+	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
 		std::wstringstream argumentDisassembly;
 		argumentDisassembly << newInterruptMode;
 		return Disassembly(GetOpcodeName(), argumentDisassembly.str());
 	}
 
-	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
+	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		//##TODO## Determine which mode the undocumented "IM 0/1*" modes actually set
 		switch(data.GetDataSegment(3, 2))

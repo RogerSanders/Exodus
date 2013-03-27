@@ -130,7 +130,7 @@ public:
 		return L"MOVEM";
 	}
 
-	virtual Disassembly M68000Disassemble() const
+	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
 		std::wstringstream maskDisassembly;
 		for(unsigned int i = 0; i < mask.GetBitCount(); ++i)
@@ -163,14 +163,14 @@ public:
 			}
 		}
 
-		std::wstring targetDisassembly = target.Disassemble();
+		std::wstring targetDisassembly = target.Disassemble(labelSettings);
 		if(addressMode == MODE_PREDECREMENT)
 		{
-			targetDisassembly = L"-(" + target.Disassemble() + L")";
+			targetDisassembly = L"-(" + target.Disassemble(labelSettings) + L")";
 		}
 		else if(addressMode == MODE_POSTINCREMENT)
 		{
-			targetDisassembly = L"(" + target.Disassemble() + L")+";
+			targetDisassembly = L"(" + target.Disassemble(labelSettings) + L")+";
 		}
 
 		std::wstring argumentDisassembly;
@@ -185,7 +185,7 @@ public:
 		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), argumentDisassembly);
 	}
 
-	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
+	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
 	{
 //	                                         |----------<ea>---------|
 //	-----------------------------------------=========================
@@ -296,8 +296,17 @@ public:
 		{
 			if(memoryToRegisters)
 			{
-				//Read the register data from memory and load it into the register
 				Data temp(size);
+
+				//Record active disassembly info for this register move
+				if(cpu->ActiveDisassemblyEnabled())
+				{
+					M68000::LabelSubstitutionSettings labelSettings;
+					labelSettings.enableSubstitution = false;
+					cpu->AddDisassemblyAddressInfoData(address.GetData(), temp.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER, 0, i->Disassemble(labelSettings));
+				}
+
+				//Read the register data from memory and load it into the register
 				additionalTime += cpu->ReadMemory(address, temp, cpu->GetFunctionCode(false), location + 2, true, GetInstructionRegister(), false, false);
 				additionalTime += i->Write(cpu, temp.SignExtend(BITCOUNT_LONG), GetInstructionRegister(), false, false, true, address.GetData(), temp.GetByteSize());
 				address += temp.GetByteSize();
@@ -323,6 +332,11 @@ public:
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
+	}
+
+	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
+	{
+		target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:

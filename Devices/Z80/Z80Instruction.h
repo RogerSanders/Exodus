@@ -43,7 +43,7 @@ public:
 	inline unsigned int GetIndexOffsetSize(bool add) const;
 
 	//Execute functions
-	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent) = 0;
+	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent) = 0;
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const = 0;
 
 	//Execute time functions
@@ -63,7 +63,7 @@ public:
 
 	//Disassembly functions
 	virtual std::wstring GetOpcodeName() const;
-	virtual Disassembly Z80Disassemble() const;
+	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const;
 	static std::wstring DisassembleConditionCode(ConditionCode conditionCode);
 
 private:

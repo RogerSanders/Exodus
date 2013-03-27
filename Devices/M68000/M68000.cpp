@@ -9,7 +9,7 @@ namespace M68000 {
 
 //----------------------------------------------------------------------------------------
 M68000::M68000(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Processor(L"M68000", ainstanceName, amoduleID), opcodeTable(16), opcodeBuffer(0), memoryBus(0)
+:Processor(L"M68000", ainstanceName, amoduleID), menuHandler(0), opcodeTable(16), opcodeBuffer(0), memoryBus(0)
 {
 	//Set the default state for our device preferences
 	suspendWhenBusReleased = false;
@@ -31,10 +31,6 @@ M68000::M68000(const std::wstring& ainstanceName, unsigned int amoduleID)
 	breakOnAllExceptions = false;
 	disableAllExceptions = false;
 	debugExceptionTriggerPending = false;
-
-	//Create the menu handler
-	menuHandler = new DebugMenuHandler(this);
-	menuHandler->LoadMenuItems();
 }
 
 //----------------------------------------------------------------------------------------
@@ -58,8 +54,11 @@ M68000::~M68000()
 	exceptionListEmpty = true;
 
 	//Delete the menu handler
-	menuHandler->ClearMenuItems();
-	delete menuHandler;
+	if(menuHandler != 0)
+	{
+		menuHandler->ClearMenuItems();
+		delete menuHandler;
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -395,12 +394,15 @@ ExecuteTime M68000::ProcessException(unsigned int vector)
 		SetSR_IPM(7);
 		M68000Long newSSP;
 		ReadMemory(vectorOffset, newSSP, FUNCTIONCODE_SUPERVISORPROGRAM, 0, false, 0, false, false);
+		AddDisassemblyAddressInfoOffset(vectorOffset, interruptVector.GetByteSize(), false, false, 0);
 		SetA(SP, newSSP);
 		ReadMemory(vectorOffset + newSSP.GetByteSize(), interruptVector, FUNCTIONCODE_SUPERVISORPROGRAM, 0, false, 0, false, false);
+		AddDisassemblyAddressInfoOffset(vectorOffset + newSSP.GetByteSize(), interruptVector.GetByteSize(), true, false, 0);
 	}
 	else
 	{
 		ReadMemory(vectorOffset, interruptVector, FUNCTIONCODE_SUPERVISORDATA, 0, false, 0, false, false);
+		AddDisassemblyAddressInfoOffset(vectorOffset, interruptVector.GetByteSize(), true, false, 0);
 	}
 
 	PushCallStack(oldPC.GetData(), interruptVector.GetData(), oldPC.GetData(), L"Exception", true);
@@ -1215,7 +1217,7 @@ void M68000::NotifyAfterExecuteStepFinishedTimeslice()
 }
 
 //----------------------------------------------------------------------------------------
-M68000::OpcodeInfo M68000::GetOpcodeInfo(unsigned int location)
+M68000::OpcodeInfo M68000::GetOpcodeInfo(unsigned int location) const
 {
 	OpcodeInfo opcodeInfo;
 	opcodeInfo.valid = false;
@@ -1236,13 +1238,17 @@ M68000::OpcodeInfo M68000::GetOpcodeInfo(unsigned int location)
 		targetOpcode->SetInstructionRegister(opcode);
 
 		targetOpcode->M68000Decode(this, targetOpcode->GetInstructionLocation(), targetOpcode->GetInstructionRegister(), targetOpcode->GetTransparentFlag());
-		M68000Instruction::Disassembly disassembly = targetOpcode->M68000Disassemble();
+		LabelSubstitutionSettings labelSettings;
+		labelSettings.enableSubstitution = false;
+		M68000Instruction::Disassembly disassembly = targetOpcode->M68000Disassemble(labelSettings);
 
 		opcodeInfo.valid = true;
 		opcodeInfo.opcodeSize = targetOpcode->GetInstructionSize();
 		opcodeInfo.disassemblyOpcode = disassembly.disassemblyOpcode;
 		opcodeInfo.disassemblyArguments = disassembly.disassemblyArguments;
 		opcodeInfo.disassemblyComment = disassembly.disassemblyComment;
+		targetOpcode->GetResultantPCLocations(opcodeInfo.resultantPCLocations, opcodeInfo.undeterminedResultantPCLocation);
+		targetOpcode->GetLabelTargetLocations(opcodeInfo.labelTargetLocations);
 
 		delete targetOpcode;
 	}
@@ -1251,7 +1257,7 @@ M68000::OpcodeInfo M68000::GetOpcodeInfo(unsigned int location)
 }
 
 //----------------------------------------------------------------------------------------
-Data M68000::GetRawData(unsigned int location)
+Data M68000::GetRawData(unsigned int location) const
 {
 	M68000Word data;
 	ReadMemoryTransparent(location, data, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
@@ -1286,6 +1292,12 @@ unsigned int M68000::GetDataBusWidth() const
 unsigned int M68000::GetMinimumOpcodeByteSize() const
 {
 	return 2;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int M68000::GetMinimumDataByteSize() const
+{
+	return 1;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1755,6 +1767,44 @@ void M68000::ApplyClockStateChange(unsigned int targetClock, double clockRate)
 //----------------------------------------------------------------------------------------
 //Disassembly functions
 //----------------------------------------------------------------------------------------
+bool M68000::DisassemblyGetAddressRegisterLastAccessedInPostIncMode(unsigned int regNo) const
+{
+	if(regNo < (addressRegCount - 1))
+	{
+		return aDisassemblyInfo[regNo].addressRegisterLastUsedInPostIncMode;
+	}
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::DisassemblySetAddressRegisterLastAccessedInPostIncMode(unsigned int regNo, bool state)
+{
+	if(regNo < (addressRegCount - 1))
+	{
+		aDisassemblyInfo[regNo].addressRegisterLastUsedInPostIncMode = state;
+	}
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int M68000::DisassemblyGetAddressRegisterCurrentArrayID(unsigned int regNo) const
+{
+	if(regNo < (addressRegCount - 1))
+	{
+		return aDisassemblyInfo[regNo].currentArrayID;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::DisassemblySetAddressRegisterCurrentArrayID(unsigned int regNo, unsigned int state)
+{
+	if(regNo < (addressRegCount - 1))
+	{
+		aDisassemblyInfo[regNo].currentArrayID = state;
+	}
+}
+
+//----------------------------------------------------------------------------------------
 bool M68000::DisassemblyGetAddressRegisterUnmodified(unsigned int regNo, unsigned int& sourceLocation) const
 {
 	if(regNo < (addressRegCount - 1))
@@ -1831,7 +1881,7 @@ void M68000::TriggerExternalReset(double resetTimeBegin, double resetTimeEnd)
 //----------------------------------------------------------------------------------------
 //Memory access functions
 //----------------------------------------------------------------------------------------
-M68000::FunctionCode M68000::GetFunctionCode(bool programReference)
+M68000::FunctionCode M68000::GetFunctionCode(bool programReference) const
 {
 	static const FunctionCode codeTable[8] = {
 		FUNCTIONCODE_UNDEFINED0,		//000
@@ -2289,6 +2339,310 @@ unsigned int M68000::CalculateCELineStateMemory(unsigned int location, const Dat
 unsigned int M68000::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
 	return CalculateCELineStateMemory(location, data, currentCELineState, sourceBusInterface, caller, calculateCELineStateContext, 0.0);
+}
+
+//----------------------------------------------------------------------------------------
+//Active disassembly functions
+//----------------------------------------------------------------------------------------
+bool M68000::ActiveDisassemblySupported() const
+{
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::GetLeadingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const
+{
+	if(analysisStartAddress != 0)
+	{
+		std::wstring baseAddressString;
+		IntToStringBase16(analysisStartAddress, baseAddressString, GetPCCharWidth(), false);
+		std::wstring baseAddressLine = L" org $" + baseAddressString;
+		outputLines.push_back(baseAddressLine);
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::GetTrailingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const
+{
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::FormatOpcodeForDisassembly(unsigned int opcodeAddress, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& opcodeArguments, std::wstring& opcodeComments) const
+{
+	M68000Long instructionLocation = opcodeAddress;
+	M68000Word opcode;
+	ReadMemoryTransparent(opcodeAddress, opcode, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
+
+	const M68000Instruction* targetOpcodeType = 0;
+	targetOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
+	if(targetOpcodeType == 0)
+	{
+		return false;
+	}
+	M68000Instruction* targetOpcode = targetOpcodeType->Clone();
+
+	targetOpcode->SetTransparentFlag(true);
+	targetOpcode->SetInstructionSize(2);
+	targetOpcode->SetInstructionLocation(instructionLocation);
+	targetOpcode->SetInstructionRegister(opcode);
+
+	targetOpcode->M68000Decode(this, targetOpcode->GetInstructionLocation(), targetOpcode->GetInstructionRegister(), targetOpcode->GetTransparentFlag());
+	M68000Instruction::Disassembly disassembly = targetOpcode->M68000Disassemble(labelSettings);
+
+	opcodePrefix = disassembly.disassemblyOpcode;
+	opcodeArguments = disassembly.disassemblyArguments;
+	opcodeComments = disassembly.disassemblyComment;
+
+	delete targetOpcode;
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::FormatDataForDisassembly(const std::vector<Data>& dataElements, unsigned int dataElementByteSize, DisassemblyDataType dataType, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& formattedData) const
+{
+	//Ensure that at least one data element has been supplied
+	if(dataElements.empty())
+	{
+		return false;
+	}
+
+	//Determine the size of the output data, and write the opcode prefix string.
+	const unsigned int bitsPerByte = 8;
+	unsigned int outputElementBitCount = dataElementByteSize * bitsPerByte;
+	unsigned int displayCharWidth;
+	switch(outputElementBitCount)
+	{
+	case BITCOUNT_BYTE:
+		opcodePrefix = L"dc.b";
+		displayCharWidth = 2;
+		break;
+	case BITCOUNT_WORD:
+		opcodePrefix = L"dc.w";
+		displayCharWidth = 4;
+		break;
+	case BITCOUNT_LONG:
+		opcodePrefix = L"dc.l";
+		displayCharWidth = 8;
+		break;
+	default:
+		return false;
+	}
+
+	//Write each data value to the disassembly string
+	formattedData.clear();
+	if(dataType == DISASSEMBLYDATATYPE_INTEGER)
+	{
+		//Format these integer data elements
+		bool firstValueWritten = false;
+		for(unsigned int i = 0; i < (unsigned int)dataElements.size(); ++i)
+		{
+			std::wstring dataAsString;
+			IntToStringBase16(dataElements[i].GetData(), dataAsString, displayCharWidth, false);
+			formattedData += (firstValueWritten? L", $": L"$");
+			formattedData += dataAsString;
+			firstValueWritten = true;
+		}
+	}
+	else if(dataType == DISASSEMBLYDATATYPE_CHARACTER)
+	{
+		//Ensure the text element size matches the required size
+		if(dataElementByteSize != 1)
+		{
+			return false;
+		}
+
+		//Format these character data elements
+		bool characterStringOpen = false;
+		bool charactersWritten = false;
+		for(unsigned int i = 0; i < (unsigned int)dataElements.size(); ++i)
+		{
+			char dataElementAsChar = (char)dataElements[i].GetData();
+			bool printableChar = (isprint(dataElements[i].GetData()) != 0);
+			if(printableChar)
+			{
+				if(!characterStringOpen)
+				{
+					if(charactersWritten)
+					{
+						formattedData += L",";
+					}
+					formattedData += L"\'";
+					characterStringOpen = true;
+				}
+				if(dataElementAsChar == '\\')
+				{
+					formattedData += L"\\\\";
+				}
+				else if(dataElementAsChar == '\'')
+				{
+					formattedData += L"\'\'";
+				}
+				else
+				{
+					formattedData += dataElementAsChar;
+				}
+			}
+			else
+			{
+				if(characterStringOpen)
+				{
+					formattedData += L"\'";
+					characterStringOpen = false;
+				}
+				std::wstring nonPrintableCharAsIntString;
+				IntToStringBase10(dataElements[i].GetData(), nonPrintableCharAsIntString);
+				if(charactersWritten)
+				{
+					formattedData += L",";
+				}
+				formattedData += nonPrintableCharAsIntString;
+			}
+			charactersWritten = true;
+		}
+		if(characterStringOpen)
+		{
+			formattedData += L"\'";
+		}
+	}
+	else
+	{
+		//If this is an unsupported data type, return false.
+		return false;
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::FormatOffsetForDisassembly(const Data& offsetData, bool relativeOffset, unsigned int relativeOffsetBaseAddress, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& formattedOffset) const
+{
+	//Determine the size of the output data, and write the opcode prefix string.
+	unsigned int outputElementBitCount = offsetData.GetBitCount();
+	unsigned int displayCharWidth;
+	switch(outputElementBitCount)
+	{
+	case BITCOUNT_BYTE:
+		opcodePrefix = L"dc.b";
+		displayCharWidth = 2;
+		break;
+	case BITCOUNT_WORD:
+		opcodePrefix = L"dc.w";
+		displayCharWidth = 4;
+		break;
+	case BITCOUNT_LONG:
+		opcodePrefix = L"dc.l";
+		displayCharWidth = 8;
+		break;
+	default:
+		return false;
+	}
+
+	//Format this offset element
+	if(relativeOffset)
+	{
+		unsigned int offsetTarget = relativeOffsetBaseAddress + offsetData.GetData();
+
+		bool baseAddressLabelFound = false;
+		bool targetLabelFound = false;
+		std::wstring offsetBaseAddressAsString;
+		std::wstring offsetTargetAsString;
+		if(labelSettings.enableSubstitution)
+		{
+			std::map<unsigned int, LabelSubstitutionEntry>::const_iterator offsetTargetLabelIterator = labelSettings.labelTargetsAddressingLocation.find(offsetTarget);
+			if(offsetTargetLabelIterator != labelSettings.labelTargetsAddressingLocation.end())
+			{
+				offsetTargetAsString = offsetTargetLabelIterator->second.usageLabel;
+				targetLabelFound = true;
+			}
+			std::map<unsigned int, LabelSubstitutionEntry>::const_iterator offsetBaseAddressLabelIterator = labelSettings.labelTargetsAddressingLocation.find(relativeOffsetBaseAddress);
+			if(offsetBaseAddressLabelIterator != labelSettings.labelTargetsAddressingLocation.end())
+			{
+				offsetBaseAddressAsString = offsetBaseAddressLabelIterator->second.usageLabel;
+				baseAddressLabelFound = true;
+			}
+		}
+		if(!targetLabelFound)
+		{
+			std::wstring offsetTargetAsRawString;
+			IntToStringBase16(offsetTarget, offsetTargetAsRawString, GetPCCharWidth(), false);
+			offsetTargetAsString = L"$" + offsetTargetAsRawString;
+		}
+		if(!baseAddressLabelFound)
+		{
+			std::wstring offsetBaseAddressAsRawString;
+			IntToStringBase16(relativeOffsetBaseAddress, offsetBaseAddressAsRawString, GetPCCharWidth(), false);
+			offsetBaseAddressAsString = L"$" + offsetBaseAddressAsRawString;
+		}
+
+		formattedOffset = L"(";
+		formattedOffset += offsetTargetAsString;
+		formattedOffset += L"-";
+		formattedOffset += offsetBaseAddressAsString;
+		formattedOffset += L")";
+	}
+	else
+	{
+		bool targetLabelFound = false;
+		std::wstring offsetTargetAsString;
+		if(labelSettings.enableSubstitution)
+		{
+			std::map<unsigned int, LabelSubstitutionEntry>::const_iterator offsetTargetLabelIterator = labelSettings.labelTargetsAddressingLocation.find(offsetData.GetData());
+			if(offsetTargetLabelIterator != labelSettings.labelTargetsAddressingLocation.end())
+			{
+				offsetTargetAsString = offsetTargetLabelIterator->second.usageLabel;
+				targetLabelFound = true;
+			}
+		}
+		if(!targetLabelFound)
+		{
+			std::wstring offsetTargetAsRawString;
+			IntToStringBase16(offsetData.GetData(), offsetTargetAsRawString, GetPCCharWidth(), false);
+			offsetTargetAsString = L"$" + offsetTargetAsRawString;
+		}
+
+		formattedOffset = offsetTargetAsString;
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::FormatCommentForDisassembly(const std::wstring& rawComment, std::wstring& formattedComment) const
+{
+	formattedComment = L";" + rawComment;
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::FormatLabelPlacementForDisassembly(const std::wstring& rawLabel, std::wstring& formattedLabel) const
+{
+	formattedLabel = rawLabel + L":";
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::FormatLabelUsageForDisassembly(const std::wstring& rawLabel, int labelOffset, std::wstring& formattedLabel) const
+{
+	formattedLabel = rawLabel;
+	if(labelOffset != 0)
+	{
+		if(labelOffset < 0)
+		{
+			std::wstring locationOffsetString;
+			IntToString(-labelOffset, locationOffsetString);
+			formattedLabel += L"-" + locationOffsetString;
+		}
+		else
+		{
+			std::wstring locationOffsetString;
+			IntToString(labelOffset, locationOffsetString);
+			formattedLabel += L"+" + locationOffsetString;
+		}
+	}
+	return true;
 }
 
 //----------------------------------------------------------------------------------------

@@ -7,12 +7,8 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 SN76489::SN76489(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"SN76489", ainstanceName, amoduleID), reg(channelCount * 2, false, Data(toneRegisterBitCount))
+:Device(L"SN76489", ainstanceName, amoduleID), menuHandler(0), reg(channelCount * 2, false, Data(toneRegisterBitCount))
 {
-	//Create the menu handler
-	menuHandler = new DebugMenuHandler(this);
-	menuHandler->LoadMenuItems();
-
 	//Initialize the audio output stream
 	outputSampleRate = 48000;	//44100;
 	outputStream.Open(1, 16, outputSampleRate, outputSampleRate/2, outputSampleRate/2);
@@ -31,8 +27,11 @@ SN76489::SN76489(const std::wstring& ainstanceName, unsigned int amoduleID)
 SN76489::~SN76489()
 {
 	//Delete the menu handler
-	menuHandler->ClearMenuItems();
-	delete menuHandler;
+	if(menuHandler != 0)
+	{
+		menuHandler->ClearMenuItems();
+		delete menuHandler;
+	}
 }
 
 //----------------------------------------------------------------------------------------

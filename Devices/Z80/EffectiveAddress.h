@@ -17,11 +17,11 @@ public:
 	inline void SetMode(Mode amode);
 	inline bool Decode8BitRegister(unsigned int adata);
 	inline bool Decode16BitRegister(unsigned int adata);
-	inline void BuildImmediateData(Bitcount asize, const Z80Word& location, Z80* cpu, bool transparent);
+	inline void BuildImmediateData(Bitcount asize, const Z80Word& location, const Z80* cpu, bool transparent);
 	inline void BuildImmediateData(const Data& adata);
 	inline void BuildQuickData(unsigned int adata);
 	inline void BuildAbsoluteAddress(const Z80Word& aaddress);
-	inline void BuildAbsoluteAddress(const Z80Word& location, Z80* cpu, bool transparent);
+	inline void BuildAbsoluteAddress(const Z80Word& location, const Z80* cpu, bool transparent);
 
 	//Effective address info
 	inline Mode GetMode() const;

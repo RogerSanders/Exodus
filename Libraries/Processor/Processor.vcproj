@@ -710,6 +710,26 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="ActiveDisassemblyView"
+				>
+				<File
+					RelativePath=".\ActiveDisassemblyView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ActiveDisassemblyView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ActiveDisassemblyViewModel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ActiveDisassemblyViewModel.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Breakpoint"

@@ -5,9 +5,20 @@
 //----------------------------------------------------------------------------------------
 //Window functions
 //----------------------------------------------------------------------------------------
+void YM2612::CreateMenuHandlers()
+{
+	if(menuHandler == 0)
+	{
+		menuHandler = new DebugMenuHandler(this);
+		menuHandler->LoadMenuItems();
+	}
+}
+
+//----------------------------------------------------------------------------------------
 void YM2612::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
 {
 	Device::AddDebugMenuItems(menuSegment, viewModelLauncher);
+	CreateMenuHandlers();
 	menuHandler->AddMenuItems(menuSegment, viewModelLauncher);
 }
 
@@ -15,6 +26,7 @@ void YM2612::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& vi
 void YM2612::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	Device::RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
+	CreateMenuHandlers();
 	menuHandler->RestoreMenuViewModelOpen(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 }
 
@@ -22,6 +34,7 @@ void YM2612::RestoreViewModelState(const std::wstring& viewModelGroupName, const
 void YM2612::OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher)
 {
 	Device::OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
+	CreateMenuHandlers();
 	menuHandler->OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
 }
 

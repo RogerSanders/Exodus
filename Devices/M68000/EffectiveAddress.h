@@ -40,26 +40,29 @@ public:
 	inline EffectiveAddress();
 
 	//Decode functions
-	void Decode(unsigned int areg, unsigned int amode, Bitcount asize, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	void Decode(unsigned int areg, unsigned int amode, Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
 	inline void BuildDataDirect(Bitcount asize, const M68000Long& location, unsigned int areg);
 	inline void BuildAddressDirect(Bitcount asize, const M68000Long& location, unsigned int areg);
 	inline void BuildAddressIndirect(Bitcount asize, const M68000Long& location, unsigned int areg);
 	inline void BuildAddressPostinc(Bitcount asize, const M68000Long& location, unsigned int areg);
 	inline void BuildAddressPredec(Bitcount asize, const M68000Long& location, unsigned int areg);
-	inline void BuildAddressIndirectDisplace(Bitcount asize, const M68000Long& location, unsigned int areg, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildAddressIndirectIndex(Bitcount asize, const M68000Long& location, unsigned int areg, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildAbsoluteAddressWord(Bitcount asize, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildAbsoluteAddressLong(Bitcount asize, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildPCIndirectDisplace(Bitcount asize, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildPCIndirectIndex(Bitcount asize, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildImmediateData(Bitcount asize, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildImmediateData(const M68000Long& location, const Data& adata);
+	inline void BuildAddressIndirectDisplace(Bitcount asize, const M68000Long& location, unsigned int areg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildAddressIndirectIndex(Bitcount asize, const M68000Long& location, unsigned int areg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildAbsoluteAddressWord(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildAbsoluteAddressLong(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildPCIndirectDisplace(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildPCIndirectIndex(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildImmediateData(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildImmediateData(const M68000Long& location, const Data& adata, bool signExtended = false);
 	inline void BuildQuickData(const M68000Long& location, unsigned int adata);
 
 	//Address functions
+	inline M68000Long ExtractProcessedImmediateData() const;
 	inline M68000Long GetSavedPC() const;
 	inline bool IncrementAddress(Bitcount asize);
 	bool GetAddress(const M68000* cpu, Data& aaddress) const;
+	bool GetAddressTransparent(Data& aaddress) const;
+	bool GetAddressDisplacementTargetNoIndex(M68000* cpu, Data& aaddress) const;
 
 	//Extension word info
 	inline unsigned int ExtensionSize();
@@ -75,8 +78,10 @@ public:
 	bool IsTargetUnmodifiedFromMemoryReadV2(M68000* cpu, unsigned int& sourceMemoryAddress, bool& dataIsOffset, unsigned int& offsetBaseAddress, unsigned int& dataSize) const;
 
 	//Disassembly functions
-	std::wstring Disassemble() const;
-	std::wstring DisassembleImmediateAsPCDisplacement() const;
+	std::wstring Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const;
+	std::wstring DisassembleImmediateAsPCDisplacement(const M68000::LabelSubstitutionSettings& labelSettings) const;
+	std::wstring DisassembleImmediateAsPCDisplacementTargetAddressString() const;
+	void AddLabelTargetsToSet(std::set<unsigned int>& labelTargetLocations) const;
 
 private:
 	Bitcount size;
@@ -84,6 +89,7 @@ private:
 	unsigned int reg;
 	M68000Word address;
 	Data data;
+	bool dataSignExtended;
 	bool useAddressRegister;
 	Bitcount indexSize;
 	unsigned int indexReg;

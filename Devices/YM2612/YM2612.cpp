@@ -102,16 +102,13 @@ const unsigned int YM2612::phaseModIncrementTable[1 << pmsBitCount][1 << (phaseM
 //----------------------------------------------------------------------------------------
 YM2612::YM2612(const std::wstring& ainstanceName, unsigned int amoduleID)
 :Device(L"YM2612", ainstanceName, amoduleID),
+menuHandler(0),
 status(8), bstatus(8), reg(registerCountTotal, false, Data(8)),
 latchedFrequencyData(channelCount, Data(8)), blatchedFrequencyData(channelCount, Data(8)),
 latchedFrequencyDataCH3(3, Data(8)), blatchedFrequencyDataCH3(3, Data(8)),
 timerAOverflowTimes(false)
 {
 	memoryBus = 0;
-
-	//Create the menu handler
-	menuHandler = new DebugMenuHandler(this);
-	menuHandler->LoadMenuItems();
 
 	//Set the default clock rate parameters
 	externalClockRate = 0;
@@ -151,8 +148,11 @@ timerAOverflowTimes(false)
 YM2612::~YM2612()
 {
 	//Delete the menu handler
-	menuHandler->ClearMenuItems();
-	delete menuHandler;
+	if(menuHandler != 0)
+	{
+		menuHandler->ClearMenuItems();
+		delete menuHandler;
+	}
 }
 
 //----------------------------------------------------------------------------------------
