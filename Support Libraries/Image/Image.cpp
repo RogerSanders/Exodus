@@ -523,6 +523,12 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 //----------------------------------------------------------------------------------------
 bool Image::SavePCXImage(Stream::IStream& stream)
 {
+	//Ensure the current image is valid before proceeding
+	if(!ImageValid())
+	{
+		return false;
+	}
+
 	//Build the PCX file header
 	PCXFileHeader header;
 	header.manufacturer = 10;
@@ -702,6 +708,12 @@ bool Image::LoadTIFFImage(Stream::IStream& stream)
 //----------------------------------------------------------------------------------------
 bool Image::SaveTIFFImage(Stream::IStream& stream)
 {
+	//Ensure the current image is valid before proceeding
+	if(!ImageValid())
+	{
+		return false;
+	}
+
 	//##TODO##
 	TIFFStreamManager manager(stream);
 
@@ -802,6 +814,12 @@ bool Image::LoadJPGImage(Stream::IStream& stream)
 //----------------------------------------------------------------------------------------
 bool Image::SaveJPGImage(Stream::IStream& stream)
 {
+	//Ensure the current image is valid before proceeding
+	if(!ImageValid())
+	{
+		return false;
+	}
+
 	//1. Allocate and initialize a JPEG compression object.
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
@@ -1203,6 +1221,12 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 //----------------------------------------------------------------------------------------
 bool Image::SaveTGAImage(Stream::IStream& stream)
 {
+	//Ensure the current image is valid before proceeding
+	if(!ImageValid())
+	{
+		return false;
+	}
+
 	//Determine the TGA file format settings
 	bool flipVertically = true;
 	bool flipHorizontally = false;
@@ -1479,6 +1503,12 @@ bool Image::LoadPNGImage(Stream::IStream& stream)
 //----------------------------------------------------------------------------------------
 bool Image::SavePNGImage(Stream::IStream& stream)
 {
+	//Ensure the current image is valid before proceeding
+	if(!ImageValid())
+	{
+		return false;
+	}
+
 	//Allocate png_struct
 	png_structp pngStruct = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if(pngStruct == NULL)
@@ -1754,6 +1784,12 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 //----------------------------------------------------------------------------------------
 bool Image::SaveBMPImage(Stream::IStream& stream)
 {
+	//Ensure the current image is valid before proceeding
+	if(!ImageValid())
+	{
+		return false;
+	}
+
 	//Estimate the required buffer size
 	unsigned int bitsPerPixel = 24;
 	unsigned int bytesPerPixel = ((bitsPerPixel + 7) / 8);
@@ -2212,6 +2248,12 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 //----------------------------------------------------------------------------------------
 bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFO& bitmapInfo)
 {
+	//Ensure the current image is valid before proceeding
+	if(!ImageValid())
+	{
+		return false;
+	}
+
 	//Calculate the data format for the DIB image
 	unsigned int bitsPerPixel = 24;
 	unsigned int bytesPerPixel = ((bitsPerPixel + 7) / 8);
@@ -2315,6 +2357,20 @@ unsigned int Image::MaskData(unsigned int data, unsigned int bitMask) const
 }
 
 //----------------------------------------------------------------------------------------
+//Image verification methods
+//----------------------------------------------------------------------------------------
+bool Image::ImageValid() const
+{
+	//Validate the current image width and height
+	if((imageWidth <= 0) || (imageHeight <= 0))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 //Resampling functions
 //----------------------------------------------------------------------------------------
 void Image::ResampleNearest(unsigned int newWidth, unsigned int newHeight)
@@ -2326,7 +2382,15 @@ void Image::ResampleNearest(unsigned int newWidth, unsigned int newHeight)
 //----------------------------------------------------------------------------------------
 void Image::ResampleNearest(const IImage& oldImage, unsigned int newWidth, unsigned int newHeight)
 {
+	//Apply new new specified image format
 	SetImageFormat(newWidth, newHeight, oldImage.GetPixelFormat(), oldImage.GetDataFormat());
+
+	//Ensure that the old image and this image have valid image dimensions specified
+	//before attempting the resampling algorithm.
+	if((oldImage.GetImageWidth() <= 0) || (oldImage.GetImageHeight() <= 0) || (imageWidth <= 0) || (imageHeight <= 0))
+	{
+		return;
+	}
 
 	unsigned int maxOldImageXPos = (oldImage.GetImageWidth() - 1);
 	unsigned int maxOldImageYPos = (oldImage.GetImageHeight() - 1);
@@ -2360,7 +2424,15 @@ void Image::ResampleBilinear(unsigned int newWidth, unsigned int newHeight)
 //----------------------------------------------------------------------------------------
 void Image::ResampleBilinear(const IImage& oldImage, unsigned int newWidth, unsigned int newHeight)
 {
+	//Apply new new specified image format
 	SetImageFormat(newWidth, newHeight, oldImage.GetPixelFormat(), oldImage.GetDataFormat());
+
+	//Ensure that the old image and this image have valid image dimensions specified
+	//before attempting the resampling algorithm.
+	if((oldImage.GetImageWidth() <= 0) || (oldImage.GetImageHeight() <= 0) || (imageWidth <= 0) || (imageHeight <= 0))
+	{
+		return;
+	}
 
 	//This is a basic bilinear resampling algorithm. It will not cope well when reducing
 	//a dimension of the source image by a factor of more than 1.5x.

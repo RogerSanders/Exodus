@@ -36,7 +36,9 @@ public:
 	virtual void RunSystem() = 0;
 	virtual void ExecuteDeviceStep() = 0;
 	inline std::wstring GetCapturePath() const;
+	inline std::wstring GetFullyQualifiedDeviceInstanceName() const;
 	inline std::wstring GetModuleDisplayName() const;
+	inline std::wstring GetModuleInstanceName() const;
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const = 0;
@@ -61,7 +63,9 @@ public:
 protected:
 	//System message functions
 	virtual const wchar_t* GetCapturePathInternal() const = 0;
+	virtual const wchar_t* GetFullyQualifiedDeviceInstanceNameInternal() const = 0;
 	virtual const wchar_t* GetModuleDisplayNameInternal() const = 0;
+	virtual const wchar_t* GetModuleInstanceNameInternal() const = 0;
 };
 
 #include "IDeviceContext.inl"

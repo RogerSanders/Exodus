@@ -1996,8 +1996,8 @@ void VDP::LoadState(IHeirarchicalStorageNode& node)
 void VDP::SaveState(IHeirarchicalStorageNode& node) const
 {
 	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
-	std::wstring regBufferName = GetDeviceInstanceName();
-	regBufferName += L" - Registers";
+	std::wstring regBufferName = GetFullyQualifiedDeviceInstanceName();
+	regBufferName += L".Registers";
 	reg.SaveState(regNode, regBufferName, false);
 
 	node.CreateChildHex(L"Register", address, 4).CreateAttribute(L"name", L"Address");

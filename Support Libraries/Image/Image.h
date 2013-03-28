@@ -70,6 +70,7 @@ public:
 
 	//TIFF functions
 	virtual bool LoadTIFFImage(Stream::IStream& stream);
+	//##TODO##
 	virtual bool SaveTIFFImage(Stream::IStream& stream);
 
 	//JPG functions
@@ -144,6 +145,9 @@ private:
 	//Win32 DIB functions (Device-Independent Bitmap)
 	unsigned int GetSetBitCount(unsigned int data) const;
 	unsigned int MaskData(unsigned int data, unsigned int bitMask) const;
+
+	//Image verification methods
+	bool ImageValid() const;
 
 private:
 	PixelFormat pixelFormat;

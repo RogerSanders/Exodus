@@ -73,7 +73,7 @@ void TimedBufferIntDevice::LoadState(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::SaveState(IHeirarchicalStorageNode& node) const
 {
-	bufferShell.SaveState(node, GetDeviceInstanceName());
+	bufferShell.SaveState(node, GetFullyQualifiedDeviceInstanceName());
 
 	MemoryWrite::SaveState(node);
 }
@@ -89,7 +89,7 @@ void TimedBufferIntDevice::LoadDebuggerState(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::SaveDebuggerState(IHeirarchicalStorageNode& node) const
 {
-	bufferShell.SaveDebuggerState(node, GetDeviceInstanceName());
+	bufferShell.SaveDebuggerState(node, GetFullyQualifiedDeviceInstanceName());
 
 	MemoryWrite::SaveDebuggerState(node);
 }

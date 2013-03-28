@@ -20,7 +20,19 @@ std::wstring Device::GetDeviceInstanceName() const
 }
 
 //----------------------------------------------------------------------------------------
+std::wstring Device::GetFullyQualifiedDeviceInstanceName() const
+{
+	return deviceContext->GetFullyQualifiedDeviceInstanceName();
+}
+
+//----------------------------------------------------------------------------------------
 std::wstring Device::GetModuleDisplayName() const
 {
 	return deviceContext->GetModuleDisplayName();
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring Device::GetModuleInstanceName() const
+{
+	return deviceContext->GetModuleInstanceName();
 }

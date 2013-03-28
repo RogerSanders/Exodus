@@ -3791,7 +3791,7 @@ void Processor::SaveDebuggerState(IHeirarchicalStorageNode& node) const
 		IHeirarchicalStorageNode& childNode = node.CreateChild(L"ActiveDisassemblyData");
 		childNode.SetBinaryDataPresent(true);
 		childNode.SetInlineBinaryDataEnabled(false);
-		childNode.SetBinaryDataBufferName(GetDeviceInstanceName() + L" - DisassemblyAddressInfo");
+		childNode.SetBinaryDataBufferName(GetFullyQualifiedDeviceInstanceName() + L".DisassemblyAddressInfo");
 
 		//Obtain and configure the data stream for the saved data
 		Stream::IStream& stream = childNode.GetBinaryDataBufferStream();

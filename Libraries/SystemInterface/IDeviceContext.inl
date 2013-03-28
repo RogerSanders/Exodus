@@ -142,7 +142,19 @@ std::wstring IDeviceContext::GetCapturePath() const
 }
 
 //----------------------------------------------------------------------------------------
+std::wstring IDeviceContext::GetFullyQualifiedDeviceInstanceName() const
+{
+	return GetFullyQualifiedDeviceInstanceNameInternal();
+}
+
+//----------------------------------------------------------------------------------------
 std::wstring IDeviceContext::GetModuleDisplayName() const
 {
 	return GetModuleDisplayNameInternal();
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring IDeviceContext::GetModuleInstanceName() const
+{
+	return GetModuleInstanceNameInternal();
 }

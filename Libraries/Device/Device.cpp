@@ -293,10 +293,24 @@ const wchar_t* Device::GetDeviceInstanceNameInternal() const
 }
 
 //----------------------------------------------------------------------------------------
+const wchar_t* Device::GetFullyQualifiedDeviceInstanceNameInternal() const
+{
+	fullyQualifiedDeviceInstanceNameCached = GetFullyQualifiedDeviceInstanceName();
+	return fullyQualifiedDeviceInstanceNameCached.c_str();
+}
+
+//----------------------------------------------------------------------------------------
 const wchar_t* Device::GetModuleDisplayNameInternal() const
 {
 	moduleDisplayNameCached = GetModuleDisplayName();
 	return moduleDisplayNameCached.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* Device::GetModuleInstanceNameInternal() const
+{
+	moduleInstanceNameCached = GetModuleInstanceName();
+	return moduleInstanceNameCached.c_str();
 }
 
 //----------------------------------------------------------------------------------------

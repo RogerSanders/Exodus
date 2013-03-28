@@ -93,15 +93,29 @@ void DeviceContext::ExecuteDeviceStep()
 //----------------------------------------------------------------------------------------
 const wchar_t* DeviceContext::GetCapturePathInternal() const
 {
-	capturePathCached = systemObject->GetCapturePath();
+	capturePathCached = GetCapturePath();
 	return capturePathCached.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* DeviceContext::GetFullyQualifiedDeviceInstanceNameInternal() const
+{
+	fullyQualifiedDeviceInstanceNameCached = GetFullyQualifiedDeviceInstanceName();
+	return fullyQualifiedDeviceInstanceNameCached.c_str();
 }
 
 //----------------------------------------------------------------------------------------
 const wchar_t* DeviceContext::GetModuleDisplayNameInternal() const
 {
-	systemObject->GetModuleDisplayName(device->GetDeviceModuleID(), moduleDisplayNameCached);
+	moduleDisplayNameCached = GetModuleDisplayName();
 	return moduleDisplayNameCached.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t* DeviceContext::GetModuleInstanceNameInternal() const
+{
+	moduleInstanceNameCached = GetModuleInstanceName();
+	return moduleInstanceNameCached.c_str();
 }
 
 //----------------------------------------------------------------------------------------

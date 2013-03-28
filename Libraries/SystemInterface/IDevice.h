@@ -75,7 +75,9 @@ public:
 	//Name functions
 	inline std::wstring GetDeviceClassName() const;
 	inline std::wstring GetDeviceInstanceName() const;
+	inline std::wstring GetFullyQualifiedDeviceInstanceName() const;
 	inline std::wstring GetModuleDisplayName() const;
+	inline std::wstring GetModuleInstanceName() const;
 	virtual unsigned int GetDeviceModuleID() const = 0;
 
 	//Savestate functions
@@ -149,7 +151,9 @@ protected:
 	//Name functions
 	virtual const wchar_t* GetDeviceClassNameInternal() const = 0;
 	virtual const wchar_t* GetDeviceInstanceNameInternal() const = 0;
+	virtual const wchar_t* GetFullyQualifiedDeviceInstanceNameInternal() const = 0;
 	virtual const wchar_t* GetModuleDisplayNameInternal() const = 0;
+	virtual const wchar_t* GetModuleInstanceNameInternal() const = 0;
 
 	//CE line state functions
 	virtual unsigned int GetCELineIDInternal(const wchar_t* lineName, bool inputLine) const = 0;
