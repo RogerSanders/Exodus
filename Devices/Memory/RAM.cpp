@@ -140,7 +140,7 @@ void RAM::LoadState(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void RAM::SaveState(IHeirarchicalStorageNode& node) const
 {
-	node.InsertBinaryData(memory, GetDeviceInstanceName(), false);
+	node.InsertBinaryData(memory, GetFullyQualifiedDeviceInstanceName(), false);
 
 	MemoryWrite::SaveState(node);
 }
@@ -161,7 +161,7 @@ void RAM::LoadDebuggerState(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void RAM::SaveDebuggerState(IHeirarchicalStorageNode& node) const
 {
-	node.InsertBinaryData(memoryLocked, GetDeviceInstanceName() + L" - MemoryLockedState", false);
+	node.InsertBinaryData(memoryLocked, GetFullyQualifiedDeviceInstanceName() + L".MemoryLockedState", false);
 
 	MemoryWrite::SaveDebuggerState(node);
 }

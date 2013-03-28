@@ -86,6 +86,7 @@ public:
 	//where it is highly desirable to be able to create a zip file with a set of related
 	//system definitions.
 	virtual bool GetModuleDisplayName(unsigned int moduleID, std::wstring& moduleDisplayName) const = 0;
+	virtual bool GetModuleInstanceName(unsigned int moduleID, std::wstring& moduleInstanceName) const = 0;
 	virtual void LoadModuleSynchronous(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher) = 0;
 	virtual void LoadModuleSynchronousAbort() = 0;
 	virtual float LoadModuleSynchronousProgress() const = 0;

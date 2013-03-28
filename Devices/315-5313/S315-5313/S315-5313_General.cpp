@@ -93,9 +93,13 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	renderTimeslicePending = false;
 	drawingImageBufferPlane = 0;
 	frameReadyInImageBuffer = false;
-	for(unsigned int i = 0; i < imageBufferPlanes; ++i)
+	for(unsigned int bufferPlaneNo = 0; bufferPlaneNo < imageBufferPlanes; ++bufferPlaneNo)
 	{
-		imageBufferLineCount[i] = 0;
+		imageBufferLineCount[bufferPlaneNo] = 0;
+		for(unsigned int lineNo = 0; lineNo < imageBufferHeight; ++lineNo)
+		{
+			imageBufferLineWidth[bufferPlaneNo][lineNo] = 0;
+		}
 	}
 
 	//Initialize the sprite pixel buffer
@@ -3479,8 +3483,8 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 {
 	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
-	std::wstring regBufferName = GetDeviceInstanceName();
-	regBufferName += L" - Registers";
+	std::wstring regBufferName = GetFullyQualifiedDeviceInstanceName();
+	regBufferName += L".Registers";
 	reg.SaveState(regNode, regBufferName, false);
 
 	//Bus interface
@@ -3578,13 +3582,13 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Register", renderLayerBVscrollPatternDisplacement).CreateAttribute(L"name", L"RenderLayerBVscrollPatternDisplacement");
 	node.CreateChild(L"Register", renderLayerAVscrollMappingDisplacement).CreateAttribute(L"name", L"RenderLayerAVscrollMappingDisplacement");
 	node.CreateChild(L"Register", renderLayerBVscrollMappingDisplacement).CreateAttribute(L"name", L"RenderLayerBVscrollMappingDisplacement");
-	node.CreateChildBinary(L"Register", renderWindowActiveCache, GetDeviceInstanceName() + L"RenderWindowActiveCache").CreateAttribute(L"name", L"RenderWindowActiveCache");
-	node.CreateChildBinary(L"Register", renderMappingDataCacheLayerA, GetDeviceInstanceName() + L"RenderMappingDataCacheLayerA").CreateAttribute(L"name", L"RenderMappingDataCacheLayerA");
-	node.CreateChildBinary(L"Register", renderMappingDataCacheLayerB, GetDeviceInstanceName() + L"RenderMappingDataCacheLayerB").CreateAttribute(L"name", L"RenderMappingDataCacheLayerB");
-	node.CreateChildBinary(L"Register", renderMappingDataCacheSprite, GetDeviceInstanceName() + L"RenderMappingDataCacheSprite").CreateAttribute(L"name", L"RenderMappingDataCacheSprite");
-	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerA, GetDeviceInstanceName() + L"RenderPatternDataCacheLayerA").CreateAttribute(L"name", L"RenderPatternDataCacheLayerA");
-	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetDeviceInstanceName() + L"RenderPatternDataCacheLayerB").CreateAttribute(L"name", L"RenderPatternDataCacheLayerB");
-	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetDeviceInstanceName() + L"RenderPatternDataCacheSprite").CreateAttribute(L"name", L"RenderPatternDataCacheSprite");
+	node.CreateChildBinary(L"Register", renderWindowActiveCache, GetFullyQualifiedDeviceInstanceName() + L"RenderWindowActiveCache").CreateAttribute(L"name", L"RenderWindowActiveCache");
+	node.CreateChildBinary(L"Register", renderMappingDataCacheLayerA, GetFullyQualifiedDeviceInstanceName() + L"RenderMappingDataCacheLayerA").CreateAttribute(L"name", L"RenderMappingDataCacheLayerA");
+	node.CreateChildBinary(L"Register", renderMappingDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderMappingDataCacheLayerB").CreateAttribute(L"name", L"RenderMappingDataCacheLayerB");
+	node.CreateChildBinary(L"Register", renderMappingDataCacheSprite, GetFullyQualifiedDeviceInstanceName() + L"RenderMappingDataCacheSprite").CreateAttribute(L"name", L"RenderMappingDataCacheSprite");
+	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerA, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheLayerA").CreateAttribute(L"name", L"RenderPatternDataCacheLayerA");
+	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheLayerB").CreateAttribute(L"name", L"RenderPatternDataCacheLayerB");
+	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheSprite").CreateAttribute(L"name", L"RenderPatternDataCacheSprite");
 	IHeirarchicalStorageNode& renderSpriteDisplayCacheNode = node.CreateChild(L"RenderSpriteDisplayCache");
 	for(unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
 	{

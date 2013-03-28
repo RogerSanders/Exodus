@@ -90,7 +90,9 @@ public:
 	virtual void RunSystem();
 	virtual void ExecuteDeviceStep();
 	inline std::wstring GetCapturePath() const;
+	inline std::wstring GetFullyQualifiedDeviceInstanceName() const;
 	inline std::wstring GetModuleDisplayName() const;
+	inline std::wstring GetModuleInstanceName() const;
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const;
@@ -121,7 +123,9 @@ public:
 protected:
 	//System message functions
 	virtual const wchar_t* GetCapturePathInternal() const;
+	virtual const wchar_t* GetFullyQualifiedDeviceInstanceNameInternal() const;
 	virtual const wchar_t* GetModuleDisplayNameInternal() const;
+	virtual const wchar_t* GetModuleInstanceNameInternal() const;
 
 private:
 	//Worker thread control
@@ -180,7 +184,9 @@ private:
 
 	//Cached settings
 	mutable std::wstring capturePathCached;
+	mutable std::wstring fullyQualifiedDeviceInstanceNameCached;
 	mutable std::wstring moduleDisplayNameCached;
+	mutable std::wstring moduleInstanceNameCached;
 
 	//Callback parameters
 	ISystemInternal* systemObject;

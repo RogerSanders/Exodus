@@ -223,5 +223,5 @@ void TimedBufferInt::LoadDebuggerState(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::SaveDebuggerState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const
 {
-	node.InsertBinaryData(memoryLocked, bufferName + L" - MemoryLockedState", false);
+	node.InsertBinaryData(memoryLocked, bufferName + L".MemoryLockedState", false);
 }

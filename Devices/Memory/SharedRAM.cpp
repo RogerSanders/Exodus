@@ -190,5 +190,5 @@ void SharedRAM::LoadState(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void SharedRAM::SaveState(IHeirarchicalStorageNode& node) const
 {
-	node.InsertBinaryData(memory, GetDeviceInstanceName(), false);
+	node.InsertBinaryData(memory, GetFullyQualifiedDeviceInstanceName(), false);
 }

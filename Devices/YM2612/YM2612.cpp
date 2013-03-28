@@ -2693,8 +2693,8 @@ void YM2612::SaveState(IHeirarchicalStorageNode& node) const
 
 	//Register data
 	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
-	std::wstring regBufferName = GetDeviceInstanceName();
-	regBufferName += L" - Registers";
+	std::wstring regBufferName = GetFullyQualifiedDeviceInstanceName();
+	regBufferName += L".Registers";
 	reg.SaveState(regNode, regBufferName, false);
 	node.CreateChild(L"StatusRegister").SetData(status);
 

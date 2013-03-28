@@ -294,11 +294,26 @@ std::wstring DeviceContext::GetCapturePath() const
 }
 
 //----------------------------------------------------------------------------------------
+std::wstring DeviceContext::GetFullyQualifiedDeviceInstanceName() const
+{
+	std::wstring fullyQualifiedDeviceInstanceName = GetModuleInstanceName() + L"." + device->GetDeviceInstanceName();
+	return fullyQualifiedDeviceInstanceName;
+}
+
+//----------------------------------------------------------------------------------------
 std::wstring DeviceContext::GetModuleDisplayName() const
 {
 	std::wstring moduleDisplayName;
 	systemObject->GetModuleDisplayName(device->GetDeviceModuleID(), moduleDisplayName);
 	return moduleDisplayName;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring DeviceContext::GetModuleInstanceName() const
+{
+	std::wstring moduleInstanceName;
+	systemObject->GetModuleInstanceName(device->GetDeviceModuleID(), moduleInstanceName);
+	return moduleInstanceName;
 }
 
 //----------------------------------------------------------------------------------------

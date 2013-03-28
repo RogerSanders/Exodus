@@ -116,6 +116,7 @@ public:
 
 	//Module loading and unloading
 	virtual bool GetModuleDisplayName(unsigned int moduleID, std::wstring& moduleDisplayName) const;
+	virtual bool GetModuleInstanceName(unsigned int moduleID, std::wstring& moduleInstanceName) const;
 	virtual void LoadModuleSynchronous(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher);
 	virtual void LoadModuleSynchronousAbort();
 	virtual float LoadModuleSynchronousProgress() const;

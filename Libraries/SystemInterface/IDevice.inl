@@ -57,9 +57,21 @@ std::wstring IDevice::GetDeviceInstanceName() const
 }
 
 //----------------------------------------------------------------------------------------
+std::wstring IDevice::GetFullyQualifiedDeviceInstanceName() const
+{
+	return GetFullyQualifiedDeviceInstanceNameInternal();
+}
+
+//----------------------------------------------------------------------------------------
 std::wstring IDevice::GetModuleDisplayName() const
 {
 	return GetModuleDisplayNameInternal();
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring IDevice::GetModuleInstanceName() const
+{
+	return GetModuleInstanceNameInternal();
 }
 
 //----------------------------------------------------------------------------------------

@@ -1893,6 +1893,23 @@ bool System::GetModuleDisplayName(unsigned int moduleID, std::wstring& moduleDis
 }
 
 //----------------------------------------------------------------------------------------
+bool System::GetModuleInstanceName(unsigned int moduleID, std::wstring& moduleInstanceName) const
+{
+	bool foundModule = false;
+	LoadedModuleInfoList::const_iterator loadedModuleIterator = loadedModuleInfoList.begin();
+	while(!foundModule && (loadedModuleIterator != loadedModuleInfoList.end()))
+	{
+		if(loadedModuleIterator->moduleID == moduleID)
+		{
+			foundModule = true;
+			moduleInstanceName = loadedModuleIterator->instanceName;
+		}
+		++loadedModuleIterator;
+	}
+	return foundModule;
+}
+
+//----------------------------------------------------------------------------------------
 void System::LoadModuleSynchronous(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher)
 {
 	loadSystemComplete = false;
@@ -2326,6 +2343,34 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 		moduleInfo.displayName = moduleDisplayNameAttribute->GetValue();
 	}
 
+	//Check for existing modules with the same instance name, and ensure a unique instance
+	//name is generated if a conflict is found.
+	unsigned int instanceNameCurrentPostfixNumber = 0;
+	LoadedModuleInfoList::const_iterator instanceNameModuleIterator = loadedModuleInfoList.begin();
+	std::wstring initialModuleInstanceName = moduleInfo.instanceName;
+	while(instanceNameModuleIterator != loadedModuleInfoList.end())
+	{
+		//If the instance name is the same, try and make a new unique instance name for
+		//our module.
+		if(instanceNameModuleIterator->instanceName == moduleInfo.instanceName)
+		{
+			//Determine which postfix number to use
+			unsigned int numericPostfix = ++instanceNameCurrentPostfixNumber;
+
+			//Convert the numeric postfix to a string
+			std::wstringstream numericPostfixToString;
+			numericPostfixToString << numericPostfix;
+
+			//Rebuild our instance name using the postfix
+			moduleInfo.instanceName = initialModuleInstanceName + L" [" + numericPostfixToString.str() + L"]";
+
+			//Restart the loop
+			instanceNameModuleIterator = loadedModuleInfoList.begin();
+			continue;
+		}
+		++instanceNameModuleIterator;
+	}
+
 	//Generate the display name for the module if one hasn't been specified
 	if(moduleInfo.displayName.empty())
 	{
@@ -2334,17 +2379,17 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 
 	//Check for existing modules with the same display name, and ensure a unique display
 	//name is generated if a conflict is found.
-	unsigned int currentPostfixNumber = 0;
-	LoadedModuleInfoList::const_iterator loadedModuleIterator = loadedModuleInfoList.begin();
+	unsigned int displayNameCurrentPostfixNumber = 0;
+	LoadedModuleInfoList::const_iterator displayNameModuleIterator = loadedModuleInfoList.begin();
 	std::wstring initialModuleDisplayName = moduleInfo.displayName;
-	while(loadedModuleIterator != loadedModuleInfoList.end())
+	while(displayNameModuleIterator != loadedModuleInfoList.end())
 	{
 		//If the display name is the same, try and make a new unique display name for our
 		//module.
-		if(loadedModuleIterator->displayName == moduleInfo.displayName)
+		if(displayNameModuleIterator->displayName == moduleInfo.displayName)
 		{
 			//Determine which postfix number to use
-			unsigned int numericPostfix = ++currentPostfixNumber;
+			unsigned int numericPostfix = ++displayNameCurrentPostfixNumber;
 
 			//Convert the numeric postfix to a string
 			std::wstringstream numericPostfixToString;
@@ -2354,10 +2399,10 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 			moduleInfo.displayName = initialModuleDisplayName + L" [" + numericPostfixToString.str() + L"]";
 
 			//Restart the loop
-			loadedModuleIterator = loadedModuleInfoList.begin();
+			displayNameModuleIterator = loadedModuleInfoList.begin();
 			continue;
 		}
-		++loadedModuleIterator;
+		++displayNameModuleIterator;
 	}
 
 	//Load the elements from the root node one by one
