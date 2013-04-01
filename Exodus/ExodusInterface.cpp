@@ -3655,7 +3655,7 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 		case ID_FILE_SAVEWORKSPACE:
 			state->SaveWorkspace(state->prefs.pathWorkspaces);
 			break;
-		case ID_FILE_SETTINGS:{
+		case ID_SETTINGS_PLATFORMSETTINGS:{
 			HWND settings = CreateDialogParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_SETTINGS), hwnd, ExodusInterface::SettingsProc, (LPARAM)state);
 			ShowWindow(settings, SW_SHOWNORMAL);
 			UpdateWindow(settings);
