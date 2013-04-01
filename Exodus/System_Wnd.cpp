@@ -68,15 +68,24 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& vi
 			SystemSettingInfo& systemSettingInfo = settingsIterator->second;
 
 			//Build the menu for this system setting
-			IMenuSubmenu& settingSubmenu = menuSegmentForSettings.AddMenuItemSubmenu(systemSettingInfo.displayName);
-			IMenuSegment& menuSegmentForSettingSubmenu = settingSubmenu.CreateMenuSegment();
-			for(unsigned int i = 0; i < systemSettingInfo.options.size(); ++i)
+			if(systemSettingInfo.toggleSetting)
 			{
-				IMenuSelectableOption& optionMenuItem = menuSegmentForSettingSubmenu.AddMenuItemSelectableOption(*systemOptionMenuHandler, systemSettingInfo.options[i].menuItemID, systemSettingInfo.options[i].displayName);
-				systemSettingInfo.options[i].menuItemEntry = &optionMenuItem;
-				if(systemSettingInfo.selectedOption == i)
+				IMenuSelectableOption& settingMenuItem = menuSegmentForSettings.AddMenuItemSelectableOption(*systemOptionMenuHandler, systemSettingInfo.menuItemID, systemSettingInfo.displayName);
+				systemSettingInfo.menuItemEntry = &settingMenuItem;
+				settingMenuItem.SetCheckedState(systemSettingInfo.selectedOption == systemSettingInfo.onOption);
+			}
+			else
+			{
+				IMenuSubmenu& settingSubmenu = menuSegmentForSettings.AddMenuItemSubmenu(systemSettingInfo.displayName);
+				IMenuSegment& menuSegmentForSettingSubmenu = settingSubmenu.CreateMenuSegment();
+				for(unsigned int i = 0; i < systemSettingInfo.options.size(); ++i)
 				{
-					optionMenuItem.SetCheckedState(true);
+					IMenuSelectableOption& optionMenuItem = menuSegmentForSettingSubmenu.AddMenuItemSelectableOption(*systemOptionMenuHandler, systemSettingInfo.options[i].menuItemID, systemSettingInfo.options[i].displayName);
+					systemSettingInfo.options[i].menuItemEntry = &optionMenuItem;
+					if(systemSettingInfo.selectedOption == i)
+					{
+						optionMenuItem.SetCheckedState(true);
+					}
 				}
 			}
 		}

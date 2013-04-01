@@ -341,7 +341,7 @@ private:
 	bool LoadModule_System_DefineSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName);
-	bool LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption);
+	bool LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption, bool& toggleSettingOnOption);
 	bool LoadModule_System_SelectSettingOption(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
 	bool LoadModule_System_SetClockFrequency(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
 	bool LoadModule_System_SetLineState(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
