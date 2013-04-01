@@ -2116,25 +2116,47 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 				}
 				SystemSettingInfo& systemSettingInfo = systemSettingsIterator->second;
 
-				//Add each option under this setting to the menu handler
-				for(unsigned int i = 0; i < (unsigned int)systemSettingInfo.options.size(); ++i)
+				//Add this setting to the menu handler
+				if(systemSettingInfo.toggleSetting)
 				{
-					unsigned int newMenuItemID = systemOptionMenuHandler->AddSystemSettingMenuItem(systemSettingInfo.systemSettingID, i);
-					systemSettingInfo.options[i].menuItemID = newMenuItemID;
+					//If this is a toggle menu item, add this setting to the menu handler
+					unsigned int newMenuItemID = systemOptionMenuHandler->AddSystemSettingMenuItem(systemSettingInfo.systemSettingID, 0);
+					systemSettingInfo.menuItemID = newMenuItemID;
+				}
+				else
+				{
+					//If this isn't a toggle menu item, add each option under this setting
+					//to the menu handler.
+					for(unsigned int i = 0; i < (unsigned int)systemSettingInfo.options.size(); ++i)
+					{
+						unsigned int newMenuItemID = systemOptionMenuHandler->AddSystemSettingMenuItem(systemSettingInfo.systemSettingID, i);
+						systemSettingInfo.options[i].menuItemID = newMenuItemID;
+					}
 				}
 
 				//Apply the default option for this setting
 				if(systemSettingInfo.defaultOption < (unsigned int)systemSettingInfo.options.size())
 				{
 					//Replace the current option selection
-					if(systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry != 0)
+					if(systemSettingInfo.toggleSetting)
 					{
-						systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry->SetCheckedState(false);
+						systemSettingInfo.selectedOption = systemSettingInfo.defaultOption;
+						if(systemSettingInfo.menuItemEntry != 0)
+						{
+							systemSettingInfo.menuItemEntry->SetCheckedState((systemSettingInfo.selectedOption == systemSettingInfo.onOption));
+						}
 					}
-					systemSettingInfo.selectedOption = systemSettingInfo.defaultOption;
-					if(systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry != 0)
+					else
 					{
-						systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry->SetCheckedState(true);
+						if(systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry != 0)
+						{
+							systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry->SetCheckedState(false);
+						}
+						systemSettingInfo.selectedOption = systemSettingInfo.defaultOption;
+						if(systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry != 0)
+						{
+							systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry->SetCheckedState(true);
+						}
 					}
 
 					//Apply the new option selection
@@ -2251,6 +2273,9 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 	{
 		std::wstring binaryFileName = (*i)->GetBinaryDataBufferName();
 		std::wstring binaryFilePath = binaryFileName;
+
+		//##TODO## Scan the path for a pipe character '|'. If one is found, consider the
+		//leading part to be a path to an archive file.
 
 		//If the file path contains a relative path to the target, resolve the relative
 		//file path using the directory containing the module file as a base.
@@ -6244,23 +6269,42 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 	setting.name = settingName;
 	setting.displayName = displayName;
 
+	//Extract any optional attributes
+	setting.toggleSetting = false;
+	IHeirarchicalStorageAttribute* toggleSettingAttribute = node.GetAttribute(L"ToggleSetting");
+	if(toggleSettingAttribute != 0)
+	{
+		setting.toggleSetting = toggleSettingAttribute->ExtractValue<bool>();
+	}
+
 	//Load the child elements from this setting node
+	unsigned int toggleSettingOnOptionIndex;
+	bool toggleSettingOnOptionIndexDefined = false;
 	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
 	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		bool loadedSettingOptionSuccessfully = false;
 		SystemSettingOption settingOption;
 		bool defaultOption = false;
+		bool toggleSettingOnOption = false;
 		std::wstring elementName = (*i)->GetName();
 		if(elementName == L"System.Setting.Option")
 		{
-			loadedSettingOptionSuccessfully = LoadModule_System_Setting_Option(*(*i), moduleID, fileName, settingOption, defaultOption);
+			loadedSettingOptionSuccessfully = LoadModule_System_Setting_Option(*(*i), moduleID, fileName, settingOption, defaultOption, toggleSettingOnOption);
 		}
 		else
 		{
 			//Log a warning for an unrecognized element
 			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting node under module file " + fileName + L"."));
 			continue;
+		}
+
+		//If this option defines the on state for a toggle setting, latch this option
+		//index.
+		if(toggleSettingOnOption)
+		{
+			toggleSettingOnOptionIndex = (unsigned int)setting.options.size();
+			toggleSettingOnOptionIndexDefined = true;
 		}
 
 		//If we managed to load the setting option node successfully, record its
@@ -6285,6 +6329,33 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 		}
 	}
 
+	//If this setting is a toggle setting, and there are more or less than 2 options
+	//defined for this setting, log an error, and return false.
+	unsigned int optionCount = (unsigned int)setting.options.size();
+	if(setting.toggleSetting && (optionCount != 2))
+	{
+		LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
+		logEntry << L"A total of " << optionCount << L" options were found for a toggle setting when loading System.Setting node under module file " << fileName << L". Only 2 options can be defined for a toggle setting.";
+		WriteLogEvent(logEntry);
+		return false;
+	}
+
+	//If this setting is a toggle setting, and no option was defined as the on state for
+	//the toggle setting, log an error, and return false.
+	if(setting.toggleSetting && !toggleSettingOnOptionIndexDefined)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"No options set the ToggleSettingOnOption attribute for toggle setting with name : " + setting.name + L" when loading System.Setting node under module file " + fileName + L"."));
+		return false;
+	}
+
+	//If this setting is a toggle setting, set the option index numbers for the on and off
+	//options.
+	if(setting.toggleSetting)
+	{
+		setting.onOption = toggleSettingOnOptionIndex;
+		setting.offOption = (toggleSettingOnOptionIndex != 0)? 0: 1;
+	}
+
 	//Generate an ID number for this system setting
 	setting.systemSettingID = GenerateFreeSystemSettingID();
 
@@ -6296,7 +6367,7 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption)
+bool System::LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption, bool& toggleSettingOnOption)
 {
 	//Extract the Name attribute
 	IHeirarchicalStorageAttribute* optionNameAttribute = node.GetAttribute(L"Name");
@@ -6321,6 +6392,14 @@ bool System::LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, un
 	if(defaultAttribute != 0)
 	{
 		defaultOption = defaultAttribute->ExtractValue<bool>();
+	}
+
+	//Extract the ToggleSettingOnOption attribute
+	toggleSettingOnOption = false;
+	IHeirarchicalStorageAttribute* toggleSettingOnOptionAttribute = node.GetAttribute(L"ToggleSettingOnOption");
+	if(toggleSettingOnOptionAttribute != 0)
+	{
+		toggleSettingOnOption = toggleSettingOnOptionAttribute->ExtractValue<bool>();
 	}
 
 	//Populate the system setting option object with this option info

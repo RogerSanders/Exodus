@@ -58,26 +58,45 @@ void System::SystemOptionMenuHandler::HandleMenuItemSelect(int menuItemID, IView
 	}
 	settingInfo = &(systemSettingsIterator->second);
 
+	//Select the new target option to be applied as a result of this menu item selection
+	//event
+	unsigned int newTargetOption = menuItem.optionID;
+	if(settingInfo->toggleSetting)
+	{
+		newTargetOption = (settingInfo->selectedOption == settingInfo->onOption)? settingInfo->offOption: settingInfo->onOption;
+	}
+
 	//Retrieve the info for the target option
-	if(menuItem.optionID >= (unsigned int)settingInfo->options.size())
+	if(newTargetOption >= (unsigned int)settingInfo->options.size())
 	{
 		return;
 	}
-	const SystemSettingOption& optionInfo = settingInfo->options[menuItem.optionID];
+	const SystemSettingOption& optionInfo = settingInfo->options[newTargetOption];
 
 	//Save the current system running state, and stop the system.
 	bool systemRunningState = device->SystemRunning();
 	device->StopSystem();
 
 	//Replace the current option selection
-	if(settingInfo->options[settingInfo->selectedOption].menuItemEntry != 0)
+	if(settingInfo->toggleSetting)
 	{
-		settingInfo->options[settingInfo->selectedOption].menuItemEntry->SetCheckedState(false);
+		settingInfo->selectedOption = newTargetOption;
+		if(settingInfo->menuItemEntry != 0)
+		{
+			settingInfo->menuItemEntry->SetCheckedState((settingInfo->selectedOption == settingInfo->onOption));
+		}
 	}
-	settingInfo->selectedOption = menuItem.optionID;
-	if(settingInfo->options[settingInfo->selectedOption].menuItemEntry != 0)
+	else
 	{
-		settingInfo->options[settingInfo->selectedOption].menuItemEntry->SetCheckedState(true);
+		if(settingInfo->options[settingInfo->selectedOption].menuItemEntry != 0)
+		{
+			settingInfo->options[settingInfo->selectedOption].menuItemEntry->SetCheckedState(false);
+		}
+		settingInfo->selectedOption = newTargetOption;
+		if(settingInfo->options[settingInfo->selectedOption].menuItemEntry != 0)
+		{
+			settingInfo->options[settingInfo->selectedOption].menuItemEntry->SetCheckedState(true);
+		}
 	}
 
 	//Apply all system settings changes listed under this option
