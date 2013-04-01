@@ -212,13 +212,15 @@
 #define ID_FILE_OPENROMFILE             40110
 #define ID_FILE_CLOSEROMFILE            40111
 #define ID_FILE_DYNAMICPLACEHOLDER      40112
+#define ID_SETTINGS_PREFERENCES         40113
+#define ID_SETTINGS_PLATFORMSETTINGS    40114
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        173
-#define _APS_NEXT_COMMAND_VALUE         40113
+#define _APS_NEXT_COMMAND_VALUE         40115
 #define _APS_NEXT_CONTROL_VALUE         1463
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

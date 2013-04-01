@@ -403,8 +403,6 @@ BEGIN
         MENUITEM "Load Workspace\tCtrl+W",      ID_FILE_LOADWORKSPACE
         MENUITEM "Save Workspace",              ID_FILE_SAVEWORKSPACE
         MENUITEM SEPARATOR
-        MENUITEM "Settings",                    ID_FILE_SETTINGS
-        MENUITEM SEPARATOR
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
     POPUP "System"
@@ -418,6 +416,7 @@ BEGIN
     END
     POPUP "Settings"
     BEGIN
+        MENUITEM "Platform Settings",           ID_SETTINGS_PLATFORMSETTINGS
         MENUITEM "Dynamic Placeholder",         ID_SETTINGS_DYNAMICPLACEHOLDER
     END
     POPUP "Debug"
