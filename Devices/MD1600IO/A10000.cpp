@@ -37,11 +37,12 @@ bool A10000::ValidateDevice()
 void A10000::Initialize()
 {
 	//Initialize the version register
+	inputHardwareVersion = 0;
 	versionRegister = 0;
 	SetOverseasFlag(false);
 	SetPALFlag(true);
 	SetNoDiskFlag(true);
-	SetHardwareVersion(0);
+	SetHardwareVersion(inputHardwareVersion);
 
 	//Initialize the control port registers to their correct default values. These
 	//defaults were obtained from Charles MacDonald.
@@ -170,6 +171,7 @@ void A10000::NotifyAfterExecuteCalled()
 void A10000::ExecuteRollback()
 {
 	versionRegister = bversionRegister;
+	inputHardwareVersion = binputHardwareVersion;
 	dataRegisters = bdataRegisters;
 	controlRegisters = bcontrolRegisters;
 	serialControlRegisters = bserialControlRegisters;
@@ -187,6 +189,7 @@ void A10000::ExecuteRollback()
 void A10000::ExecuteCommit()
 {
 	bversionRegister = versionRegister;
+	binputHardwareVersion = inputHardwareVersion;
 	bdataRegisters = dataRegisters;
 	bcontrolRegisters = controlRegisters;
 	bserialControlRegisters = serialControlRegisters;
@@ -314,6 +317,10 @@ unsigned int A10000::GetLineID(const std::wstring& lineName) const
 	{
 		return LINE_HL;
 	}
+	else if(lineName == L"HWVersion")
+	{
+		return LINE_HWVERSION;
+	}
 	return 0;
 }
 
@@ -375,6 +382,8 @@ std::wstring A10000::GetLineName(unsigned int lineID) const
 		return L"DISK";
 	case LINE_HL:
 		return L"HL";
+	case LINE_HWVERSION:
+		return L"HWVersion";
 	}
 	return L"";
 }
@@ -419,6 +428,8 @@ unsigned int A10000::GetLineWidth(unsigned int lineID) const
 		return 1;
 	case LINE_HL:
 		return 1;
+	case LINE_HWVERSION:
+		return 1;
 	}
 	return 0;
 }
@@ -433,6 +444,16 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	if(lastLineCheckTime > accessTime)
 	{
 		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	}
+
+	//If this is a line state change which needs to be processed immediately, apply it now
+	//and return.
+	switch(targetLine)
+	{
+	case LINE_HWVERSION:
+		inputHardwareVersion = lineData.GetData();
+		SetHardwareVersion(inputHardwareVersion);
+		return;
 	}
 
 	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
@@ -1314,6 +1335,10 @@ void A10000::LoadState(IHeirarchicalStorageNode& node)
 		{
 			versionRegister = (*i)->ExtractHexData<unsigned int>();
 		}
+		else if((*i)->GetName() == L"InputHardwareVersion")
+		{
+			inputHardwareVersion = (*i)->ExtractHexData<unsigned int>();
+		}
 		else if((*i)->GetName() == L"HLLineState")
 		{
 			currentHLLineState = (*i)->ExtractData<bool>();
@@ -1383,6 +1408,7 @@ void A10000::SaveState(IHeirarchicalStorageNode& node) const
 		node.CreateChild(L"LineAsserted", inputLineState[i].lineAssertedTH).CreateAttribute(L"PortNumber", i).CreateAttribute(L"LineName", "TH");
 	}
 	node.CreateChildHex(L"VersionRegister", versionRegister.GetData(), versionRegister.GetHexCharCount());
+	node.CreateChildHex(L"InputHardwareVersion", inputHardwareVersion, 1);
 	node.CreateChild(L"HLLineState", currentHLLineState);
 	node.CreateChild(L"LastTimesliceLength", lastTimesliceLength);
 

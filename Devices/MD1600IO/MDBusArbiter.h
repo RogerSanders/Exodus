@@ -70,7 +70,7 @@ private:
 
 private:
 	//CE line state functions
-	unsigned int BuildCELineM68K(unsigned int targetAddress, bool write, bool ceLineUDS, bool ceLineLDS, bool ceLineOE0, bool cartInLineAsserted) const;
+	unsigned int BuildCELineM68K(unsigned int targetAddress, bool write, bool ceLineUDS, bool ceLineLDS, bool ceLineOE0, bool cartInLineAsserted, IDeviceContext* caller, double accessTime) const;
 	unsigned int BuildCELineZ80(unsigned int targetAddress) const;
 
 private:
@@ -90,6 +90,10 @@ private:
 	//TMSS Security settings
 	bool bootROMEnabled;
 	bool bbootROMEnabled;
+	bool vdpLockoutActive;
+	bool bvdpLockoutActive;
+	mutable bool vdpLockoutTripped;
+	bool bvdpLockoutTripped;
 
 	//Z80 to M68K memory bankswitch register settings
 	mutable boost::mutex bankswitchAccessMutex;
