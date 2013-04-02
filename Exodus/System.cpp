@@ -1050,6 +1050,17 @@ IExtension* System::GetExtension(unsigned int moduleID, const std::wstring& exte
 }
 
 //----------------------------------------------------------------------------------------
+IExtension* System::GetGlobalExtension(const std::wstring& extensionName) const
+{
+	LoadedGlobalExtensionInfoList::const_iterator globalExtensionIterator = globalExtensionInfoList.find(extensionName);
+	if(globalExtensionIterator != globalExtensionInfoList.end())
+	{
+		return globalExtensionIterator->second.extension;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
 BusInterface* System::GetBusInterface(unsigned int moduleID, const std::wstring& busInterfaceName) const
 {
 	for(BusInterfaceList::const_iterator i = busInterfaces.begin(); i != busInterfaces.end(); ++i)
@@ -1832,15 +1843,9 @@ void System::RemoveDeviceFromDeviceList(DeviceArray& deviceList, IDevice* adevic
 //----------------------------------------------------------------------------------------
 //Extension creation and deletion
 //----------------------------------------------------------------------------------------
-bool System::AddExtension(unsigned int moduleID, IExtension* extension)
+IExtension* System::CreateGlobalExtension(const std::wstring& extensionName) const
 {
-	LoadedExtensionInfo extensionInfo;
-	extensionInfo.moduleID = moduleID;
-	extensionInfo.extension = extension;
-	extensionInfo.name = extension->GetExtensionInstanceName();
-	loadedExtensionInfoList.push_back(extensionInfo);
-
-	return true;
+	return CreateExtension(extensionName, extensionName, 0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1857,6 +1862,41 @@ IExtension* System::CreateExtension(const std::wstring& extensionName, const std
 }
 
 //----------------------------------------------------------------------------------------
+bool System::AddGlobalExtension(unsigned int moduleID, IExtension* extension)
+{
+	//If this global extension has already been referenced by another module, add the
+	//additional module reference to the extension.
+	LoadedGlobalExtensionInfoList::iterator loadedGlobalExtensionInfoIterator = globalExtensionInfoList.find(extension->GetExtensionClassName());
+	if(loadedGlobalExtensionInfoIterator != globalExtensionInfoList.end())
+	{
+		loadedGlobalExtensionInfoIterator->second.moduleIDs.insert(moduleID);
+		return true;
+	}
+
+	//If this global extension has not been previously referenced by any module, record
+	//information on the extension, and add the specified module as a referencing module.
+	LoadedGlobalExtensionInfo extensionInfo;
+	extensionInfo.extension = extension;
+	extensionInfo.name = extension->GetExtensionClassName();
+	extensionInfo.moduleIDs.insert(moduleID);
+	globalExtensionInfoList.insert(LoadedGlobalExtensionInfoListEntry(extensionInfo.name, extensionInfo));
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::AddExtension(unsigned int moduleID, IExtension* extension)
+{
+	LoadedExtensionInfo extensionInfo;
+	extensionInfo.moduleID = moduleID;
+	extensionInfo.extension = extension;
+	extensionInfo.name = extension->GetExtensionInstanceName();
+	loadedExtensionInfoList.push_back(extensionInfo);
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 void System::DestroyExtension(const std::wstring& extensionName, IExtension* extension) const
 {
 	ExtensionLibraryList::const_iterator i = extensionLibrary.find(extensionName);
@@ -1870,7 +1910,7 @@ void System::DestroyExtension(const std::wstring& extensionName, IExtension* ext
 void System::UnloadExtension(IExtension* aextension)
 {
 	//Destroy the extension
-	DestroyExtension(aextension->GetExtensionInstanceName(), aextension);
+	DestroyExtension(aextension->GetExtensionClassName(), aextension);
 }
 
 //----------------------------------------------------------------------------------------
@@ -2469,6 +2509,10 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 		else if(elementName == L"Device.RegisterInput")
 		{
 			loadedWithoutErrors &= LoadModule_Device_RegisterInput(*(*i), moduleInfo.moduleID, inputRegistrationRequests);
+		}
+		else if(elementName == L"GlobalExtension")
+		{
+			loadedWithoutErrors &= LoadModule_GlobalExtension(*(*i), moduleInfo.moduleID);
 		}
 		else if(elementName == L"Extension")
 		{
@@ -3463,6 +3507,36 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
+	//Remove references to any global extensions which are used by this module
+	LoadedGlobalExtensionInfoList::iterator nextGlobalExtensionEntry = globalExtensionInfoList.begin();
+	while(nextGlobalExtensionEntry != globalExtensionInfoList.end())
+	{
+		LoadedGlobalExtensionInfoList::iterator currentElement = nextGlobalExtensionEntry;
+		++nextGlobalExtensionEntry;
+
+		//Remove this module from the list of referencing modules for this global
+		//extension
+		currentElement->second.moduleIDs.erase(moduleID);
+
+		//If the global extension is no longer referenced by any modules, remove it.
+		if(currentElement->second.moduleIDs.empty())
+		{
+			//Remove any references to this extension, IE, through ReferenceExtension.
+			for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
+			{
+				i->device->RemoveReference(currentElement->second.extension);
+			}
+			for(LoadedExtensionInfoList::const_iterator i = loadedExtensionInfoList.begin(); i != loadedExtensionInfoList.end(); ++i)
+			{
+				i->extension->RemoveReference(currentElement->second.extension);
+			}
+
+			//Delete the extension
+			UnloadExtension(currentElement->second.extension);
+			globalExtensionInfoList.erase(currentElement);
+		}
+	}
+
 	//Remove any clock source import entries which belong to the module
 	ImportedClockSourceList::iterator nextImportedClockSourceEntry = importedClockSources.begin();
 	while(nextImportedClockSourceEntry != importedClockSources.end())
@@ -3718,7 +3792,7 @@ bool System::LoadModule_Device(IHeirarchicalStorageNode& node, unsigned int modu
 	IHeirarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
 	if((deviceNameAttribute == 0) || (instanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing device name or instance name for Device entry!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceName or InstanceName attribute for Device entry!"));
 		return false;
 	}
 	std::wstring deviceName = deviceNameAttribute->GetValue();
@@ -3780,7 +3854,7 @@ bool System::LoadModule_Device_SetDependentDevice(IHeirarchicalStorageNode& node
 	IHeirarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
 	if((deviceInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing source or target device instance name for Device.SetDependentDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or TargetInstanceName attribute for Device.SetDependentDevice!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -3811,7 +3885,7 @@ bool System::LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, u
 	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing source or target device instance name, or reference name, for Device.ReferenceDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName, TargetInstanceName, or ReferenceName attribute for Device.ReferenceDevice!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -3830,7 +3904,7 @@ bool System::LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, u
 	//Add the specified device reference to the device
 	if(!device->AddReference(referenceName, target))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceDevice failed for reference from " + deviceName + L" to " + targetName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceDevice failed for reference from " + deviceName + L" to " + targetName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -3840,23 +3914,57 @@ bool System::LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, u
 //----------------------------------------------------------------------------------------
 bool System::LoadModule_Device_ReferenceExtension(IHeirarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the ExtensionInstanceName attribute
+	//Extract the GlobalExtensionName or ExtensionInstanceName attributes
 	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
-	if(extensionInstanceNameAttribute == 0)
+	IHeirarchicalStorageAttribute* globalExtensionNameAttribute = node.GetAttribute(L"GlobalExtensionName");
+	if((extensionInstanceNameAttribute == 0) && (globalExtensionNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No ExtensionInstanceName attribute specified for Device.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Either the ExtensionInstanceName or the GlobalExtensionName attribute must be specified for Device.ReferenceExtension!"));
 		return false;
 	}
-	std::wstring extensionInstanceName = extensionInstanceNameAttribute->GetValue();
+	else if((extensionInstanceNameAttribute != 0) && (globalExtensionNameAttribute != 0))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The ExtensionInstanceName and GlobalExtensionName attributes cannot be used together for Device.ReferenceExtension!"));
+		return false;
+	}
+
+	//Determine if a global extension is being referenced, and retrieve the name of the
+	//extension.
+	bool globalExtension = false;
+	std::wstring extensionName;
+	if(globalExtensionNameAttribute != 0)
+	{
+		globalExtension = true;
+		extensionName = globalExtensionNameAttribute->GetValue();
+	}
+	else
+	{
+		extensionName = extensionInstanceNameAttribute->GetValue();
+	}
 
 	//Retrieve the referenced extension
-	IExtension* extension = GetExtension(moduleID, extensionInstanceName);
-	if(extension == 0)
+	IExtension* extension = 0;
+	if(globalExtension)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
-		logEntry << L"Could not locate extension with name " << extensionInstanceName << L" in module " << moduleID << L" for Device.ReferenceExtension!";
-		WriteLogEvent(logEntry);
-		return false;
+		extension = GetGlobalExtension(extensionName);
+		if(extension == 0)
+		{
+			LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+			logEntry << L"Could not locate global extension with name " << extensionName << L" for Device.ReferenceExtension!";
+			WriteLogEvent(logEntry);
+			return false;
+		}
+	}
+	else
+	{
+		extension = GetExtension(moduleID, extensionName);
+		if(extension == 0)
+		{
+			LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+			logEntry << L"Could not locate extension with name " << extensionName << L" in module " << moduleID << L" for Device.ReferenceExtension!";
+			WriteLogEvent(logEntry);
+			return false;
+		}
 	}
 
 	//Load the device name and reference name.
@@ -3881,7 +3989,7 @@ bool System::LoadModule_Device_ReferenceExtension(IHeirarchicalStorageNode& node
 	//Add the specified extension reference to the device
 	if(!device->AddReference(referenceName, extension))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceExtension failed for reference from " + deviceName + L" to extension " + extensionInstanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceExtension failed for reference from " + deviceName + L" to extension " + extensionName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -3895,7 +4003,7 @@ bool System::LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsi
 	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for Device.ReferenceBus!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for Device.ReferenceBus!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -3932,7 +4040,7 @@ bool System::LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsi
 	//Add the specified bus reference to the device
 	if(!device->AddReference(referenceName, busInterface))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceBus failed for reference from " + deviceName + L" to bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceBus failed for reference from " + deviceName + L" to bus " + busInterfaceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -3948,7 +4056,7 @@ bool System::LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& no
 	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing device instance name, clock source name, or reference name, for Device.ReferenceClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName, ClockSourceName, or ReferenceName attribute for Device.ReferenceClockSource!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -3974,7 +4082,7 @@ bool System::LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& no
 	//Add the specified clock source reference to the device
 	if(!device->AddReference(referenceName, clockSource))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceClockSource failed for reference from " + deviceName + L" to " + clockSourceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceClockSource failed for reference from " + deviceName + L" to " + clockSourceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -3989,7 +4097,7 @@ bool System::LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, uns
 	IHeirarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
 	if((deviceInstanceNameAttribute == 0) || (deviceKeyCodeAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing target device instance name or device key code for Device.RegisterInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or DeviceKeyCode attribute for Device.RegisterInput!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -4045,6 +4153,78 @@ bool System::LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, uns
 }
 
 //----------------------------------------------------------------------------------------
+bool System::LoadModule_GlobalExtension(IHeirarchicalStorageNode& node, unsigned int moduleID)
+{
+	//Load the extension class name
+	IHeirarchicalStorageAttribute* extensionNameAttribute = node.GetAttribute(L"ExtensionName");
+	if(extensionNameAttribute == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionName attribute for GlobalExtension entry!"));
+		return false;
+	}
+	std::wstring extensionName = extensionNameAttribute->GetValue();
+
+	//Attempt to retrieve an existing instance of this global extension
+	IExtension* extension = 0;
+	extension = GetGlobalExtension(extensionName);
+
+	//If an existing instance of this global extension was not found, create it.
+	if(extension == 0)
+	{
+		//Create the new extension object
+		extension = CreateGlobalExtension(extensionName);
+		if(extension == 0)
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"CreateGlobalExtension failed for " + extensionName + L"!"));
+			return false;
+		}
+
+		//Bind to the system interface
+		if(!extension->BindToSystemInterface(systemExtensionInterface))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindToSystemInterface failed for  " + extensionName + L"!"));
+			DestroyExtension(extensionName, extension);
+			return false;
+		}
+
+		//Bind to the GUI interface
+		if(!extension->BindToGUIInterface(guiExtensionInterface))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindToGUIInterface failed for  " + extensionName + L"!"));
+			DestroyExtension(extensionName, extension);
+			return false;
+		}
+
+		//Construct the extension object
+		if(!extension->Construct(node))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Construct failed for " + extensionName + L"!"));
+			DestroyExtension(extensionName, extension);
+			return false;
+		}
+
+		//Call BuildExtension() to perform any other required post-creation initialzation
+		//for the extension.
+		if(!extension->BuildExtension())
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BuildExtension failed for " + extensionName + L"!"));
+			DestroyExtension(extensionName, extension);
+			return false;
+		}
+	}
+
+	//Add a reference to this global extension object from this module
+	if(!AddGlobalExtension(moduleID, extension))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"AddGlobalExtension failed for " + extensionName + L"!"));
+		DestroyExtension(extensionName, extension);
+		return false;
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 bool System::LoadModule_Extension(IHeirarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the extension class and instance names
@@ -4052,7 +4232,7 @@ bool System::LoadModule_Extension(IHeirarchicalStorageNode& node, unsigned int m
 	IHeirarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
 	if((extensionNameAttribute == 0) || (instanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing extension name or instance name for Extension entry!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionName or InstanceName attribute for Extension entry!"));
 		return false;
 	}
 	std::wstring extensionName = extensionNameAttribute->GetValue();
@@ -4091,7 +4271,7 @@ bool System::LoadModule_Extension(IHeirarchicalStorageNode& node, unsigned int m
 	}
 
 	//Call BuildExtension() to perform any other required post-creation initialzation for
-	//the device.
+	//the extension.
 	if(!extension->BuildExtension())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BuildExtension failed for " + instanceName + L"!"));
@@ -4117,7 +4297,7 @@ bool System::LoadModule_Extension_ReferenceDevice(IHeirarchicalStorageNode& node
 	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No DeviceInstanceName attribute specified for Extension.ReferenceDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for Extension.ReferenceDevice!"));
 		return false;
 	}
 	std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
@@ -4154,7 +4334,7 @@ bool System::LoadModule_Extension_ReferenceDevice(IHeirarchicalStorageNode& node
 	//Add the specified device reference to the extension
 	if(!extension->AddReference(referenceName, device))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceDevice failed for reference from " + extensionName + L" to device " + deviceInstanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceDevice failed for reference from " + extensionName + L" to device " + deviceInstanceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -4164,32 +4344,82 @@ bool System::LoadModule_Extension_ReferenceDevice(IHeirarchicalStorageNode& node
 //----------------------------------------------------------------------------------------
 bool System::LoadModule_Extension_ReferenceExtension(IHeirarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the extension names, and reference name.
-	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
+	//Extract the GlobalExtensionName or ExtensionInstanceName attributes
 	IHeirarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
-	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
-	if((extensionInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
+	IHeirarchicalStorageAttribute* targetGlobalExtensionNameAttribute = node.GetAttribute(L"TargetGlobalExtensionName");
+	if((targetInstanceNameAttribute == 0) && (targetGlobalExtensionNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing source or target extension instance name, or reference name, for Extension.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Either the TargetInstanceName or the TargetGlobalExtensionName attribute must be specified for Extension.ReferenceExtension!"));
+		return false;
+	}
+	else if((targetInstanceNameAttribute != 0) && (targetGlobalExtensionNameAttribute != 0))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The TargetInstanceName and TargetGlobalExtensionName attributes cannot be used together for Extension.ReferenceExtension!"));
+		return false;
+	}
+
+	//Determine if a global extension is being referenced, and retrieve the name of the
+	//extension.
+	bool globalExtensionTarget = false;
+	std::wstring targetExtensionName;
+	if(targetGlobalExtensionNameAttribute != 0)
+	{
+		globalExtensionTarget = true;
+		targetExtensionName = targetGlobalExtensionNameAttribute->GetValue();
+	}
+	else
+	{
+		targetExtensionName = targetInstanceNameAttribute->GetValue();
+	}
+
+	//Retrieve the referenced extension
+	IExtension* target = 0;
+	if(globalExtensionTarget)
+	{
+		target = GetGlobalExtension(targetExtensionName);
+		if(target == 0)
+		{
+			LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+			logEntry << L"Could not locate target global extension with name " << targetExtensionName << L" for Extension.ReferenceExtension!";
+			WriteLogEvent(logEntry);
+			return false;
+		}
+	}
+	else
+	{
+		target = GetExtension(moduleID, targetExtensionName);
+		if(target == 0)
+		{
+			LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+			logEntry << L"Could not locate target extension with name " << targetExtensionName << L" in module " << moduleID << L" for Extension.ReferenceExtension!";
+			WriteLogEvent(logEntry);
+			return false;
+		}
+	}
+
+	//Load the ExtensionInstanceName and ReferenceName attributes
+	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
+	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	if((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceExtension!"));
 		return false;
 	}
 	std::wstring extensionName = extensionInstanceNameAttribute->GetValue();
-	std::wstring targetName = targetInstanceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
 	//Retrieve the specified extensions from the system
 	IExtension* extension = GetExtension(moduleID, extensionName);
-	IExtension* target = GetExtension(moduleID, targetName);
-	if((extension == 0) || (target == 0))
+	if(extension == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate source extension with name " + extensionName + L" or target extension with name " + targetName + L" for Extension.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate source extension with name " + extensionName + L" for Extension.ReferenceExtension!"));
 		return false;
 	}
 
 	//Add the specified extension reference to the extension
 	if(!extension->AddReference(referenceName, target))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceExtension failed for reference from " + extensionName + L" to " + targetName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceExtension failed for reference from " + extensionName + L" to " + targetExtensionName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -4203,7 +4433,7 @@ bool System::LoadModule_Extension_ReferenceBus(IHeirarchicalStorageNode& node, u
 	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for Extension.ReferenceBus!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for Extension.ReferenceBus!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -4240,7 +4470,7 @@ bool System::LoadModule_Extension_ReferenceBus(IHeirarchicalStorageNode& node, u
 	//Add the specified bus reference to the device
 	if(!extension->AddReference(referenceName, busInterface))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceBus failed for reference from " + extensionName + L" to bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceBus failed for reference from " + extensionName + L" to bus " + busInterfaceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -4256,7 +4486,7 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHeirarchicalStorageNode&
 	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((extensionInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing extension instance name, clock source name, or reference name, for Extension.ReferenceClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName, ClockSourceName, or ReferenceName attribute for Extension.ReferenceClockSource!"));
 		return false;
 	}
 	std::wstring extensionName = extensionInstanceNameAttribute->GetValue();
@@ -4282,7 +4512,7 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHeirarchicalStorageNode&
 	//Add the specified clock source reference to the device
 	if(!extension->AddReference(referenceName, clockSource))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceClockSource failed for reference from " + extensionName + L" to " + clockSourceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceClockSource failed for reference from " + extensionName + L" to " + clockSourceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -4296,7 +4526,7 @@ bool System::LoadModule_BusInterface(IHeirarchicalStorageNode& node, unsigned in
 	IHeirarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
 	if(nameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing name for BusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for BusInterface!"));
 		return false;
 	}
 	std::wstring busInterfaceName = nameAttribute->GetValue();
@@ -4346,7 +4576,7 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHeirarchicalStorageNode& n
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.DefineLineGroup!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.DefineLineGroup!"));
 		return false;
 	}
 
@@ -4354,7 +4584,7 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHeirarchicalStorageNode& n
 	IHeirarchicalStorageAttribute* lineGroupNameAttribute = node.GetAttribute(L"LineGroupName");
 	if(lineGroupNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No LineGroupName attribute specified for BusInterface.DefineLineGroup!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing LineGroupName attribute for BusInterface.DefineLineGroup!"));
 		return false;
 	}
 	std::wstring lineGroupName = lineGroupNameAttribute->GetValue();
@@ -4397,7 +4627,7 @@ bool System::LoadModule_BusInterface_DefineCELineMemory(IHeirarchicalStorageNode
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.DefineCELineMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.DefineCELineMemory!"));
 		return false;
 	}
 
@@ -4436,7 +4666,7 @@ bool System::LoadModule_BusInterface_DefineCELinePort(IHeirarchicalStorageNode& 
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.DefineCELinePort!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.DefineCELinePort!"));
 		return false;
 	}
 
@@ -4475,7 +4705,7 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHeirarchicalStorageNo
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.MapCELineInputMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineInputMemory!"));
 		return false;
 	}
 
@@ -4531,7 +4761,7 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHeirarchicalStorageNode
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.MapCELineInputPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineInputPort!"));
 		return false;
 	}
 
@@ -4587,7 +4817,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHeirarchicalStorageN
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.MapCELineOutputMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineOutputMemory!"));
 		return false;
 	}
 
@@ -4643,7 +4873,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHeirarchicalStorageNod
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.MapCELineOutputPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineOutputPort!"));
 		return false;
 	}
 
@@ -4691,7 +4921,7 @@ bool System::LoadModule_BusInterface_MapDevice(IHeirarchicalStorageNode& node, u
 	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.MapDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName for BusInterface.MapDevice!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -4740,7 +4970,7 @@ bool System::LoadModule_BusInterface_MapPort(IHeirarchicalStorageNode& node, uns
 	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.MapPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapPort!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -4916,7 +5146,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& no
 	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No BusInterfaceName attribute specified for BusInterface.MapClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapClockSource!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -4935,7 +5165,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& no
 	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
 	if(clockSourceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No ClockSourceName attribute specified for BusInterface.MapClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ClockSourceName attribute for BusInterface.MapClockSource!"));
 		return false;
 	}
 	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
@@ -4989,7 +5219,7 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHeirarchicalStorageNode&
 	IHeirarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if((deviceNameAttribute == 0) || (targetLineAttribute == 0) || (valueAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either DeviceInstanceName, TargetLine, or Value attribute for BusInterface.UnmappedLineState!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName, TargetLine, or Value attribute for BusInterface.UnmappedLineState!"));
 		return false;
 	}
 
@@ -5038,7 +5268,7 @@ bool System::LoadModule_ClockSource(IHeirarchicalStorageNode& node, unsigned int
 	IHeirarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
 	if(nameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing name for ClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for ClockSource!"));
 		return false;
 	}
 	std::wstring clockSourceName = nameAttribute->GetValue();
@@ -5081,7 +5311,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHeirarchicalStorageNode
 	IHeirarchicalStorageAttribute* inputClockSourceNameAttribute = node.GetAttribute(L"InputClockSourceName");
 	if(inputClockSourceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing name for input ClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing InputClockSourceName attribute for ClockSource.SetInputClockSource!"));
 		return false;
 	}
 	std::wstring inputClockSourceName = inputClockSourceNameAttribute->GetValue();
@@ -5090,7 +5320,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHeirarchicalStorageNode
 	IHeirarchicalStorageAttribute* targetClockSourceNameAttribute = node.GetAttribute(L"TargetClockSourceName");
 	if(targetClockSourceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing name for target ClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing TargetClockSourceName attribute for ClockSource.SetInputClockSource!"));
 		return false;
 	}
 	std::wstring targetClockSourceName = targetClockSourceNameAttribute->GetValue();
@@ -5128,7 +5358,7 @@ bool System::LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, uns
 	IHeirarchicalStorageAttribute* viewModelNameAttribute = node.GetAttribute(L"ViewModelName");
 	if((ownerAttribute == 0) || (viewModelGroupAttribute == 0) || (viewModelNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either Owner, ViewModelGroupName, or ViewModelName attribute for System.OpenViewModel!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Owner, ViewModelGroupName, or ViewModelName attribute for System.OpenViewModel!"));
 		return false;
 	}
 	std::wstring owner = ownerAttribute->GetValue();
@@ -5150,7 +5380,7 @@ bool System::LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, uns
 		IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 		if(deviceInstanceNameAttribute == 0)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing the DeviceInstanceName attribute for System.OpenViewModel!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for System.OpenViewModel!"));
 			return false;
 		}
 		std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
@@ -5180,7 +5410,7 @@ bool System::LoadModule_System_ExportConnector(IHeirarchicalStorageNode& node, u
 	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	if((connectorClassNameAttribute == 0) || (connectorInstanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorClassName or ConnectorInstanceName attribute for System.ExportConnector!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorClassName or ConnectorInstanceName attribute for System.ExportConnector!"));
 		return false;
 	}
 	std::wstring connectorClassName = connectorClassNameAttribute->GetValue();
@@ -5209,7 +5439,7 @@ bool System::LoadModule_System_ExportDevice(IHeirarchicalStorageNode& node, unsi
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (deviceInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ExportDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ExportDevice!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5265,7 +5495,7 @@ bool System::LoadModule_System_ExportExtension(IHeirarchicalStorageNode& node, u
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (extensionInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ExportExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ExportExtension!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5318,7 +5548,7 @@ bool System::LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (busInterfaceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ExportBusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ExportBusInterface!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5371,7 +5601,7 @@ bool System::LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node
 			IHeirarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
 			if((childLineGroupNameAttribute == 0) || (childImportNameAttribute == 0))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either LineGroupName or ImportName attribute for ExportLineGroup!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing LineGroupName or ImportName attribute for ExportLineGroup on System.ExportBusInterface!"));
 				return false;
 			}
 			std::wstring lineGroupName = childLineGroupNameAttribute->GetValue();
@@ -5381,7 +5611,7 @@ bool System::LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node
 			NameToIDMap::const_iterator lineGroupNameToIDMapIterator = lineGroupNameToIDMap.find(lineGroupName);
 			if(lineGroupNameToIDMapIterator == lineGroupNameToIDMap.end())
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate line group with name \"" + lineGroupName + L"\" for ExportLineGroup!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate line group with name \"" + lineGroupName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
 				return false;
 			}
 			unsigned int lineGroupID = lineGroupNameToIDMapIterator->second;
@@ -5390,7 +5620,7 @@ bool System::LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node
 			LineGroupDetailsMap::const_iterator lineGroupDetailsMapIterator = lineGroupDetailsMap.find(lineGroupID);
 			if(lineGroupDetailsMapIterator == lineGroupDetailsMap.end())
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not retrieve line group details for line group with name \"" + lineGroupName + L"\" for ExportLineGroup!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not retrieve line group details for line group with name \"" + lineGroupName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
 				return false;
 			}
 			const LineGroupDetails& lineGroupDetails = lineGroupDetailsMapIterator->second;
@@ -5399,7 +5629,7 @@ bool System::LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node
 			//being exported.
 			if(lineGroupDetails.busInterface != busInterface)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The specified line group with name \"" + lineGroupName + L"\" does not belong to the specified bus interface with name \"" + busInterfaceName + L"\" for ExportLineGroup!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The specified line group with name \"" + lineGroupName + L"\" does not belong to the specified bus interface with name \"" + busInterfaceName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
 				return false;
 			}
 
@@ -5435,7 +5665,7 @@ bool System::LoadModule_System_ExportClockSource(IHeirarchicalStorageNode& node,
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ExportClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ExportClockSource!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5488,7 +5718,7 @@ bool System::LoadModule_System_ExportSystemLine(IHeirarchicalStorageNode& node, 
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemLineNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ExportSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ExportSystemLine!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5541,7 +5771,7 @@ bool System::LoadModule_System_ExportSystemSetting(IHeirarchicalStorageNode& nod
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemSettingNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ExportSystemSetting!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ExportSystemSetting!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5593,7 +5823,7 @@ bool System::LoadModule_System_ImportConnector(IHeirarchicalStorageNode& node, u
 	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	if((connectorClassNameAttribute == 0) || (connectorInstanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorClassName or ConnectorInstanceName attribute for System.ImportConnector!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorClassName or ConnectorInstanceName attribute for System.ImportConnector!"));
 		return false;
 	}
 	std::wstring connectorClassName = connectorClassNameAttribute->GetValue();
@@ -5660,7 +5890,7 @@ bool System::LoadModule_System_ImportDevice(IHeirarchicalStorageNode& node, unsi
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (deviceInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ImportDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ImportDevice!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5717,7 +5947,7 @@ bool System::LoadModule_System_ImportExtension(IHeirarchicalStorageNode& node, u
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (extensionInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ImportExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ImportExtension!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5773,7 +6003,7 @@ bool System::LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (busInterfaceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ImportBusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ImportBusInterface!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5829,7 +6059,7 @@ bool System::LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node
 			IHeirarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
 			if((childLineGroupNameAttribute == 0) || (childImportNameAttribute == 0))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either LineGroupName or ImportName attribute for ImportLineGroup!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing LineGroupName or ImportName attribute for ImportLineGroup on System.ImportBusInterface!"));
 				return false;
 			}
 			std::wstring lineGroupName = childLineGroupNameAttribute->GetValue();
@@ -5855,7 +6085,7 @@ bool System::LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node
 			//false.
 			if(!foundReferencedLineGroup)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate exported line group with name " + lineGroupName + L" on exported bus interface with name " + busInterfaceName + L" for ImportLineGroup!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate exported line group with name " + lineGroupName + L" on exported bus interface with name " + busInterfaceName + L" for ImportLineGroup on System.ImportBusInterface!"));
 				return false;
 			}
 
@@ -5894,7 +6124,7 @@ bool System::LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node,
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ImportClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ImportClockSource!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -5950,7 +6180,7 @@ bool System::LoadModule_System_ImportSystemLine(IHeirarchicalStorageNode& node, 
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemLineNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ImportSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ImportSystemLine!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -6006,7 +6236,7 @@ bool System::LoadModule_System_ImportSystemSetting(IHeirarchicalStorageNode& nod
 	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemSettingNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ImportSystemSetting!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ImportSystemSetting!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -6063,7 +6293,7 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHeirarchicalStorageNode& node,
 	IHeirarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
 	if((deviceInstanceNameAttribute == 0) || (interfaceNumberAttribute == 0) || (romregionSizeAttribute == 0) || (displayNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either TargetDeviceInstanceName, InterfaceNumber, ROMRegionSize or DisplayName attribute for System.DefineEmbeddedROM!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing TargetDeviceInstanceName, InterfaceNumber, ROMRegionSize or DisplayName attribute for System.DefineEmbeddedROM!"));
 		return false;
 	}
 	std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
@@ -6101,7 +6331,7 @@ bool System::LoadModule_System_DefineSystemLine(IHeirarchicalStorageNode& node, 
 	IHeirarchicalStorageAttribute* widthAttribute = node.GetAttribute(L"Width");
 	if((nameAttribute == 0) || (widthAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either Name or Width attribute for System.DefineSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name or Width attribute for System.DefineSystemLine!"));
 		return false;
 	}
 	std::wstring lineName = nameAttribute->GetValue();
@@ -6135,7 +6365,7 @@ bool System::LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, uns
 	IHeirarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
 	if((sourceSystemLineNameAttribute == 0) || (targetDeviceInstanceNameAttribute == 0) || (targetLineAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either SourceSystemLineName, TargetDeviceInstanceName, or TargetLine attribute for System.MapSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SourceSystemLineName, TargetDeviceInstanceName, or TargetLine attribute for System.MapSystemLine!"));
 		return false;
 	}
 	std::wstring systemLineName = sourceSystemLineNameAttribute->GetValue();
@@ -6478,7 +6708,7 @@ bool System::LoadModule_System_SetClockFrequency(IHeirarchicalStorageNode& node,
 	IHeirarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if((targetClockNameAttribute == 0) || (clockTypeAttribute == 0) || (valueAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either TargetClockName, ClockType, or Value attribute for System.SetClockFrequency!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing TargetClockName, ClockType, or Value attribute for System.SetClockFrequency!"));
 		return false;
 	}
 	std::wstring targetClockName = targetClockNameAttribute->GetValue();
@@ -6511,7 +6741,7 @@ bool System::LoadModule_System_SetLineState(IHeirarchicalStorageNode& node, unsi
 	IHeirarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if((systemLineNameAttribute == 0) || (valueAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing either SystemLineName or Value attribute for System.SetClockFrequency!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SystemLineName or Value attribute for System.SetClockFrequency!"));
 		return false;
 	}
 	std::wstring systemLineName = systemLineNameAttribute->GetValue();
@@ -6625,7 +6855,16 @@ void System::UnloadAllModules()
 	for(LoadedExtensionInfoList::const_iterator i = loadedExtensionInfoList.begin(); i != loadedExtensionInfoList.end(); ++i)
 	{
 		lock.unlock();
-		DestroyExtension(i->extension->GetExtensionInstanceName(), i->extension);
+		DestroyExtension(i->extension->GetExtensionClassName(), i->extension);
+		lock.lock();
+	}
+	loadedExtensionInfoList.clear();
+
+	//Remove all global extensions
+	for(LoadedGlobalExtensionInfoList::const_iterator i = globalExtensionInfoList.begin(); i != globalExtensionInfoList.end(); ++i)
+	{
+		lock.unlock();
+		DestroyExtension(i->second.extension->GetExtensionClassName(), i->second.extension);
 		lock.lock();
 	}
 	loadedExtensionInfoList.clear();

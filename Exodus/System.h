@@ -176,6 +176,7 @@ private:
 	struct ExportedDeviceInfo;
 	struct ImportedDeviceInfo;
 	struct LoadedExtensionInfo;
+	struct LoadedGlobalExtensionInfo;
 	struct ExportedExtensionInfo;
 	struct ImportedExtensionInfo;
 	struct LoadedBusInfo;
@@ -214,6 +215,8 @@ private:
 	typedef std::list<ImportedDeviceInfo> ImportedDeviceInfoList;
 	typedef std::vector<DeviceContext*> DeviceArray;
 	typedef std::list<LoadedExtensionInfo> LoadedExtensionInfoList;
+	typedef std::map<std::wstring, LoadedGlobalExtensionInfo> LoadedGlobalExtensionInfoList;
+	typedef std::pair<std::wstring, LoadedGlobalExtensionInfo> LoadedGlobalExtensionInfoListEntry;
 	typedef std::list<ImportedExtensionInfo> ImportedExtensionInfoList;
 	typedef std::map<std::wstring, DeviceLibraryEntry> DeviceLibraryList;
 	typedef std::pair<std::wstring, DeviceLibraryEntry> DeviceLibraryListEntry;
@@ -278,6 +281,7 @@ private:
 	//Loaded entity functions
 	IDevice* GetDevice(unsigned int moduleID, const std::wstring& deviceName) const;
 	IExtension* GetExtension(unsigned int moduleID, const std::wstring& extensionName) const;
+	IExtension* GetGlobalExtension(const std::wstring& extensionName) const;
 	BusInterface* GetBusInterface(unsigned int moduleID, const std::wstring& busInterfaceName) const;
 	ClockSource* GetClockSource(unsigned int moduleID, const std::wstring& clockSourceName) const;
 	unsigned int GetSystemLineID(unsigned int moduleID, const std::wstring& systemLineName) const;
@@ -302,6 +306,7 @@ private:
 	bool LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<InputRegistration>& inputRegistrationRequests);
+	bool LoadModule_GlobalExtension(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Extension(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Extension_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
 	bool LoadModule_Extension_ReferenceExtension(IHeirarchicalStorageNode& node, unsigned int moduleID);
@@ -366,8 +371,10 @@ private:
 	void RemoveDeviceFromDeviceList(DeviceArray& deviceList, IDevice* adevice) const;
 
 	//Extension creation and deletion
-	bool AddExtension(unsigned int moduleID, IExtension* device);
+	IExtension* CreateGlobalExtension(const std::wstring& extensionName) const;
 	IExtension* CreateExtension(const std::wstring& extensionName, const std::wstring& instanceName, unsigned int moduleID) const;
+	bool AddGlobalExtension(unsigned int moduleID, IExtension* extension);
+	bool AddExtension(unsigned int moduleID, IExtension* device);
 	void DestroyExtension(const std::wstring& extensionName, IExtension* extension) const;
 	void UnloadExtension(IExtension* aextension);
 
@@ -489,6 +496,7 @@ private:
 	ExtensionLibraryList extensionLibrary;
 	LoadedExtensionInfoList loadedExtensionInfoList;
 	ImportedExtensionInfoList importedExtensionInfoList;
+	LoadedGlobalExtensionInfoList globalExtensionInfoList;
 
 	//Bus interfaces
 	BusInterfaceList busInterfaces;
