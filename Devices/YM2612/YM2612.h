@@ -73,6 +73,7 @@ public:
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
 	virtual void Initialize();
+	void Reset(double accessTime);
 
 	//Reference functions
 	using Device::AddReference;
@@ -83,6 +84,7 @@ public:
 	virtual unsigned int GetLineID(const std::wstring& lineName) const;
 	virtual std::wstring GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
+	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
 
@@ -373,7 +375,10 @@ private:
 	DebugMenuHandler* menuHandler;
 
 	//Bus interface
+	mutable boost::mutex lineMutex;
 	IBusInterface* memoryBus;
+	volatile bool icLineState;
+	bool bicLineState;
 
 	//Registers
 	mutable boost::mutex accessMutex;

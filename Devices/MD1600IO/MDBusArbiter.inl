@@ -32,6 +32,10 @@ enum MDBusArbiter::LineID
 	LINE_ZBR,      //O
 	LINE_ZBAK,     //I
 	LINE_ZRES,     //O
+	LINE_VRES,     //O
+	LINE_HALT,     //O
+	LINE_SRES,     //O
+	LINE_WRES,     //I
 
 	//These pseudo-lines are used to control settings for this device
 	LINE_ACTIVATETMSS,

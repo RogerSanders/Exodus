@@ -71,6 +71,10 @@ void MDBusArbiter::Initialize()
 	z80BusResetLineState = true;
 	m68kBusRequestLineState = false;
 	m68kBusGrantLineState = false;
+	vresLineState = false;
+	haltLineState = false;
+	sresLineState = false;
+	wresLineState = false;
 
 	z80BusRequestLineStateChangeTimeLatchEnable = false;
 	z80BusGrantLineStateChangeTimeLatchEnable = false;
@@ -169,6 +173,10 @@ void MDBusArbiter::ExecuteRollback()
 	z80BusResetLineState = bz80BusResetLineState;
 	m68kBusRequestLineState = bm68kBusRequestLineState;
 	m68kBusGrantLineState = bm68kBusGrantLineState;
+	vresLineState = bvresLineState;
+	haltLineState = bhaltLineState;
+	sresLineState = bsresLineState;
+	wresLineState = bwresLineState;
 }
 
 //----------------------------------------------------------------------------------------
@@ -199,6 +207,10 @@ void MDBusArbiter::ExecuteCommit()
 	bz80BusResetLineState = z80BusResetLineState;
 	bm68kBusRequestLineState = m68kBusRequestLineState;
 	bm68kBusGrantLineState = m68kBusGrantLineState;
+	bvresLineState = vresLineState;
+	bhaltLineState = haltLineState;
+	bsresLineState = bsresLineState;
+	bwresLineState = wresLineState;
 }
 
 //----------------------------------------------------------------------------------------
@@ -581,7 +593,7 @@ IBusInterface::AccessResult MDBusArbiter::WriteInterface(unsigned int interfaceN
 		if(z80BusResetLineState != newState)
 		{
 			z80BusResetLineState = newState;
-			z80MemoryBus->SetLineState(LINE_ZRES, Data(1, (unsigned int)z80BusResetLineState), GetDeviceContext(), caller, accessTime, accessContext);
+			z80MemoryBus->SetLineState(LINE_ZRES, Data(1, (unsigned int)(sresLineState | z80BusResetLineState)), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		break;}
 	case MEMORYINTERFACE_TMSS:
@@ -1043,6 +1055,22 @@ unsigned int MDBusArbiter::GetLineID(const std::wstring& lineName) const
 	{
 		return LINE_ZRES;
 	}
+	else if(lineName == L"VRES")
+	{
+		return LINE_VRES;
+	}
+	else if(lineName == L"HALT")
+	{
+		return LINE_HALT;
+	}
+	else if(lineName == L"SRES")
+	{
+		return LINE_SRES;
+	}
+	else if(lineName == L"WRES")
+	{
+		return LINE_WRES;
+	}
 	else if(lineName == L"ActivateTMSS")
 	{
 		return LINE_ACTIVATETMSS;
@@ -1075,6 +1103,14 @@ std::wstring MDBusArbiter::GetLineName(unsigned int lineID) const
 		return L"ZBAK";
 	case LINE_ZRES:
 		return L"ZRES";
+	case LINE_VRES:
+		return L"VRES";
+	case LINE_HALT:
+		return L"HALT";
+	case LINE_SRES:
+		return L"SRES";
+	case LINE_WRES:
+		return L"WRES";
 	case LINE_ACTIVATETMSS:
 		return L"ActivateTMSS";
 	case LINE_ACTIVATEBOOTROM:
@@ -1103,6 +1139,14 @@ unsigned int MDBusArbiter::GetLineWidth(unsigned int lineID) const
 	case LINE_ZBAK:
 		return 1;
 	case LINE_ZRES:
+		return 1;
+	case LINE_VRES:
+		return 1;
+	case LINE_HALT:
+		return 1;
+	case LINE_SRES:
+		return 1;
+	case LINE_WRES:
 		return 1;
 	case LINE_ACTIVATETMSS:
 		return 1;
@@ -1145,6 +1189,35 @@ void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, I
 	case LINE_ACTIVATEBOOTROM:
 		activateBootROM = lineData.NonZero();
 		return;
+	case LINE_WRES:{
+		bool wresLineStateNew = lineData.LSB();
+		if(wresLineStateNew != wresLineState)
+		{
+			//Determine the new line states
+			bool vresLineStateNew = wresLineStateNew;
+			bool haltLineStateNew = wresLineStateNew;
+			bool sresLineStateNew = wresLineStateNew;
+			bool z80BusResetLineStateNew = sresLineStateNew | z80BusResetLineState;
+
+			//Apply the new line states
+			wresLineState = wresLineStateNew;
+			vresLineState = vresLineStateNew;
+			haltLineState = haltLineStateNew;
+			sresLineState = sresLineStateNew;
+
+			//##TODO## Determine what other internal state should be cleared here, such as
+			//the Z80/M68K bus request state.
+
+			//Release our lock on the line mutex
+			lock.unlock();
+
+			//Apply our line state changes
+			m68kMemoryBus->SetLineState(LINE_VRES, Data(1, (unsigned int)vresLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
+			m68kMemoryBus->SetLineState(LINE_HALT, Data(1, (unsigned int)haltLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
+			m68kMemoryBus->SetLineState(LINE_SRES, Data(1, (unsigned int)sresLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
+			z80MemoryBus->SetLineState(LINE_ZRES, Data(1, (unsigned int)z80BusResetLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
+		}
+		return;}
 	}
 
 	//Insert the line access into the buffer. Note that entries in the buffer are sorted
@@ -1208,8 +1281,11 @@ void MDBusArbiter::AssertCurrentOutputLineState() const
 {
 	if(z80MemoryBus != 0)
 	{
-		if(z80BusResetLineState)   z80MemoryBus->SetLineState(LINE_ZRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(sresLineState | z80BusResetLineState)   z80MemoryBus->SetLineState(LINE_ZRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		if(z80BusRequestLineState) z80MemoryBus->SetLineState(LINE_ZBR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(vresLineState)          m68kMemoryBus->SetLineState(LINE_VRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(haltLineState)          m68kMemoryBus->SetLineState(LINE_HALT, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(sresLineState)          m68kMemoryBus->SetLineState(LINE_SRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -1218,8 +1294,11 @@ void MDBusArbiter::NegateCurrentOutputLineState() const
 {
 	if(z80MemoryBus != 0)
 	{
-		if(z80BusResetLineState)   z80MemoryBus->SetLineState(LINE_ZRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(sresLineState | z80BusResetLineState)   z80MemoryBus->SetLineState(LINE_ZRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		if(z80BusRequestLineState) z80MemoryBus->SetLineState(LINE_ZBR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(vresLineState)          m68kMemoryBus->SetLineState(LINE_VRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(haltLineState)          m68kMemoryBus->SetLineState(LINE_HALT, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(sresLineState)          m68kMemoryBus->SetLineState(LINE_SRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -1431,6 +1510,22 @@ void MDBusArbiter::LoadState(IHeirarchicalStorageNode& node)
 		{
 			m68kBusGrantLineState = (*i)->ExtractData<bool>();
 		}
+		else if((*i)->GetName() == L"VRESLineState")
+		{
+			vresLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"HALTLineState")
+		{
+			haltLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"SRESLineState")
+		{
+			sresLineState = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"WRESLineState")
+		{
+			wresLineState = (*i)->ExtractData<bool>();
+		}
 		else if((*i)->GetName() == L"LastTimesliceLength")
 		{
 			lastTimesliceLength = (*i)->ExtractData<bool>();
@@ -1491,6 +1586,10 @@ void MDBusArbiter::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Z80BusResetLineState", z80BusResetLineState);
 	node.CreateChild(L"M68KBusRequestLineState", m68kBusRequestLineState);
 	node.CreateChild(L"M68KBusGrantLineState", m68kBusGrantLineState);
+	node.CreateChild(L"VRESLineState", vresLineState);
+	node.CreateChild(L"HALTLineState", haltLineState);
+	node.CreateChild(L"SRESLineState", sresLineState);
+	node.CreateChild(L"WRESLineState", wresLineState);
 	node.CreateChild(L"LastTimesliceLength", lastTimesliceLength);
 
 	//Save the lineAccessBuffer state

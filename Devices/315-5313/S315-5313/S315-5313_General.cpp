@@ -112,6 +112,7 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 
 	busGranted = false;
 	palModeLineState = false;
+	resetLineState = false;
 	lineStateIPL = 0;
 	busRequestLineState = false;
 
@@ -209,14 +210,8 @@ bool S315_5313::ValidateDevice()
 //----------------------------------------------------------------------------------------
 void S315_5313::Initialize()
 {
+	//Initialize our register buffers
 	reg.Initialize();
-	//##FIX## Separate the Initialize and Reset functions in the VDP core. We know that
-	//the VDP has a separate dedicated reset line, and we know that on a reset, all the
-	//VDP registers are initialized to 0. This is most likely almost the only thing we
-	//should actually be doing on a reset. Other buffers, like the internal sprite cache,
-	//are probably not even cleared, although this needs extensive hardware testing to
-	//determine what we should clear and what we should not.
-	Reset();
 
 	//Initialize the default external clock divider settings
 	//##TODO## Make the clock dividers configurable through the VDP debugger
@@ -315,7 +310,9 @@ void S315_5313::Initialize()
 		}
 	}
 
+	//Update state
 	currentTimesliceLength = 0;
+	lastTimesliceMclkCyclesRemainingTime = 0;
 	currentTimesliceMclkCyclesRemainingTime = 0;
 	lastTimesliceMclkCyclesOverrun = 0;
 	stateLastUpdateTime = 0;
@@ -323,6 +320,7 @@ void S315_5313::Initialize()
 	stateLastUpdateMclkUnused = 0;
 	stateLastUpdateMclkUnusedFromLastTimeslice = 0;
 
+	//Line state change state
 	externalInterruptVideoTriggerPointPending = false;
 	lineStateChangePendingVINT = false;
 	lineStateChangePendingHINT = false;
@@ -330,6 +328,7 @@ void S315_5313::Initialize()
 	lineStateChangePendingINTAsserted = false;
 	lineStateChangePendingINTNegated = false;
 
+	//Command port data
 	//##TODO## Initialize the actual data in the FIFO buffer. We can determine the default
 	//values for many bits in the FIFO on power-up by immediately setting up a read target
 	//from VSRAM and CRAM, and stepping through each entry in the FIFO, saving the values
@@ -337,7 +336,11 @@ void S315_5313::Initialize()
 	//should perform a test to be certain.
 	fifoNextReadEntry = 0;
 	fifoNextWriteEntry = 0;
+	codeAndAddressRegistersModifiedSinceLastWrite = true;
 	commandWritePending = false;
+	originalCommandAddress = 0;
+	commandAddress = 0;
+	commandCode = 0;
 	for(unsigned int i = 0; i < fifoBufferSize; ++i)
 	{
 		fifoBuffer[i].codeRegData = 0;
@@ -351,50 +354,23 @@ void S315_5313::Initialize()
 	readDataHalfCached = false;
 	dmaFillOperationRunning = false;
 
+	//DMA state
 	workerThreadPaused = false;
 	dmaTransferActive = false;
 	dmaTransferInvalidPortWriteCached = false;
 	dmaAdvanceUntilDMAComplete = false;
+
+	//External line state
 	busGranted = false;
 	palModeLineState = false;
+	resetLineState = false;
 	lineStateIPL = 0;
 	busRequestLineState = false;
 
-	for(unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
-	{
-		renderSpriteDisplayCellCache[i].patternCellOffset = 0;
-		renderSpriteDisplayCellCache[i].patternData = 0;
-		renderSpriteDisplayCellCache[i].patternRowOffset = 0;
-		renderSpriteDisplayCellCache[i].spriteCellColumnNo = 0;
-		renderSpriteDisplayCellCache[i].spriteDisplayCacheIndex = 0;
-	}
-	for(unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
-	{
-		renderSpriteDisplayCache[i].spriteTableIndex = 0;
-		renderSpriteDisplayCache[i].spriteRowIndex = 0;
-		renderSpriteDisplayCache[i].vpos = 0;
-		renderSpriteDisplayCache[i].sizeAndLinkData = 0;
-		renderSpriteDisplayCache[i].mappingData= 0;
-		renderSpriteDisplayCache[i].hpos = 0;
-	}
-	currentRenderPosOnScreen = false;
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::Reset()
-{
-	//After numerous tests performed on the actual system, it appears that all VDP
-	//registers are initialized to 0 on a reset. This is supported by Addendum 4 from
-	//SEGA in the Genesis Software Manual. Note that since Mode 4 graphics are enabled
-	//when bit 2 of reg 1 is 0, the VDP starts in Mode 4. This has been confirmed on the
-	//real hardware.
-	for(unsigned int i = 0; i < registerCount; ++i)
-	{
-		SetRegisterData(0, AccessTarget().AccessLatest(), Data(8, 0));
-	}
-
-	//##TODO## Check if we need to clear these here
+	//Status register
 	status = 0;
+
+	//HV counter
 	//##FIX## We know for a fact that real VDP powers on with what is essentially a random
 	//hcounter and vcounter value. Some Mega Drive games are known to rely on this
 	//behaviour, as they use the hcounter as a random seed. Examples given include "X-Men
@@ -431,6 +407,7 @@ void S315_5313::Reset()
 	hcounter = hscanSettings.hsyncAsserted;
 	vcounter = vscanSettings.vsyncAssertedPoint;
 
+	//Pending interrupt state
 	hintCounter = 0;
 	vintPending = false;
 	hintPending = false;
@@ -490,34 +467,62 @@ void S315_5313::Reset()
 	renderLayerBVscrollPatternDisplacement = 0;
 	renderLayerAVscrollMappingDisplacement = 0;
 	renderLayerBVscrollMappingDisplacement = 0;
+	currentRenderPosOnScreen = false;
 
-	//Initialize the command port data
-	//##TODO## Test to see if these values are actually cleared on a reset.
-	fifoNextReadEntry = 0;
-	fifoNextWriteEntry = 0;
-	codeAndAddressRegistersModifiedSinceLastWrite = true;
-	commandWritePending = false;
-	originalCommandAddress = 0;
-	commandAddress = 0;
-	commandCode = 0;
-	for(unsigned int i = 0; i < fifoBufferSize; ++i)
+	//Additional render buffers
+	for(unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
 	{
-		fifoBuffer[i].codeRegData = 0;
-		fifoBuffer[i].addressRegData = 0;
-		fifoBuffer[i].dataPortWriteData = 0;
-		fifoBuffer[i].dataWriteHalfWritten = false;
-		fifoBuffer[i].pendingDataWrite = false;
+		renderSpriteDisplayCellCache[i].patternCellOffset = 0;
+		renderSpriteDisplayCellCache[i].patternData = 0;
+		renderSpriteDisplayCellCache[i].patternRowOffset = 0;
+		renderSpriteDisplayCellCache[i].spriteCellColumnNo = 0;
+		renderSpriteDisplayCellCache[i].spriteDisplayCacheIndex = 0;
 	}
-	renderVSRAMCachedRead = 0;
-	readDataAvailable = false;
-	readDataHalfCached = false;
-	dmaFillOperationRunning = false;
+	for(unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
+	{
+		renderSpriteDisplayCache[i].spriteTableIndex = 0;
+		renderSpriteDisplayCache[i].spriteRowIndex = 0;
+		renderSpriteDisplayCache[i].vpos = 0;
+		renderSpriteDisplayCache[i].sizeAndLinkData = 0;
+		renderSpriteDisplayCache[i].mappingData= 0;
+		renderSpriteDisplayCache[i].hpos = 0;
+	}
 
+	//Read-modify-write cycle saved output CE line state settings
 	lineLWRSavedStateRMW = false;
 	lineUWRSavedStateRMW = false;
 	lineCAS0SavedStateRMW = false;
 	lineRAS0SavedStateRMW = false;
 	lineOE0SavedStateRMW = false;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::Reset(double accessTime)
+{
+	//After numerous tests performed on the actual system, it appears that all VDP
+	//registers are initialized to 0 on a reset. This is supported by Addendum 4 from
+	//SEGA in the Genesis Software Manual. Note that since Mode 4 graphics are enabled
+	//when bit 2 of reg 1 is 0, the VDP starts in Mode 4. This has been confirmed on the
+	//real hardware.
+	//##TODO## Perform hardware tests to see if other control port related settings are
+	//cleared on a reset. In particular, we need to determine if the pending command port
+	//write state is cleared on a reset.
+	AccessTarget accessTarget;
+	if(reg.DoesLatestTimesliceExist())
+	{
+		unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
+		accessTarget.AccessTime(accessMclkCycle);
+	}
+	else
+	{
+		accessTarget.AccessLatest();
+	}
+	for(unsigned int i = 0; i < registerCount; ++i)
+	{
+		Data data(8, 0);
+		SetRegisterData(i, accessTarget, data);
+		TransparentRegisterSpecialUpdateFunction(i, data);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -1094,6 +1099,7 @@ void S315_5313::ExecuteRollback()
 	//Bus interface
 	busGranted = bbusGranted;
 	palModeLineState = bpalModeLineState;
+	resetLineState = bresetLineState;
 	lineStateIPL = blineStateIPL;
 	busRequestLineState = bbusRequestLineState;
 
@@ -1289,6 +1295,7 @@ void S315_5313::ExecuteCommit()
 	//Bus interface
 	bbusGranted = busGranted;
 	bpalModeLineState = palModeLineState;
+	bresetLineState = resetLineState;
 	blineStateIPL = lineStateIPL;
 	bbusRequestLineState = busRequestLineState;
 
@@ -3269,6 +3276,7 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 				//Bus interface
 				if(registerName == L"BusGranted")				busGranted = (*i)->ExtractData<bool>();
 				else if(registerName == L"PalModeLineState")	palModeLineState = (*i)->ExtractData<bool>();
+				else if(registerName == L"ResetLineState")		resetLineState = (*i)->ExtractData<bool>();
 				else if(registerName == L"LineStateIPL")		lineStateIPL = (*i)->ExtractData<unsigned int>();
 				//Clock sources
 				else if(registerName == L"ClockMclkCurrent")		clockMclkCurrent = (*i)->ExtractData<double>();
@@ -3490,6 +3498,7 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 	//Bus interface
 	node.CreateChild(L"Register", busGranted).CreateAttribute(L"name", L"BusGranted");
 	node.CreateChild(L"Register", palModeLineState).CreateAttribute(L"name", L"PalModeLineState");
+	node.CreateChild(L"Register", resetLineState).CreateAttribute(L"name", L"ResetLineState");
 	node.CreateChildHex(L"Register", lineStateIPL, 1).CreateAttribute(L"name", L"LineStateIPL");
 	//Clock sources
 	node.CreateChild(L"Register", clockMclkCurrent).CreateAttribute(L"name", L"ClockMclkCurrent");

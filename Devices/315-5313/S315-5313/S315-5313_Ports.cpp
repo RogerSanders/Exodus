@@ -5,29 +5,33 @@
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::GetLineID(const std::wstring& lineName) const
 {
-	if(lineName == L"IPL")		//O
+	if(lineName == L"IPL")        //O
 	{
 		return LINE_IPL;
 	}
-	else if(lineName == L"INT")	//O
+	else if(lineName == L"INT")   //O
 	{
 		return LINE_INT;
 	}
-	else if(lineName == L"INTAK")	//I
+	else if(lineName == L"INTAK") //I
 	{
 		return LINE_INTAK;
 	}
-	else if(lineName == L"BR")	//O
+	else if(lineName == L"BR")    //O
 	{
 		return LINE_BR;
 	}
-	else if(lineName == L"BG")	//I
+	else if(lineName == L"BG")    //I
 	{
 		return LINE_BG;
 	}
-	else if(lineName == L"PAL")	//I
+	else if(lineName == L"PAL")   //I
 	{
 		return LINE_PAL;
+	}
+	else if(lineName == L"RESET") //I
+	{
+		return LINE_RESET;
 	}
 	return 0;
 }
@@ -49,6 +53,8 @@ std::wstring S315_5313::GetLineName(unsigned int lineID) const
 		return L"BG";
 	case LINE_PAL:
 		return L"PAL";
+	case LINE_RESET:
+		return L"RESET";
 	}
 	return L"";
 }
@@ -69,6 +75,8 @@ unsigned int S315_5313::GetLineWidth(unsigned int lineID) const
 	case LINE_BG:
 		return 1;
 	case LINE_PAL:
+		return 1;
+	case LINE_RESET:
 		return 1;
 	}
 	return 0;
@@ -213,9 +221,17 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		break;}
 	case LINE_PAL:{
 		//##DEBUG##
-		//		std::wcout << "SetLineState - VDP_LINE_PAL:\t" << lineData.LSB() << '\n';
+		//std::wcout << "SetLineState - VDP_LINE_PAL:\t" << lineData.LSB() << '\n';
 
 		palModeLineState = lineData.LSB();
+		break;}
+	case LINE_RESET:{
+		bool resetLineStateNew = lineData.LSB();
+		if(resetLineStateNew != resetLineState)
+		{
+			resetLineState = resetLineStateNew;
+			Reset(accessTime);
+		}
 		break;}
 	}
 }
@@ -1430,12 +1446,8 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				//Calculate the highest accessible register number available based on the
 				//current screen mode. Documentation and hardware tests show that when
 				//mode 4 is active, VDP registers above the register block defined under
-				//mode 4 are inaccessible.
-				//##TODO## Do hardware tests to confirm whether the unused registers 6, 8,
-				//and 9 can be modified in mode 5, and whether the unused registers 3 and
-				//4 can be modified in mode 4. Also do a specific test to see if the auto
-				//increment data register (0x0F) can be modified in mode 4, as the test
-				//rom "Flavio's DMA Test (PD)" relies on this.
+				//mode 4 are inaccessible. See "Genesis Software Manual", "Addendum 4" for
+				//further information.
 				unsigned int accessibleRegisterCount = registerCount;
 				if(!screenModeM5Cached)
 				{
