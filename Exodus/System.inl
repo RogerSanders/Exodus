@@ -90,6 +90,14 @@ struct System::LoadedExtensionInfo
 };
 
 //----------------------------------------------------------------------------------------
+struct System::LoadedGlobalExtensionInfo
+{
+	IExtension* extension;
+	std::wstring name;
+	std::set<unsigned int> moduleIDs;
+};
+
+//----------------------------------------------------------------------------------------
 struct System::ExportedExtensionInfo
 {
 	IExtension* extension;

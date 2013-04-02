@@ -7,17 +7,25 @@
 //----------------------------------------------------------------------------------------
 void System::BuildFileOpenMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher)
 {
-	//Add all file open menu item entries from the list of loaded extensions
-	IMenuSegment& menuSegmentForModules = menuSubmenu.CreateMenuSegment();
-	for(LoadedExtensionInfoList::const_iterator extensionIterator = loadedExtensionInfoList.begin(); extensionIterator != loadedExtensionInfoList.end(); ++extensionIterator)
+	//Create a menu segment for loaded extensions
+	IMenuSegment& menuSegmentForExtensions = menuSubmenu.CreateMenuSegment();
+
+	//Add all file open menu item entries from the list of loaded global extensions
+	for(LoadedGlobalExtensionInfoList::const_iterator extensionIterator = globalExtensionInfoList.begin(); extensionIterator != globalExtensionInfoList.end(); ++extensionIterator)
 	{
-		extensionIterator->extension->AddFileOpenMenuItems(menuSegmentForModules, viewModelLauncher);
+		extensionIterator->second.extension->AddFileOpenMenuItems(menuSegmentForExtensions, viewModelLauncher);
 	}
 
-	//If no module submenus were defined, remove the module segment.
-	if(menuSegmentForModules.NoMenuItemsExist())
+	//Add all file open menu item entries from the list of loaded extensions
+	for(LoadedExtensionInfoList::const_iterator extensionIterator = loadedExtensionInfoList.begin(); extensionIterator != loadedExtensionInfoList.end(); ++extensionIterator)
 	{
-		menuSubmenu.DeleteMenuSegment(menuSegmentForModules);
+		extensionIterator->extension->AddFileOpenMenuItems(menuSegmentForExtensions, viewModelLauncher);
+	}
+
+	//If no extension menu items were defined, remove the extension segment.
+	if(menuSegmentForExtensions.NoMenuItemsExist())
+	{
+		menuSubmenu.DeleteMenuSegment(menuSegmentForExtensions);
 	}
 }
 
