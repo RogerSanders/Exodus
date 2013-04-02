@@ -765,6 +765,7 @@ void Processor::DisassemblyView::ToggleBreakpointStateAtAddress(unsigned int pcL
 		if(breakpointAtLocation)
 		{
 			device->breakpoints.erase(breakpointIterator);
+			device->breakpointExists = !device->breakpoints.empty();
 		}
 		else
 		{
@@ -772,6 +773,7 @@ void Processor::DisassemblyView::ToggleBreakpointStateAtAddress(unsigned int pcL
 			breakpoint->SetLocationConditionData1(pcLocation);
 			breakpoint->SetName(breakpoint->GenerateName(device->GetAddressBusCharWidth()));
 			device->breakpoints.push_back(breakpoint);
+			device->breakpointExists = !device->breakpoints.empty();
 		}
 	}
 }
