@@ -477,6 +477,7 @@ void BusInterface::RemoveMapEntryFromPhysicalMap(MapEntry* mapEntry, std::vector
 				//If the first entry in the list is the target entry, set the start of the
 				//list to be the next list entry, and delete the item list item.
 				physicalMap[memoryMapBase + i] = nextMapEntry->next;
+				nextMapEntry->next = 0;
 				delete nextMapEntry;
 			}
 			else
@@ -492,6 +493,7 @@ void BusInterface::RemoveMapEntryFromPhysicalMap(MapEntry* mapEntry, std::vector
 						//If the next map entry is the target object, remove it from the
 						//list.
 						currentMapEntry->next = nextMapEntry->next;
+						nextMapEntry->next = 0;
 						delete nextMapEntry;
 					}
 					else
