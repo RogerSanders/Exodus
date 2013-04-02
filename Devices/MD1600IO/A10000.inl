@@ -48,7 +48,8 @@ enum A10000::LineID
 	LINE_JAP,           //I
 	LINE_NTSC,          //I
 	LINE_DISK,          //I
-	LINE_HL             //O
+	LINE_HL,            //O
+	LINE_HWVERSION      //I
 };
 
 //----------------------------------------------------------------------------------------

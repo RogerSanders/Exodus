@@ -217,6 +217,8 @@ private:
 	//Version register settings
 	Data versionRegister;
 	Data bversionRegister;
+	unsigned int inputHardwareVersion;
+	unsigned int binputHardwareVersion;
 
 	//Control port registers
 	mutable boost::mutex accessMutex;

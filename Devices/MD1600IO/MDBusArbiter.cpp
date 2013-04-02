@@ -57,6 +57,8 @@ void MDBusArbiter::Initialize()
 
 	//Initialize the TMSS Security settings
 	bootROMEnabled = true;
+	vdpLockoutActive = true;
+	vdpLockoutTripped = false;
 
 	//Initialize the Z80 bankswitch register state
 	z80BankswitchBitsWritten = 0;
@@ -162,6 +164,8 @@ void MDBusArbiter::ExecuteRollback()
 	activateBootROM = bactivateBootROM;
 
 	bootROMEnabled = bbootROMEnabled;
+	vdpLockoutActive = bvdpLockoutActive;
+	vdpLockoutTripped = bvdpLockoutTripped;
 
 	z80BankswitchDataCurrent = bz80BankswitchDataCurrent;
 	z80BankswitchDataNew = bz80BankswitchDataNew;
@@ -196,6 +200,8 @@ void MDBusArbiter::ExecuteCommit()
 	bactivateBootROM = activateBootROM;
 
 	bbootROMEnabled = bootROMEnabled;
+	bvdpLockoutActive = vdpLockoutActive;
+	bvdpLockoutTripped = vdpLockoutTripped;
 
 	bz80BankswitchDataCurrent = z80BankswitchDataCurrent;
 	bz80BankswitchDataNew = z80BankswitchDataNew;
@@ -597,7 +603,15 @@ IBusInterface::AccessResult MDBusArbiter::WriteInterface(unsigned int interfaceN
 		}
 		break;}
 	case MEMORYINTERFACE_TMSS:
-		//##TODO##
+		//##TODO## Although the official Sega security code writes the ASCII string "SEGA"
+		//to this address as a long word write, it seems almost certain that this is
+		//actually meaningless, and that all that matters is bit 9 of the write data.
+		//Since this bit is set to true with the "GA" component of the write, this will
+		//result in this bit being set to 1 when this register is written to. We assume
+		//therefore, that like the boot ROM switch, the TMSS security register starts off
+		//active, and is cleared when a single mapped data line disables this setting by
+		//writing a value of 1 to it. This needs testing on the hardware.
+		vdpLockoutActive = !data.GetBit(0);
 		break;
 	case MEMORYINTERFACE_TMSS_BOOTROMSWITCH:
 		//##TODO## Perform hardware tests to determine exactly which addresses this
@@ -942,7 +956,7 @@ unsigned int MDBusArbiter::CalculateCELineStateMemory(unsigned int location, con
 		bool ceLineUDS = (currentCELineState & ceLineMaskUDS) != 0;
 		bool ceLineLDS = (currentCELineState & ceLineMaskLDS) != 0;
 		bool ceLineOE0 = (currentCELineState & ceLineMaskOE0) != 0;
-		result = BuildCELineM68K(location, operationIsWrite, ceLineUDS, ceLineLDS, ceLineOE0, cartInLineState);
+		result = BuildCELineM68K(location, operationIsWrite, ceLineUDS, ceLineLDS, ceLineOE0, cartInLineState, caller, accessTime);
 	}
 	else if(sourceBusInterface == z80MemoryBus)
 	{
@@ -958,7 +972,7 @@ unsigned int MDBusArbiter::CalculateCELineStateMemoryTransparent(unsigned int lo
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int MDBusArbiter::BuildCELineM68K(unsigned int targetAddress, bool write, bool ceLineUDS, bool ceLineLDS, bool ceLineOE0, bool cartInLineAsserted) const
+unsigned int MDBusArbiter::BuildCELineM68K(unsigned int targetAddress, bool write, bool ceLineUDS, bool ceLineLDS, bool ceLineOE0, bool cartInLineAsserted, IDeviceContext* caller, double accessTime) const
 {
 	//##TODO## It seems clear that if the FC lines from the M68000 indicate a CPU space
 	//cycle (all asserted), then these CE output lines shouldn't be asserted. In
@@ -997,6 +1011,17 @@ unsigned int MDBusArbiter::BuildCELineM68K(unsigned int targetAddress, bool writ
 	ceLineState |= lineIO? ceLineMaskIO: 0x0;
 	ceLineState |= lineEOE? ceLineMaskEOE: 0x0;
 	ceLineState |= lineNOE? ceLineMaskNOE: 0x0;
+
+	//If TMSS is active, and a device is attempting to access the VDP address range,
+	//assert the VRES and HALT lines. Note that according to tests performed by Charles
+	//MacDonald, this state is not cleared on a soft reset. A full power cycle is required
+	//in order to restore normal operation.
+	if(vdpLockoutActive && activateTMSS && (!activateBootROM || !bootROMEnabled) && (targetAddress >= 0xC00000) && (targetAddress <= 0xDFFFFF))
+	{
+		vdpLockoutTripped = true;
+		m68kMemoryBus->SetLineState(LINE_HALT, Data(1, (unsigned int)vdpLockoutTripped), GetDeviceContext(), caller, accessTime, 0);
+		m68kMemoryBus->SetLineState(LINE_VRES, Data(1, (unsigned int)vdpLockoutTripped), GetDeviceContext(), caller, accessTime, 0);
+	}
 
 	//Return the generated CE line state
 	return ceLineState;
@@ -1194,8 +1219,8 @@ void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, I
 		if(wresLineStateNew != wresLineState)
 		{
 			//Determine the new line states
-			bool vresLineStateNew = wresLineStateNew;
-			bool haltLineStateNew = wresLineStateNew;
+			bool vresLineStateNew = wresLineStateNew | vdpLockoutTripped;
+			bool haltLineStateNew = wresLineStateNew | vdpLockoutTripped;
 			bool sresLineStateNew = wresLineStateNew;
 			bool z80BusResetLineStateNew = sresLineStateNew | z80BusResetLineState;
 
@@ -1474,6 +1499,14 @@ void MDBusArbiter::LoadState(IHeirarchicalStorageNode& node)
 		{
 			bootROMEnabled = (*i)->ExtractData<bool>();
 		}
+		else if((*i)->GetName() == L"VDPLockoutActive")
+		{
+			vdpLockoutActive = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"VDPLockoutTripped")
+		{
+			vdpLockoutTripped = (*i)->ExtractData<bool>();
+		}
 		else if((*i)->GetName() == L"Z80BankswitchDataCurrent")
 		{
 			z80BankswitchDataCurrent = (*i)->ExtractHexData<unsigned int>();
@@ -1577,6 +1610,8 @@ void MDBusArbiter::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"ActivateTMSS", activateTMSS);
 	node.CreateChild(L"ActivateBootROM", activateBootROM);
 	node.CreateChild(L"BootROMEnabled", bootROMEnabled);
+	node.CreateChild(L"VDPLockoutActive", vdpLockoutActive);
+	node.CreateChild(L"VDPLockoutTripped", vdpLockoutTripped);
 	node.CreateChildHex(L"Z80BankswitchDataCurrent", z80BankswitchDataCurrent.GetData(), z80BankswitchDataCurrent.GetHexCharCount());
 	node.CreateChildHex(L"Z80BankswitchDataNew", z80BankswitchDataNew.GetData(), z80BankswitchDataNew.GetHexCharCount());
 	node.CreateChild(L"Z80BankswitchBitsWritten", z80BankswitchBitsWritten);
