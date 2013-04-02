@@ -108,7 +108,9 @@ latchedFrequencyData(channelCount, Data(8)), blatchedFrequencyData(channelCount,
 latchedFrequencyDataCH3(3, Data(8)), blatchedFrequencyDataCH3(3, Data(8)),
 timerAOverflowTimes(false)
 {
+	//Bus interface
 	memoryBus = 0;
+	icLineState = false;
 
 	//Set the default clock rate parameters
 	externalClockRate = 0;
@@ -284,6 +286,9 @@ void YM2612::Initialize()
 	currentReg = 0;
 	status = 0;
 
+	//Bus interface
+	icLineState = false;
+
 	//We have confirmed that the YM2612 powers up with output enabled to both the left and
 	//right speakers for all channels.
 	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
@@ -354,6 +359,45 @@ void YM2612::Initialize()
 }
 
 //----------------------------------------------------------------------------------------
+void YM2612::Reset(double accessTime)
+{
+	//Initialize all our internal registers to 0
+	AccessTarget accessTarget;
+	if(reg.DoesLatestTimesliceExist())
+	{
+		accessTarget.AccessTime(accessTime);
+	}
+	else
+	{
+		accessTarget.AccessLatest();
+	}
+	for(unsigned int i = 0; i < registerCountTotal; ++i)
+	{
+		Data data(8, 0);
+		RegisterSpecialUpdateFunction(i, data, accessTime, GetDeviceContext(), 0);
+		SetRegisterData(i, data, accessTarget);
+	}
+
+	//We have confirmed that the YM2612 powers up with output enabled to both the left and
+	//right speakers for all channels.
+	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	{
+		SetOutputLeft(channelNo, true, accessTarget);
+		SetOutputRight(channelNo, true, accessTarget);
+	}
+
+	//Fix any locked registers at their set value
+	boost::mutex::scoped_lock lock2(registerLockMutex);
+	for(LockedRegisterList::const_iterator i = lockedRegisters.begin(); i != lockedRegisters.end(); ++i)
+	{
+		//This obscure function call is actually running through two virtual function
+		//wrappers. Eventually, it will make the function call we saved at the time
+		//the register was locked, with all the correct function arguments.
+		i->second();
+	}
+}
+
+//----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
 bool YM2612::AddReference(const std::wstring& referenceName, IBusInterface* target)
@@ -388,9 +432,13 @@ bool YM2612::RemoveReference(IBusInterface* target)
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::GetLineID(const std::wstring& lineName) const
 {
-	if(lineName == L"IRQ")
+	if(lineName == L"IRQ")     //O
 	{
 		return LINE_IRQ;
+	}
+	else if(lineName == L"IC") //I
+	{
+		return LINE_IC;
 	}
 	return 0;
 }
@@ -402,6 +450,8 @@ std::wstring YM2612::GetLineName(unsigned int lineID) const
 	{
 	case LINE_IRQ:
 		return L"IRQ";
+	case LINE_IC:
+		return L"IC";
 	}
 	return L"";
 }
@@ -413,8 +463,29 @@ unsigned int YM2612::GetLineWidth(unsigned int lineID) const
 	{
 	case LINE_IRQ:
 		return 1;
+	case LINE_IC:
+		return 1;
 	}
 	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void YM2612::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	boost::mutex::scoped_lock lock(lineMutex);
+
+	//Process the line state change
+	switch(targetLine)
+	{
+	case LINE_IC:{
+		bool icLineStateNew = lineData.LSB();
+		if(icLineStateNew != icLineState)
+		{
+			icLineState = icLineStateNew;
+			Reset(accessTime);
+		}
+		break;}
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -573,6 +644,9 @@ void YM2612::ExecuteRollback()
 	//Clock settings
 	externalClockRate = bexternalClockRate;
 
+	//Bus interface
+	icLineState = bicLineState;
+
 	//Rollback our timed buffers
 	reg.Rollback();
 	timerAOverflowTimes.Rollback();
@@ -617,6 +691,9 @@ void YM2612::ExecuteCommit()
 {
 	//Clock settings
 	bexternalClockRate = externalClockRate;
+
+	//Bus interface
+	bicLineState = icLineState;
 
 	//Commit our timed buffers
 	reg.Commit();
@@ -2217,7 +2294,7 @@ void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& da
 		//      |  Mode |-------|-------|-------|
 		//      |       | B | A | B | A | B | A |
 		//      ---------------------------------
-		//##TODO## According to the	Y8950AM Application Manual, page 17, when the IRQ
+		//##TODO## According to the Y8950AM Application Manual, page 17, when the IRQ
 		//RESET bit is flagged in that processor, all other bits in the write to the
 		//register are ignored. Confirm this is not the case on the YM2612.
 		UpdateTimers(accessTime);
@@ -2518,6 +2595,12 @@ void YM2612::LoadState(IHeirarchicalStorageNode& node)
 			(*i)->ExtractData(externalClockRate);
 		}
 
+		//Bus interface
+		else if((*i)->GetName() == L"ICLineState")
+		{
+			icLineState = (*i)->ExtractData<bool>();
+		}
+
 		//Register data
 		else if((*i)->GetName() == L"Registers")
 		{
@@ -2690,6 +2773,9 @@ void YM2612::SaveState(IHeirarchicalStorageNode& node) const
 {
 	//Clock settings
 	node.CreateChild(L"ExternalClockRate").SetData(externalClockRate);
+
+	//Bus interface
+	node.CreateChild(L"ICLineState").SetData(icLineState);
 
 	//Register data
 	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");

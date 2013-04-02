@@ -71,7 +71,7 @@ public:
 	//that line call the reset function at the appropriate time. If it does not, we should
 	//remove the reset function, and just implement the Initialize() function. Also note,
 	//if a reset line is present, we have to verify what gets cleared by a reset.
-	void Reset();
+	void Reset(double accessTime);
 	virtual void BeginExecution();
 	virtual void SuspendExecution();
 
@@ -539,6 +539,8 @@ private:
 	bool bbusGranted;
 	volatile bool palModeLineState;
 	bool bpalModeLineState;
+	volatile bool resetLineState;
+	bool bresetLineState;
 	volatile unsigned int lineStateIPL;
 	unsigned int blineStateIPL;
 	bool busRequestLineState;
@@ -804,8 +806,6 @@ private:
 	//Digital render data buffers
 	//##TODO## Separate the analog and digital renderers into their own classes. Our
 	//single VDP superclass is getting too large to be manageable.
-	//##TODO## Initialize all these registers correctly, and store/load them during the
-	//savestate process.
 	static const unsigned int cellBlockSizeH = 8;
 	static const unsigned int cellsPerColumn = 2;
 	static const unsigned int maxCellsPerRow = 42;

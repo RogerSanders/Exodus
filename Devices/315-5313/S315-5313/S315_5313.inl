@@ -24,8 +24,8 @@ enum S315_5313::LineID
 	LINE_INTAK,
 	LINE_BR,
 	LINE_BG,
-	LINE_PAL
-	//##TODO## Add RESET line
+	LINE_PAL,
+	LINE_RESET
 	//##TODO## Add the HL line
 };
 

@@ -140,6 +140,14 @@ private:
 	bool bm68kBusRequestLineState;
 	volatile bool m68kBusGrantLineState;
 	bool bm68kBusGrantLineState;
+	volatile bool vresLineState;
+	bool bvresLineState;
+	volatile bool haltLineState;
+	bool bhaltLineState;
+	volatile bool sresLineState;
+	bool bsresLineState;
+	volatile bool wresLineState;
+	bool bwresLineState;
 
 	mutable bool z80BusRequestLineStateChangeTimeLatchEnable;
 	mutable bool z80BusGrantLineStateChangeTimeLatchEnable;
