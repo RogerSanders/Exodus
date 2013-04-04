@@ -2199,7 +2199,7 @@ void System::UnloadDevice(IDevice* adevice)
 	RemoveDeviceFromDeviceList(devices, adevice);
 
 	//Destroy the device
-	DestroyDevice(adevice->GetDeviceInstanceName(), adevice);
+	DestroyDevice(adevice->GetDeviceClassName(), adevice);
 }
 
 //----------------------------------------------------------------------------------------
@@ -7267,7 +7267,7 @@ void System::UnloadAllModules()
 	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 	{
 		lock.unlock();
-		DestroyDevice(i->device->GetDeviceInstanceName(), i->device);
+		DestroyDevice(i->device->GetDeviceClassName(), i->device);
 		lock.lock();
 	}
 	loadedDeviceInfoList.clear();
