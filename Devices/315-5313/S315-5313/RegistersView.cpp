@@ -152,8 +152,10 @@ INT_PTR S315_5313::RegistersView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM l
 	//Miscellaneous
 	if(currentControlFocus != IDC_DISPLAYENABLED)	UpdateDlgItemHex(hwnd, IDC_DISPLAYENABLED, 1, device->M5GetDisplayEnabled(accessTarget));
 	if(currentControlFocus != IDC_SHADOWHIGHLIGHTENABLED)	UpdateDlgItemHex(hwnd, IDC_SHADOWHIGHLIGHTENABLED, 1, device->M5GetShadowHighlightEnabled(accessTarget));
-//	if(currentControlFocus != IDC_STATUSREGISTER)	UpdateDlgItemHex(hwnd, IDC_STATUSREGISTER, 4, device->GetStatusRegister(RasterPos()));
-//	if(currentControlFocus != IDC_HVCOUNTER)	UpdateDlgItemHex(hwnd, IDC_HVCOUNTER, 4, device->GetHVCounter());
+	if(currentControlFocus != IDC_STATUSREGISTER)	UpdateDlgItemHex(hwnd, IDC_STATUSREGISTER, 4, device->status.GetData());
+	//##TODO## List the internal H and V counters separately from the external HV counter
+	//register.
+	if(currentControlFocus != IDC_HVCOUNTER)	UpdateDlgItemHex(hwnd, IDC_HVCOUNTER, 4, device->GetHVCounter().GetData());
 //	if(currentControlFocus != IDC_INTERLACEMODE)	UpdateDlgItemHex(hwnd, IDC_INTERLACEMODE, 1, device->GetInterlaceMode());
 //	if(currentControlFocus != IDC_ODDFRAMEININTERLACE)	UpdateDlgItemHex(hwnd, IDC_ODDFRAMEININTERLACE, 1, device->GetOddInterlaceFrame());
 

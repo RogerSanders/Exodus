@@ -32,6 +32,8 @@ public:
 	inline void Commit();
 	inline void Rollback();
 	inline void Initialize();
+	inline void AssertCurrentOutputLineState();
+	inline void NegateCurrentOutputLineState();
 
 	//Suspend functions
 	virtual void EnableTimesliceExecutionSuspend();

@@ -257,7 +257,13 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 					}
 					else
 					{
+						//Note that we negate the output line state here, and re-assert it
+						//after loading the state data. This is technically unnecessary
+						//when loading complete system states, but is very important when
+						//loading partial system states.
+						device->NegateCurrentOutputLineState();
 						device->LoadState(*(*i));
+						device->AssertCurrentOutputLineState();
 					}
 				}
 
@@ -556,6 +562,340 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 	{
 		RunSystem();
 	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std::wstring& fileName, unsigned int moduleID, FileType fileType, bool returnSuccessOnNoFilePresent)
+{
+	//Open the target file
+	std::wstring filePath = fileDir + L"\\" + fileName;
+	Stream::File source;
+	if(!source.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	{
+		if(returnSuccessOnNoFilePresent)
+		{
+			return true;
+		}
+		else
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the file could not be opened!"));
+			return false;
+		}
+	}
+
+	HeirarchicalStorageTree tree;
+	if(fileType == FILETYPE_ZIP)
+	{
+		//Load the ZIP header structure
+		ZIPArchive archive;
+		if(!archive.LoadFromStream(source))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the zip file structure could not be decoded!"));
+			return false;
+		}
+
+		//Load XML tree from file
+		ZIPFileEntry* entry = archive.GetFileEntry(L"save.xml");
+		if(entry == 0)
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the save.xml file could not be found within the zip archive!"));
+			return false;
+		}
+		Stream::Buffer buffer(0);
+		if(!entry->Decompress(buffer))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because there was an error decompressing the save.xml file from the zip archive!"));
+			return false;
+		}
+		buffer.SetStreamPos(0);
+		buffer.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+		buffer.ProcessByteOrderMark();
+		if(!tree.LoadTree(buffer))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			return false;
+		}
+
+		//Load external binary data into the XML tree
+		std::list<IHeirarchicalStorageNode*> binaryList;
+		binaryList = tree.GetBinaryDataNodeList();
+		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		{
+			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
+			ZIPFileEntry* entry = archive.GetFileEntry(binaryFileName);
+			if(entry == 0)
+			{
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
+				return false;
+			}
+			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
+			binaryData.SetStreamPos(0);
+			if(!entry->Decompress(binaryData))
+			{
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
+				return false;
+			}
+		}
+	}
+	else if(fileType == FILETYPE_XML)
+	{
+		//Determine the text format for the target file
+		source.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+		source.ProcessByteOrderMark();
+
+		//Attempt to load the XML tree from the file
+		if(!tree.LoadTree(source))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			return false;
+		}
+
+		//Load external binary data into the XML tree
+		std::list<IHeirarchicalStorageNode*> binaryList;
+		binaryList = tree.GetBinaryDataNodeList();
+		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		{
+			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
+			std::wstring binaryFilePath = binaryFileName;
+
+			//If the file path contains a relative path to the target, resolve the relative
+			//file path using the directory containing the module file as a base.
+			if(PathIsRelative(&binaryFilePath[0]) == TRUE)
+			{
+				TCHAR combinedPath[MAX_PATH];
+				PathCombine(&combinedPath[0], &fileDir[0], &binaryFilePath[0]);
+				binaryFilePath = combinedPath;
+			}
+
+			Stream::File binaryFile;
+			if(!binaryFile.Open(binaryFilePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+			{
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
+				return false;
+			}
+			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
+			binaryData.SetStreamPos(0);
+
+			unsigned int bufferSize = (unsigned int)binaryFile.Size();
+			unsigned char* buffer = new unsigned char[bufferSize];
+			if(!binaryFile.ReadData(buffer, bufferSize))
+			{
+				delete[] buffer;
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
+				return false;
+			}
+			if(!binaryData.WriteData(buffer, bufferSize))
+			{
+				delete[] buffer;
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
+				return false;
+			}
+			delete[] buffer;
+		}
+	}
+
+	//Validate the root node
+	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	if(rootNode.GetName() != L"PersistentState")
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the root node in the XML tree wasn't of type \"PersistentState\"!"));
+		return false;
+	}
+
+	//Restore persistent system state from XML data
+	std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		std::wstring elementName = (*i)->GetName();
+
+		//Load the device node
+		if(elementName == L"Device")
+		{
+			//Extract the mandatory attributes
+			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"Name");
+			if(nameAttribute != 0)
+			{
+				std::wstring deviceName = nameAttribute->GetValue();
+
+				//Attempt to locate a matching loaded device
+				bool foundDevice = false;
+				IDevice* device = GetDevice(moduleID, deviceName);
+				if(device != 0)
+				{
+					foundDevice = true;
+				}
+
+				//If we found a matching device, load the state for this device.
+				if(foundDevice)
+				{
+					//Note that we negate the output line state here, and re-assert it
+					//after loading the state data. This is technically unnecessary
+					//when loading complete system states, but is very important when
+					//loading partial system states.
+					device->NegateCurrentOutputLineState();
+					device->LoadState(*(*i));
+					device->AssertCurrentOutputLineState();
+				}
+
+				//If a matching loaded device couldn't be located, log an error.
+				if(!foundDevice)
+				{
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"While loading persistent state data from file " + fileName + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
+				}
+			}
+		}
+		else
+		{
+			//Log a warning for an unrecognized element
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading persistent state from file " + fileName + L"."));
+		}
+	}
+
+	//Log the event
+	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Loaded persistent state from file " + filePath));
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std::wstring& fileName, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent)
+{
+	//Create the new savestate XML tree
+	HeirarchicalStorageTree tree;
+	tree.GetRootNode().SetName(L"PersistentState");
+
+	//Fill in general information about the savestate
+	IHeirarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
+	Timestamp timestamp = GetTimestamp();
+	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
+	stateInfo.CreateAttribute(L"CreationTime", timestamp.GetTime());
+
+	//Save the system state to the XML tree
+	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
+	{
+		IHeirarchicalStorageNode& deviceNode = tree.GetRootNode().CreateChild(L"Device");
+		deviceNode.CreateAttribute(L"Name", (*i).device->GetDeviceInstanceName());
+		(*i).device->SavePersistentState(deviceNode);
+		if(deviceNode.IsEmpty())
+		{
+			tree.GetRootNode().DeleteChild(deviceNode);
+		}
+	}
+
+	//If we've been requested not to generate a file if no content is present, and no
+	//devices saved any persistent state, abort any further processing, and return true.
+	if(generateNoFileIfNoContentPresent && tree.GetRootNode().IsEmpty())
+	{
+		return true;
+	}
+
+	std::wstring filePath = fileDir + L"\\" + fileName;
+	if(fileType == FILETYPE_ZIP)
+	{
+		//Save the XML tree to a unicode buffer
+		Stream::Buffer buffer(Stream::IStream::TEXTENCODING_UTF8, 0);
+		buffer.InsertByteOrderMark();
+		if(!tree.SaveTree(buffer))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			return false;
+		}
+
+		ZIPArchive archive;
+		ZIPFileEntry entry;
+		entry.SetFileName(L"save.xml");
+		buffer.SetStreamPos(0);
+		if(!entry.Compress(buffer))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error compressing the save.xml file!"));
+			return false;
+		}
+		archive.AddFileEntry(entry);
+
+		//Save external binary data to separate files
+		std::list<IHeirarchicalStorageNode*> binaryList;
+		binaryList = tree.GetBinaryDataNodeList();
+		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		{
+			ZIPFileEntry entry;
+			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
+			entry.SetFileName(binaryFileName);
+			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
+			binaryData.SetStreamPos(0);
+			if(!entry.Compress(binaryData))
+			{
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error compressing the " + binaryFileName + L" file!"));
+				return false;
+			}
+			archive.AddFileEntry(entry);
+		}
+
+		//Create the target file
+		Stream::File target;
+		if(!target.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			return false;
+		}
+		if(!archive.SaveToStream(target))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error saving the zip structure to the file!"));
+			return false;
+		}
+	}
+	else if(fileType == FILETYPE_XML)
+	{
+		//Save XML tree to the target file
+		Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
+		if(!file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			return false;
+		}
+		file.InsertByteOrderMark();
+		if(!tree.SaveTree(file))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			return false;
+		}
+
+		//Save external binary data to separate files
+		std::list<IHeirarchicalStorageNode*> binaryList;
+		binaryList = tree.GetBinaryDataNodeList();
+		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		{
+			std::wstring binaryFileName = fileName + L" - " + (*i)->GetBinaryDataBufferName() + L".bin";
+			std::wstring binaryFilePath = fileDir + L"\\" + binaryFileName;
+			Stream::File binaryFile;
+			if(!binaryFile.Open(binaryFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+			{
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error creating the binary data file " + binaryFileName + L" at the full path of " + binaryFilePath + L"!"));
+				return false;
+			}
+
+			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
+			binaryData.SetStreamPos(0);
+			while(!binaryData.IsAtEnd())
+			{
+				unsigned char temp;
+				if(!binaryData.ReadData(temp))
+				{
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error reading the source data from memory to save to the binary data file " + binaryFileName + L"!"));
+					return false;
+				}
+				if(!binaryFile.WriteData(temp))
+				{
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error writing to the binary data file " + binaryFileName + L"!"));
+					return false;
+				}
+			}
+		}
+	}
+
+	//Log the event
+	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Saved persistent state to file " + filePath));
+
 	return true;
 }
 
@@ -1180,6 +1520,52 @@ void System::Initialize()
 }
 
 //----------------------------------------------------------------------------------------
+void System::InitializeAllDevices()
+{
+	//Negate the current output line state for all devices we are about to initialize. We
+	//need to do this, as the Initialize routine may alter the internal state of the
+	//device in such a way that line state changes which have been conditionally asserted
+	//for a future point in time should no longer be triggered. The Initialize routine is
+	//not allowed to interact with external devices however, so it cannot revoke any
+	//pending line state changes that have already been asserted. By explicitly negating
+	//all output line state here, we ensure that there are no pending line state changes
+	//asserted before we initialize the devices.
+	executionManager.NegateCurrentOutputLineState();
+
+	//Initialize the devices
+	executionManager.Initialize();
+
+	//Load the persistent state for all loaded modules
+	if(enablePersistentState)
+	{
+		for(LoadedModuleInfoList::const_iterator i = loadedModuleInfoList.begin(); i != loadedModuleInfoList.end(); ++i)
+		{
+			const LoadedModuleInfoInternal& moduleInfo = *i;
+			std::wstring persistentModuleFileName = moduleInfo.className + L".zip";
+			if(!LoadPersistentStateForModule(guiExtensionInterface->GetGlobalPreferencePathPersistentState(), persistentModuleFileName, moduleInfo.moduleID, FILETYPE_ZIP, true))
+			{
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to load persistent state from file " + persistentModuleFileName + L" when initializing module with name " + moduleInfo.displayName + L"."));
+			}
+		}
+	}
+
+	//Re-assert the current output line state for all devices we just initialized. This is
+	//required, as the initialization routine for a device may change its internal state
+	//in a way that would affect its asserted output line state, but the Initialize method
+	//is not allowed to interact with external devices. A call to the
+	//AssertCurrentOutputLineState method ensures that the correct external line state can
+	//now be asserted for all initialized devices.
+	executionManager.AssertCurrentOutputLineState();
+
+	//Re-assert the current line state for all system lines. This is required, as devices
+	//reset their input line state as a result of a call to the Initialize method.
+	for(SystemLineMap::const_iterator i = systemLines.begin(); i != systemLines.end(); ++i)
+	{
+		SetSystemLineState(i->first, Data(i->second.lineWidth, i->second.currentValue));
+	}
+}
+
+//----------------------------------------------------------------------------------------
 void System::RunSystem()
 {
 	if(!SystemRunning())
@@ -1221,15 +1607,7 @@ void System::ExecuteThread()
 			executionManager.SuspendExecution();
 
 			//Initialize the devices
-			executionManager.Initialize();
-
-			//Re-assert the current line state for all system lines. This is required, as
-			//devices reset their input line state as a result of a call to the Initialize
-			//method.
-			for(SystemLineMap::const_iterator i = systemLines.begin(); i != systemLines.end(); ++i)
-			{
-				SetSystemLineState(i->first, Data(i->second.lineWidth, i->second.currentValue));
-			}
+			InitializeAllDevices();
 
 			//Start active device threads
 			executionManager.BeginExecution();
@@ -1388,15 +1766,7 @@ void System::ExecuteDeviceStep(DeviceContext* device)
 	if(initialize)
 	{
 		//Initialize the devices
-		executionManager.Initialize();
-
-		//Re-assert the current line state for all system lines. This is required, as
-		//devices reset their input line state as a result of a call to the Initialize
-		//method.
-		for(SystemLineMap::const_iterator i = systemLines.begin(); i != systemLines.end(); ++i)
-		{
-			SetSystemLineState(i->first, Data(i->second.lineWidth, i->second.currentValue));
-		}
+		InitializeAllDevices();
 
 		//Clear the initialize flag
 		initialize = false;
@@ -1502,6 +1872,18 @@ bool System::GetRunWhenProgramModuleLoadedState() const
 void System::SetRunWhenProgramModuleLoadedState(bool state)
 {
 	runWhenProgramModuleLoaded = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::GetEnablePersistentState() const
+{
+	return enablePersistentState;
+}
+
+//----------------------------------------------------------------------------------------
+void System::SetEnablePersistentState(bool state)
+{
+	enablePersistentState = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -3356,14 +3738,26 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		UnloadModuleInternal(*i);
 	}
 
-	//If this module passed validation, negate any active output lines that are being
-	//asserted by devices in this module. This will allow other devices in the system that
-	//are not being unloaded with this module to correctly restore their input line state.
-	//We only perform this operation for validated modules, since modules that have not
-	//yet been validated have not yet asserted any output line state, and devices within
-	//that module may not yet have been initialized.
+	//If this module passed validation, perform additional unloading tasks which require
+	//participation from the loaded elements within this module.
 	if(moduleInfo.moduleValidated)
 	{
+		//Save any persistent state for the loaded devices within this module
+		if(enablePersistentState)
+		{
+			std::wstring persistentModuleFileName = moduleInfo.className + L".zip";
+			if(!SavePersistentStateForModule(guiExtensionInterface->GetGlobalPreferencePathPersistentState(), persistentModuleFileName, moduleID, FILETYPE_ZIP, true))
+			{
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to save persistent state data for module with name " + moduleInfo.displayName + L" to file with name " + persistentModuleFileName + L"."));
+			}
+		}
+
+		//Negate any active output lines that are being asserted by devices in this
+		//module. This will allow other devices in the system that are not being unloaded
+		//with this module to correctly restore their input line state. We only perform
+		//this operation for validated modules, since modules that have not yet been
+		//validated have not yet asserted any output line state, and devices within that
+		//module may not yet have been initialized.
 		for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 		{
 			if(i->moduleID == moduleID)

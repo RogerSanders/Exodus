@@ -336,6 +336,14 @@ void Device::SaveState(IHeirarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------
+void Device::LoadPersistentState(IHeirarchicalStorageNode& node)
+{}
+
+//----------------------------------------------------------------------------------------
+void Device::SavePersistentState(IHeirarchicalStorageNode& node) const
+{}
+
+//----------------------------------------------------------------------------------------
 void Device::LoadSettingsState(IHeirarchicalStorageNode& node)
 {}
 

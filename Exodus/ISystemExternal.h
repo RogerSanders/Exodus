@@ -69,6 +69,8 @@ public:
 	virtual void SetThrottlingState(bool state) = 0;
 	virtual bool GetRunWhenProgramModuleLoadedState() const = 0;
 	virtual void SetRunWhenProgramModuleLoadedState(bool state) = 0;
+	virtual bool GetEnablePersistentState() const = 0;
+	virtual void SetEnablePersistentState(bool state) = 0;
 
 	//Device registration
 	virtual bool RegisterDevice(const DeviceInfo& entry, IDevice::AssemblyHandle assemblyHandle) = 0;

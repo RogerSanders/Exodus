@@ -23,6 +23,7 @@ public:
 	//Global preference functions
 	inline std::wstring GetGlobalPreferencePathModules() const;
 	inline std::wstring GetGlobalPreferencePathSavestates() const;
+	inline std::wstring GetGlobalPreferencePathPersistentState() const;
 	inline std::wstring GetGlobalPreferencePathWorkspaces() const;
 	inline std::wstring GetGlobalPreferencePathCaptures() const;
 	inline std::wstring GetGlobalPreferencePathAssemblies() const;
@@ -30,6 +31,7 @@ public:
 	inline std::wstring GetGlobalPreferenceInitialWorkspace() const;
 	virtual bool GetGlobalPreferenceEnableThrottling() const = 0;
 	virtual bool GetGlobalPreferenceRunWhenProgramModuleLoaded() const = 0;
+	virtual bool GetEnablePersistentState() const = 0;
 
 	//Assembly functions
 	inline bool LoadAssembly(const std::wstring& filePath);
@@ -41,6 +43,7 @@ protected:
 	//Global preference functions
 	virtual const wchar_t* GetGlobalPreferencePathModulesInternal() const = 0;
 	virtual const wchar_t* GetGlobalPreferencePathSavestatesInternal() const = 0;
+	virtual const wchar_t* GetGlobalPreferencePathPersistentStateInternal() const = 0;
 	virtual const wchar_t* GetGlobalPreferencePathWorkspacesInternal() const = 0;
 	virtual const wchar_t* GetGlobalPreferencePathCapturesInternal() const = 0;
 	virtual const wchar_t* GetGlobalPreferencePathAssembliesInternal() const = 0;

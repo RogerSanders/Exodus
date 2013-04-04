@@ -19,7 +19,8 @@ bool ROM::Construct(IHeirarchicalStorageNode& node)
 		Stream::IStream& dataStream = node.GetBinaryDataBufferStream();
 		dataStream.SetStreamPos(0);
 
-		//Set the size of our internal memory
+		//If no interface size has been manually specified, set the size of our internal
+		//memory based on the size of the specified embedded ROM data.
 		if(GetInterfaceSize() <= 0)
 		{
 			unsigned int interfaceSize = (unsigned int)dataStream.Size();
@@ -30,13 +31,37 @@ bool ROM::Construct(IHeirarchicalStorageNode& node)
 			}
 			SetInterfaceSize(interfaceSize);
 		}
-		memory.resize(GetInterfaceSize());
+
+		//Resize the internal memory array based on the specified interface size, and
+		//initialize all elements to 0.
+		memory.assign(GetInterfaceSize(), 0);
+
+		//Read the RepeatData attribute if specified
+		bool repeatData = false;
+		IHeirarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
+		if(repeatDataAttribute != 0)
+		{
+			repeatData = repeatDataAttribute->ExtractValue<bool>();
+		}
 
 		//Read in the ROM data
-		unsigned int bytesToRead = ((unsigned int)memory.size() < (unsigned int)dataStream.Size())? (unsigned int)memory.size(): (unsigned int)dataStream.Size();
+		unsigned int bytesInDataStream = (unsigned int)dataStream.Size();
+		unsigned int memoryArraySize = (unsigned int)memory.size();
+		unsigned int bytesToRead = (memoryArraySize < bytesInDataStream)? memoryArraySize: bytesInDataStream;
 		if(!dataStream.ReadData(&memory[0], bytesToRead))
 		{
 			return false;
+		}
+
+		//If the data string has been set to repeat until the end of the memory block is
+		//reached, fill out the remainder of the memory block now.
+		if(repeatData)
+		{
+			for(unsigned int i = bytesToRead; i < memoryArraySize; ++i)
+			{
+				unsigned int originalDataIndex = i % bytesInDataStream;
+				memory[i] = memory[originalDataIndex];
+			}
 		}
 	}
 	else
@@ -45,7 +70,7 @@ bool ROM::Construct(IHeirarchicalStorageNode& node)
 		//has been specified, and set the size of our internal memory.
 		unsigned int interfaceSize = GetInterfaceSize();
 		result = (interfaceSize > 0);
-		memory.resize(interfaceSize);
+		memory.assign(interfaceSize, 0);
 	}
 
 	return result;

@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 TimedBufferIntDevice::TimedBufferIntDevice(const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryWrite(L"TimedBufferIntDevice", ainstanceName, amoduleID)
+:MemoryWrite(L"TimedBufferIntDevice", ainstanceName, amoduleID), initialMemoryDataSpecified(false), repeatInitialMemoryData(false)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -16,7 +16,7 @@ bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 		return false;
 	}
 
-	//Verify that a valid interface size has been specified
+	//Validate the specified interface size
 	if(GetInterfaceSize() <= 0)
 	{
 		return false;
@@ -30,10 +30,60 @@ bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 		keepLatestBufferCopy = keepLatestBufferCopyAttribute->ExtractValue<bool>();
 	}
 
-	//Resize our internal buffer
+	//Resize the internal memory array based on the specified interface size
 	bufferShell.Resize(GetInterfaceSize(), keepLatestBufferCopy);
 
+	//If initial RAM state data has been specified, attempt to load it now.
+	if(node.GetBinaryDataPresent())
+	{
+		//Flag that initial memory data has been specified
+		initialMemoryDataSpecified = true;
+
+		//Obtain the stream for our binary data
+		Stream::IStream& dataStream = node.GetBinaryDataBufferStream();
+		dataStream.SetStreamPos(0);
+
+		//Read the RepeatData attribute if specified
+		IHeirarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
+		if(repeatDataAttribute != 0)
+		{
+			repeatInitialMemoryData = repeatDataAttribute->ExtractValue<bool>();
+		}
+
+		//Read in the initial memory data
+		unsigned int bytesInDataStream = (unsigned int)dataStream.Size();
+		unsigned int memoryArraySize = GetInterfaceSize();
+		unsigned int bytesToRead = (memoryArraySize < bytesInDataStream)? memoryArraySize: bytesInDataStream;
+		initialMemoryData.resize(bytesInDataStream);
+		if(!dataStream.ReadData(&initialMemoryData[0], bytesToRead))
+		{
+			return false;
+		}
+	}
+
 	return true;
+}
+
+//----------------------------------------------------------------------------------------
+//Initialization functions
+//----------------------------------------------------------------------------------------
+void TimedBufferIntDevice::Initialize()
+{
+	//Initialize the memory buffer
+	bufferShell.Initialize();
+	for(unsigned int i = 0; i < GetInterfaceSize(); ++i)
+	{
+		if(!IsByteLocked(i))
+		{
+			unsigned char initialValue = 0;
+			if(initialMemoryDataSpecified && (repeatInitialMemoryData || (i < (unsigned int)initialMemoryData.size())))
+			{
+				unsigned int initialMemoryDataIndex = (i % (unsigned int)initialMemoryData.size());
+				initialValue = initialMemoryData[initialMemoryDataIndex];
+			}
+			bufferShell.WriteLatest(i, initialValue);
+		}
+	}
 }
 
 //----------------------------------------------------------------------------------------

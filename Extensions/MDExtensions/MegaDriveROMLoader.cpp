@@ -2,6 +2,7 @@
 #include "FileOpenMenuHandler.h"
 #include "Stream/Stream.pkg"
 #include "HeirarchicalStorage/HeirarchicalStorage.pkg"
+#include "DataConversion/DataConversion.pkg"
 #include <commctrl.h>
 #include <shlwapi.h>
 #include <shlobj.h>
@@ -26,13 +27,14 @@ MegaDriveROMLoader::~MegaDriveROMLoader()
 //----------------------------------------------------------------------------------------
 //Window functions
 //----------------------------------------------------------------------------------------
-//##TODO## Shift this into a window source file
 void MegaDriveROMLoader::AddFileOpenMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
 {
 	Extension::AddFileOpenMenuItems(menuSegment, viewModelLauncher);
 	menuHandler->AddMenuItems(menuSegment, viewModelLauncher);
 }
 
+//----------------------------------------------------------------------------------------
+//ROM loading functions
 //----------------------------------------------------------------------------------------
 void MegaDriveROMLoader::LoadROMFile()
 {
@@ -97,196 +99,6 @@ void MegaDriveROMLoader::LoadROMFile()
 }
 
 //----------------------------------------------------------------------------------------
-bool MegaDriveROMLoader::SaveOutputROMModule(IHeirarchicalStorageTree& tree, const std::wstring& fileDir, const std::wstring& fileName)
-{
-	//Ensure the target output directory exists
-	SHCreateDirectoryEx(NULL, fileDir.c_str(), NULL);
-
-	//Generate a full path for the output file
-	std::wstring moduleFilePath = fileDir + L"\\" + fileName;
-
-	//Create the output module file
-	Stream::File moduleFile(Stream::IStream::TEXTENCODING_UTF8);
-	if(!moduleFile.Open(moduleFilePath, Stream::File::OPENMODE_WRITEONLY, Stream::File::CREATEMODE_CREATE))
-	{
-		std::wstring text = L"Could not create the output module definition file.";
-		std::wstring title = L"Error loading ROM!";
-		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
-		return false;
-	}
-	moduleFile.InsertByteOrderMark();
-
-	//Save the generated module XML data to the output module file
-	if(!tree.SaveTree(moduleFile))
-	{
-		std::wstring text = L"Could not save XML structure to output definition file.";
-		std::wstring title = L"Error loading ROM!";
-		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
-		return false;
-	}
-
-	//Close the generated module file now that we are finished writing it
-	moduleFile.Close();
-
-	return true;
-}
-
-//----------------------------------------------------------------------------------------
-bool MegaDriveROMLoader::BuildROMFileModule(IHeirarchicalStorageNode& node, std::wstring& romName)
-{
-	//Get filename
-	//##TODO## Add smd, zip, and 7z support.
-	TCHAR fileNameBuffer[MAX_PATH];
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = (HWND)GetGUIInterface()->GetMainWindowHandle();
-	openFileParams.lpstrFile = fileNameBuffer;
-	openFileParams.lpstrFile[0] = '\0';
-	openFileParams.nMaxFile = sizeof(fileNameBuffer);
-	openFileParams.lpstrFilter = L"Mega Drive ROM file (*.bin;*.gen)\0*.bin;*.gen\0All (*.*)\0*.*\0\0";
-	openFileParams.lpstrDefExt = L"gen";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = NULL;
-	openFileParams.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-	if(GetOpenFileName(&openFileParams) == 0)
-	{
-		return false;
-	}
-
-	std::wstring fileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
-	std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
-	PathRemoveFileSpec(openFileParams.lpstrFile);
-	std::wstring fileDir = openFileParams.lpstrFile;
-	return BuildROMFileModuleFromFile(fileDir, fileName, node, romName);
-}
-
-//----------------------------------------------------------------------------------------
-bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& node, std::wstring& romName)
-{
-	//##TODO## Add control over this feature
-	bool autoSelectSystemRegion = true;
-
-	//Load the ROM header from the target file
-	MegaDriveROMHeader romHeader;
-	if(!LoadROMHeaderFromFile(fileDir, fileName, romHeader))
-	{
-		std::wstring text = L"Could not read ROM header data from file.";
-		std::wstring title = L"Error loading ROM!";
-		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
-		return false;
-	}
-
-	//Set the name of this loaded ROM
-	romName = fileName;
-
-	//Set all required attributes on the root node for this module definition
-	node.SetName(L"Module");
-	node.CreateAttribute(L"SystemClassName", L"SegaMegaDrive");
-	node.CreateAttribute(L"ModuleClassName", fileName);
-	node.CreateAttribute(L"ModuleInstanceName", fileName);
-	node.CreateAttribute(L"ProgramModule", true);
-
-	//Determine the size of the ROM region to allocate. We use the ROM file size rather
-	//than the recorded ROM region in the file header, since this information is
-	//essentially unused, and may be incorrect, especially for homebrew ROM files.
-	unsigned int romRegionSize = romHeader.fileSize;
-
-	//Add all required child elements for this module definition
-	node.CreateChild(L"System.ImportConnector").CreateAttribute(L"ConnectorClassName", L"CartridgePort").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port");
-	node.CreateChild(L"System.ImportBusInterface").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port").CreateAttribute(L"BusInterfaceName", L"BusInterface").CreateAttribute(L"ImportName", L"BusInterface");
-	node.CreateChild(L"System.ImportSystemLine").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port").CreateAttribute(L"SystemLineName", L"CART").CreateAttribute(L"ImportName", L"CART");
-	node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"ROM").CreateAttribute(L"InstanceName", L"ROM").CreateAttribute(L"BinaryDataPresent", true).CreateAttribute(L"SeparateBinaryData", true).SetData(fileDir + L"\\" + fileName);
-	node.CreateChild(L"BusInterface.MapDevice").CreateAttribute(L"BusInterfaceName", L"BusInterface").CreateAttribute(L"DeviceInstanceName", L"ROM").CreateAttribute(L"CELineConditions", L"FCCPUSpace=0, CE0=1").CreateAttributeHex(L"MemoryMapBase", 0, 6).CreateAttributeHex(L"MemoryMapSize", romRegionSize, 6);
-	node.CreateChild(L"System.SetLineState").CreateAttribute(L"SystemLineName", L"CART").CreateAttribute(L"Value", 1);
-
-	//If automatic selection of the preferred compatible system region is enabled for
-	//games that require specific region codes, attempt to detect the region now, and
-	//output region selection elements to the module definition.
-	if(autoSelectSystemRegion)
-	{
-		//Attempt to auto-detect the compatible system region based on the region header
-		bool specificRegionCodeDetected = false;
-		std::wstring regionCode;
-		bool regionCodePresentJ = (romHeader.regionString.find('J') != std::string::npos);
-		bool regionCodePresentU = (romHeader.regionString.find('U') != std::string::npos);
-		bool regionCodePresentE = (romHeader.regionString.find('E') != std::string::npos);
-		if(regionCodePresentJ && regionCodePresentU && regionCodePresentE)
-		{
-			//If this ROM is marked as compatible with all regions, don't change the
-			//system region setting.
-		}
-		else if(regionCodePresentU)
-		{
-			regionCode = L"U";
-			specificRegionCodeDetected = true;
-		}
-		else if(regionCodePresentE)
-		{
-			regionCode = L"E";
-			specificRegionCodeDetected = true;
-		}
-		else if(regionCodePresentJ)
-		{
-			regionCode = L"J";
-			specificRegionCodeDetected = true;
-		}
-
-		//If we detected that this ROM requires a specific region code, add a settings
-		//change to apply that region code setting automatically.
-		if(specificRegionCodeDetected)
-		{
-			node.CreateChild(L"System.ImportSystemSetting").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port").CreateAttribute(L"SystemSettingName", L"Region").CreateAttribute(L"ImportName", L"Region");
-			node.CreateChild(L"System.SelectSettingOption").CreateAttribute(L"SettingName", L"Region").CreateAttribute(L"OptionName", regionCode);
-		}
-	}
-
-	return true;
-}
-
-//----------------------------------------------------------------------------------------
-bool MegaDriveROMLoader::LoadROMHeaderFromFile(const std::wstring& fileDir, const std::wstring& fileName, MegaDriveROMHeader& romHeader) const
-{
-	//Open the target ROM file
-	Stream::File file;
-	if(!file.Open(fileDir + L'\\' + fileName, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
-	{
-		return false;
-	}
-
-	//Validate the size of the selected file
-	if(file.Size() < 0x200)
-	{
-		return false;
-	}
-
-	//Read in the contents of the Mega Drive ROM header from the file
-	file.SetStreamPos(0x100);
-	bool result = true;
-	result &= file.ReadTextFixedLengthBufferAsASCII(0x10, romHeader.segaString);
-	result &= file.ReadTextFixedLengthBufferAsASCII(0x10, romHeader.copyrightString);
-	result &= file.ReadTextFixedLengthBufferAsASCII(0x30, romHeader.gameTitleJapan);
-	result &= file.ReadTextFixedLengthBufferAsASCII(0x30, romHeader.gameTitleOverseas);
-	result &= file.ReadTextFixedLengthBufferAsASCII(0x0E, romHeader.versionString);
-	result &= file.ReadDataBigEndian(romHeader.checksum);
-	result &= file.ReadTextFixedLengthBufferAsASCII(0x10, romHeader.controllerString);
-	result &= file.ReadDataBigEndian(romHeader.romLocationStart);
-	result &= file.ReadDataBigEndian(romHeader.romLocationEnd);
-	result &= file.ReadDataBigEndian(romHeader.ramLocationStart);
-	result &= file.ReadDataBigEndian(romHeader.ramLocationEnd);
-	result &= file.ReadTextFixedLengthBufferAsASCII(0x40, romHeader.unknownString);
-	result &= file.ReadTextFixedLengthBufferAsASCII(0x10, romHeader.regionString);
-
-	//Record additional information about the ROM file
-	romHeader.fileSize = (unsigned int)file.Size();
-
-	//Return the result of the operation
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
 void MegaDriveROMLoader::UnloadROMFile()
 {
 	//If this ROM file is currently loaded, unload it.
@@ -331,4 +143,386 @@ void MegaDriveROMLoader::UnloadROMFile()
 		//Flag that this ROM file is no longer loaded
 		romLoaded = false;
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//ROM module generation
+//----------------------------------------------------------------------------------------
+bool MegaDriveROMLoader::BuildROMFileModule(IHeirarchicalStorageNode& node, std::wstring& romName)
+{
+	//Get filename
+	//##TODO## Add smd, zip, and 7z support.
+	TCHAR fileNameBuffer[MAX_PATH];
+	OPENFILENAME openFileParams;
+	ZeroMemory(&openFileParams, sizeof(openFileParams));
+	openFileParams.lStructSize = sizeof(openFileParams);
+	openFileParams.hwndOwner = (HWND)GetGUIInterface()->GetMainWindowHandle();
+	openFileParams.lpstrFile = fileNameBuffer;
+	openFileParams.lpstrFile[0] = '\0';
+	openFileParams.nMaxFile = sizeof(fileNameBuffer);
+	openFileParams.lpstrFilter = L"Mega Drive ROM file (*.bin;*.gen)\0*.bin;*.gen\0All (*.*)\0*.*\0\0";
+	openFileParams.lpstrDefExt = L"gen";
+	openFileParams.nFilterIndex = 1;
+	openFileParams.lpstrFileTitle = NULL;
+	openFileParams.nMaxFileTitle = 0;
+	openFileParams.lpstrInitialDir = NULL;
+	openFileParams.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	if(GetOpenFileName(&openFileParams) == 0)
+	{
+		return false;
+	}
+
+	std::wstring fileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
+	std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
+	PathRemoveFileSpec(openFileParams.lpstrFile);
+	std::wstring fileDir = openFileParams.lpstrFile;
+	return BuildROMFileModuleFromFile(fileDir, fileName, node, romName);
+}
+
+//----------------------------------------------------------------------------------------
+bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& node, std::wstring& romName)
+{
+	//##TODO## Add control over these features
+	bool autoSelectSystemRegion = true;
+	bool autoDetectBackupRAMSupport = true;
+
+	//Load the ROM header from the target file
+	MegaDriveROMHeader romHeader;
+	if(!LoadROMHeaderFromFile(fileDir, fileName, romHeader))
+	{
+		std::wstring text = L"Could not read ROM header data from file.";
+		std::wstring title = L"Error loading ROM!";
+		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		return false;
+	}
+
+	//Set the name of this loaded ROM
+	romName = fileName;
+
+	//If the user has requested us to detect backup RAM support, attempt to do so now.
+	bool sramPresent = false;
+	unsigned int sramByteSize;
+	unsigned int sramStartLocation;
+	bool sramMapOnEvenBytes;
+	bool sramMapOnOddBytes;
+	bool sram16Bit;
+	std::vector<unsigned char> initialRAMData;
+	if(autoDetectBackupRAMSupport)
+	{
+		sramPresent = AutoDetectBackupRAMSupport(romHeader, sramStartLocation, sramByteSize, sramMapOnEvenBytes, sramMapOnOddBytes, sram16Bit, initialRAMData);
+	}
+
+	//Set all required attributes on the root node for this module definition
+	node.SetName(L"Module");
+	node.CreateAttribute(L"SystemClassName", L"SegaMegaDrive");
+	node.CreateAttribute(L"ModuleClassName", fileName);
+	node.CreateAttribute(L"ModuleInstanceName", fileName);
+	node.CreateAttribute(L"ProgramModule", true);
+
+	//Determine the size of the ROM region to allocate. We use the ROM file size rather
+	//than the recorded ROM region in the file header, since this information is
+	//essentially unused, and may be incorrect, especially for homebrew ROM files.
+	unsigned int romRegionSize = romHeader.fileSize;
+
+	//Add all required child elements for this module definition
+	node.CreateChild(L"System.ImportConnector").CreateAttribute(L"ConnectorClassName", L"CartridgePort").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port");
+	node.CreateChild(L"System.ImportBusInterface").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port").CreateAttribute(L"BusInterfaceName", L"BusInterface").CreateAttribute(L"ImportName", L"BusInterface");
+	node.CreateChild(L"System.ImportSystemLine").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port").CreateAttribute(L"SystemLineName", L"CART").CreateAttribute(L"ImportName", L"CART");
+	node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"ROM").CreateAttribute(L"InstanceName", L"ROM").CreateAttribute(L"BinaryDataPresent", true).CreateAttribute(L"SeparateBinaryData", true).SetData(fileDir + L"\\" + fileName);
+	if(sramPresent)
+	{
+		IHeirarchicalStorageNode& ramDeviceNode = node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"RAM").CreateAttribute(L"InstanceName", L"SRAM").CreateAttributeHex(L"InterfaceSize", sramByteSize, 0).CreateAttribute(L"RepeatData", true).CreateAttribute(L"PersistentData", true);
+		if(!initialRAMData.empty())
+		{
+			ramDeviceNode.InsertBinaryData(initialRAMData, L"RAM.InitialData", true);
+		}
+	}
+	node.CreateChild(L"BusInterface.MapDevice").CreateAttribute(L"BusInterfaceName", L"BusInterface").CreateAttribute(L"DeviceInstanceName", L"ROM").CreateAttribute(L"CELineConditions", L"FCCPUSpace=0, CE0=1").CreateAttributeHex(L"MemoryMapBase", 0, 6).CreateAttributeHex(L"MemoryMapSize", romRegionSize, 0);
+	if(sramPresent)
+	{
+		//##TODO## Generate the address and data masks properly
+
+		//Calculate the size of the SRAM region in the address space. If the SRAM is
+		//16-bit, the region size is simply the byte size of the SRAM. If the SRAM is
+		//8-bit, the region size is twice the byte size.
+		unsigned int sramRegionSize = (sram16Bit)? sramByteSize: (sramByteSize * 2);
+
+		//Determine any write CE line conditions that apply
+		std::wstring extraCEWriteConditions;
+		if(!sram16Bit && (sramMapOnEvenBytes != sramMapOnOddBytes))
+		{
+			extraCEWriteConditions = L", LWR=";
+			extraCEWriteConditions += (sramMapOnOddBytes)? L"1": L"0";
+		}
+
+		node.CreateChild(L"BusInterface.MapDevice").CreateAttribute(L"BusInterfaceName", L"BusInterface").CreateAttribute(L"DeviceInstanceName", L"SRAM").CreateAttribute(L"CELineConditions", L"FCCPUSpace=0, CE0=1, R/W=1").CreateAttributeHex(L"MemoryMapBase", sramStartLocation, 6).CreateAttributeHex(L"MemoryMapSize", sramRegionSize, 0).CreateAttribute(L"AddressLineMapping", L"[09][08][07][06][05][04][03][02][01]").CreateAttribute(L"DataLineMapping", L"[07][06][05][04][03][02][01][00]");
+		node.CreateChild(L"BusInterface.MapDevice").CreateAttribute(L"BusInterfaceName", L"BusInterface").CreateAttribute(L"DeviceInstanceName", L"SRAM").CreateAttribute(L"CELineConditions", L"FCCPUSpace=0, CE0=1, R/W=0" + extraCEWriteConditions).CreateAttributeHex(L"MemoryMapBase", sramStartLocation, 6).CreateAttributeHex(L"MemoryMapSize", sramRegionSize, 0).CreateAttribute(L"AddressLineMapping", L"[09][08][07][06][05][04][03][02][01]").CreateAttribute(L"DataLineMapping", L"[07][06][05][04][03][02][01][00]");
+	}
+	node.CreateChild(L"System.SetLineState").CreateAttribute(L"SystemLineName", L"CART").CreateAttribute(L"Value", 1);
+
+	//If automatic selection of the preferred compatible system region is enabled for
+	//games that require specific region codes, attempt to detect the region now, and
+	//output region selection elements to the module definition.
+	if(autoSelectSystemRegion)
+	{
+		std::wstring regionCode;
+		if(AutoDetectRegionCode(romHeader, regionCode))
+		{
+			node.CreateChild(L"System.ImportSystemSetting").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port").CreateAttribute(L"SystemSettingName", L"Region").CreateAttribute(L"ImportName", L"Region");
+			node.CreateChild(L"System.SelectSettingOption").CreateAttribute(L"SettingName", L"Region").CreateAttribute(L"OptionName", regionCode);
+		}
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool MegaDriveROMLoader::SaveOutputROMModule(IHeirarchicalStorageTree& tree, const std::wstring& fileDir, const std::wstring& fileName)
+{
+	//Ensure the target output directory exists
+	SHCreateDirectoryEx(NULL, fileDir.c_str(), NULL);
+
+	//Generate a full path for the output file
+	std::wstring moduleFilePath = fileDir + L"\\" + fileName;
+
+	//Create the output module file
+	Stream::File moduleFile(Stream::IStream::TEXTENCODING_UTF8);
+	if(!moduleFile.Open(moduleFilePath, Stream::File::OPENMODE_WRITEONLY, Stream::File::CREATEMODE_CREATE))
+	{
+		std::wstring text = L"Could not create the output module definition file.";
+		std::wstring title = L"Error loading ROM!";
+		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		return false;
+	}
+	moduleFile.InsertByteOrderMark();
+
+	//Save the generated module XML data to the output module file
+	if(!tree.SaveTree(moduleFile))
+	{
+		std::wstring text = L"Could not save XML structure to output definition file.";
+		std::wstring title = L"Error loading ROM!";
+		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		return false;
+	}
+
+	//Close the generated module file now that we are finished writing it
+	moduleFile.Close();
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+//ROM analysis functions
+//----------------------------------------------------------------------------------------
+bool MegaDriveROMLoader::LoadROMHeaderFromFile(const std::wstring& fileDir, const std::wstring& fileName, MegaDriveROMHeader& romHeader) const
+{
+	//Open the target ROM file
+	Stream::File file;
+	if(!file.Open(fileDir + L'\\' + fileName, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	{
+		return false;
+	}
+
+	//Validate the size of the selected file
+	if(file.Size() < 0x200)
+	{
+		return false;
+	}
+
+	//Read in the contents of the Mega Drive ROM header from the file
+	file.SetStreamPos(0x100);
+	bool result = true;
+	result &= file.ReadTextFixedLengthBufferAsASCII(0x10, romHeader.segaString);
+	result &= file.ReadTextFixedLengthBufferAsASCII(0x10, romHeader.copyrightString);
+	result &= file.ReadTextFixedLengthBufferAsASCII(0x30, romHeader.gameTitleJapan);
+	result &= file.ReadTextFixedLengthBufferAsASCII(0x30, romHeader.gameTitleOverseas);
+	result &= file.ReadTextFixedLengthBufferAsASCII(0x0E, romHeader.versionString);
+	result &= file.ReadDataBigEndian(romHeader.checksum);
+	result &= file.ReadTextFixedLengthBufferAsASCII(0x10, romHeader.controllerString);
+	result &= file.ReadDataBigEndian(romHeader.romLocationStart);
+	result &= file.ReadDataBigEndian(romHeader.romLocationEnd);
+	result &= file.ReadDataBigEndian(romHeader.ramLocationStart);
+	result &= file.ReadDataBigEndian(romHeader.ramLocationEnd);
+	result &= file.ReadDataBigEndian(romHeader.bramSetting[0]);
+	result &= file.ReadDataBigEndian(romHeader.bramSetting[1]);
+	result &= file.ReadDataBigEndian(romHeader.bramSetting[2]);
+	result &= file.ReadDataBigEndian(romHeader.bramSetting[3]);
+	result &= file.ReadDataBigEndian(romHeader.bramLocationStart);
+	result &= file.ReadDataBigEndian(romHeader.bramLocationEnd);
+	result &= file.ReadTextFixedLengthBufferAsASCII(0x4, romHeader.bramUnusedData);
+	result &= file.ReadTextFixedLengthBufferAsASCII(0x30, romHeader.unknownString);
+	result &= file.ReadTextFixedLengthBufferAsASCII(0x10, romHeader.regionString);
+
+	//Record additional information about the ROM file
+	romHeader.fileSize = (unsigned int)file.Size();
+
+	//Return the result of the operation
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+bool MegaDriveROMLoader::AutoDetectRegionCode(const MegaDriveROMHeader& romHeader, std::wstring& regionCode)
+{
+	bool specificRegionCodeDetected = false;
+	std::string regionString = romHeader.regionString;
+
+	//Decode the traditional JUE region encoding characters if present
+	bool regionCodePresentJ = (regionString.find('J') != std::string::npos);
+	bool regionCodePresentU = (regionString.find('U') != std::string::npos);
+	bool regionCodePresentE = (regionString.find('E') != std::string::npos);
+	bool regionCodePresentJPAL = false;
+
+	//Decode the newer binary region tag if present
+	if(regionString.find_first_of("014589CD") == 0)
+	{
+		Data regionCodeInt(4, HexCharToNybble(regionString[0]));
+		regionCodePresentJ = regionCodeInt.GetBit(0);
+		regionCodePresentU = regionCodeInt.GetBit(2);
+		regionCodePresentE = regionCodeInt.GetBit(3);
+	}
+
+	//Apply specific overrides for known errors in Mega Drive region header information.
+	//##TODO## We know the sound gets out of sync with the rev 00 build of Quackshot on a
+	//PAL system. Add an override for that here.
+	if(StringStartsWith(regionString, "EUROPE"))
+	{
+		//Check for a region code indicator of "EUROPE". This has seen to be used in
+		//"Another World (E) [!]". This ROM is only compatible with the European system,
+		//and will show the top part of the screen incorrectly if played on a US system.
+		//For this case, we must not detect the "U" in "EUROPE" as a US region identifier.
+		regionCodePresentJ = false;
+		regionCodePresentU = false;
+		regionCodePresentE = true;
+		regionCodePresentJPAL = false;
+	}
+	else if(StringStartsWith(romHeader.versionString, "GM  T-15083"))
+	{
+		//The Japanese version of flashback is marked with a JUE region code, but it's a
+		//Japan only build.
+		regionCodePresentJ = true;
+		regionCodePresentU = false;
+		regionCodePresentE = false;
+		regionCodePresentJPAL = false;
+	}
+	else if(StringStartsWith(romHeader.versionString, "GM  T-79066"))
+	{
+		//The European version of flashback is marked with a JUE region code, but it's a
+		//Europe only build. The sound will be out of sync if this is run on an NTSC
+		//system.
+		regionCodePresentJ = true;
+		regionCodePresentU = false;
+		regionCodePresentE = false;
+		regionCodePresentJPAL = false;
+	}
+
+	//Select the best region based on region preference
+	//##TODO## Allow the user to control the region preference
+	if(regionCodePresentJ && regionCodePresentU && regionCodePresentE)
+	{
+		//If this ROM is marked as compatible with all regions, don't change the
+		//system region setting.
+	}
+	else if(regionCodePresentU)
+	{
+		regionCode = L"U";
+		specificRegionCodeDetected = true;
+	}
+	else if(regionCodePresentE)
+	{
+		regionCode = L"E";
+		specificRegionCodeDetected = true;
+	}
+	else if(regionCodePresentJ)
+	{
+		regionCode = L"J";
+		specificRegionCodeDetected = true;
+	}
+	else if(regionCodePresentJPAL)
+	{
+		regionCode = L"JPAL";
+		specificRegionCodeDetected = true;
+	}
+
+	return specificRegionCodeDetected;
+}
+
+//----------------------------------------------------------------------------------------
+bool MegaDriveROMLoader::AutoDetectBackupRAMSupport(const MegaDriveROMHeader& romHeader, unsigned int& sramStartLocation, unsigned int& sramByteSize, bool& linkedToEvenAddress, bool& linkedToOddAddress, bool& sram16Bit, std::vector<unsigned char>& initialRAMData)
+{
+	//Ensure the identifying "RA" marker indicating backup RAM is present
+	if(((char)romHeader.bramSetting[0] != 'R') || ((char)romHeader.bramSetting[1] != 'A'))
+	{
+		return false;
+	}
+
+	//Decode the BRAM mode bytes
+	//         ---------------------------------
+	//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	//0x1B2    |-------------------------------|
+	//         | 1 |Sav| 1 |Address| 0 | 0 | 0 |
+	//         ---------------------------------
+	//         ---------------------------------
+	//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	//0x1B3    |-------------------------------|
+	//         | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+	//         ---------------------------------
+	//Sav:     Memory is backup RAM
+	//Address: 10 = Memory on even addresses only
+	//         11 = Memory on odd addresses only
+	//         00 = Memory on even and odd addresses
+	const unsigned int bitsPerByte = 8;
+	Data bramSetting1B2(bitsPerByte, romHeader.bramSetting[2]);
+	bool memoryAddressRestricted = bramSetting1B2.GetBit(4);
+	bool memoryAvailableOnOddAddresses = bramSetting1B2.GetBit(3);
+	linkedToEvenAddress = !memoryAddressRestricted || !memoryAvailableOnOddAddresses;
+	linkedToOddAddress = !memoryAddressRestricted || memoryAvailableOnOddAddresses;
+
+	//Decode the SRAM data from the header
+	//##TODO## Do this properly. I believe there are mode flags we can decode which tell
+	//us about whether the SRAM is mapped on odd or even addresses.
+	//##TODO## Determine if 16-bit SRAM exists
+	linkedToOddAddress = ((romHeader.bramLocationStart & 0x1) != 0);
+	sramStartLocation = (romHeader.bramLocationStart & 0xFFFFFFFE);
+	unsigned int sramEndLocation = (romHeader.bramLocationEnd | 0x00000001);
+	sramByteSize = ((romHeader.bramLocationEnd - sramStartLocation) / 2) + 1;
+
+	//No known games use 16-bit SRAM, but since in theory it's possible, and we want our
+	//code to be as flexible as possible, we provide this variable so that we can easily
+	//add support for it later.
+	sram16Bit = false;
+
+	//According to the "Genesis Software Manual", "Addendum 4", SRAM is usually
+	//initialized to 0xFF at the factory. Although they state this cannot be relied upon,
+	//we use this as the best factory-state we can reliably supply for the initial
+	//contents of SRAM.
+	initialRAMData.push_back((unsigned char)0xFF);
+
+	//Overrides for game-specific issues
+	if(StringStartsWith(romHeader.versionString, "GM T-26013"))
+	{
+		//"Psy-O-Blade Moving Adventure" has invalid data in the start and end locations.
+		//The correct values appear 2 bytes down from the normal location.
+		sramStartLocation = 0x200000;
+		sramEndLocation = 0x203FFF;
+	}
+	else if((romHeader.versionString.empty() || (romHeader.versionString[0] == '\0')) && (romHeader.checksum == 0x8104))
+	{
+		//"Xin Qi Gai Wang Zi", aka, Beggar Prince, has a bad header, which is missing all
+		//the standard information. In this case, if the version string is empty, and the
+		//value recorded in the checksum field matches, we assume this is that game.
+		//##FIX## I'm not convinced our text buffers will end up empty with this corrupted
+		//header. Our current stream code will read the data into the string regardless.
+		//The first character of the version string will be null however, since that's
+		//what's written in the header.
+		sramStartLocation = 0x400000;
+		sramEndLocation = 0x40FFFF;
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool MegaDriveROMLoader::StringStartsWith(const std::string& targetString, const std::string& compareString)
+{
+	return (targetString.compare(0, compareString.length(), compareString) == 0);
 }

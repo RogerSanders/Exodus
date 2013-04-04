@@ -100,6 +100,8 @@ public:
 	virtual void SetThrottlingState(bool state);
 	virtual bool GetRunWhenProgramModuleLoadedState() const;
 	virtual void SetRunWhenProgramModuleLoadedState(bool state);
+	virtual bool GetEnablePersistentState() const;
+	virtual void SetEnablePersistentState(bool state);
 	virtual bool SystemRunning() const;
 	virtual bool IsSystemRollbackFlagged() const;
 	virtual double SystemRollbackTime() const;
@@ -288,6 +290,8 @@ private:
 	unsigned int GetSystemSettingID(unsigned int moduleID, const std::wstring& systemSettingName) const;
 
 	//Savestate functions
+	bool LoadPersistentStateForModule(const std::wstring& fileDir, const std::wstring& fileName, unsigned int moduleID, FileType fileType, bool returnSuccessOnNoFilePresent);
+	bool SavePersistentStateForModule(const std::wstring& fileDir, const std::wstring& fileName, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent);
 	bool LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const;
 	void SaveModuleRelationshipsExportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
 	void SaveModuleRelationshipsImportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
@@ -380,6 +384,7 @@ private:
 
 	//System interface functions
 	bool ValidateSystem();
+	void InitializeAllDevices();
 	void SignalSystemStopped();
 	void ExecuteThread();
 	double ExecuteSystemStep(double maximumTimeslice);
@@ -534,6 +539,7 @@ private:
 	std::wstring capturePath;
 	bool enableThrottling;
 	bool runWhenProgramModuleLoaded;
+	bool enablePersistentState;
 
 	//Connector settings
 	mutable unsigned int nextFreeConnectorID;

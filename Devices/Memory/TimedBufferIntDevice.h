@@ -11,6 +11,9 @@ public:
 	TimedBufferIntDevice(const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 
+	//Initialization functions
+	virtual void Initialize();
+
 	//Memory interface functions
 	virtual void TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext);
 	virtual void TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext);
@@ -31,6 +34,9 @@ public:
 
 private:
 	TimedBufferInt bufferShell;
+	bool initialMemoryDataSpecified;
+	bool repeatInitialMemoryData;
+	std::vector<unsigned char> initialMemoryData;
 };
 
 #endif

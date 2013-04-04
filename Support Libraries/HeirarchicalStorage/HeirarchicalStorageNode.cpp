@@ -36,6 +36,20 @@ void HeirarchicalStorageNode::Initialize()
 }
 
 //----------------------------------------------------------------------------------------
+//Name functions
+//----------------------------------------------------------------------------------------
+const wchar_t* HeirarchicalStorageNode::GetNameInternal() const
+{
+	return name.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+void HeirarchicalStorageNode::SetNameInternal(const wchar_t* aname)
+{
+	name = aname;
+}
+
+//----------------------------------------------------------------------------------------
 //Parent functions
 //----------------------------------------------------------------------------------------
 IHeirarchicalStorageNode& HeirarchicalStorageNode::GetParent() const
@@ -50,105 +64,11 @@ void HeirarchicalStorageNode::SetParent(HeirarchicalStorageNode* aparent)
 }
 
 //----------------------------------------------------------------------------------------
-//Child functions
+//Content functions
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageNode& HeirarchicalStorageNode::CreateChild()
+bool HeirarchicalStorageNode::IsEmpty() const
 {
-	HeirarchicalStorageNode* child = new HeirarchicalStorageNode();
-	child->SetParent(this);
-	children.push_back(child);
-	return *child;
-}
-
-//----------------------------------------------------------------------------------------
-IHeirarchicalStorageNode& HeirarchicalStorageNode::CreateChild(const wchar_t* aname)
-{
-	HeirarchicalStorageNode* child = new HeirarchicalStorageNode(aname);
-	child->SetParent(this);
-	children.push_back(child);
-	return *child;
-}
-
-//----------------------------------------------------------------------------------------
-//Attribute functions
-//----------------------------------------------------------------------------------------
-bool HeirarchicalStorageNode::IsAttributePresent(const wchar_t* name) const
-{
-	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
-	{
-		if(i->first == name)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-//----------------------------------------------------------------------------------------
-IHeirarchicalStorageAttribute* HeirarchicalStorageNode::GetAttribute(const wchar_t* name) const
-{
-	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
-	{
-		if(i->first == name)
-		{
-			return i->second;
-		}
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-IHeirarchicalStorageAttribute& HeirarchicalStorageNode::CreateAttribute(const wchar_t* name)
-{
-	HeirarchicalStorageAttribute* attribute = new HeirarchicalStorageAttribute(name);
-	attributes.push_back(AttributeListEntry(name, attribute));
-	return *attribute;
-}
-
-//----------------------------------------------------------------------------------------
-//Binary data functions
-//----------------------------------------------------------------------------------------
-bool HeirarchicalStorageNode::GetBinaryDataPresent() const
-{
-	return binaryDataPresent;
-}
-
-//----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetBinaryDataPresent(bool state)
-{
-	binaryDataPresent = state;
-}
-
-//----------------------------------------------------------------------------------------
-Stream::IStream& HeirarchicalStorageNode::GetBinaryDataBufferStream()
-{
-	return dataStream;
-}
-
-//----------------------------------------------------------------------------------------
-bool HeirarchicalStorageNode::GetInlineBinaryDataEnabled() const
-{
-	return inlineBinaryData;
-}
-
-//----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetInlineBinaryDataEnabled(bool state)
-{
-	inlineBinaryData = state;
-}
-
-//----------------------------------------------------------------------------------------
-//Name functions
-//----------------------------------------------------------------------------------------
-const wchar_t* HeirarchicalStorageNode::GetNameInternal() const
-{
-	return name.c_str();
-}
-
-//----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetNameInternal(const wchar_t* aname)
-{
-	name = aname;
+	return (children.empty() && attributes.empty() && !binaryDataPresent && (dataStream.Size() == 0));
 }
 
 //----------------------------------------------------------------------------------------
@@ -168,7 +88,46 @@ Stream::IStream& HeirarchicalStorageNode::GetInternalStream() const
 //----------------------------------------------------------------------------------------
 //Child functions
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageNode** HeirarchicalStorageNode::GetChildList(unsigned int& childCount)
+IHeirarchicalStorageNode& HeirarchicalStorageNode::CreateChild()
+{
+	HeirarchicalStorageNode* child = new HeirarchicalStorageNode();
+	child->SetParent(this);
+	children.push_back(child);
+	return *child;
+}
+
+//----------------------------------------------------------------------------------------
+IHeirarchicalStorageNode& HeirarchicalStorageNode::CreateChild(const std::wstring& aname)
+{
+	HeirarchicalStorageNode* child = new HeirarchicalStorageNode(aname);
+	child->SetParent(this);
+	children.push_back(child);
+	return *child;
+}
+
+//----------------------------------------------------------------------------------------
+IHeirarchicalStorageNode& HeirarchicalStorageNode::CreateChildInternal(const wchar_t* aname)
+{
+	return CreateChild(aname);
+}
+
+//----------------------------------------------------------------------------------------
+void HeirarchicalStorageNode::DeleteChild(IHeirarchicalStorageNode& node)
+{
+	ChildList::iterator childListIterator = children.begin();
+	while(childListIterator != children.end())
+	{
+		if(*childListIterator == &node)
+		{
+			children.erase(childListIterator);
+			return;
+		}
+		++childListIterator;
+	}
+}
+
+//----------------------------------------------------------------------------------------
+IHeirarchicalStorageNode** HeirarchicalStorageNode::GetChildListInternal(unsigned int& childCount)
 {
 	childCount = (unsigned int)children.size();
 	if(childCount > 0)
@@ -181,7 +140,78 @@ IHeirarchicalStorageNode** HeirarchicalStorageNode::GetChildList(unsigned int& c
 //----------------------------------------------------------------------------------------
 //Attribute functions
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageAttribute** HeirarchicalStorageNode::GetAttributeList(unsigned int& attributeCount)
+bool HeirarchicalStorageNode::IsAttributePresent(const std::wstring& name) const
+{
+	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
+	{
+		if(i->first == name)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+IHeirarchicalStorageAttribute* HeirarchicalStorageNode::GetAttribute(const std::wstring& name) const
+{
+	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
+	{
+		if(i->first == name)
+		{
+			return i->second;
+		}
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+IHeirarchicalStorageAttribute& HeirarchicalStorageNode::CreateAttribute(const std::wstring& name)
+{
+	IHeirarchicalStorageAttribute* attribute = GetAttribute(name);
+	if(attribute == 0)
+	{
+		HeirarchicalStorageAttribute* newAttribute = new HeirarchicalStorageAttribute(name);
+		attribute = newAttribute;
+		attributes.push_back(AttributeListEntry(name, newAttribute));
+	}
+	return *attribute;
+}
+
+//----------------------------------------------------------------------------------------
+bool HeirarchicalStorageNode::IsAttributePresentInternal(const wchar_t* name) const
+{
+	return IsAttributePresent(name);
+}
+
+//----------------------------------------------------------------------------------------
+IHeirarchicalStorageAttribute* HeirarchicalStorageNode::GetAttributeInternal(const wchar_t* name) const
+{
+	return GetAttribute(name);
+}
+
+//----------------------------------------------------------------------------------------
+IHeirarchicalStorageAttribute& HeirarchicalStorageNode::CreateAttributeInternal(const wchar_t* name)
+{
+	return CreateAttribute(name);
+}
+
+//----------------------------------------------------------------------------------------
+void HeirarchicalStorageNode::DeleteAttribute(IHeirarchicalStorageAttribute& attribute)
+{
+	AttributeList::iterator attributeIterator = attributes.begin();
+	while(attributeIterator != attributes.end())
+	{
+		if(attributeIterator->second == &attribute)
+		{
+			attributes.erase(attributeIterator);
+			return;
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+IHeirarchicalStorageAttribute** HeirarchicalStorageNode::GetAttributeListInternal(unsigned int& attributeCount)
 {
 	attributeArrayCached.clear();
 	attributeArrayCached.reserve(attributes.size());
@@ -198,9 +228,38 @@ IHeirarchicalStorageAttribute** HeirarchicalStorageNode::GetAttributeList(unsign
 }
 
 //----------------------------------------------------------------------------------------
+//Common data functions
+//----------------------------------------------------------------------------------------
+void HeirarchicalStorageNode::ClearData()
+{
+	binaryDataPresent = false;
+	inlineBinaryData = false;
+	binaryDataName.clear();
+	dataStream.Resize(0);
+}
+
+//----------------------------------------------------------------------------------------
 //Binary data functions
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetBinaryDataBufferName(const wchar_t* aname)
+bool HeirarchicalStorageNode::GetBinaryDataPresent() const
+{
+	return binaryDataPresent;
+}
+
+//----------------------------------------------------------------------------------------
+void HeirarchicalStorageNode::SetBinaryDataPresent(bool state)
+{
+	binaryDataPresent = state;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring HeirarchicalStorageNode::GetBinaryDataBufferName() const
+{
+	return binaryDataName.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+void HeirarchicalStorageNode::SetBinaryDataBufferName(const std::wstring& aname)
 {
 	binaryDataName = aname;
 }
@@ -209,6 +268,30 @@ void HeirarchicalStorageNode::SetBinaryDataBufferName(const wchar_t* aname)
 const wchar_t* HeirarchicalStorageNode::GetBinaryDataBufferNameInternal() const
 {
 	return binaryDataName.c_str();
+}
+
+//----------------------------------------------------------------------------------------
+void HeirarchicalStorageNode::SetBinaryDataBufferNameInternal(const wchar_t* aname)
+{
+	binaryDataName = aname;
+}
+
+//----------------------------------------------------------------------------------------
+Stream::IStream& HeirarchicalStorageNode::GetBinaryDataBufferStream()
+{
+	return dataStream;
+}
+
+//----------------------------------------------------------------------------------------
+bool HeirarchicalStorageNode::GetInlineBinaryDataEnabled() const
+{
+	return inlineBinaryData;
+}
+
+//----------------------------------------------------------------------------------------
+void HeirarchicalStorageNode::SetInlineBinaryDataEnabled(bool state)
+{
+	inlineBinaryData = state;
 }
 
 //----------------------------------------------------------------------------------------

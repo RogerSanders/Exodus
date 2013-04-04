@@ -53,9 +53,13 @@ ExodusInterface::ExodusInterface(ISystemExternal& asystem)
 	//##TODO## Modify these defaults to use the correct folders for assemblies and modules
 	prefs.pathModulesRaw = L".\\Systems";
 	prefs.pathSavestatesRaw = L".\\Savestates";
+	prefs.pathPersistentStateRaw = L".\\PersistentState";
 	prefs.pathWorkspacesRaw = L".\\Workspaces";
 	prefs.pathCapturesRaw = L".\\Captures";
 	prefs.pathAssembliesRaw = L".\\Modules";
+	prefs.enableThrottling = true;
+	prefs.runWhenProgramModuleLoaded = true;
+	prefs.enablePersistentState = true;
 	ResolvePrefs();
 }
 
@@ -1297,6 +1301,10 @@ void ExodusInterface::LoadPrefs(const std::wstring& filePath)
 					{
 						prefs.pathSavestatesRaw = (*i)->GetData();
 					}
+					else if((*i)->GetName() == L"PersistentStatePath")
+					{
+						prefs.pathPersistentStateRaw = (*i)->GetData();
+					}
 					else if((*i)->GetName() == L"WorkspacesPath")
 					{
 						prefs.pathWorkspacesRaw = (*i)->GetData();
@@ -1325,6 +1333,10 @@ void ExodusInterface::LoadPrefs(const std::wstring& filePath)
 					{
 						prefs.runWhenProgramModuleLoaded = (*i)->ExtractData<bool>();
 					}
+					else if((*i)->GetName() == L"EnablePersistentState")
+					{
+						prefs.enablePersistentState = (*i)->ExtractData<bool>();
+					}
 				}
 				ResolvePrefs();
 				system.SetCapturePath(prefs.pathCaptures);
@@ -1344,6 +1356,7 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 	rootNode.SetName(L"Settings");
 	rootNode.CreateChild(L"ModulesPath").SetData(prefs.pathModulesRaw);
 	rootNode.CreateChild(L"SavestatesPath").SetData(prefs.pathSavestatesRaw);
+	rootNode.CreateChild(L"PersistentStatePath").SetData(prefs.pathPersistentStateRaw);
 	rootNode.CreateChild(L"WorkspacesPath").SetData(prefs.pathWorkspacesRaw);
 	rootNode.CreateChild(L"CapturesPath").SetData(prefs.pathCapturesRaw);
 	rootNode.CreateChild(L"AssembliesPath").SetData(prefs.pathAssembliesRaw);
@@ -1351,6 +1364,7 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 	rootNode.CreateChild(L"DefaultWorkspace").SetData(prefs.loadWorkspaceRaw);
 	rootNode.CreateChild(L"EnableThrottling").SetData(prefs.enableThrottling);
 	rootNode.CreateChild(L"RunWhenProgramModuleLoaded").SetData(prefs.runWhenProgramModuleLoaded);
+	rootNode.CreateChild(L"EnablePersistentState").SetData(prefs.enablePersistentState);
 
 	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
 	if(file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
@@ -1376,6 +1390,12 @@ void ExodusInterface::ResolvePrefs()
 	{
 		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathSavestates[0]);
 		prefs.pathSavestates = combinedPath;
+	}
+	prefs.pathPersistentState = prefs.pathPersistentStateRaw;
+	if(PathIsRelative(&prefs.pathPersistentState[0]) == TRUE)
+	{
+		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathPersistentState[0]);
+		prefs.pathPersistentState = combinedPath;
 	}
 	prefs.pathWorkspaces = prefs.pathWorkspacesRaw;
 	if(PathIsRelative(&prefs.pathWorkspaces[0]) == TRUE)
@@ -1428,6 +1448,12 @@ const wchar_t* ExodusInterface::GetGlobalPreferencePathSavestatesInternal() cons
 }
 
 //----------------------------------------------------------------------------------------
+const wchar_t* ExodusInterface::GetGlobalPreferencePathPersistentStateInternal() const
+{
+	return prefs.pathPersistentState.c_str();
+}
+
+//----------------------------------------------------------------------------------------
 const wchar_t* ExodusInterface::GetGlobalPreferencePathWorkspacesInternal() const
 {
 	return prefs.pathWorkspaces.c_str();
@@ -1467,6 +1493,12 @@ bool ExodusInterface::GetGlobalPreferenceEnableThrottling() const
 bool ExodusInterface::GetGlobalPreferenceRunWhenProgramModuleLoaded() const
 {
 	return prefs.runWhenProgramModuleLoaded;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::GetEnablePersistentState() const
+{
+	return prefs.enablePersistentState;
 }
 
 //----------------------------------------------------------------------------------------
@@ -3262,6 +3294,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 			{
 			case IDC_SETTINGS_ENABLETHROTTLE:
 			case IDC_SETTINGS_RUNWHENPROGRAMLOADED:
+			case IDC_SETTINGS_ENABLEPERSISTENTSTATE:
 				EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), TRUE);
 				break;
 			case IDC_SETTINGS_OK:
@@ -3274,6 +3307,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 			case IDC_SETTINGS_APPLY:
 				state->prefs.pathModulesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHMODULES);
 				state->prefs.pathSavestatesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHSAVESTATES);
+				state->prefs.pathPersistentStateRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHPERSISTENTSTATE);
 				state->prefs.pathWorkspacesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHWORKSPACES);
 				state->prefs.pathCapturesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHCAPTURES);
 				state->prefs.pathAssembliesRaw = GetDlgItemString(hwnd, IDC_SETTINGS_PATHASSEMBLIES);
@@ -3281,8 +3315,10 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 				state->prefs.loadWorkspaceRaw = GetDlgItemString(hwnd, IDC_SETTINGS_LOADWORKSPACE);
 				state->prefs.enableThrottling = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLETHROTTLE) == BST_CHECKED);
 				state->prefs.runWhenProgramModuleLoaded = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED) == BST_CHECKED);
+				state->prefs.enablePersistentState = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE) == BST_CHECKED);
 				state->system.SetThrottlingState(state->prefs.enableThrottling);
 				state->system.SetRunWhenProgramModuleLoadedState(state->prefs.runWhenProgramModuleLoaded);
+				state->system.SetEnablePersistentState(state->prefs.enablePersistentState);
 				state->ResolvePrefs();
 				state->UpdateSaveSlots();
 				EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
@@ -3417,6 +3453,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 				break;}
 			case IDC_SETTINGS_PATHMODULESCHANGE:
 			case IDC_SETTINGS_PATHSAVESTATESCHANGE:
+			case IDC_SETTINGS_PATHPERSISTENTSTATECHANGE:
 			case IDC_SETTINGS_PATHDEBUGSESSIONSCHANGE:
 			case IDC_SETTINGS_PATHWORKSPACESCHANGE:
 			case IDC_SETTINGS_PATHCAPTURESCHANGE:
@@ -3426,6 +3463,9 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 				{
 				case IDC_SETTINGS_PATHMODULESCHANGE:
 					textboxControlID = IDC_SETTINGS_PATHMODULES;
+					break;
+				case IDC_SETTINGS_PATHPERSISTENTSTATECHANGE:
+					textboxControlID = IDC_SETTINGS_PATHPERSISTENTSTATE;
 					break;
 				case IDC_SETTINGS_PATHSAVESTATESCHANGE:
 					textboxControlID = IDC_SETTINGS_PATHSAVESTATES;
@@ -3498,6 +3538,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 		HANDLE folderIconHandle = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_FOLDER), IMAGE_ICON, 0, 0, LR_SHARED);
 		SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_PATHMODULESCHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 		SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_PATHSAVESTATESCHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
+		SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_PATHPERSISTENTSTATECHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 		SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_PATHDEBUGSESSIONSCHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 		SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_PATHWORKSPACESCHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 		SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_PATHCAPTURESCHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
@@ -3506,6 +3547,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 		SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_LOADWORKSPACECHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHMODULES, &state->prefs.pathModulesRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHSAVESTATES, &state->prefs.pathSavestatesRaw[0]);
+		SetDlgItemText(hwnd, IDC_SETTINGS_PATHPERSISTENTSTATE, &state->prefs.pathPersistentStateRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHWORKSPACES, &state->prefs.pathWorkspacesRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHCAPTURES, &state->prefs.pathCapturesRaw[0]);
 		SetDlgItemText(hwnd, IDC_SETTINGS_PATHASSEMBLIES, &state->prefs.pathAssembliesRaw[0]);
@@ -3513,6 +3555,10 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 		SetDlgItemText(hwnd, IDC_SETTINGS_LOADWORKSPACE, &state->prefs.loadWorkspaceRaw[0]);
 		CheckDlgButton(hwnd, IDC_SETTINGS_ENABLETHROTTLE, state->prefs.enableThrottling? BST_CHECKED: BST_UNCHECKED);
 		CheckDlgButton(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED, state->prefs.runWhenProgramModuleLoaded? BST_CHECKED: BST_UNCHECKED);
+		CheckDlgButton(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE, state->prefs.enablePersistentState? BST_CHECKED: BST_UNCHECKED);
+
+		EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
+
 		break;}
 	default:
 		return FALSE;
