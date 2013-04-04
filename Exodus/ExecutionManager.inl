@@ -218,19 +218,6 @@ void ExecutionManager::Rollback()
 //----------------------------------------------------------------------------------------
 void ExecutionManager::Initialize()
 {
-	//Negate the current output line state for all devices we are about to initialize. We
-	//need to do this, as the Initialize routine may alter the internal state of the
-	//device in such a way that line state changes which have been conditionally asserted
-	//for a future point in time should no longer be triggered. The Initialize routine is
-	//not allowed to interact with external devices however, so it cannot revoke any
-	//pending line state changes that have already been asserted. By explicitly negating
-	//all output line state here, we ensure that there are no pending line state changes
-	//asserted before we initialize the devices.
-	for(size_t i = 0; i < deviceCount; ++i)
-	{
-		deviceArray[i]->GetTargetDevice()->NegateCurrentOutputLineState();
-	}
-
 	//Initialize the devices. Note that we only perform initialization on a device when
 	//execution for that device is suspended. This is critical, in order to ensure that
 	//the device does not have any actively running threads, such as render threads, which
@@ -242,16 +229,23 @@ void ExecutionManager::Initialize()
 	{
 		deviceArray[i]->Initialize();
 	}
+}
 
-	//Re-assert the current output line state for all devices we just initialized. This is
-	//required, as the initialization routine for a device may change its internal state
-	//in a way that would affect its asserted output line state, but the Initialize method
-	//is not allowed to interact with external devices. A call to the
-	//AssertCurrentOutputLineState method ensures that the correct external line state can
-	//now be asserted for all initialized devices.
+//----------------------------------------------------------------------------------------
+void ExecutionManager::AssertCurrentOutputLineState()
+{
 	for(size_t i = 0; i < deviceCount; ++i)
 	{
 		deviceArray[i]->GetTargetDevice()->AssertCurrentOutputLineState();
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void ExecutionManager::NegateCurrentOutputLineState()
+{
+	for(size_t i = 0; i < deviceCount; ++i)
+	{
+		deviceArray[i]->GetTargetDevice()->NegateCurrentOutputLineState();
 	}
 }
 

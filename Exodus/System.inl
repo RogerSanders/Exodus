@@ -452,7 +452,7 @@ struct System::EmbeddedROMInfo
 //Constructors
 //----------------------------------------------------------------------------------------
 System::System(void* aassemblyHandle)
-:stopSystem(false), systemStopped(true), initialize(false), enableThrottling(true), runWhenProgramModuleLoaded(true), assemblyHandle(aassemblyHandle)
+:stopSystem(false), systemStopped(true), initialize(false), enableThrottling(true), runWhenProgramModuleLoaded(true), enablePersistentState(true), assemblyHandle(aassemblyHandle)
 {
 	//Initialize the extension interface pointers
 	systemExtensionInterface = this;

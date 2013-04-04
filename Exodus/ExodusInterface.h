@@ -103,6 +103,7 @@ public:
 	void ResolvePrefs();
 	virtual bool GetGlobalPreferenceEnableThrottling() const;
 	virtual bool GetGlobalPreferenceRunWhenProgramModuleLoaded() const;
+	virtual bool GetEnablePersistentState() const;
 
 	//Assembly functions
 	bool LoadAssembliesFromFolder(const std::wstring& folder);
@@ -125,6 +126,7 @@ protected:
 	//Global preference functions
 	virtual const wchar_t* GetGlobalPreferencePathModulesInternal() const;
 	virtual const wchar_t* GetGlobalPreferencePathSavestatesInternal() const;
+	virtual const wchar_t* GetGlobalPreferencePathPersistentStateInternal() const;
 	virtual const wchar_t* GetGlobalPreferencePathWorkspacesInternal() const;
 	virtual const wchar_t* GetGlobalPreferencePathCapturesInternal() const;
 	virtual const wchar_t* GetGlobalPreferencePathAssembliesInternal() const;
@@ -145,6 +147,8 @@ private:
 		std::wstring pathModulesRaw;
 		std::wstring pathSavestates;
 		std::wstring pathSavestatesRaw;
+		std::wstring pathPersistentState;
+		std::wstring pathPersistentStateRaw;
 		std::wstring pathWorkspaces;
 		std::wstring pathWorkspacesRaw;
 		std::wstring pathCaptures;
@@ -157,6 +161,7 @@ private:
 		std::wstring loadWorkspaceRaw;
 		bool enableThrottling;
 		bool runWhenProgramModuleLoaded;
+		bool enablePersistentState;
 	};
 	struct NewMenuItem;
 	struct ViewInfo;

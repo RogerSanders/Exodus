@@ -19,23 +19,27 @@ public:
 	//Parent functions
 	virtual IHeirarchicalStorageNode& GetParent() const;
 
+	//Content functions
+	virtual bool IsEmpty() const;
+
 	//Child functions
-	using IHeirarchicalStorageNode::GetChildList;
+	using IHeirarchicalStorageNode::CreateChild;
 	virtual IHeirarchicalStorageNode& CreateChild();
-	virtual IHeirarchicalStorageNode& CreateChild(const wchar_t* aname);
+	IHeirarchicalStorageNode& CreateChild(const std::wstring& aname);
+	virtual void DeleteChild(IHeirarchicalStorageNode& node);
 
 	//Attribute functions
-	using IHeirarchicalStorageNode::GetAttributeList;
-	using IHeirarchicalStorageNode::IsAttributePresent;
-	using IHeirarchicalStorageNode::GetAttribute;
 	using IHeirarchicalStorageNode::CreateAttribute;
-	virtual bool IsAttributePresent(const wchar_t* name) const;
-	virtual IHeirarchicalStorageAttribute* GetAttribute(const wchar_t* name) const;
-	virtual IHeirarchicalStorageAttribute& CreateAttribute(const wchar_t* name);
+	bool IsAttributePresent(const std::wstring& name) const;
+	IHeirarchicalStorageAttribute* GetAttribute(const std::wstring& name) const;
+	IHeirarchicalStorageAttribute& CreateAttribute(const std::wstring& name);
+	virtual void DeleteAttribute(IHeirarchicalStorageAttribute& attribute);
 
 	//Binary data functions
 	virtual bool GetBinaryDataPresent() const;
 	virtual void SetBinaryDataPresent(bool state);
+	std::wstring GetBinaryDataBufferName() const;
+	void SetBinaryDataBufferName(const std::wstring& aname);
 	virtual Stream::IStream& GetBinaryDataBufferStream();
 	virtual bool GetInlineBinaryDataEnabled() const;
 	virtual void SetInlineBinaryDataEnabled(bool state);
@@ -51,14 +55,21 @@ protected:
 	virtual Stream::IStream& GetInternalStream() const;
 
 	//Child functions
-	virtual IHeirarchicalStorageNode** GetChildList(unsigned int& childCount);
+	virtual IHeirarchicalStorageNode& CreateChildInternal(const wchar_t* aname);
+	virtual IHeirarchicalStorageNode** GetChildListInternal(unsigned int& childCount);
 
 	//Attribute functions
-	virtual IHeirarchicalStorageAttribute** GetAttributeList(unsigned int& attributeCount);
+	virtual IHeirarchicalStorageAttribute** GetAttributeListInternal(unsigned int& attributeCount);
+	virtual bool IsAttributePresentInternal(const wchar_t* name) const;
+	virtual IHeirarchicalStorageAttribute* GetAttributeInternal(const wchar_t* name) const;
+	virtual IHeirarchicalStorageAttribute& CreateAttributeInternal(const wchar_t* name);
+
+	//Common data functions
+	virtual void ClearData();
 
 	//Binary data functions
-	virtual void SetBinaryDataBufferName(const wchar_t* aname);
 	virtual const wchar_t* GetBinaryDataBufferNameInternal() const;
+	virtual void SetBinaryDataBufferNameInternal(const wchar_t* aname);
 
 private:
 	//Parent functions

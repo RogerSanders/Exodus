@@ -19,6 +19,9 @@ public:
 	//Parent functions
 	virtual IHeirarchicalStorageNode& GetParent() const = 0;
 
+	//Content functions
+	virtual bool IsEmpty() const = 0;
+
 	//Child functions
 	virtual IHeirarchicalStorageNode& CreateChild() = 0;
 	inline IHeirarchicalStorageNode& CreateChild(const std::wstring& aname);
@@ -26,21 +29,22 @@ public:
 	template<class T> IHeirarchicalStorageNode& CreateChildHex(const std::wstring& aname, const T& adata, unsigned int length);
 	template<class T> IHeirarchicalStorageNode& CreateChildBinary(const std::wstring& aname, const T& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
 	template<class T> IHeirarchicalStorageNode& CreateChildBinary(const std::wstring& aname, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
-	virtual IHeirarchicalStorageNode& CreateChild(const wchar_t* aname) = 0;
+	virtual void DeleteChild(IHeirarchicalStorageNode& node) = 0;
 	inline std::list<IHeirarchicalStorageNode*> GetChildList();
 
 	//Attribute functions
-	inline std::list<IHeirarchicalStorageAttribute*> GetAttributeList();
 	inline bool IsAttributePresent(const std::wstring& name) const;
-	virtual bool IsAttributePresent(const wchar_t* name) const = 0;
 	inline IHeirarchicalStorageAttribute* GetAttribute(const std::wstring& name) const;
-	virtual IHeirarchicalStorageAttribute* GetAttribute(const wchar_t* name) const = 0;
 	inline IHeirarchicalStorageAttribute& CreateAttribute(const std::wstring& name);
-	virtual IHeirarchicalStorageAttribute& CreateAttribute(const wchar_t* name) = 0;
 	template<class T> IHeirarchicalStorageNode& CreateAttribute(const std::wstring& name, const T& value);
 	template<class T> IHeirarchicalStorageNode& CreateAttributeHex(const std::wstring& name, const T& value, unsigned int length);
 	template<class T> bool ExtractAttribute(const std::wstring& name, T& target);
 	template<class T> bool ExtractAttributeHex(const std::wstring& name, T& target);
+	virtual void DeleteAttribute(IHeirarchicalStorageAttribute& attribute) = 0;
+	inline std::list<IHeirarchicalStorageAttribute*> GetAttributeList();
+
+	//Common data functions
+	virtual void ClearData() = 0;
 
 	//Data read functions
 	inline std::wstring GetData() const;
@@ -86,14 +90,18 @@ protected:
 	virtual Stream::IStream& GetInternalStream() const = 0;
 
 	//Child functions
-	virtual IHeirarchicalStorageNode** GetChildList(unsigned int& childCount) = 0;
+	virtual IHeirarchicalStorageNode& CreateChildInternal(const wchar_t* aname) = 0;
+	virtual IHeirarchicalStorageNode** GetChildListInternal(unsigned int& childCount) = 0;
 
 	//Attribute functions
-	virtual IHeirarchicalStorageAttribute** GetAttributeList(unsigned int& attributeCount) = 0;
+	virtual IHeirarchicalStorageAttribute** GetAttributeListInternal(unsigned int& attributeCount) = 0;
+	virtual bool IsAttributePresentInternal(const wchar_t* name) const = 0;
+	virtual IHeirarchicalStorageAttribute* GetAttributeInternal(const wchar_t* name) const = 0;
+	virtual IHeirarchicalStorageAttribute& CreateAttributeInternal(const wchar_t* name) = 0;
 
 	//Binary data functions
-	virtual void SetBinaryDataBufferName(const wchar_t* aname) = 0;
 	virtual const wchar_t* GetBinaryDataBufferNameInternal() const = 0;
+	virtual void SetBinaryDataBufferNameInternal(const wchar_t* aname) = 0;
 };
 
 #include "IHeirarchicalStorageNode.inl"

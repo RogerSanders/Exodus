@@ -4,19 +4,59 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 RAM::RAM(const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryWrite(L"RAM", ainstanceName, amoduleID)
+:MemoryWrite(L"RAM", ainstanceName, amoduleID), initialMemoryDataSpecified(false), repeatInitialMemoryData(false), dataIsPersistent(false)
 {}
 
 //----------------------------------------------------------------------------------------
 bool RAM::Construct(IHeirarchicalStorageNode& node)
 {
 	bool result = MemoryWrite::Construct(node);
+
+	//Validate the specified interface size
 	if(GetInterfaceSize() <= 0)
 	{
 		return false;
 	}
+
+	//Resize the internal memory array based on the specified interface size
 	memory.resize(GetInterfaceSize());
 	memoryLocked.resize(GetInterfaceSize());
+
+	//Read the PersistentData attribute if specified
+	IHeirarchicalStorageAttribute* persistentDataAttribute = node.GetAttribute(L"PersistentData");
+	if(persistentDataAttribute != 0)
+	{
+		dataIsPersistent = persistentDataAttribute->ExtractValue<bool>();
+	}
+
+	//If initial RAM state data has been specified, attempt to load it now.
+	if(node.GetBinaryDataPresent())
+	{
+		//Flag that initial memory data has been specified
+		initialMemoryDataSpecified = true;
+
+		//Obtain the stream for our binary data
+		Stream::IStream& dataStream = node.GetBinaryDataBufferStream();
+		dataStream.SetStreamPos(0);
+
+		//Read the RepeatData attribute if specified
+		IHeirarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
+		if(repeatDataAttribute != 0)
+		{
+			repeatInitialMemoryData = repeatDataAttribute->ExtractValue<bool>();
+		}
+
+		//Read in the initial memory data
+		unsigned int bytesInDataStream = (unsigned int)dataStream.Size();
+		unsigned int memoryArraySize = GetInterfaceSize();
+		unsigned int bytesToRead = (memoryArraySize < bytesInDataStream)? memoryArraySize: bytesInDataStream;
+		initialMemoryData.resize(bytesInDataStream);
+		if(!dataStream.ReadData(&initialMemoryData[0], bytesToRead))
+		{
+			return false;
+		}
+	}
+
 	return result;
 }
 
@@ -26,7 +66,19 @@ bool RAM::Construct(IHeirarchicalStorageNode& node)
 void RAM::Initialize()
 {
 	//Initialize the memory buffer
-	memory.assign(GetInterfaceSize(), 0);
+	for(unsigned int i = 0; i < (unsigned int)memory.size(); ++i)
+	{
+		if(!IsByteLocked(i))
+		{
+			unsigned char initialValue = 0;
+			if(initialMemoryDataSpecified && (repeatInitialMemoryData || (i < (unsigned int)initialMemoryData.size())))
+			{
+				unsigned int initialMemoryDataIndex = (i % (unsigned int)initialMemoryData.size());
+				initialValue = initialMemoryData[initialMemoryDataIndex];
+			}
+			memory[i] = initialValue;
+		}
+	}
 
 	//Initialize rollback state
 	buffer.clear();
@@ -143,6 +195,33 @@ void RAM::SaveState(IHeirarchicalStorageNode& node) const
 	node.InsertBinaryData(memory, GetFullyQualifiedDeviceInstanceName(), false);
 
 	MemoryWrite::SaveState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void RAM::LoadPersistentState(IHeirarchicalStorageNode& node)
+{
+	if(dataIsPersistent)
+	{
+		size_t memorySize = memory.size();
+		node.ExtractBinaryData(memory);
+		if(memory.size() < memorySize)
+		{
+			memory.insert(memory.end(), memorySize - memory.size(), 0);
+		}
+	}
+
+	MemoryWrite::LoadPersistentState(node);
+}
+
+//----------------------------------------------------------------------------------------
+void RAM::SavePersistentState(IHeirarchicalStorageNode& node) const
+{
+	if(dataIsPersistent)
+	{
+		node.InsertBinaryData(memory, GetFullyQualifiedDeviceInstanceName(), false);
+	}
+
+	MemoryWrite::SavePersistentState(node);
 }
 
 //----------------------------------------------------------------------------------------

@@ -32,6 +32,8 @@ public:
 	//Savestate functions
 	virtual void LoadState(IHeirarchicalStorageNode& node);
 	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadPersistentState(IHeirarchicalStorageNode& node);
+	virtual void SavePersistentState(IHeirarchicalStorageNode& node) const;
 	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
 
@@ -42,6 +44,10 @@ private:
 	MemoryAccessBuffer buffer;
 	std::vector<unsigned char> memory;
 	std::vector<bool> memoryLocked;
+	bool initialMemoryDataSpecified;
+	bool repeatInitialMemoryData;
+	std::vector<unsigned char> initialMemoryData;
+	bool dataIsPersistent;
 };
 
 #endif

@@ -1169,6 +1169,10 @@
 				RelativePath=".\MegaDriveROMLoader.h"
 				>
 			</File>
+			<File
+				RelativePath=".\MegaDriveROMLoader.inl"
+				>
+			</File>
 			<Filter
 				Name="FileOpenMenuHandler"
 				>

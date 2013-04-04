@@ -29,6 +29,12 @@ std::wstring IGUIExtensionInterface::GetGlobalPreferencePathSavestates() const
 }
 
 //----------------------------------------------------------------------------------------
+std::wstring IGUIExtensionInterface::GetGlobalPreferencePathPersistentState() const
+{
+	return GetGlobalPreferencePathPersistentStateInternal();
+}
+
+//----------------------------------------------------------------------------------------
 std::wstring IGUIExtensionInterface::GetGlobalPreferencePathWorkspaces() const
 {
 	return GetGlobalPreferencePathWorkspacesInternal();

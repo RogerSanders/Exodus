@@ -84,6 +84,8 @@ public:
 	virtual bool GetScreenshot(IImage& image) const = 0;
 	virtual void LoadState(IHeirarchicalStorageNode& node) = 0;
 	virtual void SaveState(IHeirarchicalStorageNode& node) const = 0;
+	virtual void LoadPersistentState(IHeirarchicalStorageNode& node) = 0;
+	virtual void SavePersistentState(IHeirarchicalStorageNode& node) const = 0;
 	virtual void LoadSettingsState(IHeirarchicalStorageNode& node) = 0;
 	virtual void SaveSettingsState(IHeirarchicalStorageNode& node) const = 0;
 	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node) = 0;
