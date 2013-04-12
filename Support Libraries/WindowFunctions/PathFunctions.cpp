@@ -446,6 +446,11 @@ bool SelectExistingFile(HWND parentWindow, const std::list<FileSelectionType>& s
 	}
 	openFileParams.Flags = OFN_HIDEREADONLY | OFN_DONTADDTORECENT | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
+	//Save the current working directory before launching the open file dialog. For some
+	//reason, no option is given to retain the directory when using the GetOpenFileName
+	//dialog. The OFN_NOCHANGEDIR flag only works with GetSaveFileName.
+	std::wstring currentWorkingDirectory = PathGetCurrentWorkingDirectory();
+
 	//Attempt to select a file using the open file dialog
 	BOOL openDialogReturn = GetOpenFileName(&openFileParams);
 	if(openDialogReturn == 0)
@@ -465,6 +470,9 @@ bool SelectExistingFile(HWND parentWindow, const std::list<FileSelectionType>& s
 		//Since the selection process has failed, return false.
 		return false;
 	}
+
+	//Restore the current working directory after the file selection
+	PathSetCurrentWorkingDirectory(currentWorkingDirectory);
 
 	//Return the selected file path to the user
 	selectedFilePath = openFileParams.lpstrFile;
