@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-A04000::A04000(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"A04000", ainstanceName, amoduleID)
+A04000::A04000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID)
 {}
 
 //----------------------------------------------------------------------------------------

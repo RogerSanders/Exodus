@@ -6,8 +6,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-A06000::A06000(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"A06000", ainstanceName, amoduleID)
+A06000::A06000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID)
 {
 	m68kMemoryBus = 0;
 	z80MemoryBus = 0;

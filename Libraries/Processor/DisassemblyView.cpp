@@ -22,7 +22,7 @@ Processor::DisassemblyView::DisassemblyView(Processor* adevice)
 	readAbove = 0x100;
 	lastBufferedOpcodeSize = 0;
 	firstVisibleOpcodeSize = 0;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Disassembly");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Disassembly");
 	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 440, 500, true);
 }
 

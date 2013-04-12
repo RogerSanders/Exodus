@@ -17,7 +17,7 @@ VDP::VRAMView::VRAMView(VDP* adevice)
 	hwndDetails16 = NULL;
 	detailsVisible = false;
 
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"VRAM Pattern Viewer");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"VRAM Pattern Viewer");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_VRAM));
 }
 

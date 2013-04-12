@@ -1,7 +1,6 @@
 #include "EmbeddedROMView.h"
 #include "Stream/Stream.pkg"
 #include "resource.h"
-#include <shlwapi.h>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -163,39 +162,12 @@ INT_PTR System::EmbeddedROMView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM 
 		switch(controlID)
 		{
 		case IDC_EMBEDDEDROM_BROWSE:{
-			//Get the current filename
+			//Select a new target file
 			std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_EMBEDDEDROM_PATH);
-
-			//Copy the input filename into our filename buffer
-			TCHAR fileName[MAX_PATH];
-			unsigned int i = 0;
-			while((i < fileNameCurrent.size()) && (i < (MAX_PATH - 1)))
+			std::wstring selectedFilePath;
+			if(system->guiExtensionInterface->SelectExistingFile(L"Binary files|bin", L"bin", fileNameCurrent, L"", true, selectedFilePath))
 			{
-				fileName[i] = fileNameCurrent[i];
-				++i;
-			}
-			fileName[i] = '\0';
-
-			//Set the parameters for the popup
-			OPENFILENAME openFileParams;
-			ZeroMemory(&openFileParams, sizeof(openFileParams));
-			openFileParams.lStructSize = sizeof(openFileParams);
-			openFileParams.hwndOwner = hwnd;
-			openFileParams.lpstrFile = fileName;
-			openFileParams.nMaxFile = sizeof(fileName);
-			openFileParams.lpstrFilter = L"Binary files(*.bin)\0*.bin\0All (*.*)\0*.*\0\0";
-			openFileParams.lpstrDefExt = L"bin";
-			openFileParams.nFilterIndex = 1;
-			openFileParams.lpstrFileTitle = NULL;
-			openFileParams.nMaxFileTitle = 0;
-			openFileParams.lpstrInitialDir = NULL;
-			openFileParams.Flags = OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
-
-			//Display the popup
-			if(GetOpenFileName(&openFileParams) != 0)
-			{
-				std::wstring fileName = openFileParams.lpstrFile;
-				SetDlgItemText(hwnd, IDC_EMBEDDEDROM_PATH, &fileName[0]);
+				SetDlgItemText(hwnd, IDC_EMBEDDEDROM_PATH, &selectedFilePath[0]);
 			}
 			break;}
 		case IDC_EMBEDDEDROM_APPLY:

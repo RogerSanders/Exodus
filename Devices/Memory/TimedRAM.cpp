@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-TimedRAM::TimedRAM(const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryWrite(L"TimedRAM", ainstanceName, amoduleID), memory(0)
+TimedRAM::TimedRAM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:MemoryWrite(aimplementationName, ainstanceName, amoduleID), memory(0)
 {}
 
 //----------------------------------------------------------------------------------------

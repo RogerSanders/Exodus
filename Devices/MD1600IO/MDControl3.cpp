@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MDControl3::MDControl3(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"MDControl3", ainstanceName, amoduleID)
+MDControl3::MDControl3(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID)
 {
 	memoryBus = 0;
 	buttonPressed.resize(buttonCount);

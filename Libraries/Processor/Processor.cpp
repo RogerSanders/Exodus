@@ -13,8 +13,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Processor::Processor(const std::wstring& aclassName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(aclassName, ainstanceName, amoduleID),
+Processor::Processor(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID),
 menuHandler(0),
 clockSpeed(0), reportedClockSpeed(0), clockSpeedOverridden(false),
 traceEnabled(false), traceDisassemble(false), traceLength(200),

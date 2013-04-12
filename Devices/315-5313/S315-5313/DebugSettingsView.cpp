@@ -7,7 +7,7 @@
 S315_5313::DebugSettingsView::DebugSettingsView(S315_5313* adevice)
 :device(adevice)
 {
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Debug Settings");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Debug Settings");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_S315_5313_DEBUGSETTINGS));
 }
 

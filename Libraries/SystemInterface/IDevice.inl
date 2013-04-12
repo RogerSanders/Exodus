@@ -45,9 +45,9 @@ bool IDevice::AddReference(const std::wstring& referenceName, IClockSource* targ
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-std::wstring IDevice::GetDeviceClassName() const
+std::wstring IDevice::GetDeviceImplementationName() const
 {
-	return GetDeviceClassNameInternal();
+	return GetDeviceImplementationNameInternal();
 }
 
 //----------------------------------------------------------------------------------------

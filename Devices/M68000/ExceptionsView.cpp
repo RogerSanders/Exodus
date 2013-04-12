@@ -10,7 +10,7 @@ M68000::ExceptionsView::ExceptionsView(M68000* adevice)
 :device(adevice), initializedDialog(false), currentControlFocus(0)
 {
 	exceptionListIndex = -1;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Exception Control");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Exception Control");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_M68000_EXCEPTIONS));
 }
 

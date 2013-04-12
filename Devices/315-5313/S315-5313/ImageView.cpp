@@ -10,7 +10,7 @@ S315_5313::ImageView::ImageView(S315_5313* adevice)
 	glrc = NULL;
 	hwndOpenGL = NULL;
 	hwndStatusBar = NULL;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Image Window");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Image Window");
 	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 420, 313, true);
 	videoFixedAspectRatioCached = device->videoFixedAspectRatio;
 	imageAspectRatio = 4.0 / 3.0;

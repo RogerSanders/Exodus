@@ -124,3 +124,22 @@ struct ExodusInterface::MapConnectorDialogParams
 	ConnectorInfo selectedConnector;
 	ISystemExternal* system;
 };
+
+//----------------------------------------------------------------------------------------
+struct ExodusInterface::SelectCompressedFileDialogParams
+{
+	SelectCompressedFileDialogParams()
+	:selectionMade(false)
+	{}
+
+	bool selectionMade;
+	unsigned int selectedEntryID;
+	std::list<SelectCompressedFileDialogParamsFileEntry> fileList;
+};
+
+//----------------------------------------------------------------------------------------
+struct ExodusInterface::SelectCompressedFileDialogParamsFileEntry
+{
+	std::wstring fileName;
+	unsigned int entryID;
+};

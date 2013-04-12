@@ -1,27 +1,15 @@
 //----------------------------------------------------------------------------------------
 //External information
 //----------------------------------------------------------------------------------------
-std::wstring LoadedModuleInfo::GetModuleFileDirectory() const
+std::wstring LoadedModuleInfo::GetModuleFilePath() const
 {
-	return fileDir;
+	return filePath;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleFileDirectory(const std::wstring& amoduleFileDirectory)
+void LoadedModuleInfo::SetModuleFilePath(const std::wstring& amoduleFilePath)
 {
-	fileDir = amoduleFileDirectory;
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring LoadedModuleInfo::GetModuleFileName() const
-{
-	return fileName;
-}
-
-//----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleFileName(const std::wstring& amoduleFileName)
-{
-	fileName = amoduleFileName;
+	filePath = amoduleFilePath;
 }
 
 //----------------------------------------------------------------------------------------

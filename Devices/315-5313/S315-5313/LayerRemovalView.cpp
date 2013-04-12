@@ -7,7 +7,7 @@
 S315_5313::LayerRemovalView::LayerRemovalView(S315_5313* adevice)
 :device(adevice)
 {
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Layer Removal");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Layer Removal");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_LAYERREMOVAL));
 }
 

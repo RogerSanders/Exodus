@@ -1,9 +1,9 @@
 #include "SystemInterface/SystemInterface.pkg"
 #include "MegaDriveROMLoader.h"
 
-IExtension* GetMegaDriveROMLoader(const wchar_t* instanceName, unsigned int moduleID)
+IExtension* GetMegaDriveROMLoader(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new MegaDriveROMLoader(instanceName, moduleID);
+	return new MegaDriveROMLoader(implementationName, instanceName, moduleID);
 }
 
 void DeleteMegaDriveROMLoader(IExtension* extension)
@@ -22,7 +22,7 @@ extern "C" __declspec(dllexport) bool GetExtensionEntry(unsigned int entryNo, IE
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetExtensionSettings(L"MegaDriveROMLoader", GetMegaDriveROMLoader, DeleteMegaDriveROMLoader, 1);
+		entry.SetExtensionSettings(GetMegaDriveROMLoader, DeleteMegaDriveROMLoader, L"Loaders.MegaDriveROM", L"MegaDriveROMLoader", 1, L"", L"");
 		return true;
 	}
 	return false;

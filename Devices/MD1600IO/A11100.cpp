@@ -6,8 +6,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-A11100::A11100(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"A11100", ainstanceName, amoduleID)
+A11100::A11100(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID)
 {
 	memoryBus = 0;
 }

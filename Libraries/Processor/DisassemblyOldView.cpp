@@ -12,7 +12,7 @@ Processor::DisassemblyOldView::DisassemblyOldView(Processor* adevice)
 	size = 0x1000;
 	currentPC = 0;
 	forcePCSync = false;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Old Disassembly");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Old Disassembly");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_DISASSEMBLY));
 }
 

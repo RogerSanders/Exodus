@@ -7,7 +7,7 @@
 Processor::ControlView::ControlView(Processor* adevice)
 :device(adevice), initializedDialog(false), currentControlFocus(0)
 {
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Processor Control");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Processor Control");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_CONTROL));
 }
 

@@ -509,91 +509,65 @@ bool WC_HexEdit::PasteFromClipboard()
 //----------------------------------------------------------------------------------------
 bool WC_HexEdit::SaveToFile()
 {
-	bool result = true;
-
-	//Get filename
-	TCHAR fileName[MAX_PATH];
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = hwnd;
-	openFileParams.lpstrFile = fileName;
-	openFileParams.lpstrFile[0] = '\0';
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Binary Files (*.bin)\0*.bin\0All (*.*)\0*.*\0";
-	openFileParams.lpstrDefExt = L"bin";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = NULL;
-	openFileParams.Flags = OFN_HIDEREADONLY;
-	//Note that the OFN_HIDEREADONLY flag alters the dialog template slightly, even
-	//though the read only checkbox is never displayed either way. We include the flag
-	//in the save dialog to keep the look consistent with the open dialog, where we do
-	//want to include this flag.
-
-	if(GetSaveFileName(&openFileParams) != 0)
+	//Obtain a path to the target file
+	std::wstring selectedFilePath;
+	if(!SelectExistingFile(hwnd, L"Binary files|bin", L"bin", L"", L"", selectedFilePath))
 	{
-		unsigned int blockSize = dataSize;
-		unsigned char* buffer = new unsigned char[blockSize];
-
-		if(ReadBlockToBuffer(0, blockSize, buffer))
-		{
-			Stream::File file;
-			result = file.Open(openFileParams.lpstrFile, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE);
-			if(result)
-			{
-				result &= file.WriteData(buffer, blockSize);
-			}
-		}
-
-		delete[] buffer;
+		return false;
 	}
 
+	//Open the target file
+	Stream::File file;
+	if(!file.Open(selectedFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	{
+		return false;
+	}
+
+	//Read data from our memory buffer into a temporary buffer
+	unsigned int blockSize = dataSize;
+	unsigned char* buffer = new unsigned char[blockSize];
+	if(!ReadBlockToBuffer(0, blockSize, buffer))
+	{
+		delete[] buffer;
+		return false;
+	}
+
+	//Write the data to the target file
+	bool result = file.WriteData(buffer, blockSize);
+	delete[] buffer;
+
+	//Return the result of the operation
 	return result;
 }
 
 //----------------------------------------------------------------------------------------
 bool WC_HexEdit::LoadFromFile()
 {
-	bool result = true;
-
-	//Get filename
-	TCHAR fileName[MAX_PATH];
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = hwnd;
-	openFileParams.lpstrFile = fileName;
-	openFileParams.lpstrFile[0] = '\0';
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Binary Files (*.bin)\0*.bin\0All (*.*)\0*.*\0";
-	openFileParams.lpstrDefExt = L"bin";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = NULL;
-	openFileParams.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-
-	if(GetOpenFileName(&openFileParams) != 0)
+	//Obtain a path to the target file
+	std::wstring selectedFilePath;
+	if(!SelectExistingFile(hwnd, L"Binary files|bin", L"bin", L"", L"", selectedFilePath))
 	{
-		Stream::File file;
-		result = file.Open(openFileParams.lpstrFile, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN);
-		if(result)
-		{
-			unsigned int blockSize = dataSize;
-			unsigned char* buffer = new unsigned char[blockSize];
-			unsigned int fileSize = (unsigned int)file.Size();
-
-			unsigned int readBlockSize = (fileSize < blockSize)? fileSize: blockSize;
-			result &= file.ReadData(buffer, readBlockSize);
-
-			result &= WriteBlockFromBuffer(0, blockSize, buffer);
-
-			delete[] buffer;
-		}
+		return false;
 	}
 
+	//Open the target file
+	Stream::File file;
+	if(!file.Open(selectedFilePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	{
+		return false;
+	}
+
+	//Load data from the target file into the memory buffer
+	unsigned int blockSize = dataSize;
+	unsigned char* buffer = new unsigned char[blockSize];
+	unsigned int fileSize = (unsigned int)file.Size();
+	bool result = true;
+	unsigned int readBlockSize = (fileSize < blockSize)? fileSize: blockSize;
+	result &= file.ReadData(buffer, readBlockSize);
+	result &= WriteBlockFromBuffer(0, blockSize, buffer);
+	delete[] buffer;
+
+	//Return the result of the operation
 	return result;
 }
 

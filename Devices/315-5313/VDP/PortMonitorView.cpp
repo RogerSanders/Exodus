@@ -7,7 +7,7 @@
 VDP::PortMonitorView::PortMonitorView(VDP* adevice)
 :device(adevice), initializedDialog(false), currentControlFocus(0)
 {
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Port Monitor");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Port Monitor");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_PORTMONITOR));
 }
 

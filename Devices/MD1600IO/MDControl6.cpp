@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MDControl6::MDControl6(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"MDControl6", ainstanceName, amoduleID)
+MDControl6::MDControl6(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID)
 {
 	//##TODO## Perform our own hardware tests to confirm this value
 	bankswitchTimeoutInterval = 1500000.0;

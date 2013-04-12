@@ -9,7 +9,7 @@ class SharedRAM :public MemoryWrite
 {
 public:
 	//Constructors
-	SharedRAM(const std::wstring& ainstanceName, unsigned int amoduleID);
+	SharedRAM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 
 	//Initialization functions

@@ -9,27 +9,15 @@ unsigned int ILoadedModuleInfo::ThisILoadedModuleInfoVersion()
 //----------------------------------------------------------------------------------------
 //External information
 //----------------------------------------------------------------------------------------
-std::wstring ILoadedModuleInfo::GetModuleFileDirectory() const
+std::wstring ILoadedModuleInfo::GetModuleFilePath() const
 {
-	return GetModuleFileDirectoryInternal();
+	return GetModuleFilePathInternal();
 }
 
 //----------------------------------------------------------------------------------------
-void ILoadedModuleInfo::SetModuleFileDirectory(const std::wstring& amoduleFileDirectory)
+void ILoadedModuleInfo::SetModuleFilePath(const std::wstring& amoduleFilePath)
 {
-	SetModuleFileDirectoryInternal(amoduleFileDirectory.c_str());
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring ILoadedModuleInfo::GetModuleFileName() const
-{
-	return GetModuleFileNameInternal();
-}
-
-//----------------------------------------------------------------------------------------
-void ILoadedModuleInfo::SetModuleFileName(const std::wstring& amoduleFileName)
-{
-	SetModuleFileNameInternal(amoduleFileName.c_str());
+	SetModuleFilePathInternal(amoduleFilePath.c_str());
 }
 
 //----------------------------------------------------------------------------------------

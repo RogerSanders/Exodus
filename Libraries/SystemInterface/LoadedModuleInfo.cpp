@@ -32,27 +32,15 @@ void LoadedModuleInfo::SetModuleID(unsigned int amoduleID)
 //----------------------------------------------------------------------------------------
 //External information
 //----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetModuleFileDirectoryInternal() const
+const wchar_t* LoadedModuleInfo::GetModuleFilePathInternal() const
 {
-	return fileDir.c_str();
+	return filePath.c_str();
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleFileDirectoryInternal(const wchar_t* amoduleFileDirectory)
+void LoadedModuleInfo::SetModuleFilePathInternal(const wchar_t* amoduleFilePath)
 {
-	fileDir = amoduleFileDirectory;
-}
-
-//----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetModuleFileNameInternal() const
-{
-	return fileName.c_str();
-}
-
-//----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleFileNameInternal(const wchar_t* amoduleFileName)
-{
-	fileName = amoduleFileName;
+	filePath = amoduleFilePath;
 }
 
 //----------------------------------------------------------------------------------------

@@ -12,7 +12,7 @@ class A11100 :public Device
 {
 public:
 	//Constructors
-	A11100(const std::wstring& ainstanceName, unsigned int amoduleID);
+	A11100(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 
 	//Initialization functions
 	virtual bool ValidateDevice();

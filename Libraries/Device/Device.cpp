@@ -281,9 +281,9 @@ void Device::NotifyAfterExecuteStepFinishedTimeslice()
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetDeviceClassNameInternal() const
+const wchar_t* Device::GetDeviceImplementationNameInternal() const
 {
-	return className.c_str();
+	return implementationName.c_str();
 }
 
 //----------------------------------------------------------------------------------------

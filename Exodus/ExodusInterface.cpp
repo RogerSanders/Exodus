@@ -7,9 +7,6 @@
 #include "DataConversion/DataConversion.pkg"
 #include "MenuSelectableOption.h"
 #include <boost/functional/hash.hpp>
-#include <commctrl.h>
-#include <shlwapi.h>
-#include <shlobj.h>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -48,19 +45,6 @@ ExodusInterface::ExodusInterface(ISystemExternal& asystem)
 	systemLoaded = false;
 	systemDestructionInProgress = false;
 	viewEventProcessingPaused = false;
-
-	//Initialize the system prefs
-	//##TODO## Modify these defaults to use the correct folders for assemblies and modules
-	prefs.pathModulesRaw = L".\\Systems";
-	prefs.pathSavestatesRaw = L".\\Savestates";
-	prefs.pathPersistentStateRaw = L".\\PersistentState";
-	prefs.pathWorkspacesRaw = L".\\Workspaces";
-	prefs.pathCapturesRaw = L".\\Captures";
-	prefs.pathAssembliesRaw = L".\\Modules";
-	prefs.enableThrottling = true;
-	prefs.runWhenProgramModuleLoaded = true;
-	prefs.enablePersistentState = true;
-	ResolvePrefs();
 }
 
 //----------------------------------------------------------------------------------------
@@ -299,17 +283,29 @@ bool ExodusInterface::InitializeSystem()
 {
 	//Save the initial working directory of the process, so that we can restore it later
 	//when needed.
-	TCHAR originalWorkingDirTemp[MAX_PATH];
-	DWORD getCurrentDirectoryReturn;
-	getCurrentDirectoryReturn = GetCurrentDirectory(MAX_PATH, originalWorkingDirTemp);
-	if(getCurrentDirectoryReturn == 0)
-	{
-		return false;
-	}
-	originalWorkingDir = originalWorkingDirTemp;
+	originalWorkingDir = PathGetCurrentWorkingDirectory();
 
-	//Load settings.xml
+	//Initialize the system prefs to their default values
+	prefs.pathModulesRaw = L"Modules";
+	prefs.pathSavestatesRaw = L"Savestates";
+	prefs.pathPersistentStateRaw = L"PersistentState";
+	prefs.pathWorkspacesRaw = L"Workspaces";
+	prefs.pathCapturesRaw = L"Captures";
+	prefs.pathAssembliesRaw = L"Plugins";
+	prefs.enableThrottling = true;
+	prefs.runWhenProgramModuleLoaded = true;
+	prefs.enablePersistentState = true;
+
+	//Load preferences from the settings.xml file if present
 	LoadPrefs(L"settings.xml");
+
+	//Now that the preferences have been initialized, resolve the preference settings, and
+	//propagate the settings to other areas.
+	ResolvePrefs();
+	system.SetCapturePath(prefs.pathCaptures);
+	system.SetRunWhenProgramModuleLoadedState(prefs.runWhenProgramModuleLoaded);
+	system.SetThrottlingState(prefs.enableThrottling);
+	UpdateSaveSlots();
 
 	//Load addon modules
 	LoadAssembliesFromFolder(prefs.pathAssemblies);
@@ -317,24 +313,7 @@ bool ExodusInterface::InitializeSystem()
 	//Load the default system
 	if(!prefs.loadSystem.empty())
 	{
-		//Break the full path down into a separate file name and path
-		std::wstring systemFilePathFull = prefs.loadSystem;
-		PathRemoveFileSpec(&systemFilePathFull[0]);
-		unsigned int i = 0;
-		while(systemFilePathFull[i] != L'\0')
-		{
-			++i;
-		}
-		std::wstring fileDir = &systemFilePathFull[0];
-		systemFilePathFull = prefs.loadSystem;
-		std::wstring fileName = &systemFilePathFull[i];
-		while(!fileName.empty() && ((fileName[0] == L'\\') || (fileName[0] == L'/')))
-		{
-			fileName = fileName.substr(1);
-		}
-
-		//Load System
-		if(LoadModuleFromFile(fileDir, fileName))
+		if(LoadModuleFromFile(prefs.loadSystem))
 		{
 			//Load the default workspace
 			if(!prefs.loadWorkspace.empty())
@@ -495,35 +474,20 @@ void ExodusInterface::LoadState(const std::wstring& folder, bool debuggerState)
 	bool running = system.SystemRunning();
 	system.StopSystem();
 
-	//Get filename
-	TCHAR fileName[MAX_PATH];
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = mainWindowHandle;
-	openFileParams.lpstrFile = fileName;
-	openFileParams.lpstrFile[0] = '\0';
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Compressed savestate files (*.exs;*.zip)\0*.exs;*.zip\0Uncompressed savestate files (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-	openFileParams.lpstrDefExt = L"exs";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = &folder[0];
-	openFileParams.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-	if(GetOpenFileName(&openFileParams) != 0)
+	//Load a state file
+	std::wstring selectedFilePath;
+	if(SelectExistingFile(L"Compressed savestate files|exs;Uncompressed savestate files|xml", L"exs", L"", folder, true, selectedFilePath))
 	{
-		std::wstring fileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
-		std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
-		PathRemoveFileSpec(openFileParams.lpstrFile);
-		std::wstring fileDir = openFileParams.lpstrFile;
+		//Determine the type of state file being loaded
+		std::wstring fileExtension = PathGetFileExtension(selectedFilePath);
 		ISystemExternal::FileType fileType = ISystemExternal::FILETYPE_ZIP;
-		if(fileExt == L"xml")
+		if(fileExtension == L"xml")
 		{
 			fileType = ISystemExternal::FILETYPE_XML;
 		}
-		LoadStateFromFile(fileDir, fileName, fileType, debuggerState);
+
+		//Perform the state load operation
+		LoadStateFromFile(selectedFilePath, fileType, debuggerState);
 	}
 
 	if(running)
@@ -533,9 +497,9 @@ void ExodusInterface::LoadState(const std::wstring& folder, bool debuggerState)
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, ISystemExternal::FileType fileType, bool debuggerState)
+void ExodusInterface::LoadStateFromFile(const std::wstring& filePath, ISystemExternal::FileType fileType, bool debuggerState)
 {
-	system.LoadState(fileDir, fileName, fileType, debuggerState);
+	system.LoadState(filePath, fileType, debuggerState);
 }
 
 //----------------------------------------------------------------------------------------
@@ -544,42 +508,20 @@ void ExodusInterface::SaveState(const std::wstring& folder, bool debuggerState)
 	bool running = system.SystemRunning();
 	system.StopSystem();
 
-	//Pre-initialize the target filename with the name of the currently loaded ROM file
-	TCHAR fileName[MAX_PATH];
-	std::wstring savestateAutoFileNamePrefix = GetSavestateAutoFileNamePrefix();
-	for(unsigned int i = 0; i < savestateAutoFileNamePrefix.size(); ++i)
+	//Save a state file
+	std::wstring selectedFilePath;
+	if(SelectNewFile(L"Compressed savestate files|exs;Uncompressed savestate files|xml", L"exs", L"", folder, selectedFilePath))
 	{
-		fileName[i] = savestateAutoFileNamePrefix[i];
-	}
-	fileName[savestateAutoFileNamePrefix.size()] = L'\0';
-
-	//Get filename
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = mainWindowHandle;
-	openFileParams.lpstrFile = fileName;
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Compressed savestate files (*.exs;*.zip)\0*.exs;*.zip\0Uncompressed savestate files (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-	openFileParams.lpstrDefExt = L"exs";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = &folder[0];
-	openFileParams.Flags = 0;
-
-	if(GetSaveFileName(&openFileParams) != 0)
-	{
-		std::wstring fileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
-		std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
-		PathRemoveFileSpec(openFileParams.lpstrFile);
-		std::wstring fileDir = openFileParams.lpstrFile;
+		//Determine the type of state file being saved
+		std::wstring fileExtension = PathGetFileExtension(selectedFilePath);
 		ISystemExternal::FileType fileType = ISystemExternal::FILETYPE_ZIP;
-		if(fileExt == L"xml")
+		if(fileExtension == L"xml")
 		{
 			fileType = ISystemExternal::FILETYPE_XML;
 		}
-		SaveStateToFile(fileDir, fileName, fileType, debuggerState);
+
+		//Perform the state save operation
+		SaveStateToFile(selectedFilePath, fileType, debuggerState);
 	}
 
 	if(running)
@@ -589,9 +531,9 @@ void ExodusInterface::SaveState(const std::wstring& folder, bool debuggerState)
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, ISystemExternal::FileType fileType, bool debuggerState)
+void ExodusInterface::SaveStateToFile(const std::wstring& filePath, ISystemExternal::FileType fileType, bool debuggerState)
 {
-	system.SaveState(fileDir, fileName, fileType, debuggerState);
+	system.SaveState(filePath, fileType, debuggerState);
 }
 
 //----------------------------------------------------------------------------------------
@@ -609,7 +551,8 @@ void ExodusInterface::QuickLoadState(bool debuggerState)
 	{
 		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L".exs";
 	}
-	LoadStateFromFile(prefs.pathSavestates, fileName, ISystemExternal::FILETYPE_ZIP, debuggerState);
+	std::wstring filePath = PathCombinePaths(prefs.pathSavestates, fileName);
+	LoadStateFromFile(filePath, ISystemExternal::FILETYPE_ZIP, debuggerState);
 }
 
 //----------------------------------------------------------------------------------------
@@ -625,7 +568,8 @@ void ExodusInterface::QuickSaveState(bool debuggerState)
 	{
 		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L".exs";
 	}
-	SaveStateToFile(prefs.pathSavestates, fileName, ISystemExternal::FILETYPE_ZIP, debuggerState);
+	std::wstring filePath = PathCombinePaths(prefs.pathSavestates, fileName);
+	SaveStateToFile(filePath, ISystemExternal::FILETYPE_ZIP, debuggerState);
 	PostMessage(cell[selectedSaveCell].hwnd, WM_USER, 0, (LPARAM)this);
 }
 
@@ -688,24 +632,9 @@ void ExodusInterface::UpdateModuleDisplayInfo() const
 //----------------------------------------------------------------------------------------
 void ExodusInterface::LoadWorkspace(const std::wstring& folder)
 {
-	//Get filename
-	TCHAR fileName[MAX_PATH];
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = mainWindowHandle;
-	openFileParams.lpstrFile = fileName;
-	openFileParams.lpstrFile[0] = '\0';
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Workspace Files (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-	openFileParams.lpstrDefExt = L"xml";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = &folder[0];
-	openFileParams.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-	if(GetOpenFileName(&openFileParams) != 0)
+	//Load a state file
+	std::wstring selectedFilePath;
+	if(SelectExistingFile(L"Workspace Files|xml", L"xml", L"", folder, true, selectedFilePath))
 	{
 		//Spawn a worker thread to handle loading of the workspace. We do this in a
 		//separate thread so that viewmodel requests are still processed during the
@@ -713,24 +642,24 @@ void ExodusInterface::LoadWorkspace(const std::wstring& folder)
 		//loaded. Note that we specifically take a copy of the path string, rather than
 		//pass it by reference, since it's going to go out of scope when we leave this
 		//function.
-		std::wstring pathString = openFileParams.lpstrFile;
-		boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, pathString));
+		boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, selectedFilePath));
 	}
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
+bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 {
 	//Open the target file
-	Stream::File file;
-	if(!file.Open(fileName, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	FileStreamReference fileStreamReference(*this);
+	if(!fileStreamReference.OpenExistingFileForRead(filePath))
 	{
 		return false;
 	}
-	file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
-	file.ProcessByteOrderMark();
+	Stream::IStream& file = *fileStreamReference;
 
 	//Attempt to load an XML structure from the file
+	file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+	file.ProcessByteOrderMark();
 	HeirarchicalStorageTree tree;
 	if(!tree.LoadTree(file))
 	{
@@ -871,31 +800,15 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& fileName)
 //----------------------------------------------------------------------------------------
 void ExodusInterface::SaveWorkspace(const std::wstring& folder)
 {
-	//Get filename
-	TCHAR fileName[MAX_PATH];
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = mainWindowHandle;
-	openFileParams.lpstrFile = fileName;
-	openFileParams.lpstrFile[0] = '\0';
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Workspace Files (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-	openFileParams.lpstrDefExt = L"xml";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = &folder[0];
-	openFileParams.Flags = 0;
-
-	if(GetSaveFileName(&openFileParams) != 0)
+	std::wstring selectedFilePath;
+	if(SelectNewFile(L"Workspace Files|xml", L"xml", L"", folder, selectedFilePath))
 	{
-		SaveWorkspaceToFile(openFileParams.lpstrFile);
+		SaveWorkspaceToFile(selectedFilePath);
 	}
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& fileName)
+bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 {
 	//Create a new XML tree to store our saved workspace info
 	HeirarchicalStorageTree tree;
@@ -974,7 +887,7 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& fileName)
 
 	//Save the workspace XML tree to the target workspace file
 	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
-	if(!file.Open(fileName, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	if(!file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 	{
 		return false;
 	}
@@ -986,56 +899,80 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& fileName)
 //----------------------------------------------------------------------------------------
 //Module functions
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadModule(const std::wstring& folder)
+bool ExodusInterface::CanModuleBeLoaded(const std::wstring& filePath) const
 {
-	bool result = false;
-
-	//Get filename
-	TCHAR fileName[MAX_PATH];
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = mainWindowHandle;
-	openFileParams.lpstrFile = fileName;
-
-	openFileParams.lpstrFile[0] = '\0';
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Module Definitions (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = &folder[0];
-	openFileParams.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-	if(GetOpenFileName(&openFileParams) != 0)
+	//Read the connector info for the module
+	ISystemExternal::ConnectorImportList connectorsImported;
+	ISystemExternal::ConnectorExportList connectorsExported;
+	std::wstring systemClassName;
+	if(!system.ReadModuleConnectorInfo(filePath, systemClassName, connectorsImported, connectorsExported))
 	{
-		//##TODO## Use a separate folder name and file name for modules
-		std::wstring fileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
-		std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
-		PathRemoveFileSpec(openFileParams.lpstrFile);
-		std::wstring fileDir = openFileParams.lpstrFile;
-		//##TODO## Implement file types for modules
-		ISystemExternal::FileType fileType = ISystemExternal::FILETYPE_ZIP;
-		if(fileExt == L"xml")
-		{
-			fileType = ISystemExternal::FILETYPE_XML;
-		}
-		result = LoadModuleFromFile(fileDir, fileName);
+		return false;
 	}
 
-	return result;
+	//Ensure that all connectors required by this module are available
+	ISystemExternal::ConnectorMappingList connectorMappings;
+	std::list<unsigned int> loadedConnectorIDList = system.GetConnectorIDs();
+	for(ISystemExternal::ConnectorImportList::const_iterator i = connectorsImported.begin(); i != connectorsImported.end(); ++i)
+	{
+		//Build a list of all available, loaded connectors which match the desired type.
+		std::list<ConnectorInfo> availableConnectors;
+		std::list<unsigned int>::const_iterator loadedConnectorID = loadedConnectorIDList.begin();
+		while(loadedConnectorID != loadedConnectorIDList.end())
+		{
+			ConnectorInfo connectorInfo;
+			if(system.GetConnectorInfo(*loadedConnectorID, connectorInfo))
+			{
+				//If this connector matches the connector type the module wants to import,
+				//and the connector is free, add it to the available connector list.
+				if(!connectorInfo.GetIsConnectorUsed() && (connectorInfo.GetSystemClassName() == systemClassName) && (i->className == connectorInfo.GetConnectorClassName()))
+				{
+					availableConnectors.push_back(connectorInfo);
+				}
+			}
+			++loadedConnectorID;
+		}
+
+		//Ensure that at least one compatible connector was found
+		if(availableConnectors.empty())
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadModuleFromFileInternal(const wchar_t* fileDir, const wchar_t* fileName)
+bool ExodusInterface::CanModuleBeLoadedInternal(const wchar_t* filePath) const
 {
-	std::wstring fileDirString = fileDir;
-	std::wstring fileNameString = fileName;
-	return LoadModuleFromFile(fileDirString, fileNameString);
+	std::wstring filePathString = filePath;
+	return CanModuleBeLoaded(filePathString);
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std::wstring& fileName)
+bool ExodusInterface::LoadModule(const std::wstring& folder)
+{
+	//Select a module definition
+	std::wstring selectedFilePath;
+	if(!SelectExistingFile(L"Module Definitions|xml", L"xml", L"", folder, true, selectedFilePath))
+	{
+		return false;
+	}
+
+	//Return the result of the module load process
+	return LoadModuleFromFile(selectedFilePath);
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::LoadModuleFromFileInternal(const wchar_t* filePath)
+{
+	std::wstring filePathString = filePath;
+	return LoadModuleFromFile(filePathString);
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::LoadModuleFromFile(const std::wstring& filePath)
 {
 	//Pause view event processing while the system load is in progress. We do this to
 	//ensure any views which are flagged to be displayed in the system definition don't
@@ -1046,7 +983,7 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 	ISystemExternal::ConnectorImportList connectorsImported;
 	ISystemExternal::ConnectorExportList connectorsExported;
 	std::wstring systemClassName;
-	if(!system.ReadModuleConnectorInfo(fileDir, fileName, systemClassName, connectorsImported, connectorsExported))
+	if(!system.ReadModuleConnectorInfo(filePath, systemClassName, connectorsImported, connectorsExported))
 	{
 		std::wstring text = L"Could not read connector info for module.";
 		std::wstring title = L"Error loading module!";
@@ -1136,7 +1073,7 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 	}
 
 	//Begin the module load process
-	system.LoadModuleSynchronous(fileDir, fileName, connectorMappings, *this);
+	system.LoadModuleSynchronous(filePath, connectorMappings, *this);
 
 	//Spawn a modal dialog to display the module load progress
 	bool result = false;
@@ -1187,39 +1124,19 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& fileDir, const std:
 //----------------------------------------------------------------------------------------
 bool ExodusInterface::SaveSystem(const std::wstring& folder)
 {
-	//Get filename
-	TCHAR fileName[MAX_PATH];
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = mainWindowHandle;
-	openFileParams.lpstrFile = fileName;
-	openFileParams.lpstrFile[0] = '\0';
-	openFileParams.nMaxFile = sizeof(fileName);
-	openFileParams.lpstrFilter = L"Module Definitions (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-	openFileParams.lpstrDefExt = L"xml";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = &folder[0];
-	openFileParams.Flags = 0;
-
-	if(GetSaveFileName(&openFileParams) != 0)
+	std::wstring selectedFilePath;
+	if(!SelectNewFile(L"Module Definitions|xml", L"xml", L"", folder, selectedFilePath))
 	{
-		std::wstring fileName = &openFileParams.lpstrFile[openFileParams.nFileOffset];
-		std::wstring fileExt = &openFileParams.lpstrFile[openFileParams.nFileExtension];
-		PathRemoveFileSpec(openFileParams.lpstrFile);
-		std::wstring fileDir = openFileParams.lpstrFile;
-		return SaveSystemToFile(fileDir, fileName);
+		return false;
 	}
 
-	return false;
+	return SaveSystemToFile(selectedFilePath);
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::SaveSystemToFile(const std::wstring& fileDir, const std::wstring& fileName)
+bool ExodusInterface::SaveSystemToFile(const std::wstring& filePath)
 {
-	return system.SaveSystem(fileDir, fileName);
+	return system.SaveSystem(filePath);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1277,73 +1194,78 @@ void ExodusInterface::UnloadAllModules()
 //----------------------------------------------------------------------------------------
 //Global preference functions
 //----------------------------------------------------------------------------------------
-void ExodusInterface::LoadPrefs(const std::wstring& filePath)
+bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 {
+	//Attempt to open the target preference file
 	Stream::File file;
-	if(file.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	if(!file.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
 	{
-		file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
-		file.ProcessByteOrderMark();
-		HeirarchicalStorageTree tree;
-		if(tree.LoadTree(file))
+		return false;
+	}
+
+	//Attempt to decode the XML contents of the file
+	file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+	file.ProcessByteOrderMark();
+	HeirarchicalStorageTree tree;
+	if(!tree.LoadTree(file))
+	{
+		return false;
+	}
+
+	//Validate the root node of the XML tree
+	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	if(rootNode.GetName() != L"Settings")
+	{
+		return false;
+	}
+
+	//Extract each preference from the loaded data
+	std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		if((*i)->GetName() == L"ModulesPath")
 		{
-			IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
-			if(rootNode.GetName() == L"Settings")
-			{
-				std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
-				for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
-				{
-					if((*i)->GetName() == L"ModulesPath")
-					{
-						prefs.pathModulesRaw = (*i)->GetData();
-					}
-					else if((*i)->GetName() == L"SavestatesPath")
-					{
-						prefs.pathSavestatesRaw = (*i)->GetData();
-					}
-					else if((*i)->GetName() == L"PersistentStatePath")
-					{
-						prefs.pathPersistentStateRaw = (*i)->GetData();
-					}
-					else if((*i)->GetName() == L"WorkspacesPath")
-					{
-						prefs.pathWorkspacesRaw = (*i)->GetData();
-					}
-					else if((*i)->GetName() == L"CapturesPath")
-					{
-						prefs.pathCapturesRaw = (*i)->GetData();
-					}
-					else if((*i)->GetName() == L"AssembliesPath")
-					{
-						prefs.pathAssembliesRaw = (*i)->GetData();
-					}
-					else if((*i)->GetName() == L"DefaultSystem")
-					{
-						prefs.loadSystemRaw = (*i)->GetData();
-					}
-					else if((*i)->GetName() == L"DefaultWorkspace")
-					{
-						prefs.loadWorkspaceRaw = (*i)->GetData();
-					}
-					else if((*i)->GetName() == L"EnableThrottling")
-					{
-						prefs.enableThrottling = (*i)->ExtractData<bool>();
-					}
-					else if((*i)->GetName() == L"RunWhenProgramModuleLoaded")
-					{
-						prefs.runWhenProgramModuleLoaded = (*i)->ExtractData<bool>();
-					}
-					else if((*i)->GetName() == L"EnablePersistentState")
-					{
-						prefs.enablePersistentState = (*i)->ExtractData<bool>();
-					}
-				}
-				ResolvePrefs();
-				system.SetCapturePath(prefs.pathCaptures);
-				system.SetRunWhenProgramModuleLoadedState(prefs.runWhenProgramModuleLoaded);
-				system.SetThrottlingState(prefs.enableThrottling);
-				UpdateSaveSlots();
-			}
+			prefs.pathModulesRaw = (*i)->GetData();
+		}
+		else if((*i)->GetName() == L"SavestatesPath")
+		{
+			prefs.pathSavestatesRaw = (*i)->GetData();
+		}
+		else if((*i)->GetName() == L"PersistentStatePath")
+		{
+			prefs.pathPersistentStateRaw = (*i)->GetData();
+		}
+		else if((*i)->GetName() == L"WorkspacesPath")
+		{
+			prefs.pathWorkspacesRaw = (*i)->GetData();
+		}
+		else if((*i)->GetName() == L"CapturesPath")
+		{
+			prefs.pathCapturesRaw = (*i)->GetData();
+		}
+		else if((*i)->GetName() == L"AssembliesPath")
+		{
+			prefs.pathAssembliesRaw = (*i)->GetData();
+		}
+		else if((*i)->GetName() == L"DefaultSystem")
+		{
+			prefs.loadSystemRaw = (*i)->GetData();
+		}
+		else if((*i)->GetName() == L"DefaultWorkspace")
+		{
+			prefs.loadWorkspaceRaw = (*i)->GetData();
+		}
+		else if((*i)->GetName() == L"EnableThrottling")
+		{
+			prefs.enableThrottling = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"RunWhenProgramModuleLoaded")
+		{
+			prefs.runWhenProgramModuleLoaded = (*i)->ExtractData<bool>();
+		}
+		else if((*i)->GetName() == L"EnablePersistentState")
+		{
+			prefs.enablePersistentState = (*i)->ExtractData<bool>();
 		}
 	}
 }
@@ -1377,62 +1299,61 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 //----------------------------------------------------------------------------------------
 void ExodusInterface::ResolvePrefs()
 {
-	TCHAR combinedPath[MAX_PATH];
-
+	//Resolve all raw paths in our loaded preferences down to absolute paths
 	prefs.pathModules = prefs.pathModulesRaw;
-	if(PathIsRelative(&prefs.pathModules[0]) == TRUE)
+	if(PathIsRelativePath(prefs.pathModules))
 	{
-		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathModules[0]);
-		prefs.pathModules = combinedPath;
+		prefs.pathModules = PathCombinePaths(originalWorkingDir, prefs.pathModules);
 	}
 	prefs.pathSavestates = prefs.pathSavestatesRaw;
-	if(PathIsRelative(&prefs.pathSavestates[0]) == TRUE)
+	if(PathIsRelativePath(prefs.pathSavestates))
 	{
-		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathSavestates[0]);
-		prefs.pathSavestates = combinedPath;
+		prefs.pathSavestates = PathCombinePaths(originalWorkingDir, prefs.pathSavestates);
 	}
 	prefs.pathPersistentState = prefs.pathPersistentStateRaw;
-	if(PathIsRelative(&prefs.pathPersistentState[0]) == TRUE)
+	if(PathIsRelativePath(prefs.pathPersistentState))
 	{
-		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathPersistentState[0]);
-		prefs.pathPersistentState = combinedPath;
+		prefs.pathPersistentState = PathCombinePaths(originalWorkingDir, prefs.pathPersistentState);
 	}
 	prefs.pathWorkspaces = prefs.pathWorkspacesRaw;
-	if(PathIsRelative(&prefs.pathWorkspaces[0]) == TRUE)
+	if(PathIsRelativePath(prefs.pathWorkspaces))
 	{
-		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathWorkspaces[0]);
-		prefs.pathWorkspaces = combinedPath;
+		prefs.pathWorkspaces = PathCombinePaths(originalWorkingDir, prefs.pathWorkspaces);
 	}
 	prefs.pathCaptures = prefs.pathCapturesRaw;
-	if(PathIsRelative(&prefs.pathCaptures[0]) == TRUE)
+	if(PathIsRelativePath(prefs.pathCaptures))
 	{
-		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathCaptures[0]);
-		prefs.pathCaptures = combinedPath;
+		prefs.pathCaptures = PathCombinePaths(originalWorkingDir, prefs.pathCaptures);
 	}
 	prefs.pathAssemblies = prefs.pathAssembliesRaw;
-	if(PathIsRelative(&prefs.pathAssemblies[0]) == TRUE)
+	if(PathIsRelativePath(prefs.pathAssemblies))
 	{
-		PathCombine(&combinedPath[0], &originalWorkingDir[0], &prefs.pathAssemblies[0]);
-		prefs.pathAssemblies = combinedPath;
+		prefs.pathAssemblies = PathCombinePaths(originalWorkingDir, prefs.pathAssemblies);
 	}
 	prefs.loadSystem = prefs.loadSystemRaw;
 	if(!prefs.loadSystem.empty())
 	{
-		if(PathIsRelative(&prefs.loadSystem[0]) == TRUE)
+		if(PathIsRelativePath(prefs.loadSystem))
 		{
-			PathCombine(&combinedPath[0], &prefs.pathModules[0], &prefs.loadSystem[0]);
-			prefs.loadSystem = combinedPath;
+			prefs.loadSystem = PathCombinePaths(prefs.pathModules, prefs.loadSystem);
 		}
 	}
 	prefs.loadWorkspace = prefs.loadWorkspaceRaw;
 	if(!prefs.loadWorkspace.empty())
 	{
-		if(PathIsRelative(&prefs.loadWorkspace[0]) == TRUE)
+		if(PathIsRelativePath(prefs.loadWorkspace))
 		{
-			PathCombine(&combinedPath[0], &prefs.pathWorkspaces[0], &prefs.loadWorkspace[0]);
-			prefs.loadWorkspace = combinedPath;
+			prefs.loadWorkspace = PathCombinePaths(prefs.pathWorkspaces, prefs.loadWorkspace);
 		}
 	}
+
+	//Ensure all the directories referenced by our preferences exist
+	CreateDirectory(prefs.pathModules, true);
+	CreateDirectory(prefs.pathSavestates, true);
+	CreateDirectory(prefs.pathPersistentState, true);
+	CreateDirectory(prefs.pathWorkspaces, true);
+	CreateDirectory(prefs.pathCaptures, true);
+	CreateDirectory(prefs.pathAssemblies, true);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1507,7 +1428,7 @@ bool ExodusInterface::GetEnablePersistentState() const
 bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 {
 	//Begin the folder search
-	std::wstring fileSearchString = folderPath + L'\\' + L"*.dll";
+	std::wstring fileSearchString = PathCombinePaths(folderPath, L"*.dll");
 	WIN32_FIND_DATA findData;
 	HANDLE findFileHandle;
 	findFileHandle = FindFirstFile(fileSearchString.c_str(), &findData);
@@ -1522,7 +1443,7 @@ bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 	{
 		//Build the name and path of this entry
 		std::wstring entryName = findData.cFileName;
-		std::wstring entryPath = folderPath + L'\\' + entryName;
+		std::wstring entryPath = PathCombinePaths(folderPath, entryName);
 
 		//Ensure this isn't a virtual navigation folder
 		if(entryName.find_first_not_of(L'.') != std::wstring::npos)
@@ -1614,7 +1535,7 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 		while(GetDeviceEntry(entryNo, entry))
 		{
 			//##DEBUG##
-			std::wcout << L"Registering device \"" << entry.GetDeviceName() << "\"...";
+			std::wcout << L"Registering device \"" << entry.GetDeviceImplementationName() << L"\"...";
 
 			if(system.RegisterDevice(entry, (IDevice::AssemblyHandle)dllHandle))
 			{
@@ -1625,7 +1546,7 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 			{
 				//##DEBUG##
 				result = false;
-				std::wcout << L"Failed! Check system log.\n";
+				std::wcout << L"Failed! Check event log.\n";
 			}
 			++entryNo;
 		}
@@ -1639,7 +1560,7 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 		while(GetExtensionEntry(entryNo, entry))
 		{
 			//##DEBUG##
-			std::wcout << L"Registering extension \"" << entry.GetExtensionName() << "\"...";
+			std::wcout << L"Registering extension \"" << entry.GetExtensionImplementationName() << L"\"...";
 
 			if(system.RegisterExtension(entry, (IExtension::AssemblyHandle)dllHandle))
 			{
@@ -1650,13 +1571,364 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 			{
 				//##DEBUG##
 				result = false;
-				std::wcout << L"Failed! Check system log.\n";
+				std::wcout << L"Failed! Check event log.\n";
 			}
 			++entryNo;
 		}
 	}
 
 	return result;
+}
+
+//----------------------------------------------------------------------------------------
+//File selection functions
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::SelectExistingFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, bool scanIntoArchives, std::wstring& selectedFilePath) const
+{
+	//Break the supplied selection type string down into individual type entries
+	std::list<FileSelectionType> selectionTypes = ParseSelectionTypeString(selectionTypeString);
+
+	//Build a modified selection type list, adding all supported archive formats to each
+	//type entry if scanning into archives has been requested.
+	std::list<FileSelectionType> fullSelectionTypes = selectionTypes;
+	if(scanIntoArchives)
+	{
+		for(std::list<FileSelectionType>::iterator i = fullSelectionTypes.begin(); i != fullSelectionTypes.end(); ++i)
+		{
+			i->extensionFilters.push_back(L"zip");
+		}
+	}
+
+	//Extract the first component from our combined path
+	std::vector<std::wstring> initialPathElements = PathSplitElements(initialFilePath);
+	std::wstring initialPathFirstElement = initialPathElements[0];
+
+	//Attempt to select the target file until one is selected, or the selection process is
+	//aborted.
+	bool fileSelected = false;
+	bool fileSelectionAborted = false;
+	while(!fileSelected && !fileSelectionAborted)
+	{
+		//Select a target file, using the first element in the supplied path as the
+		//initial target.
+		if(!::SelectExistingFile(mainWindowHandle, fullSelectionTypes, defaultExtension, initialPathFirstElement, initialDirectory, selectedFilePath))
+		{
+			fileSelectionAborted = true;
+			continue;
+		}
+
+		//If the user has requested that we scan into archives for the target file, and a
+		//supported archive format has been selected, scan into that archive for a
+		//compatible target file.
+		if(scanIntoArchives)
+		{
+			//##TODO## Add support for more compression archive formats
+			//##TODO## Make this comparison case insensitive
+			std::wstring selectedFileExtension = PathGetFileExtension(selectedFilePath);
+			if(selectedFileExtension == L"zip")
+			{
+				//Attempt to find a compatible file in this archive. Note that we pass the
+				//original selection types here, not the modified selection type list,
+				//since we only want to match types that were originally specified.
+				std::wstring relativePathWithinArchive;
+				if(!SelectExistingFileScanIntoArchive(selectionTypes, selectedFilePath, relativePathWithinArchive))
+				{
+					continue;
+				}
+
+				//Build the full path to the selected file within the archive
+				selectedFilePath = selectedFilePath + L'|' + relativePathWithinArchive;
+			}
+		}
+
+		//Flag that a file has been selected
+		fileSelected = true;
+	}
+
+	return fileSelected;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSelectionType>& selectionTypes, const std::wstring archivePath, std::wstring& selectedFilePath) const
+{
+	//Open the target archive file
+	Stream::File archiveFile;
+	if(!archiveFile.Open(archivePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	{
+		std::wstring title = L"Error opening file!";
+		std::wstring text = L"Could not open the target compressed archive.";
+		MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		return false;
+	}
+
+	//Load the archive from the file
+	ZIPArchive archive;
+	if(!archive.LoadFromStream(archiveFile))
+	{
+		std::wstring title = L"Error opening file!";
+		std::wstring text = L"Failed to read the structure of the compressed archive.";
+		MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		return false;
+	}
+
+	//Build list of all files in the archive that match the target type
+	std::map<unsigned int, std::wstring> fileNamesInArchive;
+	unsigned int archiveEntryCount = archive.GetFileEntryCount();
+	for(unsigned int i = 0; i < archiveEntryCount; ++i)
+	{
+		//Retrieve this file entry
+		ZIPFileEntry* fileEntry = archive.GetFileEntry(i);
+		if(fileEntry == 0)
+		{
+			std::wstring title = L"Error opening file!";
+			std::wstring text = L"Failed to read the structure of the compressed archive.";
+			MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+			return false;
+		}
+
+		//Obtain the name and extension of this file entry
+		std::wstring fileName = fileEntry->GetFileName();
+		std::wstring fileExtension = PathGetFileExtension(fileName);
+
+		//Ensure that this file extension matches one of the target file extensions, and
+		//skip it if it does not.
+		bool foundMatchingExtension = false;
+		std::list<FileSelectionType>::const_iterator selectionTypeIterator = selectionTypes.begin();
+		while(!foundMatchingExtension && (selectionTypeIterator != selectionTypes.end()))
+		{
+			std::list<std::wstring>::const_iterator extensionFilterIterator = selectionTypeIterator->extensionFilters.begin();
+			while(!foundMatchingExtension && (extensionFilterIterator != selectionTypeIterator->extensionFilters.end()))
+			{
+				//##TODO## Add support for wildcards and unknown characters in extension
+				//filter expressions.
+				if(*extensionFilterIterator == fileExtension)
+				{
+					foundMatchingExtension = true;
+				}
+				++extensionFilterIterator;
+			}
+			++selectionTypeIterator;
+		}
+		if(!foundMatchingExtension)
+		{
+			continue;
+		}
+
+		//Insert this file entry into the list of possible target files
+		fileNamesInArchive.insert(std::pair<unsigned int, std::wstring>(i, fileEntry->GetFileName()));
+	}
+
+	//If no possible target files were found, return an error.
+	if(fileNamesInArchive.empty())
+	{
+		std::wstring title = L"Error opening file!";
+		std::wstring text = L"No matching file types were found within the compressed archive.";
+		MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		return false;
+	}
+
+	//If there was only one matching file in the target archive, select that file,
+	//otherwise ask the user to select the file to use.
+	if(fileNamesInArchive.size() == 1)
+	{
+		selectedFilePath = fileNamesInArchive.begin()->second;
+	}
+	else
+	{
+		//Build the list of files to choose from for the selection dialog
+		std::list<SelectCompressedFileDialogParamsFileEntry> fileListForSelection;
+		for(std::map<unsigned int, std::wstring>::const_iterator i = fileNamesInArchive.begin(); i != fileNamesInArchive.end(); ++i)
+		{
+			SelectCompressedFileDialogParamsFileEntry entry;
+			entry.entryID = i->first;
+			entry.fileName = i->second;
+			fileListForSelection.push_back(entry);
+		}
+
+		//Open a dialog allowing the user to select a file from the list of matching files
+		SelectCompressedFileDialogParams selectCompressedFileDialogParams;
+		selectCompressedFileDialogParams.fileList = fileListForSelection;
+		INT_PTR selectCompressedFileDialogBoxParamResult;
+		selectCompressedFileDialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_SELECTCOMPRESSEDFILE), mainWindowHandle, SelectCompressedFileProc, (LPARAM)&selectCompressedFileDialogParams);
+		if(selectCompressedFileDialogBoxParamResult <= 0)
+		{
+			std::wstring title = L"Error opening file!";
+			std::wstring text = L"An error occurred while attempting to display the archive content selection dialog.";
+			MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+			return false;
+		}
+
+		//If no selection was made in the dialog because the user canceled the selection,
+		//we return false, but we don't report an error to the user, because this state
+		//only occurs when the user specifically cancels the file selection.
+		if(!selectCompressedFileDialogParams.selectionMade)
+		{
+			return false;
+		}
+
+		//Load the path to the selected file into the selected file path
+		selectedFilePath = fileNamesInArchive[selectCompressedFileDialogParams.selectedEntryID];
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::SelectNewFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, std::wstring& selectedFilePath) const
+{
+	//Extract the first component from our combined path
+	std::vector<std::wstring> initialPathElements = PathSplitElements(initialFilePath);
+	std::wstring initialPathFirstElement = initialPathElements[0];
+
+	//Select a target file, using the first element in the supplied path as the initial
+	//target.
+	if(!::SelectNewFile(mainWindowHandle, selectionTypeString, defaultExtension, initialPathFirstElement, initialDirectory, selectedFilePath))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+std::vector<std::wstring> ExodusInterface::PathSplitElements(const std::wstring& path) const
+{
+	//##TODO## Format and comment this
+	const std::wstring elementSeparators = L"|";
+	std::vector<std::wstring> pathElements;
+	std::wstring::size_type currentPos = 0;
+	while(currentPos != std::wstring::npos)
+	{
+		std::wstring::size_type separatorPos = path.find_first_of(elementSeparators, currentPos);
+		std::wstring::size_type pathElementEndPos = (separatorPos != std::wstring::npos)? separatorPos - currentPos: std::wstring::npos;
+		std::wstring pathElement = path.substr(currentPos, pathElementEndPos);
+		pathElements.push_back(pathElement);
+		currentPos = (separatorPos != std::wstring::npos)? (separatorPos + 1): std::wstring::npos;
+	}
+	return pathElements;
+}
+
+//----------------------------------------------------------------------------------------
+Stream::IStream* ExodusInterface::OpenExistingFileForRead(const std::wstring& path) const
+{
+	//##TODO## Provide more comments
+	std::vector<std::wstring> pathElements = PathSplitElements(path);
+	Stream::IStream* tempStream = 0;
+	for(unsigned int i = 0; i < pathElements.size(); ++i)
+	{
+		if(tempStream == 0)
+		{
+			//Open the target file
+			Stream::File* file = new Stream::File();
+			tempStream = file;
+			if(!file->Open(pathElements[i], Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+			{
+				delete tempStream;
+				return 0;
+			}
+		}
+		else
+		{
+			//Load the ZIP header structure
+			ZIPArchive archive;
+			bool archiveLoadResult = false;
+			archiveLoadResult = archive.LoadFromStream(*tempStream);
+			if(!archiveLoadResult)
+			{
+				delete tempStream;
+				return 0;
+			}
+
+			//Retrieve the target file entry from the archive
+			ZIPFileEntry* entry = archive.GetFileEntry(pathElements[i]);
+			if(entry == 0)
+			{
+				delete tempStream;
+				return 0;
+			}
+
+			//Decompress the target file
+			Stream::Buffer* buffer = new Stream::Buffer(0);
+			if(!entry->Decompress(*buffer))
+			{
+				delete buffer;
+				delete tempStream;
+				return 0;
+			}
+			buffer->SetStreamPos(0);
+
+			//Replace the current stream with the decompressed target file stream
+			delete tempStream;
+			tempStream = buffer;
+		}
+	}
+
+	return tempStream;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::SelectExistingFileInternal(const wchar_t* selectionTypeString, const wchar_t* defaultExtension, const wchar_t* initialFilePath, const wchar_t* initialDirectory, bool scanIntoArchives, const wchar_t** selectedFilePath) const
+{
+	bool result = SelectExistingFile(selectionTypeString, defaultExtension, initialFilePath, initialDirectory, scanIntoArchives, filePathCache);
+	*selectedFilePath = filePathCache.c_str();
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::SelectNewFileInternal(const wchar_t* selectionTypeString, const wchar_t* defaultExtension, const wchar_t* initialFilePath, const wchar_t* initialDirectory, const wchar_t** selectedFilePath) const
+{
+	bool result = SelectNewFile(selectionTypeString, defaultExtension, initialFilePath, initialDirectory, filePathCache);
+	*selectedFilePath = filePathCache.c_str();
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+const wchar_t** ExodusInterface::PathSplitElementsInternal(const wchar_t* path, unsigned int& arraySize) const
+{
+	//Obtain the set of elements in the path
+	std::vector<std::wstring> pathElements = PathSplitElements(path);
+
+	//Copy each element in the path to a raw array
+	unsigned int pathElementCount = (unsigned int)pathElements.size();
+	wchar_t** rawElementArray = new wchar_t*[pathElementCount];
+	for(unsigned int i = 0; i < pathElementCount; ++i)
+	{
+		unsigned int elementLength = (unsigned int)pathElements[i].size();
+		rawElementArray[i] = new wchar_t[elementLength+1];
+		for(unsigned int elementIndex = 0; elementIndex < elementLength; ++elementIndex)
+		{
+			rawElementArray[i][elementIndex] = pathElements[i][elementIndex];
+		}
+		rawElementArray[i][elementLength] = L'\0';
+	}
+
+	//Return the raw array structure to the caller
+	arraySize = pathElementCount;
+	//##FIX## Why do we need this cast?
+	return (const wchar_t**)rawElementArray;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::PathSplitElementsInternalFreeArray(const wchar_t** itemArray, unsigned int arraySize) const
+{
+	//Free all elements in the array, then free the array itself.
+	for(unsigned int i = 0; i < arraySize; ++i)
+	{
+		delete[] itemArray[i];
+	}
+	delete[] itemArray;
+}
+
+//----------------------------------------------------------------------------------------
+Stream::IStream* ExodusInterface::OpenExistingFileForReadInternal(const wchar_t* path) const
+{
+	return OpenExistingFileForRead(path);
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::DeleteFileStream(Stream::IStream* stream) const
+{
+	delete stream;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2102,6 +2374,10 @@ void ExodusInterface::BuildActiveWindowList()
 	//program which are currently open. Note that the windows are listed based on
 	//Z-Order, from top to bottom. We scan the list from back to front, so the topmost
 	//window appears last in the XML tree.
+	//##FIX## The comment above talks about the XML tree. This only applied when this was
+	//done as part of our workspace saving process.
+	//##TODO## Make this function more generic. We should return the window list from this
+	//function, rather than writing directly to a specific list in this object.
 	activeWindowList.clear();
 	std::list<HWND> windowList;
 	EnumThreadWindows(GetCurrentThreadId(), &ExodusInterface::EnumWindowsProc, (LPARAM)&windowList);
@@ -2937,47 +3213,6 @@ BOOL CALLBACK ExodusInterface::EnumWindowsProc(HWND hwnd, LPARAM lParam)
 }
 
 //----------------------------------------------------------------------------------------
-int CALLBACK ExodusInterface::SetSHBrowseForFolderInitialDir(HWND hwnd, UINT umsg, LPARAM lparam, LPARAM lpData)
-{
-	if(umsg == BFFM_INITIALIZED)
-	{
-		LPTSTR pathName = (LPTSTR)lpData;
-		LPTSTR filePart;
-		TCHAR fullPathName[MAX_PATH];
-		GetFullPathName(pathName, MAX_PATH, &fullPathName[0], &filePart);
-		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)&fullPathName[0]);
-	}
-	else if(umsg == BFFM_SELCHANGED)
-	{
-		//Note that on Windows 7 and up, the BFFM_SETSELECTION message doesn't always
-		//work. Sometimes the tree isn't fully loaded by this point, and the folder can't
-		//be scrolled to because it hasn't been loaded into the tree control yet.
-		//Microsoft originally acknowledged the bug, but they appear to have now abandoned
-		//it and won't fix it. The only two known workarounds are to either fire off extra
-		//BFFM_SETSELECTION messages on a delay, or do what we do below, which is to
-		//manually locate the tree control in the dialog, retrieve its current selection,
-		//and force it to ensure the selected item is visible. Although this solution is
-		//bound to internal details, it's preferable to the timer method, since it will
-		//definitely make the dialog always work correctly regardless of how long it takes
-		//to load, and it won't interfere with input from the user, which a timer method
-		//could, since it has no way of detecting when the selection has been set.
-		const int subPaneDialogItemID = 0x0;
-		const int treeDialogItemID = 0x64;
-		HWND subPaneHandle = GetDlgItem(hwnd, subPaneDialogItemID);
-		if(subPaneHandle != 0)
-		{
-			HWND treeHandle = GetDlgItem(subPaneHandle, treeDialogItemID);
-			if(treeHandle != 0)
-			{
-				HTREEITEM selectedItemHandle = (HTREEITEM)SendMessage(treeHandle, TVM_GETNEXTITEM, TVGN_CARET, 0);
-				SendMessage(treeHandle, TVM_ENSUREVISIBLE, 0, (LPARAM)selectedItemHandle);
-			}
-		}
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
 INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	//Obtain the object pointer
@@ -3316,139 +3551,57 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 				state->prefs.enableThrottling = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLETHROTTLE) == BST_CHECKED);
 				state->prefs.runWhenProgramModuleLoaded = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED) == BST_CHECKED);
 				state->prefs.enablePersistentState = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE) == BST_CHECKED);
+				state->ResolvePrefs();
 				state->system.SetThrottlingState(state->prefs.enableThrottling);
 				state->system.SetRunWhenProgramModuleLoadedState(state->prefs.runWhenProgramModuleLoaded);
 				state->system.SetEnablePersistentState(state->prefs.enablePersistentState);
-				state->ResolvePrefs();
 				state->UpdateSaveSlots();
 				EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
 				break;
 			case IDC_SETTINGS_LOADSYSTEMCHANGE:{
-				//Get the current filename
+				//Get the fully resolved path to the current target file
 				std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_SETTINGS_LOADSYSTEM);
-
-				//Set a working directory for the popup. If the filename is empty, we pass
-				//in the working directory explicitly, otherwise we build a fully
-				//qualified path name for the file, and let the popup extract the working
-				//directory from the file path.
-				LPCWSTR workingDir = NULL;
-				if(fileNameCurrent.empty())
+				if(!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
 				{
-					workingDir = &state->prefs.pathModules[0];
+					fileNameCurrent = PathCombinePaths(state->prefs.pathModules, fileNameCurrent);
 				}
-				else if(PathIsRelative(&fileNameCurrent[0]) == TRUE)
+
+				//Select a new target file
+				std::wstring selectedFilePath;
+				if(state->SelectExistingFile(L"System Definitions|xml", L"xml", fileNameCurrent, state->prefs.pathModules, true, selectedFilePath))
 				{
-					TCHAR combinedPath[MAX_PATH];
-					LPTSTR pathCombineReturn;
-					pathCombineReturn = PathCombine(&combinedPath[0], &state->prefs.pathModules[0], &fileNameCurrent[0]);
-					if(pathCombineReturn != NULL)
+					if(PathStartsWithBasePath(state->prefs.pathModules, selectedFilePath))
 					{
-						fileNameCurrent = combinedPath;
-					}
-				}
-
-				//Copy the input filename into our filename buffer
-				TCHAR fileName[MAX_PATH];
-				unsigned int i = 0;
-				while((i < fileNameCurrent.size()) && (i < (MAX_PATH - 1)))
-				{
-					fileName[i] = fileNameCurrent[i];
-					++i;
-				}
-				fileName[i] = '\0';
-
-				//Set the parameters for the popup
-				OPENFILENAME openFileParams;
-				ZeroMemory(&openFileParams, sizeof(openFileParams));
-				openFileParams.lStructSize = sizeof(openFileParams);
-				openFileParams.hwndOwner = hwnd;
-				openFileParams.lpstrFile = fileName;
-				openFileParams.nMaxFile = sizeof(fileName);
-				openFileParams.lpstrFilter = L"System Definitions (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-				openFileParams.lpstrDefExt = L"xml";
-				openFileParams.nFilterIndex = 1;
-				openFileParams.lpstrFileTitle = NULL;
-				openFileParams.nMaxFileTitle = 0;
-				openFileParams.lpstrInitialDir = workingDir;
-				openFileParams.Flags = OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
-
-				//Display the popup
-				if(GetOpenFileName(&openFileParams) != 0)
-				{
-					std::wstring fileName = openFileParams.lpstrFile;
-					if(PathIsPrefix(&state->prefs.pathModules[0], &fileName[0]) == TRUE)
-					{
-						TCHAR relativePath[MAX_PATH];
-						if(PathRelativePathTo(&relativePath[0], &state->prefs.pathModules[0], FILE_ATTRIBUTE_DIRECTORY, &fileName[0], 0) == TRUE)
+						std::wstring relativePath;
+						if(PathBuildRelativePathToTarget(state->prefs.pathModules, selectedFilePath, true, relativePath))
 						{
-							fileName = relativePath;
+							selectedFilePath = relativePath;
 						}
 					}
-					SetDlgItemText(hwnd, IDC_SETTINGS_LOADSYSTEM, &fileName[0]);
+					SetDlgItemText(hwnd, IDC_SETTINGS_LOADSYSTEM, &selectedFilePath[0]);
 				}
 				break;}
 			case IDC_SETTINGS_LOADWORKSPACECHANGE:{
-				//Get the current filename
+				//Get the fully resolved path to the current target file
 				std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_SETTINGS_LOADWORKSPACE);
-
-				//Set a working directory for the popup. If the filename is empty, we pass
-				//in the working directory explicitly, otherwise we build a fully
-				//qualified path name for the file, and let the popup extract the working
-				//directory from the file path.
-				LPCWSTR workingDir = NULL;
-				if(fileNameCurrent.empty())
+				if(!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
 				{
-					workingDir = &state->prefs.pathWorkspaces[0];
+					fileNameCurrent = PathCombinePaths(state->prefs.pathWorkspaces, fileNameCurrent);
 				}
-				else if(PathIsRelative(&fileNameCurrent[0]) == TRUE)
+
+				//Select a new target file
+				std::wstring selectedFilePath;
+				if(state->SelectExistingFile(L"Workspace Files|xml", L"xml", fileNameCurrent, state->prefs.pathWorkspaces, true, selectedFilePath))
 				{
-					TCHAR combinedPath[MAX_PATH];
-					LPTSTR pathCombineReturn;
-					pathCombineReturn = PathCombine(&combinedPath[0], &state->prefs.pathWorkspaces[0], &fileNameCurrent[0]);
-					if(pathCombineReturn != NULL)
+					if(PathStartsWithBasePath(state->prefs.pathWorkspaces, selectedFilePath))
 					{
-						fileNameCurrent = combinedPath;
-					}
-				}
-
-				//Copy the input filename into our filename buffer
-				TCHAR fileName[MAX_PATH];
-				unsigned int i = 0;
-				while((i < fileNameCurrent.size()) && (i < (MAX_PATH - 1)))
-				{
-					fileName[i] = fileNameCurrent[i];
-					++i;
-				}
-				fileName[i] = '\0';
-
-				//Set the parameters for the popup
-				OPENFILENAME openFileParams;
-				ZeroMemory(&openFileParams, sizeof(openFileParams));
-				openFileParams.lStructSize = sizeof(openFileParams);
-				openFileParams.hwndOwner = hwnd;
-				openFileParams.lpstrFile = fileName;
-				openFileParams.nMaxFile = sizeof(fileName);
-				openFileParams.lpstrFilter = L"Workspace Files (*.xml)\0*.xml\0All (*.*)\0*.*\0\0";
-				openFileParams.lpstrDefExt = L"xml";
-				openFileParams.nFilterIndex = 1;
-				openFileParams.lpstrFileTitle = NULL;
-				openFileParams.nMaxFileTitle = 0;
-				openFileParams.lpstrInitialDir = workingDir;
-				openFileParams.Flags = OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_FILEMUSTEXIST;
-
-				//Display the popup
-				if(GetOpenFileName(&openFileParams) != 0)
-				{
-					std::wstring fileName = openFileParams.lpstrFile;
-					if(PathIsPrefix(&state->prefs.pathWorkspaces[0], &fileName[0]) == TRUE)
-					{
-						TCHAR relativePath[MAX_PATH];
-						if(PathRelativePathTo(&relativePath[0], &state->prefs.pathWorkspaces[0], FILE_ATTRIBUTE_DIRECTORY, &fileName[0], 0) == TRUE)
+						std::wstring relativePath;
+						if(PathBuildRelativePathToTarget(state->prefs.pathWorkspaces, selectedFilePath, true, relativePath))
 						{
-							fileName = relativePath;
+							selectedFilePath = relativePath;
 						}
 					}
-					SetDlgItemText(hwnd, IDC_SETTINGS_LOADWORKSPACE, &fileName[0]);
+					SetDlgItemText(hwnd, IDC_SETTINGS_LOADWORKSPACE, &selectedFilePath[0]);
 				}
 				break;}
 			case IDC_SETTINGS_PATHMODULESCHANGE:
@@ -3483,46 +3636,27 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 					textboxControlID = IDC_SETTINGS_PATHASSEMBLIES;
 					break;
 				}
-				std::wstring initialDir = GetDlgItemString(hwnd, textboxControlID);
-				if(initialDir.empty())
+
+				//Retrieve the current target directory
+				std::wstring currentSelectedDir = GetDlgItemString(hwnd, textboxControlID);
+				if(PathIsRelativePath(currentSelectedDir))
 				{
-					initialDir = L".";
+					currentSelectedDir = PathCombinePaths(state->originalWorkingDir, currentSelectedDir);
 				}
-				std::wstring messageText = L"Select the target folder";
 
-				LPITEMIDLIST itemIDList;
-				TCHAR folderName[MAX_PATH];
-				BROWSEINFO info;
-				info.hwndOwner = hwnd;
-				info.pidlRoot = NULL;
-				info.pszDisplayName = folderName;
-				info.lpszTitle = &messageText[0];
-				info.ulFlags = BIF_USENEWUI;
-				info.lpfn = SetSHBrowseForFolderInitialDir;
-				info.lParam = (LPARAM)&initialDir[0];
-				itemIDList = SHBrowseForFolder(&info);
-				if(itemIDList != NULL)
+				//Select a new target directory
+				std::wstring newSelectedDir;
+				if(SelectExistingDirectory(state->mainWindowHandle, currentSelectedDir, newSelectedDir))
 				{
-					if(SHGetPathFromIDList(itemIDList, &folderName[0]) == TRUE)
+					if(PathStartsWithBasePath(state->originalWorkingDir, newSelectedDir))
 					{
-						if(PathIsPrefix(&state->originalWorkingDir[0], &folderName[0]) == TRUE)
+						std::wstring relativePath;
+						if(PathBuildRelativePathToTarget(state->originalWorkingDir, newSelectedDir, false, relativePath))
 						{
-							TCHAR relativePath[MAX_PATH];
-							if(PathRelativePathTo(&relativePath[0], &state->originalWorkingDir[0], FILE_ATTRIBUTE_DIRECTORY, &folderName[0], FILE_ATTRIBUTE_DIRECTORY) == TRUE)
-							{
-								unsigned int i = 0;
-								while(relativePath[i] != 0)
-								{
-									folderName[i] = relativePath[i];
-									++i;
-								}
-								folderName[i] = 0;
-							}
+							newSelectedDir = relativePath;
 						}
-						SetDlgItemText(hwnd, textboxControlID, &folderName[0]);
 					}
-
-					CoTaskMemFree(itemIDList);
+					SetDlgItemText(hwnd, textboxControlID, newSelectedDir.c_str());
 				}
 				break;}
 			}
@@ -3558,6 +3692,71 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 		CheckDlgButton(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE, state->prefs.enablePersistentState? BST_CHECKED: BST_UNCHECKED);
 
 		EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
+
+		break;}
+	default:
+		return FALSE;
+		break;
+	}
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR CALLBACK ExodusInterface::SelectCompressedFileProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+	//Obtain the object pointer
+	SelectCompressedFileDialogParams* state = (SelectCompressedFileDialogParams*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+	switch(Message)
+	{
+	case WM_CLOSE:
+		EndDialog(hwnd, 1);
+		break;
+	case WM_COMMAND:{
+		bool validateSelection = false;
+		if(HIWORD(wParam) == LBN_DBLCLK)
+		{
+			switch(LOWORD(wParam))
+			{
+			case IDC_SELECTCOMPRESSEDFILE_LIST:
+				validateSelection = true;
+				break;
+			}
+		}
+		else if(HIWORD(wParam) == BN_CLICKED)
+		{
+			switch(LOWORD(wParam))
+			{
+			case IDOK:{
+				validateSelection = true;
+				break;}
+			case IDCANCEL:
+				EndDialog(hwnd, 1);
+				break;
+			}
+		}
+		if(validateSelection)
+		{
+			int currentItemListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_SELECTCOMPRESSEDFILE_LIST), LB_GETCURSEL, 0, 0);
+			LRESULT getListItemDataReturn = SendMessage(GetDlgItem(hwnd, IDC_SELECTCOMPRESSEDFILE_LIST), LB_GETITEMDATA, currentItemListIndex, NULL);
+			if(getListItemDataReturn != LB_ERR)
+			{
+				state->selectedEntryID = (unsigned int)getListItemDataReturn;
+				state->selectionMade = true;
+				EndDialog(hwnd, 2);
+			}
+		}
+		break;}
+	case WM_INITDIALOG:{
+		//Set the object pointer
+		state = (SelectCompressedFileDialogParams*)lParam;
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
+
+		for(std::list<SelectCompressedFileDialogParamsFileEntry>::iterator i = state->fileList.begin(); i != state->fileList.end(); ++i)
+		{
+			LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_SELECTCOMPRESSEDFILE_LIST), LB_ADDSTRING, 0, (LPARAM)i->fileName.c_str());
+			SendMessage(GetDlgItem(hwnd, IDC_SELECTCOMPRESSEDFILE_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)i->entryID);
+		}
 
 		break;}
 	default:
@@ -3832,8 +4031,10 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		std::wstring savePostfix = state->slotName;
 		std::wstring saveFileName = exodusInterface->GetSavestateAutoFileNamePrefix() + L" - " + savePostfix + L".exs";
 		std::wstring debuggerSaveFileName = exodusInterface->GetSavestateAutoFileNamePrefix() + L" - " + savePostfix + L" - DebugState" + L".exs";
-		ISystemExternal::StateInfo stateInfo = exodusInterface->system.GetStateInfo(exodusInterface->prefs.pathSavestates, saveFileName, ISystemExternal::FILETYPE_ZIP);
-		ISystemExternal::StateInfo debuggerStateInfo = exodusInterface->system.GetStateInfo(exodusInterface->prefs.pathSavestates, debuggerSaveFileName, ISystemExternal::FILETYPE_ZIP);
+		std::wstring saveFilePath = PathCombinePaths(exodusInterface->prefs.pathSavestates, saveFileName);
+		std::wstring debuggerSaveFilePath = PathCombinePaths(exodusInterface->prefs.pathSavestates, debuggerSaveFileName);
+		ISystemExternal::StateInfo stateInfo = exodusInterface->system.GetStateInfo(saveFilePath, ISystemExternal::FILETYPE_ZIP);
+		ISystemExternal::StateInfo debuggerStateInfo = exodusInterface->system.GetStateInfo(debuggerSaveFilePath, ISystemExternal::FILETYPE_ZIP);
 		if((state->savestatePresent == stateInfo.valid)
 		&& (state->debugStatePresent == debuggerStateInfo.valid)
 		&& (state->date == (state->savestatePresent? stateInfo.creationDate: debuggerStateInfo.creationDate))
@@ -3861,7 +4062,7 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		if(stateInfo.screenshotPresent)
 		{
 			//Open the target file
-			std::wstring filePath = exodusInterface->prefs.pathSavestates + L"\\" + saveFileName;
+			std::wstring filePath = PathCombinePaths(exodusInterface->prefs.pathSavestates, saveFileName);
 			Stream::File source;
 			if(source.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
 			{

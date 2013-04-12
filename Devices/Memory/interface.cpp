@@ -6,9 +6,9 @@
 #include "TimedBufferIntDevice.h"
 
 //----------------------------------------------------------------------------------------
-IDevice* GetROM(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetROM(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new ROM(instanceName, moduleID);
+	return new ROM(implementationName, instanceName, moduleID);
 }
 
 //----------------------------------------------------------------------------------------
@@ -18,9 +18,9 @@ void DeleteROM(IDevice* device)
 }
 
 //----------------------------------------------------------------------------------------
-IDevice* GetRAM(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetRAM(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new RAM(instanceName, moduleID);
+	return new RAM(implementationName, instanceName, moduleID);
 }
 
 //----------------------------------------------------------------------------------------
@@ -30,9 +30,9 @@ void DeleteRAM(IDevice* device)
 }
 
 //----------------------------------------------------------------------------------------
-IDevice* GetSharedRAM(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetSharedRAM(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new SharedRAM(instanceName, moduleID);
+	return new SharedRAM(implementationName, instanceName, moduleID);
 }
 
 //----------------------------------------------------------------------------------------
@@ -42,9 +42,9 @@ void DeleteSharedRAM(IDevice* device)
 }
 
 //----------------------------------------------------------------------------------------
-IDevice* GetTimedRAM(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetTimedRAM(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new TimedRAM(instanceName, moduleID);
+	return new TimedRAM(implementationName, instanceName, moduleID);
 }
 
 //----------------------------------------------------------------------------------------
@@ -54,9 +54,9 @@ void DeleteTimedRAM(IDevice* device)
 }
 
 //----------------------------------------------------------------------------------------
-IDevice* GetTimedBufferIntDeviceDeviceInfo(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetTimedBufferIntDeviceDeviceInfo(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new TimedBufferIntDevice(instanceName, moduleID);
+	return new TimedBufferIntDevice(implementationName, instanceName, moduleID);
 }
 
 //----------------------------------------------------------------------------------------
@@ -78,19 +78,19 @@ extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDevi
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetDeviceSettings(L"ROM", GetROM, DeleteROM, 1);
+		entry.SetDeviceSettings(GetROM, DeleteROM, L"Memory.ROM", L"ROM", 1, L"", L"");
 		return true;
 	case 1:
-		entry.SetDeviceSettings(L"RAM", GetRAM, DeleteRAM, 1);
+		entry.SetDeviceSettings(GetRAM, DeleteRAM, L"Memory.RAM", L"RAM", 1, L"", L"");
 		return true;
 	case 2:
-		entry.SetDeviceSettings(L"SharedRAM", GetSharedRAM, DeleteSharedRAM, 1);
+		entry.SetDeviceSettings(GetSharedRAM, DeleteSharedRAM, L"Memory.RAM", L"SharedRAM", 1, L"", L"");
 		return true;
 	case 3:
-		entry.SetDeviceSettings(L"TimedRAM", GetTimedRAM, DeleteTimedRAM, 1);
+		entry.SetDeviceSettings(GetTimedRAM, DeleteTimedRAM, L"Memory.RAM", L"TimedRAM", 1, L"", L"");
 		return true;
 	case 4:
-		entry.SetDeviceSettings(L"TimedBufferIntDevice", GetTimedBufferIntDeviceDeviceInfo, DeleteTimedBufferIntDeviceDevice, 1);
+		entry.SetDeviceSettings(GetTimedBufferIntDeviceDeviceInfo, DeleteTimedBufferIntDeviceDevice, L"Memory.RAM", L"TimedBufferIntDevice", 1, L"", L"");
 		return true;
 	}
 	return false;

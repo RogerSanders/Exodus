@@ -5,8 +5,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MDBusArbiter::MDBusArbiter(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"MDBusArbiter", ainstanceName, amoduleID),
+MDBusArbiter::MDBusArbiter(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID),
 z80BankswitchDataCurrent(9),
 bz80BankswitchDataCurrent(9),
 z80BankswitchDataNew(9),

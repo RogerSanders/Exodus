@@ -8,7 +8,7 @@ class TimedBufferIntDevice :public MemoryWrite, public ITimedBufferIntDevice
 {
 public:
 	//Constructors
-	TimedBufferIntDevice(const std::wstring& ainstanceName, unsigned int amoduleID);
+	TimedBufferIntDevice(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 
 	//Initialization functions

@@ -26,13 +26,16 @@ enum System::SystemStateChangeType
 struct System::DeviceLibraryEntry
 {
 	DeviceLibraryEntry()
-	:Allocator(0), Destructor(0), assemblyHandle(0), deviceVersionNo(0)
+	:Allocator(0), Destructor(0), assemblyHandle(0), versionNo(0)
 	{}
 
-	unsigned int deviceVersionNo;
-	std::wstring deviceName;
-	IDevice* (*Allocator)(const wchar_t* instanceName, unsigned int moduleID);
-	void (*Destructor)(IDevice*);
+	DeviceInfo::AllocatorPointer Allocator;
+	DeviceInfo::DestructorPointer Destructor;
+	std::wstring className;
+	std::wstring implementationName;
+	unsigned int versionNo;
+	std::wstring copyright;
+	std::wstring comments;
 	IDevice::AssemblyHandle assemblyHandle;
 };
 
@@ -40,13 +43,16 @@ struct System::DeviceLibraryEntry
 struct System::ExtensionLibraryEntry
 {
 	ExtensionLibraryEntry()
-	:Allocator(0), Destructor(0), assemblyHandle(0), extensionVersionNo(0)
+	:Allocator(0), Destructor(0), assemblyHandle(0), versionNo(0)
 	{}
 
-	unsigned int extensionVersionNo;
-	std::wstring deviceName;
-	IExtension* (*Allocator)(const wchar_t* instanceName, unsigned int moduleID);
-	void (*Destructor)(IExtension*);
+	ExtensionInfo::AllocatorPointer Allocator;
+	ExtensionInfo::DestructorPointer Destructor;
+	std::wstring className;
+	std::wstring implementationName;
+	unsigned int versionNo;
+	std::wstring copyright;
+	std::wstring comments;
 	IExtension::AssemblyHandle assemblyHandle;
 };
 
@@ -203,7 +209,7 @@ struct System::ImportedLineGroupInfo
 struct System::LoadedModuleInfoInternal
 {
 	LoadedModuleInfoInternal()
-	:moduleValidated(false)
+	:moduleValidated(false), programModule(false)
 	{}
 
 	//Internal data
@@ -211,8 +217,7 @@ struct System::LoadedModuleInfoInternal
 	bool moduleValidated;
 
 	//External information
-	std::wstring fileDir;
-	std::wstring fileName;
+	std::wstring filePath;
 
 	//Required metadata
 	bool programModule;

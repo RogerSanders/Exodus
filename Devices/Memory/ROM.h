@@ -7,7 +7,7 @@ class ROM :public MemoryRead
 {
 public:
 	//Constructors
-	ROM(const std::wstring& ainstanceName, unsigned int amoduleID);
+	ROM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 
 	//Initialization functions

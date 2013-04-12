@@ -53,9 +53,9 @@ public:
 	//be hardcoded to "save.xml". Come up with a way for the name within the archive to
 	//be specified by the caller perhaps? The problem is, we don't want to have to load
 	//the zip file twice.
-	virtual bool LoadState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState) = 0;
-	virtual bool SaveState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState) = 0;
-	virtual StateInfo GetStateInfo(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) const = 0;
+	virtual bool LoadState(const std::wstring& filePath, FileType fileType, bool debuggerState) = 0;
+	virtual bool SaveState(const std::wstring& filePath, FileType fileType, bool debuggerState) = 0;
+	virtual StateInfo GetStateInfo(const std::wstring& filePath, FileType fileType) const = 0;
 	virtual bool LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const = 0;
 	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false, const std::wstring& relativePathBase = L"") const = 0;
 
@@ -89,19 +89,19 @@ public:
 	//system definitions.
 	virtual bool GetModuleDisplayName(unsigned int moduleID, std::wstring& moduleDisplayName) const = 0;
 	virtual bool GetModuleInstanceName(unsigned int moduleID, std::wstring& moduleInstanceName) const = 0;
-	virtual void LoadModuleSynchronous(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher) = 0;
+	virtual void LoadModuleSynchronous(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher) = 0;
 	virtual void LoadModuleSynchronousAbort() = 0;
 	virtual float LoadModuleSynchronousProgress() const = 0;
 	virtual bool LoadModuleSynchronousComplete() const = 0;
 	virtual bool LoadModuleSynchronousResult() const = 0;
 	virtual bool LoadModuleSynchronousAborted() const = 0;
-	virtual bool LoadModule(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher) = 0;
-	virtual bool SaveSystem(const std::wstring& fileDir, const std::wstring& fileName) = 0;
+	virtual bool LoadModule(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher) = 0;
+	virtual bool SaveSystem(const std::wstring& filePath) = 0;
 	virtual bool UnloadModule(unsigned int moduleID) = 0;
 	virtual void UnloadAllModulesSynchronous() = 0;
 	virtual bool UnloadAllModulesSynchronousComplete() const = 0;
 	virtual void UnloadAllModules() = 0;
-	virtual bool ReadModuleConnectorInfo(const std::wstring& fileDir, const std::wstring& fileName, std::wstring& systemClassName, ConnectorImportList& connectorsImported, ConnectorExportList& connectorsExported) const = 0;
+	virtual bool ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring& systemClassName, ConnectorImportList& connectorsImported, ConnectorExportList& connectorsExported) const = 0;
 	virtual std::wstring LoadModuleSynchronousCurrentModuleName() const = 0;
 	virtual std::wstring UnloadModuleSynchronousCurrentModuleName() const = 0;
 

@@ -8,7 +8,7 @@ VDP::ImageView::ImageView(VDP* adevice)
 :device(adevice)
 {
 	glrc = NULL;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Image");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Image");
 	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 320, 272, false);
 }
 

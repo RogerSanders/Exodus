@@ -66,7 +66,7 @@ class YM2612 :public Device
 {
 public:
 	//Constructors
-	YM2612(const std::wstring& ainstanceName, unsigned int amoduleID);
+	YM2612(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	~YM2612();
 
 	//Initialization functions

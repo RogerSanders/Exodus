@@ -8,7 +8,7 @@ VDP::PortMonitorDetailsView::PortMonitorDetailsView(VDP* adevice, const PortMoni
 :device(adevice), entry(aentry)
 {
 	hwndInternal = NULL;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Port Monitor Entry Details");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Port Monitor Entry Details");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_PORTMONITOR_DETAILS));
 }
 

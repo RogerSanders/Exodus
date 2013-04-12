@@ -147,26 +147,10 @@ INT_PTR System::LoggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpara
 			system->ClearEventLog();
 			break;
 		case IDC_LOGGER_SAVE:{
-			//Get filename
-			TCHAR fileName[MAX_PATH];
-			OPENFILENAME openFileParams;
-			ZeroMemory(&openFileParams, sizeof(openFileParams));
-			openFileParams.lStructSize = sizeof(openFileParams);
-			openFileParams.hwndOwner = hwnd;
-			openFileParams.lpstrFile = fileName;
-			openFileParams.lpstrFile[0] = '\0';
-			openFileParams.nMaxFile = sizeof(fileName);
-			openFileParams.lpstrFilter = L"csv files (*.csv)\0*.csv\0All (*.*)\0*.*\0";
-			openFileParams.lpstrDefExt = L"csv";
-			openFileParams.nFilterIndex = 1;
-			openFileParams.lpstrFileTitle = NULL;
-			openFileParams.nMaxFileTitle = 0;
-			openFileParams.lpstrInitialDir = NULL;
-			openFileParams.Flags = 0;
-
-			if(GetSaveFileName(&openFileParams) != 0)
+			std::wstring selectedFilePath;
+			if(SelectNewFile(hwnd, L"CSV Files|csv", L"csv", L"", L"", selectedFilePath))
 			{
-				system->SaveEventLog(openFileParams.lpstrFile);
+				system->SaveEventLog(selectedFilePath);
 			}
 			break;}
 		case IDC_LOGGER_SHOW_1:

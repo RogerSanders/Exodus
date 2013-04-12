@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-RAM::RAM(const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryWrite(L"RAM", ainstanceName, amoduleID), initialMemoryDataSpecified(false), repeatInitialMemoryData(false), dataIsPersistent(false)
+RAM::RAM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:MemoryWrite(aimplementationName, ainstanceName, amoduleID), initialMemoryDataSpecified(false), repeatInitialMemoryData(false), dataIsPersistent(false)
 {}
 
 //----------------------------------------------------------------------------------------

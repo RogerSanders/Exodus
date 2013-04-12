@@ -1,16 +1,16 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Device::Device(const std::wstring& aclassName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:className(aclassName), instanceName(ainstanceName), moduleID(amoduleID), deviceContext(0), assemblyHandle(0)
+Device::Device(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:implementationName(aimplementationName), instanceName(ainstanceName), moduleID(amoduleID), deviceContext(0), assemblyHandle(0)
 {}
 
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-std::wstring Device::GetDeviceClassName() const
+std::wstring Device::GetDeviceImplementationName() const
 {
-	return className;
+	return implementationName;
 }
 
 //----------------------------------------------------------------------------------------

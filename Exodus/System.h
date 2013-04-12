@@ -74,9 +74,9 @@ public:
 	virtual void BindToGUIExtensionInterface(IGUIExtensionInterface* aguiExtensionInterface);
 
 	//Savestate functions
-	virtual bool LoadState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState);
-	virtual bool SaveState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState);
-	virtual StateInfo GetStateInfo(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) const;
+	virtual bool LoadState(const std::wstring& filePath, FileType fileType, bool debuggerState);
+	virtual bool SaveState(const std::wstring& filePath, FileType fileType, bool debuggerState);
+	virtual StateInfo GetStateInfo(const std::wstring& filePath, FileType fileType) const;
 	virtual bool LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const;
 	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false, const std::wstring& relativePathBase = L"") const;
 
@@ -119,19 +119,19 @@ public:
 	//Module loading and unloading
 	virtual bool GetModuleDisplayName(unsigned int moduleID, std::wstring& moduleDisplayName) const;
 	virtual bool GetModuleInstanceName(unsigned int moduleID, std::wstring& moduleInstanceName) const;
-	virtual void LoadModuleSynchronous(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher);
+	virtual void LoadModuleSynchronous(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher);
 	virtual void LoadModuleSynchronousAbort();
 	virtual float LoadModuleSynchronousProgress() const;
 	virtual bool LoadModuleSynchronousComplete() const;
 	virtual bool LoadModuleSynchronousResult() const;
 	virtual bool LoadModuleSynchronousAborted() const;
-	virtual bool LoadModule(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher);
-	virtual bool SaveSystem(const std::wstring& fileDir, const std::wstring& fileName);
+	virtual bool LoadModule(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher);
+	virtual bool SaveSystem(const std::wstring& filePath);
 	virtual bool UnloadModule(unsigned int moduleID);
 	virtual void UnloadAllModulesSynchronous();
 	virtual bool UnloadAllModulesSynchronousComplete() const;
 	virtual void UnloadAllModules();
-	virtual bool ReadModuleConnectorInfo(const std::wstring& fileDir, const std::wstring& fileName, std::wstring& systemClassName, ConnectorImportList& connectorsImported, ConnectorExportList& connectorsExported) const;
+	virtual bool ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring& systemClassName, ConnectorImportList& connectorsImported, ConnectorExportList& connectorsExported) const;
 	virtual std::wstring LoadModuleSynchronousCurrentModuleName() const;
 	virtual std::wstring UnloadModuleSynchronousCurrentModuleName() const;
 
@@ -290,8 +290,8 @@ private:
 	unsigned int GetSystemSettingID(unsigned int moduleID, const std::wstring& systemSettingName) const;
 
 	//Savestate functions
-	bool LoadPersistentStateForModule(const std::wstring& fileDir, const std::wstring& fileName, unsigned int moduleID, FileType fileType, bool returnSuccessOnNoFilePresent);
-	bool SavePersistentStateForModule(const std::wstring& fileDir, const std::wstring& fileName, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent);
+	bool LoadPersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool returnSuccessOnNoFilePresent);
+	bool SavePersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent);
 	bool LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const;
 	void SaveModuleRelationshipsExportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
 	void SaveModuleRelationshipsImportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
@@ -355,13 +355,13 @@ private:
 	bool LoadModule_System_SetClockFrequency(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
 	bool LoadModule_System_SetLineState(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
 	bool LoadModule_ProcessViewModelQueue(const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher);
-	bool LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules);
+	bool LoadModuleInternal(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules);
 	void UnloadModuleInternal(unsigned int moduleID);
 	bool LoadSystem_Device_Settings(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
 	bool LoadSystem_Device_MapInput(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
 	bool LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
 	bool LoadSystem_System_SelectSettingOption(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap, SystemStateChange& stateChange);
-	bool LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules);
+	bool LoadSystem(const std::wstring& filePath, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules);
 	void PushLoadModuleCurrentModuleName(const std::wstring& moduleName);
 	void PopLoadModuleCurrentModuleName();
 	void PushUnloadModuleCurrentModuleName(const std::wstring& moduleName);

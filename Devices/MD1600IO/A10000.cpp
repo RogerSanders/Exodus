@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-A10000::A10000(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"A10000", ainstanceName, amoduleID), versionRegister(8), bversionRegister(8)
+A10000::A10000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID), versionRegister(8), bversionRegister(8)
 {
 	memoryBus = 0;
 	controlPortBus = 0;

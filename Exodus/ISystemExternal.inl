@@ -61,8 +61,7 @@ struct ISystemExternal::SavedRelationshipModule
 	std::wstring systemClassName;
 	std::wstring className;
 	std::wstring instanceName;
-	std::wstring fileDir;
-	std::wstring fileName;
+	std::wstring filePath;
 	std::list<SavedRelationshipExportConnector> exportedConnectors;
 	std::list<SavedRelationshipImportConnector> importedConnectors;
 };

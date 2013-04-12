@@ -9,40 +9,7 @@ unsigned int ExtensionInfo::GetIExtensionInfoVersion() const
 }
 
 //----------------------------------------------------------------------------------------
-//Setters
-//----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionVersionNo(unsigned int aextensionVersionNo)
-{
-	extensionVersionNo = aextensionVersionNo;
-}
-
-//----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
-{
-	Allocator = aAllocator;
-	Destructor = aDestructor;
-}
-
-//----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionNameInternal(const wchar_t* aextensionName)
-{
-	extensionName = aextensionName;
-}
-
-//----------------------------------------------------------------------------------------
 //Getters
-//----------------------------------------------------------------------------------------
-unsigned int ExtensionInfo::GetExtensionVersionNo() const
-{
-	return extensionVersionNo;
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring ExtensionInfo::GetExtensionName() const
-{
-	return extensionName;
-}
-
 //----------------------------------------------------------------------------------------
 ExtensionInfo::AllocatorPointer ExtensionInfo::GetAllocator() const
 {
@@ -53,4 +20,73 @@ ExtensionInfo::AllocatorPointer ExtensionInfo::GetAllocator() const
 ExtensionInfo::DestructorPointer ExtensionInfo::GetDestructor() const
 {
 	return Destructor;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExtensionInfo::GetExtensionClassName() const
+{
+	return className;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExtensionInfo::GetExtensionImplementationName() const
+{
+	return implementationName;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int ExtensionInfo::GetExtensionVersionNo() const
+{
+	return versionNo;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExtensionInfo::GetExtensionCopyright() const
+{
+	return copyright;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExtensionInfo::GetExtensionComments() const
+{
+	return comments;
+}
+
+//----------------------------------------------------------------------------------------
+//Setters
+//----------------------------------------------------------------------------------------
+void ExtensionInfo::SetExtensionAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
+{
+	Allocator = aAllocator;
+	Destructor = aDestructor;
+}
+
+//----------------------------------------------------------------------------------------
+void ExtensionInfo::SetExtensionClassNameInternal(const wchar_t* aextensionClassName)
+{
+	className = aextensionClassName;
+}
+
+//----------------------------------------------------------------------------------------
+void ExtensionInfo::SetExtensionImplementationNameInternal(const wchar_t* aextensionImplementationName)
+{
+	implementationName = aextensionImplementationName;
+}
+
+//----------------------------------------------------------------------------------------
+void ExtensionInfo::SetExtensionVersionNo(unsigned int aextensionVersionNo)
+{
+	versionNo = aextensionVersionNo;
+}
+
+//----------------------------------------------------------------------------------------
+void ExtensionInfo::SetExtensionCopyrightInternal(const wchar_t* aextensionCopyright)
+{
+	copyright = aextensionCopyright;
+}
+
+//----------------------------------------------------------------------------------------
+void ExtensionInfo::SetExtensionCommentsInternal(const wchar_t* aextensionComments)
+{
+	comments = aextensionComments;
 }

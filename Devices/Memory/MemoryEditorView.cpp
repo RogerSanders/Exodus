@@ -9,7 +9,7 @@ MemoryRead::MemoryEditorView::MemoryEditorView(MemoryRead* adevice)
 :device(adevice)
 {
 	hwndMem = NULL;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Memory Editor");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Memory Editor");
 	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 440, 500, true);
 }
 

@@ -8,7 +8,7 @@ S315_5313::PaletteView::PaletteView(S315_5313* adevice)
 :device(adevice)
 {
 	glrc = NULL;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Palette");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Palette");
 	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 240, 60, false);
 }
 
@@ -88,6 +88,13 @@ LRESULT S315_5313::PaletteView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lpa
 //----------------------------------------------------------------------------------------
 void S315_5313::PaletteView::UpdatePalette()
 {
+	//Obtain a lock on external references, and ensure that the required buffers exists.
+	boost::mutex::scoped_lock lock(device->externalReferenceMutex);
+	if(device->cram == 0)
+	{
+		return;
+	}
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 

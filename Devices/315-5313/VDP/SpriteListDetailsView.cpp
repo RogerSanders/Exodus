@@ -9,7 +9,7 @@ VDP::SpriteListDetailsView::SpriteListDetailsView(VDP* adevice, unsigned int asp
 {
 	spriteMappingAddress = aspriteMappingAddress;
 	spriteIndex = aspriteIndex;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Sprite Details");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Sprite Details");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_SPRITELIST_DETAILS));
 }
 

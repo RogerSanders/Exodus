@@ -2,9 +2,9 @@
 #include "VDP/VDP.h"
 #include "S315-5313/S315_5313.h"
 
-IDevice* GetVDP(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetVDP(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new VDP(instanceName, moduleID);
+	return new VDP(implementationName, instanceName, moduleID);
 }
 
 void DeleteVDP(IDevice* device)
@@ -12,9 +12,9 @@ void DeleteVDP(IDevice* device)
 	delete device;
 }
 
-IDevice* GetS315_5313(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetS315_5313(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new S315_5313(instanceName, moduleID);
+	return new S315_5313(implementationName, instanceName, moduleID);
 }
 
 void DeleteS315_5313(IDevice* device)
@@ -33,10 +33,10 @@ extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDevi
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetDeviceSettings(L"VDP", GetVDP, DeleteVDP, 1);
+		entry.SetDeviceSettings(GetVDP, DeleteVDP, L"Video.315-5313", L"VDP", 1, L"", L"");
 		return true;
 	case 1:
-		entry.SetDeviceSettings(L"S315-5313", GetS315_5313, DeleteS315_5313, 1);
+		entry.SetDeviceSettings(GetS315_5313, DeleteS315_5313, L"Video.315-5313", L"S315-5313", 1, L"", L"");
 		return true;
 	}
 	return false;

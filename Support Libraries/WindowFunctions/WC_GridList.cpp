@@ -1,5 +1,4 @@
 #include "WC_GridList.h"
-#include <CommCtrl.h>
 
 //##DEBUG##
 #include <iostream>

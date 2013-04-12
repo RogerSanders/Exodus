@@ -39,7 +39,6 @@
 //Automatically link library dependencies
 #ifndef _STATICLIB
 #pragma comment(lib, "Dbghelp")
-#pragma comment(lib, "shlwapi")
 #endif
 
 #endif

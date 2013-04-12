@@ -1,6 +1,6 @@
 #include "ZIPFileEntry.h"
 #include "Deflate.h"
-#include <windows.h>
+#include "WindowFunctions/WindowFunctions.pkg"
 
 //----------------------------------------------------------------------------------------
 //Constructors

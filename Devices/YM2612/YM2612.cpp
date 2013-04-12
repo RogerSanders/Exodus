@@ -100,8 +100,8 @@ const unsigned int YM2612::phaseModIncrementTable[1 << pmsBitCount][1 << (phaseM
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-YM2612::YM2612(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"YM2612", ainstanceName, amoduleID),
+YM2612::YM2612(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID),
 menuHandler(0),
 status(8), bstatus(8), reg(registerCountTotal, false, Data(8)),
 latchedFrequencyData(channelCount, Data(8)), blatchedFrequencyData(channelCount, Data(8)),
@@ -230,33 +230,20 @@ bool YM2612::BuildDevice()
 	//Initialize the wave logging state
 	std::wstring captureFolder = GetDeviceContext()->GetCapturePath();
 	wavLoggingEnabled = false;
-	std::wstringstream fileName;
-	if(!captureFolder.empty())
-	{
-		fileName << captureFolder << L"\\";
-	}
-	fileName << L"ym2612log" << L".wav";
-	wavLoggingPath = fileName.str();
+	std::wstring wavLoggingFileName = GetDeviceInstanceName() + L".wav";
+	wavLoggingPath = PathCombinePaths(captureFolder, wavLoggingFileName);
 	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
 	{
 		wavLoggingChannelEnabled[channelNo] = false;
-		std::wstringstream fileName;
-		if(!captureFolder.empty())
-		{
-			fileName << captureFolder << L"\\";
-		}
-		fileName << L"ym2612log" << channelNo + 1 << L".wav";
-		wavLoggingChannelPath[channelNo] = fileName.str();
+		std::wstringstream wavLoggingChannelFileName;
+		wavLoggingChannelFileName << GetDeviceInstanceName() << channelNo + 1 << L".wav";
+		wavLoggingChannelPath[channelNo] = PathCombinePaths(captureFolder, wavLoggingChannelFileName.str());
 		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
 		{
 			wavLoggingOperatorEnabled[channelNo][operatorNo] = false;
-			std::wstringstream fileName;
-			if(!captureFolder.empty())
-			{
-				fileName << captureFolder << L"\\";
-			}
-			fileName << L"ym2612log" << channelNo + 1 << operatorNo + 1 << L".wav";
-			wavLoggingOperatorPath[channelNo][operatorNo] = fileName.str();
+			std::wstringstream wavLoggingOperatorFileName;
+			wavLoggingOperatorFileName << GetDeviceInstanceName() << channelNo + 1 << operatorNo + 1 << L".wav";
+			wavLoggingOperatorPath[channelNo][operatorNo] = PathCombinePaths(captureFolder, wavLoggingOperatorFileName.str());
 		}
 	}
 

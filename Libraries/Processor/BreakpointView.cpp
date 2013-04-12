@@ -8,7 +8,7 @@ Processor::BreakpointView::BreakpointView(Processor* adevice)
 :device(adevice), initializedDialog(false), currentControlFocus(0), breakpoint(adevice->GetAddressBusWidth())
 {
 	breakpointListIndex = -1;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Breakpoints");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Breakpoints");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_BREAK));
 }
 

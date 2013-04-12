@@ -8,7 +8,7 @@ S315_5313::SpriteListDetailsView::SpriteListDetailsView(S315_5313* adevice, unsi
 :device(adevice), initializedDialog(false), currentControlFocus(0)
 {
 	spriteIndex = aspriteIndex;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Sprite Details");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Sprite Details");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_S315_5313_SPRITELIST_DETAILS));
 }
 

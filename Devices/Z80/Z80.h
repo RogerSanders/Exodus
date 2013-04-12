@@ -44,7 +44,7 @@ class Z80 :public Processor
 {
 public:
 	//Constructors
-	Z80(const std::wstring& ainstanceName, unsigned int amoduleID);
+	Z80(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	~Z80();
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 

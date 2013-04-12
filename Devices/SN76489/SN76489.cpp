@@ -6,8 +6,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SN76489::SN76489(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"SN76489", ainstanceName, amoduleID), menuHandler(0), reg(channelCount * 2, false, Data(toneRegisterBitCount))
+SN76489::SN76489(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID), menuHandler(0), reg(channelCount * 2, false, Data(toneRegisterBitCount))
 {
 	//Initialize the audio output stream
 	outputSampleRate = 48000;	//44100;
@@ -42,23 +42,14 @@ bool SN76489::BuildDevice()
 	//Initialize the wave logging state
 	std::wstring captureFolder = GetDeviceContext()->GetCapturePath();
 	wavLoggingEnabled = false;
-	std::wstringstream fileName;
-	if(!captureFolder.empty())
-	{
-		fileName << captureFolder << L"\\";
-	}
-	fileName << L"sn76489log" << L".wav";
-	wavLoggingPath = fileName.str();
+	std::wstring wavLoggingFileName = GetDeviceInstanceName() + L".wav";
+	wavLoggingPath = PathCombinePaths(captureFolder, wavLoggingFileName);
 	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
 	{
 		wavLoggingChannelEnabled[channelNo] = false;
-		std::wstringstream fileName;
-		if(!captureFolder.empty())
-		{
-			fileName << captureFolder << L"\\";
-		}
-		fileName << L"sn76489log" << channelNo << L".wav";
-		wavLoggingChannelPath[channelNo] = fileName.str();
+		std::wstringstream wavLoggingChannelFileName;
+		wavLoggingChannelFileName << GetDeviceInstanceName() << channelNo << L".wav";
+		wavLoggingChannelPath[channelNo] = PathCombinePaths(captureFolder, wavLoggingChannelFileName.str());
 	}
 
 	return true;

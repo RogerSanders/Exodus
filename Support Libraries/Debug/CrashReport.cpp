@@ -1,8 +1,6 @@
 #include "CrashReport.h"
 #include "WindowFunctions/WindowFunctions.pkg"
 #include <Dbghelp.h>
-#include <ShlObj.h>
-#include <shlwapi.h>
 #include "ZIP/ZIP.pkg"
 #include "ZIP/ZIPArchive.h"
 #include "Stream/Stream.pkg"
@@ -49,7 +47,7 @@ void SetLargeMinidumpFlag(bool largeMinidump)
 bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE minidumpType, const std::wstring& minidumpFolder, const std::wstring& minidumpFileName, bool compress)
 {
 	//Append the minidump extension to the file name
-	std::wstring minidumpFilePath = minidumpFolder + L'\\' + minidumpFileName + L".dmp";
+	std::wstring minidumpFilePath = PathCombinePaths(minidumpFolder, minidumpFileName + L".dmp");
 
 	//Set the attributes for the minidump file. If we're intending to compress the
 	//minidump, we mark the file as temporary to increase efficiency.
@@ -118,7 +116,7 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 		archive.AddFileEntry(entry);
 
 		//Generate the zip file name
-		std::wstring minidumpZipFilePath = minidumpFolder + L'\\' + minidumpFileName + L".zip";
+		std::wstring minidumpZipFilePath = PathCombinePaths(minidumpFolder, minidumpFileName + L".zip");
 
 		//Create the zip file
 		Stream::File target;
@@ -169,7 +167,7 @@ LONG WINAPI MinidumpExceptionHandler(_EXCEPTION_POINTERS* exceptionPointers)
 	std::wstring minidumpFileName = timestamp + L' ' + minidumpName;
 
 	//Make sure the target directory exists
-	SHCreateDirectoryEx(NULL, minidumpPath.c_str(), NULL);
+	CreateDirectory(minidumpPath, true);
 
 	//Select what data to include in the minidump
 	int minidumpType = MiniDumpNormal; //Start off with a normal minidump
@@ -208,27 +206,16 @@ bool RegisterMinidumpExceptionHandler(const std::wstring& aminidumpName, const s
 {
 	//Make sure the target directory is a fully qualified path
 	std::wstring minidumpPathFull = aminidumpPath;
-	if(PathIsRelative(minidumpPathFull.c_str()))
+	if(PathIsRelativePath(minidumpPathFull))
 	{
 		//Get the current working directory
-		wchar_t currentDirectory[MAX_PATH];
-		if(GetCurrentDirectory(MAX_PATH, currentDirectory) == 0)
-		{
-			return false;
-		}
+		std::wstring currentDirectory = PathGetCurrentWorkingDirectory();
 
 		//Resolve the relative path, starting from the current working directory.
-		wchar_t combinedPath[MAX_PATH];
-		if(PathCombine(combinedPath, currentDirectory, minidumpPathFull.c_str()) == NULL)
-		{
-			return false;
-		}
-
-		//Write the fully qualified path back
-		minidumpPathFull = combinedPath;
+		minidumpPathFull = PathCombinePaths(currentDirectory, minidumpPathFull);
 	}
 
-	//Save the target filename, path, and large minidump flag
+	//Save the target filename, path, and large minidump flag.
 	SetMinidumpName(aminidumpName);
 	SetMinidumpPath(minidumpPathFull);
 	SetLargeMinidumpFlag(alargeMinidump);

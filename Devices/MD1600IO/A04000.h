@@ -11,7 +11,7 @@ class A04000 :public Device
 {
 public:
 //Constructors
-	A04000(const std::wstring& ainstanceName, unsigned int amoduleID);
+	A04000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 
 //Initialization functions
 	virtual void Initialize();

@@ -10,7 +10,7 @@ SN76489::RegistersView::RegistersView(SN76489* adevice)
 {
 	lockedColor = RGB(255,127,127);
 	lockedBrush = CreateSolidBrush(lockedColor);
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Registers");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Registers");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_SN76489_REGISTERS));
 }
 

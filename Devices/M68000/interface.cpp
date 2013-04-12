@@ -1,9 +1,9 @@
 #include "SystemInterface/SystemInterface.pkg"
 #include "M68000.h"
 
-IDevice* GetM68000(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetM68000(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new M68000::M68000(instanceName, moduleID);
+	return new M68000::M68000(implementationName, instanceName, moduleID);
 }
 
 void DeleteM68000(IDevice* device)
@@ -13,7 +13,7 @@ void DeleteM68000(IDevice* device)
 
 void GetM68000DeviceInfo(IDeviceInfo& deviceInfo)
 {
-	deviceInfo.SetDeviceSettings(L"M68000", GetM68000, DeleteM68000, 1);
+	deviceInfo.SetDeviceSettings(GetM68000, DeleteM68000, L"Processor.68000", L"M68000", 1, L"", L"");
 }
 
 #ifdef EX_DLLINTERFACE

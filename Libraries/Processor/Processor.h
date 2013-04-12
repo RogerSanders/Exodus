@@ -125,7 +125,7 @@ public:
 
 public:
 	//Constructors
-	Processor(const std::wstring& aclassName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	Processor(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	~Processor();
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 

@@ -1,7 +1,6 @@
 #include "WindowFunctions.h"
 #include <sstream>
 #include <iomanip>
-#include <commctrl.h>
 #include <iostream>
 #include <fstream>
 #include <fcntl.h>

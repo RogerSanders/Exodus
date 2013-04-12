@@ -7,7 +7,7 @@ class IDeviceInfo
 {
 public:
 	//Typedefs
-	typedef IDevice* (*AllocatorPointer)(const wchar_t* instanceName, unsigned int moduleID);
+	typedef IDevice* (*AllocatorPointer)(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID);
 	typedef void (*DestructorPointer)(IDevice* device);
 
 public:
@@ -19,14 +19,20 @@ public:
 	virtual unsigned int GetIDeviceInfoVersion() const = 0;
 
 	//Setters
-	inline void SetDeviceSettings(const std::wstring& adeviceName, AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int adeviceVersionNo);
-	inline void SetDeviceName(const std::wstring& adeviceName);
-	virtual void SetDeviceVersionNo(unsigned int adeviceVersionNo) = 0;
+	inline void SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& adeviceClassName, const std::wstring& adeviceImplementationName, unsigned int adeviceVersionNo, const std::wstring& adeviceCopyright, const std::wstring& adeviceComments);
 	virtual void SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor) = 0;
+	inline void SetDeviceClassName(const std::wstring& adeviceClassName);
+	inline void SetDeviceImplementationName(const std::wstring& adeviceImplementationName);
+	virtual void SetDeviceVersionNo(unsigned int adeviceVersionNo) = 0;
+	inline void SetDeviceCopyright(const std::wstring& adeviceCopyright);
+	inline void SetDeviceComments(const std::wstring& adeviceComments);
 
 protected:
 	//Setters
-	virtual void SetDeviceNameInternal(const wchar_t* adeviceName) = 0;
+	virtual void SetDeviceClassNameInternal(const wchar_t* adeviceClassName) = 0;
+	virtual void SetDeviceImplementationNameInternal(const wchar_t* adeviceImplementationName) = 0;
+	virtual void SetDeviceCopyrightInternal(const wchar_t* adeviceCopyright) = 0;
+	virtual void SetDeviceCommentsInternal(const wchar_t* adeviceComments) = 0;
 };
 
 #include "IDeviceInfo.inl"

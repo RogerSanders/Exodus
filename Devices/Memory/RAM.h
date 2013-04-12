@@ -8,7 +8,7 @@ class RAM :public MemoryWrite
 {
 public:
 	//Constructors
-	RAM(const std::wstring& ainstanceName, unsigned int amoduleID);
+	RAM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 
 	//Initialization functions

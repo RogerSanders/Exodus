@@ -2,7 +2,6 @@
 #include "WindowFunctions/WindowFunctions.pkg"
 #include "resource.h"
 #include <boost/bind.hpp>
-#include <shlwapi.h>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -13,7 +12,7 @@ YM2612::DebuggerView::DebuggerView(YM2612* adevice)
 	selectedChannel = 0;
 	lockedColor = RGB(255,127,127);
 	lockedBrush = CreateSolidBrush(lockedColor);
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Debugger");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Debugger");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_YM2612_DEBUGGER));
 }
 

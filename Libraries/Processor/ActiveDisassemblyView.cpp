@@ -7,7 +7,7 @@
 Processor::ActiveDisassemblyView::ActiveDisassemblyView(Processor* adevice)
 :device(adevice), initializedDialog(false), currentControlFocus(0)
 {
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Active Disassembly");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Active Disassembly");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_ACTIVEDISASSEMBLY));
 }
 
@@ -247,78 +247,27 @@ INT_PTR Processor::ActiveDisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam
 			break;}
 
 		case IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_EXPORTTOASM:{
-			//Get filename
-			TCHAR fileName[MAX_PATH];
-			OPENFILENAME openFileParams;
-			ZeroMemory(&openFileParams, sizeof(openFileParams));
-			openFileParams.lStructSize = sizeof(openFileParams);
-			openFileParams.hwndOwner = hwnd;
-			openFileParams.lpstrFile = fileName;
-
-			openFileParams.lpstrFile[0] = '\0';
-			openFileParams.nMaxFile = sizeof(fileName);
-			openFileParams.lpstrFilter = L"Assembly files (*.asm)\0*.asm\0All (*.*)\0*.*\0";
-			openFileParams.lpstrDefExt = L"asm";
-			openFileParams.nFilterIndex = 1;
-			openFileParams.lpstrFileTitle = NULL;
-			openFileParams.nMaxFileTitle = 0;
-			openFileParams.lpstrInitialDir = NULL;
-			openFileParams.Flags = 0;
-
-			if(GetSaveFileName(&openFileParams) != 0)
+			std::wstring selectedFilePath;
+			if(SelectNewFile(hwnd, L"Assembly files|asm", L"asm", L"", L"", selectedFilePath))
 			{
 				boost::mutex::scoped_lock lock(device->debugMutex);
-				device->ActiveDisassemblyExportAnalysisToASMFile(*device->activeDisassemblyAnalysis, openFileParams.lpstrFile);
+				device->ActiveDisassemblyExportAnalysisToASMFile(*device->activeDisassemblyAnalysis, selectedFilePath);
 			}
 			break;}
 		case IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_EXPORTTOTEXT:{
-			//Get filename
-			TCHAR fileName[MAX_PATH];
-			OPENFILENAME openFileParams;
-			ZeroMemory(&openFileParams, sizeof(openFileParams));
-			openFileParams.lStructSize = sizeof(openFileParams);
-			openFileParams.hwndOwner = hwnd;
-			openFileParams.lpstrFile = fileName;
-
-			openFileParams.lpstrFile[0] = '\0';
-			openFileParams.nMaxFile = sizeof(fileName);
-			openFileParams.lpstrFilter = L"Text files (*.txt)\0*.txt\0All (*.*)\0*.*\0";
-			openFileParams.lpstrDefExt = L"txt";
-			openFileParams.nFilterIndex = 1;
-			openFileParams.lpstrFileTitle = NULL;
-			openFileParams.nMaxFileTitle = 0;
-			openFileParams.lpstrInitialDir = NULL;
-			openFileParams.Flags = 0;
-
-			if(GetSaveFileName(&openFileParams) != 0)
+			std::wstring selectedFilePath;
+			if(SelectNewFile(hwnd, L"Text files|txt", L"txt", L"", L"", selectedFilePath))
 			{
 				boost::mutex::scoped_lock lock(device->debugMutex);
-				device->ActiveDisassemblyExportAnalysisToTextFile(*device->activeDisassemblyAnalysis, openFileParams.lpstrFile);
+				device->ActiveDisassemblyExportAnalysisToTextFile(*device->activeDisassemblyAnalysis, selectedFilePath);
 			}
 			break;}
 		case IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_EXPORTTOIDC:{
-			//Get filename
-			TCHAR fileName[MAX_PATH];
-			OPENFILENAME openFileParams;
-			ZeroMemory(&openFileParams, sizeof(openFileParams));
-			openFileParams.lStructSize = sizeof(openFileParams);
-			openFileParams.hwndOwner = hwnd;
-			openFileParams.lpstrFile = fileName;
-
-			openFileParams.lpstrFile[0] = '\0';
-			openFileParams.nMaxFile = sizeof(fileName);
-			openFileParams.lpstrFilter = L"IDC script files (*.idc)\0*.idc\0All (*.*)\0*.*\0";
-			openFileParams.lpstrDefExt = L"idc";
-			openFileParams.nFilterIndex = 1;
-			openFileParams.lpstrFileTitle = NULL;
-			openFileParams.nMaxFileTitle = 0;
-			openFileParams.lpstrInitialDir = NULL;
-			openFileParams.Flags = 0;
-
-			if(GetSaveFileName(&openFileParams) != 0)
+			std::wstring selectedFilePath;
+			if(SelectNewFile(hwnd, L"IDC script files|idc", L"idc", L"", L"", selectedFilePath))
 			{
 				boost::mutex::scoped_lock lock(device->debugMutex);
-				device->ActiveDisassemblyExportAnalysisToIDCFile(*device->activeDisassemblyAnalysis, openFileParams.lpstrFile);
+				device->ActiveDisassemblyExportAnalysisToIDCFile(*device->activeDisassemblyAnalysis, selectedFilePath);
 			}
 			break;}
 		}
