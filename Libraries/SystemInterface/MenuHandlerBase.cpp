@@ -123,32 +123,41 @@ void MenuHandlerBase::HandleMenuItemSelect(int menuItemID, IViewModelLauncher& a
 		}
 		else
 		{
-			//If this menu item opens a view model, check if the view is currently open.
-			IViewModel* viewModel = menuItem.viewModel;
-			if(viewModel == 0)
+			//If this menu item opens a view model, invoke a background thread to handle
+			//the menu item selection.
+			boost::thread backgroundWorkerThread(boost::bind(boost::mem_fn(&MenuHandlerBase::HandleViewModelMenuItemSelect), this, menuItem));
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void MenuHandlerBase::HandleViewModelMenuItemSelect(MenuItemInternal& menuItem)
+{
+	//Check if the view is currently open, and either activate it or open it depending on
+	//its open state.
+	IViewModel* viewModel = menuItem.viewModel;
+	if(viewModel == 0)
+	{
+		//If the view isn't currently open, create and open the view.
+		viewModel = CreateViewModelForItem(menuItem.menuItemID, menuItem.menuItemName);
+		if(viewModel != 0)
+		{
+			menuItem.viewModel = viewModel;
+			if(!viewModelLauncher->OpenViewModel(viewModel, false))
 			{
-				//If the view isn't currently open, create and open the view.
-				viewModel = CreateViewModelForItem(menuItemID, menuItem.menuItemName);
-				if(viewModel != 0)
-				{
-					menuItem.viewModel = viewModel;
-					if(!aviewModelLauncher.OpenViewModel(viewModel, false))
-					{
-						menuItem.viewModel = 0;
-						DeleteViewModelForItem(menuItemID, viewModel);
-					}
-					else
-					{
-						DeleteViewModelOnClose(menuItemID);
-					}
-				}
+				menuItem.viewModel = 0;
+				DeleteViewModelForItem(menuItem.menuItemID, viewModel);
 			}
 			else
 			{
-				//If the view is currently open, activate it.
-				aviewModelLauncher.ActivateViewModel(viewModel);
+				DeleteViewModelOnClose(menuItem.menuItemID);
 			}
 		}
+	}
+	else
+	{
+		//If the view is currently open, activate it.
+		viewModelLauncher->ActivateViewModel(viewModel);
 	}
 }
 

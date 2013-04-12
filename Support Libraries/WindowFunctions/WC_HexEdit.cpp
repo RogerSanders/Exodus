@@ -1189,7 +1189,7 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 			{
 				std::wstring text = L"Error saving to file.";
 				std::wstring title = L"Could not save data to file!";
-				MessageBox(hwnd, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+				SafeMessageBox(hwnd, text, title, MB_ICONEXCLAMATION);
 			}
 			break;
 		case MNU_LOADFROMFILE:
@@ -1197,7 +1197,7 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 			{
 				std::wstring text = L"Error loading from file.";
 				std::wstring title = L"Could not load data from file!";
-				MessageBox(hwnd, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+				SafeMessageBox(hwnd, text, title, MB_ICONEXCLAMATION);
 			}
 			break;
 		case MNU_COPY:
