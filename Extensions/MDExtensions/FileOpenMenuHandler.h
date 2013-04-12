@@ -3,7 +3,7 @@
 #define __MEGADRIVEROMLOADER_FILEOPENMENUHANDLER_H__
 #include "SystemInterface/SystemInterface.pkg"
 
-class MegaDriveROMLoader::FileOpenMenuHandler :public IMenuHandler
+class MegaDriveROMLoader::FileOpenMenuHandler :public MenuHandlerBase
 {
 public:
 	//Enumerations
@@ -17,12 +17,12 @@ public:
 	//Constructors
 	FileOpenMenuHandler(MegaDriveROMLoader* adevice);
 
-	//Interface version functions
-	virtual unsigned int GetIMenuHandlerVersion() const;
-
-	//Menu item handler functions
-	void AddMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& aviewModelLauncher);
-	virtual void HandleMenuItemSelect(int menuItemID, IViewModelLauncher& aviewModelLauncher);
+protected:
+	//Management functions
+	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const;
+	virtual IViewModel* CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName);
+	virtual void DeleteViewModelForItem(int menuItemID, IViewModel* viewModel);
+	virtual void HandleMenuItemSelectNonViewModel(int menuItemID, IViewModelLauncher& aviewModelLauncher);
 
 private:
 	MegaDriveROMLoader* device;

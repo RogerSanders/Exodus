@@ -12,6 +12,7 @@ MegaDriveROMLoader::MegaDriveROMLoader(const std::wstring& aimplementationName, 
 {
 	//Create the menu handler
 	menuHandler = new FileOpenMenuHandler(this);
+	menuHandler->LoadMenuItems();
 }
 
 //----------------------------------------------------------------------------------------
@@ -114,7 +115,7 @@ void MegaDriveROMLoader::LoadROMFile()
 	{
 		std::wstring text = L"Failed to load the generated module definition file. Check the event log for further info.";
 		std::wstring title = L"Error loading ROM!";
-		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text, title, MB_ICONEXCLAMATION);
 		return;
 	}
 
@@ -197,7 +198,7 @@ bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath
 	{
 		std::wstring text = L"Could not read ROM header data from file.";
 		std::wstring title = L"Error loading ROM!";
-		MessageBox((HWND)guiInterface.GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox((HWND)guiInterface.GetMainWindowHandle(), text, title, MB_ICONEXCLAMATION);
 		return false;
 	}
 
@@ -290,7 +291,7 @@ bool MegaDriveROMLoader::SaveOutputROMModule(IHeirarchicalStorageTree& tree, con
 	{
 		std::wstring text = L"Could not create the target module output directory.";
 		std::wstring title = L"Error loading ROM!";
-		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text, title, MB_ICONEXCLAMATION);
 		return false;
 	}
 
@@ -300,7 +301,7 @@ bool MegaDriveROMLoader::SaveOutputROMModule(IHeirarchicalStorageTree& tree, con
 	{
 		std::wstring text = L"Could not create the output module definition file.";
 		std::wstring title = L"Error loading ROM!";
-		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text, title, MB_ICONEXCLAMATION);
 		return false;
 	}
 	moduleFile.InsertByteOrderMark();
@@ -310,7 +311,7 @@ bool MegaDriveROMLoader::SaveOutputROMModule(IHeirarchicalStorageTree& tree, con
 	{
 		std::wstring text = L"Could not save XML structure to output definition file.";
 		std::wstring title = L"Error loading ROM!";
-		MessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox((HWND)GetGUIInterface()->GetMainWindowHandle(), text, title, MB_ICONEXCLAMATION);
 		return false;
 	}
 

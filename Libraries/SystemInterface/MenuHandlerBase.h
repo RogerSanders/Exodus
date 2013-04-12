@@ -59,6 +59,9 @@ private:
 	void DeleteViewModelOnClose(int menuItemID);
 	void DeleteViewModelHandler(int menuItemID);
 
+	//Menu item handler functions
+	void HandleViewModelMenuItemSelect(MenuItemInternal& menuItem);
+
 private:
 	typedef std::map<int, MenuItemInternal> MenuItems;
 	typedef std::pair<int, MenuItemInternal> MenuItemsEntry;

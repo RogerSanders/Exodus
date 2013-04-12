@@ -4,28 +4,32 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 MegaDriveROMLoader::FileOpenMenuHandler::FileOpenMenuHandler(MegaDriveROMLoader* adevice)
-:device(adevice)
+:MenuHandlerBase(L"MegaDriveROMLoaderFileOpenMenu"), device(adevice)
 {}
 
 //----------------------------------------------------------------------------------------
-//Interface version functions
+//Management functions
 //----------------------------------------------------------------------------------------
-unsigned int MegaDriveROMLoader::FileOpenMenuHandler::GetIMenuHandlerVersion() const
+void MegaDriveROMLoader::FileOpenMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	return ThisIMenuHandlerVersion();
+	menuItems.push_back(MenuItemDefinition(MENUITEM_OPENMEGADRIVEROM, L"OpenMegaDriveROM", L"Open Mega Drive ROM", false));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_CLOSEMEGADRIVEROM, L"CloseMegaDriveROM", L"Close Mega Drive ROM", false));
 }
 
 //----------------------------------------------------------------------------------------
-//Menu item handler functions
-//----------------------------------------------------------------------------------------
-void MegaDriveROMLoader::FileOpenMenuHandler::AddMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& aviewModelLauncher)
+IViewModel* MegaDriveROMLoader::FileOpenMenuHandler::CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName)
 {
-	menuSegment.AddMenuItemSelectableOption(*this, MENUITEM_OPENMEGADRIVEROM, L"Open Mega Drive ROM");
-	menuSegment.AddMenuItemSelectableOption(*this, MENUITEM_CLOSEMEGADRIVEROM, L"Close Mega Drive ROM");
+	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-void MegaDriveROMLoader::FileOpenMenuHandler::HandleMenuItemSelect(int menuItemID, IViewModelLauncher& aviewModelLauncher)
+void MegaDriveROMLoader::FileOpenMenuHandler::DeleteViewModelForItem(int menuItemID, IViewModel* viewModel)
+{
+	delete viewModel;
+}
+
+//----------------------------------------------------------------------------------------
+void MegaDriveROMLoader::FileOpenMenuHandler::HandleMenuItemSelectNonViewModel(int menuItemID, IViewModelLauncher& aviewModelLauncher)
 {
 	switch(menuItemID)
 	{

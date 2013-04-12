@@ -451,8 +451,20 @@ bool SelectExistingFile(HWND parentWindow, const std::list<FileSelectionType>& s
 	//dialog. The OFN_NOCHANGEDIR flag only works with GetSaveFileName.
 	std::wstring currentWorkingDirectory = PathGetCurrentWorkingDirectory();
 
+	//Disable all other popup or dialog windows for the target parent window that are not
+	//currently disabled. We need to do this, because although the modal dialog box will
+	//disable the parent window, it will not disable other popup windows of the parent,
+	//and the user will still be able to interact with them while our dialog is open.
+	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(parentWindow);
+
 	//Attempt to select a file using the open file dialog
 	BOOL openDialogReturn = GetOpenFileName(&openFileParams);
+
+	//Re-enable all other popup or dialog windows which we disabled
+	EnableDialogWindows(disabledWindows);
+
+	//If a file was not successfully selected using the open file dialog, handle the
+	//failure.
 	if(openDialogReturn == 0)
 	{
 		//If the dialog failed with an actual error, rather than the user just canceling
@@ -464,7 +476,7 @@ bool SelectExistingFile(HWND parentWindow, const std::list<FileSelectionType>& s
 			std::wstringstream textStream;
 			textStream << L"GetOpenFileName failed with error code " << dialogErrorCode;
 			std::wstring text = textStream.str();
-			MessageBox(parentWindow, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+			SafeMessageBox(parentWindow, text, title, MB_ICONEXCLAMATION);
 		}
 
 		//Since the selection process has failed, return false.
@@ -542,8 +554,20 @@ bool SelectNewFile(HWND parentWindow, const std::list<FileSelectionType>& select
 	//want to include this flag.
 	openFileParams.Flags = OFN_HIDEREADONLY | OFN_DONTADDTORECENT | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 
+	//Disable all other popup or dialog windows for the target parent window that are not
+	//currently disabled. We need to do this, because although the modal dialog box will
+	//disable the parent window, it will not disable other popup windows of the parent,
+	//and the user will still be able to interact with them while our dialog is open.
+	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(parentWindow);
+
 	//Attempt to select a file using the save file dialog
 	BOOL saveDialogReturn = GetSaveFileName(&openFileParams);
+
+	//Re-enable all other popup or dialog windows which we disabled
+	EnableDialogWindows(disabledWindows);
+
+	//If a file was not successfully selected using the save file dialog, handle the
+	//failure.
 	if(saveDialogReturn == 0)
 	{
 		//If the dialog failed with an actual error, rather than the user just canceling
@@ -555,7 +579,7 @@ bool SelectNewFile(HWND parentWindow, const std::list<FileSelectionType>& select
 			std::wstringstream textStream;
 			textStream << L"GetSaveFileName failed with error code " << dialogErrorCode;
 			std::wstring text = textStream.str();
-			MessageBox(parentWindow, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+			SafeMessageBox(parentWindow, text, title, MB_ICONEXCLAMATION);
 		}
 
 		//Since the selection process has failed, return false.

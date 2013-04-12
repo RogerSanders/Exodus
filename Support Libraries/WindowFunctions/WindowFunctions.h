@@ -9,6 +9,7 @@
 #include <gl\glu.h>
 #include <uxtheme.h>
 #include <string>
+#include <list>
 
 //Ugly workarounds for a silly 64-bit portability warning problem in winuser.h. Issue
 //acknowledged by Microsoft. Waiting for SDK update to fix problem as of September 2008.
@@ -66,8 +67,17 @@ double GetDlgItemDouble(HWND hwnd, int controlID);
 void UpdateDlgItemString(HWND hwnd, int controlID, const std::wstring& data);
 std::wstring GetDlgItemString(HWND hwnd, int controlID);
 
-//MessageBox functions
-int MessageBox(HWND hwnd, const std::wstring& message, const std::wstring& title, UINT type);
+//Modal window functions
+std::list<HWND> DisableAllEnabledDialogWindows(HWND ownerWindow);
+void EnableDialogWindows(const std::list<HWND>& windowList);
+int SafeMessageBox(HWND hwnd, const std::wstring& message, const std::wstring& title, UINT type);
+INT_PTR SafeDialogBox(HINSTANCE hInstance, LPCTSTR lpTemplate, HWND hWndParent, DLGPROC lpDialogFunc);
+INT_PTR SafeDialogBoxParam(HINSTANCE hInstance, LPCWSTR lpTemplateName, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam);
+INT_PTR SafeDialogBoxIndirect(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate, HWND hWndParent, DLGPROC lpDialogFunc);
+INT_PTR SafeDialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam);
+
+//Owned dialog window enumeration
+std::list<HWND> GetOwnedDialogWindows(HWND ownerWindow);
 
 //Tooltip functions
 HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int maxWidth = 300);

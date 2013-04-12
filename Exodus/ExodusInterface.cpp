@@ -987,7 +987,7 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& filePath)
 	{
 		std::wstring text = L"Could not read connector info for module.";
 		std::wstring title = L"Error loading module!";
-		MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 
 		viewEventProcessingPaused = false;
 		FlagProcessPendingEvents();
@@ -1024,7 +1024,7 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& filePath)
 		{
 			std::wstring text = L"No available connector of type " + systemClassName + L"." + i->className + L" could be found!";
 			std::wstring title = L"Error loading module!";
-			MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+			SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 
 			viewEventProcessingPaused = false;
 			FlagProcessPendingEvents();
@@ -1049,7 +1049,7 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& filePath)
 			mapConnectorDialogParams.system = &system;
 			mapConnectorDialogParams.connectorList = availableConnectors;
 			INT_PTR mapConnectorDialogBoxParamResult;
-			mapConnectorDialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_MAPCONNECTOR), mainWindowHandle, MapConnectorProc, (LPARAM)&mapConnectorDialogParams);
+			mapConnectorDialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_MAPCONNECTOR), mainWindowHandle, MapConnectorProc, (LPARAM)&mapConnectorDialogParams);
 			bool connectorMapped = ((mapConnectorDialogBoxParamResult == 1) && (mapConnectorDialogParams.selectionMade));
 
 			//Ensure that a connector mapping has been made
@@ -1057,7 +1057,7 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& filePath)
 			{
 				std::wstring text = L"No connector mapping specified for imported connector " + systemClassName + L"." + i->className + L"!";
 				std::wstring title = L"Error loading module!";
-				MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+				SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 
 				viewEventProcessingPaused = false;
 				FlagProcessPendingEvents();
@@ -1078,7 +1078,7 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& filePath)
 	//Spawn a modal dialog to display the module load progress
 	bool result = false;
 	INT_PTR dialogBoxParamResult;
-	dialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_LOADMODULE), mainWindowHandle, LoadModuleProc, (LPARAM)this);
+	dialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_LOADMODULE), mainWindowHandle, LoadModuleProc, (LPARAM)this);
 	bool moduleLoadSucceeded = (dialogBoxParamResult == 1);
 	if(moduleLoadSucceeded)
 	{
@@ -1091,7 +1091,7 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& filePath)
 		{
 			std::wstring text = L"An error occurred while building the system, settings, or debug windows for the system.";
 			std::wstring title = L"Error loading module!";
-			MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+			SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 		}
 		else
 		{
@@ -1105,7 +1105,7 @@ bool ExodusInterface::LoadModuleFromFile(const std::wstring& filePath)
 		//display this message.
 		std::wstring text = L"An error occurred while trying to load the module file.\nCheck the log window for more information.";
 		std::wstring title = L"Error loading module!";
-		MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 	}
 
 	//Now that the operation is complete, resume view event processing, and fire off a
@@ -1148,7 +1148,7 @@ void ExodusInterface::UnloadModule(unsigned int moduleID)
 
 	//Open the unload system progress dialog
 	INT_PTR dialogBoxParamResult;
-	dialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), mainWindowHandle, UnloadModuleProc, (LPARAM)this);
+	dialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), mainWindowHandle, UnloadModuleProc, (LPARAM)this);
 
 	//Initialize the menu
 	BuildFileMenu();
@@ -1173,7 +1173,7 @@ void ExodusInterface::UnloadAllModules()
 
 		//Open the unload system progress dialog
 		INT_PTR dialogBoxParamResult;
-		dialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), mainWindowHandle, UnloadModuleProc, (LPARAM)this);
+		dialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), mainWindowHandle, UnloadModuleProc, (LPARAM)this);
 
 		//Initialize the menu
 		BuildFileMenu();
@@ -1268,6 +1268,8 @@ bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 			prefs.enablePersistentState = (*i)->ExtractData<bool>();
 		}
 	}
+
+	return true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1657,7 +1659,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 	{
 		std::wstring title = L"Error opening file!";
 		std::wstring text = L"Could not open the target compressed archive.";
-		MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 		return false;
 	}
 
@@ -1667,7 +1669,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 	{
 		std::wstring title = L"Error opening file!";
 		std::wstring text = L"Failed to read the structure of the compressed archive.";
-		MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 		return false;
 	}
 
@@ -1682,7 +1684,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 		{
 			std::wstring title = L"Error opening file!";
 			std::wstring text = L"Failed to read the structure of the compressed archive.";
-			MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+			SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 			return false;
 		}
 
@@ -1723,7 +1725,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 	{
 		std::wstring title = L"Error opening file!";
 		std::wstring text = L"No matching file types were found within the compressed archive.";
-		MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+		SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 		return false;
 	}
 
@@ -1749,12 +1751,12 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 		SelectCompressedFileDialogParams selectCompressedFileDialogParams;
 		selectCompressedFileDialogParams.fileList = fileListForSelection;
 		INT_PTR selectCompressedFileDialogBoxParamResult;
-		selectCompressedFileDialogBoxParamResult = DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_SELECTCOMPRESSEDFILE), mainWindowHandle, SelectCompressedFileProc, (LPARAM)&selectCompressedFileDialogParams);
+		selectCompressedFileDialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_SELECTCOMPRESSEDFILE), mainWindowHandle, SelectCompressedFileProc, (LPARAM)&selectCompressedFileDialogParams);
 		if(selectCompressedFileDialogBoxParamResult <= 0)
 		{
 			std::wstring title = L"Error opening file!";
 			std::wstring text = L"An error occurred while attempting to display the archive content selection dialog.";
-			MessageBox(mainWindowHandle, text.c_str(), title.c_str(), MB_ICONEXCLAMATION);
+			SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 			return false;
 		}
 
@@ -3951,10 +3953,11 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			}
 			break;}
 		default:{
+			//##TODO## Comment this and clean it up
 			ExodusInterface::NewMenuList::iterator newMenuItem = state->newMenuList.find(menuID);
 			if(newMenuItem != state->newMenuList.end())
 			{
-				boost::thread menuThread(boost::bind(boost::mem_fn(&IMenuHandler::HandleMenuItemSelect), &newMenuItem->second.menuItem.GetMenuHandler(), newMenuItem->second.menuItem.GetMenuItemID(), boost::ref(*state)));
+				newMenuItem->second.menuItem.GetMenuHandler().HandleMenuItemSelect(newMenuItem->second.menuItem.GetMenuItemID(), *state);
 			}
 			break;}
 		}
