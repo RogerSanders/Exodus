@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-TimedBufferIntDevice::TimedBufferIntDevice(const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryWrite(L"TimedBufferIntDevice", ainstanceName, amoduleID), initialMemoryDataSpecified(false), repeatInitialMemoryData(false)
+TimedBufferIntDevice::TimedBufferIntDevice(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:MemoryWrite(aimplementationName, ainstanceName, amoduleID), initialMemoryDataSpecified(false), repeatInitialMemoryData(false)
 {}
 
 //----------------------------------------------------------------------------------------

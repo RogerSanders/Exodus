@@ -1,9 +1,9 @@
 #include "SystemInterface/SystemInterface.pkg"
 #include "SN76489.h"
 
-IDevice* GetSN76489(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetSN76489(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new SN76489(instanceName, moduleID);
+	return new SN76489(implementationName, instanceName, moduleID);
 }
 
 void DeleteSN76489(IDevice* device)
@@ -22,7 +22,7 @@ extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDevi
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetDeviceSettings(L"SN76489", GetSN76489, DeleteSN76489, 1);
+		entry.SetDeviceSettings(GetSN76489, DeleteSN76489, L"Audio.SN76489", L"SN76489", 1, L"", L"");
 		return true;
 	}
 	return false;

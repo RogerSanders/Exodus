@@ -6,8 +6,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-S315_5313::S315_5313(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"315-5313", ainstanceName, amoduleID),
+S315_5313::S315_5313(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID),
 settingsMenuHandler(0),
 debugMenuHandler(0),
 reg(registerCount, false, Data(8)),
@@ -490,6 +490,7 @@ void S315_5313::SuspendExecution()
 //----------------------------------------------------------------------------------------
 bool S315_5313::AddReference(const std::wstring& referenceName, IDevice* target)
 {
+	boost::mutex::scoped_lock lock(externalReferenceMutex);
 	if(referenceName == L"VRAM")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
@@ -536,6 +537,7 @@ bool S315_5313::AddReference(const std::wstring& referenceName, IDevice* target)
 //----------------------------------------------------------------------------------------
 bool S315_5313::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
+	boost::mutex::scoped_lock lock(externalReferenceMutex);
 	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
@@ -550,6 +552,7 @@ bool S315_5313::AddReference(const std::wstring& referenceName, IBusInterface* t
 //----------------------------------------------------------------------------------------
 bool S315_5313::AddReference(const std::wstring& referenceName, IClockSource* target)
 {
+	boost::mutex::scoped_lock lock(externalReferenceMutex);
 	bool result = false;
 	if(referenceName == L"CLK0")
 	{
@@ -573,21 +576,27 @@ bool S315_5313::AddReference(const std::wstring& referenceName, IClockSource* ta
 //----------------------------------------------------------------------------------------
 bool S315_5313::RemoveReference(IDevice* target)
 {
-	if((IDevice*)vram == target)
+	boost::mutex::scoped_lock lock(externalReferenceMutex);
+	ITimedBufferIntDevice* targetAsTimedBufferDevice = dynamic_cast<ITimedBufferIntDevice*>(target);
+	if(targetAsTimedBufferDevice != 0)
 	{
-		vram = 0;
-	}
-	else if((IDevice*)cram == target)
-	{
-		cram = 0;
-	}
-	else if((IDevice*)vsram == target)
-	{
-		vsram = 0;
-	}
-	else if((IDevice*)spriteCache == target)
-	{
-		spriteCache = 0;
+		ITimedBufferInt* timedBuffer = targetAsTimedBufferDevice->GetTimedBuffer();
+		if(vram == timedBuffer)
+		{
+			vram = 0;
+		}
+		else if(cram == timedBuffer)
+		{
+			cram = 0;
+		}
+		else if(vsram == timedBuffer)
+		{
+			vsram = 0;
+		}
+		else if(spriteCache == timedBuffer)
+		{
+			spriteCache = 0;
+		}
 	}
 	else if(psg == target)
 	{
@@ -603,6 +612,7 @@ bool S315_5313::RemoveReference(IDevice* target)
 //----------------------------------------------------------------------------------------
 bool S315_5313::RemoveReference(IBusInterface* target)
 {
+	boost::mutex::scoped_lock lock(externalReferenceMutex);
 	if(memoryBus == target)
 	{
 		memoryBus = 0;
@@ -617,6 +627,7 @@ bool S315_5313::RemoveReference(IBusInterface* target)
 //----------------------------------------------------------------------------------------
 bool S315_5313::RemoveReference(IClockSource* target)
 {
+	boost::mutex::scoped_lock lock(externalReferenceMutex);
 	if(clockSourceCLK0 == target)
 	{
 		clockSourceCLK0 = 0;
@@ -1453,7 +1464,14 @@ void S315_5313::DMAWorkerThread()
 			//the end of the current timeslice.
 			if(dmaTransferActive && busGranted)
 			{
-				//Advance the DMA operation
+				//Advance the DMA operation. Note that we execute up to exactly 1 more
+				//MCLK cycle than is available in the current timeslice. We need to do
+				//this because there may be additional time remaining in the timeslice
+				//which cannot be consumed by a whole MCLK cycle, but in the case where we
+				//have the bus, we need to execute the entire length of the current
+				//timeslice, so that any waiting devices don't stall waiting for us to
+				//reach the end of the timeslice too.
+				unsigned int mclkCycleTimeToExecuteTo = currentTimesliceTotalMclkCycles + 1;
 				if(dmaAdvanceUntilDMAComplete)
 				{
 					//If we've been requested to advance the current DMA operation until
@@ -1463,9 +1481,9 @@ void S315_5313::DMAWorkerThread()
 					//##DEBUG##
 					//std::wcout << "VDP - DMAWorkerThreadForce: " << lastTimesliceTotalExecuteTime << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << '\t' << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
 
-					UpdateInternalState(currentTimesliceTotalMclkCycles, true, false, false, false, false, true, true);
+					UpdateInternalState(mclkCycleTimeToExecuteTo, true, false, false, false, false, true, true);
 				}
-				else if(GetProcessorStateMclkCurrent() < currentTimesliceTotalMclkCycles)
+				else if(GetProcessorStateMclkCurrent() < mclkCycleTimeToExecuteTo)
 				{
 					//If we currently have the bus, advance the processor state until the DMA
 					//operation is complete, or we reach the end of the current timeslice.
@@ -1473,7 +1491,7 @@ void S315_5313::DMAWorkerThread()
 					//##DEBUG##
 	//				std::wcout << "VDP - DMAWorkerThread: " << lastTimesliceTotalExecuteTime << '\t' << stateLastUpdateMclk << '\t' << stateLastUpdateMclkUnused << '\t' << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
 
-					UpdateInternalState(currentTimesliceTotalMclkCycles, true, false, false, false, false, true, false);
+					UpdateInternalState(mclkCycleTimeToExecuteTo, true, false, false, false, false, true, false);
 				}
 
 				//Update the timeslice execution progress for this device

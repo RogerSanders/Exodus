@@ -19,7 +19,7 @@ public:
 
 public:
 	//Constructors
-	TimedRAM(const std::wstring& ainstanceName, unsigned int amoduleID);
+	TimedRAM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 
 	//Initialization functions

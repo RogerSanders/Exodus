@@ -9,7 +9,7 @@ S315_5313::RegistersView::RegistersView(S315_5313* adevice)
 {
 	lockedColor = RGB(255,127,127);
 	lockedBrush = CreateSolidBrush(lockedColor);
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Registers");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Registers");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_REGISTERS));
 }
 

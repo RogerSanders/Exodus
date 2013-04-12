@@ -17,10 +17,8 @@ public:
 	virtual void SetModuleID(unsigned int amoduleID) = 0;
 
 	//External information
-	inline std::wstring GetModuleFileDirectory() const;
-	inline void SetModuleFileDirectory(const std::wstring& amoduleFileDirectory);
-	inline std::wstring GetModuleFileName() const;
-	inline void SetModuleFileName(const std::wstring& amoduleFileName);
+	inline std::wstring GetModuleFilePath() const;
+	inline void SetModuleFilePath(const std::wstring& amoduleFilePath);
 
 	//Required metadata
 	virtual bool GetIsProgramModule() const = 0;
@@ -44,10 +42,8 @@ public:
 
 protected:
 	//External information
-	virtual const wchar_t* GetModuleFileDirectoryInternal() const = 0;
-	virtual void SetModuleFileDirectoryInternal(const wchar_t* amoduleFileDirectory) = 0;
-	virtual const wchar_t* GetModuleFileNameInternal() const = 0;
-	virtual void SetModuleFileNameInternal(const wchar_t* amoduleFileName) = 0;
+	virtual const wchar_t* GetModuleFilePathInternal() const = 0;
+	virtual void SetModuleFilePathInternal(const wchar_t* amoduleFilePath) = 0;
 
 	//Required metadata
 	virtual const wchar_t* GetSystemClassNameInternal() const = 0;

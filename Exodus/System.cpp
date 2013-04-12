@@ -7,7 +7,6 @@
 #include <time.h>
 #include <boost/bind.hpp>
 #include <sstream>
-#include <shlwapi.h>
 //##DEBUG##
 #include <iostream>
 #include <iomanip>
@@ -31,24 +30,24 @@ void System::BindToGUIExtensionInterface(IGUIExtensionInterface* aguiExtensionIn
 //----------------------------------------------------------------------------------------
 //State functions
 //----------------------------------------------------------------------------------------
-bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState)
+bool System::LoadState(const std::wstring& filePath, FileType fileType, bool debuggerState)
 {
 	//Save running state and pause system
 	bool running = SystemRunning();
 	StopSystem();
 
 	//Open the target file
-	std::wstring filePath = fileDir + L"\\" + fileName;
-	Stream::File source;
-	if(!source.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	FileStreamReference sourceStreamReference(*guiExtensionInterface);
+	if(!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because the file could not be opened!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the file could not be opened!"));
 		if(running)
 		{
 			RunSystem();
 		}
 		return false;
 	}
+	Stream::IStream& source = *sourceStreamReference;
 
 	HeirarchicalStorageTree tree;
 	if(fileType == FILETYPE_ZIP)
@@ -57,7 +56,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 		ZIPArchive archive;
 		if(!archive.LoadFromStream(source))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because the zip file structure could not be decoded!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the zip file structure could not be decoded!"));
 			if(running)
 			{
 				RunSystem();
@@ -69,7 +68,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 		ZIPFileEntry* entry = archive.GetFileEntry(L"save.xml");
 		if(entry == 0)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because the save.xml file could not be found within the zip archive!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the save.xml file could not be found within the zip archive!"));
 			if(running)
 			{
 				RunSystem();
@@ -79,7 +78,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 		Stream::Buffer buffer(0);
 		if(!entry->Decompress(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because there was an error decompressing the save.xml file from the zip archive!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because there was an error decompressing the save.xml file from the zip archive!"));
 			if(running)
 			{
 				RunSystem();
@@ -91,7 +90,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 		buffer.ProcessByteOrderMark();
 		if(!tree.LoadTree(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
 			if(running)
 			{
 				RunSystem();
@@ -108,7 +107,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 			ZIPFileEntry* entry = archive.GetFileEntry(binaryFileName);
 			if(entry == 0)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
 				if(running)
 				{
 					RunSystem();
@@ -119,7 +118,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 			binaryData.SetStreamPos(0);
 			if(!entry->Decompress(binaryData))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
 				if(running)
 				{
 					RunSystem();
@@ -137,7 +136,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 		//Attempt to load the XML tree from the file
 		if(!tree.LoadTree(source))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
 			if(running)
 			{
 				RunSystem();
@@ -146,6 +145,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 		}
 
 		//Load external binary data into the XML tree
+		std::wstring fileDir = PathGetDirectory(filePath);
 		std::list<IHeirarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
 		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
@@ -155,23 +155,24 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 
 			//If the file path contains a relative path to the target, resolve the relative
 			//file path using the directory containing the module file as a base.
-			if(PathIsRelative(&binaryFilePath[0]) == TRUE)
+			if(PathIsRelativePath(binaryFilePath))
 			{
-				TCHAR combinedPath[MAX_PATH];
-				PathCombine(&combinedPath[0], &fileDir[0], &binaryFilePath[0]);
-				binaryFilePath = combinedPath;
+				binaryFilePath = PathCombinePaths(fileDir, binaryFilePath);
 			}
 
-			Stream::File binaryFile;
-			if(!binaryFile.Open(binaryFilePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+			//Open the target file
+			FileStreamReference binaryFileStreamReference(*guiExtensionInterface);
+			if(!binaryFileStreamReference.OpenExistingFileForRead(binaryFilePath))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
 				if(running)
 				{
 					RunSystem();
 				}
 				return false;
 			}
+			Stream::IStream& binaryFile = *binaryFileStreamReference;
+
 			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 			binaryData.SetStreamPos(0);
 
@@ -180,7 +181,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 			if(!binaryFile.ReadData(buffer, bufferSize))
 			{
 				delete[] buffer;
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -190,7 +191,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 			if(!binaryData.WriteData(buffer, bufferSize))
 			{
 				delete[] buffer;
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -205,7 +206,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
 	if(rootNode.GetName() != L"State")
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because the root node in the XML tree wasn't of type \"State\"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the root node in the XML tree wasn't of type \"State\"!"));
 		if(running)
 		{
 			RunSystem();
@@ -270,7 +271,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 				//If a matching loaded device couldn't be located, log an error.
 				if(!foundDevice)
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"While loading state data from file " + fileName + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"While loading state data from file " + filePath + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
 				}
 			}
 		}
@@ -279,7 +280,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 		{
 			if(!LoadModuleRelationshipsNode(*(*i), relationshipMap))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + fileName + L" because the ModuleRelationships node could not be loaded!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the ModuleRelationships node could not be loaded!"));
 				if(running)
 				{
 					RunSystem();
@@ -290,7 +291,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading state from file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading state from file " + filePath + L"."));
 		}
 	}
 
@@ -306,7 +307,7 @@ bool System::LoadState(const std::wstring& fileDir, const std::wstring& fileName
 }
 
 //----------------------------------------------------------------------------------------
-bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType, bool debuggerState)
+bool System::SaveState(const std::wstring& filePath, FileType fileType, bool debuggerState)
 {
 	//Save running state and pause system
 	bool running = SystemRunning();
@@ -357,7 +358,6 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 		}
 	}
 
-	std::wstring filePath = fileDir + L"\\" + fileName;
 	if(fileType == FILETYPE_ZIP)
 	{
 		//Save the XML tree to a unicode buffer
@@ -365,7 +365,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 		buffer.InsertByteOrderMark();
 		if(!tree.SaveTree(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 			if(running)
 			{
 				RunSystem();
@@ -379,7 +379,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 		buffer.SetStreamPos(0);
 		if(!entry.Compress(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error compressing the save.xml file!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the save.xml file!"));
 			if(running)
 			{
 				RunSystem();
@@ -400,7 +400,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 			binaryData.SetStreamPos(0);
 			if(!entry.Compress(binaryData))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error compressing the " + binaryFileName + L" file!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the " + binaryFileName + L" file!"));
 				if(running)
 				{
 					RunSystem();
@@ -418,7 +418,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 			Stream::Buffer screenshotFile(0);
 			if(!screenshot.SavePNGImage(screenshotFile))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error creating the screenshot file with a file name of " + screenshotFilename + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the screenshot file with a file name of " + screenshotFilename + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -428,7 +428,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 			screenshotFile.SetStreamPos(0);
 			if(!entry.Compress(screenshotFile))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error compressing the " + screenshotFilename + L" file!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the " + screenshotFilename + L" file!"));
 				if(running)
 				{
 					RunSystem();
@@ -442,7 +442,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 		Stream::File target;
 		if(!target.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 			if(running)
 			{
 				RunSystem();
@@ -451,7 +451,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 		}
 		if(!archive.SaveToStream(target))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error saving the zip structure to the file!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the zip structure to the file!"));
 			if(running)
 			{
 				RunSystem();
@@ -465,7 +465,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 		Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
 		if(!file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 			if(running)
 			{
 				RunSystem();
@@ -475,7 +475,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 		file.InsertByteOrderMark();
 		if(!tree.SaveTree(file))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 			if(running)
 			{
 				RunSystem();
@@ -484,16 +484,18 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 		}
 
 		//Save external binary data to separate files
+		std::wstring fileName = PathGetFileName(filePath);
+		std::wstring fileDir = PathGetDirectory(filePath);
 		std::list<IHeirarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
 		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = fileName + L" - " + (*i)->GetBinaryDataBufferName() + L".bin";
-			std::wstring binaryFilePath = fileDir + L"\\" + binaryFileName;
+			std::wstring binaryFilePath = PathCombinePaths(fileDir, binaryFileName);
 			Stream::File binaryFile;
 			if(!binaryFile.Open(binaryFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error creating the binary data file " + binaryFileName + L" at the full path of " + binaryFilePath + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the binary data file " + binaryFileName + L" at the full path of " + binaryFilePath + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -508,7 +510,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 				unsigned char temp;
 				if(!binaryData.ReadData(temp))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error reading the source data from memory to save to the binary data file " + binaryFileName + L"!"));
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error reading the source data from memory to save to the binary data file " + binaryFileName + L"!"));
 					if(running)
 					{
 						RunSystem();
@@ -517,7 +519,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 				}
 				if(!binaryFile.WriteData(temp))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error writing to the binary data file " + binaryFileName + L"!"));
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error writing to the binary data file " + binaryFileName + L"!"));
 					if(running)
 					{
 						RunSystem();
@@ -531,11 +533,11 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 		if(screenshotPresent)
 		{
 			std::wstring screenshotFilenameFull = fileName + L" - " + screenshotFilename;
-			std::wstring screenshotFilePath = fileDir + L"\\" + screenshotFilenameFull;
+			std::wstring screenshotFilePath = PathCombinePaths(fileDir, screenshotFilenameFull);
 			Stream::File screenshotFile;
 			if(!screenshotFile.Open(screenshotFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error creating the screenshot file with a file name of " + screenshotFilenameFull + L" with a full path of " + screenshotFilePath + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the screenshot file with a file name of " + screenshotFilenameFull + L" with a full path of " + screenshotFilePath + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -544,7 +546,7 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 			}
 			if(!screenshot.SavePNGImage(screenshotFile))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + fileName + L" because there was an error saving the screenshot to the " + screenshotFilenameFull + L" file!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the screenshot to the " + screenshotFilenameFull + L" file!"));
 				if(running)
 				{
 					RunSystem();
@@ -566,12 +568,11 @@ bool System::SaveState(const std::wstring& fileDir, const std::wstring& fileName
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std::wstring& fileName, unsigned int moduleID, FileType fileType, bool returnSuccessOnNoFilePresent)
+bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool returnSuccessOnNoFilePresent)
 {
 	//Open the target file
-	std::wstring filePath = fileDir + L"\\" + fileName;
-	Stream::File source;
-	if(!source.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	FileStreamReference sourceStreamReference(*guiExtensionInterface);
+	if(!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
 		if(returnSuccessOnNoFilePresent)
 		{
@@ -579,10 +580,11 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 		}
 		else
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the file could not be opened!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the file could not be opened!"));
 			return false;
 		}
 	}
+	Stream::IStream& source = *sourceStreamReference;
 
 	HeirarchicalStorageTree tree;
 	if(fileType == FILETYPE_ZIP)
@@ -591,7 +593,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 		ZIPArchive archive;
 		if(!archive.LoadFromStream(source))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the zip file structure could not be decoded!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the zip file structure could not be decoded!"));
 			return false;
 		}
 
@@ -599,13 +601,13 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 		ZIPFileEntry* entry = archive.GetFileEntry(L"save.xml");
 		if(entry == 0)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the save.xml file could not be found within the zip archive!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the save.xml file could not be found within the zip archive!"));
 			return false;
 		}
 		Stream::Buffer buffer(0);
 		if(!entry->Decompress(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because there was an error decompressing the save.xml file from the zip archive!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error decompressing the save.xml file from the zip archive!"));
 			return false;
 		}
 		buffer.SetStreamPos(0);
@@ -613,7 +615,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 		buffer.ProcessByteOrderMark();
 		if(!tree.LoadTree(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
 			return false;
 		}
 
@@ -626,14 +628,14 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 			ZIPFileEntry* entry = archive.GetFileEntry(binaryFileName);
 			if(entry == 0)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
 				return false;
 			}
 			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 			binaryData.SetStreamPos(0);
 			if(!entry->Decompress(binaryData))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
 				return false;
 			}
 		}
@@ -647,11 +649,12 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 		//Attempt to load the XML tree from the file
 		if(!tree.LoadTree(source))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
 			return false;
 		}
 
 		//Load external binary data into the XML tree
+		std::wstring fileDir = PathGetDirectory(filePath);
 		std::list<IHeirarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
 		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
@@ -661,19 +664,20 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 
 			//If the file path contains a relative path to the target, resolve the relative
 			//file path using the directory containing the module file as a base.
-			if(PathIsRelative(&binaryFilePath[0]) == TRUE)
+			if(PathIsRelativePath(binaryFilePath))
 			{
-				TCHAR combinedPath[MAX_PATH];
-				PathCombine(&combinedPath[0], &fileDir[0], &binaryFilePath[0]);
-				binaryFilePath = combinedPath;
+				binaryFilePath = PathCombinePaths(fileDir, binaryFilePath);
 			}
 
-			Stream::File binaryFile;
-			if(!binaryFile.Open(binaryFilePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+			//Open the target file
+			FileStreamReference binaryFileStreamReference(*guiExtensionInterface);
+			if(!binaryFileStreamReference.OpenExistingFileForRead(binaryFilePath))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
 				return false;
 			}
+			Stream::IStream& binaryFile = *binaryFileStreamReference;
+
 			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 			binaryData.SetStreamPos(0);
 
@@ -682,13 +686,13 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 			if(!binaryFile.ReadData(buffer, bufferSize))
 			{
 				delete[] buffer;
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
 				return false;
 			}
 			if(!binaryData.WriteData(buffer, bufferSize))
 			{
 				delete[] buffer;
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
 				return false;
 			}
 			delete[] buffer;
@@ -699,7 +703,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
 	if(rootNode.GetName() != L"PersistentState")
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + fileName + L" because the root node in the XML tree wasn't of type \"PersistentState\"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the root node in the XML tree wasn't of type \"PersistentState\"!"));
 		return false;
 	}
 
@@ -741,14 +745,14 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 				//If a matching loaded device couldn't be located, log an error.
 				if(!foundDevice)
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"While loading persistent state data from file " + fileName + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"While loading persistent state data from file " + filePath + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
 				}
 			}
 		}
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading persistent state from file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading persistent state from file " + filePath + L"."));
 		}
 	}
 
@@ -759,27 +763,25 @@ bool System::LoadPersistentStateForModule(const std::wstring& fileDir, const std
 }
 
 //----------------------------------------------------------------------------------------
-bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std::wstring& fileName, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent)
+bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent)
 {
 	//Create the new savestate XML tree
 	HeirarchicalStorageTree tree;
 	tree.GetRootNode().SetName(L"PersistentState");
 
-	//Fill in general information about the savestate
-	IHeirarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
-	Timestamp timestamp = GetTimestamp();
-	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
-	stateInfo.CreateAttribute(L"CreationTime", timestamp.GetTime());
-
 	//Save the system state to the XML tree
 	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 	{
-		IHeirarchicalStorageNode& deviceNode = tree.GetRootNode().CreateChild(L"Device");
-		deviceNode.CreateAttribute(L"Name", (*i).device->GetDeviceInstanceName());
-		(*i).device->SavePersistentState(deviceNode);
-		if(deviceNode.IsEmpty())
+		if(i->moduleID == moduleID)
 		{
-			tree.GetRootNode().DeleteChild(deviceNode);
+			IHeirarchicalStorageNode& deviceNode = tree.GetRootNode().CreateChild(L"Device");
+			(*i).device->SavePersistentState(deviceNode);
+			if(deviceNode.IsEmpty())
+			{
+				tree.GetRootNode().DeleteChild(deviceNode);
+				continue;
+			}
+			deviceNode.CreateAttribute(L"Name", (*i).device->GetDeviceInstanceName());
 		}
 	}
 
@@ -790,7 +792,12 @@ bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std
 		return true;
 	}
 
-	std::wstring filePath = fileDir + L"\\" + fileName;
+	//Fill in general information about the savestate
+	IHeirarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
+	Timestamp timestamp = GetTimestamp();
+	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
+	stateInfo.CreateAttribute(L"CreationTime", timestamp.GetTime());
+
 	if(fileType == FILETYPE_ZIP)
 	{
 		//Save the XML tree to a unicode buffer
@@ -798,7 +805,7 @@ bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std
 		buffer.InsertByteOrderMark();
 		if(!tree.SaveTree(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 			return false;
 		}
 
@@ -808,7 +815,7 @@ bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std
 		buffer.SetStreamPos(0);
 		if(!entry.Compress(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error compressing the save.xml file!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error compressing the save.xml file!"));
 			return false;
 		}
 		archive.AddFileEntry(entry);
@@ -825,7 +832,7 @@ bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std
 			binaryData.SetStreamPos(0);
 			if(!entry.Compress(binaryData))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error compressing the " + binaryFileName + L" file!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error compressing the " + binaryFileName + L" file!"));
 				return false;
 			}
 			archive.AddFileEntry(entry);
@@ -835,12 +842,12 @@ bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std
 		Stream::File target;
 		if(!target.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 			return false;
 		}
 		if(!archive.SaveToStream(target))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error saving the zip structure to the file!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error saving the zip structure to the file!"));
 			return false;
 		}
 	}
@@ -850,27 +857,29 @@ bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std
 		Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
 		if(!file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 			return false;
 		}
 		file.InsertByteOrderMark();
 		if(!tree.SaveTree(file))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 			return false;
 		}
 
 		//Save external binary data to separate files
+		std::wstring fileName = PathGetFileName(filePath);
+		std::wstring fileDir = PathGetDirectory(filePath);
 		std::list<IHeirarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
 		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = fileName + L" - " + (*i)->GetBinaryDataBufferName() + L".bin";
-			std::wstring binaryFilePath = fileDir + L"\\" + binaryFileName;
+			std::wstring binaryFilePath = PathCombinePaths(fileDir, binaryFileName);
 			Stream::File binaryFile;
 			if(!binaryFile.Open(binaryFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error creating the binary data file " + binaryFileName + L" at the full path of " + binaryFilePath + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error creating the binary data file " + binaryFileName + L" at the full path of " + binaryFilePath + L"!"));
 				return false;
 			}
 
@@ -881,12 +890,12 @@ bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std
 				unsigned char temp;
 				if(!binaryData.ReadData(temp))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error reading the source data from memory to save to the binary data file " + binaryFileName + L"!"));
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error reading the source data from memory to save to the binary data file " + binaryFileName + L"!"));
 					return false;
 				}
 				if(!binaryFile.WriteData(temp))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + fileName + L" because there was an error writing to the binary data file " + binaryFileName + L"!"));
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error writing to the binary data file " + binaryFileName + L"!"));
 					return false;
 				}
 			}
@@ -900,18 +909,18 @@ bool System::SavePersistentStateForModule(const std::wstring& fileDir, const std
 }
 
 //----------------------------------------------------------------------------------------
-System::StateInfo System::GetStateInfo(const std::wstring& fileDir, const std::wstring& fileName, FileType fileType) const
+System::StateInfo System::GetStateInfo(const std::wstring& filePath, FileType fileType) const
 {
 	StateInfo stateInfo;
 	stateInfo.valid = false;
 
 	//Open the target file
-	std::wstring filePath = fileDir + L"\\" + fileName;
-	Stream::File source;
-	if(!source.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	FileStreamReference sourceStreamReference(*guiExtensionInterface);
+	if(!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
 		return stateInfo;
 	}
+	Stream::IStream& source = *sourceStreamReference;
 
 	HeirarchicalStorageTree tree;
 	if(fileType == FILETYPE_ZIP)
@@ -1010,12 +1019,10 @@ bool System::LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelat
 				savedData.systemClassName = systemClassNameAttribute->GetValue();
 				savedData.className = moduleClassNameAttribute->GetValue();
 				savedData.instanceName = moduleInstanceNameAttribute->GetValue();
-				IHeirarchicalStorageAttribute* fileDirAttribute = (*i)->GetAttribute(L"FileDir");
-				IHeirarchicalStorageAttribute* fileNameAttribute = (*i)->GetAttribute(L"FileName");
-				if((fileDirAttribute != 0) && (fileNameAttribute != 0))
+				IHeirarchicalStorageAttribute* filePathAttribute = (*i)->GetAttribute(L"FilePath");
+				if(filePathAttribute != 0)
 				{
-					savedData.fileDir = fileDirAttribute->GetValue();
-					savedData.fileName = fileNameAttribute->GetValue();
+					savedData.filePath = filePathAttribute->GetValue();
 				}
 
 				//Extract any connector info
@@ -1154,18 +1161,18 @@ void System::SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationships
 		{
 			//Convert the file directory to a relative path from the base directory, if
 			//the target directory is the same or contained within the target path.
-			std::wstring fileDir = i->fileDir;
-			if(PathIsPrefix(&relativePathBase[0], &fileDir[0]) == TRUE)
+			std::wstring fileDir = PathGetDirectory(i->filePath);
+			if(PathStartsWithBasePath(relativePathBase, fileDir))
 			{
-				TCHAR relativePath[MAX_PATH];
-				if(PathRelativePathTo(&relativePath[0], &relativePathBase[0], FILE_ATTRIBUTE_DIRECTORY, &fileDir[0], FILE_ATTRIBUTE_DIRECTORY) == TRUE)
+				std::wstring relativePath;
+				if(PathBuildRelativePathToTarget(relativePathBase, fileDir, false, relativePath))
 				{
 					fileDir = relativePath;
 				}
 			}
 
-			moduleNode.CreateAttribute(L"FileDir", fileDir);
-			moduleNode.CreateAttribute(L"FileName", i->fileName);
+			std::wstring filePath = PathCombinePaths(fileDir, PathGetFileName(i->filePath));
+			moduleNode.CreateAttribute(L"FilePath", filePath);
 		}
 		SaveModuleRelationshipsExportConnectors(moduleNode, i->moduleID);
 		SaveModuleRelationshipsImportConnectors(moduleNode, i->moduleID);
@@ -1542,9 +1549,10 @@ void System::InitializeAllDevices()
 		{
 			const LoadedModuleInfoInternal& moduleInfo = *i;
 			std::wstring persistentModuleFileName = moduleInfo.className + L".zip";
-			if(!LoadPersistentStateForModule(guiExtensionInterface->GetGlobalPreferencePathPersistentState(), persistentModuleFileName, moduleInfo.moduleID, FILETYPE_ZIP, true))
+			std::wstring persistentModuleFilePath = PathCombinePaths(guiExtensionInterface->GetGlobalPreferencePathPersistentState(), persistentModuleFileName);
+			if(!LoadPersistentStateForModule(persistentModuleFilePath, moduleInfo.moduleID, FILETYPE_ZIP, true))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to load persistent state from file " + persistentModuleFileName + L" when initializing module with name " + moduleInfo.displayName + L"."));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to load persistent state from file \"" + persistentModuleFilePath + L"\" when initializing module with name " + moduleInfo.displayName + L"."));
 			}
 		}
 	}
@@ -1965,37 +1973,44 @@ void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* a
 //----------------------------------------------------------------------------------------
 bool System::RegisterDevice(const DeviceInfo& entry, IDevice::AssemblyHandle assemblyHandle)
 {
-	//Make sure a valid device name has been supplied
-	if(entry.GetDeviceName().empty())
+	//Make sure a valid device class name has been supplied
+	if(entry.GetDeviceClassName().empty())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device. No device name was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device. No device class name was supplied."));
+		return false;
+	}
+
+	//Make sure a valid device implementation name has been supplied
+	if(entry.GetDeviceImplementationName().empty())
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device. No device implementation name was supplied."));
 		return false;
 	}
 
 	//Make sure an allocator function has been supplied
 	if(entry.GetAllocator() == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device " + entry.GetDeviceName() + L". No allocator function was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device " + entry.GetDeviceImplementationName() + L". No allocator function was supplied."));
 		return false;
 	}
 
 	//Make sure a destructor function has been supplied
 	if(entry.GetDestructor() == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device " + entry.GetDeviceName() + L". No destructor function was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device " + entry.GetDeviceImplementationName() + L". No destructor function was supplied."));
 		return false;
 	}
 
 	//Check if we already have a device with the same name registered
-	DeviceLibraryList::iterator existingEntry = deviceLibrary.find(entry.GetDeviceName());
+	DeviceLibraryList::iterator existingEntry = deviceLibrary.find(entry.GetDeviceImplementationName());
 	if(existingEntry != deviceLibrary.end())
 	{
-		if(existingEntry->second.deviceVersionNo >= entry.GetDeviceVersionNo())
+		if(existingEntry->second.versionNo >= entry.GetDeviceVersionNo())
 		{
 			//If we already have a newer version of this device registered, log the event, and
 			//return true.
 			std::wstringstream message;
-			message << L"Ignored device " << entry.GetDeviceName() << L" with version number " << entry.GetDeviceVersionNo() << L" because another version of this device has already been registered with a version number of " << existingEntry->second.deviceVersionNo << L".";
+			message << L"Ignored device " << entry.GetDeviceImplementationName() << L" with version number " << entry.GetDeviceVersionNo() << L" because another version of this device has already been registered with a version number of " << existingEntry->second.versionNo << L".";
 			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", message.str()));
 			return true;
 		}
@@ -2003,13 +2018,13 @@ bool System::RegisterDevice(const DeviceInfo& entry, IDevice::AssemblyHandle ass
 		{
 			//Log the fact we just overrode an existing device registration
 			std::wstringstream message;
-			message << L"Device " << entry.GetDeviceName() << L" with version number " << entry.GetDeviceVersionNo() << L" overrode the existing registration for this device with version number " << existingEntry->second.deviceVersionNo << L".";
+			message << L"Device " << entry.GetDeviceImplementationName() << L" with version number " << entry.GetDeviceVersionNo() << L" overrode the existing registration for this device with version number " << existingEntry->second.versionNo << L".";
 			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", message.str()));
 
 			//If the existing device registration is for an older version, remove the old
 			//device registration. This new registration with a higher version number
 			//supersedes the old one.
-			UnregisterDevice(entry.GetDeviceName());
+			UnregisterDevice(entry.GetDeviceImplementationName());
 		}
 	}
 
@@ -2017,13 +2032,16 @@ bool System::RegisterDevice(const DeviceInfo& entry, IDevice::AssemblyHandle ass
 	DeviceLibraryEntry listEntry;
 	listEntry.Allocator = entry.GetAllocator();
 	listEntry.Destructor = entry.GetDestructor();
-	listEntry.deviceName = entry.GetDeviceName();
-	listEntry.deviceVersionNo = entry.GetDeviceVersionNo();
+	listEntry.className = entry.GetDeviceClassName();
+	listEntry.implementationName = entry.GetDeviceImplementationName();
+	listEntry.versionNo = entry.GetDeviceVersionNo();
+	listEntry.copyright = entry.GetDeviceCopyright();
+	listEntry.comments = entry.GetDeviceComments();
 	listEntry.assemblyHandle = assemblyHandle;
-	deviceLibrary.insert(DeviceLibraryListEntry(entry.GetDeviceName(), listEntry));
+	deviceLibrary.insert(DeviceLibraryListEntry(entry.GetDeviceImplementationName(), listEntry));
 
 	//Log the device registration
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Successfully registered device " + entry.GetDeviceName() + L"."));
+	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Successfully registered device " + entry.GetDeviceImplementationName() + L"."));
 
 	return true;
 }
@@ -2043,37 +2061,44 @@ void System::UnregisterDevice(const std::wstring deviceName)
 //----------------------------------------------------------------------------------------
 bool System::RegisterExtension(const ExtensionInfo& entry, IExtension::AssemblyHandle assemblyHandle)
 {
-	//Make sure a valid device name has been supplied
-	if(entry.GetExtensionName().empty())
+	//Make sure a valid extension class name has been supplied
+	if(entry.GetExtensionClassName().empty())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension. No extension name was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension. No extension class name was supplied."));
+		return false;
+	}
+
+	//Make sure a valid extension implementation name has been supplied
+	if(entry.GetExtensionImplementationName().empty())
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension. No extension implementation name was supplied."));
 		return false;
 	}
 
 	//Make sure an allocator function has been supplied
 	if(entry.GetAllocator() == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension " + entry.GetExtensionName() + L". No allocator function was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension " + entry.GetExtensionImplementationName() + L". No allocator function was supplied."));
 		return false;
 	}
 
 	//Make sure a destructor function has been supplied
 	if(entry.GetDestructor() == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension " + entry.GetExtensionName() + L". No destructor function was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension " + entry.GetExtensionImplementationName() + L". No destructor function was supplied."));
 		return false;
 	}
 
 	//Check if we already have an extension with the same name registered
-	ExtensionLibraryList::iterator existingEntry = extensionLibrary.find(entry.GetExtensionName());
+	ExtensionLibraryList::iterator existingEntry = extensionLibrary.find(entry.GetExtensionImplementationName());
 	if(existingEntry != extensionLibrary.end())
 	{
-		if(existingEntry->second.extensionVersionNo >= entry.GetExtensionVersionNo())
+		if(existingEntry->second.versionNo >= entry.GetExtensionVersionNo())
 		{
 			//If we already have a newer version of this extension registered, log the
 			//event, and return true.
 			std::wstringstream message;
-			message << L"Ignored extension " << entry.GetExtensionName() << L" with version number " << entry.GetExtensionVersionNo() << L" because another version of this extension has already been registered with a version number of " << existingEntry->second.extensionVersionNo << L".";
+			message << L"Ignored extension " << entry.GetExtensionImplementationName() << L" with version number " << entry.GetExtensionVersionNo() << L" because another version of this extension has already been registered with a version number of " << existingEntry->second.versionNo << L".";
 			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", message.str()));
 			return true;
 		}
@@ -2081,13 +2106,13 @@ bool System::RegisterExtension(const ExtensionInfo& entry, IExtension::AssemblyH
 		{
 			//Log the fact we just overrode an existing extension registration
 			std::wstringstream message;
-			message << L"Extension " << entry.GetExtensionName() << L" with version number " << entry.GetExtensionVersionNo() << L" overrode the existing registration for this extension with version number " << existingEntry->second.extensionVersionNo << L".";
+			message << L"Extension " << entry.GetExtensionImplementationName() << L" with version number " << entry.GetExtensionVersionNo() << L" overrode the existing registration for this extension with version number " << existingEntry->second.versionNo << L".";
 			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", message.str()));
 
 			//If the existing extension registration is for an older version, remove the
 			//old extension registration. This new registration with a higher version
 			//number supersedes the old one.
-			UnregisterExtension(entry.GetExtensionName());
+			UnregisterExtension(entry.GetExtensionImplementationName());
 		}
 	}
 
@@ -2095,13 +2120,16 @@ bool System::RegisterExtension(const ExtensionInfo& entry, IExtension::AssemblyH
 	ExtensionLibraryEntry listEntry;
 	listEntry.Allocator = entry.GetAllocator();
 	listEntry.Destructor = entry.GetDestructor();
-	listEntry.deviceName = entry.GetExtensionName();
-	listEntry.extensionVersionNo = entry.GetExtensionVersionNo();
+	listEntry.className = entry.GetExtensionClassName();
+	listEntry.implementationName = entry.GetExtensionImplementationName();
+	listEntry.versionNo = entry.GetExtensionVersionNo();
+	listEntry.copyright = entry.GetExtensionCopyright();
+	listEntry.comments = entry.GetExtensionComments();
 	listEntry.assemblyHandle = assemblyHandle;
-	extensionLibrary.insert(ExtensionLibraryListEntry(entry.GetExtensionName(), listEntry));
+	extensionLibrary.insert(ExtensionLibraryListEntry(entry.GetExtensionImplementationName(), listEntry));
 
 	//Log the extension registration
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Successfully registered extension " + entry.GetExtensionName() + L"."));
+	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Successfully registered extension " + entry.GetExtensionImplementationName() + L"."));
 
 	return true;
 }
@@ -2141,7 +2169,7 @@ IDevice* System::CreateDevice(const std::wstring& deviceName, const std::wstring
 	DeviceLibraryList::const_iterator i = deviceLibrary.find(deviceName);
 	if(i != deviceLibrary.end())
 	{
-		device = i->second.Allocator(instanceName.c_str(), moduleID);
+		device = i->second.Allocator(deviceName.c_str(), instanceName.c_str(), moduleID);
 		device->SetAssemblyHandle(i->second.assemblyHandle);
 	}
 	return device;
@@ -2150,6 +2178,7 @@ IDevice* System::CreateDevice(const std::wstring& deviceName, const std::wstring
 //----------------------------------------------------------------------------------------
 void System::DestroyDevice(const std::wstring& deviceName, IDevice* device) const
 {
+	//##TODO## Log an error if a device cannot be located in the device library
 	DeviceLibraryList::const_iterator i = deviceLibrary.find(deviceName);
 	if(i != deviceLibrary.end())
 	{
@@ -2199,7 +2228,7 @@ void System::UnloadDevice(IDevice* adevice)
 	RemoveDeviceFromDeviceList(devices, adevice);
 
 	//Destroy the device
-	DestroyDevice(adevice->GetDeviceClassName(), adevice);
+	DestroyDevice(adevice->GetDeviceImplementationName(), adevice);
 }
 
 //----------------------------------------------------------------------------------------
@@ -2237,7 +2266,7 @@ IExtension* System::CreateExtension(const std::wstring& extensionName, const std
 	ExtensionLibraryList::const_iterator i = extensionLibrary.find(extensionName);
 	if(i != extensionLibrary.end())
 	{
-		extension = i->second.Allocator(instanceName.c_str(), moduleID);
+		extension = i->second.Allocator(extensionName.c_str(), instanceName.c_str(), moduleID);
 		extension->SetAssemblyHandle(i->second.assemblyHandle);
 	}
 	return extension;
@@ -2332,12 +2361,12 @@ bool System::GetModuleInstanceName(unsigned int moduleID, std::wstring& moduleIn
 }
 
 //----------------------------------------------------------------------------------------
-void System::LoadModuleSynchronous(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher)
+void System::LoadModuleSynchronous(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher)
 {
 	loadSystemComplete = false;
 	loadSystemProgress = 0;
 	loadSystemAbort = false;
-	boost::thread workerThread(boost::bind(boost::mem_fn(&System::LoadModule), this, fileDir, fileName, boost::ref(connectorMappings), boost::ref(aviewModelLauncher)));
+	boost::thread workerThread(boost::bind(boost::mem_fn(&System::LoadModule), this, filePath, boost::ref(connectorMappings), boost::ref(aviewModelLauncher)));
 }
 
 //----------------------------------------------------------------------------------------
@@ -2371,7 +2400,7 @@ bool System::LoadModuleSynchronousAborted() const
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher)
+bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, IViewModelLauncher& aviewModelLauncher)
 {
 	boost::mutex::scoped_lock lock(debugMutex);
 
@@ -2388,17 +2417,17 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 	std::list<ViewModelOpenRequest> viewModelOpenRequests;
 	std::list<InputRegistration> inputRegistrationRequests;
 	std::list<SystemStateChange> systemSettingsChangeRequests;
-	if(!LoadModuleInternal(fileDir, fileName, connectorMappings, viewModelOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModules))
+	if(!LoadModuleInternal(filePath, connectorMappings, viewModelOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModules))
 	{
 		//If there's an error loading the module, log the failure, and return false.
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + fileName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + filePath + L"!"));
 		for(LoadedModuleInfoList::const_iterator addedModuleIterator = addedModules.begin(); addedModuleIterator != addedModules.end(); ++addedModuleIterator)
 		{
 			UnloadModuleInternal(addedModuleIterator->moduleID);
 		}
 		if(!ValidateSystem())
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Error restoring system after loading of module " + fileName + L" failed."));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Error restoring system after loading of module " + filePath + L" failed."));
 		}
 		loadSystemComplete = true;
 		loadSystemResult = false;
@@ -2423,14 +2452,14 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		{
 			//If there's an error binding the ce line mappings, log the failure, and
 			//return false.
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindCELineMappings failed for BusInterface " + i->name + L" when loading module from file " + fileName + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindCELineMappings failed for BusInterface " + i->name + L" when loading module from file " + filePath + L"!"));
 			for(std::set<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 			{
 				UnloadModuleInternal(*addedModuleIDsIterator);
 			}
 			if(!ValidateSystem())
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Error restoring system after loading of module " + fileName + L" failed."));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Error restoring system after loading of module " + filePath + L" failed."));
 			}
 			loadSystemComplete = true;
 			loadSystemResult = false;
@@ -2457,14 +2486,14 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 	if(!ValidateSystem())
 	{
 		//If there's an error building the system, log the failure, and return false.
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"System validation failed after loading module from file " + fileName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"System validation failed after loading module from file " + filePath + L"!"));
 		for(std::set<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 		{
 			UnloadModuleInternal(*addedModuleIDsIterator);
 		}
 		if(!ValidateSystem())
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Error restoring system after loading of module " + fileName + L" failed."));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Error restoring system after loading of module " + filePath + L" failed."));
 		}
 		loadSystemComplete = true;
 		loadSystemResult = false;
@@ -2588,7 +2617,7 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 						//Apply this system state change
 						if(!ApplySystemStateChange(*i))
 						{
-							WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to apply system setting change for element with name \"" + i->targetElementName + L"\" in system option \"" + settingOption.name + L"\" on system setting \"" + systemSettingInfo.name + L"\" when loading module from file " + fileName + L"!"));
+							WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to apply system setting change for element with name \"" + i->targetElementName + L"\" in system option \"" + settingOption.name + L"\" on system setting \"" + systemSettingInfo.name + L"\" when loading module from file " + filePath + L"!"));
 						}
 					}
 				}
@@ -2602,7 +2631,7 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 		//Apply this system state change
 		if(!ApplySystemStateChange(*i))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to apply system setting change operating on element with name \"" + i->targetElementName + L"\" when loading module from file " + fileName + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to apply system setting change operating on element with name \"" + i->targetElementName + L"\" when loading module from file " + filePath + L"!"));
 		}
 	}
 
@@ -2638,7 +2667,7 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 	inputRegistrationList.splice(inputRegistrationList.end(), inputRegistrationRequests);
 
 	//Log the event
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Loaded module from file " + fileName + L"."));
+	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Loaded module from file " + filePath + L"."));
 
 	//Process any view model open requests we encountered during the system load
 	LoadModule_ProcessViewModelQueue(viewModelOpenRequests, aviewModelLauncher);
@@ -2659,20 +2688,21 @@ bool System::LoadModule(const std::wstring& fileDir, const std::wstring& fileNam
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring& fileName, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules)
+bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules)
 {
 	//Update the name of the currently loading module
+	std::wstring fileName = PathGetFileName(filePath);
 	PushLoadModuleCurrentModuleName(fileName);
 
 	//Open the target file
-	std::wstring filePath = fileDir + L"\\" + fileName;
-	Stream::File source;
-	if(!source.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	FileStreamReference sourceStreamReference(*guiExtensionInterface);
+	if(!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not open module file " + fileName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not open module file " + filePath + L"!"));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
+	Stream::IStream& source = *sourceStreamReference;
 
 	//Determine the text format for the file, and strip any present byte order mark.
 	source.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
@@ -2682,7 +2712,7 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 	HeirarchicalStorageTree tree;
 	if(!tree.LoadTree(source))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error loading XML structure from module file " + fileName + L"! The xml error string is as follows: " + tree.GetErrorString()));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error loading XML structure from module file " + filePath + L"! The xml error string is as follows: " + tree.GetErrorString()));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
@@ -2696,41 +2726,42 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 		std::wstring binaryFileName = (*i)->GetBinaryDataBufferName();
 		std::wstring binaryFilePath = binaryFileName;
 
-		//##TODO## Scan the path for a pipe character '|'. If one is found, consider the
-		//leading part to be a path to an archive file.
-
 		//If the file path contains a relative path to the target, resolve the relative
 		//file path using the directory containing the module file as a base.
-		if(PathIsRelative(&binaryFilePath[0]) == TRUE)
+		std::wstring fileDir = PathGetDirectory(filePath);
+		if(PathIsRelativePath(binaryFilePath))
 		{
-			TCHAR combinedPath[MAX_PATH];
-			PathCombine(&combinedPath[0], &fileDir[0], &binaryFilePath[0]);
-			binaryFilePath = combinedPath;
+			binaryFilePath = PathCombinePaths(fileDir, binaryFilePath);
 		}
 
-		Stream::File binaryFile;
-		if(!binaryFile.Open(binaryFilePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+		//Open the target file
+		FileStreamReference binaryFileStreamReference(*guiExtensionInterface);
+		if(!binaryFileStreamReference.OpenExistingFileForRead(binaryFilePath))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + fileName + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + filePath + L" because a binary data file could not be found in the target path " + binaryFilePath + L"!"));
 			PopLoadModuleCurrentModuleName();
 			return false;
 		}
+		Stream::IStream& dataStream = *binaryFileStreamReference;
+
+		//Obtain a reference to the binary data stream within this XML element
 		Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 		binaryData.SetStreamPos(0);
 
-		unsigned int bufferSize = (unsigned int)binaryFile.Size();
+		//Load the external binary data into the binary data stream for this XML element
+		unsigned int bufferSize = (unsigned int)dataStream.Size();
 		unsigned char* buffer = new unsigned char[bufferSize];
-		if(!binaryFile.ReadData(buffer, bufferSize))
+		if(!dataStream.ReadData(buffer, bufferSize))
 		{
 			delete[] buffer;
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + fileName + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + filePath + L" because there was an error reading binary data from file " + binaryFilePath + L"!"));
 			PopLoadModuleCurrentModuleName();
 			return false;
 		}
 		if(!binaryData.WriteData(buffer, bufferSize))
 		{
 			delete[] buffer;
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + fileName + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + filePath + L" because there was an error saving binary data read from file " + binaryFilePath + L"!"));
 			PopLoadModuleCurrentModuleName();
 			return false;
 		}
@@ -2741,14 +2772,14 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 	//method, otherwise verify that this file is marked as a module.
 	if(rootNode.GetName() == L"System")
 	{
-		bool result = LoadSystem(fileDir, fileName, rootNode, viewModelOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModules);
+		bool result = LoadSystem(filePath, rootNode, viewModelOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModules);
 		PopLoadModuleCurrentModuleName();
 		return result;
 	}
 	else if(rootNode.GetName() != L"Module")
 	{
 		//Neither a system nor a module root node was found. Abort any further processing.
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error loading module file " + fileName + L"! The root node was not of type System or Module!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error loading module file " + filePath + L"! The root node was not of type System or Module!"));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
@@ -2756,8 +2787,7 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 	//Create a new module info structure for this module
 	LoadedModuleInfoInternal moduleInfo;
 	moduleInfo.moduleID = GenerateFreeModuleID();
-	moduleInfo.fileDir = fileDir;
-	moduleInfo.fileName = fileName;
+	moduleInfo.filePath = filePath;
 
 	//Extract mandatory module metadata
 	IHeirarchicalStorageAttribute* systemClassNameAttribute = rootNode.GetAttribute(L"SystemClassName");
@@ -3100,7 +3130,7 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading module file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading module file " + filePath + L"."));
 		}
 	}
 
@@ -3111,7 +3141,7 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 	//If the system load was aborted, log the event and return false.
 	if(loadSystemAbort)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading module from file " + fileName + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading module from file " + filePath + L"."));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
@@ -3120,7 +3150,7 @@ bool System::LoadModuleInternal(const std::wstring& fileDir, const std::wstring&
 	//false.
 	if(!loadedWithoutErrors)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Errors occurred while loading module from file " + fileName + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Errors occurred while loading module from file " + filePath + L"."));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
@@ -3288,23 +3318,22 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 
 	//If the file path contains a relative path to the target, resolve the relative file
 	//path using the directory containing the system file as a base.
-	if(PathIsRelative(&filePath[0]) == TRUE)
+	if(PathIsRelativePath(filePath))
 	{
-		TCHAR combinedPath[MAX_PATH];
-		PathCombine(&combinedPath[0], &fileDir[0], &filePath[0]);
-		filePath = combinedPath;
+		filePath = PathCombinePaths(fileDir, filePath);
 	}
 
 	//Save the new file path as the selected file path for this embedded ROM file
 	embeddedROMInfoEntry->filePath = filePath;
 
 	//Open the target file
-	Stream::File file;
-	if(!file.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	FileStreamReference fileStreamReference(*guiExtensionInterface);
+	if(!fileStreamReference.OpenExistingFileForRead(filePath))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to open target file with path \"" + filePath + L"\" when attempting to load embedded ROM data for device with name " + deviceName + L" for System.LoadEmbeddedROMData!"));
 		return false;
 	}
+	Stream::IStream& file = *fileStreamReference;
 
 	//Load the data from the target file into this embedded ROM
 	for(unsigned int i = 0; (i < file.Size()) && (i < embeddedROMInfoEntry->romRegionSize); ++i)
@@ -3347,7 +3376,7 @@ bool System::LoadSystem_System_SelectSettingOption(IHeirarchicalStorageNode& nod
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileName, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules)
+bool System::LoadSystem(const std::wstring& filePath, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules)
 {
 	//Extract the module relationships data from the file
 	bool moduleRelationshipsLoaded = false;
@@ -3365,11 +3394,12 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 	//Validate that we managed to retrieve the module relationships data from the file
 	if(!moduleRelationshipsLoaded)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load system from file " + fileName + L" because the ModuleRelationships node could not be loaded!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load system from file " + filePath + L" because the ModuleRelationships node could not be loaded!"));
 		return false;
 	}
 
 	//Attempt to load each module referenced in the saved module relationship data
+	std::wstring fileDir = PathGetDirectory(filePath);
 	bool modulesLoadedWithoutErrors = true;
 	std::map<unsigned int, unsigned int> savedModuleIDToLoadedModuleIDMap;
 	for(SavedRelationshipMap::const_iterator i = savedRelationshipData.begin(); !loadSystemAbort && modulesLoadedWithoutErrors && (i != savedRelationshipData.end()); ++i)
@@ -3417,16 +3447,15 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 
 		//If the system file contains a relative path to this module, resolve the relative
 		//file path using the directory containing the system file as a base.
-		std::wstring savedModuleFileDir = savedModuleInfo.fileDir;
-		if(PathIsRelative(&savedModuleInfo.fileDir[0]) == TRUE)
+		std::wstring savedModuleFileDir = PathGetDirectory(savedModuleInfo.filePath);
+		if(PathIsRelativePath(savedModuleFileDir))
 		{
-			TCHAR combinedPath[MAX_PATH];
-			PathCombine(&combinedPath[0], &fileDir[0], &savedModuleInfo.fileDir[0]);
-			savedModuleFileDir = combinedPath;
+			savedModuleFileDir = PathCombinePaths(fileDir, savedModuleFileDir);
 		}
 
 		//Attempt to load this module
-		modulesLoadedWithoutErrors &= LoadModuleInternal(savedModuleFileDir, savedModuleInfo.fileName, targetModuleConnectorMappings, viewModelOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModules);
+		std::wstring savedModuleFilePath = PathCombinePaths(savedModuleFileDir, PathGetFileName(savedModuleInfo.filePath));
+		modulesLoadedWithoutErrors &= LoadModuleInternal(savedModuleFilePath, targetModuleConnectorMappings, viewModelOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModules);
 
 		//Save the mapping between the saved module ID and the loaded module ID for the
 		//module we just loaded.
@@ -3445,7 +3474,7 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 	//If the system load was aborted, log the event and return false.
 	if(loadSystemAbort)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading system from file " + fileName + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading system from file " + filePath + L"."));
 		return false;
 	}
 
@@ -3453,7 +3482,7 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 	//false.
 	if(!modulesLoadedWithoutErrors)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"One or more modules failed to load successfully when loading system from file " + fileName + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"One or more modules failed to load successfully when loading system from file " + filePath + L"."));
 		return false;
 	}
 
@@ -3501,14 +3530,14 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading system file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading system file " + filePath + L"."));
 		}
 	}
 
 	//If the system load was aborted, log the event, and flag the module to unload.
 	if(loadSystemAbort)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading system from file " + fileName + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading system from file " + filePath + L"."));
 		return false;
 	}
 
@@ -3516,7 +3545,7 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 	//module to unload.
 	if(!loadedWithoutErrors)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Errors occurred while loading system from file " + fileName + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Errors occurred while loading system from file " + filePath + L"."));
 		return false;
 	}
 
@@ -3524,7 +3553,7 @@ bool System::LoadSystem(const std::wstring& fileDir, const std::wstring& fileNam
 }
 
 //----------------------------------------------------------------------------------------
-bool System::SaveSystem(const std::wstring& fileDir, const std::wstring& fileName)
+bool System::SaveSystem(const std::wstring& filePath)
 {
 	//Save running state and pause system
 	bool running = SystemRunning();
@@ -3541,6 +3570,7 @@ bool System::SaveSystem(const std::wstring& fileDir, const std::wstring& fileNam
 	stateInfo.CreateAttribute(L"CreationTime", timestamp.GetTime());
 
 	//Save the ModuleRelationships node
+	std::wstring fileDir = PathGetDirectory(filePath);
 	IHeirarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
 	SaveModuleRelationshipsNode(moduleRelationshipsNode, true, fileDir);
 
@@ -3615,10 +3645,10 @@ bool System::SaveSystem(const std::wstring& fileDir, const std::wstring& fileNam
 		//the location where the system file is being saved, convert the path to the ROM
 		//file into a relative path.
 		std::wstring filePath = i->filePath;
-		if(PathIsPrefix(&fileDir[0], &filePath[0]) == TRUE)
+		if(PathStartsWithBasePath(fileDir, filePath))
 		{
-			TCHAR relativePath[MAX_PATH];
-			if(PathRelativePathTo(&relativePath[0], &fileDir[0], FILE_ATTRIBUTE_DIRECTORY, &filePath[0], 0) == TRUE)
+			std::wstring relativePath;
+			if(PathBuildRelativePathToTarget(fileDir, filePath, true, relativePath))
 			{
 				filePath = relativePath;
 			}
@@ -3633,11 +3663,10 @@ bool System::SaveSystem(const std::wstring& fileDir, const std::wstring& fileNam
 	}
 
 	//Save XML tree to the target file
-	std::wstring filePath = fileDir + L"\\" + fileName;
 	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
 	if(!file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save system to file " + fileName + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save system to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 		if(running)
 		{
 			RunSystem();
@@ -3647,7 +3676,7 @@ bool System::SaveSystem(const std::wstring& fileDir, const std::wstring& fileNam
 	file.InsertByteOrderMark();
 	if(!tree.SaveTree(file))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save system to file " + fileName + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save system to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 		if(running)
 		{
 			RunSystem();
@@ -3715,7 +3744,8 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 	const LoadedModuleInfoInternal& moduleInfo = *loadedModuleIterator;
 
 	//Update the name stack of the currently unloading module
-	PushUnloadModuleCurrentModuleName(moduleInfo.fileName);
+	std::wstring fileName = PathGetFileName(moduleInfo.filePath);
+	PushUnloadModuleCurrentModuleName(fileName);
 
 	//Build a list of any modules which import connectors exported by this module. These
 	//modules are dependent on our module, and must be unloaded first.
@@ -3746,9 +3776,10 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		if(enablePersistentState)
 		{
 			std::wstring persistentModuleFileName = moduleInfo.className + L".zip";
-			if(!SavePersistentStateForModule(guiExtensionInterface->GetGlobalPreferencePathPersistentState(), persistentModuleFileName, moduleID, FILETYPE_ZIP, true))
+			std::wstring persistentModuleFilePath = PathCombinePaths(guiExtensionInterface->GetGlobalPreferencePathPersistentState(), persistentModuleFileName);
+			if(!SavePersistentStateForModule(persistentModuleFilePath, moduleID, FILETYPE_ZIP, true))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to save persistent state data for module with name " + moduleInfo.displayName + L" to file with name " + persistentModuleFileName + L"."));
+				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to save persistent state data for module with name " + moduleInfo.displayName + L" to file \"" + persistentModuleFilePath + L"\"."));
 			}
 		}
 
@@ -7201,97 +7232,28 @@ void System::UnloadAllModules()
 	//Stop the system if it is currently running
 	StopSystem();
 
-	//Remove key code mappings
-	ClearKeyCodeMap();
-
-	//Remove all registered input targets
-	inputRegistrationList.clear();
-
-	//Remove all imported elements
-	importedClockSources.clear();
-	importedSystemSettings.clear();
-	importedSystemLines.clear();
-	importedBusInterfaces.clear();
-	importedExtensionInfoList.clear();
-	importedDeviceInfoList.clear();
-
-	//Remove all connector details
-	connectorDetailsMap.clear();
-
-	//Remove all unmapped line state settings
-	unmappedLineStateList.clear();
-
-	//Remove all system settings
-	moduleSettings.clear();
-	systemSettings.clear();
-
-	//Remove all embedded ROM info
-	embeddedROMInfo.clear();
-
-	//Remove all system lines
-	systemLines.clear();
-
-	//Remove all clock sources
-	for(ClockSourceList::iterator i = clockSources.begin(); i != clockSources.end(); ++i)
+	//Unload each loaded module
+	while(!loadedModuleInfoList.empty())
 	{
-		delete (i->clockSource);
+		LoadedModuleInfoInternal moduleInfo = *loadedModuleInfoList.begin();
+		UnloadModuleInternal(moduleInfo.moduleID);
 	}
-	clockSources.clear();
 
-	//Remove all bus interfaces
-	for(BusInterfaceList::iterator i = busInterfaces.begin(); i != busInterfaces.end(); ++i)
-	{
-		delete (i->busInterface);
-	}
-	busInterfaces.clear();
-
-	//Remove all extensions
-	for(LoadedExtensionInfoList::const_iterator i = loadedExtensionInfoList.begin(); i != loadedExtensionInfoList.end(); ++i)
-	{
-		lock.unlock();
-		DestroyExtension(i->extension->GetExtensionClassName(), i->extension);
-		lock.lock();
-	}
-	loadedExtensionInfoList.clear();
-
-	//Remove all global extensions
-	for(LoadedGlobalExtensionInfoList::const_iterator i = globalExtensionInfoList.begin(); i != globalExtensionInfoList.end(); ++i)
-	{
-		lock.unlock();
-		DestroyExtension(i->second.extension->GetExtensionClassName(), i->second.extension);
-		lock.lock();
-	}
-	loadedExtensionInfoList.clear();
-
-	//Remove all devices
-	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
-	{
-		lock.unlock();
-		DestroyDevice(i->device->GetDeviceClassName(), i->device);
-		lock.lock();
-	}
-	loadedDeviceInfoList.clear();
-	executionManager.ClearAllDevices();
-	devices.clear();
-
-	//Remove all loaded modules
-	loadedModuleInfoList.clear();
-
+	//Flag that the operation is complete
 	clearSystemComplete = true;
 }
 
 //----------------------------------------------------------------------------------------
-bool System::ReadModuleConnectorInfo(const std::wstring& fileDir, const std::wstring& fileName, std::wstring& systemClassName, ConnectorImportList& connectorsImported, ConnectorExportList& connectorsExported) const
+bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring& systemClassName, ConnectorImportList& connectorsImported, ConnectorExportList& connectorsExported) const
 {
-	std::wstring filePath = fileDir + L"\\" + fileName;
-
 	//Open the target file
-	Stream::File source;
-	if(!source.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	FileStreamReference streamReference(*guiExtensionInterface);
+	if(!streamReference.OpenExistingFileForRead(filePath))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not open module file " + filePath + L"!"));
 		return false;
 	}
+	Stream::IStream& source = *streamReference;
 
 	//Determine the text format for the file, and strip any present byte order mark.
 	source.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
@@ -7455,8 +7417,7 @@ bool System::GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& modul
 		if(loadedModuleIterator->moduleID == moduleID)
 		{
 			moduleInfo.SetModuleID(loadedModuleIterator->moduleID);
-			moduleInfo.SetModuleFileDirectory(loadedModuleIterator->fileDir);
-			moduleInfo.SetModuleFileName(loadedModuleIterator->fileName);
+			moduleInfo.SetModuleFilePath(loadedModuleIterator->filePath);
 			moduleInfo.SetIsProgramModule(loadedModuleIterator->programModule);
 			moduleInfo.SetSystemClassName(loadedModuleIterator->systemClassName);
 			moduleInfo.SetClassName(loadedModuleIterator->className);

@@ -9,9 +9,15 @@ unsigned int IGUIExtensionInterface::ThisIGUIExtensionInterfaceVersion()
 //----------------------------------------------------------------------------------------
 //Module functions
 //----------------------------------------------------------------------------------------
-bool IGUIExtensionInterface::LoadModuleFromFile(const std::wstring& fileDir, const std::wstring& fileName)
+bool IGUIExtensionInterface::CanModuleBeLoaded(const std::wstring& filePath) const
 {
-	return LoadModuleFromFileInternal(fileDir.c_str(), fileName.c_str());
+	return CanModuleBeLoadedInternal(filePath.c_str());
+}
+
+//----------------------------------------------------------------------------------------
+bool IGUIExtensionInterface::LoadModuleFromFile(const std::wstring& filePath)
+{
+	return LoadModuleFromFileInternal(filePath.c_str());
 }
 
 //----------------------------------------------------------------------------------------
@@ -70,4 +76,57 @@ std::wstring IGUIExtensionInterface::GetGlobalPreferenceInitialWorkspace() const
 bool IGUIExtensionInterface::LoadAssembly(const std::wstring& filePath)
 {
 	return LoadAssemblyInternal(filePath.c_str());
+}
+
+//----------------------------------------------------------------------------------------
+//File selection functions
+//----------------------------------------------------------------------------------------
+bool IGUIExtensionInterface::SelectExistingFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, bool scanIntoArchives, std::wstring& selectedFilePath) const
+{
+	const wchar_t* selectedFilePathRawData = 0;
+	if(!SelectExistingFileInternal(selectionTypeString.c_str(), defaultExtension.c_str(), initialFilePath.c_str(), initialDirectory.c_str(), scanIntoArchives, &selectedFilePathRawData))
+	{
+		return false;
+	}
+	selectedFilePath = selectedFilePathRawData;
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool IGUIExtensionInterface::SelectNewFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, std::wstring& selectedFilePath) const
+{
+	const wchar_t* selectedFilePathRawData = 0;
+	if(!SelectNewFileInternal(selectionTypeString.c_str(), defaultExtension.c_str(), initialFilePath.c_str(), initialDirectory.c_str(), &selectedFilePathRawData))
+	{
+		return false;
+	}
+	selectedFilePath = selectedFilePathRawData;
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+std::vector<std::wstring> IGUIExtensionInterface::PathSplitElements(const std::wstring& path) const
+{
+	//Obtain the set of items in an array
+	unsigned int arraySize = 0;
+	const wchar_t** itemArray = PathSplitElementsInternal(path.c_str(), arraySize);
+
+	//Load the set of items into our list structure
+	std::vector<std::wstring> items;
+	for(unsigned int i = 0; i < arraySize; ++i)
+	{
+		items.push_back(itemArray[i]);
+	}
+
+	//Free the allocated array data
+	PathSplitElementsInternalFreeArray(itemArray, arraySize);
+
+	//Return the set of items to the caller
+	return items;
+}
+
+//----------------------------------------------------------------------------------------
+Stream::IStream* IGUIExtensionInterface::OpenExistingFileForRead(const std::wstring& path) const
+{
+	return OpenExistingFileForReadInternal(path.c_str());
 }

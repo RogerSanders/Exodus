@@ -930,6 +930,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="FileStreamReference"
+				>
+				<File
+					RelativePath=".\FileStreamReference.h"
+					>
+				</File>
+				<File
+					RelativePath=".\FileStreamReference.inl"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\SystemInterface.pkg"

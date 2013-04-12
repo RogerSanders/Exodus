@@ -15,7 +15,7 @@ class MemoryRead :public Device
 {
 public:
 	//Constructors
-	MemoryRead(const std::wstring& aclassName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	MemoryRead(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	~MemoryRead();
 
 	//Initialization functions

@@ -45,7 +45,7 @@ protected:
 	virtual const wchar_t* GetViewTitleInternal() const;
 
 	//Helper functions
-	std::wstring BuildWindowTitle(const std::wstring& moduleDisplayName, const std::wstring& deviceName, const std::wstring& deviceInstanceName, const std::wstring& windowTitle) const;
+	std::wstring BuildWindowTitle(const std::wstring& moduleDisplayName, const std::wstring& deviceInstanceName, const std::wstring& windowTitle) const;
 	std::wstring GetLockingSupportedMessage() const;
 
 	//Member window procedure

@@ -385,7 +385,7 @@ public:
 	typedef SpriteMapping SpriteListEntry;
 
 	//Constructors
-	VDP(const std::wstring& ainstanceName, unsigned int amoduleID);
+	VDP(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual ~VDP();
 
 	//Line functions

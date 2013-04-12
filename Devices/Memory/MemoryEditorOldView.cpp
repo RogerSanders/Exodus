@@ -10,7 +10,7 @@ MemoryRead::MemoryEditorOldView::MemoryEditorOldView(MemoryRead* adevice, unsign
 	memoryLocation = atargetMemoryAddress;
 	addressWidth = 0;
 	memoryLocationModified = false;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Old Memory Editor");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Old Memory Editor");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_MEMORY_DATA_EDIT));
 }
 

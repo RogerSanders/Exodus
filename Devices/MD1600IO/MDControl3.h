@@ -20,7 +20,7 @@ class MDControl3 :public Device
 {
 public:
 	//Constructors
-	MDControl3(const std::wstring& ainstanceName, unsigned int amoduleID);
+	MDControl3(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 
 	//Initialization functions
 	virtual void Initialize();

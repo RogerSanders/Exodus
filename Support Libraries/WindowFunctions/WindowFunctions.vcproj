@@ -597,6 +597,18 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="PathFunctions"
+			>
+			<File
+				RelativePath=".\PathFunctions.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PathFunctions.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\WindowFunctions.pkg"
 			>

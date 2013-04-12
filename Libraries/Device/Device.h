@@ -6,7 +6,7 @@ class Device :public IDevice
 {
 public:
 	//Constructors
-	inline Device(const std::wstring& aclassName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	inline Device(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual ~Device();
 
 	//Interface version functions
@@ -58,7 +58,7 @@ public:
 	virtual void NotifyAfterExecuteStepFinishedTimeslice();
 
 	//Name functions
-	inline std::wstring GetDeviceClassName() const;
+	inline std::wstring GetDeviceImplementationName() const;
 	inline std::wstring GetDeviceInstanceName() const;
 	inline std::wstring GetFullyQualifiedDeviceInstanceName() const;
 	inline std::wstring GetModuleDisplayName() const;
@@ -136,7 +136,7 @@ protected:
 	virtual bool AddReferenceInternal(const wchar_t* referenceName, IClockSource* target);
 
 	//Name functions
-	virtual const wchar_t* GetDeviceClassNameInternal() const;
+	virtual const wchar_t* GetDeviceImplementationNameInternal() const;
 	virtual const wchar_t* GetDeviceInstanceNameInternal() const;
 	virtual const wchar_t* GetFullyQualifiedDeviceInstanceNameInternal() const;
 	virtual const wchar_t* GetModuleDisplayNameInternal() const;
@@ -162,7 +162,7 @@ protected:
 	virtual void OpenViewModelInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IViewModelLauncher& viewModelLauncher);
 
 private:
-	std::wstring className;
+	std::wstring implementationName;
 	std::wstring instanceName;
 	mutable std::wstring fullyQualifiedDeviceInstanceNameCached;
 	mutable std::wstring moduleDisplayNameCached;

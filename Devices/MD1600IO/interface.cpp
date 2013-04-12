@@ -7,9 +7,9 @@
 #include "MDControl6.h"
 #include "MDBusArbiter.h"
 
-IDevice* GetA10000(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetA10000(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new A10000(instanceName, moduleID);
+	return new A10000(implementationName, instanceName, moduleID);
 }
 
 void DeleteA10000(IDevice* device)
@@ -17,9 +17,9 @@ void DeleteA10000(IDevice* device)
 	delete device;
 }
 
-IDevice* GetA04000(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetA04000(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new A04000(instanceName, moduleID);
+	return new A04000(implementationName, instanceName, moduleID);
 }
 
 void DeleteA04000(IDevice* device)
@@ -27,9 +27,9 @@ void DeleteA04000(IDevice* device)
 	delete device;
 }
 
-IDevice* GetA06000(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetA06000(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new A06000(instanceName, moduleID);
+	return new A06000(implementationName, instanceName, moduleID);
 }
 
 void DeleteA06000(IDevice* device)
@@ -37,9 +37,9 @@ void DeleteA06000(IDevice* device)
 	delete device;
 }
 
-IDevice* GetA11100(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetA11100(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new A11100(instanceName, moduleID);
+	return new A11100(implementationName, instanceName, moduleID);
 }
 
 void DeleteA11100(IDevice* device)
@@ -47,9 +47,9 @@ void DeleteA11100(IDevice* device)
 	delete device;
 }
 
-IDevice* GetMDControl3(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetMDControl3(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new MDControl3(instanceName, moduleID);
+	return new MDControl3(implementationName, instanceName, moduleID);
 }
 
 void DeleteMDControl3(IDevice* device)
@@ -57,9 +57,9 @@ void DeleteMDControl3(IDevice* device)
 	delete device;
 }
 
-IDevice* GetMDControl6(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetMDControl6(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new MDControl6(instanceName, moduleID);
+	return new MDControl6(implementationName, instanceName, moduleID);
 }
 
 void DeleteMDControl6(IDevice* device)
@@ -67,9 +67,9 @@ void DeleteMDControl6(IDevice* device)
 	delete device;
 }
 
-IDevice* GetMDBusArbiter(const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetMDBusArbiter(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new MDBusArbiter(instanceName, moduleID);
+	return new MDBusArbiter(implementationName, instanceName, moduleID);
 }
 
 void DeleteMDBusArbiter(IDevice* device)
@@ -88,25 +88,25 @@ extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDevi
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetDeviceSettings(L"A10000", GetA10000, DeleteA10000, 1);
+		entry.SetDeviceSettings(GetA10000, DeleteA10000, L"System.Bus.Arbiter", L"A10000", 1, L"", L"");
 		return true;
 	case 1:
-		entry.SetDeviceSettings(L"A04000", GetA04000, DeleteA04000, 1);
+		entry.SetDeviceSettings(GetA04000, DeleteA04000, L"Audio.YM2612", L"A04000", 1, L"", L"");
 		return true;
 	case 2:
-		entry.SetDeviceSettings(L"A06000", GetA06000, DeleteA06000, 1);
+		entry.SetDeviceSettings(GetA06000, DeleteA06000, L"System.Bus.MegaDriveBusArbiter", L"A06000", 1, L"", L"");
 		return true;
 	case 3:
-		entry.SetDeviceSettings(L"A11100", GetA11100, DeleteA11100, 1);
+		entry.SetDeviceSettings(GetA11100, DeleteA11100, L"System.Bus.MegaDriveBusArbiter", L"A11100", 1, L"", L"");
 		return true;
 	case 4:
-		entry.SetDeviceSettings(L"MDControl3", GetMDControl3, DeleteMDControl3, 1);
+		entry.SetDeviceSettings(GetMDControl3, DeleteMDControl3, L"Peripheral.Control.MegaDrive", L"MDControl3", 1, L"", L"");
 		return true;
 	case 5:
-		entry.SetDeviceSettings(L"MDControl6", GetMDControl6, DeleteMDControl6, 1);
+		entry.SetDeviceSettings(GetMDControl6, DeleteMDControl6, L"Peripheral.Control.MegaDrive", L"MDControl6", 1, L"", L"");
 		return true;
 	case 6:
-		entry.SetDeviceSettings(L"MDBusArbiter", GetMDBusArbiter, DeleteMDBusArbiter, 1);
+		entry.SetDeviceSettings(GetMDBusArbiter, DeleteMDBusArbiter, L"System.Bus.MegaDriveBusArbiter", L"MDBusArbiter", 1, L"", L"");
 		return true;
 	}
 	return false;

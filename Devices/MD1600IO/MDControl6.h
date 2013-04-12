@@ -21,7 +21,7 @@ class MDControl6 :public Device
 {
 public:
 	//Constructors
-	MDControl6(const std::wstring& ainstanceName, unsigned int amoduleID);
+	MDControl6(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 
 	//Initialization functions
 	virtual void Initialize();

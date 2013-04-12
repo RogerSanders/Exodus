@@ -8,7 +8,7 @@ class A06000 :public Device
 {
 public:
 	//Constructors
-	A06000(const std::wstring& ainstanceName, unsigned int amoduleID);
+	A06000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 
 	//Initialization functions
 	virtual bool ValidateDevice();

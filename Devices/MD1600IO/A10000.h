@@ -52,7 +52,7 @@ class A10000 :public Device
 {
 public:
 	//Constructors
-	A10000(const std::wstring& ainstanceName, unsigned int amoduleID);
+	A10000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 
 	//Initialization functions
 	virtual bool ValidateDevice();

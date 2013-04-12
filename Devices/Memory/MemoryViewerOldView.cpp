@@ -11,7 +11,7 @@ MemoryRead::MemoryViewerOldView::MemoryViewerOldView(MemoryRead* adevice)
 	memorySize = 0;
 	displayWidth = 1;
 	addressWidth = 0;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Old Memory Viewer");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Old Memory Viewer");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_MEMORY_DATA));
 }
 

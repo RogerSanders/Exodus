@@ -56,7 +56,7 @@ class SN76489 :public Device
 {
 public:
 	//Constructors
-	SN76489(const std::wstring& ainstanceName, unsigned int amoduleID);
+	SN76489(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	~SN76489();
 
 	//Initialization functions

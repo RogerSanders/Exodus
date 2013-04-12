@@ -6,8 +6,8 @@
 namespace Z80{
 
 //----------------------------------------------------------------------------------------
-Z80::Z80(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Processor(L"Z80", ainstanceName, amoduleID), menuHandler(0), opcodeTable(8), opcodeTableCB(8), opcodeTableED(8), opcodeBuffer(0), memoryBus(0)
+Z80::Z80(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Processor(aimplementationName, ainstanceName, amoduleID), menuHandler(0), opcodeTable(8), opcodeTableCB(8), opcodeTableED(8), opcodeBuffer(0), memoryBus(0)
 {
 	//Set the default state for our device preferences
 	suspendWhenBusReleased = false;

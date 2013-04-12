@@ -137,7 +137,7 @@ public:
 	static const unsigned int SP = 7;
 
 	//Constructors
-	M68000(const std::wstring& ainstanceName, unsigned int amoduleID);
+	M68000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	~M68000();
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 

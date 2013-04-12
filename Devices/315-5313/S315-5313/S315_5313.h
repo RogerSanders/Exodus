@@ -43,7 +43,7 @@ class S315_5313 :public Device
 {
 public:
 	//Constructors
-	S315_5313(const std::wstring& ainstanceName, unsigned int amoduleID);
+	S315_5313(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual ~S315_5313();
 
 	//Line functions
@@ -579,6 +579,7 @@ private:
 	//Physical registers and memory buffers
 	mutable boost::mutex accessMutex; //Top-level, protects against concurrent interface access.
 	mutable boost::mutex lineMutex; //Top level, must never be held during a blocking operation
+	mutable boost::mutex externalReferenceMutex;
 	double lastAccessTime;
 	RegBuffer reg;
 	bool registerLocked[registerCount];

@@ -7,7 +7,7 @@
 S315_5313::SettingsView::SettingsView(S315_5313* adevice)
 :device(adevice)
 {
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Settings");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Settings");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_S315_5313_SETTINGS));
 }
 

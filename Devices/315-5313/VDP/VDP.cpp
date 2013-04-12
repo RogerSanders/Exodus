@@ -7,8 +7,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-VDP::VDP(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(L"VDP", ainstanceName, amoduleID), menuHandler(0), reg(registerCount, false, 0), statusRegister(statusRegisterBitCount), bstatusRegister(statusRegisterBitCount)
+VDP::VDP(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Device(aimplementationName, ainstanceName, amoduleID), menuHandler(0), reg(registerCount, false, 0), statusRegister(statusRegisterBitCount), bstatusRegister(statusRegisterBitCount)
 {
 	memoryBus = 0;
 	vram = 0;

@@ -51,8 +51,6 @@ the slots.
 #include <boost/thread/condition.hpp>
 #include "MenuSubmenu.h"
 
-//##TODO## Implement a base interface which can be used by extensions
-//##TODO## 
 class ExodusInterface :public IViewModelManager, public IGUIExtensionInterface
 {
 public:
@@ -72,9 +70,9 @@ public:
 
 	//Savestate functions
 	void LoadState(const std::wstring& folder, bool debuggerState);
-	void LoadStateFromFile(const std::wstring& fileDir, const std::wstring& fileName, ISystemExternal::FileType fileType, bool debuggerState);
+	void LoadStateFromFile(const std::wstring& filePath, ISystemExternal::FileType fileType, bool debuggerState);
 	void SaveState(const std::wstring& folder, bool debuggerState);
-	void SaveStateToFile(const std::wstring& fileDir, const std::wstring& fileName, ISystemExternal::FileType fileType, bool debuggerState);
+	void SaveStateToFile(const std::wstring& filePath, ISystemExternal::FileType fileType, bool debuggerState);
 
 	//Savestate quick-select popup functions
 	void QuickLoadState(bool debuggerState);
@@ -85,20 +83,21 @@ public:
 
 	//Workspace functions
 	void LoadWorkspace(const std::wstring& folder);
-	bool LoadWorkspaceFromFile(const std::wstring& fileName);
+	bool LoadWorkspaceFromFile(const std::wstring& filePath);
 	void SaveWorkspace(const std::wstring& folder);
-	bool SaveWorkspaceToFile(const std::wstring& fileName);
+	bool SaveWorkspaceToFile(const std::wstring& filePath);
 
 	//Module functions
+	bool CanModuleBeLoaded(const std::wstring& filePath) const;
 	bool LoadModule(const std::wstring& folder);
-	bool LoadModuleFromFile(const std::wstring& fileDir, const std::wstring& fileName);
+	bool LoadModuleFromFile(const std::wstring& filePath);
 	bool SaveSystem(const std::wstring& folder);
-	bool SaveSystemToFile(const std::wstring& fileDir, const std::wstring& fileName);
+	bool SaveSystemToFile(const std::wstring& filePath);
 	virtual void UnloadModule(unsigned int moduleID);
 	virtual void UnloadAllModules();
 
 	//Global preference functions
-	void LoadPrefs(const std::wstring& filePath);
+	bool LoadPrefs(const std::wstring& filePath);
 	void SavePrefs(const std::wstring& filePath);
 	void ResolvePrefs();
 	virtual bool GetGlobalPreferenceEnableThrottling() const;
@@ -108,6 +107,13 @@ public:
 	//Assembly functions
 	bool LoadAssembliesFromFolder(const std::wstring& folder);
 	bool LoadAssembly(const std::wstring& filePath);
+
+	//File selection functions
+	virtual bool SelectExistingFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, bool scanIntoArchives, std::wstring& selectedFilePath) const;
+	virtual bool SelectNewFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, std::wstring& selectedFilePath) const;
+	virtual std::vector<std::wstring> PathSplitElements(const std::wstring& path) const;
+	virtual Stream::IStream* OpenExistingFileForRead(const std::wstring& path) const;
+	virtual void DeleteFileStream(Stream::IStream* stream) const;
 
 	//View management functions
 	virtual bool OpenViewModel(IViewModel* aviewModel, bool waitToClose = true, bool openHidden = false);
@@ -121,7 +127,8 @@ public:
 
 protected:
 	//Module functions
-	virtual bool LoadModuleFromFileInternal(const wchar_t* fileDir, const wchar_t* fileName);
+	virtual bool CanModuleBeLoadedInternal(const wchar_t* filePath) const;
+	virtual bool LoadModuleFromFileInternal(const wchar_t* filePath);
 
 	//Global preference functions
 	virtual const wchar_t* GetGlobalPreferencePathModulesInternal() const;
@@ -135,6 +142,13 @@ protected:
 
 	//Assembly functions
 	virtual bool LoadAssemblyInternal(const wchar_t* filePath);
+
+	//File selection functions
+	virtual bool SelectExistingFileInternal(const wchar_t* selectionTypeString, const wchar_t* defaultExtension, const wchar_t* initialFilePath, const wchar_t* initialDirectory, bool scanIntoArchives, const wchar_t** selectedFilePath) const;
+	virtual bool SelectNewFileInternal(const wchar_t* selectionTypeString, const wchar_t* defaultExtension, const wchar_t* initialFilePath, const wchar_t* initialDirectory, const wchar_t** selectedFilePath) const;
+	virtual const wchar_t** PathSplitElementsInternal(const wchar_t* path, unsigned int& arraySize) const;
+	virtual void PathSplitElementsInternalFreeArray(const wchar_t** itemArray, unsigned int arraySize) const;
+	virtual Stream::IStream* OpenExistingFileForReadInternal(const wchar_t* path) const;
 
 private:
 	//Enumerations
@@ -170,6 +184,8 @@ private:
 	struct ViewOperation;
 	struct WorkspaceViewEntryDetails;
 	struct MapConnectorDialogParams;
+	struct SelectCompressedFileDialogParams;
+	struct SelectCompressedFileDialogParamsFileEntry;
 
 	//Typedefs
 	typedef std::map<unsigned int, NewMenuItem> NewMenuList;
@@ -189,6 +205,9 @@ private:
 
 	//Module functions
 	void UpdateModuleDisplayInfo() const;
+
+	//File selection functions
+	bool SelectExistingFileScanIntoArchive(const std::list<FileSelectionType>& selectionTypes, const std::wstring archivePath, std::wstring& selectedFilePath) const;
 
 	//View management functions
 	void FlagProcessPendingEvents();
@@ -230,13 +249,13 @@ private:
 
 	//Window callbacks
 	static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
-	static int CALLBACK SetSHBrowseForFolderInitialDir(HWND hwnd, UINT umsg, LPARAM lparam, LPARAM lpData);
 	static INT_PTR CALLBACK MapConnectorProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK LoadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK UnloadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK ModuleManagerProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK AboutProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK SettingsProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK SelectCompressedFileProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WndSavestateCellProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WndSavestateProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -297,6 +316,8 @@ private:
 	//the view is open would allow us to use a single container.
 	ViewInfoSet viewInfoSet;
 	ViewModels viewModels;
+
+	mutable std::wstring filePathCache;
 };
 
 #include "ExodusInterface.inl"

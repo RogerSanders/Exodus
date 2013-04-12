@@ -7,7 +7,7 @@
 YM2612::OperatorView::OperatorView(YM2612* adevice, unsigned int achannelNo, unsigned int aoperatorNo)
 :device(adevice), initializedDialog(false), currentControlFocus(0), channelNo(achannelNo), operatorNo(aoperatorNo)
 {
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Operator");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Operator");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_YM2612_OPERATOR));
 }
 

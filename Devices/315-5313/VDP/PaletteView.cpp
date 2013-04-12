@@ -8,7 +8,7 @@ VDP::PaletteView::PaletteView(VDP* adevice)
 :device(adevice)
 {
 	glrc = NULL;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Palette");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Palette");
 	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 240, 60, false);
 }
 

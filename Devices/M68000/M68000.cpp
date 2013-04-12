@@ -8,8 +8,8 @@
 namespace M68000 {
 
 //----------------------------------------------------------------------------------------
-M68000::M68000(const std::wstring& ainstanceName, unsigned int amoduleID)
-:Processor(L"M68000", ainstanceName, amoduleID), menuHandler(0), opcodeTable(16), opcodeBuffer(0), memoryBus(0)
+M68000::M68000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:Processor(aimplementationName, ainstanceName, amoduleID), menuHandler(0), opcodeTable(16), opcodeBuffer(0), memoryBus(0)
 {
 	//Set the default state for our device preferences
 	suspendWhenBusReleased = false;

@@ -8,7 +8,7 @@ namespace Z80{
 Z80::RegistersView::RegistersView(Z80* adevice)
 :device(adevice), initializedDialog(false), currentControlFocus(0)
 {
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Registers");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Registers");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_Z80_REGISTERS));
 }
 

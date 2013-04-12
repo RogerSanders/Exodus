@@ -8,7 +8,7 @@ class MDBusArbiter :public Device
 {
 public:
 	//Constructors
-	MDBusArbiter(const std::wstring& ainstanceName, unsigned int amoduleID);
+	MDBusArbiter(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 
 	//Initialization functions
 	virtual bool ValidateDevice();

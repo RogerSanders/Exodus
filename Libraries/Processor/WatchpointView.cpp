@@ -9,7 +9,7 @@ Processor::WatchpointView::WatchpointView(Processor* adevice)
 :device(adevice), initializedDialog(false), currentControlFocus(0), watchpoint(adevice->GetAddressBusWidth())
 {
 	watchpointListIndex = -1;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Watchpoints");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Watchpoints");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_WATCH));
 }
 

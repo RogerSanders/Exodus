@@ -67,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Debug.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
@@ -154,7 +154,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Debug.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
@@ -242,7 +242,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -333,7 +333,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -421,7 +420,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Debug.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
@@ -508,7 +507,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Debug.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
@@ -596,7 +595,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -687,7 +686,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -776,7 +775,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -867,7 +866,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -958,7 +957,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -1050,7 +1049,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -1141,7 +1140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -1233,7 +1232,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -1323,7 +1322,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -1413,7 +1412,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shell32.lib shlwapi.lib"
+				AdditionalDependencies="shell32.lib"
 				OutputFile="$(SolutionDir)\$(ProjectName) - Release.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""

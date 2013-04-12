@@ -9,15 +9,36 @@ unsigned int IExtensionInfo::ThisIExtensionInfoVersion()
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void IExtensionInfo::SetExtensionSettings(const std::wstring& aextensionName, AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int aextensionVersionNo)
+void IExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& aextensionClassName, const std::wstring& aextensionImplementationName, unsigned int aextensionVersionNo, const std::wstring& aextensionCopyright, const std::wstring& aextensionComments)
 {
-	SetExtensionName(aextensionName);
-	SetExtensionVersionNo(aextensionVersionNo);
 	SetExtensionAllocators(aAllocator, aDestructor);
+	SetExtensionClassName(aextensionClassName);
+	SetExtensionImplementationName(aextensionImplementationName);
+	SetExtensionVersionNo(aextensionVersionNo);
+	SetExtensionCopyright(aextensionCopyright);
+	SetExtensionComments(aextensionComments);
 }
 
 //----------------------------------------------------------------------------------------
-void IExtensionInfo::SetExtensionName(const std::wstring& aextensionName)
+void IExtensionInfo::SetExtensionClassName(const std::wstring& aextensionClassName)
 {
-	SetExtensionNameInternal(aextensionName.c_str());
+	SetExtensionClassNameInternal(aextensionClassName.c_str());
+}
+
+//----------------------------------------------------------------------------------------
+void IExtensionInfo::SetExtensionImplementationName(const std::wstring& aextensionImplementationName)
+{
+	SetExtensionImplementationNameInternal(aextensionImplementationName.c_str());
+}
+
+//----------------------------------------------------------------------------------------
+void IExtensionInfo::SetExtensionCopyright(const std::wstring& aextensionCopyright)
+{
+	SetExtensionCopyrightInternal(aextensionCopyright.c_str());
+}
+
+//----------------------------------------------------------------------------------------
+void IExtensionInfo::SetExtensionComments(const std::wstring& aextensionComments)
+{
+	SetExtensionCommentsInternal(aextensionComments.c_str());
 }

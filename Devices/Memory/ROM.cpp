@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ROM::ROM(const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryRead(L"ROM", ainstanceName, amoduleID)
+ROM::ROM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:MemoryRead(aimplementationName, ainstanceName, amoduleID)
 {}
 
 //----------------------------------------------------------------------------------------

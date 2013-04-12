@@ -310,7 +310,7 @@ bool ViewBase::DoesWindowHandleMatchView(void* awindowHandle) const
 //----------------------------------------------------------------------------------------
 //Helper functions
 //----------------------------------------------------------------------------------------
-std::wstring ViewBase::BuildWindowTitle(const std::wstring& moduleDisplayName, const std::wstring& deviceName, const std::wstring& deviceInstanceName, const std::wstring& windowTitle) const
+std::wstring ViewBase::BuildWindowTitle(const std::wstring& moduleDisplayName, const std::wstring& deviceInstanceName, const std::wstring& windowTitle) const
 {
 	return moduleDisplayName + L" - " + deviceInstanceName + L" - " + windowTitle;
 }

@@ -17,7 +17,7 @@ S315_5313::VRAMView::VRAMView(S315_5313* adevice)
 	hwndDetails16 = NULL;
 	detailsVisible = false;
 
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"VRAM Pattern Viewer");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"VRAM Pattern Viewer");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_VRAM));
 }
 
@@ -262,6 +262,13 @@ LRESULT S315_5313::VRAMView::msgRenderWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM 
 //----------------------------------------------------------------------------------------
 LRESULT S315_5313::VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	//Obtain a lock on external references, and ensure that the required buffers exists.
+	boost::mutex::scoped_lock lock(device->externalReferenceMutex);
+	if((device->vram == 0) || (device->cram == 0))
+	{
+		return 0;
+	}
+
 	AccessTarget accessTarget;
 	accessTarget.AccessCommitted();
 

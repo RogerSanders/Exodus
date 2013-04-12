@@ -8,7 +8,7 @@ S315_5313::PortMonitorDetailsView::PortMonitorDetailsView(S315_5313* adevice, co
 :device(adevice), entry(aentry)
 {
 	hwndInternal = NULL;
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"Port Monitor Entry Details");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Port Monitor Entry Details");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_S315_5313_PORTMONITOR_DETAILS));
 }
 

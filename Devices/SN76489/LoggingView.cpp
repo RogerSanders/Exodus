@@ -7,7 +7,7 @@
 SN76489::LoggingView::LoggingView(SN76489* adevice)
 :device(adevice), initializedDialog(false), currentControlFocus(0)
 {
-	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceClassName(), device->GetDeviceInstanceName(), L"WAV File Logging");
+	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"WAV File Logging");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_SN76489_LOGGING));
 }
 
@@ -161,33 +161,10 @@ INT_PTR SN76489::LoggingView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 //----------------------------------------------------------------------------------------
 void SN76489::LoggingView::SelectLoggingPath(HWND hwnd, std::wstring& fileName) const
 {
-	//Get filename
-	TCHAR fileNameBuffer[MAX_PATH];
-	unsigned int i = 0;
-	while((i < fileName.size()) && (i < (MAX_PATH - 1)))
+	std::wstring selectedFilePath;
+	if(SelectNewFile(hwnd, L"Wave file|wav", L"wav", fileName, L"", selectedFilePath))
 	{
-		fileNameBuffer[i] = fileName[i];
-		++i;
-	}
-	fileNameBuffer[i] = '\0';
-
-	OPENFILENAME openFileParams;
-	ZeroMemory(&openFileParams, sizeof(openFileParams));
-	openFileParams.lStructSize = sizeof(openFileParams);
-	openFileParams.hwndOwner = hwnd;
-	openFileParams.lpstrFile = fileNameBuffer;
-	openFileParams.nMaxFile = sizeof(fileNameBuffer);
-	openFileParams.lpstrFilter = L"Wave file (*.wav)\0*.wav\0All (*.*)\0*.*\0";
-	openFileParams.lpstrDefExt = L"wav";
-	openFileParams.nFilterIndex = 1;
-	openFileParams.lpstrFileTitle = NULL;
-	openFileParams.nMaxFileTitle = 0;
-	openFileParams.lpstrInitialDir = NULL;
-	openFileParams.Flags = OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
-
-	if(GetSaveFileName(&openFileParams) != 0)
-	{
-		fileName = openFileParams.lpstrFile;
+		fileName = selectedFilePath;
 	}
 }
 

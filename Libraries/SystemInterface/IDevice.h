@@ -73,7 +73,7 @@ public:
 	virtual void NotifyAfterExecuteStepFinishedTimeslice() = 0;
 
 	//Name functions
-	inline std::wstring GetDeviceClassName() const;
+	inline std::wstring GetDeviceImplementationName() const;
 	inline std::wstring GetDeviceInstanceName() const;
 	inline std::wstring GetFullyQualifiedDeviceInstanceName() const;
 	inline std::wstring GetModuleDisplayName() const;
@@ -151,7 +151,7 @@ protected:
 	virtual bool AddReferenceInternal(const wchar_t* referenceName, IClockSource* target) = 0;
 
 	//Name functions
-	virtual const wchar_t* GetDeviceClassNameInternal() const = 0;
+	virtual const wchar_t* GetDeviceImplementationNameInternal() const = 0;
 	virtual const wchar_t* GetDeviceInstanceNameInternal() const = 0;
 	virtual const wchar_t* GetFullyQualifiedDeviceInstanceNameInternal() const = 0;
 	virtual const wchar_t* GetModuleDisplayNameInternal() const = 0;

@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SharedRAM::SharedRAM(const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryWrite(L"SharedRAM", ainstanceName, amoduleID)
+SharedRAM::SharedRAM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
+:MemoryWrite(aimplementationName, ainstanceName, amoduleID)
 {}
 
 //----------------------------------------------------------------------------------------
