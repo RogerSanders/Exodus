@@ -473,11 +473,166 @@ std::wstring GetDlgItemString(HWND hwnd, int controlID)
 }
 
 //----------------------------------------------------------------------------------------
-//MessageBox functions
+//Modal window functions
 //----------------------------------------------------------------------------------------
-int MessageBox(HWND hwnd, const std::wstring& message, const std::wstring& title, UINT type)
+std::list<HWND> DisableAllEnabledDialogWindows(HWND ownerWindow)
 {
-	return MessageBox(hwnd, message.c_str(), title.c_str(), type);
+	//Retrieve the current list of all popup and dialog windows owned by the target window
+	std::list<HWND> ownedWindowList = GetOwnedDialogWindows(ownerWindow);
+
+	//Disable any owned popup or dialog windows which are currently enabled, and build a
+	//list of all the windows that were actually disabled.
+	std::list<HWND> disabledWindows;
+	for(std::list<HWND>::const_iterator i = ownedWindowList.begin(); i != ownedWindowList.end(); ++i)
+	{
+		HWND targetWindow = *i;
+		if(EnableWindow(targetWindow, FALSE) == 0)
+		{
+			disabledWindows.push_back(targetWindow);
+		}
+	}
+
+	//Return the list of windows which were disabled to the caller
+	return disabledWindows;
+}
+
+//----------------------------------------------------------------------------------------
+void EnableDialogWindows(const std::list<HWND>& windowList)
+{
+	//Enable all windows in the supplied window list
+	for(std::list<HWND>::const_iterator i = windowList.begin(); i != windowList.end(); ++i)
+	{
+		HWND targetWindow = *i;
+		EnableWindow(targetWindow, TRUE);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+int SafeMessageBox(HWND hwnd, const std::wstring& message, const std::wstring& title, UINT type)
+{
+	//Disable all other popup or dialog windows for the target parent window that are not
+	//currently disabled. We need to do this, because although the modal dialog box will
+	//disable the parent window, it will not disable other popup windows of the parent,
+	//and the user will still be able to interact with them while our dialog is open.
+	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hwnd);
+
+	//Display the message box to the user
+	int messageBoxReturn = MessageBox(hwnd, message.c_str(), title.c_str(), type);
+
+	//Re-enable all other popup or dialog windows which we disabled
+	EnableDialogWindows(disabledWindows);
+
+	//Return the result of the message box to the caller
+	return messageBoxReturn;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR SafeDialogBox(HINSTANCE hInstance, LPCTSTR lpTemplate, HWND hWndParent, DLGPROC lpDialogFunc)
+{
+	//Disable all other popup or dialog windows for the target parent window that are not
+	//currently disabled. We need to do this, because although the modal dialog box will
+	//disable the parent window, it will not disable other popup windows of the parent,
+	//and the user will still be able to interact with them while our dialog is open.
+	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hWndParent);
+
+	//Display the modal dialog to the user
+	INT_PTR dialogBoxReturn = DialogBox(hInstance, lpTemplate, hWndParent, lpDialogFunc);
+
+	//Re-enable all other popup or dialog windows which we disabled
+	EnableDialogWindows(disabledWindows);
+
+	//Return the result of the dialog to the caller
+	return dialogBoxReturn;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR SafeDialogBoxParam(HINSTANCE hInstance, LPCWSTR lpTemplateName, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
+{
+	//Disable all other popup or dialog windows for the target parent window that are not
+	//currently disabled. We need to do this, because although the modal dialog box will
+	//disable the parent window, it will not disable other popup windows of the parent,
+	//and the user will still be able to interact with them while our dialog is open.
+	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hWndParent);
+
+	//Display the modal dialog to the user
+	INT_PTR dialogBoxReturn = DialogBoxParam(hInstance, lpTemplateName, hWndParent, lpDialogFunc, dwInitParam);
+
+	//Re-enable all other popup or dialog windows which we disabled
+	EnableDialogWindows(disabledWindows);
+
+	//Return the result of the dialog to the caller
+	return dialogBoxReturn;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR SafeDialogBoxIndirect(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate, HWND hWndParent, DLGPROC lpDialogFunc)
+{
+	//Disable all other popup or dialog windows for the target parent window that are not
+	//currently disabled. We need to do this, because although the modal dialog box will
+	//disable the parent window, it will not disable other popup windows of the parent,
+	//and the user will still be able to interact with them while our dialog is open.
+	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hWndParent);
+
+	//Display the modal dialog to the user
+	INT_PTR dialogBoxReturn = DialogBoxIndirect(hInstance, lpTemplate, hWndParent, lpDialogFunc);
+
+	//Re-enable all other popup or dialog windows which we disabled
+	EnableDialogWindows(disabledWindows);
+
+	//Return the result of the dialog to the caller
+	return dialogBoxReturn;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR SafeDialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
+{
+	//Disable all other popup or dialog windows for the target parent window that are not
+	//currently disabled. We need to do this, because although the modal dialog box will
+	//disable the parent window, it will not disable other popup windows of the parent,
+	//and the user will still be able to interact with them while our dialog is open.
+	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hWndParent);
+
+	//Display the modal dialog to the user
+	INT_PTR dialogBoxReturn = DialogBoxIndirectParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, dwInitParam);
+
+	//Re-enable all other popup or dialog windows which we disabled
+	EnableDialogWindows(disabledWindows);
+
+	//Return the result of the dialog to the caller
+	return dialogBoxReturn;
+}
+
+//----------------------------------------------------------------------------------------
+//Owned dialog window enumeration
+//----------------------------------------------------------------------------------------
+struct EnumThreadWindowsCallbackParams
+{
+	std::list<HWND> windowList;
+	HWND ownerWindow;
+};
+
+//----------------------------------------------------------------------------------------
+BOOL CALLBACK EnumThreadWindowsCallback(HWND hwnd, LPARAM lParam)
+{
+	//If this window has our target window as its owner, add it to the window list.
+	EnumThreadWindowsCallbackParams& params = *((EnumThreadWindowsCallbackParams*)lParam);
+	HWND ownerWindow = GetWindow(hwnd, GW_OWNER);
+	if(ownerWindow == params.ownerWindow)
+	{
+		params.windowList.push_back(hwnd);
+	}
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+std::list<HWND> GetOwnedDialogWindows(HWND ownerWindow)
+{
+	//Return the list of all windows which are owned by the target window
+	EnumThreadWindowsCallbackParams params;
+	params.ownerWindow = ownerWindow;
+	DWORD ownerWindowThreadID = GetWindowThreadProcessId(ownerWindow, NULL);
+	EnumThreadWindows(ownerWindowThreadID, EnumThreadWindowsCallback, (LPARAM)&params);
+	return params.windowList;
 }
 
 //----------------------------------------------------------------------------------------
