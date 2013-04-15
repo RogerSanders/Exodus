@@ -122,7 +122,7 @@ timerAOverflowTimes(false)
 
 	//Initialize the audio output stream
 	outputSampleRate = 48000;	//44100;
-	outputStream.Open(2, 16, outputSampleRate, outputSampleRate/2, outputSampleRate/2);
+	outputStream.Open(2, 16, outputSampleRate, outputSampleRate/2, outputSampleRate/5);
 
 	//Initialize the key locking state
 	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)

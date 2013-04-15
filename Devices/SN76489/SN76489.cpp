@@ -11,7 +11,7 @@ SN76489::SN76489(const std::wstring& aimplementationName, const std::wstring& ai
 {
 	//Initialize the audio output stream
 	outputSampleRate = 48000;	//44100;
-	outputStream.Open(1, 16, outputSampleRate, outputSampleRate/2, outputSampleRate/2);
+	outputStream.Open(1, 16, outputSampleRate, outputSampleRate/2, outputSampleRate/5);
 
 	//##TODO## Provide a way for these properties to be defined externally, and provide
 	//debug windows which can modify them on the fly.
