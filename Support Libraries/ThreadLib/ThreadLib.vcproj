@@ -580,6 +580,10 @@
 				RelativePath=".\PerformanceTimer.h"
 				>
 			</File>
+			<File
+				RelativePath=".\PerformanceTimer.inl"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="ReferenceCounter"
