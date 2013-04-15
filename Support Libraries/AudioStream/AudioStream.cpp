@@ -144,9 +144,10 @@ AudioStream::AudioBuffer* AudioStream::CreateAudioBuffer(unsigned int sampleCoun
 	//Calculate the new total number of samples pending, and if we've exceeded our maximum
 	//pending sample count, drop pending buffers until we're back under the limit. Note
 	//that buffers are dropped starting with the oldest entry in the queue, and buffers
-	//are only dropped after they have been handed back to the AudioStream for playback.
-	//We drop buffers so that the audio output stream isn't left with an ever-increasing
-	//backlog of audio data in the case that the system is running too fast.
+	//are only dropped after they have been handed back to the AudioStream for playback,
+	//but before they are sent to the audio hardware. We drop buffers so that the audio
+	//output stream isn't left with an ever-increasing backlog of audio data in the case
+	//that the system is running too fast.
 	unsigned int pendingSampleCount = 0;
 	for(std::list<AudioBuffer*>::iterator i = pendingBuffers.begin(); i != pendingBuffers.end(); ++i)
 	{
@@ -155,7 +156,15 @@ AudioStream::AudioBuffer* AudioStream::CreateAudioBuffer(unsigned int sampleCoun
 	std::list<AudioBuffer*>::iterator pendingBufferIterator = pendingBuffers.begin();
 	while((pendingSampleCount > maxPendingSamples) && (pendingBufferIterator != pendingBuffers.end()) && (*pendingBufferIterator)->playBuffer)
 	{
+		//If this buffer entry has already been sent to the audio hardware, skip it.
 		AudioBuffer* entryToRemove = *pendingBufferIterator;
+		if(entryToRemove->bufferSentToAudioDevice)
+		{
+			++pendingBufferIterator;
+			continue;
+		}
+
+		//Remove this buffer entry
 		pendingSampleCount -= ((unsigned int)entryToRemove->buffer.size() / channelCount);
 		delete entryToRemove;
 		pendingBuffers.erase(pendingBufferIterator);
@@ -209,6 +218,9 @@ void AudioStream::AddPendingBuffers(HWAVEOUT deviceHandle)
 	while((pendingBufferIterator != pendingBuffers.end()) && (*pendingBufferIterator)->playBuffer && (currentPlayingSamples < minPlayingSamples))
 	{
 		AudioBuffer* entry = *pendingBufferIterator;
+
+		//Flag that this buffer has been sent to the audio device
+		entry->bufferSentToAudioDevice = true;
 
 		//Add the count of samples in this buffer to the total count of currently playing
 		//samples
@@ -287,8 +299,11 @@ void AudioStream::AddPendingBuffers(HWAVEOUT deviceHandle)
 				}
 			}
 
-			//Flag this buffer as playing
+			//Flag that playback has been requested for this buffer
 			fillerBuffer->playBuffer = true;
+
+			//Flag that this buffer has been sent to the audio device
+			fillerBuffer->bufferSentToAudioDevice = true;
 
 			//Add the number of inserted samples in the filler buffer to the total count
 			//of playing samples
