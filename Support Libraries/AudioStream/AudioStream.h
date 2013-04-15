@@ -15,7 +15,7 @@ public:
 	~AudioStream();
 
 	//Audio stream binding
-	bool Open(unsigned int achannelCount, unsigned int abitsPerSample, unsigned int asamplesPerSec, unsigned int amaxPendingSamples = 0, unsigned int amaxPlayingSamples = 0);
+	bool Open(unsigned int achannelCount, unsigned int abitsPerSample, unsigned int asamplesPerSec, unsigned int amaxPendingSamples = 0, unsigned int aminPlayingSamples = 0);
 	void Close();
 
 	//Buffer management functions
@@ -33,6 +33,7 @@ private:
 
 	//Buffer management functions
 	void AddPendingBuffers(HWAVEOUT deviceHandle);
+	bool AddPendingBuffer(HWAVEOUT deviceHandle, AudioBuffer* entry);
 	void ClearCompletedBuffers(HWAVEOUT deviceHandle);
 
 private:
@@ -53,9 +54,8 @@ private:
 
 	//Audio buffer data
 	CRITICAL_SECTION waveMutex;
-//	static const unsigned int maxPlayingBufferCount = 50;
-	unsigned int maxPlayingSamples;
-	unsigned int currentPlayingSamples;
+	unsigned int minPlayingSamples;
+	volatile unsigned int currentPlayingSamples;
 	std::list<AudioBuffer*> pendingBuffers;
 	std::list<AudioBuffer*> playingBuffers;
 	volatile unsigned int completedBufferSlots;

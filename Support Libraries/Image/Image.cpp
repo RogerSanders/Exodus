@@ -2509,7 +2509,7 @@ void Image::ResampleBilinear(const IImage& oldImage, unsigned int newWidth, unsi
 			//Calculate the total domain, or length, of this sample region on the X axis.
 			float totalDomainX = lastSamplePointX - firstSamplePointX;
 
-			//Calculate the first and last pixels of interest from the source region.
+			//Calculate the first and last pixels of interest from the source region
 			unsigned int firstSamplePosX = (unsigned int)firstSamplePointX;
 			unsigned int lastSamplePosX = (unsigned int)lastSamplePointX;
 
