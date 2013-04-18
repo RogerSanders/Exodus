@@ -107,6 +107,7 @@ private:
 	bool autoScrollingManagement;
 	int vscrollMin;
 	int vscrollMax;
+	int vscrollMaxTrueLimit;
 	int vscrollCurrent;
 	int vscrollValuesPerPage;
 	int currentScrollHOffset;
