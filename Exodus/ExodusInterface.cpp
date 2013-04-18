@@ -3503,6 +3503,23 @@ INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wPar
 	const unsigned int extensionListControlID = 50001;
 	switch(Message)
 	{
+	case WM_PARENTNOTIFY:
+		switch(LOWORD(wParam))
+		{
+		case WM_LBUTTONDOWN:{
+			//If the user has clicked on a child window within our window region, ensure
+			//that the child window gets focus.
+			POINT mousePos;
+			mousePos.x = LOWORD(lParam);
+			mousePos.y = HIWORD(lParam);
+			HWND targetWindow = ChildWindowFromPoint(hwnd, mousePos);
+			if(targetWindow != NULL)
+			{
+				SetFocus(targetWindow);
+			}
+			break;}
+		}
+		break;
 	case WM_DESTROY:
 		//Delete the default font object
 		SendMessage(hwnd, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
