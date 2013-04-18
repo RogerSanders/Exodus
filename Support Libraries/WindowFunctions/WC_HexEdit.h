@@ -19,7 +19,6 @@ a file. If no working directory has been set, the control will default to its cu
 behaviour of using the current working directory.
 -Implement the ctrl+left/right arrow key behaviour from hex workshop
 -Adjust the way we select bytes using the mouse
--Add error feedback to the user when a load/save from file fails
 -Add operators to our paste operation. We should be able to AND, OR, and XOR a copied
 block of data with the data in memory. This will provide quick ways to construct
 interpolated data sets.

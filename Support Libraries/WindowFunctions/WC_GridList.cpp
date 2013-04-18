@@ -1,8 +1,5 @@
 #include "WC_GridList.h"
 
-//##DEBUG##
-#include <iostream>
-
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
@@ -21,10 +18,13 @@ WC_GridList::WC_GridList(HINSTANCE amoduleHandle, HWND ahwnd)
 
 	controlWidth = 0;
 	controlHeight = 0;
-	currentScrollHOffset = 0;
 
-	fontPointSize = 8;
-	fontTypefaceName = L"Courier New";
+	autoScrollingManagement = true;
+	vscrollMin = 0;
+	vscrollMax = 0;
+	vscrollCurrent = 0;
+	vscrollValuesPerPage = 0;
+	currentScrollHOffset = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -85,6 +85,10 @@ LRESULT WC_GridList::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEWHEEL:
 		return msgWM_MOUSEWHEEL(wParam, lParam);
 
+	case GRID_SETMANUALSCROLLING:
+		return msgGRID_SETMANUALSCROLLING(wParam, lParam);
+	case GRID_SETDATAAREAFONT:
+		return msgGRID_SETDATAAREAFONT(wParam, lParam);
 	case GRID_INSERTCOLUMN:
 		return msgGRID_INSERTCOLUMN(wParam, lParam);
 	case GRID_DELETECOLUMN:
@@ -141,20 +145,6 @@ LRESULT WC_GridList::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	//Initialize the header
 	hwndHeader = CreateWindowEx(0, WC_HEADER, L"", WS_CHILD | WS_VISIBLE | HDS_FULLDRAG | HDS_HOTTRACK | HDS_DRAGDROP, 0, 0, 0, 0, hwnd, (HMENU)IDC_HEADER, moduleHandle, NULL);
 
-	//Set our font options, and read the font metrics
-	HDC hdc = GetDC(hwnd);
-	int fontnHeight = -MulDiv(fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-	hfont = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &fontTypefaceName[0]);
-	HFONT hfontOld = (HFONT)SelectObject(hdc, hfont);
-
-	TEXTMETRIC textMetric;
-	GetTextMetrics(hdc, &textMetric);
-	fontWidth = textMetric.tmAveCharWidth;
-	fontHeight = textMetric.tmHeight;
-
-	SelectObject(hdc, hfontOld);
-	ReleaseDC(hwnd, hdc);
-
 	return 0;
 }
 
@@ -179,45 +169,8 @@ LRESULT WC_GridList::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	headerPosY = headerPos.y;
 	MoveWindow(hwndHeader, (int)headerPosX - currentScrollHOffset, headerPosY, (int)headerWidth + currentScrollHOffset, headerHeight, FALSE);
 
-	//Calculate the maximum number of rows which can be shown within the control
-	unsigned int textAreaHeight = controlHeight - headerHeight;
-	if(controlHeight < headerHeight)
-	{
-		textAreaHeight = 0;
-	}
-	unsigned int newVisibleRows = (textAreaHeight / fontHeight) + 1;
-
-	//If more rows need to be shown after the resize, update the data buffer sizes for
-	//each column.
-	if(newVisibleRows > visibleRows)
-	{
-		rowColorDataArray.resize(newVisibleRows);
-		for(ColumnDataIterator i = columnData.begin(); i != columnData.end(); ++i)
-		{
-			if(newVisibleRows > (unsigned int)i->dataBuffer.size())
-			{
-				i->dataBuffer.resize(newVisibleRows);
-			}
-		}
-	}
-
-	if(newVisibleRows != visibleRows)
-	{
-		//Update the number of rows to be displayed
-		visibleRows = newVisibleRows;
-
-		//If the number of visible rows has changed, send a message to the parent control
-		//to notify it about the change in visible rows.
-		Grid_NewRowCount newRowCountState;
-		newRowCountState.visibleRows = newVisibleRows;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWROWCOUNT), (LPARAM)&newRowCountState);
-	}
-
-	//Update our scrollbar settings to reflect the new window size
-	UpdateScrollbarSettings();
-
-	//Force the control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	//Update size information based on the new control width and height
+	UpdateWindowSize();
 
 	return 0;
 }
@@ -226,7 +179,6 @@ LRESULT WC_GridList::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 LRESULT WC_GridList::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 {
 	NMHDR* nmhdr = (NMHDR*)lParam;
-
 	if(nmhdr->idFrom == IDC_HEADER)
 	{
 		if((nmhdr->code == HDN_ITEMCHANGED))
@@ -242,7 +194,7 @@ LRESULT WC_GridList::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			//Update the scrollbar settings
+			//Update the current scrollbar state
 			UpdateScrollbarSettings();
 
 			//Force the control to redraw
@@ -360,9 +312,10 @@ LRESULT WC_GridList::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 		//Determine the color data to use for this row
 		bool useCustomBackgroundColor = false;
 		int customBackgroundColor;
-		CustomColorData& rowColorData = rowColorDataArray[row];
-		if(rowColorData.defined)
+		unsigned int rowColorDataArrayIndex = (!autoScrollingManagement)? row: (vscrollCurrent + row);
+		if((rowColorDataArrayIndex < (unsigned int)rowColorDataArray.size()) && rowColorDataArray[rowColorDataArrayIndex].defined)
 		{
+			CustomColorData& rowColorData = rowColorDataArray[rowColorDataArrayIndex];
 			SetTextColor(hdc, rowColorData.colorTextFront.GetColorREF());
 			SetBkColor(hdc, rowColorData.colorTextBack.GetColorREF());
 
@@ -397,7 +350,8 @@ LRESULT WC_GridList::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 			}
 
 			//Draw the text for this column, this row
-			if(row < columnData.dataBuffer.size())
+			unsigned int columnDataArrayIndex = (!autoScrollingManagement)? row: (vscrollCurrent + row);
+			if(columnDataArrayIndex < columnData.dataBuffer.size())
 			{
 				int marginSize = 2;
 				RECT rect;
@@ -405,7 +359,7 @@ LRESULT WC_GridList::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				rect.right = (textStartPosX + columnStartPos + (int)columnData.width) - marginSize;
 				rect.top = textStartPosY + (int)(row * fontHeight);
 				rect.bottom = textStartPosY + (int)((row + 1) * fontHeight);
-				DrawText(hdc, &columnData.dataBuffer[row][0], (int)columnData.dataBuffer[row].size(), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+				DrawText(hdc, &columnData.dataBuffer[columnDataArrayIndex][0], (int)columnData.dataBuffer[columnDataArrayIndex].size(), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 			}
 
 			//Draw the dividing line marking the end of this column
@@ -447,12 +401,86 @@ unsigned int WC_GridList::GetTotalRowWidth() const
 }
 
 //----------------------------------------------------------------------------------------
+void WC_GridList::UpdateWindowSize()
+{
+	//Calculate the maximum number of rows which can be shown within the control
+	unsigned int textAreaHeight = controlHeight - headerHeight;
+	if(controlHeight < headerHeight)
+	{
+		textAreaHeight = 0;
+	}
+	unsigned int newVisibleRows = (textAreaHeight / fontHeight) + 1;
+
+	//If we're not using automatic scroll management, and more rows need to be shown after
+	//the resize, update the data buffer sizes for each column.
+	if(!autoScrollingManagement && (newVisibleRows > visibleRows))
+	{
+		rowColorDataArray.resize(newVisibleRows);
+		for(ColumnDataIterator i = columnData.begin(); i != columnData.end(); ++i)
+		{
+			if(newVisibleRows > (unsigned int)i->dataBuffer.size())
+			{
+				i->dataBuffer.resize(newVisibleRows);
+			}
+		}
+	}
+
+	//If the number of visible rows has changed, update the stored visible row state.
+	if(newVisibleRows != visibleRows)
+	{
+		//Update the number of rows to be displayed
+		visibleRows = newVisibleRows;
+
+		//If the number of visible rows has changed, send a message to the parent control
+		//to notify it about the change in visible rows.
+		Grid_NewRowCount newRowCountState;
+		newRowCountState.visibleRows = newVisibleRows;
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWROWCOUNT), (LPARAM)&newRowCountState);
+	}
+
+	//If automatic scroll management is enabled, recalculate the new scroll settings based
+	//on the new window size.
+	if(autoScrollingManagement)
+	{
+		RecalculateScrollPosition();
+	}
+
+	//Update the current scrollbar state
+	UpdateScrollbarSettings();
+
+	//Force the control to redraw
+	InvalidateRect(hwnd, NULL, FALSE);
+}
+
+//----------------------------------------------------------------------------------------
+void WC_GridList::RecalculateScrollPosition()
+{
+	//Reset the vertical scroll minimum value and number of values per page
+	vscrollMin = 0;
+	vscrollValuesPerPage = visibleRows;
+
+	//Calculate a new maximum vertical scroll position, using the size of the largest
+	//content buffer.
+	int newVScrollMax = 0;
+	for(std::list<ColumnData>::const_iterator i = columnData.begin(); i != columnData.end(); ++i)
+	{
+		int thisColumnSize = (int)i->dataBuffer.size();
+		newVScrollMax = (thisColumnSize > newVScrollMax)? thisColumnSize: newVScrollMax;
+	}
+	vscrollMax = (newVScrollMax > vscrollValuesPerPage)? newVScrollMax - vscrollValuesPerPage: 0;
+
+	//Clamp the current vertical scroll position to the new maximum vertical scroll
+	//position
+	vscrollCurrent = (vscrollCurrent > vscrollMax)? vscrollMax: vscrollCurrent;
+}
+
+//----------------------------------------------------------------------------------------
 void WC_GridList::UpdateScrollbarSettings()
 {
-	//Calculate the new settings for the scrollbar
+	//Calculate the new settings for the horizontal scrollbar
 	unsigned int totalRowWidth = GetTotalRowWidth();
 
-	//Clamp the scroll offset to the upper and lower boundaries
+	//Clamp the horizontal scroll offset to the upper and lower boundaries
 	if((currentScrollHOffset + (int)controlWidth) > (int)totalRowWidth)
 	{
 		currentScrollHOffset = (int)totalRowWidth - (int)controlWidth;
@@ -462,23 +490,34 @@ void WC_GridList::UpdateScrollbarSettings()
 		currentScrollHOffset = 0;
 	}
 
-	//Reposition the header control to scroll it across
+	//Reposition the header control to handle horizontal scrolling
 	MoveWindow(hwndHeader, (int)headerPosX - currentScrollHOffset, headerPosY, (int)headerWidth + currentScrollHOffset, headerHeight, FALSE);
 
-	//Apply the new scrollbar settings
-	SCROLLINFO scrollInfo;
-	scrollInfo.cbSize = sizeof(scrollInfo);
-	scrollInfo.nMin = 0;
-	scrollInfo.nMax = (int)totalRowWidth - 1;
-	scrollInfo.nPos = (int)currentScrollHOffset;
-	scrollInfo.nPage = (int)controlWidth;
-	scrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
-	SetScrollInfo(hwnd, SB_HORZ, &scrollInfo, TRUE);
+	//Apply the latest horizontal scrollbar settings
+	SCROLLINFO hscrollInfo;
+	hscrollInfo.cbSize = sizeof(hscrollInfo);
+	hscrollInfo.nMin = 0;
+	hscrollInfo.nMax = (int)totalRowWidth - 1;
+	hscrollInfo.nPos = (int)currentScrollHOffset;
+	hscrollInfo.nPage = (int)controlWidth;
+	hscrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
+	SetScrollInfo(hwnd, SB_HORZ, &hscrollInfo, TRUE);
+
+	//Apply the latest vertical scrollbar settings
+	SCROLLINFO vscrollInfo;
+	vscrollInfo.cbSize = sizeof(vscrollInfo);
+	vscrollInfo.nMin = vscrollMin;
+	vscrollInfo.nMax = vscrollMax;
+	vscrollInfo.nPos = vscrollCurrent;
+	vscrollInfo.nPage = vscrollValuesPerPage;
+	vscrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
+	SetScrollInfo(hwnd, SB_VERT, &vscrollInfo, TRUE);
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT WC_GridList::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 {
+	//Handle this scroll event
 	switch(LOWORD(wParam))
 	{
 	case SB_THUMBTRACK:{
@@ -487,41 +526,93 @@ LRESULT WC_GridList::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		scrollInfo.fMask = SIF_TRACKPOS;
 		GetScrollInfo(hwnd, SB_VERT, &scrollInfo);
 
-		Grid_NewScrollPosition info;
-		info.scrollPos = scrollInfo.nTrackPos;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = (unsigned int)scrollInfo.nTrackPos;
+		}
+		else
+		{
+			Grid_NewScrollPosition info;
+			info.scrollPos = (unsigned int)scrollInfo.nTrackPos;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+		}
 		break;}
-	case SB_TOP:{
-		Grid_NewScrollPosition info;
-		info.scrollPos = 0;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
-		break;}
-	case SB_BOTTOM:{
-		Grid_NewScrollPosition info;
-		info.scrollPos = vscrollMax;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
-		break;}
-	case SB_PAGEUP:{
-		Grid_ShiftRowsUp info;
-		info.shiftCount = visibleRows;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
-		break;}
-	case SB_LINEUP:{
-		Grid_ShiftRowsUp info;
-		info.shiftCount = 1;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
-		break;}
-	case SB_PAGEDOWN:{
-		Grid_ShiftRowsDown info;
-		info.shiftCount = visibleRows;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
-		break;}
-	case SB_LINEDOWN:{
-		Grid_ShiftRowsDown info;
-		info.shiftCount = 1;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
-		break;}
+	case SB_TOP:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = vscrollMin;
+		}
+		else
+		{
+			Grid_NewScrollPosition info;
+			info.scrollPos = vscrollMin;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+		}
+		break;
+	case SB_BOTTOM:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = vscrollMax;
+		}
+		else
+		{
+			Grid_NewScrollPosition info;
+			info.scrollPos = vscrollMax;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+		}
+		break;
+	case SB_PAGEUP:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = ((vscrollCurrent >= (int)visibleRows) && ((vscrollCurrent - (int)visibleRows) >= vscrollMin))? vscrollCurrent - (int)visibleRows: vscrollMin;
+		}
+		else
+		{
+			Grid_ShiftRowsUp info;
+			info.shiftCount = visibleRows;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+		}
+		break;
+	case SB_LINEUP:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = ((vscrollCurrent >= 1) && ((vscrollCurrent - 1) >= vscrollMin))? vscrollCurrent - 1: vscrollMin;
+		}
+		else
+		{
+			Grid_ShiftRowsUp info;
+			info.shiftCount = 1;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+		}
+		break;
+	case SB_PAGEDOWN:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = ((vscrollCurrent + (int)visibleRows) <= vscrollMax)? vscrollCurrent + (int)visibleRows: vscrollMax;
+		}
+		else
+		{
+			Grid_ShiftRowsDown info;
+			info.shiftCount = visibleRows;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+		}
+		break;
+	case SB_LINEDOWN:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = ((vscrollCurrent + 1) <= vscrollMax)? vscrollCurrent + 1: vscrollMax;
+		}
+		else
+		{
+			Grid_ShiftRowsDown info;
+			info.shiftCount = 1;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+		}
+		break;
 	}
+
+	//Update the current scrollbar state
+	UpdateScrollbarSettings();
 
 	//Force the control to redraw
 	InvalidateRect(hwnd, NULL, FALSE);
@@ -532,7 +623,7 @@ LRESULT WC_GridList::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_GridList::msgWM_HSCROLL(WPARAM wParam, LPARAM lParam)
 {
-	//Calculate the new horizontal scroll offset for the window
+	//Handle this scroll event
 	unsigned int totalRowWidth = GetTotalRowWidth();
 	switch(LOWORD(wParam))
 	{
@@ -563,7 +654,7 @@ LRESULT WC_GridList::msgWM_HSCROLL(WPARAM wParam, LPARAM lParam)
 		break;}
 	}
 
-	//Apply the new scroll settings
+	//Update the current scrollbar state
 	UpdateScrollbarSettings();
 
 	//Force the control to redraw
@@ -581,37 +672,82 @@ LRESULT WC_GridList::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 	{
 	default:
 		return 0;
-	case VK_UP:{
-		Grid_ShiftRowsUp info;
-		info.shiftCount = 1;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
-		break;}
-	case VK_DOWN:{
-		Grid_ShiftRowsDown info;
-		info.shiftCount = 1;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
-		break;}
-	case VK_PRIOR:{
-		Grid_ShiftRowsUp info;
-		info.shiftCount = visibleRows;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
-		break;}
-	case VK_NEXT:{
-		Grid_ShiftRowsDown info;
-		info.shiftCount = visibleRows;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
-		break;}
-	case VK_HOME:{
-		Grid_NewScrollPosition info;
-		info.scrollPos = 0;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
-		break;}
-	case VK_END:{
-		Grid_NewScrollPosition info;
-		info.scrollPos = (vscrollMax > 0)? (unsigned int)vscrollMax - 1: 0;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
-		break;}
+	case VK_UP:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = ((vscrollCurrent >= 1) && ((vscrollCurrent - 1) >= vscrollMin))? vscrollCurrent - 1: vscrollMin;
+		}
+		else
+		{
+			Grid_ShiftRowsUp info;
+			info.shiftCount = 1;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+		}
+		break;
+	case VK_DOWN:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = ((vscrollCurrent + 1) <= vscrollMax)? vscrollCurrent + 1: vscrollMax;
+		}
+		else
+		{
+			Grid_ShiftRowsDown info;
+			info.shiftCount = 1;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+		}
+		break;
+	case VK_PRIOR:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = ((vscrollCurrent >= (int)visibleRows) && ((vscrollCurrent - (int)visibleRows) >= vscrollMin))? vscrollCurrent - (int)visibleRows: vscrollMin;
+		}
+		else
+		{
+			Grid_ShiftRowsUp info;
+			info.shiftCount = visibleRows;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+		}
+		break;
+	case VK_NEXT:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = ((vscrollCurrent + (int)visibleRows) <= vscrollMax)? vscrollCurrent + (int)visibleRows: vscrollMax;
+		}
+		else
+		{
+			Grid_ShiftRowsDown info;
+			info.shiftCount = visibleRows;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+		}
+		break;
+	case VK_HOME:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = vscrollMin;
+		}
+		else
+		{
+			Grid_NewScrollPosition info;
+			info.scrollPos = 0;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+		}
+		break;
+	case VK_END:
+		if(autoScrollingManagement)
+		{
+			vscrollCurrent = vscrollMax;
+		}
+		else
+		{
+			Grid_NewScrollPosition info;
+			info.scrollPos = (vscrollMax > 0)? (unsigned int)vscrollMax - 1: 0;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+		}
+		break;
 	}
+
+	//Update the current scrollbar state
+	UpdateScrollbarSettings();
 
 	//Force the entire control to redraw
 	InvalidateRect(hwnd, NULL, FALSE);
@@ -643,6 +779,8 @@ LRESULT WC_GridList::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_ROWSELECTED), (LPARAM)&info);
 	}
 
+	//##TODO## Send a column selection notification too
+
 	return 0;
 }
 
@@ -655,18 +793,85 @@ LRESULT WC_GridList::msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam)
 	int scrollUnits = ((short)HIWORD(wParam) / WHEEL_DELTA);
 	scrollUnits *= -3;
 
-	if(scrollUnits < 0)
+	if(autoScrollingManagement)
 	{
-		Grid_ShiftRowsUp info;
-		info.shiftCount = (unsigned int)(-scrollUnits);
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+		vscrollCurrent += scrollUnits;
+		vscrollCurrent = (vscrollCurrent < vscrollMin)? vscrollMin: vscrollCurrent;
+		vscrollCurrent = (vscrollCurrent > vscrollMax)? vscrollMax: vscrollCurrent;
 	}
 	else
 	{
-		Grid_ShiftRowsDown info;
-		info.shiftCount = (unsigned int)scrollUnits;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+		if(scrollUnits < 0)
+		{
+			Grid_ShiftRowsUp info;
+			info.shiftCount = (unsigned int)(-scrollUnits);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+		}
+		else
+		{
+			Grid_ShiftRowsDown info;
+			info.shiftCount = (unsigned int)scrollUnits;
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+		}
 	}
+
+	//Update the current scrollbar state
+	UpdateScrollbarSettings();
+
+	//Force the entire control to redraw
+	InvalidateRect(hwnd, NULL, FALSE);
+
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_GridList::msgGRID_SETMANUALSCROLLING(WPARAM wParam, LPARAM lParam)
+{
+	//If the new scrolling state is the same as the currently selected state, reject the
+	//message and return 1.
+	bool newManualScrollingState = (wParam != 0);
+	if(newManualScrollingState == !autoScrollingManagement)
+	{
+		return 1;
+	}
+
+	//Apply the new manual scrolling state
+	autoScrollingManagement = !newManualScrollingState;
+
+	//If automatic scrolling is being enabled, calculate new vertical scroll values
+	//automatically based on the current state.
+	if(autoScrollingManagement)
+	{
+		RecalculateScrollPosition();
+	}
+
+	//Update the current scrollbar state
+	UpdateScrollbarSettings();
+
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_GridList::msgGRID_SETDATAAREAFONT(WPARAM wParam, LPARAM lParam)
+{
+	//Set the new font for the data area of this grid
+	hfont = (HFONT)wParam;
+
+	//Read the font metrics for our new font
+	HDC hdc = GetDC(hwnd);
+	HFONT hfontOld = (HFONT)SelectObject(hdc, hfont);
+	TEXTMETRIC textMetric;
+	GetTextMetrics(hdc, &textMetric);
+	fontWidth = textMetric.tmAveCharWidth;
+	fontHeight = textMetric.tmHeight;
+	SelectObject(hdc, hfontOld);
+	ReleaseDC(hwnd, hdc);
+
+	//Update the window size information based on the new font metrics
+	UpdateWindowSize();
+
+	//Force the entire control to redraw
+	InvalidateRect(hwnd, NULL, FALSE);
 
 	return 0;
 }
@@ -700,8 +905,11 @@ LRESULT WC_GridList::msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam)
 	//Since the columns have changed, we need to rebuild our header order index
 	RebuildHeaderOrder();
 
-	//Update the scrollbar settings
+	//Update the current scrollbar state
 	UpdateScrollbarSettings();
+
+	//Force the entire control to redraw
+	InvalidateRect(hwnd, NULL, FALSE);
 
 	return 0;
 }
@@ -726,8 +934,18 @@ LRESULT WC_GridList::msgGRID_DELETECOLUMN(WPARAM wParam, LPARAM lParam)
 			//Since the columns have changed, we need to rebuild our header order index
 			RebuildHeaderOrder();
 
-			//Update the scrollbar settings
+			//If automatic scroll management is enabled, recalculate the new scroll
+			//settings based on the new column list.
+			if(autoScrollingManagement)
+			{
+				RecalculateScrollPosition();
+			}
+
+			//Update the current scrollbar state
 			UpdateScrollbarSettings();
+
+			//Force the entire control to redraw
+			InvalidateRect(hwnd, NULL, FALSE);
 
 			return 0;
 		}
@@ -792,10 +1010,20 @@ LRESULT WC_GridList::msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam)
 	}
 
 	ColumnData* column = columnIterator->second;
-	for(unsigned int i = 0; (i < text.size()) && (i < column->dataBuffer.size()); ++i)
+	if(!autoScrollingManagement)
 	{
-		column->dataBuffer[i] = text[i];
+		for(unsigned int i = 0; (i < text.size()) && (i < column->dataBuffer.size()); ++i)
+		{
+			column->dataBuffer[i] = text[i];
+		}
 	}
+	else
+	{
+		column->dataBuffer = text;
+		unsigned int newColumnDataBufferSize = (unsigned int)column->dataBuffer.size();
+		RecalculateScrollPosition();
+	}
+
 	return 0;
 }
 
@@ -838,21 +1066,25 @@ LRESULT WC_GridList::msgGRID_GETROWCOUNT(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_GridList::msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam)
 {
+	//If automatic scrolling management is currently enabled, we reject this message, and
+	//return 1.
+	if(autoScrollingManagement)
+	{
+		return 1;
+	}
+
+	//Apply the new vscroll settings
 	const Grid_SetVScrollInfo& info = *((Grid_SetVScrollInfo*)lParam);
 	vscrollMin = info.minPos;
 	vscrollMax = info.maxPos;
 	vscrollCurrent = info.currentPos;
 	vscrollValuesPerPage = info.valuesPerPage;
 
-	//Apply the new scrollbar settings
-	SCROLLINFO scrollInfo;
-	scrollInfo.cbSize = sizeof(scrollInfo);
-	scrollInfo.nMin = vscrollMin;
-	scrollInfo.nMax = vscrollMax;
-	scrollInfo.nPos = vscrollCurrent;
-	scrollInfo.nPage = vscrollValuesPerPage;
-	scrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
-	SetScrollInfo(hwnd, SB_VERT, &scrollInfo, TRUE);
+	//Update the current scrollbar state
+	UpdateScrollbarSettings();
+
+	//Force the entire control to redraw
+	InvalidateRect(hwnd, NULL, FALSE);
 
 	return 0;
 }

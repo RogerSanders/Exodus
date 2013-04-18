@@ -560,6 +560,10 @@
 				RelativePath=".\WindowFunctions.h"
 				>
 			</File>
+			<File
+				RelativePath=".\WindowFunctions.inl"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Controls"

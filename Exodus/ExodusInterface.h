@@ -186,6 +186,8 @@ private:
 	struct MapConnectorDialogParams;
 	struct SelectCompressedFileDialogParams;
 	struct SelectCompressedFileDialogParamsFileEntry;
+	struct RegisteredDeviceInfo;
+	struct RegisteredExtensionInfo;
 
 	//Typedefs
 	typedef std::map<unsigned int, NewMenuItem> NewMenuList;
@@ -285,6 +287,9 @@ private:
 	bool systemDestructionInProgress;
 	bool viewEventProcessingPaused;
 
+	std::list<RegisteredDeviceInfo> registeredDevices;
+	std::list<RegisteredExtensionInfo> registeredExtensions;
+
 	HWND mainWindowHandle;
 	int mainWindowPosX;
 	int mainWindowPosY;
@@ -308,6 +313,9 @@ private:
 	unsigned int selectedWindow;
 	unsigned int windowSelectColumns;
 	unsigned int windowSelectEntriesPerColumn;
+
+	//About dialog state
+	HFONT aboutDialogHFont;
 
 	mutable boost::mutex viewMutex;
 	bool viewOperationPending;

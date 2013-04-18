@@ -52,23 +52,27 @@ END
 // Dialog
 //
 
-IDD_ABOUT DIALOGEX 0, 0, 222, 193
+IDD_ABOUT DIALOGEX 0, 0, 249, 320
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,86,172,50,14
-    LTEXT           "Exodus Development Environment",IDC_STATIC,16,7,120,14
-    LTEXT           "Version:",IDC_STATIC,23,19,27,8
-    LTEXT           "Author:",IDC_STATIC,23,32,26,8
-    LTEXT           "Contact:",IDC_STATIC,23,45,29,8
-    LTEXT           "1.0",IDC_STATIC,57,19,12,8
-    LTEXT           "Roger Sanders",IDC_STATIC,57,32,48,8
-    LTEXT           "sanders_roger@hotmail.com",IDC_STATIC,57,45,92,8
-    LTEXT           "This program makes use of the following third party libraries:",IDC_STATIC,15,94,194,8
-    LTEXT           "Interface code is dependent on:",IDC_STATIC,15,62,104,8
-    LTEXT           "-Win32 API\n-OpenGL API",IDC_STATIC,25,71,54,19
-    LTEXT           "-Boost\n-expat\n-zlib\n-libpng\n-libjpeg\n-libtiff\n-glew\n-SQLite",IDC_STATIC,24,103,57,69
+    DEFPUSHBUTTON   "OK",IDOK,99,299,50,14
+    CTEXT           "Exodus Development Environment",IDC_STATIC,7,6,235,11
+    RTEXT           "Version:",IDC_STATIC,64,19,27,8
+    RTEXT           "Copyright:",IDC_STATIC,56,30,35,8
+    RTEXT           "Website:",IDC_STATIC,61,42,30,8
+    LTEXT           "",IDC_ABOUT_VERSION,96,19,146,8
+    LTEXT           "",IDC_ABOUT_COPYRIGHT,96,30,146,8
+    CONTROL         "<a href=""http://www.exodusemulator.com"">http://www.exodusemulator.com</a>",IDC_ABOUT_URL,
+                    "SysLink",WS_TABSTOP,96,42,146,8
+    LTEXT           "Third Party Libraries:",IDC_STATIC,9,223,68,8
+    LTEXT           "Loaded Devices:",IDC_STATIC,11,62,54,8
+    LISTBOX         IDC_ABOUT_THIRDLIBRARIES_LIST,7,232,235,61,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    ICON            "",IDC_ABOUT_LOGO,15,20,21,20,WS_GROUP
+    LTEXT           "Loaded Extensions:",IDC_STATIC,10,142,64,8
+    LTEXT           "This item is a placeholder for a grid",IDC_ABOUT_DEVICELIST_PLACEHOLDER,7,71,235,68,NOT WS_VISIBLE | WS_BORDER
+    LTEXT           "This item is a placeholder for a grid",IDC_ABOUT_EXTENSIONLIST_PLACEHOLDER,7,151,235,68,NOT WS_VISIBLE | WS_BORDER
 END
 
 IDD_LOGGER DIALOGEX 0, 0, 388, 182
@@ -281,9 +285,10 @@ BEGIN
     IDD_ABOUT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 215
+        RIGHTMARGIN, 242
+        VERTGUIDE, 82
         TOPMARGIN, 7
-        BOTTOMMARGIN, 186
+        BOTTOMMARGIN, 313
     END
 
     IDD_LOGGER, DIALOG
@@ -459,8 +464,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,6,0,0
- PRODUCTVERSION 0,6,0,0
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x3L
@@ -473,21 +478,21 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "0c0904b0"
+        BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Nemesis Software"
             VALUE "FileDescription", "Exodus Hardware Emulator"
-            VALUE "FileVersion", "0.6"
+            VALUE "FileVersion", "1.0"
             VALUE "InternalName", "Exodus"
-            VALUE "LegalCopyright", "Copyright (C) 2008"
+            VALUE "LegalCopyright", "© 2013 Roger Sanders"
             VALUE "OriginalFilename", "Exodus.exe"
             VALUE "ProductName", "Exodus"
-            VALUE "ProductVersion", "0.6"
+            VALUE "ProductVersion", "1.0"
         END
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0xc09, 1200
+        VALUE "Translation", 0x409, 1200
     END
 END
 

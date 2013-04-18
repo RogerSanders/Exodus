@@ -11,7 +11,8 @@ Processor::DisassemblyView::DisassemblyView(Processor* adevice)
 {
 	hwndGridList = NULL;
 	hwndControlPanel = NULL;
-	hfont = NULL;
+	hfontHeader = NULL;
+	hfontData = NULL;
 	visibleRows = 0;
 	track = true;
 	forcePCSync = false;
@@ -74,6 +75,10 @@ LRESULT Processor::DisassemblyView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARA
 	RegisterClassEx(&wc);
 	hwndGridList = CreateWindowEx(WS_EX_CLIENTEDGE, L"EX_GridList", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, (HMENU)CTL_GRIDLIST, (HINSTANCE)device->GetAssemblyHandle(), NULL);
 
+	//Enable manual scrolling for the grid control, so that we only have to generate
+	//content for the rows that are currently in view.
+	SendMessage(hwndGridList, WC_GridList::GRID_SETMANUALSCROLLING, 1, 0);
+
 	//Insert our columns into the GridList control
 	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Address", COLUMN_ADDRESS, 70));
 	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Opcode", COLUMN_OPCODE, 70));
@@ -86,16 +91,25 @@ LRESULT Processor::DisassemblyView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARA
 	ShowWindow(hwndControlPanel, SW_SHOWNORMAL);
 	UpdateWindow(hwndControlPanel);
 
-	//Create the default font for this window
+	//Obtain the correct metrics for our custom font object
 	int fontPointSize = 8;
 	HDC hdc = GetDC(hwnd);
 	int fontnHeight = -MulDiv(fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
 	ReleaseDC(hwnd, hdc);
-	std::wstring fontTypefaceName = L"MS Shell Dlg";
-	hfont = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &fontTypefaceName[0]);
 
-	//Set the default font for the child controls
-	SendMessage(hwndGridList, WM_SETFONT, (WPARAM)hfont, (LPARAM)TRUE);
+	//Create the font for the header in the grid control
+	std::wstring headerFontTypefaceName = L"MS Shell Dlg";
+	hfontHeader = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &headerFontTypefaceName[0]);
+
+	//Set the header font for the grid control
+	SendMessage(hwndGridList, WM_SETFONT, (WPARAM)hfontHeader, (LPARAM)TRUE);
+
+	//Create the font for the data region in the grid control
+	std::wstring dataFontTypefaceName = L"Courier New";
+	hfontData = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &dataFontTypefaceName[0]);
+
+	//Set the data region font for the grid control
+	SendMessage(hwndGridList, WC_GridList::GRID_SETDATAAREAFONT, (WPARAM)hfontData, (LPARAM)TRUE);
 
 	//Create a timer to trigger updates to the disassembly window
 	SetTimer(hwnd, 1, 200, NULL);
@@ -106,9 +120,11 @@ LRESULT Processor::DisassemblyView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARA
 //----------------------------------------------------------------------------------------
 LRESULT Processor::DisassemblyView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Delete the default font object
-	SendMessage(hwnd, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
-	DeleteObject(hfont);
+	//Delete our custom font objects
+	SendMessage(hwndGridList, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
+	SendMessage(hwndGridList, WC_GridList::GRID_SETDATAAREAFONT, (WPARAM)NULL, (LPARAM)FALSE);
+	DeleteObject(hfontHeader);
+	DeleteObject(hfontData);
 
 	KillTimer(hwnd, 1);
 	DestroyWindow(hwnd);

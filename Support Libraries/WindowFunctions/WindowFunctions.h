@@ -25,6 +25,34 @@
 #endif
 #endif
 
+//Module helper functions
+enum VersionInfoProperty
+{
+	VERSIONINFOPROPERTY_COMMENTS,
+	VERSIONINFOPROPERTY_COMPANYNAME,
+	VERSIONINFOPROPERTY_FILEDESCRIPTION,
+	VERSIONINFOPROPERTY_FILEVERSION,
+	VERSIONINFOPROPERTY_INTERNALNAME,
+	VERSIONINFOPROPERTY_LEGALCOPYRIGHT,
+	VERSIONINFOPROPERTY_LEGALTRADEMARKS,
+	VERSIONINFOPROPERTY_ORIGINALFILENAME,
+	VERSIONINFOPROPERTY_PRODUCTNAME,
+	VERSIONINFOPROPERTY_PRODUCTVERSION,
+	VERSIONINFOPROPERTY_PRIVATEBUILD,
+	VERSIONINFOPROPERTY_SPECIALBUILD
+};
+bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoProperty targetProperty, std::wstring& content);
+std::wstring GetModuleFilePath(HMODULE moduleHandle);
+
+//DPI functions
+bool DPIIsScalingActive();
+void DPIGetScreenSettings(int& dpiX, int& dpiY);
+void DPIGetScreenScaleFactors(float& dpiScaleX, float& dpiScaleY);
+template<class T> T DPIScaleWidth(T pixelWidth);
+template<class T> T DPIScaleHeight(T pixelHeight);
+template<class T> T DPIReverseScaleWidth(T pixelWidth);
+template<class T> T DPIReverseScaleHeight(T pixelHeight);
+
 //BindStdHandlesToConsole function
 void BindStdHandlesToConsole();
 
@@ -134,4 +162,5 @@ struct WinColor
 	unsigned char b;
 };
 
+#include "WindowFunctions.inl"
 #endif

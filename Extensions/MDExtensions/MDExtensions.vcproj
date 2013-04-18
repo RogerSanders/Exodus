@@ -1194,6 +1194,14 @@
 			RelativePath=".\interface.h"
 			>
 		</File>
+		<File
+			RelativePath=".\MDExtensions.rc"
+			>
+		</File>
+		<File
+			RelativePath=".\resource.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

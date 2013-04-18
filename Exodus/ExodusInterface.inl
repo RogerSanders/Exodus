@@ -143,3 +143,17 @@ struct ExodusInterface::SelectCompressedFileDialogParamsFileEntry
 	std::wstring fileName;
 	unsigned int entryID;
 };
+
+//----------------------------------------------------------------------------------------
+struct ExodusInterface::RegisteredDeviceInfo
+{
+	std::wstring assemblyPath;
+	DeviceInfo info;
+};
+
+//----------------------------------------------------------------------------------------
+struct ExodusInterface::RegisteredExtensionInfo
+{
+	std::wstring assemblyPath;
+	ExtensionInfo info;
+};

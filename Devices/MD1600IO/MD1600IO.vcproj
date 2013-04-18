@@ -1345,6 +1345,14 @@
 			RelativePath=".\interface.h"
 			>
 		</File>
+		<File
+			RelativePath=".\MD1600IO.rc"
+			>
+		</File>
+		<File
+			RelativePath=".\resource.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
