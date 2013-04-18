@@ -1,4 +1,5 @@
 #include "WindowFunctions.h"
+#include "DataConversion/DataConversion.pkg"
 #include <sstream>
 #include <iomanip>
 #include <iostream>
@@ -7,6 +8,185 @@
 #include <io.h>
 #include <vector>
 #include <dwmapi.h>
+
+//----------------------------------------------------------------------------------------
+//Module helper functions
+//----------------------------------------------------------------------------------------
+bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoProperty targetProperty, std::wstring& content)
+{
+	//Retrieve the size of the version info table in the target module
+	DWORD nullValue;
+	DWORD getFileVersionInfoSizeReturn = GetFileVersionInfoSize(modulePath.c_str(), &nullValue);
+	if(getFileVersionInfoSizeReturn == 0)
+	{
+		return false;
+	}
+	DWORD fileVersionInfoTableSize = getFileVersionInfoSizeReturn;
+
+	//Read the contents of the file version table in the target module
+	std::vector<unsigned char> fileVersionInfoBuffer(fileVersionInfoTableSize);
+	DWORD getFileVersionInfoReturn = GetFileVersionInfo(modulePath.c_str(), 0, fileVersionInfoTableSize, (LPVOID)&fileVersionInfoBuffer[0]);
+	if(getFileVersionInfoReturn == 0)
+	{
+		return false;
+	}
+
+	//Obtain text string identifiers for the first language and code page combination
+	//listed in the version info table
+	LPVOID translationArrayDataLocation = 0;
+	UINT translationArrayCharacterCount = 0;
+	BOOL verQueryValueReturnForLanguage = VerQueryValue(&fileVersionInfoBuffer[0], L"\\VarFileInfo\\Translation", &translationArrayDataLocation, &translationArrayCharacterCount);
+	if((verQueryValueReturnForLanguage == 0) || (translationArrayDataLocation == 0))
+	{
+		return false;
+	}
+	short languageCode = *((short*)translationArrayDataLocation);
+	short codePageCode = *(((short*)translationArrayDataLocation) + 1);
+	std::wstring languageCodeString;
+	IntToStringBase16(languageCode, languageCodeString, 4, false);
+	std::wstring codePageString;
+	IntToStringBase16(codePageCode, codePageString, 4, false);
+
+	//Build a string path to the target property within the file version table
+	std::wstring propertyKey;
+	switch(targetProperty)
+	{
+	case VERSIONINFOPROPERTY_COMMENTS:
+		propertyKey = L"Comments";
+		break;
+	case VERSIONINFOPROPERTY_COMPANYNAME:
+		propertyKey = L"CompanyName";
+		break;
+	case VERSIONINFOPROPERTY_FILEDESCRIPTION:
+		propertyKey = L"FileDescription";
+		break;
+	case VERSIONINFOPROPERTY_FILEVERSION:
+		propertyKey = L"FileVersion";
+		break;
+	case VERSIONINFOPROPERTY_INTERNALNAME:
+		propertyKey = L"InternalName";
+		break;
+	case VERSIONINFOPROPERTY_LEGALCOPYRIGHT:
+		propertyKey = L"LegalCopyright";
+		break;
+	case VERSIONINFOPROPERTY_LEGALTRADEMARKS:
+		propertyKey = L"LegalTrademarks";
+		break;
+	case VERSIONINFOPROPERTY_ORIGINALFILENAME:
+		propertyKey = L"OriginalFilename";
+		break;
+	case VERSIONINFOPROPERTY_PRODUCTNAME:
+		propertyKey = L"ProductName";
+		break;
+	case VERSIONINFOPROPERTY_PRODUCTVERSION:
+		propertyKey = L"ProductVersion";
+		break;
+	case VERSIONINFOPROPERTY_PRIVATEBUILD:
+		propertyKey = L"PrivateBuild";
+		break;
+	case VERSIONINFOPROPERTY_SPECIALBUILD:
+		propertyKey = L"SpecialBuild";
+		break;
+	default:
+		return false;
+	}
+	std::wstring targetPropertyPath = L"\\StringFileInfo\\" + languageCodeString + codePageString + L"\\" + propertyKey;
+
+	//Attempt to retrieve the target property from the version info table
+	LPVOID targetDataLocation = 0;
+	UINT targetCharacterCount = 0;
+	BOOL verQueryValueReturn = VerQueryValue(&fileVersionInfoBuffer[0], targetPropertyPath.c_str(), &targetDataLocation, &targetCharacterCount);
+	if((verQueryValueReturn == 0) || (targetDataLocation == 0))
+	{
+		return false;
+	}
+	content = (wchar_t*)targetDataLocation;
+
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring GetModuleFilePath(HMODULE moduleHandle)
+{
+	std::wstring modulePath;
+
+	//Loop around until we manage to extract the entire path to the target module
+	DWORD bufferSize = MAX_PATH;
+	bool aborted = false;
+	bool fileNameRead = false;
+	while(!aborted && !fileNameRead)
+	{
+		//Create a buffer to store the temporary module path output
+		std::wstring stringBuffer;
+		stringBuffer.resize(bufferSize);
+
+		//Attempt to obtain the full path to the target module
+		DWORD getModuleFileNameReturn = GetModuleFileName(moduleHandle, &stringBuffer[0], bufferSize);
+		if(getModuleFileNameReturn == 0)
+		{
+			aborted = true;
+			continue;
+		}
+
+		//If it appears that the path to the target module was truncated, increase the
+		//buffer size, and attempt to read the path again.
+		if(getModuleFileNameReturn == bufferSize)
+		{
+			bufferSize *= 2;
+			continue;
+		}
+
+		//Save the path to the target module, and flag that we've successfully read the
+		//module file path.
+		modulePath = stringBuffer.c_str();
+		fileNameRead = true;
+	}
+
+	return modulePath;
+}
+
+//----------------------------------------------------------------------------------------
+//DPI functions
+//----------------------------------------------------------------------------------------
+bool DPIIsScalingActive()
+{
+	//Obtain the current screen DPI settings
+	int dpiX;
+	int dpiY;
+	DPIGetScreenSettings(dpiX, dpiY);
+
+	//Return true if the selected DPI mode is different from 96 DPI
+	bool dpiScalingActive = (dpiX != 96) || (dpiY != 96);
+	return dpiScalingActive;
+}
+
+//----------------------------------------------------------------------------------------
+void DPIGetScreenSettings(int& dpiX, int& dpiY)
+{
+	//Obtain the current screen DPI settings
+	dpiX = 96;
+	dpiY = 96;
+	HDC hdc = GetDC(NULL);
+	if(hdc)
+	{
+		dpiX = GetDeviceCaps(hdc, LOGPIXELSX);
+		dpiY = GetDeviceCaps(hdc, LOGPIXELSY);
+		ReleaseDC(NULL, hdc);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void DPIGetScreenScaleFactors(float& dpiScaleX, float& dpiScaleY)
+{
+	//Obtain the current screen DPI settings
+	int dpiX;
+	int dpiY;
+	DPIGetScreenSettings(dpiX, dpiY);
+
+	//Calculate a scale value for pixel values based on the current screen DPI settings
+	dpiScaleX = (float)dpiX / 96.0f;
+	dpiScaleY = (float)dpiY / 96.0f;
+}
 
 //----------------------------------------------------------------------------------------
 //BindStdHandlesToConsole function
@@ -657,27 +837,27 @@ HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int 
 		return NULL;
 	}
 
-	//This little hackaround here allows tooltips to work properly when used around
-	//OpenGL and Direct3D windows. Tooltip windows all have the WS_EX_LAYERED window
-	//style manually set by the tooltip window procedure after creation. This is done to
-	//enable support for fading tooltips, but unfortunately, the window style is always
-	//added, regardless of whether fading is enabled for the tooltip control or not.
-	//Layered windows do not work correctly when they overlap a surface rendered using
-	//methods which bypass the normal Windows GDI interface, in particular, they are
-	//fundamentally incompatible with surfaces which render an image by writing directly
-	//to the framebuffer, as is the case with hardware accelerated interfaces. What
-	//happens when a tooltip window overlaps such as surface is that the tooltip control
-	//appears in the overlapped region for a very brief period, but the next time the
-	//surface below redraws, the region of the tooltip which overlaps the surface is
-	//cleared, and the contents of the surface are displayed in that region instead. To
-	//work around this problem, we have set the TTS_NOFADE window style for the tooltip
-	//control, which removes the need for the WS_EX_LAYERED extended window style. We
-	//then read the real extended window style of the tooltip control after it has been
-	//created, and explicitly clear the WS_EX_LAYERED style. The new extended window
-	//style is then re-applied, and all cached data regarding the old extended window
-	//style is cleared after the SetWindowPos call below. This solution has been tested
-	//on Windows XP SP3 and Windows Vista SP1, and solves the problems with tooltips and
-	//OpenGL surfaces, with no apparent side-effects.
+	//This little hackaround here allows tooltips to work properly when used around OpenGL
+	//and Direct3D windows. Tooltip windows all have the WS_EX_LAYERED window style
+	//manually set by the tooltip window procedure after creation. This is done to enable
+	//support for fading tooltips, but unfortunately, the window style is always added,
+	//regardless of whether fading is enabled for the tooltip control or not. Layered
+	//windows do not work correctly when they overlap a surface rendered using methods
+	//which bypass the normal Windows GDI interface, in particular, they are fundamentally
+	//incompatible with surfaces which render an image by writing directly to the
+	//framebuffer, as is the case with hardware accelerated interfaces. What happens when
+	//a tooltip window overlaps such as surface is that the tooltip control appears in the
+	//overlapped region for a very brief period, but the next time the surface below
+	//redraws, the region of the tooltip which overlaps the surface is cleared, and the
+	//contents of the surface are displayed in that region instead. To work around this
+	//problem, we have set the TTS_NOFADE window style for the tooltip control, which
+	//removes the need for the WS_EX_LAYERED extended window style. We then read the real
+	//extended window style of the tooltip control after it has been created, and
+	//explicitly clear the WS_EX_LAYERED style. The new extended window style is then
+	//re-applied, and all cached data regarding the old extended window style is cleared
+	//after the SetWindowPos call below. This solution has been tested on Windows XP SP3
+	//and Windows Vista SP1, and solves the problems with tooltips and OpenGL surfaces,
+	//with no apparent side-effects.
 	LONG_PTR extendedWindowStyle = GetWindowLongPtr(hwndTooltip, GWL_EXSTYLE);
 	if(extendedWindowStyle != 0)
 	{

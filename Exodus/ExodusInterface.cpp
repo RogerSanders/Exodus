@@ -1,5 +1,6 @@
 #include "ExodusInterface.h"
 #include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowFunctions/WC_GridList.h"
 #include "resource.h"
 #include "ZIP/ZIP.pkg"
 #include "Stream/Stream.pkg"
@@ -1539,17 +1540,24 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 			//##DEBUG##
 			std::wcout << L"Registering device \"" << entry.GetDeviceImplementationName() << L"\"...";
 
-			if(system.RegisterDevice(entry, (IDevice::AssemblyHandle)dllHandle))
+			if(!system.RegisterDevice(entry, (IDevice::AssemblyHandle)dllHandle))
 			{
 				//##DEBUG##
-				std::wcout << L"Done.\n";
-			}
-			else
-			{
-				//##DEBUG##
-				result = false;
 				std::wcout << L"Failed! Check event log.\n";
+
+				result = false;
+				++entryNo;
+				continue;
 			}
+
+			//##DEBUG##
+			std::wcout << L"Done.\n";
+
+			RegisteredDeviceInfo registeredDeviceInfo;
+			registeredDeviceInfo.assemblyPath = filePath;
+			registeredDeviceInfo.info = entry;
+			registeredDevices.push_back(registeredDeviceInfo);
+
 			++entryNo;
 		}
 	}
@@ -1564,17 +1572,24 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 			//##DEBUG##
 			std::wcout << L"Registering extension \"" << entry.GetExtensionImplementationName() << L"\"...";
 
-			if(system.RegisterExtension(entry, (IExtension::AssemblyHandle)dllHandle))
+			if(!system.RegisterExtension(entry, (IExtension::AssemblyHandle)dllHandle))
 			{
 				//##DEBUG##
-				std::wcout << L"Done.\n";
-			}
-			else
-			{
-				//##DEBUG##
-				result = false;
 				std::wcout << L"Failed! Check event log.\n";
+
+				result = false;
+				++entryNo;
+				continue;
 			}
+
+			//##DEBUG##
+			std::wcout << L"Done.\n";
+
+			RegisteredExtensionInfo registeredExtensionInfo;
+			registeredExtensionInfo.assemblyPath = filePath;
+			registeredExtensionInfo.info = entry;
+			registeredExtensions.push_back(registeredExtensionInfo);
+
 			++entryNo;
 		}
 	}
@@ -3481,8 +3496,18 @@ INT_PTR CALLBACK ExodusInterface::ModuleManagerProc(HWND hwnd, UINT Message, WPA
 //----------------------------------------------------------------------------------------
 INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
+	//Obtain the object pointer
+	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+	const unsigned int deviceListControlID = 50000;
+	const unsigned int extensionListControlID = 50001;
 	switch(Message)
 	{
+	case WM_DESTROY:
+		//Delete the default font object
+		SendMessage(hwnd, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
+		DeleteObject(state->aboutDialogHFont);
+		break;
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		break;
@@ -3492,6 +3517,193 @@ INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wPar
 			DestroyWindow(hwnd);
 		}
 		break;
+	case WM_INITDIALOG:{
+		//Set the object pointer
+		state = (ExodusInterface*)lParam;
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
+
+		//Retrieve the required information from the version info table for our program
+		std::wstring mainExecutablePath = GetModuleFilePath(GetModuleHandle(NULL));
+		std::wstring versionText;
+		std::wstring copyrightText;
+		GetModuleVersionInfoString(mainExecutablePath, VERSIONINFOPROPERTY_PRODUCTVERSION, versionText);
+		GetModuleVersionInfoString(mainExecutablePath, VERSIONINFOPROPERTY_LEGALCOPYRIGHT, copyrightText);
+
+		//Load the program version info into the about dialog
+		SetDlgItemText(hwnd, IDC_ABOUT_VERSION, versionText.c_str());
+		SetDlgItemText(hwnd, IDC_ABOUT_COPYRIGHT, copyrightText.c_str());
+
+		//Create the default font for this window
+		int fontPointSize = 8;
+		HDC hdc = GetDC(hwnd);
+		int fontnHeight = -MulDiv(fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+		ReleaseDC(hwnd, hdc);
+		std::wstring fontTypefaceName = L"MS Shell Dlg";
+		state->aboutDialogHFont = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &fontTypefaceName[0]);
+
+		//Calculate the marked target position for the device list inside the dialog
+		RECT deviceListMarkerRect;
+		GetWindowRect(GetDlgItem(hwnd, IDC_ABOUT_DEVICELIST_PLACEHOLDER), &deviceListMarkerRect);
+		POINT deviceListMarkerPos;
+		deviceListMarkerPos.x = deviceListMarkerRect.left;
+		deviceListMarkerPos.y = deviceListMarkerRect.top;
+		ScreenToClient(hwnd, &deviceListMarkerPos);
+		int deviceListPosX = deviceListMarkerPos.x;
+		int deviceListPosY = deviceListMarkerPos.y;
+		int deviceListWidth = (int)(deviceListMarkerRect.right - deviceListMarkerRect.left);
+		int deviceListHeight = (int)(deviceListMarkerRect.bottom - deviceListMarkerRect.top);
+
+		//Calculate the marked target position for the extension list inside the dialog
+		RECT extensionListMarkerRect;
+		GetWindowRect(GetDlgItem(hwnd, IDC_ABOUT_EXTENSIONLIST_PLACEHOLDER), &extensionListMarkerRect);
+		POINT extensionListMarkerPos;
+		extensionListMarkerPos.x = extensionListMarkerRect.left;
+		extensionListMarkerPos.y = extensionListMarkerRect.top;
+		ScreenToClient(hwnd, &extensionListMarkerPos);
+		int extensionListPosX = extensionListMarkerPos.x;
+		int extensionListPosY = extensionListMarkerPos.y;
+		int extensionListWidth = (int)(extensionListMarkerRect.right - extensionListMarkerRect.left);
+		int extensionListHeight = (int)(extensionListMarkerRect.bottom - extensionListMarkerRect.top);
+
+		//Register the GridList window class
+		WNDCLASSEX wc;
+		wc.cbSize        = sizeof(WNDCLASSEX);
+		wc.style         = 0;
+		wc.lpfnWndProc   = WC_GridList::WndProc;
+		wc.cbClsExtra    = 0;
+		wc.cbWndExtra    = 0;
+		wc.hInstance     = (HINSTANCE)GetModuleHandle(NULL);
+		wc.hIcon         = NULL;
+		wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+		wc.lpszMenuName  = NULL;
+		wc.lpszClassName = L"EX_GridList";
+		wc.hIconSm       = NULL;
+		RegisterClassEx(&wc);
+
+		//Create the GridList child controls
+		HWND hwndDeviceList = CreateWindowEx(WS_EX_CLIENTEDGE, L"EX_GridList", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, deviceListPosX, deviceListPosY, deviceListWidth, deviceListHeight, hwnd, (HMENU)deviceListControlID, (HINSTANCE)GetModuleHandle(NULL), NULL);
+		HWND hwndExtensionList = CreateWindowEx(WS_EX_CLIENTEDGE, L"EX_GridList", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, extensionListPosX, extensionListPosY, extensionListWidth, extensionListHeight, hwnd, (HMENU)extensionListControlID, (HINSTANCE)GetModuleHandle(NULL), NULL);
+
+		//Set the default font for the child controls
+		SendMessage(hwndDeviceList, WM_SETFONT, (WPARAM)state->aboutDialogHFont, (LPARAM)TRUE);
+		SendMessage(hwndExtensionList, WM_SETFONT, (WPARAM)state->aboutDialogHFont, (LPARAM)TRUE);
+		SendMessage(hwndDeviceList, WC_GridList::GRID_SETDATAAREAFONT, (WPARAM)state->aboutDialogHFont, (LPARAM)TRUE);
+		SendMessage(hwndExtensionList, WC_GridList::GRID_SETDATAAREAFONT, (WPARAM)state->aboutDialogHFont, (LPARAM)TRUE);
+
+		//Read all the device data to be shown in the grid control
+		unsigned int registeredDeviceCount = (unsigned int)state->registeredDevices.size();
+		std::vector<std::wstring> deviceColumnDataName(registeredDeviceCount);
+		std::vector<std::wstring> deviceColumnDataAssembly(registeredDeviceCount);
+		std::vector<std::wstring> deviceColumnDataCopyright(registeredDeviceCount);
+		std::vector<std::wstring> deviceColumnDataClassName(registeredDeviceCount);
+		std::vector<std::wstring> deviceColumnDataVersion(registeredDeviceCount);
+		std::vector<std::wstring> deviceColumnDataComments(registeredDeviceCount);
+		unsigned int deviceColumnIndexNo = 0;
+		for(std::list<RegisteredDeviceInfo>::const_iterator i = state->registeredDevices.begin(); i != state->registeredDevices.end(); ++i)
+		{
+			deviceColumnDataName[deviceColumnIndexNo] = i->info.GetDeviceImplementationName();
+			deviceColumnDataAssembly[deviceColumnIndexNo] = PathGetFileName(i->assemblyPath);
+			deviceColumnDataCopyright[deviceColumnIndexNo] = i->info.GetDeviceCopyright();
+			deviceColumnDataClassName[deviceColumnIndexNo] = i->info.GetDeviceClassName();
+			std::wstring versionString;
+			IntToString(i->info.GetDeviceVersionNo(), versionString);
+			deviceColumnDataVersion[deviceColumnIndexNo] = versionString;
+			deviceColumnDataComments[deviceColumnIndexNo] = i->info.GetDeviceComments();
+			++deviceColumnIndexNo;
+		}
+
+		//Insert our columns into the device GridList control
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Name", 1, DPIScaleWidth(80)));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Assembly", 2, DPIScaleWidth(80)));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Copyright", 3, DPIScaleWidth(160)));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Class Name", 4, DPIScaleWidth(120)));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Version", 5, DPIScaleWidth(40)));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Comments", 6, DPIScaleWidth(300)));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 1, (LPARAM)&deviceColumnDataName);
+		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 2, (LPARAM)&deviceColumnDataAssembly);
+		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 3, (LPARAM)&deviceColumnDataCopyright);
+		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 4, (LPARAM)&deviceColumnDataClassName);
+		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 5, (LPARAM)&deviceColumnDataVersion);
+		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 6, (LPARAM)&deviceColumnDataComments);
+
+		//Read all the extension data to be shown in the grid control
+		unsigned int registeredExtensionCount = (unsigned int)state->registeredExtensions.size();
+		std::vector<std::wstring> extensionColumnDataName(registeredExtensionCount);
+		std::vector<std::wstring> extensionColumnDataAssembly(registeredExtensionCount);
+		std::vector<std::wstring> extensionColumnDataCopyright(registeredExtensionCount);
+		std::vector<std::wstring> extensionColumnDataClassName(registeredExtensionCount);
+		std::vector<std::wstring> extensionColumnDataVersion(registeredExtensionCount);
+		std::vector<std::wstring> extensionColumnDataComments(registeredExtensionCount);
+		unsigned int extensionColumnIndexNo = 0;
+		for(std::list<RegisteredExtensionInfo>::const_iterator i = state->registeredExtensions.begin(); i != state->registeredExtensions.end(); ++i)
+		{
+			extensionColumnDataName[extensionColumnIndexNo] = i->info.GetExtensionImplementationName();
+			extensionColumnDataAssembly[extensionColumnIndexNo] = PathGetFileName(i->assemblyPath);
+			extensionColumnDataCopyright[extensionColumnIndexNo] = i->info.GetExtensionCopyright();
+			extensionColumnDataClassName[extensionColumnIndexNo] = i->info.GetExtensionClassName();
+			std::wstring versionString;
+			IntToString(i->info.GetExtensionVersionNo(), versionString);
+			extensionColumnDataVersion[extensionColumnIndexNo] = versionString;
+			extensionColumnDataComments[extensionColumnIndexNo] = i->info.GetExtensionComments();
+			++extensionColumnIndexNo;
+		}
+
+		//Insert our columns into the device GridList control
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Name", 1, DPIScaleWidth(80)));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Assembly", 2, DPIScaleWidth(80)));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Copyright", 3, DPIScaleWidth(160)));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Class Name", 4, DPIScaleWidth(120)));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Version", 5, DPIScaleWidth(40)));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Comments", 6, DPIScaleWidth(300)));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 1, (LPARAM)&extensionColumnDataName);
+		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 2, (LPARAM)&extensionColumnDataAssembly);
+		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 3, (LPARAM)&extensionColumnDataCopyright);
+		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 4, (LPARAM)&extensionColumnDataClassName);
+		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 5, (LPARAM)&extensionColumnDataVersion);
+		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 6, (LPARAM)&extensionColumnDataComments);
+
+		//Build the list of third party libraries
+		std::list<std::wstring> thirdPartyLibraryList;
+		thirdPartyLibraryList.push_back(L"boost");
+		thirdPartyLibraryList.push_back(L"expat");
+		thirdPartyLibraryList.push_back(L"zlib");
+		thirdPartyLibraryList.push_back(L"libpng");
+		thirdPartyLibraryList.push_back(L"libjpeg");
+		thirdPartyLibraryList.push_back(L"libtiff");
+		thirdPartyLibraryList.push_back(L"glew");
+		for(std::list<std::wstring>::const_iterator i = thirdPartyLibraryList.begin(); i != thirdPartyLibraryList.end(); ++i)
+		{
+			SendMessage(GetDlgItem(hwnd, IDC_ABOUT_THIRDLIBRARIES_LIST), LB_ADDSTRING, 0, (LPARAM)i->c_str());
+		}
+
+		//Set the program icon image
+		//##TODO## Select the nearest icon size based on the current DPI
+		HWND logoControl = GetDlgItem(hwnd, IDC_ABOUT_LOGO);
+		int iconWidth = 48;
+		int iconHeight = 48;
+		HANDLE programIconHandle = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PROGRAM), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
+		if(programIconHandle != NULL)
+		{
+			SendMessage(logoControl, STM_SETIMAGE, IMAGE_ICON, (LPARAM)programIconHandle);
+		}
+		break;}
+	case WM_NOTIFY:{
+		LPNMHDR message = (LPNMHDR)lParam;
+		switch(message->code)
+		{
+		case NM_CLICK:
+		case NM_RETURN:{
+			//If the user has clicked a hyperlink, open the target in the default browser.
+			HWND linkControl = GetDlgItem(hwnd, IDC_ABOUT_URL);
+			if(message->hwndFrom == linkControl)
+			{
+				PNMLINK linkInfo = (PNMLINK)message;
+				ShellExecute(hwnd, L"open", linkInfo->item.szUrl, NULL, NULL, SW_SHOW);
+			}
+			break;}
+		}
+		break;}
 	default:
 		return FALSE;
 		break;

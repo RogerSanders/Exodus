@@ -63,8 +63,8 @@ INT_PTR S315_5313::VRAMView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM l
 	RECT markerRect;
 	GetWindowRect(GetDlgItem(hwnd, IDC_VDP_VRAM_MARKER), &markerRect);
 	POINT markerPos;
-	unsigned int width = 256;	//markerRect.right - markerRect.left;
-	unsigned int height = 512;	//markerRect.bottom - markerRect.top;
+	unsigned int width = DPIScaleWidth(256);	//markerRect.right - markerRect.left;
+	unsigned int height = DPIScaleHeight(512);	//markerRect.bottom - markerRect.top;
 	markerPos.x = markerRect.left;
 	markerPos.y = markerRect.top;
 	ScreenToClient(hwnd, &markerPos);
@@ -215,21 +215,23 @@ LRESULT S315_5313::VRAMView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM
 	hwndDetails16 = CreateDialogParam((HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_VRAM_DETAILS16), hwnd, WndProcDetailsStatic, (LPARAM)this);
 
 	//OpenGL Initialization code
-	int width = 256;
-	int height = 512;
+	int screenWidth = DPIScaleWidth(256);
+	int screenHeight = DPIScaleHeight(512);
 	glrc = CreateOpenGLWindow(hwnd);
 	if(glrc != NULL)
 	{
-		glViewport(0, 0, width, height);
+		glViewport(0, 0, screenWidth, screenHeight);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0.0, (float)width, (float)height, 0.0, -1.0, 1.0);
+		glOrtho(0.0, (float)screenWidth, (float)screenHeight, 0.0, -1.0, 1.0);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 	}
 
 	//Allocate a memory buffer for the rendered VRAM data
-	buffer = new unsigned char[width * height * 0x20 * 4];
+	int bufferWidth = 256;
+	int bufferHeight = 512;
+	buffer = new unsigned char[bufferWidth * bufferHeight * 0x20 * 4];
 
 	SetTimer(hwnd, 1, 200, NULL);
 
@@ -395,6 +397,14 @@ LRESULT S315_5313::VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 		{
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
+
+			//If a nonstandard DPI mode is active, scale the pixel image based on the
+			//current DPI settings.
+			float dpiScaleX;
+			float dpiScaleY;
+			DPIGetScreenScaleFactors(dpiScaleX, dpiScaleY);
+			glPixelZoom(dpiScaleX, dpiScaleY);
+
 			glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 			glFlush();
 			SwapBuffers(hdc);

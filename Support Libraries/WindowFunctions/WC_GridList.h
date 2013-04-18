@@ -2,16 +2,8 @@
 Things to do:
 -Build a system for custom text highlighting mid-line. Some kind of text markup language
 applied to the source string will probably be required.
--Implement some form of line selection. We need to be able to select a line with the
-mouse and have the line highlighted to indicate the selection.
--Once selection is implemented, add support for keyboard line navigation using arrow keys
-and home/end keys.
--Consider adding support for multiple line selection, with a rightclick context menu to
-perform various functions, specifically adding support for setting a breakpoint on one or
-more addresses. Lines with a breakpoint set would highlight in red.
 -Consider implementing a context menu for the header control, to enable and disable
 columns via tickboxes on the context menu.
--Implement support for the WM_SETFONT message
 \*--------------------------------------------------------------------------------------*/
 #ifndef __WC_GRIDLIST_H__
 #define __WC_GRIDLIST_H__
@@ -71,6 +63,8 @@ private:
 
 	//Window size functions
 	unsigned int GetTotalRowWidth() const;
+	void UpdateWindowSize();
+	void RecalculateScrollPosition();
 	void UpdateScrollbarSettings();
 
 	//Message handlers
@@ -87,6 +81,8 @@ private:
 	LRESULT msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam);
 
+	LRESULT msgGRID_SETMANUALSCROLLING(WPARAM wParam, LPARAM lParam);
+	LRESULT msgGRID_SETDATAAREAFONT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_DELETECOLUMN(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_GETCOLUMNINFO(WPARAM wParam, LPARAM lParam);
@@ -108,6 +104,7 @@ private:
 	unsigned int visibleRows;
 
 	//Scroll settings
+	bool autoScrollingManagement;
 	int vscrollMin;
 	int vscrollMax;
 	int vscrollCurrent;
@@ -125,10 +122,6 @@ private:
 	CustomColorData defaultColorData;
 	CustomColorData userColorData;
 	std::vector<CustomColorData> rowColorDataArray;
-
-	//Font settings
-	unsigned int fontPointSize;
-	std::wstring fontTypefaceName;
 
 	//Font metrics
 	unsigned int fontWidth;

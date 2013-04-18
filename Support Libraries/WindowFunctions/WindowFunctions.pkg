@@ -39,6 +39,7 @@
 #pragma comment(lib, "dwmapi")
 #pragma comment(lib, "dwmapi")
 #pragma comment(lib, "shell32")
+#pragma comment(lib, "Version")
 #endif
 
 #endif

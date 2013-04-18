@@ -60,7 +60,8 @@ private:
 	unsigned int currentControlFocus;
 	HWND hwndGridList;
 	HWND hwndControlPanel;
-	HFONT hfont;
+	HFONT hfontHeader;
+	HFONT hfontData;
 	unsigned int visibleRows;
 	bool track;
 	bool forcePCSync;
