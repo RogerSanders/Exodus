@@ -30,11 +30,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//##TODO## Consider putting a build number into the filename
 	//##TODO## Consider making a text crash report file too, which reports on memory
 	//usage, build version, platform info, and other such details.
+	//##TODO## Consider adding a custom crash screen, which will inform the user of the
+	//error in a nicer way and give them some instructions to send a crash report to us.
 	RegisterMinidumpExceptionHandler(L"Exodus", L"Crash Reports", false);
-
-	//Create a debug command console
-	AllocConsole();
-	BindStdHandlesToConsole();
 
 	//Construct the system object
 	System systemObject((void*)GetModuleHandle(NULL));
@@ -65,20 +63,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return 1;
 	}
 
-	//Initialize the system, and load all modules and settings.
-	//##TODO## Separate this out. This should be a message or the like which is posted to
-	//the message queue for the main window, and is then picked up by the UI thread and
-	//executed. It should display progress for module loading.
-	if(!exodusInterface.InitializeSystem())
-	{
-		return 2;
-	}
-
 	//Load the keyboard accelerator table
 	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATORS));
 	if(acceleratorTable == NULL)
 	{
-		return 3;
+		return 2;
 	}
 
 	//Begin the message loop

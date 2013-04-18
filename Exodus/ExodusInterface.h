@@ -100,12 +100,14 @@ public:
 	bool LoadPrefs(const std::wstring& filePath);
 	void SavePrefs(const std::wstring& filePath);
 	void ResolvePrefs();
+	void ApplyPrefs();
 	virtual bool GetGlobalPreferenceEnableThrottling() const;
 	virtual bool GetGlobalPreferenceRunWhenProgramModuleLoaded() const;
 	virtual bool GetEnablePersistentState() const;
 
 	//Assembly functions
 	bool LoadAssembliesFromFolder(const std::wstring& folder);
+	bool LoadAssembliesFromFolderSynchronous(const std::wstring& folder);
 	bool LoadAssembly(const std::wstring& filePath);
 
 	//File selection functions
@@ -176,6 +178,7 @@ private:
 		bool enableThrottling;
 		bool runWhenProgramModuleLoaded;
 		bool enablePersistentState;
+		bool showDebugConsole;
 	};
 	struct NewMenuItem;
 	struct ViewInfo;
@@ -252,6 +255,7 @@ private:
 	//Window callbacks
 	static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 	static INT_PTR CALLBACK MapConnectorProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK LoadPluginProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK LoadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK UnloadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK ModuleManagerProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -286,6 +290,7 @@ private:
 	bool systemLoaded;
 	bool systemDestructionInProgress;
 	bool viewEventProcessingPaused;
+	bool debugConsoleOpen;
 
 	std::list<RegisteredDeviceInfo> registeredDevices;
 	std::list<RegisteredExtensionInfo> registeredExtensions;
@@ -316,6 +321,14 @@ private:
 
 	//About dialog state
 	HFONT aboutDialogHFont;
+
+	//Plugin load progress
+	mutable boost::mutex loadPluginsMutex;
+	volatile float loadPluginsProgress;
+	volatile bool loadPluginsComplete;
+	volatile bool loadPluginsResult;
+	volatile bool loadPluginsAborted;
+	std::wstring loadPluginsCurrentPluginName;
 
 	mutable boost::mutex viewMutex;
 	bool viewOperationPending;

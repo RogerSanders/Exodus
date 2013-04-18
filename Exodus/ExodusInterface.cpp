@@ -46,6 +46,9 @@ ExodusInterface::ExodusInterface(ISystemExternal& asystem)
 	systemLoaded = false;
 	systemDestructionInProgress = false;
 	viewEventProcessingPaused = false;
+
+	//Initialize other system options
+	debugConsoleOpen = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -296,6 +299,7 @@ bool ExodusInterface::InitializeSystem()
 	prefs.enableThrottling = true;
 	prefs.runWhenProgramModuleLoaded = true;
 	prefs.enablePersistentState = true;
+	prefs.showDebugConsole = false;
 
 	//Load preferences from the settings.xml file if present
 	LoadPrefs(L"settings.xml");
@@ -303,10 +307,7 @@ bool ExodusInterface::InitializeSystem()
 	//Now that the preferences have been initialized, resolve the preference settings, and
 	//propagate the settings to other areas.
 	ResolvePrefs();
-	system.SetCapturePath(prefs.pathCaptures);
-	system.SetRunWhenProgramModuleLoadedState(prefs.runWhenProgramModuleLoaded);
-	system.SetThrottlingState(prefs.enableThrottling);
-	UpdateSaveSlots();
+	ApplyPrefs();
 
 	//Load addon modules
 	LoadAssembliesFromFolder(prefs.pathAssemblies);
@@ -1268,6 +1269,10 @@ bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 		{
 			prefs.enablePersistentState = (*i)->ExtractData<bool>();
 		}
+		else if((*i)->GetName() == L"ShowDebugConsole")
+		{
+			prefs.showDebugConsole = (*i)->ExtractData<bool>();
+		}
 	}
 
 	return true;
@@ -1290,6 +1295,7 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 	rootNode.CreateChild(L"EnableThrottling").SetData(prefs.enableThrottling);
 	rootNode.CreateChild(L"RunWhenProgramModuleLoaded").SetData(prefs.runWhenProgramModuleLoaded);
 	rootNode.CreateChild(L"EnablePersistentState").SetData(prefs.enablePersistentState);
+	rootNode.CreateChild(L"ShowDebugConsole").SetData(prefs.showDebugConsole);
 
 	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
 	if(file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
@@ -1357,6 +1363,35 @@ void ExodusInterface::ResolvePrefs()
 	CreateDirectory(prefs.pathWorkspaces, true);
 	CreateDirectory(prefs.pathCaptures, true);
 	CreateDirectory(prefs.pathAssemblies, true);
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::ApplyPrefs()
+{
+	//Propagate preferences to the system object
+	system.SetCapturePath(prefs.pathCaptures);
+	system.SetRunWhenProgramModuleLoadedState(prefs.runWhenProgramModuleLoaded);
+	system.SetThrottlingState(prefs.enableThrottling);
+
+	//Apply the new debug console setting
+	if(debugConsoleOpen != prefs.showDebugConsole)
+	{
+		if(!debugConsoleOpen)
+		{
+			//Create a debug command console
+			AllocConsole();
+			BindStdHandlesToConsole();
+		}
+		else
+		{
+			//Close the current debug command console
+			FreeConsole();
+		}
+		debugConsoleOpen = prefs.showDebugConsole;
+	}
+
+	//Update our savestate cell slots
+	UpdateSaveSlots();
 }
 
 //----------------------------------------------------------------------------------------
@@ -1430,6 +1465,33 @@ bool ExodusInterface::GetEnablePersistentState() const
 //----------------------------------------------------------------------------------------
 bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 {
+	//Begin the plugin load process
+	loadPluginsComplete = false;
+	loadPluginsProgress = 0;
+	loadPluginsAborted = false;
+	boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::LoadAssembliesFromFolderSynchronous), this, boost::ref(folderPath)));
+
+	//Spawn a modal dialog to display the plugin load progress
+	bool result = true;
+	INT_PTR dialogBoxParamResult;
+	dialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_LOADPLUGIN), mainWindowHandle, LoadPluginProc, (LPARAM)this);
+	if(dialogBoxParamResult == 0)
+	{
+		//If there was an error loading the system, report it to the user. Note that a
+		//return code of -1 indicates the user aborted the load, in which case, we don't
+		//display this message.
+		std::wstring text = L"An error occurred while trying to load one or more plugins.\nCheck the log window for more information.";
+		std::wstring title = L"Error loading plugin!";
+		SafeMessageBox(mainWindowHandle, text, title, MB_ICONEXCLAMATION);
+		result = false;
+	}
+
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::LoadAssembliesFromFolderSynchronous(const std::wstring& folderPath)
+{
 	//Begin the folder search
 	std::wstring fileSearchString = PathCombinePaths(folderPath, L"*.dll");
 	WIN32_FIND_DATA findData;
@@ -1440,7 +1502,8 @@ bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 		return false;
 	}
 
-	//Examine each matching entry in the folder
+	//Build a list of all possible plugins in the target folder
+	std::list<std::wstring> pluginPaths;
 	bool foundFile = true;
 	while(foundFile)
 	{
@@ -1454,7 +1517,7 @@ bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 			//Ensure we're actually looking at a file
 			if((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 			{
-				LoadAssembly(entryPath);
+				pluginPaths.push_back(entryPath);
 			}
 		}
 
@@ -1464,6 +1527,26 @@ bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 
 	//End the folder search
 	FindClose(findFileHandle);
+
+	//Attempt to load all possible plugins found in the target path
+	unsigned int entriesProcessed = 0;
+	unsigned int entryCount = (unsigned int)pluginPaths.size();
+	for(std::list<std::wstring>::const_iterator i = pluginPaths.begin(); !loadPluginsAborted && (i != pluginPaths.end()); ++i)
+	{
+		//Update the progress and current plugin name
+		boost::mutex::scoped_lock lock(loadPluginsMutex);
+		loadPluginsCurrentPluginName = *i;
+		loadPluginsProgress = ((float)++entriesProcessed / (float)entryCount);
+		lock.unlock();
+
+		//Load this plugin
+		LoadAssembly(*i);
+	}
+
+	//Set the result of the plugin load operation, and flag the load operation as
+	//complete.
+	loadPluginsResult = true;
+	loadPluginsComplete = true;
 
 	return true;
 }
@@ -1484,7 +1567,7 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 	{
 		//##DEBUG##
 		std::wcout << "Error loading assembly " << filePath << "!\n"
-			<< "LoadLibrary failed with error code " << GetLastError() << '\n';
+		           << "LoadLibrary failed with error code " << GetLastError() << '\n';
 		return false;
 	}
 
@@ -3301,6 +3384,66 @@ INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPAR
 }
 
 //----------------------------------------------------------------------------------------
+INT_PTR CALLBACK ExodusInterface::LoadPluginProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+	//Obtain the object pointer
+	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+	switch(Message)
+	{
+	case WM_TIMER:{
+		if(state->loadPluginsComplete)
+		{
+			INT_PTR result = 0;
+			if(state->loadPluginsResult)
+			{
+				result = 1;
+			}
+			else if(state->loadPluginsAborted)
+			{
+				result = -1;
+			}
+			KillTimer(hwnd, 1);
+			EndDialog(hwnd, result);
+		}
+		else
+		{
+			boost::mutex::scoped_lock lock(state->loadPluginsMutex);
+			std::wstring currentPluginName = state->loadPluginsCurrentPluginName;
+			lock.unlock();
+			if(!currentPluginName.empty())
+			{
+				UpdateDlgItemString(hwnd, IDC_LOADPLUGIN_PLUGINTEXT, PathGetFileName(currentPluginName));
+			}
+			float progress = state->loadPluginsProgress;
+			int progressInt = (int)((progress * 100) + 0.5);
+			SendMessage(GetDlgItem(hwnd, IDC_LOADPLUGIN_PROGRESS), PBM_SETPOS, (WPARAM)progressInt, 0);
+		}
+		break;}
+	case WM_CLOSE:
+		state->loadPluginsAborted = true;
+		break;
+	case WM_COMMAND:
+		if(LOWORD(wParam) == IDC_LOADPLUGIN_CANCEL)
+		{
+			state->loadPluginsAborted = true;
+		}
+		break;
+	case WM_INITDIALOG:{
+		//Set the object pointer
+		state = (ExodusInterface*)lParam;
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
+
+		SetTimer(hwnd, 1, 100, NULL);
+		break;}
+	default:
+		return FALSE;
+		break;
+	}
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
 INT_PTR CALLBACK ExodusInterface::LoadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	//Obtain the object pointer
@@ -3599,8 +3742,8 @@ INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wPar
 		RegisterClassEx(&wc);
 
 		//Create the GridList child controls
-		HWND hwndDeviceList = CreateWindowEx(WS_EX_CLIENTEDGE, L"EX_GridList", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, deviceListPosX, deviceListPosY, deviceListWidth, deviceListHeight, hwnd, (HMENU)deviceListControlID, (HINSTANCE)GetModuleHandle(NULL), NULL);
-		HWND hwndExtensionList = CreateWindowEx(WS_EX_CLIENTEDGE, L"EX_GridList", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, extensionListPosX, extensionListPosY, extensionListWidth, extensionListHeight, hwnd, (HMENU)extensionListControlID, (HINSTANCE)GetModuleHandle(NULL), NULL);
+		HWND hwndDeviceList = CreateWindowEx(WS_EX_CLIENTEDGE, L"EX_GridList", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, deviceListPosX, deviceListPosY, deviceListWidth, deviceListHeight, hwnd, (HMENU)((UINT_PTR)deviceListControlID), (HINSTANCE)GetModuleHandle(NULL), NULL);
+		HWND hwndExtensionList = CreateWindowEx(WS_EX_CLIENTEDGE, L"EX_GridList", L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, extensionListPosX, extensionListPosY, extensionListWidth, extensionListHeight, hwnd, (HMENU)((UINT_PTR)extensionListControlID), (HINSTANCE)GetModuleHandle(NULL), NULL);
 
 		//Set the default font for the child controls
 		SendMessage(hwndDeviceList, WM_SETFONT, (WPARAM)state->aboutDialogHFont, (LPARAM)TRUE);
@@ -3761,6 +3904,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 			case IDC_SETTINGS_ENABLETHROTTLE:
 			case IDC_SETTINGS_RUNWHENPROGRAMLOADED:
 			case IDC_SETTINGS_ENABLEPERSISTENTSTATE:
+			case IDC_SETTINGS_SHOWDEBUGCONSOLE:
 				EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), TRUE);
 				break;
 			case IDC_SETTINGS_OK:
@@ -3782,11 +3926,9 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 				state->prefs.enableThrottling = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLETHROTTLE) == BST_CHECKED);
 				state->prefs.runWhenProgramModuleLoaded = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED) == BST_CHECKED);
 				state->prefs.enablePersistentState = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE) == BST_CHECKED);
+				state->prefs.showDebugConsole = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_SHOWDEBUGCONSOLE) == BST_CHECKED);
 				state->ResolvePrefs();
-				state->system.SetThrottlingState(state->prefs.enableThrottling);
-				state->system.SetRunWhenProgramModuleLoadedState(state->prefs.runWhenProgramModuleLoaded);
-				state->system.SetEnablePersistentState(state->prefs.enablePersistentState);
-				state->UpdateSaveSlots();
+				state->ApplyPrefs();
 				EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
 				break;
 			case IDC_SETTINGS_LOADSYSTEMCHANGE:{
@@ -3921,6 +4063,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 		CheckDlgButton(hwnd, IDC_SETTINGS_ENABLETHROTTLE, state->prefs.enableThrottling? BST_CHECKED: BST_UNCHECKED);
 		CheckDlgButton(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED, state->prefs.runWhenProgramModuleLoaded? BST_CHECKED: BST_UNCHECKED);
 		CheckDlgButton(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE, state->prefs.enablePersistentState? BST_CHECKED: BST_UNCHECKED);
+		CheckDlgButton(hwnd, IDC_SETTINGS_SHOWDEBUGCONSOLE, state->prefs.showDebugConsole? BST_CHECKED: BST_UNCHECKED);
 
 		EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
 
@@ -4027,6 +4170,9 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			//Destroy the main window
 			DestroyWindow(hwnd);
 		}
+		break;
+	case WM_USER+3: //Initialize platform
+		state->InitializeSystem();
 		break;
 	case WM_COMMAND:{
 		if(state == 0)
@@ -4224,6 +4370,10 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 		//Set the object pointer
 		state = (ExodusInterface*)((CREATESTRUCT*)lParam)->lpCreateParams;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
+
+		//Post a message to the back of the message queue, to perform further
+		//initialization of the main window.
+		PostMessage(hwnd, WM_USER+3, 0, 0);
 		break;}
 	case WM_CLOSE:
 		if(state != 0)
