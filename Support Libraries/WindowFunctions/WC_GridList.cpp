@@ -18,10 +18,19 @@ WC_GridList::WC_GridList(HINSTANCE amoduleHandle, HWND ahwnd)
 
 	controlWidth = 0;
 	controlHeight = 0;
+	headerWidth = 0;
+	headerHeight = 0;
+	headerPosX = 0;
+	headerPosY = 0;
+	visibleRows = 1;
+
+	fontWidth = 1;
+	fontHeight = 1;
 
 	autoScrollingManagement = true;
 	vscrollMin = 0;
 	vscrollMax = 0;
+	vscrollMaxTrueLimit = 0;
 	vscrollCurrent = 0;
 	vscrollValuesPerPage = 0;
 	currentScrollHOffset = 0;
@@ -468,6 +477,7 @@ void WC_GridList::RecalculateScrollPosition()
 		newVScrollMax = (thisColumnSize > newVScrollMax)? thisColumnSize: newVScrollMax;
 	}
 	vscrollMax = (newVScrollMax > vscrollValuesPerPage)? newVScrollMax - vscrollValuesPerPage: 0;
+	vscrollMaxTrueLimit = newVScrollMax;
 
 	//Clamp the current vertical scroll position to the new maximum vertical scroll
 	//position
@@ -507,7 +517,7 @@ void WC_GridList::UpdateScrollbarSettings()
 	SCROLLINFO vscrollInfo;
 	vscrollInfo.cbSize = sizeof(vscrollInfo);
 	vscrollInfo.nMin = vscrollMin;
-	vscrollInfo.nMax = vscrollMax;
+	vscrollInfo.nMax = vscrollMaxTrueLimit;
 	vscrollInfo.nPos = vscrollCurrent;
 	vscrollInfo.nPage = vscrollValuesPerPage;
 	vscrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
@@ -848,6 +858,9 @@ LRESULT WC_GridList::msgGRID_SETMANUALSCROLLING(WPARAM wParam, LPARAM lParam)
 	//Update the current scrollbar state
 	UpdateScrollbarSettings();
 
+	//Force the control to redraw
+	InvalidateRect(hwnd, NULL, FALSE);
+
 	return 0;
 }
 
@@ -908,7 +921,7 @@ LRESULT WC_GridList::msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam)
 	//Update the current scrollbar state
 	UpdateScrollbarSettings();
 
-	//Force the entire control to redraw
+	//Force the control to redraw
 	InvalidateRect(hwnd, NULL, FALSE);
 
 	return 0;
@@ -944,7 +957,7 @@ LRESULT WC_GridList::msgGRID_DELETECOLUMN(WPARAM wParam, LPARAM lParam)
 			//Update the current scrollbar state
 			UpdateScrollbarSettings();
 
-			//Force the entire control to redraw
+			//Force the control to redraw
 			InvalidateRect(hwnd, NULL, FALSE);
 
 			return 0;
@@ -1020,8 +1033,15 @@ LRESULT WC_GridList::msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam)
 	else
 	{
 		column->dataBuffer = text;
-		unsigned int newColumnDataBufferSize = (unsigned int)column->dataBuffer.size();
+
+		//Calculate new vertical scroll values automatically based on the current state
 		RecalculateScrollPosition();
+
+		//Update the current scrollbar state
+		UpdateScrollbarSettings();
+
+		//Force the control to redraw
+		InvalidateRect(hwnd, NULL, FALSE);
 	}
 
 	return 0;
@@ -1075,15 +1095,16 @@ LRESULT WC_GridList::msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam)
 
 	//Apply the new vscroll settings
 	const Grid_SetVScrollInfo& info = *((Grid_SetVScrollInfo*)lParam);
-	vscrollMin = info.minPos;
-	vscrollMax = info.maxPos;
 	vscrollCurrent = info.currentPos;
 	vscrollValuesPerPage = info.valuesPerPage;
+	vscrollMin = info.minPos;
+	vscrollMax = (info.maxPos > info.valuesPerPage)? info.maxPos - info.valuesPerPage: 0;
+	vscrollMaxTrueLimit = info.maxPos;
 
 	//Update the current scrollbar state
 	UpdateScrollbarSettings();
 
-	//Force the entire control to redraw
+	//Force the control to redraw
 	InvalidateRect(hwnd, NULL, FALSE);
 
 	return 0;
