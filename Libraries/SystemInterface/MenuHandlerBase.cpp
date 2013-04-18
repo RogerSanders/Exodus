@@ -125,7 +125,7 @@ void MenuHandlerBase::HandleMenuItemSelect(int menuItemID, IViewModelLauncher& a
 		{
 			//If this menu item opens a view model, invoke a background thread to handle
 			//the menu item selection.
-			boost::thread backgroundWorkerThread(boost::bind(boost::mem_fn(&MenuHandlerBase::HandleViewModelMenuItemSelect), this, menuItem));
+			boost::thread backgroundWorkerThread(boost::bind(boost::mem_fn(&MenuHandlerBase::HandleViewModelMenuItemSelect), this, boost::ref(menuItem)));
 		}
 	}
 }
