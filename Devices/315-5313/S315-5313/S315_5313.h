@@ -1,4 +1,23 @@
 /*--------------------------------------------------------------------------------------*\
+Description:
+This core emulates the Sega video display processor model 315-5313, first used in the
+Sega Mega Drive/Genesis console. This processor is an evolution of the VDP used in the
+Sega Master System, which is in turn an evolution of the TMS9918 developed by Texas
+Instruments.
+
+Known Inaccuracies:
+-Bit 2 of reg 1, when cleared should enable Mode 4. This mode is not currently supported.
+-Vertical scroll inhibit is not currently supported
+-Left column blank is not currently supported
+-128Kb VRAM mode is not currently supported
+-The test register is not currently supported
+-The sprite collision and overflow flags
+-Changes to the horizontal screen mode are latched at hblank, while it is believed the
+real hardware allows changes to this register to take effect immediately, with corruption
+of the current line often resulting.
+-The sprite overflow and collision flags are not currently implemented, and always return
+false.
+
 Things to do:
 -Support "invalid" sync outputs from the VDP. There are a few specific cases we want to
 handle:
@@ -66,11 +85,6 @@ public:
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
 	virtual void Initialize();
-	//##TODO## Determine whether we actually need a reset function for this device. Does
-	//the VDP have a reset line? If it does, we should create it, and have the handler for
-	//that line call the reset function at the appropriate time. If it does not, we should
-	//remove the reset function, and just implement the Initialize() function. Also note,
-	//if a reset line is present, we have to verify what gets cleared by a reset.
 	void Reset(double accessTime);
 	virtual void BeginExecution();
 	virtual void SuspendExecution();
