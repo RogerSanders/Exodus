@@ -895,7 +895,7 @@ LRESULT WC_GridList::msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam)
 	const Grid_InsertColumn& info = *((Grid_InsertColumn*)lParam);
 
 	//Insert the new column into our header array
-	columnData.push_back(ColumnData(info.name, info.columnID, info.width));
+	columnData.push_back(ColumnData(info.name, info.columnID, DPIScaleWidth(info.width)));
 	ColumnData* i = &(*columnData.rbegin());
 
 	//Insert the new column into our ID index

@@ -7,9 +7,16 @@
 S315_5313::PaletteView::PaletteView(S315_5313* adevice)
 :device(adevice)
 {
+	unsigned int paletteSquareSizeX = DPIScaleWidth(15);
+	unsigned int paletteSquareSizeY = DPIScaleHeight(15);
+	unsigned int paletteRows = 4;
+	unsigned int paletteColumns = 16;
+	int width = paletteSquareSizeX * paletteColumns;
+	int height = paletteSquareSizeY * paletteRows;
+
 	glrc = NULL;
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Palette");
-	SetWindowSettings(windowTitle, WS_SIZEBOX, 0, 240, 60, false);
+	SetWindowSettings(windowTitle, WS_BORDER | WS_CAPTION | WS_OVERLAPPED | WS_POPUP | WS_POPUPWINDOW | WS_SYSMENU | WS_TILED, 0, DPIReverseScaleWidth(width), DPIReverseScaleHeight(height), false);
 }
 
 //----------------------------------------------------------------------------------------
@@ -35,8 +42,12 @@ LRESULT S315_5313::PaletteView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam
 LRESULT S315_5313::PaletteView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//OpenGL Initialization code
-	int width = 240;
-	int height = 60;
+	unsigned int paletteSquareSizeX = DPIScaleWidth(15);
+	unsigned int paletteSquareSizeY = DPIScaleHeight(15);
+	unsigned int paletteRows = 4;
+	unsigned int paletteColumns = 16;
+	int width = paletteSquareSizeX * paletteColumns;
+	int height = paletteSquareSizeY * paletteRows;
 	glrc = CreateOpenGLWindow(hwnd);
 	if(glrc != NULL)
 	{
@@ -98,7 +109,8 @@ void S315_5313::PaletteView::UpdatePalette()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	unsigned int paletteSquareSize = 15;
+	unsigned int paletteSquareSizeX = DPIScaleWidth(15);
+	unsigned int paletteSquareSizeY = DPIScaleHeight(15);
 	float paletteX = 0.0;
 	float paletteY = 0.0;
 	for(unsigned int paletteLine = 0; paletteLine < 4; ++paletteLine)
@@ -113,10 +125,10 @@ void S315_5313::PaletteView::UpdatePalette()
 			float b = (float)paletteData.GetDataSegment(9, 3) / 7;
 			glColor3f(r, g, b);
 			glBegin(GL_POLYGON);
-			glVertex3f(paletteX + (paletteEntry * paletteSquareSize), paletteY + (paletteLine * paletteSquareSize), 0.0);
-			glVertex3f(paletteX + (paletteEntry * paletteSquareSize) + paletteSquareSize, paletteY + (paletteLine * paletteSquareSize), 0.0);
-			glVertex3f(paletteX + (paletteEntry * paletteSquareSize) + paletteSquareSize, paletteY + (paletteLine * paletteSquareSize) + paletteSquareSize, 0.0);
-			glVertex3f(paletteX + (paletteEntry * paletteSquareSize), paletteY + (paletteLine * paletteSquareSize) + paletteSquareSize, 0.0);
+			glVertex3f(paletteX + (paletteEntry * paletteSquareSizeX), paletteY + (paletteLine * paletteSquareSizeY), 0.0);
+			glVertex3f(paletteX + (paletteEntry * paletteSquareSizeX) + paletteSquareSizeX, paletteY + (paletteLine * paletteSquareSizeY), 0.0);
+			glVertex3f(paletteX + (paletteEntry * paletteSquareSizeX) + paletteSquareSizeX, paletteY + (paletteLine * paletteSquareSizeY) + paletteSquareSizeY, 0.0);
+			glVertex3f(paletteX + (paletteEntry * paletteSquareSizeX), paletteY + (paletteLine * paletteSquareSizeY) + paletteSquareSizeY, 0.0);
 			glEnd();
 		}
 	}

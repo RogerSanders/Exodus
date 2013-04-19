@@ -935,6 +935,13 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 			return FALSE;
 		}
 
+		//Propagate the currently selected font from the parent window to the SysLink
+		//control. Without this step, the text in the anchor will use the default raster
+		//font, which not only looks ugly, it doesn't scale based on the screen DPI
+		//settings.
+		HFONT parentWindowFontHandle = (HFONT)SendMessage(hwndParent, WM_GETFONT, 0, 0);
+		SendMessage(hwndControl, WM_SETFONT, (WPARAM)parentWindowFontHandle, (LPARAM)FALSE);
+
 		//Adjust the anchor position and dimensions to ensure the full text is visible
 		int preferredHeight = (int)SendMessage(hwndControl, LM_GETIDEALHEIGHT, 0, 0);
 		if(anchorHeight < preferredHeight)
@@ -1009,8 +1016,8 @@ void PaintCheckboxHighlight(HWND hwnd)
 	//Calculate the position and dimensions of the checkbox within the control
 	int checkBoxBorderX = GetSystemMetrics(SM_CXBORDER);
 	int checkBoxBorderY = GetSystemMetrics(SM_CYBORDER);
-	int checkBoxContentSizeX = 11;	//These values are constant and cannot be calculated
-	int checkBoxContentSizeY = 11;	//or modified through any known means in Windows XP.
+	int checkBoxContentSizeX = DPIScaleWidth(11);  //These values are constant and cannot be calculated
+	int checkBoxContentSizeY = DPIScaleHeight(11); //or modified through any known means in Windows XP.
 	int checkBoxTotalSizeX = checkBoxContentSizeX + (2 * checkBoxBorderX);
 	int checkBoxTotalSizeY = checkBoxContentSizeY + (2 * checkBoxBorderY);
 	int checkPosStartX = 0;

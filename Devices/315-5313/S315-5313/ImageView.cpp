@@ -122,7 +122,7 @@ LRESULT S315_5313::ImageView::msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam
 		statusBarHeight = statusBarRect.bottom - statusBarRect.top;
 
 		//Set the sizes and positions of the segments in the status bar
-		const int framesPerSecondSegmentPreferredWidth = 75;
+		const int framesPerSecondSegmentPreferredWidth = DPIScaleWidth(75);
 		int framesPerSecondSegmentWidth = (framesPerSecondSegmentPreferredWidth <= statusBarWidth)? framesPerSecondSegmentPreferredWidth: statusBarWidth;
 		int notificationSegmentWidth = statusBarWidth - framesPerSecondSegmentWidth;
 		int statusBarSegmentWidths[] = {notificationSegmentWidth, -1};

@@ -63,8 +63,8 @@ INT_PTR S315_5313::VRAMView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM l
 	RECT markerRect;
 	GetWindowRect(GetDlgItem(hwnd, IDC_VDP_VRAM_MARKER), &markerRect);
 	POINT markerPos;
-	unsigned int width = DPIScaleWidth(256);	//markerRect.right - markerRect.left;
-	unsigned int height = DPIScaleHeight(512);	//markerRect.bottom - markerRect.top;
+	unsigned int width = DPIScaleWidth(256);   //markerRect.right - markerRect.left;
+	unsigned int height = DPIScaleHeight(512); //markerRect.bottom - markerRect.top;
 	markerPos.x = markerRect.left;
 	markerPos.y = markerRect.top;
 	ScreenToClient(hwnd, &markerPos);
@@ -448,8 +448,8 @@ LRESULT S315_5313::VRAMView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPA
 
 	int xpos = LOWORD(lparam);
 	int ypos = HIWORD(lparam);
-	unsigned int blockPosX = xpos / blockPixelSizeX;
-	unsigned int blockPosY = ypos / blockPixelSizeY;
+	unsigned int blockPosX = DPIReverseScaleWidth(xpos) / blockPixelSizeX;
+	unsigned int blockPosY = DPIReverseScaleHeight(ypos) / blockPixelSizeY;
 	tileNumber = (blockPosY * (width / blockPixelSizeX)) + blockPosX;
 	tileAddress = tileNumber * blockSizeForDisplay;
 
