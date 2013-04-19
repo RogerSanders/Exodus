@@ -2,7 +2,6 @@
 #define __S315_5313_INTERFACE_H__
 #include "SystemInterface/SystemInterface.pkg"
 
-void GetVDPDeviceInfo(IDeviceInfo& deviceInfo);
 void GetS315_5313DeviceInfo(IDeviceInfo& deviceInfo);
 
 #endif

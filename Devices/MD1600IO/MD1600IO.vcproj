@@ -1246,42 +1246,6 @@
 	</References>
 	<Files>
 		<Filter
-			Name="A04000"
-			>
-			<File
-				RelativePath=".\A04000.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\A04000.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="A06000"
-			>
-			<File
-				RelativePath=".\A06000.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\A06000.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="A11100"
-			>
-			<File
-				RelativePath=".\A11100.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\A11100.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="MDControl3"
 			>
 			<File

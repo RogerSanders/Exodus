@@ -1382,18 +1382,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="TimedRAM"
-			>
-			<File
-				RelativePath=".\TimedRAM.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TimedRAM.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="TimedBuffer"
 			>
 			<Filter
