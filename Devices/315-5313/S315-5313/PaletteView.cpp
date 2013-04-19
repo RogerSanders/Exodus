@@ -16,7 +16,7 @@ S315_5313::PaletteView::PaletteView(S315_5313* adevice)
 
 	glrc = NULL;
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Palette");
-	SetWindowSettings(windowTitle, WS_BORDER | WS_CAPTION | WS_OVERLAPPED | WS_POPUP | WS_POPUPWINDOW | WS_SYSMENU | WS_TILED, 0, DPIReverseScaleWidth(width), DPIReverseScaleHeight(height), false);
+	SetWindowSettings(windowTitle, 0, 0, DPIReverseScaleWidth(width), DPIReverseScaleHeight(height), false);
 }
 
 //----------------------------------------------------------------------------------------
