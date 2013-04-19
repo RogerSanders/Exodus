@@ -113,7 +113,9 @@ bool ViewBase::OpenViewWindow(void* aparentWindow, int xpos, int ypos)
 	extendedWindowStyle |= WS_EX_TOOLWINDOW;
 	windowStyle |= WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU;
 	windowStyle |= WS_MINIMIZEBOX;
-	hwndInternal = CreateWindowEx(extendedWindowStyle, windowTitle.c_str(), windowTitle.c_str(), windowStyle, 0, 0, originalWindowWidth, originalWindowHeight, (HWND)aparentWindow, NULL, (HINSTANCE)assemblyHandle, (LPVOID)this);
+	unsigned int scaledWindowWidth = DPIScaleWidth(originalWindowWidth);
+	unsigned int scaledWindowHeight = DPIScaleHeight(originalWindowHeight);
+	hwndInternal = CreateWindowEx(extendedWindowStyle, windowTitle.c_str(), windowTitle.c_str(), windowStyle, 0, 0, scaledWindowWidth, scaledWindowHeight, (HWND)aparentWindow, NULL, (HINSTANCE)assemblyHandle, (LPVOID)this);
 	if(hwndInternal == NULL)
 	{
 		return false;
@@ -124,8 +126,8 @@ bool ViewBase::OpenViewWindow(void* aparentWindow, int xpos, int ypos)
 	RECT clientRect;
 	clientRect.left = 0;
 	clientRect.top = 0;
-	clientRect.right = originalWindowWidth;
-	clientRect.bottom = originalWindowHeight;
+	clientRect.right = scaledWindowWidth;
+	clientRect.bottom = scaledWindowHeight;
 	if(AdjustWindowRectEx(&clientRect, windowStyle, FALSE, extendedWindowStyle) != 0)
 	{
 		//Calculate the actual window width and height to use

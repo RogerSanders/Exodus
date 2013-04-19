@@ -66,7 +66,7 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 {
 	//Calculate the dimensions of the main window. We calculate a window size that
 	//achieves a client region height of 0.
-	unsigned int width = 800;
+	unsigned int width = DPIScaleWidth(800);
 	unsigned int height = 0;
 	RECT clientRect;
 	clientRect.left = 0;
@@ -713,11 +713,16 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 					int xpos = xposAttribute->ExtractValue<int>();
 					int ypos = yposAttribute->ExtractValue<int>();
 
+					//Adjust the view position to take the current DPI settings into
+					//account
+					xpos = DPIScaleWidth(xpos);
+					ypos = DPIScaleHeight(ypos);
+
 					//Convert the view position from main window client coordinates into
 					//screen coordinates
 					POINT windowPos;
 					windowPos.x = (LONG)xpos;
-					windowPos.y	 = (LONG)ypos;
+					windowPos.y = (LONG)ypos;
 					ClientToScreen(mainWindowHandle, &windowPos);
 					xpos = (int)windowPos.x;
 					ypos = (int)windowPos.y;
@@ -727,8 +732,14 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 					int height = 0;
 					if((widthAttribute != 0) && (heightAttribute != 0))
 					{
+						//Extract the view size parameters
 						width = widthAttribute->ExtractValue<int>();
 						height = heightAttribute->ExtractValue<int>();
+
+						//Adjust the view size to take the current DPI settings into
+						//account
+						width = DPIScaleWidth(width);
+						height = DPIScaleHeight(height);
 					}
 
 					//Restore the view
@@ -832,8 +843,8 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 		HWND window = *windowIterator;
 		for(ViewModels::const_iterator i = viewModels.begin(); i != viewModels.end(); ++i)
 		{
-			//If we've found a debug window belonging to our program, save its details
-			//to the XML tree.
+			//If we've found a window belonging to our program, save its details to the
+			//XML tree.
 			IViewModel* viewModel = i->second->viewModel;
 			if(viewModel->DoesWindowHandleMatchView(window))
 			{
@@ -845,10 +856,15 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 				//Convert the view position into coordinates relative to the main window
 				POINT windowPos;
 				windowPos.x = windowPosX;
-				windowPos.y	 = windowPosY;
+				windowPos.y = windowPosY;
 				ScreenToClient(mainWindowHandle, &windowPos);
 				windowPosX = (int)windowPos.x;
 				windowPosY = (int)windowPos.y;
+
+				//Adjust the view position to convert it back into a DPI-independent
+				//location
+				windowPosX = DPIReverseScaleWidth(windowPosX);
+				windowPosY = DPIReverseScaleHeight(windowPosY);
 
 				//Save the basic attributes of the window
 				IHeirarchicalStorageNode& node = rootNode.CreateChild(L"Window");
@@ -878,6 +894,10 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 					int windowWidth;
 					int windowHeight;
 					viewModel->GetViewSize(windowWidth, windowHeight);
+
+					//Adjust the view size to convert it back into a DPI-independent size
+					windowWidth = DPIReverseScaleWidth(windowWidth);
+					windowHeight = DPIReverseScaleHeight(windowHeight);
 
 					//Save the window dimensions
 					node.CreateAttribute(L"Width", windowWidth);
@@ -3774,12 +3794,12 @@ INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wPar
 		}
 
 		//Insert our columns into the device GridList control
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Name", 1, DPIScaleWidth(80)));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Assembly", 2, DPIScaleWidth(80)));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Copyright", 3, DPIScaleWidth(160)));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Class Name", 4, DPIScaleWidth(120)));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Version", 5, DPIScaleWidth(40)));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Comments", 6, DPIScaleWidth(300)));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Name", 1, 80));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Assembly", 2, 80));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Copyright", 3, 160));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Class Name", 4, 120));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Version", 5, 40));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Comments", 6, 300));
 		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 1, (LPARAM)&deviceColumnDataName);
 		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 2, (LPARAM)&deviceColumnDataAssembly);
 		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 3, (LPARAM)&deviceColumnDataCopyright);
@@ -3810,12 +3830,12 @@ INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wPar
 		}
 
 		//Insert our columns into the device GridList control
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Name", 1, DPIScaleWidth(80)));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Assembly", 2, DPIScaleWidth(80)));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Copyright", 3, DPIScaleWidth(160)));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Class Name", 4, DPIScaleWidth(120)));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Version", 5, DPIScaleWidth(40)));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Comments", 6, DPIScaleWidth(300)));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Name", 1, 80));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Assembly", 2, 80));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Copyright", 3, 160));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Class Name", 4, 120));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Version", 5, 40));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Comments", 6, 300));
 		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 1, (LPARAM)&extensionColumnDataName);
 		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 2, (LPARAM)&extensionColumnDataAssembly);
 		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 3, (LPARAM)&extensionColumnDataCopyright);
@@ -3837,15 +3857,34 @@ INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wPar
 			SendMessage(GetDlgItem(hwnd, IDC_ABOUT_THIRDLIBRARIES_LIST), LB_ADDSTRING, 0, (LPARAM)i->c_str());
 		}
 
+		//Select an appropriate size for the program icon image based on the current
+		//screen DPI settings
+		int iconWidth = 0;
+		int iconHeight = 0;
+		int iconRegionWidth = DPIScaleWidth(48);
+		int iconRegionHeight = DPIScaleHeight(48);
+		if     ((iconRegionWidth >= 128) && (iconRegionHeight >= 128)) { iconWidth = 128; iconHeight = 128; }
+		else if((iconRegionWidth >=  84) && (iconRegionHeight >=  84)) { iconWidth =  84; iconHeight =  84; }
+		else if((iconRegionWidth >=  72) && (iconRegionHeight >=  72)) { iconWidth =  72; iconHeight =  72; }
+		else if((iconRegionWidth >=  60) && (iconRegionHeight >=  60)) { iconWidth =  60; iconHeight =  60; }
+		else if((iconRegionWidth >=  56) && (iconRegionHeight >=  56)) { iconWidth =  56; iconHeight =  56; }
+		else if((iconRegionWidth >=  48) && (iconRegionHeight >=  48)) { iconWidth =  48; iconHeight =  48; }
+		else if((iconRegionWidth >=  40) && (iconRegionHeight >=  40)) { iconWidth =  40; iconHeight =  40; }
+		else if((iconRegionWidth >=  32) && (iconRegionHeight >=  32)) { iconWidth =  32; iconHeight =  32; }
+		else if((iconRegionWidth >=  28) && (iconRegionHeight >=  28)) { iconWidth =  28; iconHeight =  28; }
+		else if((iconRegionWidth >=  24) && (iconRegionHeight >=  24)) { iconWidth =  24; iconHeight =  24; }
+		else if((iconRegionWidth >=  20) && (iconRegionHeight >=  20)) { iconWidth =  20; iconHeight =  20; }
+		else if((iconRegionWidth >=  16) && (iconRegionHeight >=  16)) { iconWidth =  16; iconHeight =  16; }
+
 		//Set the program icon image
-		//##TODO## Select the nearest icon size based on the current DPI
-		HWND logoControl = GetDlgItem(hwnd, IDC_ABOUT_LOGO);
-		int iconWidth = 48;
-		int iconHeight = 48;
-		HANDLE programIconHandle = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PROGRAM), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
-		if(programIconHandle != NULL)
+		if((iconWidth > 0) && (iconHeight > 0))
 		{
-			SendMessage(logoControl, STM_SETIMAGE, IMAGE_ICON, (LPARAM)programIconHandle);
+			HWND logoControl = GetDlgItem(hwnd, IDC_ABOUT_LOGO);
+			HANDLE programIconHandle = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_PROGRAM), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
+			if(programIconHandle != NULL)
+			{
+				SendMessage(logoControl, STM_SETIMAGE, IMAGE_ICON, (LPARAM)programIconHandle);
+			}
 		}
 		break;}
 	case WM_NOTIFY:{

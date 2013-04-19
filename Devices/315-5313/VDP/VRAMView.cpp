@@ -404,8 +404,8 @@ LRESULT VDP::VRAMView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lp
 
 	int xpos = LOWORD(lparam);
 	int ypos = HIWORD(lparam);
-	unsigned int blockPosX = xpos / blockPixelSizeX;
-	unsigned int blockPosY = ypos / blockPixelSizeY;
+	unsigned int blockPosX = DPIScaleWidth(xpos / blockPixelSizeX);
+	unsigned int blockPosY = DPIScaleHeight(ypos / blockPixelSizeY);
 	tileNumber = (blockPosY * (width / blockPixelSizeX)) + blockPosX;
 	tileAddress = tileNumber * blockSizeForDisplay;
 
