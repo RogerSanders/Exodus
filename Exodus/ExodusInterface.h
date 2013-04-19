@@ -178,6 +178,7 @@ private:
 		bool enableThrottling;
 		bool runWhenProgramModuleLoaded;
 		bool enablePersistentState;
+		bool loadWorkspaceWithDebugState;
 		bool showDebugConsole;
 	};
 	struct NewMenuItem;
