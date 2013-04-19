@@ -148,7 +148,7 @@ AudioStream::AudioBuffer* AudioStream::CreateAudioBuffer(unsigned int sampleCoun
 	//but before they are sent to the audio hardware. We drop buffers so that the audio
 	//output stream isn't left with an ever-increasing backlog of audio data in the case
 	//that the system is running too fast.
-	unsigned int pendingSampleCount = 0;
+	unsigned int pendingSampleCount = currentPlayingSamples;
 	for(std::list<AudioBuffer*>::iterator i = pendingBuffers.begin(); i != pendingBuffers.end(); ++i)
 	{
 		pendingSampleCount += (unsigned int)((*i)->buffer.size() / channelCount);
@@ -212,10 +212,10 @@ void AudioStream::AddPendingBuffers(HWAVEOUT deviceHandle)
 	EnterCriticalSection(&waveMutex);
 
 	//Send all pending buffers which have been flagged for playback to the audio output
-	//stream, until we run out of buffers, or we reach the maximum number of samples
-	//currently in the playback buffer.
+	//stream, until we run out of buffers, or we reach the maximum number of samples which
+	//are allowed to be held pending.
 	std::list<AudioBuffer*>::iterator pendingBufferIterator = pendingBuffers.begin();
-	while((pendingBufferIterator != pendingBuffers.end()) && (*pendingBufferIterator)->playBuffer && (currentPlayingSamples < minPlayingSamples))
+	while((pendingBufferIterator != pendingBuffers.end()) && (*pendingBufferIterator)->playBuffer && (currentPlayingSamples < maxPendingSamples))
 	{
 		AudioBuffer* entry = *pendingBufferIterator;
 
