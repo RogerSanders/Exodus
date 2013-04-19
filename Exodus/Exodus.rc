@@ -187,7 +187,9 @@ BEGIN
     CONTROL         "Enable Persistent State",IDC_SETTINGS_ENABLEPERSISTENTSTATE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,166,49,91,10
     CONTROL         "Show Debug Console",IDC_SETTINGS_SHOWDEBUGCONSOLE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,166,64,83,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,166,77,83,10
+    CONTROL         "Load Workspace With Debug State",IDC_SETTINGS_LOADWORKSPACEWITHDEBUGSTATE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,166,63,127,10
 END
 
 IDD_UNLOADMODULE DIALOGEX 0, 0, 211, 55

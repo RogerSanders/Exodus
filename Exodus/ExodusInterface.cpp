@@ -299,6 +299,7 @@ bool ExodusInterface::InitializeSystem()
 	prefs.enableThrottling = true;
 	prefs.runWhenProgramModuleLoaded = true;
 	prefs.enablePersistentState = true;
+	prefs.loadWorkspaceWithDebugState = true;
 	prefs.showDebugConsole = false;
 
 	//Load preferences from the settings.xml file if present
@@ -555,6 +556,12 @@ void ExodusInterface::QuickLoadState(bool debuggerState)
 	}
 	std::wstring filePath = PathCombinePaths(prefs.pathSavestates, fileName);
 	LoadStateFromFile(filePath, ISystemExternal::FILETYPE_ZIP, debuggerState);
+	if(debuggerState && prefs.loadWorkspaceWithDebugState)
+	{
+		std::wstring workspaceFileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L" - DebugWorkspace" + L".xml";
+		std::wstring workspaceFilePath = PathCombinePaths(prefs.pathSavestates, workspaceFileName);
+		LoadWorkspaceFromFile(workspaceFilePath);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -572,6 +579,12 @@ void ExodusInterface::QuickSaveState(bool debuggerState)
 	}
 	std::wstring filePath = PathCombinePaths(prefs.pathSavestates, fileName);
 	SaveStateToFile(filePath, ISystemExternal::FILETYPE_ZIP, debuggerState);
+	if(debuggerState)
+	{
+		std::wstring workspaceFileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L" - DebugWorkspace" + L".xml";
+		std::wstring workspaceFilePath = PathCombinePaths(prefs.pathSavestates, workspaceFileName);
+		SaveWorkspaceToFile(workspaceFilePath);
+	}
 	PostMessage(cell[selectedSaveCell].hwnd, WM_USER, 0, (LPARAM)this);
 }
 
@@ -1289,6 +1302,10 @@ bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 		{
 			prefs.enablePersistentState = (*i)->ExtractData<bool>();
 		}
+		else if((*i)->GetName() == L"LoadWorkspaceWithDebugState")
+		{
+			prefs.loadWorkspaceWithDebugState = (*i)->ExtractData<bool>();
+		}
 		else if((*i)->GetName() == L"ShowDebugConsole")
 		{
 			prefs.showDebugConsole = (*i)->ExtractData<bool>();
@@ -1315,6 +1332,7 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 	rootNode.CreateChild(L"EnableThrottling").SetData(prefs.enableThrottling);
 	rootNode.CreateChild(L"RunWhenProgramModuleLoaded").SetData(prefs.runWhenProgramModuleLoaded);
 	rootNode.CreateChild(L"EnablePersistentState").SetData(prefs.enablePersistentState);
+	rootNode.CreateChild(L"LoadWorkspaceWithDebugState").SetData(prefs.loadWorkspaceWithDebugState);
 	rootNode.CreateChild(L"ShowDebugConsole").SetData(prefs.showDebugConsole);
 
 	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
@@ -3943,6 +3961,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 			case IDC_SETTINGS_ENABLETHROTTLE:
 			case IDC_SETTINGS_RUNWHENPROGRAMLOADED:
 			case IDC_SETTINGS_ENABLEPERSISTENTSTATE:
+			case IDC_SETTINGS_LOADWORKSPACEWITHDEBUGSTATE:
 			case IDC_SETTINGS_SHOWDEBUGCONSOLE:
 				EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), TRUE);
 				break;
@@ -3965,6 +3984,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 				state->prefs.enableThrottling = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLETHROTTLE) == BST_CHECKED);
 				state->prefs.runWhenProgramModuleLoaded = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED) == BST_CHECKED);
 				state->prefs.enablePersistentState = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE) == BST_CHECKED);
+				state->prefs.loadWorkspaceWithDebugState = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_LOADWORKSPACEWITHDEBUGSTATE) == BST_CHECKED);
 				state->prefs.showDebugConsole = (IsDlgButtonChecked(hwnd, IDC_SETTINGS_SHOWDEBUGCONSOLE) == BST_CHECKED);
 				state->ResolvePrefs();
 				state->ApplyPrefs();
@@ -4102,6 +4122,7 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 		CheckDlgButton(hwnd, IDC_SETTINGS_ENABLETHROTTLE, state->prefs.enableThrottling? BST_CHECKED: BST_UNCHECKED);
 		CheckDlgButton(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED, state->prefs.runWhenProgramModuleLoaded? BST_CHECKED: BST_UNCHECKED);
 		CheckDlgButton(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE, state->prefs.enablePersistentState? BST_CHECKED: BST_UNCHECKED);
+		CheckDlgButton(hwnd, IDC_SETTINGS_LOADWORKSPACEWITHDEBUGSTATE, state->prefs.loadWorkspaceWithDebugState? BST_CHECKED: BST_UNCHECKED);
 		CheckDlgButton(hwnd, IDC_SETTINGS_SHOWDEBUGCONSOLE, state->prefs.showDebugConsole? BST_CHECKED: BST_UNCHECKED);
 
 		EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
