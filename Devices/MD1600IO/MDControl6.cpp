@@ -1,4 +1,6 @@
 #include "MDControl6.h"
+//##DEBUG##
+#include <iostream>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -7,7 +9,7 @@ MDControl6::MDControl6(const std::wstring& aimplementationName, const std::wstri
 :Device(aimplementationName, ainstanceName, amoduleID)
 {
 	//##TODO## Perform our own hardware tests to confirm this value
-	bankswitchTimeoutInterval = 1500000.0;
+	bankswitchTimeoutInterval = 1600000.0; //1500000.0;
 
 	memoryBus = 0;
 	buttonPressed.resize(buttonCount);
@@ -91,6 +93,19 @@ void MDControl6::NotifyUpcomingTimeslice(double nanoseconds)
 		if(outputLineState[i].timeoutFlagged)
 		{
 			outputLineState[i].timeoutTime -= currentTimesliceLength;
+
+			//If the timeout has now passed on this output line, change the asserted state
+			//for the line to the state we changed to after the timeout was reached, and
+			//clear the flags indicating there is a timeout currently flagged for this
+			//output line. Note that we do this here so that bogus line state changes
+			//don't stick around in the event that the controller isn't accessed by the
+			//system. If we don't clear these old events, we can end up trying to revoke
+			//them later with a negative time specified.
+			if(outputLineState[i].timeoutTime <= 0)
+			{
+				outputLineState[i].asserted = outputLineState[i].timeoutAssertedState;
+				outputLineState[i].timeoutFlagged = false;
+			}
 		}
 	}
 
@@ -230,11 +245,23 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 		//Reset the bankswitch counter back to zero
 		bankswitchCounter = 0;
 
-		//Since we've passed the timeout times for all our lines now, clear the flags
-		//indicating there is a timeout currently flagged for our output lines.
+		//Since we've passed the timeout times for all our lines now, change the asserted
+		//state for our lines to the state we changed to after the timeout was reached,
+		//and clear the flags indicating there is a timeout currently flagged for our
+		//output lines.
 		for(unsigned int i = 0; i < outputLineCount; ++i)
 		{
-			outputLineState[i].timeoutFlagged = false;
+			if(outputLineState[i].timeoutFlagged)
+			{
+				//##DEBUG##
+				if(outputLineState[i].timeoutTime > accessTime)
+				{
+					std::wcout << "MDControl6 Timeout reverted before target time reached! " << i << '\t' << outputLineState[i].timeoutTime << '\t' << accessTime << '\n';
+				}
+
+				outputLineState[i].asserted = outputLineState[i].timeoutAssertedState;
+				outputLineState[i].timeoutFlagged = false;
+			}
 		}
 	}
 
@@ -267,6 +294,12 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 			//http://segaretro.org/Six_Button_Control_Pad_(Mega_Drive), this timeout
 			//period is 1.5ms.
 			//##TODO## Confirm the controller timeout period through hardware tests
+			//##FIX## Based on "Joystick Test Program (PD).bin", we now believe that when
+			//a timeout occurs, it isn't like we do here, where if the TH line is
+			//currently negated at the time the timeout occurs, the very next time the TH
+			//line state is toggled after the timeout, the bank will increment to 1.
+			//Rather, it appears that the bankswitch increment will be missed for this
+			//first time. Actually, on further consideration, this might not be correct.
 			if(lineInputStateTH)
 			{
 				//Increment the bankswitch counter
@@ -432,33 +465,40 @@ void MDControl6::UpdateOutputLineStateForLine(unsigned int lineID, bool revokeAl
 		memoryBus->SetLineState(lineID, Data(1, (unsigned int)lineAssertedNew), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
-	//Revoke an existing timeout line state change if the timeout setting has changed
-	if(revokeAllTimeoutStateChanges && outputLineState[lineIndex].timeoutFlagged)
+	//Determine if we require a change to be made on the target line when the timeout
+	//occurs
+	double elapsedTimeSinceLastTHLineStateChange = accessTime - bankswitchCounterToggleLastRisingEdge;
+	bool lineAssertedAfterTimeoutNew = GetDesiredLineState(0, lineInputStateTH, buttonPressed, lineID);
+	bool timeoutLineStateChangeRequired = (lineAssertedNew != lineAssertedAfterTimeoutNew) && (elapsedTimeSinceLastTHLineStateChange < bankswitchTimeoutInterval);
+
+	//Revoke an existing timeout line state change if the timeout setting has changed, or
+	//if a line state change is no longer required on timeout.
+	if(outputLineState[lineIndex].timeoutFlagged && (revokeAllTimeoutStateChanges || !timeoutLineStateChangeRequired))
 	{
 		memoryBus->RevokeSetLineState(lineID, Data(1, outputLineState[lineIndex].timeoutAssertedState), outputLineState[lineIndex].timeoutTime, GetDeviceContext(), caller, accessTime, accessContext);
 		outputLineState[lineIndex].timeoutFlagged = false;
 	}
 
-	//Raise a target line output state change on bankswitch timeout if required, if an
-	//existing line state change on bankswitch timeout has been set, but it is no longer
-	//required, remove it.
-	bool lineAssertedAfterTimeoutNew = GetDesiredLineState(0, lineInputStateTH, buttonPressed, lineID);
-	if(lineAssertedNew != lineAssertedAfterTimeoutNew)
+	//Raise a target line output state change on bankswitch timeout if required
+	if(timeoutLineStateChangeRequired)
 	{
+		//Calculate the time at which a timeout will occur, and the state of the target
+		//line should be altered.
+		double timeoutTime = accessTime + (bankswitchTimeoutInterval - elapsedTimeSinceLastTHLineStateChange);
+
+		//##DEBUG##
+		if(timeoutTime <= accessTime)
+		{
+			std::wcout << "MDControl6 timeoutTime <= accessTime: " << timeoutTime << '\t' << accessTime << '\t' << lineID << '\n';
+		}
+
+		//Record information on the timeout for the target line
 		outputLineState[lineIndex].timeoutFlagged = true;
 		outputLineState[lineIndex].timeoutAssertedState = lineAssertedAfterTimeoutNew;
-		//##FIX## What if the TH line just changed from 1 to 0, which reportedly doesn't
-		//update the bankswitch timeout? In this case, the timeout time would be relative
-		//to the last 0 to 1 TH transition.
-		//##TODO## Test this in hardware. It seems logical to me that the last time the TH
-		//line is changed will be the time at which the timeout is relative to.
-		outputLineState[lineIndex].timeoutTime = accessTime+bankswitchTimeoutInterval;
+		outputLineState[lineIndex].timeoutTime = timeoutTime;
+
+		//Raise the future line state change for the timeout
 		memoryBus->SetLineState(lineID, Data(1, (unsigned int)outputLineState[lineIndex].timeoutAssertedState), GetDeviceContext(), caller, outputLineState[lineIndex].timeoutTime, accessContext);
-	}
-	else if(outputLineState[lineIndex].timeoutFlagged)
-	{
-		memoryBus->RevokeSetLineState(lineID, Data(1, outputLineState[lineIndex].timeoutAssertedState), outputLineState[lineIndex].timeoutTime, GetDeviceContext(), caller, accessTime, accessContext);
-		outputLineState[lineIndex].timeoutFlagged = false;
 	}
 }
 
@@ -753,14 +793,103 @@ void MDControl6::HandleInputKeyDown(unsigned int keyCodeID)
 	//of key press events are received, the most recent key press will cause the set state
 	//of its exclusive keys to be negated.
 	Button keyCode = (Button)(keyCodeID-1);
-	buttonPressed[keyCode] = true;
-	UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	bool newButtonPressState = true;
+	if(buttonPressed[keyCode] != newButtonPressState)
+	{
+		buttonPressed[keyCode] = newButtonPressState;
+		UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
 }
 
 //----------------------------------------------------------------------------------------
 void MDControl6::HandleInputKeyUp(unsigned int keyCodeID)
 {
 	Button keyCode = (Button)(keyCodeID-1);
-	buttonPressed[keyCode] = false;
-	UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	bool newButtonPressState = false;
+	if(buttonPressed[keyCode] != newButtonPressState)
+	{
+		buttonPressed[keyCode] = newButtonPressState;
+		UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+//Savestate functions
+//----------------------------------------------------------------------------------------
+void MDControl6::LoadState(IHeirarchicalStorageNode& node)
+{
+	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		IHeirarchicalStorageNode& node = *(*i);
+		std::wstring nodeName = node.GetName();
+		if(nodeName == L"CurrentTimesliceLength")
+		{
+			node.ExtractData(currentTimesliceLength);
+		}
+		else if(nodeName == L"LineInputStateTH")
+		{
+			node.ExtractData(lineInputStateTH);
+		}
+		else if(nodeName == L"BankswitchingDisabled")
+		{
+			node.ExtractData(bankswitchingDisabled);
+		}
+		else if(nodeName == L"BankswitchCounter")
+		{
+			node.ExtractData(bankswitchCounter);
+		}
+		else if(nodeName == L"BankswitchCounterToggleLastRisingEdge")
+		{
+			node.ExtractData(bankswitchCounterToggleLastRisingEdge);
+		}
+		else if(nodeName == L"OutputLineState")
+		{
+			IHeirarchicalStorageAttribute* lineNumberAttribute = node.GetAttribute(L"LineNo");
+			if(lineNumberAttribute != 0)
+			{
+				unsigned int lineNo = lineNumberAttribute->ExtractValue<unsigned int>();
+				if(lineNo < outputLineCount)
+				{
+					node.ExtractAttribute(L"Asserted", outputLineState[lineNo].asserted);
+					node.ExtractAttribute(L"TimeoutFlagged", outputLineState[lineNo].timeoutFlagged);
+					node.ExtractAttribute(L"TimeoutAssertedState", outputLineState[lineNo].timeoutAssertedState);
+					node.ExtractAttribute(L"TimeoutTime", outputLineState[lineNo].timeoutTime);
+				}
+			}
+		}
+		else if(nodeName == L"ButtonPressed")
+		{
+			IHeirarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
+			if(buttonNumberAttribute != 0)
+			{
+				unsigned int buttonNo = buttonNumberAttribute->ExtractValue<unsigned int>();
+				if(buttonNo < buttonCount)
+				{
+					bool state;
+					node.ExtractAttribute(L"Pressed", state);
+					buttonPressed[buttonNo] = state;
+				}
+			}
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl6::SaveState(IHeirarchicalStorageNode& node) const
+{
+	node.CreateChild(L"CurrentTimesliceLength", currentTimesliceLength);
+	node.CreateChild(L"LineInputStateTH", lineInputStateTH);
+	node.CreateChild(L"BankswitchingDisabled", bankswitchingDisabled);
+	node.CreateChild(L"BankswitchCounter", bankswitchCounter);
+	node.CreateChild(L"BankswitchCounterToggleLastRisingEdge", bankswitchCounterToggleLastRisingEdge);
+
+	for(unsigned int i = 0; i < outputLineCount; ++i)
+	{
+		node.CreateChild(L"OutputLineState").CreateAttribute(L"LineNo", i).CreateAttribute(L"Asserted", outputLineState[i].asserted).CreateAttribute(L"TimeoutFlagged", outputLineState[i].timeoutFlagged).CreateAttribute(L"TimeoutAssertedState", outputLineState[i].timeoutAssertedState).CreateAttribute(L"TimeoutTime", outputLineState[i].timeoutTime);
+	}
+	for(unsigned int i = 0; i < buttonCount; ++i)
+	{
+		node.CreateChild(L"ButtonPressed").CreateAttribute(L"ButtonNo", i).CreateAttribute(L"Pressed", buttonPressed[i]);
+	}
 }

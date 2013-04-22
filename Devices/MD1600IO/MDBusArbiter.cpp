@@ -1566,6 +1566,7 @@ void MDBusArbiter::LoadState(IHeirarchicalStorageNode& node)
 		//Restore the lineAccessBuffer state
 		else if((*i)->GetName() == L"LineAccessBuffer")
 		{
+			lineAccessBuffer.clear();
 			IHeirarchicalStorageNode& lineAccessBufferNode = *(*i);
 			std::list<IHeirarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
 			for(std::list<IHeirarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)

@@ -1537,6 +1537,8 @@ bool ExodusInterface::LoadAssembliesFromFolderSynchronous(const std::wstring& fo
 	findFileHandle = FindFirstFile(fileSearchString.c_str(), &findData);
 	if(findFileHandle == INVALID_HANDLE_VALUE)
 	{
+		loadPluginsResult = false;
+		loadPluginsComplete = true;
 		return false;
 	}
 
