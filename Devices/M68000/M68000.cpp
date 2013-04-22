@@ -2710,6 +2710,7 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 		//Restore the lineAccessBuffer state
 		else if((*i)->GetName() == L"LineAccessBuffer")
 		{
+			lineAccessBuffer.clear();
 			IHeirarchicalStorageNode& lineAccessBufferNode = *(*i);
 			std::list<IHeirarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
 			for(std::list<IHeirarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
@@ -2752,6 +2753,7 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 								{
 									Data lineState(GetLineWidth(lineID));
 									lineStateAttribute->ExtractValue(lineState);
+									lineAccess.state.Resize(lineState.GetBitCount());
 									lineAccess = LineAccess(lineID, lineState, accessTime);
 									lineAccessDefined = true;
 								}

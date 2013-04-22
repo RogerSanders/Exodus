@@ -60,7 +60,7 @@ void A10000::Initialize()
 	txDataRegisters[1] = 0xFF;
 	rxDataRegisters[1] = 0x00;
 	serialControlRegisters[1] = 0x00;
-	txDataRegisters[2] = 0xFB;
+	txDataRegisters[2] = 0xFF; //0xFB
 	rxDataRegisters[2] = 0x00;
 	serialControlRegisters[2] = 0x00;
 
@@ -898,9 +898,6 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 {
 	boost::mutex::scoped_lock lock(accessMutex);
 
-	//##DEBUG##
-//	std::wcout << "A10000Read:  " << accessTime << '\t' << lastLineCheckTime << '\n';
-
 	//Trigger a system rollback if the device has been accessed out of order
 	boost::mutex::scoped_lock lineLock(lineMutex);
 	if(lastLineCheckTime > accessTime)
@@ -968,6 +965,12 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 		break;
 	}
 
+	//##DEBUG##
+	//if((location == 1) || (location == 4) || (location == 7) || (location == 8) || (location == 9))
+	//{
+	//	std::wcout << "A10000Read:  " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessTime << '\t' << lastLineCheckTime << '\n';
+	//}
+
 	//The 8-bit result is mirrored in both the upper and lower bytes for word-wide reads.
 	//This appears to be done internally, not as part of the bus mapping logic. We emulate
 	//that behaviour here.
@@ -982,7 +985,11 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 	boost::mutex::scoped_lock lock(accessMutex);
 
 	//##DEBUG##
-//	std::wcout << "A10000Write: " << accessTime << '\t' << lastLineCheckTime << '\n';
+	//InputLineState* inputLineStatePointer = &inputLineState[0];
+	//if((location == 1) || (location == 4) || (location == 7) || (location == 8) || (location == 9))
+	//{
+	//	std::wcout << "A10000Write: " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessTime << '\t' << lastLineCheckTime << '\n';
+	//}
 
 	//Trigger a system rollback if the device has been accessed out of order
 	boost::mutex::scoped_lock lineLock(lineMutex);
@@ -1350,6 +1357,7 @@ void A10000::LoadState(IHeirarchicalStorageNode& node)
 		//Restore the lineAccessBuffer state
 		else if((*i)->GetName() == L"LineAccessBuffer")
 		{
+			lineAccessBuffer.clear();
 			IHeirarchicalStorageNode& lineAccessBufferNode = *(*i);
 			std::list<IHeirarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
 			for(std::list<IHeirarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)

@@ -641,7 +641,7 @@ void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, doub
 	else
 	{
 		//##DEBUG##
-		std::wcout << "Failed to find matching line state change in RevokeSetLineState! " << GetLineName(targetLine) << '\t' << lineData.GetData() << '\t' << reportedTime << '\t' << accessTime << '\n';
+		std::wcout << "Failed to find matching line state change in RevokeSetLineState! " << GetLineName(targetLine) << '\t' << lineData.GetData() << '\t' << std::setprecision(24) << reportedTime << '\t' << std::setprecision(24) << accessTime << '\n';
 	}
 
 	//Update the lineAccessPending flag
@@ -1458,6 +1458,7 @@ void Z80::LoadState(IHeirarchicalStorageNode& node)
 		//Restore the lineAccessBuffer state
 		else if((*i)->GetName() == L"LineAccessBuffer")
 		{
+			lineAccessBuffer.clear();
 			IHeirarchicalStorageNode& lineAccessBufferNode = *(*i);
 			std::list<IHeirarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
 			for(std::list<IHeirarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
@@ -1500,6 +1501,7 @@ void Z80::LoadState(IHeirarchicalStorageNode& node)
 								{
 									Data lineState(GetLineWidth(lineID));
 									lineStateAttribute->ExtractValue(lineState);
+									lineAccess.state.Resize(lineState.GetBitCount());
 									lineAccess = LineAccess(lineID, lineState, accessTime);
 									lineAccessDefined = true;
 								}
