@@ -433,3 +433,79 @@ void MDControl3::HandleInputKeyUp(unsigned int keyCodeID)
 	buttonPressed[keyCode] = false;
 	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }
+
+//----------------------------------------------------------------------------------------
+//Savestate functions
+//----------------------------------------------------------------------------------------
+void MDControl3::LoadState(IHeirarchicalStorageNode& node)
+{
+	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	{
+		IHeirarchicalStorageNode& node = *(*i);
+		std::wstring nodeName = node.GetName();
+		if(nodeName == L"LineInputStateTH")
+		{
+			node.ExtractData(lineInputStateTH);
+		}
+		else if(nodeName == L"LineAssertedD0")
+		{
+			node.ExtractData(lineAssertedD0);
+		}
+		else if(nodeName == L"LineAssertedD1")
+		{
+			node.ExtractData(lineAssertedD1);
+		}
+		else if(nodeName == L"LineAssertedD2")
+		{
+			node.ExtractData(lineAssertedD2);
+		}
+		else if(nodeName == L"LineAssertedD3")
+		{
+			node.ExtractData(lineAssertedD3);
+		}
+		else if(nodeName == L"LineAssertedTL")
+		{
+			node.ExtractData(lineAssertedTL);
+		}
+		else if(nodeName == L"LineAssertedTR")
+		{
+			node.ExtractData(lineAssertedTR);
+		}
+		else if(nodeName == L"LineAssertedTH")
+		{
+			node.ExtractData(lineAssertedTH);
+		}
+		else if(nodeName == L"ButtonPressed")
+		{
+			IHeirarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
+			if(buttonNumberAttribute != 0)
+			{
+				unsigned int buttonNo = buttonNumberAttribute->ExtractValue<unsigned int>();
+				if(buttonNo < buttonCount)
+				{
+					bool state;
+					node.ExtractAttribute(L"Pressed", state);
+					buttonPressed[buttonNo] = state;
+				}
+			}
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void MDControl3::SaveState(IHeirarchicalStorageNode& node) const
+{
+	node.CreateChild(L"LineInputStateTH", lineInputStateTH);
+	node.CreateChild(L"LineAssertedD0", lineAssertedD0);
+	node.CreateChild(L"LineAssertedD1", lineAssertedD1);
+	node.CreateChild(L"LineAssertedD2", lineAssertedD2);
+	node.CreateChild(L"LineAssertedD3", lineAssertedD3);
+	node.CreateChild(L"LineAssertedTL", lineAssertedTL);
+	node.CreateChild(L"LineAssertedTR", lineAssertedTR);
+	node.CreateChild(L"LineAssertedTH", lineAssertedTH);
+	for(unsigned int i = 0; i < buttonCount; ++i)
+	{
+		node.CreateChild(L"ButtonPressed").CreateAttribute(L"ButtonNo", i).CreateAttribute(L"Pressed", buttonPressed[i]);
+	}
+}

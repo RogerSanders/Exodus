@@ -54,6 +54,10 @@ public:
 	virtual void HandleInputKeyDown(unsigned int keyCodeID);
 	virtual void HandleInputKeyUp(unsigned int keyCodeID);
 
+	//Savestate functions
+	virtual void LoadState(IHeirarchicalStorageNode& node);
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+
 private:
 	enum Button
 	{
@@ -100,13 +104,13 @@ private:
 	double lastLineAccessTime;
 	enum LineID
 	{
-		LINE_D0 = 1,	//IO
-		LINE_D1,		//IO
-		LINE_D2,		//IO
-		LINE_D3,		//IO
-		LINE_TL,		//IO
-		LINE_TR,		//IO
-		LINE_TH			//IO
+		LINE_D0 = 1, //IO
+		LINE_D1,     //IO
+		LINE_D2,     //IO
+		LINE_D3,     //IO
+		LINE_TL,     //IO
+		LINE_TR,     //IO
+		LINE_TH      //IO
 	};
 };
 
