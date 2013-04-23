@@ -1701,6 +1701,29 @@ void System::ExecuteThread()
 }
 
 //----------------------------------------------------------------------------------------
+void System::ExecuteSystemStepManual(double targetTime)
+{
+	//Start active device threads
+	executionManager.BeginExecution();
+
+	//Commit the current state of each device. We perform this task here to ensure that
+	//manual changes made through the debug interface while the system was idle are not
+	//lost in the event of a rollback.
+	executionManager.Commit();
+
+	//Advance the system until we reach the target time
+	double totalSystemExecutionTime = 0;
+	while(totalSystemExecutionTime < targetTime)
+	{
+		double timeRemainingToTarget = targetTime - totalSystemExecutionTime;
+		totalSystemExecutionTime += ExecuteSystemStep(timeRemainingToTarget);
+	}
+
+	//Stop active device threads
+	executionManager.SuspendExecution();
+}
+
+//----------------------------------------------------------------------------------------
 double System::ExecuteSystemStep(double maximumTimeslice)
 {
 	//Determine the maximum length of time all devices can run unsynchronized before the

@@ -671,26 +671,6 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="DisassemblyOldView"
-				>
-				<File
-					RelativePath=".\DisassemblyOldView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DisassemblyOldView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\DisassemblyOldViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DisassemblyOldViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="DisassemblyView"
 				>
 				<File

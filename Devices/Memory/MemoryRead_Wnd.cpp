@@ -36,9 +36,3 @@ void MemoryRead::OpenViewModel(const std::wstring& viewModelGroupName, const std
 	CreateMenuHandlers();
 	menuHandler->OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
 }
-
-//----------------------------------------------------------------------------------------
-void MemoryRead::OpenOldMemoryEditorView(unsigned int targetMemoryLocation)
-{
-	menuHandler->OpenOldMemoryEditorView(targetMemoryLocation);
-}

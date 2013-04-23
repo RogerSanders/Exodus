@@ -9,16 +9,11 @@ public:
 	//Enumerations
 	enum MenuItem
 	{
-		MENUITEM_MEMORYEDITOR,
-		MENUITEM_MEMORYVIEWEROLD,
-		MENUITEM_MEMORYEDITOROLD
+		MENUITEM_MEMORYEDITOR
 	};
 
 	//Constructors
 	DebugMenuHandler(MemoryRead* adevice);
-
-	//Window functions
-	void OpenOldMemoryEditorView(unsigned int atargetMemoryAddress);
 
 protected:
 	//Management functions
