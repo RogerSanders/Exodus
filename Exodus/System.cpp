@@ -6888,7 +6888,7 @@ bool System::LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, uns
 	}
 
 	//Obtain the width of the target line
-	unsigned int targetLineWidth = targetDevice->GetLineID(targetLineName);
+	unsigned int targetLineWidth = targetDevice->GetLineWidth(targetLineID);
 	if(targetLineWidth == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The line with name \"" + targetLineName + L"\" on device with name \"" + targetDeviceName + L"\" returned a line width of 0 for System.MapSystemLine!"));

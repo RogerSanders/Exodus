@@ -428,8 +428,9 @@ unsigned int A10000::GetLineWidth(unsigned int lineID) const
 		return 1;
 	case LINE_HL:
 		return 1;
+
 	case LINE_HWVERSION:
-		return 1;
+		return 4;
 	}
 	return 0;
 }
