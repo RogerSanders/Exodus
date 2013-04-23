@@ -36,6 +36,7 @@ void MDControl6::Initialize()
 		outputLineState[i].asserted = false;
 		outputLineState[i].timeoutFlagged = false;
 	}
+	lastLineAccessTime = 0;
 }
 
 //----------------------------------------------------------------------------------------
