@@ -21,7 +21,6 @@ void MDControl3::Initialize()
 		buttonPressed[i] = false;
 	}
 	lineInputStateTH = false;
-
 	lineAssertedD0 = false;
 	lineAssertedD1 = false;
 	lineAssertedD2 = false;
@@ -29,6 +28,7 @@ void MDControl3::Initialize()
 	lineAssertedTL = false;
 	lineAssertedTR = false;
 	lineAssertedTH = false;
+	lastLineAccessTime = 0;
 }
 
 //----------------------------------------------------------------------------------------
