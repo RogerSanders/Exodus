@@ -41,7 +41,7 @@ void YM2612::DebugMenuHandler::OpenOperatorView(unsigned int achannelNo, unsigne
 void YM2612::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	menuItems.push_back(MenuItemDefinition(MENUITEM_DEBUGGER, L"Debugger", L"Debugger", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_OPERATOR, L"Operator", L"Operator", true));
+	//menuItems.push_back(MenuItemDefinition(MENUITEM_OPERATOR, L"Operator", L"Operator", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", L"Raw Registers", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_WAV_FILE_LOGGING, L"OutputLogging", L"WAV File Logging", true));
 }

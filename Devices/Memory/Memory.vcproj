@@ -1292,46 +1292,6 @@
 					>
 				</File>
 			</Filter>
-			<Filter
-				Name="MemoryEditorOldView"
-				>
-				<File
-					RelativePath=".\MemoryEditorOldView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MemoryEditorOldView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\MemoryEditorOldViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MemoryEditorOldViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="MemoryViewerOldView"
-				>
-				<File
-					RelativePath=".\MemoryViewerOldView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MemoryViewerOldView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\MemoryViewerOldViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MemoryViewerOldViewModel.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="MemoryWrite"

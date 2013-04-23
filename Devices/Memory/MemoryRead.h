@@ -53,9 +53,6 @@ private:
 	friend class MemoryViewerOldView;
 	friend class MemoryEditorOldView;
 
-	//Window functions
-	void OpenOldMemoryEditorView(unsigned int targetMemoryLocation);
-
 private:
 	unsigned int interfaceSize;
 

@@ -59,8 +59,8 @@ INT_PTR System::DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 	initializedDialog = true;
 
 	//Update the textboxes
-	if(currentControlFocus != IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT)	UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, systemStep);
-	if(currentControlFocus != IDC_DEVICECONTROL_DEVICE_STEPAMOUNT)		UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, deviceStep);
+	if(currentControlFocus != IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT)  UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, systemStep);
+	if(currentControlFocus != IDC_DEVICECONTROL_DEVICE_STEPAMOUNT)     UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, deviceStep);
 
 	//Check if we need to refresh the device list
 	bool refreshDeviceList = (devicesCopy.size() != system->devices.size());
@@ -102,6 +102,18 @@ INT_PTR System::DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 		deviceListIndex = -1;
 	}
 
+	//Update the checkboxes
+	int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
+	LRESULT getItemDataResult = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
+	if(getItemDataResult != LB_ERR)
+	{
+		DeviceContext* deviceContext = (DeviceContext*)getItemDataResult;
+		if(deviceContext != 0)
+		{
+			CheckDlgButton(hwnd, IDC_DEVICECONTROL_DEVICE_ENABLED, deviceContext->DeviceEnabled()? BST_CHECKED: BST_UNCHECKED);
+		}
+	}
+
 	return TRUE;
 }
 
@@ -120,7 +132,7 @@ INT_PTR System::DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			break;
 		case IDC_DEVICECONTROL_SYSTEM_EXECUTE:
 			system->StopSystem();
-			system->ExecuteSystemStep(systemStep);
+			system->ExecuteSystemStepManual(systemStep);
 			break;
 		case IDC_DEVICECONTROL_DEVICE_INITIALIZE:{
 			int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);

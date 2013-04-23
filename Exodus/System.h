@@ -387,6 +387,7 @@ private:
 	void InitializeAllDevices();
 	void SignalSystemStopped();
 	void ExecuteThread();
+	void ExecuteSystemStepManual(double maximumTimeslice);
 	double ExecuteSystemStep(double maximumTimeslice);
 
 	//Output stream functions
