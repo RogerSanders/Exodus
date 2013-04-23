@@ -6,10 +6,19 @@ namespace M68000{
 //Constructors
 //----------------------------------------------------------------------------------------
 M68000::RegistersView::RegistersView(M68000* adevice)
-:device(adevice), initializedDialog(false), currentControlFocus(0)
+:device(adevice), initializedDialog(false), currentControlFocus(0), systemPausedToggleCounterCached(device->systemPausedToggleCounter)
 {
+	changedColor = RGB(255,0,0);
+	backgroundColor = RGB(255,255,255);
+	backgroundBrush = CreateSolidBrush(backgroundColor);
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Registers");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_M68000_REGISTERS));
+}
+
+//----------------------------------------------------------------------------------------
+M68000::RegistersView::~RegistersView()
+{
+	DeleteObject(backgroundBrush);
 }
 
 //----------------------------------------------------------------------------------------
@@ -28,6 +37,8 @@ INT_PTR M68000::RegistersView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam,
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
+	case WM_CTLCOLOREDIT:
+		return msgWM_CTLCOLOREDIT(hwnd, wparam, lparam);
 	}
 	return FALSE;
 }
@@ -55,6 +66,15 @@ INT_PTR M68000::RegistersView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lpar
 INT_PTR M68000::RegistersView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	initializedDialog = true;
+
+	//If the system toggle counter has changed, latch the new value, and force the entire
+	//window to redraw, since the highlight state may have changed for some of our
+	//register controls.
+	if(systemPausedToggleCounterCached != device->systemPausedToggleCounter)
+	{
+		systemPausedToggleCounterCached = device->systemPausedToggleCounter;
+		InvalidateRect(hwnd, NULL, FALSE);
+	}
 
 	Data data(BITCOUNT_LONG);
 	//Update address registers
@@ -159,6 +179,75 @@ INT_PTR M68000::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lp
 	}
 
 	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR M68000::RegistersView::msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	//Handle text colour changes for registers which have changed since the last time the
+	//system was halted
+	if((systemPausedToggleCounterCached > 0) && RegisterContentsChanged(GetDlgCtrlID((HWND)lparam)))
+	{
+		SetTextColor((HDC)wparam, changedColor);
+		return (BOOL)HandleToLong(backgroundBrush);
+	}
+
+	return FALSE;
+}
+
+//----------------------------------------------------------------------------------------
+//Changed register functions
+//----------------------------------------------------------------------------------------
+bool M68000::RegistersView::RegisterContentsChanged(int controlID)
+{
+	switch(controlID)
+	{
+	case IDC_REG_A0:
+	case IDC_REG_A1:
+	case IDC_REG_A2:
+	case IDC_REG_A3:
+	case IDC_REG_A4:
+	case IDC_REG_A5:
+	case IDC_REG_A6:
+	case IDC_REG_A7:{
+		int regNo = controlID - IDC_REG_A0;
+		return (device->regChangedA[regNo] != device->GetA(regNo).GetData());}
+	case IDC_REG_D0:
+	case IDC_REG_D1:
+	case IDC_REG_D2:
+	case IDC_REG_D3:
+	case IDC_REG_D4:
+	case IDC_REG_D5:
+	case IDC_REG_D6:
+	case IDC_REG_D7:{
+		int regNo = controlID - IDC_REG_D0;
+		return (device->regChangedD[regNo] != device->GetD(regNo).GetData());}
+	case IDC_REG_PC:
+		return (device->regChangedPC != device->GetPC().GetData());
+	case IDC_REG_X:
+		return (device->regChangedX != device->GetX());
+	case IDC_REG_N:
+		return (device->regChangedN != device->GetN());
+	case IDC_REG_Z:
+		return (device->regChangedZ != device->GetZ());
+	case IDC_REG_V:
+		return (device->regChangedV != device->GetV());
+	case IDC_REG_C:
+		return (device->regChangedC != device->GetC());
+	case IDC_REG_USP:
+		return (device->regChangedUSP != device->GetUSP().GetData());
+	case IDC_REG_SSP:
+		return (device->regChangedSSP != device->GetSSP().GetData());
+	case IDC_REG_S:
+		return (device->regChangedS != device->GetSR_S());
+	case IDC_REG_T:
+		return (device->regChangedT != device->GetSR_T());
+	case IDC_REG_IPM:
+		return (device->regChangedIPM != device->GetSR_IPM());
+	case IDC_REG_SR:
+		return (device->regChangedSR != device->GetSR().GetData());
+	}
+	return false;
 }
 
 } //Close namespace M68000

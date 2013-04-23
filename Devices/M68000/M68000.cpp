@@ -31,6 +31,9 @@ M68000::M68000(const std::wstring& aimplementationName, const std::wstring& ains
 	breakOnAllExceptions = false;
 	disableAllExceptions = false;
 	debugExceptionTriggerPending = false;
+
+	//Initialize our changed register state
+	systemPausedToggleCounter = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -291,6 +294,42 @@ void M68000::Reset()
 	//Queue the reset exception for the next cycle
 	group0Vector = EX_RESET;
 	group0ExceptionPending = true;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::BeginExecution()
+{
+	//Save a snapshot of the current register state for changed register tracking
+	for(unsigned int i = 0; i < addressRegCount; ++i)
+	{
+		regChangedA[i] = GetA(i).GetData();
+	}
+	for(unsigned int i = 0; i < dataRegCount; ++i)
+	{
+		regChangedD[i] = GetD(i).GetData();
+	}
+	regChangedPC = GetPC().GetData();
+	regChangedX = GetX();
+	regChangedN = GetN();
+	regChangedZ = GetZ();
+	regChangedV = GetV();
+	regChangedC = GetC();
+	regChangedUSP = GetUSP().GetData();
+	regChangedSSP = GetSSP().GetData();
+	regChangedS = GetSR_S();
+	regChangedT = GetSR_T();
+	regChangedIPM = GetSR_IPM();
+	regChangedSR = GetSR().GetData();
+
+	//Increment the system paused toggle counter
+	++systemPausedToggleCounter;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SuspendExecution()
+{
+	//Increment the system paused toggle counter
+	++systemPausedToggleCounter;
 }
 
 //----------------------------------------------------------------------------------------

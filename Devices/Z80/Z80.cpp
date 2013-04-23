@@ -15,6 +15,9 @@ Z80::Z80(const std::wstring& aimplementationName, const std::wstring& ainstanceN
 	//Initialize our CE line state
 	ceLineMaskRD = 0;
 	ceLineMaskWR = 0;
+
+	//Initialize our changed register state
+	systemPausedToggleCounter = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -362,6 +365,55 @@ void Z80::Reset()
 	//from a 68K-triggered reset without being 'stuck' in the HALT state."
 
 	ClearCallStack();
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::BeginExecution()
+{
+	//Save a snapshot of the current register state for changed register tracking
+	regChangedAF = GetAF().GetData();
+	regChangedBC = GetBC().GetData();
+	regChangedDE = GetDE().GetData();
+	regChangedHL = GetHL().GetData();
+	regChangedAF2 = GetAF2().GetData();
+	regChangedBC2 = GetBC2().GetData();
+	regChangedDE2 = GetDE2().GetData();
+	regChangedHL2 = GetHL2().GetData();
+	regChangedA = GetA().GetData();
+	regChangedF = GetF().GetData();
+	regChangedB = GetB().GetData();
+	regChangedC = GetC().GetData();
+	regChangedD = GetD().GetData();
+	regChangedE = GetE().GetData();
+	regChangedH = GetH().GetData();
+	regChangedL = GetL().GetData();
+	regChangedI = GetI().GetData();
+	regChangedR = GetR().GetData();
+	regChangedIX = GetIX().GetData();
+	regChangedIY = GetIY().GetData();
+	regChangedSP = GetSP().GetData();
+	regChangedPC = GetPC().GetData();
+	regChangedIM = GetInterruptMode();
+	regChangedIFF1 = GetIFF1();
+	regChangedIFF2 = GetIFF2();
+	regChangedFlagS = GetFlagS();
+	regChangedFlagZ = GetFlagZ();
+	regChangedFlagY = GetFlagY();
+	regChangedFlagH = GetFlagH();
+	regChangedFlagX = GetFlagX();
+	regChangedFlagPV = GetFlagPV();
+	regChangedFlagN = GetFlagN();
+	regChangedFlagC = GetFlagC();
+
+	//Increment the system paused toggle counter
+	++systemPausedToggleCounter;
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::SuspendExecution()
+{
+	//Increment the system paused toggle counter
+	++systemPausedToggleCounter;
 }
 
 //----------------------------------------------------------------------------------------

@@ -10,6 +10,7 @@ class M68000::RegistersView :public ViewBase
 public:
 	//Constructors
 	RegistersView(M68000* adevice);
+	~RegistersView();
 
 protected:
 	//Member window procedure
@@ -21,12 +22,20 @@ private:
 	INT_PTR msgWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
+	//Changed register functions
+	bool RegisterContentsChanged(int controlID);
 
 private:
 	M68000* device;
 	bool initializedDialog;
 	std::wstring previousText;
 	unsigned int currentControlFocus;
+	COLORREF changedColor;
+	COLORREF backgroundColor;
+	HBRUSH backgroundBrush;
+	unsigned int systemPausedToggleCounterCached;
 };
 
 } //Close namespace M68000
