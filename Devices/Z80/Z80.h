@@ -53,6 +53,8 @@ public:
 	virtual bool ValidateDevice();
 	virtual void Initialize();
 	virtual void Reset();
+	virtual void BeginExecution();
+	virtual void SuspendExecution();
 
 	//Reference functions
 	using Processor::AddReference;
@@ -336,6 +338,42 @@ private:
 	unsigned int ceLineMaskRD;
 	unsigned int ceLineMaskWR;
 
+	//Changed register state
+	volatile unsigned int systemPausedToggleCounter;
+	volatile unsigned int regChangedAF;
+	volatile unsigned int regChangedBC;
+	volatile unsigned int regChangedDE;
+	volatile unsigned int regChangedHL;
+	volatile unsigned int regChangedAF2;
+	volatile unsigned int regChangedBC2;
+	volatile unsigned int regChangedDE2;
+	volatile unsigned int regChangedHL2;
+	volatile unsigned int regChangedA;
+	volatile unsigned int regChangedF;
+	volatile unsigned int regChangedB;
+	volatile unsigned int regChangedC;
+	volatile unsigned int regChangedD;
+	volatile unsigned int regChangedE;
+	volatile unsigned int regChangedH;
+	volatile unsigned int regChangedL;
+	volatile unsigned int regChangedI;
+	volatile unsigned int regChangedR;
+	volatile unsigned int regChangedIX;
+	volatile unsigned int regChangedIY;
+	volatile unsigned int regChangedSP;
+	volatile unsigned int regChangedPC;
+	volatile unsigned int regChangedIM;
+	volatile bool regChangedIFF1;
+	volatile bool regChangedIFF2;
+	volatile bool regChangedFlagS;
+	volatile bool regChangedFlagZ;
+	volatile bool regChangedFlagY;
+	volatile bool regChangedFlagH;
+	volatile bool regChangedFlagX;
+	volatile bool regChangedFlagPV;
+	volatile bool regChangedFlagN;
+	volatile bool regChangedFlagC;
+
 	//Line access
 	boost::mutex lineMutex;
 	mutable double lastLineCheckTime;
@@ -347,7 +385,6 @@ private:
 	bool suspendWhenBusReleased;
 	volatile bool suspendUntilLineStateChangeReceived;
 	bool bsuspendUntilLineStateChangeReceived;
-
 	bool resetLineState;
 	bool busreqLineState;
 	bool busackLineState;

@@ -6,10 +6,19 @@ namespace Z80{
 //Constructors
 //----------------------------------------------------------------------------------------
 Z80::RegistersView::RegistersView(Z80* adevice)
-:device(adevice), initializedDialog(false), currentControlFocus(0)
+:device(adevice), initializedDialog(false), currentControlFocus(0), systemPausedToggleCounterCached(device->systemPausedToggleCounter)
 {
+	changedColor = RGB(255,0,0);
+	backgroundColor = RGB(255,255,255);
+	backgroundBrush = CreateSolidBrush(backgroundColor);
 	std::wstring windowTitle = BuildWindowTitle(device->GetModuleDisplayName(), device->GetDeviceInstanceName(), L"Registers");
 	SetDialogTemplateSettings(windowTitle, (HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_Z80_REGISTERS));
+}
+
+//----------------------------------------------------------------------------------------
+Z80::RegistersView::~RegistersView()
+{
+	DeleteObject(backgroundBrush);
 }
 
 //----------------------------------------------------------------------------------------
@@ -28,6 +37,8 @@ INT_PTR Z80::RegistersView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LP
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
+	case WM_CTLCOLOREDIT:
+		return msgWM_CTLCOLOREDIT(hwnd, wparam, lparam);
 	}
 	return FALSE;
 }
@@ -55,6 +66,15 @@ INT_PTR Z80::RegistersView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 INT_PTR Z80::RegistersView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	initializedDialog = true;
+
+	//If the system toggle counter has changed, latch the new value, and force the entire
+	//window to redraw, since the highlight state may have changed for some of our
+	//register controls.
+	if(systemPausedToggleCounterCached != device->systemPausedToggleCounter)
+	{
+		systemPausedToggleCounterCached = device->systemPausedToggleCounter;
+		InvalidateRect(hwnd, NULL, FALSE);
+	}
 
 	//Update Registers
 	if(currentControlFocus != IDC_Z80_REG_AF)	UpdateDlgItemHex(hwnd, IDC_Z80_REG_AF, 4, device->GetAF().GetData());
@@ -230,6 +250,98 @@ INT_PTR Z80::RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpara
 	}
 
 	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR Z80::RegistersView::msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	//Handle text colour changes for registers which have changed since the last time the
+	//system was halted
+	if((systemPausedToggleCounterCached > 0) && RegisterContentsChanged(GetDlgCtrlID((HWND)lparam)))
+	{
+		SetTextColor((HDC)wparam, changedColor);
+		return (BOOL)HandleToLong(backgroundBrush);
+	}
+
+	return FALSE;
+}
+
+//----------------------------------------------------------------------------------------
+//Changed register functions
+//----------------------------------------------------------------------------------------
+bool Z80::RegistersView::RegisterContentsChanged(int controlID)
+{
+	switch(controlID)
+	{
+	case IDC_Z80_REG_AF:
+		return (device->regChangedAF != device->GetAF().GetData());
+	case IDC_Z80_REG_BC:
+		return (device->regChangedBC != device->GetBC().GetData());
+	case IDC_Z80_REG_DE:
+		return (device->regChangedDE != device->GetDE().GetData());
+	case IDC_Z80_REG_HL:
+		return (device->regChangedHL != device->GetHL().GetData());
+	case IDC_Z80_REG_AF2:
+		return (device->regChangedAF2 != device->GetAF2().GetData());
+	case IDC_Z80_REG_BC2:
+		return (device->regChangedBC2 != device->GetBC2().GetData());
+	case IDC_Z80_REG_DE2:
+		return (device->regChangedDE2 != device->GetDE2().GetData());
+	case IDC_Z80_REG_HL2:
+		return (device->regChangedHL2 != device->GetHL2().GetData());
+
+	case IDC_Z80_REG_IX:
+		return (device->regChangedIX != device->GetIX().GetData());
+	case IDC_Z80_REG_IY:
+		return (device->regChangedIY != device->GetIY().GetData());
+	case IDC_Z80_REG_PC:
+		return (device->regChangedPC != device->GetPC().GetData());
+	case IDC_Z80_REG_SP:
+		return (device->regChangedSP != device->GetSP().GetData());
+	case IDC_Z80_REG_A:
+		return (device->regChangedA != device->GetA().GetData());
+	case IDC_Z80_REG_F:
+		return (device->regChangedF != device->GetF().GetData());
+	case IDC_Z80_REG_B:
+		return (device->regChangedB != device->GetB().GetData());
+	case IDC_Z80_REG_C:
+		return (device->regChangedC != device->GetC().GetData());
+	case IDC_Z80_REG_D:
+		return (device->regChangedD != device->GetD().GetData());
+	case IDC_Z80_REG_E:
+		return (device->regChangedE != device->GetE().GetData());
+	case IDC_Z80_REG_H:
+		return (device->regChangedH != device->GetH().GetData());
+	case IDC_Z80_REG_L:
+		return (device->regChangedL != device->GetL().GetData());
+	case IDC_Z80_REG_I:
+		return (device->regChangedI != device->GetI().GetData());
+	case IDC_Z80_REG_R:
+		return (device->regChangedR != device->GetR().GetData());
+	case IDC_Z80_REG_IFF1:
+		return (device->regChangedIFF1 != device->GetIFF1());
+	case IDC_Z80_REG_IFF2:
+		return (device->regChangedIFF2 != device->GetIFF2());
+	case IDC_Z80_REG_IM:
+		return (device->regChangedIM != device->GetInterruptMode());
+	case IDC_Z80_REG_FLAG_S:
+		return (device->regChangedFlagS != device->GetFlagS());
+	case IDC_Z80_REG_FLAG_Z:
+		return (device->regChangedFlagZ != device->GetFlagZ());
+	case IDC_Z80_REG_FLAG_Y:
+		return (device->regChangedFlagY != device->GetFlagY());
+	case IDC_Z80_REG_FLAG_H:
+		return (device->regChangedFlagH != device->GetFlagH());
+	case IDC_Z80_REG_FLAG_X:
+		return (device->regChangedFlagX != device->GetFlagX());
+	case IDC_Z80_REG_FLAG_PV:
+		return (device->regChangedFlagPV != device->GetFlagPV());
+	case IDC_Z80_REG_FLAG_N:
+		return (device->regChangedFlagN != device->GetFlagN());
+	case IDC_Z80_REG_FLAG_C:
+		return (device->regChangedFlagC != device->GetFlagC());
+	}
+	return false;
 }
 
 } //Close namespace Z80

@@ -146,6 +146,8 @@ public:
 	virtual bool ValidateDevice();
 	virtual void Initialize();
 	virtual void Reset();
+	virtual void BeginExecution();
+	virtual void SuspendExecution();
 
 	//Reference functions
 	using Processor::AddReference;
@@ -417,6 +419,23 @@ private:
 	volatile bool disableAllExceptions;
 	volatile bool debugExceptionTriggerPending;
 	volatile unsigned int debugExceptionTriggerVector;
+
+	//Changed register state
+	volatile unsigned int systemPausedToggleCounter;
+	volatile unsigned int regChangedA[addressRegCount];
+	volatile unsigned int regChangedD[dataRegCount];
+	volatile unsigned int regChangedSSP;
+	volatile unsigned int regChangedUSP;
+	volatile unsigned int regChangedPC;
+	volatile unsigned int regChangedSR;
+	volatile bool regChangedX;
+	volatile bool regChangedN;
+	volatile bool regChangedZ;
+	volatile bool regChangedV;
+	volatile bool regChangedC;
+	volatile bool regChangedS;
+	volatile bool regChangedT;
+	volatile unsigned int regChangedIPM;
 
 	//CE line masks
 	unsigned int ceLineMaskLowerDataStrobe;
