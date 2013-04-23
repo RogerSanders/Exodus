@@ -57,6 +57,10 @@ public:
 	virtual void HandleInputKeyDown(unsigned int keyCodeID);
 	virtual void HandleInputKeyUp(unsigned int keyCodeID);
 
+	//Savestate functions
+	virtual void LoadState(IHeirarchicalStorageNode& node);
+	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+
 private:
 	//Enumerations
 	enum LineID

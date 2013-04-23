@@ -638,42 +638,49 @@ void A10000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 	{
 	//Control port 1 interface
 	case LINE_PORT1_TH:
+		inputLineState[PORT1-PORT1].lineAssertedTH = lineData.GetBit(0);
 		if(!GetControlRegisterTH(PORT1))
 		{
 			SetDataRegisterTH(PORT1, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT1_TR:
+		inputLineState[PORT1-PORT1].lineAssertedTR = lineData.GetBit(0);
 		if(!GetControlRegisterTR(PORT1))
 		{
 			SetDataRegisterTR(PORT1, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT1_TL:
+		inputLineState[PORT1-PORT1].lineAssertedTL = lineData.GetBit(0);
 		if(!GetControlRegisterTL(PORT1))
 		{
 			SetDataRegisterTL(PORT1, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT1_D3:
+		inputLineState[PORT1-PORT1].lineAssertedD3 = lineData.GetBit(0);
 		if(!GetControlRegisterD3(PORT1))
 		{
 			SetDataRegisterD3(PORT1, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT1_D2:
+		inputLineState[PORT1-PORT1].lineAssertedD2 = lineData.GetBit(0);
 		if(!GetControlRegisterD2(PORT1))
 		{
 			SetDataRegisterD2(PORT1, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT1_D1:
+		inputLineState[PORT1-PORT1].lineAssertedD1 = lineData.GetBit(0);
 		if(!GetControlRegisterD1(PORT1))
 		{
 			SetDataRegisterD1(PORT1, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT1_D0:
+		inputLineState[PORT1-PORT1].lineAssertedD0 = lineData.GetBit(0);
 		if(!GetControlRegisterD0(PORT1))
 		{
 			SetDataRegisterD0(PORT1, lineData.GetBit(0));
@@ -682,42 +689,49 @@ void A10000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 
 	//Control port 2 interface
 	case LINE_PORT2_TH:
+		inputLineState[PORT2-PORT1].lineAssertedTH = lineData.GetBit(0);
 		if(!GetControlRegisterTH(PORT2))
 		{
 			SetDataRegisterTH(PORT2, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT2_TR:
+		inputLineState[PORT2-PORT1].lineAssertedTR = lineData.GetBit(0);
 		if(!GetControlRegisterTR(PORT2))
 		{
 			SetDataRegisterTR(PORT2, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT2_TL:
+		inputLineState[PORT2-PORT1].lineAssertedTL = lineData.GetBit(0);
 		if(!GetControlRegisterTL(PORT2))
 		{
 			SetDataRegisterTL(PORT2, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT2_D3:
+		inputLineState[PORT2-PORT1].lineAssertedD3 = lineData.GetBit(0);
 		if(!GetControlRegisterD3(PORT2))
 		{
 			SetDataRegisterD3(PORT2, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT2_D2:
+		inputLineState[PORT2-PORT1].lineAssertedD2 = lineData.GetBit(0);
 		if(!GetControlRegisterD2(PORT2))
 		{
 			SetDataRegisterD2(PORT2, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT2_D1:
+		inputLineState[PORT2-PORT1].lineAssertedD1 = lineData.GetBit(0);
 		if(!GetControlRegisterD1(PORT2))
 		{
 			SetDataRegisterD1(PORT2, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT2_D0:
+		inputLineState[PORT2-PORT1].lineAssertedD0 = lineData.GetBit(0);
 		if(!GetControlRegisterD0(PORT2))
 		{
 			SetDataRegisterD0(PORT2, lineData.GetBit(0));
@@ -726,42 +740,49 @@ void A10000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData)
 
 	//Control port 3 interface
 	case LINE_PORT3_TH:
+		inputLineState[PORT3-PORT1].lineAssertedTH = lineData.GetBit(0);
 		if(!GetControlRegisterTH(PORT3))
 		{
 			SetDataRegisterTH(PORT3, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT3_TR:
+		inputLineState[PORT3-PORT1].lineAssertedTR = lineData.GetBit(0);
 		if(!GetControlRegisterTR(PORT3))
 		{
 			SetDataRegisterTR(PORT3, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT3_TL:
+		inputLineState[PORT3-PORT1].lineAssertedTL = lineData.GetBit(0);
 		if(!GetControlRegisterTL(PORT3))
 		{
 			SetDataRegisterTL(PORT3, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT3_D3:
+		inputLineState[PORT3-PORT1].lineAssertedD3 = lineData.GetBit(0);
 		if(!GetControlRegisterD3(PORT3))
 		{
 			SetDataRegisterD3(PORT3, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT3_D2:
+		inputLineState[PORT3-PORT1].lineAssertedD2 = lineData.GetBit(0);
 		if(!GetControlRegisterD2(PORT3))
 		{
 			SetDataRegisterD2(PORT3, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT3_D1:
+		inputLineState[PORT3-PORT1].lineAssertedD1 = lineData.GetBit(0);
 		if(!GetControlRegisterD1(PORT3))
 		{
 			SetDataRegisterD1(PORT3, lineData.GetBit(0));
 		}
 		break;
 	case LINE_PORT3_D0:
+		inputLineState[PORT3-PORT1].lineAssertedD0 = lineData.GetBit(0);
 		if(!GetControlRegisterD0(PORT3))
 		{
 			SetDataRegisterD0(PORT3, lineData.GetBit(0));

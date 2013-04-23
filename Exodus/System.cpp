@@ -1557,6 +1557,54 @@ void System::InitializeAllDevices()
 		}
 	}
 
+	//Assert the specified unmapped line state for any unmapped lines in the system that
+	//have an unmapped line state specified
+	for(UnmappedLineStateList::const_iterator i = unmappedLineStateList.begin(); i != unmappedLineStateList.end(); ++i)
+	{
+		//Retrieve information on the module that contains the target device
+		unsigned int deviceModuleID = i->targetDevice->GetDeviceModuleID();
+		bool foundDeviceModuleEntry = false;
+		LoadedModuleInfoList::const_iterator deviceLoadedModuleIterator = loadedModuleInfoList.begin();
+		while(!foundDeviceModuleEntry && (deviceLoadedModuleIterator != loadedModuleInfoList.end()))
+		{
+			if(deviceLoadedModuleIterator->moduleID == deviceModuleID)
+			{
+				foundDeviceModuleEntry = true;
+				continue;
+			}
+			++deviceLoadedModuleIterator;
+		}
+		if(!foundDeviceModuleEntry)
+		{
+			continue;
+		}
+		const LoadedModuleInfoInternal& deviceModuleInfo = *deviceLoadedModuleIterator;
+
+		//If the module which contains this device has not been validated, skip any
+		//further processing for this device.
+		if(!deviceModuleInfo.moduleValidated)
+		{
+			continue;
+		}
+
+		//Check if at least one mapping exists to the target line on the device with the
+		//unmapped line state setting
+		bool foundMappingToLine = false;
+		BusInterfaceList::const_iterator busInterfaceIterator = busInterfaces.begin();
+		while(!foundMappingToLine && (busInterfaceIterator != busInterfaces.end()))
+		{
+			foundMappingToLine |= busInterfaceIterator->busInterface->IsDeviceLineMappedTo(i->targetDevice, i->lineNo);
+			++busInterfaceIterator;
+		}
+
+		//If no mapping could be found to the target line, set the target line to the
+		//specified unmapped line state.
+		if(!foundMappingToLine)
+		{
+			i->targetDevice->TransparentSetLineState(i->lineNo, i->lineData);
+		}
+	}
+
 	//Re-assert the current output line state for all devices we just initialized. This is
 	//required, as the initialization routine for a device may change its internal state
 	//in a way that would affect its asserted output line state, but the Initialize method
@@ -4098,7 +4146,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 			}
 			++deviceLoadedModuleIterator;
 		}
-		if(!foundModuleEntry)
+		if(!foundDeviceModuleEntry)
 		{
 			continue;
 		}
