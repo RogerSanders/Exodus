@@ -1258,7 +1258,7 @@ void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, I
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
-	SetLineState(targetLine, lineData, 0, 0.0, 0);
+	SetLineState(targetLine, lineData, 0, lastTimesliceLength, 0);
 }
 
 //----------------------------------------------------------------------------------------

@@ -80,10 +80,13 @@ void System::SystemOptionMenuHandler::HandleMenuItemSelect(int menuItemID, IView
 	//Replace the current option selection
 	if(settingInfo->toggleSetting)
 	{
-		settingInfo->selectedOption = newTargetOption;
-		if(settingInfo->menuItemEntry != 0)
+		if(!settingInfo->toggleSettingAutoRevert)
 		{
-			settingInfo->menuItemEntry->SetCheckedState((settingInfo->selectedOption == settingInfo->onOption));
+			settingInfo->selectedOption = newTargetOption;
+			if(settingInfo->menuItemEntry != 0)
+			{
+				settingInfo->menuItemEntry->SetCheckedState((settingInfo->selectedOption == settingInfo->onOption));
+			}
 		}
 	}
 	else
@@ -103,6 +106,24 @@ void System::SystemOptionMenuHandler::HandleMenuItemSelect(int menuItemID, IView
 	for(std::list<SystemStateChange>::const_iterator i = optionInfo.stateChanges.begin(); i != optionInfo.stateChanges.end(); ++i)
 	{
 		device->ApplySystemStateChange(*i);
+	}
+
+	//If this is an auto-reverting toggle option, advance until the required time, and
+	//revert to the previous setting.
+	if(settingInfo->toggleSettingAutoRevert)
+	{
+		//Execute the system up to the revert time
+		device->ExecuteSystemStepManual(settingInfo->toggleSettingAutoRevertTime);
+
+		//Obtain info on the reverted option
+		unsigned int revertTargetOption = settingInfo->selectedOption;
+		const SystemSettingOption& revertOptionInfo = settingInfo->options[revertTargetOption];
+
+		//Apply all settings to revert to the previous option state
+		for(std::list<SystemStateChange>::const_iterator i = revertOptionInfo.stateChanges.begin(); i != revertOptionInfo.stateChanges.end(); ++i)
+		{
+			device->ApplySystemStateChange(*i);
+		}
 	}
 
 	//Restore the system running state
