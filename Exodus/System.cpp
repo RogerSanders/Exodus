@@ -2020,7 +2020,7 @@ void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* a
 		//operation itself, which will then create a rollback target that we can't
 		//actually advance up to without triggering the rollback again. See EX-62 for more
 		//info.
-		if(arollbackDevice->GetTargetDevice()->GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+		if((arollbackDevice != 0) && (arollbackDevice->GetTargetDevice()->GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP))
 		{
 			rollbackTimeslice = arollbackDevice->GetCurrentTimesliceProgress();
 		}
@@ -6997,10 +6997,19 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 
 	//Extract any optional attributes
 	setting.toggleSetting = false;
+	setting.toggleSettingAutoRevert = false;
+	setting.toggleSettingAutoRevertTime = 0;
 	IHeirarchicalStorageAttribute* toggleSettingAttribute = node.GetAttribute(L"ToggleSetting");
+	IHeirarchicalStorageAttribute* toggleSettingAutoRevertAttribute = node.GetAttribute(L"ToggleSettingAutoRevert");
+	IHeirarchicalStorageAttribute* toggleSettingAutoRevertTimeAttribute = node.GetAttribute(L"ToggleSettingAutoRevertTime");
 	if(toggleSettingAttribute != 0)
 	{
 		setting.toggleSetting = toggleSettingAttribute->ExtractValue<bool>();
+		if((toggleSettingAutoRevertAttribute != 0) && (toggleSettingAutoRevertTimeAttribute != 0))
+		{
+			setting.toggleSettingAutoRevert = toggleSettingAutoRevertAttribute->ExtractValue<bool>();
+			setting.toggleSettingAutoRevertTime = toggleSettingAutoRevertTimeAttribute->ExtractValue<double>();
+		}
 	}
 
 	//Load the child elements from this setting node
