@@ -321,7 +321,12 @@ bool ExodusInterface::InitializeSystem()
 			//Load the default workspace
 			if(!prefs.loadWorkspace.empty())
 			{
-				LoadWorkspaceFromFile(prefs.loadWorkspace);
+				//Spawn a worker thread to handle loading of the workspace. We do this in
+				//a separate thread so that viewmodel requests are still processed during
+				//the operation, which is important in order to make sure views can
+				//actually be loaded. Note that we specifically take a copy of the path
+				//string, rather than pass it by reference.
+				boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, prefs.loadWorkspace));
 			}
 		}
 	}
@@ -560,7 +565,13 @@ void ExodusInterface::QuickLoadState(bool debuggerState)
 	{
 		std::wstring workspaceFileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L" - DebugWorkspace" + L".xml";
 		std::wstring workspaceFilePath = PathCombinePaths(prefs.pathSavestates, workspaceFileName);
-		LoadWorkspaceFromFile(workspaceFilePath);
+
+		//Spawn a worker thread to handle loading of the workspace. We do this in a
+		//separate thread so that viewmodel requests are still processed during the
+		//operation, which is important in order to make sure views can actually be
+		//loaded. Note that we specifically take a copy of the path string, rather than
+		//pass it by reference.
+		boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, workspaceFilePath));
 	}
 }
 
