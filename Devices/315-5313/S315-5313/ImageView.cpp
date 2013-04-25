@@ -462,7 +462,7 @@ void S315_5313::ImageView::UpdateImage()
 
 	//If a new frame is ready to be displayed, update our image texture with the new
 	//rendered image data.
-	if(device->videoSingleBuffering || device->frameReadyInImageBuffer)
+	if(device->videoSingleBuffering || (device->wholeFramesRenderedToImageBufferSinceLastRefresh > 0))
 	{
 		//Obtain a lock on imageBufferMutex
 		boost::mutex::scoped_lock lock(device->imageBufferMutex);
@@ -471,15 +471,15 @@ void S315_5313::ImageView::UpdateImage()
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, device->imageBufferWidth, rowCount, GL_RGBA, GL_UNSIGNED_BYTE, device->imageBuffer[displayingImageBufferPlane]);
 
 		//Flag that a new frame is no longer ready in the image buffer
-		bool newFrame = device->frameReadyInImageBuffer;
-		device->frameReadyInImageBuffer = false;
+		unsigned int framesCompletedDrawing = device->wholeFramesRenderedToImageBufferSinceLastRefresh;
+		device->wholeFramesRenderedToImageBufferSinceLastRefresh = 0;
 
 		//Release the lock on imageBufferMutex now that we are finished with the image
 		//buffer state
 		lock.unlock();
 
 		//Update the FPS counter if a new frame has been completed
-		if(newFrame)
+		if(framesCompletedDrawing > 0)
 		{
 			//Obtain the current timer value
 			LARGE_INTEGER newFrameTickCount;
@@ -487,7 +487,7 @@ void S315_5313::ImageView::UpdateImage()
 
 			//Update the count of frames that have been rendered since the last FPS
 			//counter update
-			++framesRenderedSinceLastFPSCounterUpdate;
+			framesRenderedSinceLastFPSCounterUpdate += framesCompletedDrawing;
 
 			//If a second or more has passed since we last updated the FPS counter, update
 			//it now.

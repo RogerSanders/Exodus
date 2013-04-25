@@ -92,7 +92,7 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	renderThreadActive = false;
 	renderTimeslicePending = false;
 	drawingImageBufferPlane = 0;
-	frameReadyInImageBuffer = false;
+	wholeFramesRenderedToImageBufferSinceLastRefresh = 0;
 	for(unsigned int bufferPlaneNo = 0; bufferPlaneNo < imageBufferPlanes; ++bufferPlaneNo)
 	{
 		imageBufferLineCount[bufferPlaneNo] = 0;

@@ -122,7 +122,7 @@ timerAOverflowTimes(false)
 
 	//Initialize the audio output stream
 	outputSampleRate = 48000;	//44100;
-	outputStream.Open(2, 16, outputSampleRate, outputSampleRate/4, outputSampleRate/60);
+	outputStream.Open(2, 16, outputSampleRate, outputSampleRate/4, outputSampleRate/20);
 
 	//Initialize the key locking state
 	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
@@ -1309,7 +1309,7 @@ void YM2612::RenderThread()
 		//operations together, ensuring that we only send data to the output audio stream
 		//when we have a significant number of samples to send.
 		unsigned int outputFrequency = (unsigned int)fmClock;
-		size_t minimumSamplesToOutput = (size_t)(outputFrequency / 10);
+		size_t minimumSamplesToOutput = (size_t)(outputFrequency / 60);
 		if(outputBuffer.size() >= minimumSamplesToOutput)
 		{
 			unsigned int internalSampleCount = (unsigned int)outputBuffer.size() / 2;
@@ -1322,6 +1322,9 @@ void YM2612::RenderThread()
 			}
 			outputBuffer.clear();
 			outputBuffer.reserve(minimumSamplesToOutput * 2);
+
+			//##DEBUG##
+			//std::wcout << "YM2612 Output: " << internalSampleCount << '\t' << outputSampleCount << '\n';
 		}
 
 		//Play the multiplexed output audio stream

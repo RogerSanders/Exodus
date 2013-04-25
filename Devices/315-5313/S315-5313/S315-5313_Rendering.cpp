@@ -938,7 +938,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 
 		//Now that we've completed another frame, notify the image window that a new
 		//frame is ready to display.
-		frameReadyInImageBuffer = true;
+		++wholeFramesRenderedToImageBufferSinceLastRefresh;
 
 		//Record the odd interlace frame flag
 		imageBufferLineCount[drawingImageBufferPlane] = renderDigitalOddFlagSet;
