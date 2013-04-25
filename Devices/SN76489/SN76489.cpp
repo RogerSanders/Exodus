@@ -11,7 +11,7 @@ SN76489::SN76489(const std::wstring& aimplementationName, const std::wstring& ai
 {
 	//Initialize the audio output stream
 	outputSampleRate = 48000;	//44100;
-	outputStream.Open(1, 16, outputSampleRate, outputSampleRate/4, outputSampleRate/60);
+	outputStream.Open(1, 16, outputSampleRate, outputSampleRate/4, outputSampleRate/20);
 
 	//##TODO## Provide a way for these properties to be defined externally, and provide
 	//debug windows which can modify them on the fly.
@@ -419,7 +419,7 @@ void SN76489::RenderThread()
 		//Play the mixed audio stream. Note that we fold samples from successive render
 		//operations together, ensuring that we only send data to the output audio stream
 		//when we have a significant number of samples to send.
-		size_t minimumSamplesToOutput = (size_t)(outputFrequency / 10.0);
+		size_t minimumSamplesToOutput = (size_t)(outputFrequency / 60.0);
 		if(outputBuffer.size() >= minimumSamplesToOutput)
 		{
 			unsigned int internalSampleCount = (unsigned int)outputBuffer.size();

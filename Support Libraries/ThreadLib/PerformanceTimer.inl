@@ -77,7 +77,7 @@ void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, double 
 
 		//Spin around sampling the current time until we reach the target time, taking
 		//counter overflow into account.
-		while((executionTimeEnd.QuadPart - executionTimeStart.QuadPart) < targetExecutionSpanInTicks)
+		do
 		{
 			QueryPerformanceCounter(&executionTimeEnd);
 			if(executionTimeEnd.QuadPart < executionTimeStart.QuadPart)
@@ -85,6 +85,7 @@ void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, double 
 				executionTimeStart.QuadPart = 0;
 			}
 		}
+		while((executionTimeEnd.QuadPart - executionTimeStart.QuadPart) < targetExecutionSpanInTicks);
 
 		//If we stopped slightly before the target time, record the number of ticks which
 		//we are ahead of where we should be.

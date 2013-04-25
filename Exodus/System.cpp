@@ -1677,7 +1677,7 @@ void System::ExecuteThread()
 
 		//##TODO## Make it possible to configure the maximum timeslice size
 		//##TODO## Build in heuristics to calculate the optimal maximum timeslice size
-		double systemStepTime = ExecuteSystemStep(40000000.0);
+		double systemStepTime = ExecuteSystemStep(20000000.0);
 		accumulatedExecutionTime += systemStepTime;
 
 		//##DEBUG##
@@ -1686,7 +1686,7 @@ void System::ExecuteThread()
 
 		//If we're running too fast (*chuckle*), delay execution until we get back in
 		//sync.
-		if(accumulatedExecutionTime >= 40000000.0)
+		if(accumulatedExecutionTime >= 20000000.0)
 //		if(accumulatedExecutionTime >= 1000000000.0)
 		{
 			timer.Sync(accumulatedExecutionTime, enableThrottling);

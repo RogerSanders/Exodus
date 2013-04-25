@@ -603,7 +603,7 @@ void AudioStream::ConvertSampleRate(std::vector<short>& sourceData, unsigned int
 				}
 				float sampleWeight = sampleEndPoint - sampleStartPoint;
 
-				float sample = (float)sourceData[channelNo + ((sourceSampleNo * achannelCount) % sourceSampleCount)];
+				float sample = (float)sourceData[channelNo + ((sourceSampleNo % sourceSampleCount) * achannelCount)];
 				finalSample += sample * sampleWeight;
 			}
 

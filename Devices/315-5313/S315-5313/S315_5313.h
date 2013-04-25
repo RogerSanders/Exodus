@@ -880,7 +880,7 @@ private:
 	static const unsigned int imageBufferHeight = 512;
 	static const unsigned int imageBufferPlanes = 3;
 	unsigned int drawingImageBufferPlane;
-	volatile bool frameReadyInImageBuffer;
+	volatile unsigned int wholeFramesRenderedToImageBufferSinceLastRefresh;
 	unsigned char imageBuffer[imageBufferPlanes][imageBufferHeight * imageBufferWidth * 4];
 	bool imageBufferOddInterlaceFrame[imageBufferPlanes];
 	unsigned int imageBufferLineCount[imageBufferPlanes];
