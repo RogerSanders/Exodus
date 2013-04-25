@@ -1818,10 +1818,12 @@ void S315_5313::DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSetti
 
 				//Calculate the position of this sprite relative to the screen
 				const unsigned int cellWidthInPixels = 8;
+				const unsigned int spritePosBitCountV = (interlaceMode2Active)? 10: 9;
 				Data spritePosH(9, spriteDisplayCacheEntry.hpos.GetData());
+				Data spritePosV(spritePosBitCountV, spriteDisplayCacheEntry.vpos.GetData());
 				int spriteHeightDivider = (!interlaceMode2Active)? 1: 2;
 				int spritePosXInScreenSpace = ((int)spritePosH.GetData() - (int)spritePosScreenStartH) + (int)hscanSettings.leftBorderPixelCount;
-				int spritePosYInScreenSpace = (((int)spriteDisplayCacheEntry.vpos.GetData() - (int)spritePosScreenStartV) / spriteHeightDivider) + (int)vscanSettings.topBorderLineCount;
+				int spritePosYInScreenSpace = (((int)spritePosV.GetData() - (int)spritePosScreenStartV) / spriteHeightDivider) + (int)vscanSettings.topBorderLineCount;
 
 				//If this is the first cell column for the sprite, draw a horizontal line
 				//down the left boundary of the sprite.
