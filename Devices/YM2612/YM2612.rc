@@ -1095,7 +1095,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Nemesis Software"
             VALUE "FileDescription", "Exodus Plugin"
-            VALUE "FileVersion", "1.0"
+            VALUE "FileVersion", "1.0.0"
             VALUE "InternalName", "YM2612"
             VALUE "LegalCopyright", "© 2013 Roger Sanders"
             VALUE "OriginalFilename", "YM2612.dll"

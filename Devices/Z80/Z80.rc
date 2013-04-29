@@ -173,7 +173,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Nemesis Software"
             VALUE "FileDescription", "Exodus Plugin"
-            VALUE "FileVersion", "1.0"
+            VALUE "FileVersion", "1.0.0"
             VALUE "InternalName", "Z80"
             VALUE "LegalCopyright", "© 2013 Roger Sanders"
             VALUE "OriginalFilename", "Z80.dll"

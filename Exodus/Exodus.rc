@@ -505,7 +505,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Nemesis Software"
             VALUE "FileDescription", "Exodus Hardware Emulator"
-            VALUE "FileVersion", "1.0"
+            VALUE "FileVersion", "1.0.0"
             VALUE "InternalName", "Exodus"
             VALUE "LegalCopyright", "© 2013 Roger Sanders"
             VALUE "OriginalFilename", "Exodus.exe"

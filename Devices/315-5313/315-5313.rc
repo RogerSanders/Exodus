@@ -1123,7 +1123,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Nemesis Software"
             VALUE "FileDescription", "Exodus Plugin"
-            VALUE "FileVersion", "1.0"
+            VALUE "FileVersion", "1.0.0"
             VALUE "InternalName", "315-5313"
             VALUE "LegalCopyright", "© 2013 Roger Sanders"
             VALUE "OriginalFilename", "315-5313.dll"

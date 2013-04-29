@@ -1504,9 +1504,21 @@ bool ExodusInterface::GetGlobalPreferenceRunWhenProgramModuleLoaded() const
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::GetEnablePersistentState() const
+bool ExodusInterface::GetGlobalPreferenceEnablePersistentState() const
 {
 	return prefs.enablePersistentState;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::GetGlobalPreferenceLoadWorkspaceWithDebugState() const
+{
+	return prefs.loadWorkspaceWithDebugState;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::GetGlobalPreferenceShowDebugConsole() const
+{
+	return prefs.showDebugConsole;
 }
 
 //----------------------------------------------------------------------------------------

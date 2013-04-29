@@ -15,8 +15,8 @@ M68000::DebugMenuHandler::DebugMenuHandler(M68000* adevice)
 //----------------------------------------------------------------------------------------
 void M68000::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", L"Registers", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_EXCEPTIONS, L"Exceptions", L"Exception Control", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", L"Registers", true));
 }
 
 //----------------------------------------------------------------------------------------

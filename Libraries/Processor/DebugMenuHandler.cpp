@@ -19,16 +19,16 @@ Processor::DebugMenuHandler::DebugMenuHandler(Processor* adevice)
 //----------------------------------------------------------------------------------------
 void Processor::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_CONTROL, L"ProcessorControl", L"Processor Control", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_BREAKPOINTS, L"Breakpoints", L"Breakpoints", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_WATCHPOINTS, L"Watchpoints", L"Watchpoints", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_CALLSTACK, L"CallStack", L"Call Stack", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_TRACE, L"Trace", L"Trace", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_DISASSEMBLY, L"Disassembly", L"Disassembly", true));
 	if(device->ActiveDisassemblySupported())
 	{
 		menuItems.push_back(MenuItemDefinition(MENUITEM_ACTIVEDISASSEMBLY, L"ActiveDisassembly", L"Active Disassembly", true));
 	}
+	menuItems.push_back(MenuItemDefinition(MENUITEM_BREAKPOINTS, L"Breakpoints", L"Breakpoints", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_CALLSTACK, L"CallStack", L"Call Stack", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_DISASSEMBLY, L"Disassembly", L"Disassembly", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_CONTROL, L"ProcessorControl", L"Processor Control", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_TRACE, L"Trace", L"Trace", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_WATCHPOINTS, L"Watchpoints", L"Watchpoints", true));
 }
 
 //----------------------------------------------------------------------------------------
