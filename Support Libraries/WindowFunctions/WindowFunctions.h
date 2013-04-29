@@ -162,5 +162,21 @@ struct WinColor
 	unsigned char b;
 };
 
+//DLGTEMPLATEEX struct, based on information provided by Microsoft. This structure is not
+//defined in any public header files.
+struct DLGTEMPLATEEX
+{
+	WORD dlgVer;
+	WORD signature;
+	DWORD helpID;
+	DWORD exStyle;
+	DWORD style;
+	WORD cDlgItems;
+	short x;
+	short y;
+	short cx;
+	short cy;
+};
+
 #include "WindowFunctions.inl"
 #endif

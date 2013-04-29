@@ -280,7 +280,7 @@ LRESULT S315_5313::VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 	unsigned int blockPixelSizeX = 8;
 	unsigned int blockPixelSizeY = 8;
 	unsigned int blockSizeForDisplay = 0x20;
-	if((blockSize == BLOCKSIZE_8X16) || ((blockSize == BLOCKSIZE_AUTO) && (device->M5GetLSM0(accessTarget)) && (device->M5GetLSM1(accessTarget))))
+	if((blockSize == BLOCKSIZE_8X16) || ((blockSize == BLOCKSIZE_AUTO) && (device->RegGetLSM0(accessTarget)) && (device->RegGetLSM1(accessTarget))))
 	{
 		blockPixelSizeY = 16;
 		blockSizeForDisplay = 0x40;
@@ -439,7 +439,7 @@ LRESULT S315_5313::VRAMView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPA
 	unsigned int blockPixelSizeX = 8;
 	unsigned int blockPixelSizeY = 8;
 	unsigned int blockSizeForDisplay = 0x20;
-	detailsBlock16 = (blockSize == BLOCKSIZE_8X16) || ((blockSize == BLOCKSIZE_AUTO) && (device->M5GetLSM0(accessTarget)) && (device->M5GetLSM1(accessTarget)));
+	detailsBlock16 = (blockSize == BLOCKSIZE_8X16) || ((blockSize == BLOCKSIZE_AUTO) && (device->RegGetLSM0(accessTarget)) && (device->RegGetLSM1(accessTarget)));
 	if(detailsBlock16)
 	{
 		blockPixelSizeY = 16;

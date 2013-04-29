@@ -376,149 +376,161 @@ private:
 	inline Data GetRegisterData(unsigned int location, const AccessTarget& accessTarget) const;
 	inline void SetRegisterData(unsigned int location, const AccessTarget& accessTarget, const Data& data);
 
-	//Mode 4 register functions
-	inline bool M4GetVScrollingDisabled(const AccessTarget& accessTarget) const;	//0x00(0)
-	inline void M4SetVScrollingDisabled(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetHScrollingDisabled(const AccessTarget& accessTarget) const;
-	inline void M4SetHScrollingDisabled(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetColumnZeroMasked(const AccessTarget& accessTarget) const;
-	inline void M4SetColumnZeroMasked(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetLineInterruptEnabled(const AccessTarget& accessTarget) const;
-	inline void M4SetLineInterruptEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetSpriteShift(const AccessTarget& accessTarget) const;
-	inline void M4SetSpriteShift(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetM4Bit(const AccessTarget& accessTarget) const;
-	inline void M4SetM4Bit(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetM2Bit(const AccessTarget& accessTarget) const;
-	inline void M4SetM2Bit(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetReg0Bit0(const AccessTarget& accessTarget) const;
-	inline void M4SetReg0Bit0(const AccessTarget& accessTarget, bool data);
+	//Interpreted register functions
+	inline bool RegGetVSI(const AccessTarget& accessTarget) const;	//0x00(0)
+	inline void RegSetVSI(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetHSI(const AccessTarget& accessTarget) const;
+	inline void RegSetHSI(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetLCB(const AccessTarget& accessTarget) const;
+	inline void RegSetLCB(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetIE1(const AccessTarget& accessTarget) const;
+	inline void RegSetIE1(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetSS(const AccessTarget& accessTarget) const;
+	inline void RegSetSS(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetPS(const AccessTarget& accessTarget) const;
+	inline void RegSetPS(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetM2(const AccessTarget& accessTarget) const;
+	inline void RegSetM2(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetES(const AccessTarget& accessTarget) const;
+	inline void RegSetES(const AccessTarget& accessTarget, bool data);
 
-	inline bool M4GetDisplayEnabled(const AccessTarget& accessTarget) const;	//0x01(1)
-	inline void M4SetDisplayEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetFrameInterruptEnabled(const AccessTarget& accessTarget) const;
-	inline void M4SetFrameInterruptEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetM1Bit(const AccessTarget& accessTarget) const;
-	inline void M4SetM1Bit(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetM3Bit(const AccessTarget& accessTarget) const;
-	inline void M4SetM3Bit(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetSpritesDoubleHeight(const AccessTarget& accessTarget) const;
-	inline void M4SetSpritesDoubleHeight(const AccessTarget& accessTarget, bool data);
-	inline bool M4GetSpriteZooming(const AccessTarget& accessTarget) const;
-	inline void M4SetSpriteZooming(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetEVRAM(const AccessTarget& accessTarget) const;	//0x01(1)
+	inline void RegSetEVRAM(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetDisplayEnabled(const AccessTarget& accessTarget) const;
+	inline void RegSetDisplayEnabled(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetIE0(const AccessTarget& accessTarget) const;
+	inline void RegSetIE0(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetDMAEnabled(const AccessTarget& accessTarget) const;
+	inline void RegSetDMAEnabled(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetM3(const AccessTarget& accessTarget) const;
+	inline void RegSetM3(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetMode5(const AccessTarget& accessTarget) const;
+	inline void RegSetMode5(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetSZ(const AccessTarget& accessTarget) const;
+	inline void RegSetSZ(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetMAG(const AccessTarget& accessTarget) const;
+	inline void RegSetMAG(const AccessTarget& accessTarget, bool data);
 
-	inline unsigned int M4GetNameTableBaseScroll(const AccessTarget& accessTarget) const;	//0x02(2)
-	inline void M4SetNameTableBaseScroll(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M4GetAttributeTableBaseSprite(const AccessTarget& accessTarget) const;	//0x05(5)
-	inline void M4SetAttributeTableBaseSprite(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M4GetPatternBaseSprite(const AccessTarget& accessTarget) const;	//0x06(6)
-	inline void M4SetPatternBaseSprite(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M4GetBackdropColorIndex(const AccessTarget& accessTarget) const;	//0x07(7)
-	inline void M4SetBackdropColorIndex(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetNameTableBaseScrollA(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const;	//0x02(2)
+	inline void RegSetNameTableBaseScrollA(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetNameTableBaseWindow(const AccessTarget& accessTarget, bool h40ModeActive, bool extendedVRAMModeEnabled) const;	//0x03(3)
+	inline void RegSetNameTableBaseWindow(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetNameTableBaseScrollB(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;	//0x04(4)
+	inline void RegSetNameTableBaseScrollB(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetNameTableBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool h40ModeActive, bool extendedVRAMModeEnabled) const;	//0x05(5)
+	inline void RegSetNameTableBaseSprite(const AccessTarget& accessTarget, unsigned int data, bool mode4Enabled);
+	inline unsigned int RegGetPatternBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const;	//0x06(6)
+	inline void RegSetPatternBaseSprite(const AccessTarget& accessTarget, unsigned int data, bool mode4Enabled);
 
-	inline unsigned int M4GetBackgroundScrollX(const AccessTarget& accessTarget) const;	//0x08(8)
-	inline void M4SetBackgroundScrollX(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M4GetBackgroundScrollY(const AccessTarget& accessTarget) const;	//0x09(9)
-	inline void M4SetBackgroundScrollY(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M4GetLineCounter(const AccessTarget& accessTarget) const;	//0x0A(10)
-	inline void M4SetLineCounter(const AccessTarget& accessTarget, unsigned int data);
+	inline bool RegGet077(const AccessTarget& accessTarget) const;	//0x07(7)
+	inline void RegSet077(const AccessTarget& accessTarget, bool data);
+	inline bool RegGet076(const AccessTarget& accessTarget) const;
+	inline void RegSet076(const AccessTarget& accessTarget, bool data);
+	inline unsigned int RegGetBackgroundPaletteRow(const AccessTarget& accessTarget) const;
+	inline void RegSetBackgroundPaletteRow(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetBackgroundPaletteColumn(const AccessTarget& accessTarget) const;
+	inline void RegSetBackgroundPaletteColumn(const AccessTarget& accessTarget, unsigned int data);
 
-	//Mode 5 register functions
-	inline bool M5GetHInterruptEnabled(const AccessTarget& accessTarget) const;	//0x00(0)
-	inline void M5SetHInterruptEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetPSEnabled(const AccessTarget& accessTarget) const;
-	inline void M5SetPSEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetHVCounterLatchEnabled(const AccessTarget& accessTarget) const;
-	inline void M5SetHVCounterLatchEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetDisplayEnabled(const AccessTarget& accessTarget) const;	//0x01(1)
-	inline void M5SetDisplayEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetVInterruptEnabled(const AccessTarget& accessTarget) const;
-	inline void M5SetVInterruptEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetDMAEnabled(const AccessTarget& accessTarget) const;
-	inline void M5SetDMAEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetV30CellModeEnabled(const AccessTarget& accessTarget) const;
-	inline void M5SetV30CellModeEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetMode5Enabled(const AccessTarget& accessTarget) const;
-	inline void M5SetMode5Enabled(const AccessTarget& accessTarget, bool data);
+	inline unsigned int RegGetBackgroundScrollX(const AccessTarget& accessTarget) const;	//0x08(8)
+	inline void RegSetBackgroundScrollX(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetBackgroundScrollY(const AccessTarget& accessTarget) const;	//0x09(9)
+	inline void RegSetBackgroundScrollY(const AccessTarget& accessTarget, unsigned int data);
 
-	inline unsigned int M5GetNameTableBaseScrollA(const AccessTarget& accessTarget) const;	//0x02(2)
-	inline void M5SetNameTableBaseScrollA(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M5GetNameTableBaseWindow(const AccessTarget& accessTarget) const;	//0x03(3)
-	inline void M5SetNameTableBaseWindow(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M5GetNameTableBaseScrollB(const AccessTarget& accessTarget) const;	//0x04(4)
-	inline void M5SetNameTableBaseScrollB(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M5GetNameTableBaseSprite(const AccessTarget& accessTarget) const;	//0x05(5)
-	inline void M5SetNameTableBaseSprite(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetHInterruptData(const AccessTarget& accessTarget) const;	//0x0A(10)
+	inline void RegSetHInterruptData(const AccessTarget& accessTarget, unsigned int data);
+	inline bool RegGet0B7(const AccessTarget& accessTarget) const;	//0x0B(11)
+	inline void RegSet0B7(const AccessTarget& accessTarget, bool data);
+	inline bool RegGet0B6(const AccessTarget& accessTarget) const;
+	inline void RegSet0B6(const AccessTarget& accessTarget, bool data);
+	inline bool RegGet0B5(const AccessTarget& accessTarget) const;
+	inline void RegSet0B5(const AccessTarget& accessTarget, bool data);
+	inline bool RegGet0B4(const AccessTarget& accessTarget) const;
+	inline void RegSet0B4(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetIE2(const AccessTarget& accessTarget) const;
+	inline void RegSetIE2(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetVSCR(const AccessTarget& accessTarget) const;
+	inline void RegSetVSCR(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetHSCR(const AccessTarget& accessTarget) const;
+	inline void RegSetHSCR(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetLSCR(const AccessTarget& accessTarget) const;
+	inline void RegSetLSCR(const AccessTarget& accessTarget, bool data);
 
-	inline unsigned int M5GetBackgroundColorPalette(const AccessTarget& accessTarget) const;	//0x07(7)
-	inline void M5SetBackgroundColorPalette(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M5GetBackgroundColorIndex(const AccessTarget& accessTarget) const;
-	inline void M5SetBackgroundColorIndex(const AccessTarget& accessTarget, unsigned int data);
+	inline bool RegGetRS0(const AccessTarget& accessTarget) const;	//0x0C(12)
+	inline void RegSetRS0(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetU1(const AccessTarget& accessTarget) const;
+	inline void RegSetU1(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetU2(const AccessTarget& accessTarget) const;
+	inline void RegSetU2(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetU3(const AccessTarget& accessTarget) const;
+	inline void RegSetU3(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetSTE(const AccessTarget& accessTarget) const;
+	inline void RegSetSTE(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetLSM1(const AccessTarget& accessTarget) const;
+	inline void RegSetLSM1(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetLSM0(const AccessTarget& accessTarget) const;
+	inline void RegSetLSM0(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetRS1(const AccessTarget& accessTarget) const;
+	inline void RegSetRS1(const AccessTarget& accessTarget, bool data);
 
-	inline unsigned int M5GetHInterruptData(const AccessTarget& accessTarget) const;	//0x0A(10)
-	inline void M5SetHInterruptData(const AccessTarget& accessTarget, unsigned int data);
-	inline bool M5GetEXInterruptEnabled(const AccessTarget& accessTarget) const;	//0x0B(11)
-	inline void M5SetEXInterruptEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetVSCR(const AccessTarget& accessTarget) const;
-	inline void M5SetVSCR(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetHSCR(const AccessTarget& accessTarget) const;
-	inline void M5SetHSCR(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetLSCR(const AccessTarget& accessTarget) const;
-	inline void M5SetLSCR(const AccessTarget& accessTarget, bool data);
+	inline unsigned int RegGetHScrollDataBase(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;	//0x0D(13)
+	inline void RegSetHScrollDataBase(const AccessTarget& accessTarget, unsigned int data);
 
-	inline bool M5GetRS0(const AccessTarget& accessTarget) const;	//0x0C(12)
-	inline void M5SetRS0(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetRS1(const AccessTarget& accessTarget) const;
-	inline void M5SetRS1(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetShadowHighlightEnabled(const AccessTarget& accessTarget) const;
-	inline void M5SetShadowHighlightEnabled(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetLSM1(const AccessTarget& accessTarget) const;
-	inline void M5SetLSM1(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetLSM0(const AccessTarget& accessTarget) const;
-	inline void M5SetLSM0(const AccessTarget& accessTarget, bool data);
+	inline unsigned int RegGet0E57(const AccessTarget& accessTarget) const;	//0x0E(14)
+	inline void RegSet0E57(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetPatternBaseScrollA(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;
+	inline void RegSetPatternBaseScrollA(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGet0E13(const AccessTarget& accessTarget) const;
+	inline void RegSet0E13(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetPatternBaseScrollB(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;
+	inline void RegSetPatternBaseScrollB(const AccessTarget& accessTarget, unsigned int data);
 
-	inline unsigned int M5GetHScrollDataBase(const AccessTarget& accessTarget) const;	//0x0D(13)
-	inline void M5SetHScrollDataBase(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetAutoIncrementData(const AccessTarget& accessTarget) const;	//0x0F(15)
+	inline void RegSetAutoIncrementData(const AccessTarget& accessTarget, unsigned int data);
 
-	inline unsigned int M5GetAutoIncrementData(const AccessTarget& accessTarget) const;	//0x0F(15)
-	inline void M5SetAutoIncrementData(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGet1067(const AccessTarget& accessTarget) const;	//0x10(16)
+	inline void RegSet1067(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetVSZ(const AccessTarget& accessTarget) const;
+	inline void RegSetVSZ(const AccessTarget& accessTarget, unsigned int data);
+	inline bool RegGetVSZ1(const AccessTarget& accessTarget) const;
+	inline void RegSetVSZ1(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetVSZ0(const AccessTarget& accessTarget) const;
+	inline void RegSetVSZ0(const AccessTarget& accessTarget, bool data);
+	inline unsigned int RegGet1023(const AccessTarget& accessTarget) const;
+	inline void RegSet1023(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetHSZ(const AccessTarget& accessTarget) const;
+	inline void RegSetHSZ(const AccessTarget& accessTarget, unsigned int data);
+	inline bool RegGetHSZ1(const AccessTarget& accessTarget) const;
+	inline void RegSetHSZ1(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetHSZ0(const AccessTarget& accessTarget) const;
+	inline void RegSetHSZ0(const AccessTarget& accessTarget, bool data);
 
-	inline unsigned int M5GetVSZ(const AccessTarget& accessTarget) const;	//0x10(16)
-	inline void M5SetVSZ(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M5GetHSZ(const AccessTarget& accessTarget) const;
-	inline void M5SetHSZ(const AccessTarget& accessTarget, unsigned int data);
-	inline bool M5GetVSZ1(const AccessTarget& accessTarget) const;
-	inline void M5SetVSZ1(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetVSZ0(const AccessTarget& accessTarget) const;
-	inline void M5SetVSZ0(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetHSZ1(const AccessTarget& accessTarget) const;
-	inline void M5SetHSZ1(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetHSZ0(const AccessTarget& accessTarget) const;
-	inline void M5SetHSZ0(const AccessTarget& accessTarget, bool data);
+	inline unsigned int RegGet1156(const AccessTarget& accessTarget) const;	//0x11(17)
+	inline void RegSet1156(const AccessTarget& accessTarget, unsigned int data);
+	inline bool RegGetWindowRightAligned(const AccessTarget& accessTarget) const;
+	inline void RegSetWindowRightAligned(const AccessTarget& accessTarget, bool data);
+	inline unsigned int RegGetWindowBasePointX(const AccessTarget& accessTarget) const;
+	inline void RegSetWindowBasePointX(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGet1256(const AccessTarget& accessTarget) const;	//0x12(18)
+	inline void RegSet1256(const AccessTarget& accessTarget, unsigned int data);
+	inline bool RegGetWindowBottomAligned(const AccessTarget& accessTarget) const;
+	inline void RegSetWindowBottomAligned(const AccessTarget& accessTarget, bool data);
+	inline unsigned int RegGetWindowBasePointY(const AccessTarget& accessTarget) const;
+	inline void RegSetWindowBasePointY(const AccessTarget& accessTarget, unsigned int data);
 
-	inline bool M5GetWindowRightAligned(const AccessTarget& accessTarget) const;	//0x11(17)
-	inline void M5SetWindowRightAligned(const AccessTarget& accessTarget, bool data);
-	inline unsigned int M5GetWindowBasePointX(const AccessTarget& accessTarget) const;
-	inline void M5SetWindowBasePointX(const AccessTarget& accessTarget, unsigned int data);
-	inline bool M5GetWindowBottomAligned(const AccessTarget& accessTarget) const;	//0x12(18)
-	inline void M5SetWindowBottomAligned(const AccessTarget& accessTarget, bool data);
-	inline unsigned int M5GetWindowBasePointY(const AccessTarget& accessTarget) const;
-	inline void M5SetWindowBasePointY(const AccessTarget& accessTarget, unsigned int data);
-
-	inline unsigned int M5GetDMALengthCounter(const AccessTarget& accessTarget) const;	//0x13-0x14(19-20)
-	inline void M5SetDMALengthCounter(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M5GetDMASourceAddress(const AccessTarget& accessTarget) const;	//0x15-0x17(21-23)
-	inline void M5SetDMASourceAddress(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M5GetDMASourceAddressByte1(const AccessTarget& accessTarget) const;	//0x15(21)
-	inline void M5SetDMASourceAddressByte1(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M5GetDMASourceAddressByte2(const AccessTarget& accessTarget) const;	//0x16(22)
-	inline void M5SetDMASourceAddressByte2(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int M5GetDMASourceAddressByte3(const AccessTarget& accessTarget) const;	//0x17(23)
-	inline void M5SetDMASourceAddressByte3(const AccessTarget& accessTarget, unsigned int data);
-	inline bool M5GetDMD1(const AccessTarget& accessTarget) const;
-	inline void M5SetDMD1(const AccessTarget& accessTarget, bool data);
-	inline bool M5GetDMD0(const AccessTarget& accessTarget) const;
-	inline void M5SetDMD0(const AccessTarget& accessTarget, bool data);
+	inline unsigned int RegGetDMALengthCounter(const AccessTarget& accessTarget) const;	//0x13-0x14(19-20)
+	inline void RegSetDMALengthCounter(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetDMASourceAddress(const AccessTarget& accessTarget) const;	//0x15-0x17(21-23)
+	inline void RegSetDMASourceAddress(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetDMASourceAddressByte1(const AccessTarget& accessTarget) const;	//0x15(21)
+	inline void RegSetDMASourceAddressByte1(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetDMASourceAddressByte2(const AccessTarget& accessTarget) const;	//0x16(22)
+	inline void RegSetDMASourceAddressByte2(const AccessTarget& accessTarget, unsigned int data);
+	inline unsigned int RegGetDMASourceAddressByte3(const AccessTarget& accessTarget) const;	//0x17(23)
+	inline void RegSetDMASourceAddressByte3(const AccessTarget& accessTarget, unsigned int data);
+	inline bool RegGetDMD1(const AccessTarget& accessTarget) const;
+	inline void RegSetDMD1(const AccessTarget& accessTarget, bool data);
+	inline bool RegGetDMD0(const AccessTarget& accessTarget) const;
+	inline void RegSetDMD0(const AccessTarget& accessTarget, bool data);
 
 	//Window functions
 	void OpenSpriteListDetailsView(unsigned int aspriteIndex);

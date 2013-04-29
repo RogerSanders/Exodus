@@ -609,344 +609,13 @@ void S315_5313::SetRegisterData(unsigned int location, const AccessTarget& acces
 }
 
 //----------------------------------------------------------------------------------------
-//Mode 4 register functions
-//##TODO## Fold the Mode 4 register access functions together with the mode 5 register
-//access functions, and eliminate the use of "M5" prefixes on any methods. It's becoming
-//clear that the operation of the VDP is almost the same in mode 4 and mode 5, and based
-//on new research, there are very few register bits that have alternate meanings between
-//the two modes. In fact, the only register with a known alternate meaning is bit 3 of
-//register 0, which is the "HSM" register in mode 5 and alters the horizontal sync mode,
-//and is the "SS" register in mode 4 and activates sprite shifting. Every other register
-//value is either equivalent in both modes, or is only defined in one of the modes.
+//Interpreted register functions
 //----------------------------------------------------------------------------------------
-//         ------------------------------------
-//         | 7  | 6  | 5  | 4 | 3 | 2 | 1 | 0 |
-//0x00(0)  |----------------------------------|
-//         |*VSI|*HSI|*LCB|IE1|*SS|M4 |M2 |*ES|
-//         ------------------------------------
-//*VSI: Vertical Scroll Inhibit. Disable vertical scrolling for columns 24-31.
-//*HSI: Horizontal Scroll Inhibit. Disable horizontal scrolling for rows 0-1.
-//*LCB: Left Column Blank. Mask column 0.
-//*SS:  Sprite Shift. Shift all sprites 8 pixels to the left.
-//*ES:  External Sync.
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetVScrollingDisabled(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x00, accessTarget).GetBit(7);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetVScrollingDisabled(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(7, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetHScrollingDisabled(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x00, accessTarget).GetBit(6);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetHScrollingDisabled(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(6, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetColumnZeroMasked(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x00, accessTarget).GetBit(5);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetColumnZeroMasked(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(5, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetLineInterruptEnabled(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x00, accessTarget).GetBit(4);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetLineInterruptEnabled(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(4, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetSpriteShift(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x00, accessTarget).GetBit(3);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetSpriteShift(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(3, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetM4Bit(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x00, accessTarget).GetBit(2);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetM4Bit(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(2, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetM2Bit(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x00, accessTarget).GetBit(1);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetM2Bit(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(1, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetReg0Bit0(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x00, accessTarget).GetBit(0);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetReg0Bit0(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(0, data));
-}
-
-//----------------------------------------------------------------------------------------
-//         ----------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0  |
-//0x01(1)  |--------------------------------|
-//         | / |DIS|IE |M1 |M3 | / |*SZ|*MAG|
-//         ----------------------------------
-//*SZ:  Sprite Size. All sprites are 8x16 instead of 8x8.
-//*MAG: Sprite Zooming. Sprites are double the width and height. Each pixel is 2x2.
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetDisplayEnabled(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x01, accessTarget).GetBit(6);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetDisplayEnabled(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(6, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetFrameInterruptEnabled(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x01, accessTarget).GetBit(5);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetFrameInterruptEnabled(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(5, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetM1Bit(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x01, accessTarget).GetBit(4);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetM1Bit(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(4, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetM3Bit(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x01, accessTarget).GetBit(3);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetM3Bit(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(3, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetSpritesDoubleHeight(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x01, accessTarget).GetBit(1);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetSpritesDoubleHeight(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(1, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M4GetSpriteZooming(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x01, accessTarget).GetBit(0);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetSpriteZooming(const AccessTarget& accessTarget, bool data)
-{
-	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(0, data));
-}
-
-//----------------------------------------------------------------------------------------
-//         ----------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2 | 1  | 0 |
-//         |--------------------------------|
-//         |               |Name Table  |   |
-//0x02(2)  | /   /   /   / |Base Address| / |
-//         |               |------------|   |
-//         |               |B13|B12|B11 |   |
-//         ----------------------------------
-//----------------------------------------------------------------------------------------
-unsigned int S315_5313::M4GetNameTableBaseScroll(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x02, accessTarget).GetDataSegment(1, 3) << 11;
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetNameTableBaseScroll(const AccessTarget& accessTarget, unsigned int data)
-{
-	SetRegisterData(0x02, accessTarget, GetRegisterData(0x02, accessTarget).SetDataSegment(1, 3, data >> 11));
-}
-
-//----------------------------------------------------------------------------------------
-//         ---------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//         |-------------------------------|
-//         |   |Sprite Attribute Table |   |
-//0x05(5)  | / |     Base Address      | / |
-//         |   |-----------------------|   |
-//         |   |B13|B12|B11|B10|B9 |B8 |   |
-//         ---------------------------------
-//----------------------------------------------------------------------------------------
-unsigned int S315_5313::M4GetAttributeTableBaseSprite(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x05, accessTarget).GetDataSegment(1, 6) << 8;
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetAttributeTableBaseSprite(const AccessTarget& accessTarget, unsigned int data)
-{
-	SetRegisterData(0x05, accessTarget, GetRegisterData(0x05, accessTarget).SetDataSegment(1, 6, data >> 8));
-}
-
-//----------------------------------------------------------------------------------------
-//         ---------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//0x06(6)  |-------------------------------|
-//         | /   /   /   /   / |B13| /   / |
-//         ---------------------------------
-//B13: Sprite Pattern Generator Base Address - Bit 13.
-//----------------------------------------------------------------------------------------
-unsigned int S315_5313::M4GetPatternBaseSprite(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x06, accessTarget).GetDataSegment(2, 1) << 13;
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetPatternBaseSprite(const AccessTarget& accessTarget, unsigned int data)
-{
-	SetRegisterData(0x06, accessTarget, GetRegisterData(0x06, accessTarget).SetDataSegment(2, 1, data >> 13));
-}
-
-//----------------------------------------------------------------------------------------
-//         ---------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//0x07(7)  |-------------------------------|
-//         | /   /   /   / |Backdrop Colour|
-//         |               | Palette Index |
-//         ---------------------------------
-//----------------------------------------------------------------------------------------
-unsigned int S315_5313::M4GetBackdropColorIndex(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x07, accessTarget).GetDataSegment(0, 4);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetBackdropColorIndex(const AccessTarget& accessTarget, unsigned int data)
-{
-	SetRegisterData(0x07, accessTarget, GetRegisterData(0x07, accessTarget).SetDataSegment(0, 4, data));
-}
-
-//----------------------------------------------------------------------------------------
-//         ---------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//0x08(8)  |-------------------------------|
-//         |      Background Scroll X      |
-//         ---------------------------------
-//----------------------------------------------------------------------------------------
-unsigned int S315_5313::M4GetBackgroundScrollX(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x08, accessTarget).GetData();
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetBackgroundScrollX(const AccessTarget& accessTarget, unsigned int data)
-{
-	SetRegisterData(0x08, accessTarget, GetRegisterData(0x08, accessTarget).SetData(data));
-}
-
-//----------------------------------------------------------------------------------------
-//         ---------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//0x09(9)  |-------------------------------|
-//         |      Background Scroll Y      |
-//         ---------------------------------
-//----------------------------------------------------------------------------------------
-unsigned int S315_5313::M4GetBackgroundScrollY(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x09, accessTarget).GetData();
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetBackgroundScrollY(const AccessTarget& accessTarget, unsigned int data)
-{
-	SetRegisterData(0x09, accessTarget, GetRegisterData(0x09, accessTarget).SetData(data));
-}
-
-//----------------------------------------------------------------------------------------
-//         ---------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-//0x0A(10) |-------------------------------|
-//         |         Line Counter          |
-//         ---------------------------------
-//----------------------------------------------------------------------------------------
-unsigned int S315_5313::M4GetLineCounter(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x0A, accessTarget).GetData();
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M4SetLineCounter(const AccessTarget& accessTarget, unsigned int data)
-{
-	SetRegisterData(0x0A, accessTarget, GetRegisterData(0x0A, accessTarget).SetData(data));
-}
-
-//----------------------------------------------------------------------------------------
-//Mode 5 register functions
-//----------------------------------------------------------------------------------------
-//         ------------------------------------
-//         | 7  | 6 |  5 | 4 | 3  | 2 | 1 | 0 |
-//0x00(0)  |----------------------------------|
-//         |*VSI| / |*LCB|IE1|*HSM|*PS|M3 |*ES|
-//         ------------------------------------
+//         ----------------------------------------
+//         | 7  | 6  | 5  | 4 |   3   | 2 | 1 | 0 |
+//0x00(0)  |--------------------------------------|
+//         |*VSI|*HSI|*LCB|IE1|*HSM/SS|*PS|M2 |*ES|
+//         ----------------------------------------
 //*VSI: Vertical Scroll Inhibit. Disable vertical scrolling for columns 24-31. This
 //      setting from the SMS VDP is still present in the Mega Drive VDP, even when mode 5
 //      is active. This setting is mentioned in the Accolade doc "The Sega Development
@@ -969,6 +638,8 @@ void S315_5313::M4SetLineCounter(const AccessTarget& accessTarget, unsigned int 
 //      had no impact on the fixed vscroll region at all, and the fixed vscroll region had
 //      no effect on the window. Both interacted exactly as layer A and window regions
 //      normally would.
+//*HSI: Horizontal Scroll Inhibit. Disable horizontal scrolling for rows 0-1. This
+//      register has no apparent effect in mode 5.
 //*LCB: Left Column Blank. Mask column 0. This setting from the SMS VDP is still present
 //      in the Mega Drive VDP, even when mode 5 is active. This setting is mentioned in
 //      the Accolade doc "The Sega Development System". Hardware tests have confirmed its
@@ -978,19 +649,21 @@ void S315_5313::M4SetLineCounter(const AccessTarget& accessTarget, unsigned int 
 //      presumably sprites as well, since it just discards any pixel data within the
 //      masked region at the time layer priority selection is performed.
 //IE1:  Horizontal interrupt enable
-//*HSM: When this register is set, the output mode of the HSYNC pin is altered. Instead of
-//      the HSYNC line being asserted when the horizontal sync region begins and negated
-//      when it ends, the HSYNC line is instead toggled at the start of each HSYNC region.
-//      When HSYNC would normally be negated, nothing happens, and the HSYNC line retains
-//      its current value until the next HSYNC region is reached, at which point, the line
-//      output state is reversed. Note that the CSYNC line is unaffected by this setting,
-//      which means that video output on the Mega Drive is unaffected in H32 mode, but if
-//      this bit is set when the EDCLK input is being used, as it should be in H40 mode on
-//      the Mega Drive, the video signal will be corrupted, as the EDCLK generator relies
-//      on the HSYNC signal in order to generate the input clock signal.
+//*HSM/SS: When this register is set in mode 5, the output mode of the HSYNC pin is
+//      altered. Instead of the HSYNC line being asserted when the horizontal sync region
+//      begins and negated when it ends, the HSYNC line is instead toggled at the start of
+//      each HSYNC region. When HSYNC would normally be negated, nothing happens, and the
+//      HSYNC line retains its current value until the next HSYNC region is reached, at
+//      which point, the line output state is reversed. Note that the CSYNC line is
+//      unaffected by this setting, which means that video output on the Mega Drive is
+//      unaffected in H32 mode, but if this bit is set when the EDCLK input is being used,
+//      as it should be in H40 mode on the Mega Drive, the video signal will be corrupted,
+//      as the EDCLK generator relies on the HSYNC signal in order to generate the input
+//      clock signal.In mode 4, this register is believed to enable Sprite Shift, where
+//      all sprites are shifted 8 pixels to the left.
 //*PS:  Palette Select. When 0, enables an undocumented mode where only bits 1, 5, and 9
 //      of the CRAM data are used to generate colours.
-//M3:   Enable HV counter latching on an external interrupt. Note that hardware tests have
+//M2:   Enable HV counter latching on an external interrupt. Note that hardware tests have
 //      shown that as soon as this bit is set to 1, the HV counter is actually frozen at
 //      that point. The HV counter will latch a new value if the HL input line is asserted
 //      after this point, otherwise, it will retain its current value until this bit is
@@ -1013,47 +686,107 @@ void S315_5313::M4SetLineCounter(const AccessTarget& accessTarget, unsigned int 
 //##TODO## Test if bit 6 acts as the HSI (Horizontal Scroll Inhibit) bit from the mode 4
 //screen mode if column or line based scrolling is enabled.
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetHInterruptEnabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetVSI(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x00, accessTarget).GetBit(7);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetVSI(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(7, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetHSI(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x00, accessTarget).GetBit(6);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetHSI(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(6, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetLCB(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x00, accessTarget).GetBit(5);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetLCB(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(5, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetIE1(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x00, accessTarget).GetBit(4);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetHInterruptEnabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetIE1(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(4, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetPSEnabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetSS(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x00, accessTarget).GetBit(3);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetSS(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(3, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetPS(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x00, accessTarget).GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetPSEnabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetPS(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(2, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetHVCounterLatchEnabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetM2(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x00, accessTarget).GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetHVCounterLatchEnabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetM2(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(1, data));
 }
 
 //----------------------------------------------------------------------------------------
-//         -------------------------------------
-//         |  7   | 6  | 5 | 4 | 3 | 2 | 1 | 0 |
-//0x01(1)  |-----------------------------------|
-//         |*EVRAM|DISP|IE0|M1 |M2 |M5 | / | / |
-//         -------------------------------------
+bool S315_5313::RegGetES(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x00, accessTarget).GetBit(0);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetES(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x00, accessTarget, GetRegisterData(0x00, accessTarget).SetBit(0, data));
+}
+
+//----------------------------------------------------------------------------------------
+//         --------------------------------------
+//         |  7   | 6  | 5 | 4 | 3 | 2 | 1 | 0  |
+//0x01(1)  |------------------------------------|
+//         |*EVRAM|DISP|IE0|M1 |M3 |M5 |*SZ|*MAG|
+//         --------------------------------------
 //*EVRAM: Enables the extended 128Kb VRAM mode. This is unavailable in the Mega Drive, as
 //        only 64Kb of VRAM is present in the system. The only known systems to contain
 //        128Kb of VRAM are the Sega TeraDrive, and according to documentation, the "Super
@@ -1061,14 +794,20 @@ void S315_5313::M5SetHVCounterLatchEnabled(const AccessTarget& accessTarget, boo
 //DISP:   Display enable. If this bit is cleared, the entire display is filled with the
 //        backdrop colour. During this time, the VDP can be accessed at any time without
 //        having to wait. Changing this bit takes effect immediately, and it can be
-//        toggled mid-line. Note that according to notes in m5hvc.txt by Charles
-//        MacDonald, the vblank flag may be set while this bit is cleared, even during
-//        active scan.
+//        toggled mid-line. Note that although not officially documented, hardware tests
+//        have confirmed that the vblank flag in the status register is always set while
+//        the display is disabled, even during active scan.
 //IE0 :   Vertical interrupt enable
 //M1:     DMA enable
-//M2:     V30 mode enable. When set, display is 30 columns high, when cleared it's 28
+//M3:     V30 mode enable. When set, display is 30 columns high, when cleared it's 28
 //        columns high.
 //M5:     Enables Mode 5. When cleared, mode 4 is active.
+//*SZ:    Sprite Size, in mode 4 only. When set, all sprites are 8x16 instead of 8x8. This
+//        register has no apparent effect in mode 5.
+//*MAG:   Sprite Zooming, in mode 4 only. This register actually has no apparent effect in
+//        either mode 4 or mode 5, but in the 315-5124 VDP used in the SMS, this register
+//        enabled sprite magnification, where all sprites are double the width and height,
+//        IE, each pixel is 2x2. This feature is not supported by the 315-5313.
 //Note that bit 0 is reported to have an effect in genvdp.txt by Charles MacDonald, but
 //all attempts to produce any effect from this bit on the real hardware have failed. Based
 //on the description in genvdp.txt, I believe Charles may have been referring to the
@@ -1089,165 +828,265 @@ void S315_5313::M5SetHVCounterLatchEnabled(const AccessTarget& accessTarget, boo
 //##TODO## Confirm if the pattern base address registers have any effect in interlace mode
 //2.
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetDisplayEnabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetEVRAM(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x01, accessTarget).GetBit(7);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetEVRAM(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(7, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetDisplayEnabled(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x01, accessTarget).GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetDisplayEnabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetDisplayEnabled(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(6, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetVInterruptEnabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetIE0(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x01, accessTarget).GetBit(5);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetVInterruptEnabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetIE0(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(5, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetDMAEnabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetDMAEnabled(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x01, accessTarget).GetBit(4);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetDMAEnabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetDMAEnabled(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(4, data));
 }
 
 //----------------------------------------------------------------------------------------
-//##TODO## Rename these functions to the correct M5GetM2()/M5SetM2()
-bool S315_5313::M5GetV30CellModeEnabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetM3(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x01, accessTarget).GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetV30CellModeEnabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetM3(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(3, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetMode5Enabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetMode5(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x01, accessTarget).GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetMode5Enabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetMode5(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(2, data));
 }
 
 //----------------------------------------------------------------------------------------
-//         ------------------------------------
-//         | 7 | 6 | 5  | 4  | 3  | 2 | 1 | 0 |
-//         |----------------------------------|
-//         |       |Scroll A Name |           |
-//0x02(2)  | /   / |Table Address | /   /   / |
-//         |       |--------------|           |
-//         |       |SA15|SA14|SA13|           |
-//         ------------------------------------
-//##TODO## Add in the 17th address bit for all table base address registers, which is used
-//in extended VRAM mode.
-//----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetNameTableBaseScrollA(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetSZ(const AccessTarget& accessTarget) const
 {
-	return GetRegisterData(0x02, accessTarget).GetDataSegment(3, 3) << 13;
+	return GetRegisterData(0x01, accessTarget).GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetNameTableBaseScrollA(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetSZ(const AccessTarget& accessTarget, bool data)
 {
-	SetRegisterData(0x02, accessTarget, GetRegisterData(0x02, accessTarget).SetDataSegment(3, 3, data >> 13));
+	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(1, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetMAG(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x01, accessTarget).GetBit(0);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetMAG(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x01, accessTarget, GetRegisterData(0x01, accessTarget).SetBit(0, data));
 }
 
 //----------------------------------------------------------------------------------------
 //         ---------------------------------------
-//         | 7 | 6 | 5  | 4  | 3  | 2  |  1  | 0 |
+//         | 7 | 6  | 5  | 4  | 3  | 2  | 1  | 0 |
 //         |-------------------------------------|
-//         |       |Window Name Table Address|   |
-//0x03(3)  | /   / |-------------------------| / |
-//         |       |WD15|WD14|WD13|WD12|WD11 |   |
+//0x02(2)  |   | Scroll A Name Table Address |   |
+//         |   |-----------------------------|   |
+//         |   |SA16|SA15|SA14|SA13|SA12|SA11|   |
 //         ---------------------------------------
+//SA16: This bit is only used in extended VRAM mode
+//SA12/SA11: These bits are only used when mode 4 is enabled
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetNameTableBaseScrollA(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const
+{
+	if(mode4Enabled)
+	{
+		return GetRegisterData(0x02, accessTarget).GetDataSegment(1, 3) << 11;
+	}
+	return GetRegisterData(0x02, accessTarget).GetDataSegment(3, (extendedVRAMModeEnabled)? 4: 3) << 13;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetNameTableBaseScrollA(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x02, accessTarget, Data(8, data >> 10));
+}
+
+//----------------------------------------------------------------------------------------
+//         ---------------------------------------
+//         | 7 | 6  | 5  | 4  | 3  | 2  | 1  | 0 |
+//         |-------------------------------------|
+//         |   |  Window Name Table Address  |   |
+//0x03(3)  | / |-----------------------------| / |
+//         |   |WD16|WD15|WD14|WD13|WD12|WD11|   |
+//         ---------------------------------------
+//WD16: This bit is only used in extended VRAM mode
 //WD11: This bit is only used in H32 mode. It is ignored in H40 mode, and is treated as 0.
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetNameTableBaseWindow(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetNameTableBaseWindow(const AccessTarget& accessTarget, bool h40ModeActive, bool extendedVRAMModeEnabled) const
 {
-	return GetRegisterData(0x03, accessTarget).GetDataSegment(1, 5) << 11;
+	//According to official documentation, if we're in H40 mode, the WD11 bit of the
+	//window name table base address is masked. We emulate that here. This behaviour
+	//has been confirmed through hardware tests.
+	if(h40ModeActive)
+	{
+		return GetRegisterData(0x03, accessTarget).GetDataSegment(2, (extendedVRAMModeEnabled)? 5: 4) << 12;
+	}
+	return GetRegisterData(0x03, accessTarget).GetDataSegment(1, (extendedVRAMModeEnabled)? 6: 5) << 11;
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetNameTableBaseWindow(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetNameTableBaseWindow(const AccessTarget& accessTarget, unsigned int data)
 {
-	SetRegisterData(0x03, accessTarget, GetRegisterData(0x03, accessTarget).SetDataSegment(1, 5, data >> 11));
+	SetRegisterData(0x03, accessTarget, Data(8, data >> 10));
 }
 
 //----------------------------------------------------------------------------------------
-//         ------------------------------------
-//         | 7 | 6 | 5 | 4 | 3 | 2  | 1  | 0  |
-//         |----------------------------------|
-//         |                   |Scroll B Name |
-//0x04(4)  | /   /   /   /   / |Table Address |
-//         |                   |--------------|
-//         |                   |SB15|SB14|SB13|
-//         ------------------------------------
+//         -------------------------------------
+//         | 7 | 6 | 5 | 4 | 3  | 2  | 1  | 0  |
+//         |-----------------------------------|
+//         |               |   Scroll B Name   |
+//0x04(4)  | /   /   /   / |   Table Address   |
+//         |               |-------------------|
+//         |               |SB16|SB15|SB14|SB13|
+//         -------------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetNameTableBaseScrollB(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetNameTableBaseScrollB(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const
 {
-	return GetRegisterData(0x04, accessTarget).GetDataSegment(0, 3) << 13;
+	return GetRegisterData(0x04, accessTarget).GetDataSegment(0, (extendedVRAMModeEnabled)? 4: 3) << 13;
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetNameTableBaseScrollB(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetNameTableBaseScrollB(const AccessTarget& accessTarget, unsigned int data)
 {
-	SetRegisterData(0x04, accessTarget, GetRegisterData(0x04, accessTarget).SetDataSegment(0, 3, data >> 13));
+	SetRegisterData(0x04, accessTarget, Data(8, data >> 13));
 }
 
 //----------------------------------------------------------------------------------------
 //         ----------------------------------------
-//         | 7 | 6  | 5  | 4  | 3  | 2  |  1  | 0 |
+//         | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0 |
 //         |--------------------------------------|
-//         |   |  Sprite Attribute Table Address  |
-//0x05(5)  | / |----------------------------------|
-//         |   |AT15|AT14|AT13|AT12|AT11|AT10 |AT9|
+//         |    Sprite Attribute Table Address    |
+//0x05(5)  |--------------------------------------|
+//         |AT16|AT15|AT14|AT13|AT12|AT11|AT10|AT9|
 //         ----------------------------------------
-//AT0: This bit is only used in H32 mode. It is ignored in H40 mode, and is treated as 0.
+//AT16: This bit is only used in extended VRAM mode
+//AT9: This bit is only used in H32 mode. It is ignored in H40 mode, and is treated as 0.
 //##TODO## There are a lot of tests still required regarding the interaction of AT9 and
 //the internal sprite cache, and how screen mode settings changes affect the sprite cache.
 //See the notes in RegisterSpecialUpdateFunction for this register for more information.
+//
+//Note that in mode 4, the register layout is as follows:
+//         ---------------------------------
+//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//         |-------------------------------|
+//         |   |Sprite Attribute Table |   |
+//0x05(5)  | / |     Base Address      | / |
+//         |   |-----------------------|   |
+//         |   |B13|B12|B11|B10|B9 |B8 |   |
+//         ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetNameTableBaseSprite(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetNameTableBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool h40ModeActive, bool extendedVRAMModeEnabled) const
 {
-	return GetRegisterData(0x05, accessTarget).GetDataSegment(0, 7) << 9;
+	if(mode4Enabled)
+	{
+		return GetRegisterData(0x05, accessTarget).GetDataSegment(1, 6) << 8;
+	}
+	else if(h40ModeActive)
+	{
+		//According to official documentation, if we're in H40 mode, the AT9 bit of the
+		//sprite table base address is masked. We emulate that here. Note that the
+		//"Traveller's Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being valid
+		//in H32 mode.
+		return GetRegisterData(0x05, accessTarget).GetDataSegment(1, (extendedVRAMModeEnabled)? 7: 6) << 10;
+	}
+	return GetRegisterData(0x05, accessTarget).GetDataSegment(0, (extendedVRAMModeEnabled)? 8: 7) << 9;
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetNameTableBaseSprite(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetNameTableBaseSprite(const AccessTarget& accessTarget, unsigned int data, bool mode4Enabled)
 {
-	SetRegisterData(0x05, accessTarget, GetRegisterData(0x05, accessTarget).SetDataSegment(0, 7, data >> 9));
+	if(mode4Enabled)
+	{
+		SetRegisterData(0x05, accessTarget, Data(8, data >> 7));
+	}
+	else
+	{
+		SetRegisterData(0x05, accessTarget, Data(8, data >> 9));
+	}
 }
 
 //----------------------------------------------------------------------------------------
-//         ----------------------------------
-//         | 7 | 6 | 5  | 4 | 3 | 2 | 1 | 0 |
-//0x06(6)  |--------------------------------|
-//         | / | / |AP16| / | / | / | / | / |
-//         ----------------------------------
-//AP16: Sprite Pattern Generator Base Address, bit 16. This bit only has an effect in
-//      extended VRAM mode.
+//         -----------------------------------
+//         | 7 | 6 | 5  | 4 | 3 | 2  | 1 | 0 |
+//0x06(6)  |---------------------------------|
+//         | / | / |AP16| / | / |AP13| / | / |
+//         -----------------------------------
+//AP16: This bit is only used in extended VRAM mode
+//AP13: This bit is only used in mode 4
 //----------------------------------------------------------------------------------------
-//##TODO## Write functions to access this data
+unsigned int S315_5313::RegGetPatternBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const
+{
+	if(mode4Enabled)
+	{
+		return GetRegisterData(0x06, accessTarget).GetDataSegment(2, 1) << 13;
+	}
+	else if(extendedVRAMModeEnabled)
+	{
+		return GetRegisterData(0x06, accessTarget).GetDataSegment(5, 1) << 16;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetPatternBaseSprite(const AccessTarget& accessTarget, unsigned int data, bool mode4Enabled)
+{
+	if(mode4Enabled)
+	{
+		SetRegisterData(0x06, accessTarget, Data(8, data >> 13));
+	}
+	else
+	{
+		SetRegisterData(0x06, accessTarget, Data(8, data >> 16));
+	}
+}
 
 //----------------------------------------------------------------------------------------
 //         ------------------------------------
@@ -1258,27 +1097,87 @@ void S315_5313::M5SetNameTableBaseSprite(const AccessTarget& accessTarget, unsig
 //         |       |Select |                  |
 //         ------------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetBackgroundColorPalette(const AccessTarget& accessTarget) const
+bool S315_5313::RegGet077(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x07, accessTarget).GetBit(7);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet077(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x07, accessTarget, GetRegisterData(0x07, accessTarget).SetBit(7, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGet076(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x07, accessTarget).GetBit(6);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet076(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x07, accessTarget, GetRegisterData(0x07, accessTarget).SetBit(6, data));
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetBackgroundPaletteRow(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x07, accessTarget).GetDataSegment(4, 2);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetBackgroundColorPalette(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetBackgroundPaletteRow(const AccessTarget& accessTarget, unsigned int data)
 {
 	SetRegisterData(0x07, accessTarget, GetRegisterData(0x07, accessTarget).SetDataSegment(4, 2, data));
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetBackgroundColorIndex(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetBackgroundPaletteColumn(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x07, accessTarget).GetDataSegment(0, 4);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetBackgroundColorIndex(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetBackgroundPaletteColumn(const AccessTarget& accessTarget, unsigned int data)
 {
 	SetRegisterData(0x07, accessTarget, GetRegisterData(0x07, accessTarget).SetDataSegment(0, 4, data));
+}
+
+//----------------------------------------------------------------------------------------
+//         ---------------------------------
+//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//0x08(8)  |-------------------------------|
+//         |      Background Scroll X      |
+//         ---------------------------------
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetBackgroundScrollX(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x08, accessTarget).GetData();
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetBackgroundScrollX(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x08, accessTarget, Data(8, data));
+}
+
+//----------------------------------------------------------------------------------------
+//         ---------------------------------
+//         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+//0x09(9)  |-------------------------------|
+//         |      Background Scroll Y      |
+//         ---------------------------------
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetBackgroundScrollY(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x09, accessTarget).GetData();
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetBackgroundScrollY(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x09, accessTarget, Data(8, data));
 }
 
 //----------------------------------------------------------------------------------------
@@ -1288,15 +1187,15 @@ void S315_5313::M5SetBackgroundColorIndex(const AccessTarget& accessTarget, unsi
 //         |H-Interrupt Data (Line Counter)|
 //         ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetHInterruptData(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetHInterruptData(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0A, accessTarget).GetData();
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetHInterruptData(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetHInterruptData(const AccessTarget& accessTarget, unsigned int data)
 {
-	SetRegisterData(0x0A, accessTarget, GetRegisterData(0x0A, accessTarget).SetData(data));
+	SetRegisterData(0x0A, accessTarget, Data(8, data));
 }
 
 //----------------------------------------------------------------------------------------
@@ -1325,49 +1224,97 @@ void S315_5313::M5SetHInterruptData(const AccessTarget& accessTarget, unsigned i
 //LSCR: Enables line-based horizontal scrolling. When this bit is set, the state of HSCR
 //      is ignored.
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetEXInterruptEnabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGet0B7(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x0B, accessTarget).GetBit(7);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet0B7(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x0B, accessTarget, GetRegisterData(0x0B, accessTarget).SetBit(7, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGet0B6(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x0B, accessTarget).GetBit(6);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet0B6(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x0B, accessTarget, GetRegisterData(0x0B, accessTarget).SetBit(6, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGet0B5(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x0B, accessTarget).GetBit(5);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet0B5(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x0B, accessTarget, GetRegisterData(0x0B, accessTarget).SetBit(5, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGet0B4(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x0B, accessTarget).GetBit(4);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet0B4(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x0B, accessTarget, GetRegisterData(0x0B, accessTarget).SetBit(4, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetIE2(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0B, accessTarget).GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetEXInterruptEnabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetIE2(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x0B, accessTarget, GetRegisterData(0x0B, accessTarget).SetBit(3, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetVSCR(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetVSCR(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0B, accessTarget).GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetVSCR(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetVSCR(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x0B, accessTarget, GetRegisterData(0x0B, accessTarget).SetBit(2, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetHSCR(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetHSCR(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0B, accessTarget).GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetHSCR(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetHSCR(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x0B, accessTarget, GetRegisterData(0x0B, accessTarget).SetBit(1, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetLSCR(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetLSCR(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0B, accessTarget).GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetLSCR(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetLSCR(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x0B, accessTarget, GetRegisterData(0x0B, accessTarget).SetBit(0, data));
 }
@@ -1410,83 +1357,120 @@ void S315_5313::M5SetLSCR(const AccessTarget& accessTarget, bool data)
 //to be input over these lines. It's possible the U2 register here enables external HSYNC
 //input.
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetRS0(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetRS0(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0C, accessTarget).GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetRS0(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetRS0(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x0C, accessTarget, GetRegisterData(0x0C, accessTarget).SetBit(7, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetRS1(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetU1(const AccessTarget& accessTarget) const
 {
-	return GetRegisterData(0x0C, accessTarget).GetBit(0);
+	return GetRegisterData(0x0C, accessTarget).GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetRS1(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetU1(const AccessTarget& accessTarget, bool data)
 {
-	SetRegisterData(0x0C, accessTarget, GetRegisterData(0x0C, accessTarget).SetBit(0, data));
+	SetRegisterData(0x0C, accessTarget, GetRegisterData(0x0C, accessTarget).SetBit(6, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetShadowHighlightEnabled(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetU2(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x0C, accessTarget).GetBit(5);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetU2(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x0C, accessTarget, GetRegisterData(0x0C, accessTarget).SetBit(5, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetU3(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x0C, accessTarget).GetBit(4);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetU3(const AccessTarget& accessTarget, bool data)
+{
+	SetRegisterData(0x0C, accessTarget, GetRegisterData(0x0C, accessTarget).SetBit(4, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetSTE(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0C, accessTarget).GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetShadowHighlightEnabled(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetSTE(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x0C, accessTarget, GetRegisterData(0x0C, accessTarget).SetBit(3, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetLSM1(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetLSM1(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0C, accessTarget).GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetLSM1(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetLSM1(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x0C, accessTarget, GetRegisterData(0x0C, accessTarget).SetBit(2, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetLSM0(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetLSM0(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0C, accessTarget).GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetLSM0(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetLSM0(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x0C, accessTarget, GetRegisterData(0x0C, accessTarget).SetBit(1, data));
 }
 
 //----------------------------------------------------------------------------------------
-//         ---------------------------------------
-//         | 7 | 6 | 5  | 4  | 3  | 2  | 1  | 0  |
-//         |-------------------------------------|
-//         |       | HScroll Data Table Address  |
-//0x0D(13) | /   / |-----------------------------|
-//         |       |HS15|HS14|HS13|HS12|HS11|HS10|
-//         ---------------------------------------
-//----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetHScrollDataBase(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetRS1(const AccessTarget& accessTarget) const
 {
-	return GetRegisterData(0x0D, accessTarget).GetDataSegment(0, 6) << 10;
+	return GetRegisterData(0x0C, accessTarget).GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetHScrollDataBase(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetRS1(const AccessTarget& accessTarget, bool data)
 {
-	SetRegisterData(0x0D, accessTarget, GetRegisterData(0x0D, accessTarget).SetDataSegment(0, 6, data >> 10));
+	SetRegisterData(0x0C, accessTarget, GetRegisterData(0x0C, accessTarget).SetBit(0, data));
+}
+
+//----------------------------------------------------------------------------------------
+//         ----------------------------------------
+//         | 7 | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
+//         |--------------------------------------|
+//         |   |    HScroll Data Table Address    |
+//0x0D(13) | / |----------------------------------|
+//         |   |HS16|HS15|HS14|HS13|HS12|HS11|HS10|
+//         ----------------------------------------
+//HS16: This bit is only used in extended VRAM mode
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetHScrollDataBase(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const
+{
+	return GetRegisterData(0x0D, accessTarget).GetDataSegment(0, (extendedVRAMModeEnabled)? 7: 6) << 10;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetHScrollDataBase(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x0D, accessTarget, Data(8, data >> 10));
 }
 
 //----------------------------------------------------------------------------------------
@@ -1500,7 +1484,66 @@ void S315_5313::M5SetHScrollDataBase(const AccessTarget& accessTarget, unsigned 
 //PB16: When this bit and PA16 are both set and extended VRAM mode is enabled, layer B is
 //      rebased to the upper memory area.
 //----------------------------------------------------------------------------------------
-//##TODO## Write functions to access this data
+unsigned int S315_5313::RegGet0E57(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x0E, accessTarget).GetDataSegment(5, 3);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet0E57(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x0E, accessTarget, GetRegisterData(0x0E, accessTarget).SetDataSegment(5, 3, data));
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetPatternBaseScrollA(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const
+{
+	if(extendedVRAMModeEnabled)
+	{
+		return GetRegisterData(0x0E, accessTarget).GetDataSegment(0, 1) << 16;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetPatternBaseScrollA(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x0E, accessTarget, GetRegisterData(0x0E, accessTarget).SetDataSegment(4, 1, data >> 16));
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGet0E13(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x0E, accessTarget).GetDataSegment(1, 3);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet0E13(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x0E, accessTarget, GetRegisterData(0x0E, accessTarget).SetDataSegment(1, 3, data));
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetPatternBaseScrollB(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const
+{
+	if(extendedVRAMModeEnabled)
+	{
+		return RegGetPatternBaseScrollA(accessTarget, extendedVRAMModeEnabled) & (GetRegisterData(0x0E, accessTarget).GetDataSegment(4, 1) << 16);
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetPatternBaseScrollB(const AccessTarget& accessTarget, unsigned int data)
+{
+	unsigned int newData = data >> 16;
+	SetRegisterData(0x0E, accessTarget, GetRegisterData(0x0E, accessTarget).SetDataSegment(0, 1, newData));
+	if(newData != 0)
+	{
+		RegSetPatternBaseScrollA(accessTarget, data);
+	}
+}
+
 
 //----------------------------------------------------------------------------------------
 //         ---------------------------------
@@ -1509,15 +1552,15 @@ void S315_5313::M5SetHScrollDataBase(const AccessTarget& accessTarget, unsigned 
 //         |      Auto Increment Data      |
 //         ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetAutoIncrementData(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetAutoIncrementData(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x0F, accessTarget).GetData();
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetAutoIncrementData(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetAutoIncrementData(const AccessTarget& accessTarget, unsigned int data)
 {
-	SetRegisterData(0x0F, accessTarget, GetRegisterData(0x0F, accessTarget).SetData(data));
+	SetRegisterData(0x0F, accessTarget, Data(8, data));
 }
 
 //----------------------------------------------------------------------------------------
@@ -1527,73 +1570,97 @@ void S315_5313::M5SetAutoIncrementData(const AccessTarget& accessTarget, unsigne
 //         | /   / |VSZ1|VSZ0| /   / |HSZ1|HSZ0|
 //         -------------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetVSZ(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGet1067(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x10, accessTarget).GetDataSegment(6, 2);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet1067(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x10, accessTarget, GetRegisterData(0x10, accessTarget).SetDataSegment(6, 2, data));
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetVSZ(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x10, accessTarget).GetDataSegment(4, 2);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetVSZ(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetVSZ(const AccessTarget& accessTarget, unsigned int data)
 {
 	SetRegisterData(0x10, accessTarget, GetRegisterData(0x10, accessTarget).SetDataSegment(4, 2, data));
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetHSZ(const AccessTarget& accessTarget) const
-{
-	return GetRegisterData(0x10, accessTarget).GetDataSegment(0, 2);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::M5SetHSZ(const AccessTarget& accessTarget, unsigned int data)
-{
-	SetRegisterData(0x10, accessTarget, GetRegisterData(0x10, accessTarget).SetDataSegment(0, 2, data));
-}
-
-//----------------------------------------------------------------------------------------
-bool S315_5313::M5GetVSZ1(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetVSZ1(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x10, accessTarget).GetBit(5);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetVSZ1(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetVSZ1(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x10, accessTarget, GetRegisterData(0x10, accessTarget).SetBit(5, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetVSZ0(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetVSZ0(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x10, accessTarget).GetBit(4);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetVSZ0(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetVSZ0(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x10, accessTarget, GetRegisterData(0x10, accessTarget).SetBit(4, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetHSZ1(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGet1023(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x10, accessTarget).GetDataSegment(2, 2);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet1023(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x10, accessTarget, GetRegisterData(0x10, accessTarget).SetDataSegment(2, 2, data));
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetHSZ(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x10, accessTarget).GetDataSegment(0, 2);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSetHSZ(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x10, accessTarget, GetRegisterData(0x10, accessTarget).SetDataSegment(0, 2, data));
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::RegGetHSZ1(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x10, accessTarget).GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetHSZ1(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetHSZ1(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x10, accessTarget, GetRegisterData(0x10, accessTarget).SetBit(1, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetHSZ0(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetHSZ0(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x10, accessTarget).GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetHSZ0(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetHSZ0(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x10, accessTarget, GetRegisterData(0x10, accessTarget).SetBit(0, data));
 }
@@ -1610,25 +1677,37 @@ void S315_5313::M5SetHSZ0(const AccessTarget& accessTarget, bool data)
 //in this document from Accolade. Setting bits 5 and 6 of these registers has no visible
 //effect on the window layer.
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetWindowRightAligned(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetWindowRightAligned(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x11, accessTarget).GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetWindowRightAligned(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetWindowRightAligned(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x11, accessTarget, GetRegisterData(0x11, accessTarget).SetBit(7, data));
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetWindowBasePointX(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGet1156(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x11, accessTarget).GetDataSegment(5, 2);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet1156(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x11, accessTarget, GetRegisterData(0x11, accessTarget).SetDataSegment(5, 2, data));
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetWindowBasePointX(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x11, accessTarget).GetDataSegment(0, 5);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetWindowBasePointX(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetWindowBasePointX(const AccessTarget& accessTarget, unsigned int data)
 {
 	SetRegisterData(0x11, accessTarget, GetRegisterData(0x11, accessTarget).SetDataSegment(0, 5, data));
 }
@@ -1640,25 +1719,37 @@ void S315_5313::M5SetWindowBasePointX(const AccessTarget& accessTarget, unsigned
 //         |DOWN| /   / |Window V Base Point|
 //         ----------------------------------
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetWindowBottomAligned(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetWindowBottomAligned(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x12, accessTarget).GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetWindowBottomAligned(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetWindowBottomAligned(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x12, accessTarget, GetRegisterData(0x12, accessTarget).SetBit(7, data));
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetWindowBasePointY(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGet1256(const AccessTarget& accessTarget) const
+{
+	return GetRegisterData(0x12, accessTarget).GetDataSegment(5, 2);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::RegSet1256(const AccessTarget& accessTarget, unsigned int data)
+{
+	SetRegisterData(0x12, accessTarget, GetRegisterData(0x12, accessTarget).SetDataSegment(5, 2, data));
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::RegGetWindowBasePointY(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x12, accessTarget).GetDataSegment(0, 5);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetWindowBasePointY(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetWindowBasePointY(const AccessTarget& accessTarget, unsigned int data)
 {
 	SetRegisterData(0x12, accessTarget, GetRegisterData(0x12, accessTarget).SetDataSegment(0, 5, data));
 }
@@ -1675,7 +1766,7 @@ void S315_5313::M5SetWindowBasePointY(const AccessTarget& accessTarget, unsigned
 //         |LG15|LG14|LG13|LG12|LG11|LG10|LG9 |LG8 |
 //         -----------------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetDMALengthCounter(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetDMALengthCounter(const AccessTarget& accessTarget) const
 {
 	unsigned int result = GetRegisterData(0x13, accessTarget).GetData();
 	result += GetRegisterData(0x14, accessTarget).GetData() << 8;
@@ -1683,10 +1774,10 @@ unsigned int S315_5313::M5GetDMALengthCounter(const AccessTarget& accessTarget) 
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetDMALengthCounter(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetDMALengthCounter(const AccessTarget& accessTarget, unsigned int data)
 {
-	SetRegisterData(0x13, accessTarget, GetRegisterData(0x13, accessTarget).SetData(data));
-	SetRegisterData(0x14, accessTarget, GetRegisterData(0x14, accessTarget).SetData(data >> 8));
+	SetRegisterData(0x13, accessTarget, Data(8, data));
+	SetRegisterData(0x14, accessTarget, Data(8, data >> 8));
 }
 
 //----------------------------------------------------------------------------------------
@@ -1709,7 +1800,7 @@ void S315_5313::M5SetDMALengthCounter(const AccessTarget& accessTarget, unsigned
 //DMD0:   Note that DMD0 acts as both DMD0 and SA23, so there's deliberate overlap in the
 //        access functions to these registers.
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetDMASourceAddress(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetDMASourceAddress(const AccessTarget& accessTarget) const
 {
 	unsigned int result = GetRegisterData(0x15, accessTarget).GetData() << 1;
 	result += GetRegisterData(0x16, accessTarget).GetData() << 9;
@@ -1718,69 +1809,69 @@ unsigned int S315_5313::M5GetDMASourceAddress(const AccessTarget& accessTarget) 
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetDMASourceAddress(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetDMASourceAddress(const AccessTarget& accessTarget, unsigned int data)
 {
-	SetRegisterData(0x15, accessTarget, GetRegisterData(0x15, accessTarget).SetData(data >> 1));
-	SetRegisterData(0x16, accessTarget, GetRegisterData(0x16, accessTarget).SetData(data >> 9));
+	SetRegisterData(0x15, accessTarget, Data(8, data >> 1));
+	SetRegisterData(0x16, accessTarget, Data(8, data >> 9));
 	SetRegisterData(0x17, accessTarget, GetRegisterData(0x17, accessTarget).SetDataSegment(0, 7, data >> 17));
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetDMASourceAddressByte1(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetDMASourceAddressByte1(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x15, accessTarget).GetData();
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetDMASourceAddressByte1(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetDMASourceAddressByte1(const AccessTarget& accessTarget, unsigned int data)
 {
 	SetRegisterData(0x15, accessTarget, GetRegisterData(0x15, accessTarget).SetData(data));
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetDMASourceAddressByte2(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetDMASourceAddressByte2(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x16, accessTarget).GetData();
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetDMASourceAddressByte2(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetDMASourceAddressByte2(const AccessTarget& accessTarget, unsigned int data)
 {
 	SetRegisterData(0x16, accessTarget, GetRegisterData(0x16, accessTarget).SetData(data));
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::M5GetDMASourceAddressByte3(const AccessTarget& accessTarget) const
+unsigned int S315_5313::RegGetDMASourceAddressByte3(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x17, accessTarget).GetDataSegment(0, 7);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetDMASourceAddressByte3(const AccessTarget& accessTarget, unsigned int data)
+void S315_5313::RegSetDMASourceAddressByte3(const AccessTarget& accessTarget, unsigned int data)
 {
 	SetRegisterData(0x17, accessTarget, GetRegisterData(0x17, accessTarget).SetDataSegment(0, 7, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetDMD1(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetDMD1(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x17, accessTarget).GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetDMD1(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetDMD1(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x17, accessTarget, GetRegisterData(0x17, accessTarget).SetBit(7, data));
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::M5GetDMD0(const AccessTarget& accessTarget) const
+bool S315_5313::RegGetDMD0(const AccessTarget& accessTarget) const
 {
 	return GetRegisterData(0x17, accessTarget).GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::M5SetDMD0(const AccessTarget& accessTarget, bool data)
+void S315_5313::RegSetDMD0(const AccessTarget& accessTarget, bool data)
 {
 	SetRegisterData(0x17, accessTarget, GetRegisterData(0x17, accessTarget).SetBit(6, data));
 }
