@@ -76,7 +76,7 @@ BEGIN
             VALUE "LegalCopyright", "© 2013 Roger Sanders"
             VALUE "OriginalFilename", "MDExtensions.dll"
             VALUE "ProductName", "MDExtensions"
-            VALUE "ProductVersion", "1.0"
+            VALUE "ProductVersion", "1.0.0"
         END
     END
     BLOCK "VarFileInfo"

@@ -210,7 +210,7 @@ BEGIN
             VALUE "LegalCopyright", "© 2013 Roger Sanders"
             VALUE "OriginalFilename", "SN76489.dll"
             VALUE "ProductName", "SN76489"
-            VALUE "ProductVersion", "1.0"
+            VALUE "ProductVersion", "1.0.0"
         END
     END
     BLOCK "VarFileInfo"

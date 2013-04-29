@@ -168,7 +168,7 @@ BEGIN
             VALUE "LegalCopyright", "© 2013 Roger Sanders"
             VALUE "OriginalFilename", "Memory.dll"
             VALUE "ProductName", "Memory"
-            VALUE "ProductVersion", "1.0"
+            VALUE "ProductVersion", "1.0.0"
         END
     END
     BLOCK "VarFileInfo"
