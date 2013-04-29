@@ -1689,7 +1689,7 @@ void System::ExecuteThread()
 		if(accumulatedExecutionTime >= 20000000.0)
 //		if(accumulatedExecutionTime >= 1000000000.0)
 		{
-			timer.Sync(accumulatedExecutionTime, enableThrottling);
+			timer.Sync(accumulatedExecutionTime, enableThrottling, guiExtensionInterface->GetGlobalPreferenceShowDebugConsole());
 			accumulatedExecutionTime = 0;
 		}
 	}

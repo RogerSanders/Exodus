@@ -10,7 +10,7 @@ public:
 
 	//Synchronization functions
 	inline void Reset();
-	inline void Sync(double targetExecutionTime, bool enableSync = true, double executeAheadTolerance = 0.001);
+	inline void Sync(double targetExecutionTime, bool enableSync = true, bool outputTimerDebug = false, double executeAheadTolerance = 0.001);
 
 private:
 	LARGE_INTEGER counterFrequency;

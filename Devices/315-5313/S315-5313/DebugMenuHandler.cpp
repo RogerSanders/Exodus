@@ -68,16 +68,16 @@ void S315_5313::DebugMenuHandler::OpenPortMonitorDetailsView(const PortMonitorEn
 //----------------------------------------------------------------------------------------
 void S315_5313::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_VRAMVIEWER, L"VRAMPatterns", L"VRAM Pattern Viewer", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_PALETTEVIEWER, L"Palette", L"Palette", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_IMAGE, L"Image", L"Image", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", L"Registers", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_LAYERREMOVAL, L"LayerRemoval", L"Layer Removal", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_SETTINGS, L"DebugSettings", L"Debug Settings", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELIST, L"SpriteList", L"Sprite List", true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELISTDETAILS, L"SpriteListDetails", L"Sprite List Details", true, true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_IMAGE, L"Image", L"Image", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_LAYERREMOVAL, L"LayerRemoval", L"Layer Removal", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_PALETTEVIEWER, L"Palette", L"Palette", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITOR, L"PortMonitor", L"Port Monitor", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITORDETAILS, L"PortMonitorDetails", L"Port Monitor Details", true, true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", L"Registers", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELIST, L"SpriteList", L"Sprite List", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELISTDETAILS, L"SpriteListDetails", L"Sprite List Details", true, true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_VRAMVIEWER, L"VRAMPatterns", L"VRAM Pattern Viewer", true));
 }
 
 //----------------------------------------------------------------------------------------

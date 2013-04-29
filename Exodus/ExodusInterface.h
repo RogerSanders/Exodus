@@ -103,7 +103,9 @@ public:
 	void ApplyPrefs();
 	virtual bool GetGlobalPreferenceEnableThrottling() const;
 	virtual bool GetGlobalPreferenceRunWhenProgramModuleLoaded() const;
-	virtual bool GetEnablePersistentState() const;
+	virtual bool GetGlobalPreferenceEnablePersistentState() const;
+	virtual bool GetGlobalPreferenceLoadWorkspaceWithDebugState() const;
+	virtual bool GetGlobalPreferenceShowDebugConsole() const;
 
 	//Assembly functions
 	bool LoadAssembliesFromFolder(const std::wstring& folder);

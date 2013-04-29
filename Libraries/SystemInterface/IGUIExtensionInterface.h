@@ -34,7 +34,9 @@ public:
 	inline std::wstring GetGlobalPreferenceInitialWorkspace() const;
 	virtual bool GetGlobalPreferenceEnableThrottling() const = 0;
 	virtual bool GetGlobalPreferenceRunWhenProgramModuleLoaded() const = 0;
-	virtual bool GetEnablePersistentState() const = 0;
+	virtual bool GetGlobalPreferenceEnablePersistentState() const = 0;
+	virtual bool GetGlobalPreferenceLoadWorkspaceWithDebugState() const = 0;
+	virtual bool GetGlobalPreferenceShowDebugConsole() const = 0;
 
 	//Assembly functions
 	inline bool LoadAssembly(const std::wstring& filePath);

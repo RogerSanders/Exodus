@@ -21,7 +21,7 @@ void PerformanceTimer::Reset()
 }
 
 //----------------------------------------------------------------------------------------
-void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, double executeAheadTolerance)
+void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, bool outputTimerDebug, double executeAheadTolerance)
 {
 	//Obtain the current time in ticks, making allowance for counter overflow if it
 	//occurs. Note that the official documentation doesn't give any assurance as to the
@@ -94,7 +94,10 @@ void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, double 
 	}
 
 	//##DEBUG##
-	std::wcout << std::setprecision(16) << targetExecutionTime << '\t' << executionTimeInTicks << '\t' << executionTimeEnd.QuadPart - executionTimeStart.QuadPart << '\t' << executionTimeRealEnd.QuadPart - executionTimeStart.QuadPart << '\t' << std::setprecision(4) << ((double)executionTimeInTicks / (double)(executionTimeEnd.QuadPart - executionTimeStart.QuadPart)) * 100.0 << '\t' << std::setprecision(4) << ((double)executionTimeInTicks / (double)(executionTimeRealEnd.QuadPart - executionTimeStart.QuadPart)) * 100.0 << '\t' << executionTimeAhead << '\n';
+	if(outputTimerDebug)
+	{
+		std::wcout << std::setprecision(16) << targetExecutionTime << '\t' << executionTimeInTicks << '\t' << executionTimeEnd.QuadPart - executionTimeStart.QuadPart << '\t' << executionTimeRealEnd.QuadPart - executionTimeStart.QuadPart << '\t' << std::setprecision(4) << ((double)executionTimeInTicks / (double)(executionTimeEnd.QuadPart - executionTimeStart.QuadPart)) * 100.0 << '\t' << std::setprecision(4) << ((double)executionTimeInTicks / (double)(executionTimeRealEnd.QuadPart - executionTimeStart.QuadPart)) * 100.0 << '\t' << executionTimeAhead << '\n';
+	}
 
 	//Save the end time for this synchronization point as the start time for the next
 	//synchronization point
