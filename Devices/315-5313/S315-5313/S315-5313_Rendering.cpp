@@ -149,8 +149,8 @@ void S315_5313::AdvanceRenderProcess(unsigned int mclkCyclesRemainingToAdvance)
 		if(renderDigitalHCounterPos == hscanSettings->hblankSetPoint)
 		{
 			//Cache the new settings
-			renderDigitalScreenModeRS0Active = M5GetRS0(accessTarget);
-			renderDigitalScreenModeRS1Active = M5GetRS1(accessTarget);
+			renderDigitalScreenModeRS0Active = RegGetRS0(accessTarget);
+			renderDigitalScreenModeRS1Active = RegGetRS1(accessTarget);
 
 			//Latch updated screen mode settings
 			hscanSettings = &GetHScanSettings(renderDigitalScreenModeRS0Active, renderDigitalScreenModeRS1Active);
@@ -161,9 +161,9 @@ void S315_5313::AdvanceRenderProcess(unsigned int mclkCyclesRemainingToAdvance)
 		if((renderDigitalVCounterPos == vscanSettings->vblankSetPoint) && (renderDigitalHCounterPos == hscanSettings->vcounterIncrementPoint))
 		{
 			//Cache the new settings
-			renderDigitalScreenModeV30Active = M5GetV30CellModeEnabled(accessTarget);
-			renderDigitalInterlaceEnabledActive = M5GetLSM0(accessTarget);
-			renderDigitalInterlaceDoubleActive = M5GetLSM1(accessTarget);
+			renderDigitalScreenModeV30Active = RegGetM3(accessTarget);
+			renderDigitalInterlaceEnabledActive = RegGetLSM0(accessTarget);
+			renderDigitalInterlaceDoubleActive = RegGetLSM1(accessTarget);
 			//##FIX## This is incorrect. This is retrieving the current live state of the
 			//line. We need to store history information for this line, so that the
 			//correct line state can be set here.
@@ -278,7 +278,7 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		bool interlaceMode2Active = renderDigitalInterlaceEnabledActive && renderDigitalInterlaceDoubleActive;
 
 		//Read registers which affect the read of vscroll data
-		bool vscrState = M5GetVSCR(accessTarget);
+		bool vscrState = RegGetVSCR(accessTarget);
 
 		//Read vscroll data for the target layer if required. Note that new data is only
 		//latched if column vertical scrolling is enabled, or if this is the first column
@@ -327,7 +327,7 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 	//##TODO## Determine if the display enable bit is effective when the VDP test
 	//register has been set to one of the modes that disables the blanking of the
 	//display in the border regions.
-	bool displayEnabled = M5GetDisplayEnabled(accessTarget);
+	bool displayEnabled = RegGetDisplayEnabled(accessTarget);
 
 	//Obtain the set of VRAM update steps for the current raster position based on the
 	//current screen mode settings. If this line is outside the active display area, IE,
@@ -465,10 +465,13 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		//Skip the operation if this is the invisible line just before the display region
 		if(renderDigitalCurrentRow < 0) break;
 
+		//Read the current mode register settings
+		bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
+
 		//Read register settings which affect which hscroll data is loaded
-		unsigned int hscrollDataBase = M5GetHScrollDataBase(accessTarget);
-		bool hscrState = M5GetHSCR(accessTarget);
-		bool lscrState = M5GetLSCR(accessTarget);
+		unsigned int hscrollDataBase = RegGetHScrollDataBase(accessTarget, extendedVRAMModeActive);
+		bool hscrState = RegGetHSCR(accessTarget);
+		bool lscrState = RegGetLSCR(accessTarget);
 
 		//Load the hscroll data into the hscroll data cache
 		DigitalRenderReadHscrollData(renderDigitalCurrentRow, hscrollDataBase, hscrState, lscrState, renderLayerAHscrollPatternDisplacement, renderLayerBHscrollPatternDisplacement, renderLayerAHscrollMappingDisplacement, renderLayerBHscrollMappingDisplacement);
@@ -483,11 +486,16 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		//reads its mapping data from cell block -1.
 		unsigned int renderDigitalCurrentColumn = (nextOperation.index - 1) / cellsPerColumn;
 
+		//Read the current mode register settings
+		//##TODO## Add support for mode 4
+		bool mode4Active = false;
+		bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
+
 		//Read the current window register settings
-		bool windowAlignedRight = M5GetWindowRightAligned(accessTarget);
-		bool windowAlignedBottom = M5GetWindowBottomAligned(accessTarget);
-		unsigned int windowBasePointX = M5GetWindowBasePointX(accessTarget);
-		unsigned int windowBasePointY = M5GetWindowBasePointY(accessTarget);
+		bool windowAlignedRight = RegGetWindowRightAligned(accessTarget);
+		bool windowAlignedBottom = RegGetWindowBottomAligned(accessTarget);
+		unsigned int windowBasePointX = RegGetWindowBasePointX(accessTarget);
+		unsigned int windowBasePointY = RegGetWindowBasePointY(accessTarget);
 
 		//Calculate the screen position of the window layer
 		unsigned int windowStartCellX = (windowAlignedRight)? windowBasePointX: 0;
@@ -532,9 +540,7 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		if(windowActiveInThisColumn)
 		{
 			//Read register settings which affect which mapping data is loaded
-			//##FIX## Documentation and hardware tests have shown that WD11 is masked in
-			//H40 mode.
-			unsigned int nameTableBase = M5GetNameTableBaseWindow(accessTarget);
+			unsigned int nameTableBase = RegGetNameTableBaseWindow(accessTarget, renderDigitalScreenModeRS1Active, extendedVRAMModeActive);
 
 			//The window mapping table dimensions are determined based on the H40 screen
 			//mode state. If H40 mode is active, the window mapping table is 64 cells
@@ -551,9 +557,9 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 			if(!enableWindowHigh || !enableWindowLow)
 			{
 				//Read register settings which affect which mapping data is loaded
-				nameTableBase = M5GetNameTableBaseScrollA(accessTarget);
-				hszState = M5GetHSZ(accessTarget);
-				vszState = M5GetVSZ(accessTarget);
+				nameTableBase = RegGetNameTableBaseScrollA(accessTarget, mode4Active, extendedVRAMModeActive);
+				hszState = RegGetHSZ(accessTarget);
+				vszState = RegGetVSZ(accessTarget);
 
 				//Read layer A mapping data
 				Data layerAMapping1(16);
@@ -576,9 +582,9 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		else
 		{
 			//Read register settings which affect which mapping data is loaded
-			unsigned int nameTableBase = M5GetNameTableBaseScrollA(accessTarget);
-			unsigned int hszState = M5GetHSZ(accessTarget);
-			unsigned int vszState = M5GetVSZ(accessTarget);
+			unsigned int nameTableBase = RegGetNameTableBaseScrollA(accessTarget, mode4Active, extendedVRAMModeActive);
+			unsigned int hszState = RegGetHSZ(accessTarget);
+			unsigned int vszState = RegGetVSZ(accessTarget);
 
 			//Read layer A mapping data
 			DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
@@ -636,6 +642,9 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		//reads its mapping data from cell block -1.
 		unsigned int renderDigitalCurrentColumn = (nextOperation.index - 1) / cellsPerColumn;
 
+		//Read the current mode register settings
+		bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
+
 		//Calculate the effective screen row number to use when calculating the mapping
 		//data row for this line. Note that the screen row number is just used directly
 		//under normal circumstances, but when interlace mode 2 is active, there are
@@ -654,9 +663,9 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		}
 
 		//Read register settings which affect which mapping data is loaded
-		unsigned int nameTableBase = M5GetNameTableBaseScrollB(accessTarget);
-		unsigned int hszState = M5GetHSZ(accessTarget);
-		unsigned int vszState = M5GetVSZ(accessTarget);
+		unsigned int nameTableBase = RegGetNameTableBaseScrollB(accessTarget, extendedVRAMModeActive);
+		unsigned int hszState = RegGetHSZ(accessTarget);
+		unsigned int vszState = RegGetVSZ(accessTarget);
 
 		//Read layer B mapping data
 		DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerBHscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement, renderLayerBVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerB[nextOperation.index], renderMappingDataCacheLayerB[nextOperation.index+1]);
@@ -687,22 +696,17 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		DigitalRenderReadPatternDataRow(patternRowNumberNoFlip, 0, interlaceMode2Active, renderMappingDataCacheLayerB[nextOperation.index], renderPatternDataCacheLayerB[nextOperation.index]);
 		break;}
 	case VRAMRenderOp::MAPPING_S:{
+		//Read the current mode register settings
+		//##TODO## Add support for mode 4
+		bool mode4Active = false;
+		bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
+
 		//Read sprite mapping data and decode sprite cells for the next sprite to display
 		//on the current scanline.
 		if(renderSpriteDisplayCacheCurrentIndex < renderSpriteDisplayCacheEntryCount)
 		{
 			//Read the sprite table base address register
-			unsigned int spriteTableBaseAddress = M5GetNameTableBaseSprite(accessTarget);
-
-			//According to official documentation, if we're in H40 mode, the AT9 bit of
-			//the sprite table base address is masked. We emulate that here. Note that the
-			//"Traveller's Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being
-			//valid in H32 mode.
-			//##TODO## Perform hardware tests to confirm this behaviour
-			if(renderDigitalScreenModeRS1Active)
-			{
-				spriteTableBaseAddress &= 0xFC00;
-			}
+			unsigned int spriteTableBaseAddress = RegGetNameTableBaseSprite(accessTarget, mode4Active, renderDigitalScreenModeRS1Active, extendedVRAMModeActive);
 
 			//Obtain a reference to the corresponding sprite display cache entry for this
 			//sprite.
@@ -958,7 +962,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	//Read the display enable register. If this register is cleared, the output for this
 	//update step is forced to the background colour, and free access to VRAM is
 	//permitted.
-	bool displayEnabled = M5GetDisplayEnabled(accessTarget);
+	bool displayEnabled = RegGetDisplayEnabled(accessTarget);
 	if(!displayEnabled)
 	{
 		forceOutputBackgroundPixel = true;
@@ -988,8 +992,8 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	{
 		//If this pixel is being forced to the background colour, read the current
 		//background palette index and line data.
-		paletteLine = M5GetBackgroundColorPalette(accessTarget);
-		paletteIndex = M5GetBackgroundColorIndex(accessTarget);
+		paletteLine = RegGetBackgroundPaletteRow(accessTarget);
+		paletteIndex = RegGetBackgroundPaletteColumn(accessTarget);
 	}
 	else if(insideActiveScanVertically && insideActiveScanHorizontally)
 	{
@@ -1083,8 +1087,8 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 
 		//Read the background palette settings
 		layerPriority[LAYER_BACKGROUND] = false;
-		paletteLineData[LAYER_BACKGROUND] = M5GetBackgroundColorPalette(accessTarget);
-		paletteIndexData[LAYER_BACKGROUND] = M5GetBackgroundColorIndex(accessTarget);
+		paletteLineData[LAYER_BACKGROUND] = RegGetBackgroundPaletteRow(accessTarget);
+		paletteIndexData[LAYER_BACKGROUND] = RegGetBackgroundPaletteColumn(accessTarget);
 
 		//Determine if any of the palette index values for any of the layers indicate a
 		//transparent pixel.
@@ -1101,7 +1105,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		//that changes to this register take effect immediately, at any point in a line.
 		//##TODO## Confirm whether shadow highlight is active in border areas
 		//##TODO## Confirm whether shadow highlight is active when the display is disabled
-		bool shadowHighlightEnabled = M5GetShadowHighlightEnabled(accessTarget);
+		bool shadowHighlightEnabled = RegGetSTE(accessTarget);
 		bool spriteIsShadowOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 15);
 		bool spriteIsHighlightOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 14);
 
@@ -1244,7 +1248,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		//select bit.
 		//##TODO## Confirm the mapping of intensity values when the palette select bit is
 		//cleared.
-		if(!M5GetPSEnabled(accessTarget))
+		if(!RegGetPS(accessTarget))
 		{
 			colorIntensityR = (colorIntensityR & 0x01) << 2;
 			colorIntensityG = (colorIntensityG & 0x01) << 2;
@@ -1610,6 +1614,15 @@ void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, u
 	//blocks, so the lower two bits of the address are ineffective. We read a pair of
 	//2-byte block mappings from the masked address.
 	mappingDataAddress &= 0xFFFC;
+
+	//##FIX## This is a temporary workaround for the inaccurate results we get when a
+	//horizontal mode of "10" is used. See notes above for more info. We need to determine
+	//how and why the hardware behaves in this manner, to see if there's a simpler
+	//implementation we can make where this behaviour is a natural side effect.
+	if(screenSizeModeH == 2)
+	{
+		mappingDataAddress &= 0xFF3F;
+	}
 
 	//Read target layer mapping data
 	mappingDataEntry1 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+1);
@@ -2091,17 +2104,11 @@ S315_5313::SpriteMappingTableEntry S315_5313::GetSpriteMappingTableEntry(unsigne
 	accessTarget.AccessCommitted();
 
 	//Read the sprite table base address register
-	unsigned int spriteTableBaseAddress = M5GetNameTableBaseSprite(accessTarget);
-
-	//According to official documentation, if we're in H40 mode, the AT9 bit of the sprite
-	//table base address is masked. We emulate that here. Note that the "Traveller's
-	//Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being valid in H32 mode.
-	//##TODO## Confirm this behaviour through hardware tests
-	bool screenModeRS1Active = M5GetRS1(accessTarget);
-	if(screenModeRS1Active)
-	{
-		spriteTableBaseAddress &= 0xFC00;
-	}
+	//##TODO## Add support for mode 4
+	bool mode4Active = false;
+	bool screenModeRS1Active = RegGetRS1(accessTarget);
+	bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
+	unsigned int spriteTableBaseAddress = RegGetNameTableBaseSprite(accessTarget, mode4Active, screenModeRS1Active, extendedVRAMModeActive);
 
 	//Calculate the address in VRAM of this sprite table entry
 	const unsigned int spriteTableEntrySize = 8;
@@ -2165,17 +2172,11 @@ void S315_5313::SetSpriteMappingTableEntry(unsigned int entryNo, const SpriteMap
 	accessTarget.AccessLatest();
 
 	//Read the sprite table base address register
-	unsigned int spriteTableBaseAddress = M5GetNameTableBaseSprite(accessTarget);
-
-	//According to official documentation, if we're in H40 mode, the AT9 bit of
-	//the sprite table base address is masked. We emulate that here. Note that the
-	//"Traveller's Tales" logo in Sonic 3D on the Mega Drive relies on AT9 being
-	//valid in H32 mode.
-	bool screenModeRS1Active = M5GetRS1(accessTarget);
-	if(screenModeRS1Active)
-	{
-		spriteTableBaseAddress &= 0xFC00;
-	}
+	//##TODO## Add support for mode 4
+	bool mode4Active = false;
+	bool screenModeRS1Active = RegGetRS1(accessTarget);
+	bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
+	unsigned int spriteTableBaseAddress = RegGetNameTableBaseSprite(accessTarget, mode4Active, screenModeRS1Active, extendedVRAMModeActive);
 
 	//Select the data to write back to the sprite table
 	Data rawDataWord0(entry.rawDataWord0);

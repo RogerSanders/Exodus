@@ -1294,9 +1294,9 @@ void S315_5313::ExecuteCommit()
 	{
 		AccessTarget accessTarget;
 		accessTarget.AccessLatest();
-		M5SetDMALengthCounter(accessTarget, dmaLengthCounter);
-		M5SetDMASourceAddressByte1(accessTarget, dmaSourceAddressByte1);
-		M5SetDMASourceAddressByte2(accessTarget, dmaSourceAddressByte2);
+		RegSetDMALengthCounter(accessTarget, dmaLengthCounter);
+		RegSetDMASourceAddressByte1(accessTarget, dmaSourceAddressByte1);
+		RegSetDMASourceAddressByte2(accessTarget, dmaSourceAddressByte2);
 		cachedDMASettingsChanged = false;
 	}
 

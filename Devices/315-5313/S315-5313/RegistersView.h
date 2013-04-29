@@ -19,14 +19,56 @@ private:
 	//Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgWM_NOTIFY(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
+	//Raw registers dialog window procedure
+	static INT_PTR CALLBACK WndProcRawRegistersStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+	INT_PTR WndProcRawRegisters(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+	//Raw registers dialog event handlers
+	INT_PTR msgRawRegistersWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgRawRegistersWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgRawRegistersWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgRawRegistersWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgRawRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
+	//Mode registers dialog window procedure
+	static INT_PTR CALLBACK WndProcModeRegistersStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+	INT_PTR WndProcModeRegisters(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+	//Mode registers dialog event handlers
+	INT_PTR msgModeRegistersWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgModeRegistersWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgModeRegistersWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgModeRegistersWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
+	//Other registers dialog window procedure
+	static INT_PTR CALLBACK WndProcOtherRegistersStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+	INT_PTR WndProcOtherRegisters(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+	//Other registers dialog event handlers
+	INT_PTR msgOtherRegistersWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgOtherRegistersWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgOtherRegistersWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgOtherRegistersWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 	//Register locking functions
 	unsigned int ControlIDToLockedRegKey(int controlID);
 	void ToggleRegisterLock(int controlID);
+
+private:
+	//Structures
+	struct TabInfo
+	{
+		TabInfo(const std::wstring& atabName, int adialogID, DLGPROC adialogProc)
+		:tabName(atabName), dialogID(adialogID), dialogProc(adialogProc)
+		{}
+
+		std::wstring tabName;
+		int dialogID;
+		DLGPROC dialogProc;
+	};
 
 private:
 	S315_5313* device;
@@ -35,6 +77,8 @@ private:
 	unsigned int currentControlFocus;
 	COLORREF lockedColor;
 	HBRUSH lockedBrush;
+	HWND activeTabDialog;
+	std::vector<TabInfo> tabItems;
 };
 
 #endif
