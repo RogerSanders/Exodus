@@ -511,7 +511,7 @@ bool WC_HexEdit::SaveToFile()
 {
 	//Obtain a path to the target file
 	std::wstring selectedFilePath;
-	if(!SelectExistingFile(hwnd, L"Binary files|bin", L"bin", L"", L"", selectedFilePath))
+	if(!SelectNewFile(hwnd, L"Binary files|bin", L"bin", L"", L"", selectedFilePath))
 	{
 		return false;
 	}
