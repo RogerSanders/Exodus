@@ -218,6 +218,13 @@ bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath
 		sramPresent = AutoDetectBackupRAMSupport(romHeader, sramStartLocation, sramByteSize, sramMapOnEvenBytes, sramMapOnOddBytes, sram16Bit, initialRAMData);
 	}
 
+	//If the reported SRAM region is seen to overlap with the ROM data, disable SRAM
+	//support, since we don't currently support bankswitching.
+	if(sramStartLocation < romHeader.fileSize)
+	{
+		sramPresent = false;
+	}
+
 	//Set all required attributes on the root node for this module definition
 	node.SetName(L"Module");
 	node.CreateAttribute(L"SystemClassName", L"SegaMegaDrive");
