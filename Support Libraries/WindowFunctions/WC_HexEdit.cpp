@@ -1185,20 +1185,10 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 			}
 			break;}
 		case MNU_SAVETOFILE:
-			if(!SaveToFile())
-			{
-				std::wstring text = L"Error saving to file.";
-				std::wstring title = L"Could not save data to file!";
-				SafeMessageBox(hwnd, text, title, MB_ICONEXCLAMATION);
-			}
+			SaveToFile();
 			break;
 		case MNU_LOADFROMFILE:
-			if(!LoadFromFile())
-			{
-				std::wstring text = L"Error loading from file.";
-				std::wstring title = L"Could not load data from file!";
-				SafeMessageBox(hwnd, text, title, MB_ICONEXCLAMATION);
-			}
+			LoadFromFile();
 			break;
 		case MNU_COPY:
 			CopyToClipboard();
