@@ -40,7 +40,7 @@ INT_PTR Processor::WatchpointView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LP
 {
 	SetTimer(hwnd, 1, 100, NULL);
 	watchpoint.Initialize(device->GetAddressBusWidth());
-	UpdateWatchpoint(hwnd, watchpoint, device->GetAddressBusCharWidth(), device->GetDataBusCharWidth());
+	UpdateWatchpoint(hwnd, watchpoint, device->GetPCCharWidth(), device->GetDataBusCharWidth());
 	watchpointListIndex = -1;
 
 	return TRUE;
@@ -136,22 +136,22 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 					updateName = true;
 				}
 				watchpoint.SetLocationConditionData1(GetDlgItemHex(hwnd, LOWORD(wparam)));
-				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), watchpoint.GetLocationConditionData1());
+				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetPCCharWidth(), watchpoint.GetLocationConditionData1());
 				if(updateName)
 				{
 					std::wstring watchNameFromLocation;
-					IntToStringBase16(watchpoint.GetLocationConditionData1(), watchNameFromLocation, device->GetAddressBusCharWidth(), false);
+					IntToStringBase16(watchpoint.GetLocationConditionData1(), watchNameFromLocation, device->GetPCCharWidth(), false);
 					watchpoint.SetName(watchNameFromLocation);
 					UpdateDlgItemString(hwnd, IDC_PROCESSOR_WATCH_NAME, watchpoint.GetName());
 				}
 				break;}
 			case IDC_PROCESSOR_WATCH_LOCCONDDATA2:
 				watchpoint.SetLocationConditionData2(GetDlgItemHex(hwnd, LOWORD(wparam)));
-				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), watchpoint.GetLocationConditionData2());
+				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetPCCharWidth(), watchpoint.GetLocationConditionData2());
 				break;
 			case IDC_PROCESSOR_WATCH_LOCMASK:
 				watchpoint.SetLocationMask(GetDlgItemHex(hwnd, LOWORD(wparam)));
-				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), watchpoint.GetLocationMask());
+				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetPCCharWidth(), watchpoint.GetLocationMask());
 				break;
 			case IDC_PROCESSOR_WATCH_BREAKCOUNTER:
 				watchpoint.SetBreakCounter(GetDlgItemBin(hwnd, LOWORD(wparam)));
@@ -229,7 +229,7 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 
 		case IDC_PROCESSOR_WATCH_NEW:
 			watchpoint.Initialize(device->GetAddressBusWidth());
-			UpdateWatchpoint(hwnd, watchpoint, device->GetAddressBusCharWidth(), device->GetDataBusCharWidth());
+			UpdateWatchpoint(hwnd, watchpoint, device->GetPCCharWidth(), device->GetDataBusCharWidth());
 			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, (WPARAM)-1, NULL);
 			watchpointListIndex = -1;
 			break;
@@ -237,7 +237,7 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			if(watchpoint.GetName().length() == 0)
 			{
 				std::wstring watchNameFromLocation;
-				IntToStringBase16(watchpoint.GetLocationConditionData1(), watchNameFromLocation, device->GetAddressBusCharWidth(), false);
+				IntToStringBase16(watchpoint.GetLocationConditionData1(), watchNameFromLocation, device->GetPCCharWidth(), false);
 				watchpoint.SetName(watchNameFromLocation);
 				UpdateDlgItemString(hwnd, IDC_PROCESSOR_BREAK_NAME, watchpoint.GetName());
 			}
@@ -302,7 +302,7 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			{
 				watchpoint.Initialize(device->GetAddressBusWidth());
 			}
-			UpdateWatchpoint(hwnd, watchpoint, device->GetAddressBusCharWidth(), device->GetDataBusCharWidth());
+			UpdateWatchpoint(hwnd, watchpoint, device->GetPCCharWidth(), device->GetDataBusCharWidth());
 			break;
 		case IDC_PROCESSOR_WATCH_ENABLEALL:
 			for(WatchpointList::iterator i = device->watchpoints.begin(); i != device->watchpoints.end(); ++i)
@@ -312,7 +312,7 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			if(watchpointListIndex != -1)
 			{
 				watchpoint.SetEnabled(true);
-				UpdateWatchpoint(hwnd, watchpoint, device->GetAddressBusCharWidth(), device->GetDataBusCharWidth());
+				UpdateWatchpoint(hwnd, watchpoint, device->GetPCCharWidth(), device->GetDataBusCharWidth());
 			}
 			break;
 		case IDC_PROCESSOR_WATCH_DISABLEALL:
@@ -323,7 +323,7 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			if(watchpointListIndex != -1)
 			{
 				watchpoint.SetEnabled(false);
-				UpdateWatchpoint(hwnd, watchpoint, device->GetAddressBusCharWidth(), device->GetDataBusCharWidth());
+				UpdateWatchpoint(hwnd, watchpoint, device->GetPCCharWidth(), device->GetDataBusCharWidth());
 			}
 			break;
 		case IDC_PROCESSOR_WATCH_DELETEALL:
@@ -338,7 +338,7 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 
 			//Clear the current watchpoint info
 			watchpoint.Initialize(device->GetAddressBusWidth());
-			UpdateWatchpoint(hwnd, watchpoint, device->GetAddressBusCharWidth(), device->GetDataBusCharWidth());
+			UpdateWatchpoint(hwnd, watchpoint, device->GetPCCharWidth(), device->GetDataBusCharWidth());
 			watchpointListIndex = -1;
 			break;
 		case IDC_PROCESSOR_WATCH_READCONDENABLED:
@@ -400,7 +400,7 @@ INT_PTR Processor::WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				watchpointListIndex = selectedItem;
 				Watchpoint* targetWatchpoint = (Watchpoint*)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETITEMDATA, watchpointListIndex, 0);
 				watchpoint = *targetWatchpoint;
-				UpdateWatchpoint(hwnd, watchpoint, device->GetAddressBusCharWidth(), device->GetDataBusCharWidth());
+				UpdateWatchpoint(hwnd, watchpoint, device->GetPCCharWidth(), device->GetDataBusCharWidth());
 			}
 			break;
 		}

@@ -39,7 +39,7 @@ INT_PTR Processor::BreakpointView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LP
 {
 	SetTimer(hwnd, 1, 100, NULL);
 	breakpoint.Initialize(device->GetAddressBusWidth());
-	UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+	UpdateBreakpoint(hwnd, breakpoint, device->GetPCCharWidth());
 	breakpointListIndex = -1;
 
 	return TRUE;
@@ -131,26 +131,26 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				break;
 			case IDC_PROCESSOR_BREAK_LOCCONDDATA1:{
 				bool updateName = false;
-				if((breakpoint.GetName().length() == 0) || (breakpoint.GetName() == breakpoint.GenerateName(device->GetAddressBusCharWidth())))
+				if((breakpoint.GetName().length() == 0) || (breakpoint.GetName() == breakpoint.GenerateName(device->GetPCCharWidth())))
 				{
 					updateName = true;
 				}
 				breakpoint.SetLocationConditionData1(GetDlgItemHex(hwnd, LOWORD(wparam)));
-				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), breakpoint.GetLocationConditionData1());
+				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetPCCharWidth(), breakpoint.GetLocationConditionData1());
 				if(updateName)
 				{
-					std::wstring newName = breakpoint.GenerateName(device->GetAddressBusCharWidth());
+					std::wstring newName = breakpoint.GenerateName(device->GetPCCharWidth());
 					breakpoint.SetName(newName);
 					UpdateDlgItemString(hwnd, IDC_PROCESSOR_BREAK_NAME, newName);
 				}
 				break;}
 			case IDC_PROCESSOR_BREAK_LOCCONDDATA2:
 				breakpoint.SetLocationConditionData2(GetDlgItemHex(hwnd, LOWORD(wparam)));
-				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), breakpoint.GetLocationConditionData2());
+				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetPCCharWidth(), breakpoint.GetLocationConditionData2());
 				break;
 			case IDC_PROCESSOR_BREAK_LOCMASK:
 				breakpoint.SetLocationMask(GetDlgItemHex(hwnd, LOWORD(wparam)));
-				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetAddressBusCharWidth(), breakpoint.GetLocationMask());
+				UpdateDlgItemHex(hwnd, LOWORD(wparam), device->GetPCCharWidth(), breakpoint.GetLocationMask());
 				break;
 			}
 		}
@@ -203,14 +203,14 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 
 		case IDC_PROCESSOR_BREAK_NEW:
 			breakpoint.Initialize(device->GetAddressBusWidth());
-			UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+			UpdateBreakpoint(hwnd, breakpoint, device->GetPCCharWidth());
 			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_SETCURSEL, (WPARAM)-1, NULL);
 			breakpointListIndex = -1;
 			break;
 		case IDC_PROCESSOR_BREAK_SAVE:
 			if(breakpoint.GetName().length() == 0)
 			{
-				std::wstring newName = breakpoint.GenerateName(device->GetAddressBusCharWidth());
+				std::wstring newName = breakpoint.GenerateName(device->GetPCCharWidth());
 				breakpoint.SetName(newName);
 				UpdateDlgItemString(hwnd, IDC_PROCESSOR_BREAK_NAME, newName);
 			}
@@ -275,7 +275,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			{
 				breakpoint.Initialize(device->GetAddressBusWidth());
 			}
-			UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+			UpdateBreakpoint(hwnd, breakpoint, device->GetPCCharWidth());
 			break;
 		case IDC_PROCESSOR_BREAK_ENABLEALL:
 			for(BreakpointList::iterator i = device->breakpoints.begin(); i != device->breakpoints.end(); ++i)
@@ -285,7 +285,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			if(breakpointListIndex != -1)
 			{
 				breakpoint.SetEnabled(true);
-				UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+				UpdateBreakpoint(hwnd, breakpoint, device->GetPCCharWidth());
 			}
 			break;
 		case IDC_PROCESSOR_BREAK_DISABLEALL:
@@ -296,7 +296,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			if(breakpointListIndex != -1)
 			{
 				breakpoint.SetEnabled(false);
-				UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+				UpdateBreakpoint(hwnd, breakpoint, device->GetPCCharWidth());
 			}
 			break;
 		case IDC_PROCESSOR_BREAK_DELETEALL:
@@ -311,7 +311,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 
 			//Clear the current breakpoint info
 			breakpoint.Initialize(device->GetAddressBusWidth());
-			UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+			UpdateBreakpoint(hwnd, breakpoint, device->GetPCCharWidth());
 			breakpointListIndex = -1;
 			break;
 		}
@@ -329,7 +329,7 @@ INT_PTR Processor::BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				breakpointListIndex = selectedItem;
 				Breakpoint* targetBreakpoint = (Breakpoint*)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LIST), LB_GETITEMDATA, breakpointListIndex, 0);
 				breakpoint = *targetBreakpoint;
-				UpdateBreakpoint(hwnd, breakpoint, device->GetAddressBusCharWidth());
+				UpdateBreakpoint(hwnd, breakpoint, device->GetPCCharWidth());
 			}
 			break;
 		}
