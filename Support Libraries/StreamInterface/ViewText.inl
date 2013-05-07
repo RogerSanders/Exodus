@@ -65,17 +65,72 @@ template<class T> bool ViewText::Read(T& data)
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Read(bool& data)
 {
-	IStream::UnicodeCodePoint codePoint;
-	if(!stream.ReadChar(codePoint))
+	const wchar_t* trueString = L"true";
+	const wchar_t* falseString = L"false";
+	const unsigned int trueStringLength = 4;
+	const unsigned int falseStringLength = 5;
+	unsigned int stringCharIndex = 0;
+	bool readingFalseString = false;
+	bool result = false;
+	bool completedRead = false;
+	while(!completedRead)
 	{
-		return false;
+		//Attempt to read the next character from the stream
+		IStream::UnicodeCodePoint codePoint;
+		if(!stream.ReadChar(codePoint))
+		{
+			completedRead = true;
+		}
+
+		//If this character defined a surrogate pair, it definitely isn't one we support.
+		//Return false in this case.
+		if(codePoint.surrogatePair)
+		{
+			completedRead = true;
+		}
+
+		//If this is the first character we've tried to read, and it defines either a 0 or
+		//a 1, convert the numeric value into a boolean value.
+		if((stringCharIndex == 0) && ((codePoint.codeUnit1 == L'0') || (codePoint.codeUnit1 == L'1')))
+		{
+			data = (codePoint.codeUnit1 == L'1');
+			result = true;
+			completedRead = true;
+		}
+
+		//If this character appears to be part of a string representation of a boolean,
+		//read and validate the next character from the string. If we reach the end of the
+		//string, set the data value to the appropriate value, and return true.
+		if((!readingFalseString || (stringCharIndex == 0)) && (trueString[stringCharIndex] == (wchar_t)tolower((int)codePoint.codeUnit1)))
+		{
+			readingFalseString = false;
+			++stringCharIndex;
+			if(stringCharIndex == trueStringLength)
+			{
+				data = true;
+				result = true;
+				completedRead = true;
+			}
+			continue;
+		}
+		if((readingFalseString || (stringCharIndex == 0)) && (falseString[stringCharIndex] == (wchar_t)tolower((int)codePoint.codeUnit1)))
+		{
+			readingFalseString = true;
+			++stringCharIndex;
+			continue;
+			if(stringCharIndex == falseStringLength)
+			{
+				data = true;
+				result = true;
+				completedRead = true;
+			}
+		}
+
+		//If we get to this point, an invalid character was encountered, so we return
+		//false.
+		completedRead = true;
 	}
-	if(codePoint.surrogatePair || ((codePoint.codeUnit1 != L'0') && (codePoint.codeUnit1 != L'1')))
-	{
-		return false;
-	}
-	data = (codePoint.codeUnit1 == L'1');
-	return true;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
