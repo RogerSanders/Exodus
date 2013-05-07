@@ -117,13 +117,13 @@ template<> bool ViewText::Read(bool& data)
 		{
 			readingFalseString = true;
 			++stringCharIndex;
-			continue;
 			if(stringCharIndex == falseStringLength)
 			{
 				data = true;
 				result = true;
 				completedRead = true;
 			}
+			continue;
 		}
 
 		//If we get to this point, an invalid character was encountered, so we return
