@@ -35,7 +35,7 @@ const unsigned int YM2612::attenuationIncrementTable[1 << rateBitCount][8] = {
 	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //12-15  (0x0C-0x0F)
 	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //16-19  (0x10-0x13)
 	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //20-23  (0x14-0x17)
-	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},   //24-27  (0x18-0x1B)
+	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //24-27  (0x18-0x1B)
 	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //28-31  (0x1C-0x1F)
 	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //32-35  (0x20-0x23)
 	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //36-39  (0x24-0x27)
@@ -236,13 +236,13 @@ bool YM2612::BuildDevice()
 	{
 		wavLoggingChannelEnabled[channelNo] = false;
 		std::wstringstream wavLoggingChannelFileName;
-		wavLoggingChannelFileName << GetDeviceInstanceName() << channelNo + 1 << L".wav";
+		wavLoggingChannelFileName << GetDeviceInstanceName() << L" - C" << channelNo + 1 << L".wav";
 		wavLoggingChannelPath[channelNo] = PathCombinePaths(captureFolder, wavLoggingChannelFileName.str());
 		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
 		{
 			wavLoggingOperatorEnabled[channelNo][operatorNo] = false;
 			std::wstringstream wavLoggingOperatorFileName;
-			wavLoggingOperatorFileName << GetDeviceInstanceName() << channelNo + 1 << operatorNo + 1 << L".wav";
+			wavLoggingOperatorFileName << GetDeviceInstanceName() << L" - C" << channelNo + 1 << L"O" << operatorNo + 1 << L".wav";
 			wavLoggingOperatorPath[channelNo][operatorNo] = PathCombinePaths(captureFolder, wavLoggingOperatorFileName.str());
 		}
 	}
