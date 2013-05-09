@@ -176,7 +176,8 @@ bool SN76489::LoggingView::ToggleLoggingEnabledState(Stream::WAVFile& wavFile, c
 	{
 		if(newState)
 		{
-			wavFile.Open(fileName, Stream::WAVFile::OPENMODE_WRITEONLY, Stream::WAVFile::CREATEMODE_CREATE, channelCount, bitsPerSample, samplesPerSec);
+			wavFile.SetDataFormat(channelCount, bitsPerSample, samplesPerSec);
+			wavFile.Open(fileName, Stream::WAVFile::OPENMODE_WRITEONLY, Stream::WAVFile::CREATEMODE_CREATE);
 		}
 		else
 		{

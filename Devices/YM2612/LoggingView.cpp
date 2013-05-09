@@ -598,7 +598,8 @@ bool YM2612::LoggingView::ToggleLoggingEnabledState(Stream::WAVFile& wavFile, co
 	{
 		if(newState)
 		{
-			wavFile.Open(fileName, Stream::WAVFile::OPENMODE_WRITEONLY, Stream::WAVFile::CREATEMODE_CREATE, channelCount, bitsPerSample, samplesPerSec);
+			wavFile.SetDataFormat(channelCount, bitsPerSample, samplesPerSec);
+			wavFile.Open(fileName, Stream::WAVFile::OPENMODE_WRITEONLY, Stream::WAVFile::CREATEMODE_CREATE);
 		}
 		else
 		{

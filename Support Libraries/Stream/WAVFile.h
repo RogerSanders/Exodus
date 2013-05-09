@@ -19,9 +19,14 @@ public:
 	inline WAVFile();
 	virtual ~WAVFile();
 
+	//Data format
+	inline bool GetDataFormat(unsigned int& channelCount, unsigned int& bitsPerSample, unsigned int& samplesPerSec) const;
+	inline void SetDataFormat(unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec);
+	inline unsigned int GetSavedSampleCount() const;
+
 	//File binding
-	inline bool Open(const std::string& filename, OpenMode openMode, CreateMode createMode, unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec);
-	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec);
+	inline bool Open(const std::string& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize = 8192);
+	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize = 8192);
 	inline void Close();
 	inline bool IsOpen() const;
 
@@ -113,12 +118,27 @@ private:
 	//Internal read/write functions
 	inline bool ReadBinary(void* rawData, unsigned int bytesToRead);
 	inline bool WriteBinary(const void* rawData, unsigned int bytesToWrite);
+	inline bool WriteBinaryUnbuffered(const void* rawData, unsigned int bytesToWrite);
+
+	//Data buffer functions
+	inline bool EmptyDataBuffer();
 
 private:
+	//File handling
 	bool fileOpen;
 	HMMIO mmioHandle;
 	MMCKINFO riffChunk;
+	MMCKINFO fmtChunk;
 	MMCKINFO dataChunk;
+	WAVEFORMATEX waveHeader;
+	bool waveHeaderLoaded;
+	unsigned int savedSampleCount;
+
+	//Data buffering
+	unsigned char* fileBuffer;
+	unsigned int bufferSize;
+	unsigned int bufferPosOffset;
+	unsigned int bytesRemainingInBuffer;
 };
 
 } //Close namespace Stream

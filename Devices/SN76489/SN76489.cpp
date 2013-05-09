@@ -48,7 +48,7 @@ bool SN76489::BuildDevice()
 	{
 		wavLoggingChannelEnabled[channelNo] = false;
 		std::wstringstream wavLoggingChannelFileName;
-		wavLoggingChannelFileName << GetDeviceInstanceName() << channelNo << L".wav";
+		wavLoggingChannelFileName << GetDeviceInstanceName() << L" - C" << channelNo << L".wav";
 		wavLoggingChannelPath[channelNo] = PathCombinePaths(captureFolder, wavLoggingChannelFileName.str());
 	}
 
