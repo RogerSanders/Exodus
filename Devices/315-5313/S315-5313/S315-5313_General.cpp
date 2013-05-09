@@ -3212,6 +3212,7 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 				else if(registerName == L"PalModeLineState")	palModeLineState = (*i)->ExtractData<bool>();
 				else if(registerName == L"ResetLineState")		resetLineState = (*i)->ExtractData<bool>();
 				else if(registerName == L"LineStateIPL")		lineStateIPL = (*i)->ExtractData<unsigned int>();
+				else if(registerName == L"BusRequestLineState")	busRequestLineState = (*i)->ExtractData<bool>();
 				//Clock sources
 				else if(registerName == L"ClockMclkCurrent")		clockMclkCurrent = (*i)->ExtractData<double>();
 				//Physical registers and memory buffers
@@ -3434,6 +3435,7 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Register", palModeLineState).CreateAttribute(L"name", L"PalModeLineState");
 	node.CreateChild(L"Register", resetLineState).CreateAttribute(L"name", L"ResetLineState");
 	node.CreateChildHex(L"Register", lineStateIPL, 1).CreateAttribute(L"name", L"LineStateIPL");
+	node.CreateChild(L"Register", busRequestLineState).CreateAttribute(L"name", L"BusRequestLineState");
 	//Clock sources
 	node.CreateChild(L"Register", clockMclkCurrent).CreateAttribute(L"name", L"ClockMclkCurrent");
 	//Physical registers and memory buffers
