@@ -47,6 +47,7 @@ public:
 	virtual void NegateCurrentOutputLineState() const;
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
 	void UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	static bool GetDesiredLineState(unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, unsigned int lineID);
 
 	//Input functions
 	virtual unsigned int GetKeyCodeID(const std::wstring& keyCodeName) const;
