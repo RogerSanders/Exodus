@@ -5,22 +5,22 @@ namespace M68000 {
 //----------------------------------------------------------------------------------------
 enum EffectiveAddress::Mode
 {
-	DATAREG_DIRECT,					//ext 0
-	ADDREG_DIRECT,					//ext 0
+	DATAREG_DIRECT,             //ext 0
+	ADDREG_DIRECT,              //ext 0
 
-	ADDREG_INDIRECT,				//ext 0
-	ADDREG_INDIRECT_POSTINC,		//ext 0
-	ADDREG_INDIRECT_PREDEC,			//ext 0
-	ADDREG_INDIRECT_DISPLACE,		//ext 1
-	ADDREG_INDIRECT_INDEX_8BIT,		//ext 1
+	ADDREG_INDIRECT,            //ext 0
+	ADDREG_INDIRECT_POSTINC,    //ext 0
+	ADDREG_INDIRECT_PREDEC,     //ext 0
+	ADDREG_INDIRECT_DISPLACE,   //ext 1
+	ADDREG_INDIRECT_INDEX_8BIT, //ext 1
 
-	PC_INDIRECT_DISPLACE,			//ext 1
-	PC_INDIRECT_INDEX_8BIT,			//ext 1
+	PC_INDIRECT_DISPLACE,       //ext 1
+	PC_INDIRECT_INDEX_8BIT,     //ext 1
 
-	ABS_WORD,						//ext 1
-	ABS_LONG,						//ext 2
+	ABS_WORD,                   //ext 1
+	ABS_LONG,                   //ext 2
 
-	IMMEDIATE,						//ext 1-2
+	IMMEDIATE,                  //ext 1-2
 };
 
 //----------------------------------------------------------------------------------------

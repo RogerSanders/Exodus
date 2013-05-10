@@ -27,13 +27,14 @@ void MDControl6::Initialize()
 		buttonPressed[i] = false;
 	}
 	currentTimesliceLength = 0;
-	lineInputStateTH = true;
+	lineInputStateTH = false;
 	bankswitchingDisabled = false;
 	bankswitchCounter = 0;
 	bankswitchCounterToggleLastRisingEdge = 0;
 	for(unsigned int i = 0; i < outputLineCount; ++i)
 	{
-		outputLineState[i].asserted = false;
+		unsigned int lineID = LINE_D0 + i;
+		outputLineState[i].asserted = GetDesiredLineState(bankswitchCounter, lineInputStateTH, buttonPressed, lineID);
 		outputLineState[i].timeoutFlagged = false;
 	}
 	lastLineAccessTime = 0;
@@ -86,31 +87,61 @@ bool MDControl6::SendNotifyUpcomingTimeslice() const
 //----------------------------------------------------------------------------------------
 void MDControl6::NotifyUpcomingTimeslice(double nanoseconds)
 {
-	//Go through each pending line state timeout and adjust the time of the access here,
-	//to rebase it for the start of the new timeslice. We need to do this so that we can
-	//revoke it later if required.
-	for(unsigned int i = 0; i < outputLineCount; ++i)
+	//If the bankswitch counter is currently greater than 0, a timeout could occur,
+	//causing it to revert to 0 and the output line state of our output lines to be
+	//altered. In this case, we need to check if a timeout has already occurred, in which
+	//case we need to update the internal state of this device to reflect the new line
+	//state after the timeout, or we need to rebase the timeout time values to be relative
+	//to the start of the new timeslice.
+	if(bankswitchCounter > 0)
 	{
-		if(outputLineState[i].timeoutFlagged)
+		double elapsedTimeSinceLastTHLineStateChange = nanoseconds - bankswitchCounterToggleLastRisingEdge;
+		if(elapsedTimeSinceLastTHLineStateChange >= bankswitchTimeoutInterval)
 		{
-			outputLineState[i].timeoutTime -= currentTimesliceLength;
+			//Reset the bankswitch counter back to zero
+			bankswitchCounter = 0;
+			bankswitchCounterToggleLastRisingEdge = 0;
 
-			//If the timeout has now passed on this output line, change the asserted state
-			//for the line to the state we changed to after the timeout was reached, and
-			//clear the flags indicating there is a timeout currently flagged for this
-			//output line. Note that we do this here so that bogus line state changes
-			//don't stick around in the event that the controller isn't accessed by the
-			//system. If we don't clear these old events, we can end up trying to revoke
-			//them later with a negative time specified.
-			if(outputLineState[i].timeoutTime <= 0)
+			//Since we've passed the timeout times for all our lines now, change the
+			//asserted state for our lines to the state we changed to after the timeout
+			//was reached, and clear the flags indicating there is a timeout currently
+			//flagged for our output lines.
+			for(unsigned int i = 0; i < outputLineCount; ++i)
 			{
-				outputLineState[i].asserted = outputLineState[i].timeoutAssertedState;
-				outputLineState[i].timeoutFlagged = false;
+				if(outputLineState[i].timeoutFlagged)
+				{
+					//##DEBUG##
+					if(outputLineState[i].timeoutTime > nanoseconds)
+					{
+						std::wcout << "MDControl6 Timeout reverted before target time reached! " << i << '\t' << outputLineState[i].timeoutTime << '\t' << nanoseconds << '\n';
+					}
+
+					outputLineState[i].asserted = outputLineState[i].timeoutAssertedState;
+					outputLineState[i].timeoutFlagged = false;
+				}
+			}
+		}
+		else
+		{
+			//Go through each pending line state timeout and adjust the time of the access
+			//here, to rebase them for the start of the new timeslice. We need to do this
+			//so that we can revoke them later if required.
+			for(unsigned int i = 0; i < outputLineCount; ++i)
+			{
+				if(outputLineState[i].timeoutFlagged)
+				{
+					outputLineState[i].timeoutTime -= currentTimesliceLength;
+				}
+			}
+
+			//Rebase the latched time at which the last input TH line rising edge occurred
+			//to the start of the new timeslice
+			if(bankswitchCounter > 0)
+			{
+				bankswitchCounterToggleLastRisingEdge -= currentTimesliceLength;
 			}
 		}
 	}
-
-	bankswitchCounterToggleLastRisingEdge -= currentTimesliceLength;
 
 	currentTimesliceLength = nanoseconds;
 	lastLineAccessTime = 0;
@@ -240,28 +271,32 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 	//output line state would have been reverted already by this point, we're just
 	//correcting the internal digital state to what it would have already been in the real
 	//hardware after the timeout period elapsed.
-	double elapsedTimeSinceLastTHLineStateChange = accessTime - bankswitchCounterToggleLastRisingEdge;
-	if(elapsedTimeSinceLastTHLineStateChange >= bankswitchTimeoutInterval)
+	if(bankswitchCounter > 0)
 	{
-		//Reset the bankswitch counter back to zero
-		bankswitchCounter = 0;
-
-		//Since we've passed the timeout times for all our lines now, change the asserted
-		//state for our lines to the state we changed to after the timeout was reached,
-		//and clear the flags indicating there is a timeout currently flagged for our
-		//output lines.
-		for(unsigned int i = 0; i < outputLineCount; ++i)
+		double elapsedTimeSinceLastTHLineStateChange = accessTime - bankswitchCounterToggleLastRisingEdge;
+		if(elapsedTimeSinceLastTHLineStateChange >= bankswitchTimeoutInterval)
 		{
-			if(outputLineState[i].timeoutFlagged)
-			{
-				//##DEBUG##
-				if(outputLineState[i].timeoutTime > accessTime)
-				{
-					std::wcout << "MDControl6 Timeout reverted before target time reached! " << i << '\t' << outputLineState[i].timeoutTime << '\t' << accessTime << '\n';
-				}
+			//Reset the bankswitch counter back to zero
+			bankswitchCounter = 0;
+			bankswitchCounterToggleLastRisingEdge = 0;
 
-				outputLineState[i].asserted = outputLineState[i].timeoutAssertedState;
-				outputLineState[i].timeoutFlagged = false;
+			//Since we've passed the timeout times for all our lines now, change the
+			//asserted state for our lines to the state we changed to after the timeout
+			//was reached, and clear the flags indicating there is a timeout currently
+			//flagged for our output lines.
+			for(unsigned int i = 0; i < outputLineCount; ++i)
+			{
+				if(outputLineState[i].timeoutFlagged)
+				{
+					//##DEBUG##
+					if(outputLineState[i].timeoutTime > accessTime)
+					{
+						std::wcout << "MDControl6 Timeout reverted before target time reached! " << i << '\t' << outputLineState[i].timeoutTime << '\t' << accessTime << '\n';
+					}
+
+					outputLineState[i].asserted = outputLineState[i].timeoutAssertedState;
+					outputLineState[i].timeoutFlagged = false;
+				}
 			}
 		}
 	}
@@ -468,9 +503,18 @@ void MDControl6::UpdateOutputLineStateForLine(unsigned int lineID, bool revokeAl
 
 	//Determine if we require a change to be made on the target line when the timeout
 	//occurs
-	double elapsedTimeSinceLastTHLineStateChange = accessTime - bankswitchCounterToggleLastRisingEdge;
-	bool lineAssertedAfterTimeoutNew = GetDesiredLineState(0, lineInputStateTH, buttonPressed, lineID);
-	bool timeoutLineStateChangeRequired = (lineAssertedNew != lineAssertedAfterTimeoutNew) && (elapsedTimeSinceLastTHLineStateChange < bankswitchTimeoutInterval);
+	bool timeoutLineStateChangeRequired = false;
+	double elapsedTimeSinceLastTHLineStateChange;
+	bool lineAssertedAfterTimeoutNew;
+	if(bankswitchCounter > 0)
+	{
+		elapsedTimeSinceLastTHLineStateChange = accessTime - bankswitchCounterToggleLastRisingEdge;
+		if(elapsedTimeSinceLastTHLineStateChange < bankswitchTimeoutInterval)
+		{
+			lineAssertedAfterTimeoutNew = GetDesiredLineState(0, lineInputStateTH, buttonPressed, lineID);
+			timeoutLineStateChangeRequired = (lineAssertedNew != lineAssertedAfterTimeoutNew);
+		}
+	}
 
 	//Revoke an existing timeout line state change if the timeout setting has changed, or
 	//if a line state change is no longer required on timeout.
@@ -512,7 +556,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 	case 1:
 		if(currentLineInputStateTH)
 		{
-			//This state is selected when TH is configured as an input and set to 0
+			//This state is selected when TH is configured as an input and set to 1
 			//D0 = Up
 			//D1 = Down
 			//D2 = Left
@@ -540,7 +584,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 		}
 		else
 		{
-			//This state is selected when TH is configured as an input and set to 1
+			//This state is selected when TH is configured as an input and set to 0
 			//D0 = Up
 			//D1 = Down
 			//D2 = Null (grounded)

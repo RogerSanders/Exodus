@@ -21,13 +21,13 @@ void MDControl3::Initialize()
 		buttonPressed[i] = false;
 	}
 	lineInputStateTH = false;
-	lineAssertedD0 = false;
-	lineAssertedD1 = false;
-	lineAssertedD2 = false;
-	lineAssertedD3 = false;
-	lineAssertedTL = false;
-	lineAssertedTR = false;
-	lineAssertedTH = false;
+	lineAssertedD0 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D0);
+	lineAssertedD1 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D1);
+	lineAssertedD2 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D2);
+	lineAssertedD3 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D3);
+	lineAssertedTL = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TL);
+	lineAssertedTR = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TR);
+	lineAssertedTH = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TH);
 	lastLineAccessTime = 0;
 }
 
@@ -259,53 +259,54 @@ void MDControl3::NegateCurrentOutputLineState() const
 //----------------------------------------------------------------------------------------
 void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	if(!lineInputStateTH)
+	bool newLineStateD0 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D0);
+	if(lineAssertedD0 != newLineStateD0)
 	{
-		//This state is selected when TH is configured as an input and set to 0
-		//D0 = Up
-		//D1 = Down
-		//D2 = Null (grounded)
-		//D3 = Null (grounded)
-		//TL = A
-		//TR = Start
-		//TH = Null (+5v)
-		if(lineAssertedD0 != !buttonPressed[BUTTON_UP])
-		{
-			lineAssertedD0 = !buttonPressed[BUTTON_UP];
-			memoryBus->SetLineState(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedD1 != !buttonPressed[BUTTON_DOWN])
-		{
-			lineAssertedD1 = !buttonPressed[BUTTON_DOWN];
-			memoryBus->SetLineState(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedD2 != false)
-		{
-			lineAssertedD2 = false;
-			memoryBus->SetLineState(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedD3 != false)
-		{
-			lineAssertedD3 = false;
-			memoryBus->SetLineState(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedTL != !buttonPressed[BUTTON_A])
-		{
-			lineAssertedTL = !buttonPressed[BUTTON_A];
-			memoryBus->SetLineState(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedTR != !buttonPressed[BUTTON_START])
-		{
-			lineAssertedTR = !buttonPressed[BUTTON_START];
-			memoryBus->SetLineState(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedTH != true)
-		{
-			lineAssertedTH = true;
-			memoryBus->SetLineState(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime, accessContext);
-		}
+		lineAssertedD0 = newLineStateD0;
+		memoryBus->SetLineState(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	else
+	bool newLineStateD1 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D1);
+	if(lineAssertedD1 != newLineStateD1)
+	{
+		lineAssertedD1 = newLineStateD1;
+		memoryBus->SetLineState(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), caller, accessTime, accessContext);
+	}
+	bool newLineStateD2 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D2);
+	if(lineAssertedD2 != newLineStateD2)
+	{
+		lineAssertedD2 = newLineStateD2;
+		memoryBus->SetLineState(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), caller, accessTime, accessContext);
+	}
+	bool newLineStateD3 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D3);
+	if(lineAssertedD3 != newLineStateD3)
+	{
+		lineAssertedD3 = newLineStateD3;
+		memoryBus->SetLineState(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), caller, accessTime, accessContext);
+	}
+	bool newLineStateTL = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TL);
+	if(lineAssertedTL != newLineStateTL)
+	{
+		lineAssertedTL = newLineStateTL;
+		memoryBus->SetLineState(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), caller, accessTime, accessContext);
+	}
+	bool newLineStateTR = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TR);
+	if(lineAssertedTR != newLineStateTR)
+	{
+		lineAssertedTR = newLineStateTR;
+		memoryBus->SetLineState(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), caller, accessTime, accessContext);
+	}
+	bool newLineStateTH = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TH);
+	if(lineAssertedTH != newLineStateTH)
+	{
+		lineAssertedTH = newLineStateTH;
+		memoryBus->SetLineState(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime, accessContext);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, unsigned int lineID)
+{
+	if(currentLineInputStateTH)
 	{
 		//This state is selected when TH is configured as an input and set to 1
 		//D0 = Up
@@ -315,42 +316,56 @@ void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsi
 		//TL = B
 		//TR = C
 		//TH = Null (+5v)
-		if(lineAssertedD0 != !buttonPressed[BUTTON_UP])
+		switch(lineID)
 		{
-			lineAssertedD0 = !buttonPressed[BUTTON_UP];
-			memoryBus->SetLineState(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedD1 != !buttonPressed[BUTTON_DOWN])
-		{
-			lineAssertedD1 = !buttonPressed[BUTTON_DOWN];
-			memoryBus->SetLineState(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedD2 != !buttonPressed[BUTTON_LEFT])
-		{
-			lineAssertedD2 = !buttonPressed[BUTTON_LEFT];
-			memoryBus->SetLineState(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedD3 != !buttonPressed[BUTTON_RIGHT])
-		{
-			lineAssertedD3 = !buttonPressed[BUTTON_RIGHT];
-			memoryBus->SetLineState(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedTL != !buttonPressed[BUTTON_B])
-		{
-			lineAssertedTL = !buttonPressed[BUTTON_B];
-			memoryBus->SetLineState(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedTR != !buttonPressed[BUTTON_C])
-		{
-			lineAssertedTR = !buttonPressed[BUTTON_C];
-			memoryBus->SetLineState(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), caller, accessTime, accessContext);
-		}
-		if(lineAssertedTH != true)
-		{
-			lineAssertedTH = true;
-			memoryBus->SetLineState(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime, accessContext);
+		case LINE_D0:
+			return !currentButtonPressedState[BUTTON_UP];
+		case LINE_D1:
+			return !currentButtonPressedState[BUTTON_DOWN];
+		case LINE_D2:
+			return !currentButtonPressedState[BUTTON_LEFT];
+		case LINE_D3:
+			return !currentButtonPressedState[BUTTON_RIGHT];
+		case LINE_TL:
+			return !currentButtonPressedState[BUTTON_B];
+		case LINE_TR:
+			return !currentButtonPressedState[BUTTON_C];
+		case LINE_TH:
+			return true;
 		}
 	}
+	else
+	{
+		//This state is selected when TH is configured as an input and set to 0
+		//D0 = Up
+		//D1 = Down
+		//D2 = Null (grounded)
+		//D3 = Null (grounded)
+		//TL = A
+		//TR = Start
+		//TH = Null (+5v)
+		switch(lineID)
+		{
+		case LINE_D0:
+			return !currentButtonPressedState[BUTTON_UP];
+		case LINE_D1:
+			return !currentButtonPressedState[BUTTON_DOWN];
+		case LINE_D2:
+			return false;
+		case LINE_D3:
+			return false;
+		case LINE_TL:
+			return !currentButtonPressedState[BUTTON_A];
+		case LINE_TR:
+			return !currentButtonPressedState[BUTTON_START];
+		case LINE_TH:
+			return true;
+		}
+	}
+
+	//##TODO## Raise an assert if we end up here with an invalid setting for the target
+	//line.
+	return false;
 }
 
 //----------------------------------------------------------------------------------------

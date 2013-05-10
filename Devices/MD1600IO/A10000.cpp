@@ -1102,43 +1102,51 @@ void A10000::WriteDataRegister(IDeviceContext* caller, double accessTime, unsign
 	//|-------------------------------|
 	//|*U |TH |TR |TL |D3 |D2 |D1 |D0 |
 	//---------------------------------
-	if(GetControlRegisterD0(portNo) && (data.GetBit(0) != GetDataRegisterD0(portNo)))
+	bool newDataRegisterStateD0 = data.GetBit(0);
+	bool newDataRegisterStateD1 = data.GetBit(1);
+	bool newDataRegisterStateD2 = data.GetBit(2);
+	bool newDataRegisterStateD3 = data.GetBit(3);
+	bool newDataRegisterStateTL = data.GetBit(4);
+	bool newDataRegisterStateTR = data.GetBit(5);
+	bool newDataRegisterStateTH = data.GetBit(6);
+	bool newDataRegisterStateHL = data.GetBit(7);
+	if(GetControlRegisterD0(portNo) && (newDataRegisterStateD0 != GetDataRegisterD0(portNo)))
 	{
-		SetDataRegisterD0(portNo, data.GetBit(0));
-		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D0), Data(1, (unsigned int)data.GetBit(0)), GetDeviceContext(), caller, accessTime, accessContext);
+		SetDataRegisterD0(portNo, newDataRegisterStateD0);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D0), Data(1, (unsigned int)newDataRegisterStateD0), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterD1(portNo) && (data.GetBit(1) != GetDataRegisterD1(portNo)))
+	if(GetControlRegisterD1(portNo) && (newDataRegisterStateD1 != GetDataRegisterD1(portNo)))
 	{
-		SetDataRegisterD1(portNo, data.GetBit(1));
-		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D1), Data(1, (unsigned int)data.GetBit(1)), GetDeviceContext(), caller, accessTime, accessContext);
+		SetDataRegisterD1(portNo, newDataRegisterStateD1);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D1), Data(1, (unsigned int)newDataRegisterStateD1), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterD2(portNo) && (data.GetBit(2) != GetDataRegisterD2(portNo)))
+	if(GetControlRegisterD2(portNo) && (newDataRegisterStateD2 != GetDataRegisterD2(portNo)))
 	{
-		SetDataRegisterD2(portNo, data.GetBit(2));
-		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D2), Data(1, (unsigned int)data.GetBit(2)), GetDeviceContext(), caller, accessTime, accessContext);
+		SetDataRegisterD2(portNo, newDataRegisterStateD2);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D2), Data(1, (unsigned int)newDataRegisterStateD2), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterD3(portNo) && (data.GetBit(3) != GetDataRegisterD3(portNo)))
+	if(GetControlRegisterD3(portNo) && (newDataRegisterStateD3 != GetDataRegisterD3(portNo)))
 	{
-		SetDataRegisterD3(portNo, data.GetBit(3));
-		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D3), Data(1, (unsigned int)data.GetBit(3)), GetDeviceContext(), caller, accessTime, accessContext);
+		SetDataRegisterD3(portNo, newDataRegisterStateD3);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D3), Data(1, (unsigned int)newDataRegisterStateD3), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterTL(portNo) && (data.GetBit(4) != GetDataRegisterTL(portNo)))
+	if(GetControlRegisterTL(portNo) && (newDataRegisterStateTL != GetDataRegisterTL(portNo)))
 	{
-		SetDataRegisterTL(portNo, data.GetBit(4));
-		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TL), Data(1, (unsigned int)data.GetBit(4)), GetDeviceContext(), caller, accessTime, accessContext);
+		SetDataRegisterTL(portNo, newDataRegisterStateTL);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TL), Data(1, (unsigned int)newDataRegisterStateTL), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterTR(portNo) && (data.GetBit(5) != GetDataRegisterTR(portNo)))
+	if(GetControlRegisterTR(portNo) && (newDataRegisterStateTR != GetDataRegisterTR(portNo)))
 	{
-		SetDataRegisterTR(portNo, data.GetBit(5));
-		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TR), Data(1, (unsigned int)data.GetBit(5)), GetDeviceContext(), caller, accessTime, accessContext);
+		SetDataRegisterTR(portNo, newDataRegisterStateTR);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TR), Data(1, (unsigned int)newDataRegisterStateTR), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterTH(portNo) && (data.GetBit(6) != GetDataRegisterTH(portNo)))
+	if(GetControlRegisterTH(portNo) && (newDataRegisterStateTH != GetDataRegisterTH(portNo)))
 	{
-		SetDataRegisterTH(portNo, data.GetBit(6));
-		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TH), Data(1, (unsigned int)data.GetBit(6)), GetDeviceContext(), caller, accessTime, accessContext);
+		SetDataRegisterTH(portNo, newDataRegisterStateTH);
+		controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TH), Data(1, (unsigned int)newDataRegisterStateTH), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
-	SetDataRegisterHL(portNo, data.GetBit(7));
+	SetDataRegisterHL(portNo, newDataRegisterStateHL);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1159,72 +1167,185 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 	//|-------------------------------|
 	//|HL |TH |TR |TL |D3 |D2 |D1 |D0 |
 	//---------------------------------
-	if(data.GetBit(0) != GetControlRegisterD0(portNo))
+	bool newControlRegisterStateD0 = data.GetBit(0);
+	bool newControlRegisterStateD1 = data.GetBit(1);
+	bool newControlRegisterStateD2 = data.GetBit(2);
+	bool newControlRegisterStateD3 = data.GetBit(3);
+	bool newControlRegisterStateTL = data.GetBit(4);
+	bool newControlRegisterStateTR = data.GetBit(5);
+	bool newControlRegisterStateTH = data.GetBit(6);
+	bool newControlRegisterStateHL = data.GetBit(7);
+	if(newControlRegisterStateD0 != GetControlRegisterD0(portNo))
 	{
-		SetControlRegisterD0(portNo, data.GetBit(0));
-		if(!data.GetBit(0))
+		SetControlRegisterD0(portNo, newControlRegisterStateD0);
+		if(!newControlRegisterStateD0)
 		{
-			//Changing from output to input
+			//If we were previously asserting this output line, negate it.
+			if(GetDataRegisterD0(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D0), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+
+			//Set the contents of the data register for this line to the current input
+			//line state
 			SetDataRegisterD0(portNo, inputLineState[portNo].lineAssertedD0);
 		}
-	}
-	if(data.GetBit(1) != GetControlRegisterD1(portNo))
-	{
-		SetControlRegisterD1(portNo, data.GetBit(1));
-		if(!data.GetBit(1))
+		else
 		{
-			//Changing from output to input
+			//if we're currently set to assert this output line, assert it now.
+			if(GetDataRegisterD0(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D0), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+		}
+	}
+	if(newControlRegisterStateD1 != GetControlRegisterD1(portNo))
+	{
+		SetControlRegisterD1(portNo, newControlRegisterStateD1);
+		if(!newControlRegisterStateD1)
+		{
+			//If we were previously asserting this output line, negate it.
+			if(GetDataRegisterD1(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D1), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+
+			//Set the contents of the data register for this line to the current input
+			//line state
 			SetDataRegisterD1(portNo, inputLineState[portNo].lineAssertedD1);
 		}
-	}
-	if(data.GetBit(2) != GetControlRegisterD2(portNo))
-	{
-		SetControlRegisterD2(portNo, data.GetBit(2));
-		if(!data.GetBit(2))
+		else
 		{
-			//Changing from output to input
+			//if we're currently set to assert this output line, assert it now.
+			if(GetDataRegisterD1(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D1), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+		}
+	}
+	if(newControlRegisterStateD2 != GetControlRegisterD2(portNo))
+	{
+		SetControlRegisterD2(portNo, newControlRegisterStateD2);
+		if(!newControlRegisterStateD2)
+		{
+			//If we were previously asserting this output line, negate it.
+			if(GetDataRegisterD2(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D2), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+
+			//Set the contents of the data register for this line to the current input
+			//line state
 			SetDataRegisterD2(portNo, inputLineState[portNo].lineAssertedD2);
 		}
-	}
-	if(data.GetBit(3) != GetControlRegisterD3(portNo))
-	{
-		SetControlRegisterD3(portNo, data.GetBit(3));
-		if(!data.GetBit(3))
+		else
 		{
-			//Changing from output to input
+			//if we're currently set to assert this output line, assert it now.
+			if(GetDataRegisterD2(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D2), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+		}
+	}
+	if(newControlRegisterStateD3 != GetControlRegisterD3(portNo))
+	{
+		SetControlRegisterD3(portNo, newControlRegisterStateD3);
+		if(!newControlRegisterStateD3)
+		{
+			//If we were previously asserting this output line, negate it.
+			if(GetDataRegisterD3(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D3), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+
+			//Set the contents of the data register for this line to the current input
+			//line state
 			SetDataRegisterD3(portNo, inputLineState[portNo].lineAssertedD3);
 		}
-	}
-	if(data.GetBit(4) != GetControlRegisterTL(portNo))
-	{
-		SetControlRegisterTL(portNo, data.GetBit(4));
-		if(!data.GetBit(4))
+		else
 		{
-			//Changing from output to input
+			//if we're currently set to assert this output line, assert it now.
+			if(GetDataRegisterD3(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_D3), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+		}
+	}
+	if(newControlRegisterStateTL != GetControlRegisterTL(portNo))
+	{
+		SetControlRegisterTL(portNo, newControlRegisterStateTL);
+		if(!newControlRegisterStateTL)
+		{
+			//If we were previously asserting this output line, negate it.
+			if(GetDataRegisterTL(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TL), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+
+			//Set the contents of the data register for this line to the current input
+			//line state
 			SetDataRegisterTL(portNo, inputLineState[portNo].lineAssertedTL);
 		}
-	}
-	if(data.GetBit(5) != GetControlRegisterTR(portNo))
-	{
-		SetControlRegisterTR(portNo, data.GetBit(5));
-		if(!data.GetBit(5))
+		else
 		{
-			//Changing from output to input
-			SetDataRegisterTR(portNo, inputLineState[portNo].lineAssertedTR);
+			//if we're currently set to assert this output line, assert it now.
+			if(GetDataRegisterTL(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TL), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
+			}
 		}
 	}
-	if(data.GetBit(6) != GetControlRegisterTH(portNo))
+	if(newControlRegisterStateTR != GetControlRegisterTR(portNo))
 	{
-		SetControlRegisterTH(portNo, data.GetBit(6));
-		if(!data.GetBit(6))
+		SetControlRegisterTR(portNo, newControlRegisterStateTR);
+		if(!newControlRegisterStateTR)
 		{
-			//Changing from output to input
+			//If we were previously asserting this output line, negate it.
+			if(GetDataRegisterTR(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TR), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+
+			//Set the contents of the data register for this line to the current input
+			//line state
+			SetDataRegisterTR(portNo, inputLineState[portNo].lineAssertedTR);
+		}
+		else
+		{
+			//if we're currently set to assert this output line, assert it now.
+			if(GetDataRegisterTR(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TR), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+		}
+	}
+	if(newControlRegisterStateTH != GetControlRegisterTH(portNo))
+	{
+		SetControlRegisterTH(portNo, newControlRegisterStateTH);
+		if(!newControlRegisterStateTH)
+		{
+			//If we were previously asserting this output line, negate it.
+			if(GetDataRegisterTH(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TH), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
+			}
+
+			//Set the contents of the data register for this line to the current input
+			//line state
 			SetDataRegisterTH(portNo, inputLineState[portNo].lineAssertedTH);
+		}
+		else
+		{
+			//if we're currently set to assert this output line, assert it now.
+			if(GetDataRegisterTH(portNo))
+			{
+				controlPortBus->SetLineState(GetLineIDForPort(portNo, LINE_TH), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
+			}
 		}
 	}
 
 	//Update the HL output line enable state
-	SetControlRegisterHL(portNo, data.GetBit(7));
+	SetControlRegisterHL(portNo, newControlRegisterStateHL);
 }
 
 //----------------------------------------------------------------------------------------
