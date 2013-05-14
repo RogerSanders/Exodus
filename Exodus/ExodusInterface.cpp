@@ -54,6 +54,11 @@ ExodusInterface::ExodusInterface(ISystemExternal& asystem)
 //----------------------------------------------------------------------------------------
 ExodusInterface::~ExodusInterface()
 {
+	//Stop the joystick worker thread
+	boost::mutex::scoped_lock lock(joystickWorkerThreadMutex);
+	joystickWorkerThreadActive = false;
+	joystickWorkerThreadStopped.wait(lock);
+
 	//delete our submenu objects
 	delete fileSubmenu;
 	delete systemSubmenu;
@@ -330,6 +335,11 @@ bool ExodusInterface::InitializeSystem()
 			}
 		}
 	}
+
+	//Start the joystick worker thread
+	boost::mutex::scoped_lock lock(joystickWorkerThreadMutex);
+	joystickWorkerThreadActive = true;
+	boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::JoystickInputWorkerThread), this));
 
 	return true;
 }
@@ -3726,14 +3736,14 @@ INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wPar
 			break;}
 		}
 		break;
+	case WM_CLOSE:
+		DestroyWindow(hwnd);
+		break;
 	case WM_DESTROY:
 		//Delete the default font object
 		SendMessage(hwnd, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
 		DeleteObject(state->aboutDialogHFont);
-		break;
-	case WM_CLOSE:
-		DestroyWindow(hwnd);
-		break;
+		return FALSE;
 	case WM_COMMAND:
 		if(LOWORD(wParam) == IDOK)
 		{
@@ -3962,13 +3972,14 @@ INT_PTR CALLBACK ExodusInterface::SettingsProc(HWND hwnd, UINT Message, WPARAM w
 	switch(Message)
 	{
 	case WM_CLOSE:
+		DestroyWindow(hwnd);
+		break;
+	case WM_DESTROY:
 		if(state != 0)
 		{
 			CoUninitialize();
 		}
-		DestroyWindow(hwnd);
-		CoUninitialize();
-		break;
+		return FALSE;
 	case WM_COMMAND:
 		if(state == 0)
 		{
@@ -4737,13 +4748,12 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 
 		EndPaint(hwnd, &ps);
 		break;}
-	case WM_CLOSE:
+	case WM_DESTROY:
 		if(state != 0)
 		{
 			DeleteObject(state->hbitmap);
 		}
-		DestroyWindow(hwnd);
-		break;
+		return DefWindowProc(hwnd, WM_DESTROY, wParam, lParam);
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
@@ -4884,9 +4894,6 @@ LRESULT CALLBACK ExodusInterface::WndSavestateProc(HWND hwnd, UINT msg, WPARAM w
 		}
 
 		break;}
-	case WM_CLOSE:
-		DestroyWindow(hwnd);
-		break;
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
@@ -5177,11 +5184,191 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 		SelectObject(hdc, (HGDIOBJ)hfontOld);
 		DeleteObject(hfont);
 	break;}
-	case WM_CLOSE:
-		DestroyWindow(hwnd);
-	break;
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+//Joystick functions
+//----------------------------------------------------------------------------------------
+void ExodusInterface::JoystickInputWorkerThread()
+{
+	//Calculate the maximum number of joysticks, and the maximum number of buttons and
+	//axis per joystick.
+	const unsigned int maxButtonCount = 32;
+	const unsigned int maxAxisCount = 6;
+	UINT maxJoystickCount = joyGetNumDevs();
+
+	//Initialize the button and axis state for each joystick
+	std::vector<std::vector<bool>> buttonState;
+	std::vector<std::vector<float>> axisState;
+	buttonState.resize(maxJoystickCount);
+	axisState.resize(maxJoystickCount);
+	for(unsigned int i = 0; i < maxJoystickCount; ++i)
+	{
+		buttonState[i].resize(maxButtonCount);
+		axisState[i].resize(maxAxisCount);
+	}
+
+	//Process input state changes from joysticks until we're requested to stop
+	while(joystickWorkerThreadActive)
+	{
+		//Latch new values from each joystick
+		for(unsigned int i = 0; i < maxJoystickCount; ++i)
+		{
+			//Obtain info on the capabilities of this joystick
+			JOYCAPS joystickCapabilities;
+			MMRESULT joyGetDevCapsReturn = joyGetDevCaps(i, &joystickCapabilities, sizeof(joystickCapabilities));
+			if(joyGetDevCapsReturn != JOYERR_NOERROR)
+			{
+				continue;
+			}
+
+			//Obtain info on the current button state for this joystick
+			JOYINFOEX joystickInfo;
+			joystickInfo.dwSize = sizeof(joystickInfo);
+			joystickInfo.dwFlags = JOY_RETURNALL;
+			MMRESULT joyGetPosExResult = joyGetPosEx(i, &joystickInfo);
+			if(joyGetPosExResult != JOYERR_NOERROR)
+			{
+				continue;
+			}
+
+			//Latch the new state for each button in this joystick
+			unsigned int activeButtonCount = (joystickCapabilities.wNumButtons > maxButtonCount)? maxButtonCount: joystickCapabilities.wNumButtons;
+			Data buttonData(activeButtonCount, joystickInfo.dwButtons);
+			for(unsigned int buttonNo = 0; buttonNo < activeButtonCount; ++buttonNo)
+			{
+				//If the current button state matches the previous button state, advance
+				//to the next button.
+				bool buttonStateNew = buttonData.GetBit(buttonNo);
+				if(buttonState[i][buttonNo] == buttonStateNew)
+				{
+					continue;
+				}
+
+				//Latch the new button state
+				buttonState[i][buttonNo] = buttonStateNew;
+
+				//Notify the system of the button state change
+				IDeviceContext::KeyCode keyCode;
+				if(system.TranslateJoystickButton(i, buttonNo, keyCode))
+				{
+					if(buttonStateNew)
+					{
+						system.HandleInputKeyDown(keyCode);
+					}
+					else
+					{
+						system.HandleInputKeyUp(keyCode);
+					}
+				}
+			}
+
+			//Latch the new state for each axis in this joystick
+			unsigned int reportedAxesCount = joystickCapabilities.wNumAxes;
+			bool hasAxisZ = (joystickCapabilities.wCaps & JOYCAPS_HASZ) != 0;
+			bool hasAxisR = (joystickCapabilities.wCaps & JOYCAPS_HASR) != 0;
+			bool hasAxisU = (joystickCapabilities.wCaps & JOYCAPS_HASU) != 0;
+			bool hasAxisV = (joystickCapabilities.wCaps & JOYCAPS_HASV) != 0;
+			unsigned int knownAxesCount = (hasAxisZ? 1: 0) + (hasAxisR? 1: 0) + (hasAxisU? 1: 0) + (hasAxisV? 1: 0);
+			bool hasAxisX = ((knownAxesCount + 2) <= reportedAxesCount);
+			bool hasAxisY = ((knownAxesCount + 2) <= reportedAxesCount);
+			std::vector<float> newAxisState;
+			if(hasAxisX)
+			{
+				float newAxisStateX = ((float)(joystickInfo.dwXpos - joystickCapabilities.wXmin) / ((float)(joystickCapabilities.wXmax - joystickCapabilities.wXmin) / 2.0f)) - 1.0f;
+				newAxisState.push_back(newAxisStateX);
+			}
+			if(hasAxisY)
+			{
+				float newAxisStateY = ((float)(joystickInfo.dwYpos - joystickCapabilities.wYmin) / ((float)(joystickCapabilities.wYmax - joystickCapabilities.wYmin) / 2.0f)) - 1.0f;
+				newAxisState.push_back(newAxisStateY);
+			}
+			if(hasAxisZ)
+			{
+				float newAxisStateZ = ((float)(joystickInfo.dwZpos - joystickCapabilities.wZmin) / ((float)(joystickCapabilities.wZmax - joystickCapabilities.wZmin) / 2.0f)) - 1.0f;
+				newAxisState.push_back(newAxisStateZ);
+			}
+			if(hasAxisR)
+			{
+				float newAxisStateR = ((float)(joystickInfo.dwRpos - joystickCapabilities.wRmin) / ((float)(joystickCapabilities.wRmax - joystickCapabilities.wRmin) / 2.0f)) - 1.0f;
+				newAxisState.push_back(newAxisStateR);
+			}
+			if(hasAxisU)
+			{
+				float newAxisStateU = ((float)(joystickInfo.dwUpos - joystickCapabilities.wUmin) / ((float)(joystickCapabilities.wUmax - joystickCapabilities.wUmin) / 2.0f)) - 1.0f;
+				newAxisState.push_back(newAxisStateU);
+			}
+			if(hasAxisV)
+			{
+				float newAxisStateV = ((float)(joystickInfo.dwVpos - joystickCapabilities.wVmin) / ((float)(joystickCapabilities.wVmax - joystickCapabilities.wVmin) / 2.0f)) - 1.0f;
+				newAxisState.push_back(newAxisStateV);
+			}
+			for(unsigned int axisNo = 0; axisNo < (unsigned int)newAxisState.size(); ++axisNo)
+			{
+				//If the current axis state matches the previous axis state, advance to
+				//the next axis.
+				if(axisState[i][axisNo] == newAxisState[axisNo])
+				{
+					continue;
+				}
+
+				//Latch the new axis state
+				float axisStateNew = newAxisState[axisNo];
+				float axisStateOld = axisState[i][axisNo];
+				axisState[i][axisNo] = axisStateNew;
+
+				//Notify the system of axis state changes
+				IDeviceContext::AxisCode axisCode;
+				if(system.TranslateJoystickAxis(i, axisNo, axisCode))
+				{
+					system.HandleInputAxisUpdate(axisCode, axisStateNew);
+				}
+
+				//Notify the system of button state changes linked to this axis
+				if((axisStateOld >= 0.25f) && (axisStateNew < 0.25f))
+				{
+					IDeviceContext::KeyCode keyCode;
+					if(system.TranslateJoystickAxisAsButton(i, axisNo, true, keyCode))
+					{
+						system.HandleInputKeyUp(keyCode);
+					}
+				}
+				if((axisStateOld <= -0.25f) && (axisStateNew > -0.25f))
+				{
+					IDeviceContext::KeyCode keyCode;
+					if(system.TranslateJoystickAxisAsButton(i, axisNo, false, keyCode))
+					{
+						system.HandleInputKeyUp(keyCode);
+					}
+				}
+				if((axisStateOld < 0.25f) && (axisStateNew >= 0.25f))
+				{
+					IDeviceContext::KeyCode keyCode;
+					if(system.TranslateJoystickAxisAsButton(i, axisNo, true, keyCode))
+					{
+						system.HandleInputKeyDown(keyCode);
+					}
+				}
+				if((axisStateOld > -0.25f) && (axisStateNew <= -0.25f))
+				{
+					IDeviceContext::KeyCode keyCode;
+					if(system.TranslateJoystickAxisAsButton(i, axisNo, false, keyCode))
+					{
+						system.HandleInputKeyDown(keyCode);
+					}
+				}
+			}
+		}
+
+		//Delay until it's time to latch the joystick input state again
+		Sleep(10);
+	}
+
+	//Since this thread is terminating, notify any waiting threads.
+	boost::mutex::scoped_lock lock(joystickWorkerThreadMutex);
+	joystickWorkerThreadStopped.notify_all();
 }

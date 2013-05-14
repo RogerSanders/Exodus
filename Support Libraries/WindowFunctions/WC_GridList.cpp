@@ -55,12 +55,16 @@ LRESULT CALLBACK WC_GridList::WndProc(HWND hwnd, UINT message, WPARAM wParam, LP
 		WC_GridList* object = new WC_GridList((HINSTANCE)createStruct->lpCreateParams, hwnd);
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)object);
 		return object->WndProcPrivate(message, wParam, lParam);}
-	case WM_CLOSE:{
+	case WM_DESTROY:{
 		WC_GridList* object = (WC_GridList*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		LPARAM result = object->WndProcPrivate(message, wParam, lParam);
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
-		delete object;
-		return result;}
+		if(object != 0)
+		{
+			LPARAM result = object->WndProcPrivate(message, wParam, lParam);
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+			delete object;
+			return result;
+		}
+		break;}
 	}
 
 	return DefWindowProc(hwnd, message, wParam, lParam);

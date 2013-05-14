@@ -123,6 +123,7 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 	bytesRemainingInBuffer = 0;
 	bufferInWriteMode = false;
 
+	//Flag that a file is open, and return true.
 	fileOpen = true;
 	return true;
 }

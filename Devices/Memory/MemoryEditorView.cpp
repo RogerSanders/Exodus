@@ -22,8 +22,8 @@ LRESULT MemoryRead::MemoryEditorView::WndProcWindow(HWND hwnd, UINT msg, WPARAM 
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
@@ -31,8 +31,7 @@ LRESULT MemoryRead::MemoryEditorView::WndProcWindow(HWND hwnd, UINT msg, WPARAM 
 	case WM_SIZE:
 		return msgWM_SIZE(hwnd, wparam, lparam);
 	case WM_PAINT:
-		msgWM_PAINT(hwnd, wparam, lparam);
-		break;
+		return msgWM_PAINT(hwnd, wparam, lparam);
 	case WM_SETFOCUS:
 		return msgWM_SETFOCUS(hwnd, wparam, lparam);
 	case WM_KILLFOCUS:
@@ -99,12 +98,11 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPA
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT MemoryRead::MemoryEditorView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT MemoryRead::MemoryEditorView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return 0;
+	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
 }
 
 //----------------------------------------------------------------------------------------
@@ -244,7 +242,7 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPAR
 	DeleteObject(hbrush);
 	ReleaseDC(hwnd, hdc);
 
-	return 0;
+	return DefWindowProc(hwnd, WM_PAINT, wparam, lparam);
 }
 
 //----------------------------------------------------------------------------------------

@@ -21,8 +21,6 @@ INT_PTR YM2612::LoggingView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, L
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	}
@@ -132,14 +130,6 @@ INT_PTR YM2612::LoggingView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM l
 	CheckDlgButton(hwnd, IDC_YM2612_LOGGING_ENABLED_C6OP3, (device->wavLoggingOperatorEnabled[CHANNEL6][OPERATOR3])? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_LOGGING_ENABLED_C6OP4, (device->wavLoggingOperatorEnabled[CHANNEL6][OPERATOR4])? BST_CHECKED: BST_UNCHECKED);
 	initializedDialog = true;
-
-	return TRUE;
-}
-
-//----------------------------------------------------------------------------------------
-INT_PTR YM2612::LoggingView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	DestroyWindow(hwnd);
 
 	return TRUE;
 }

@@ -113,6 +113,16 @@ public:
 	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual bool RestoreViewModelStateForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName, const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void DeleteSystemViews() = 0;
+
+	//Input functions
+	virtual bool TranslateKeyCode(unsigned int platformKeyCode, IDeviceContext::KeyCode& inputKeyCode) = 0;
+	virtual bool TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, IDeviceContext::KeyCode& inputKeyCode) = 0;
+	virtual bool TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, IDeviceContext::KeyCode& inputKeyCode) = 0;
+	virtual bool TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo, IDeviceContext::AxisCode& inputAxisCode) = 0;
+	virtual void HandleInputKeyDown(IDeviceContext::KeyCode keyCode) = 0;
+	virtual void HandleInputKeyUp(IDeviceContext::KeyCode keyCode) = 0;
+	virtual void HandleInputAxisUpdate(IDeviceContext::AxisCode axisCode, float newValue) = 0;
+	virtual void HandleInputScrollUpdate(IDeviceContext::ScrollCode scrollCode, int scrollTicks) = 0;
 };
 
 #include "ISystemExternal.inl"

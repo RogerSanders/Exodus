@@ -24,8 +24,8 @@ INT_PTR M68000::ExceptionsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
@@ -48,12 +48,11 @@ INT_PTR M68000::ExceptionsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARA
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR M68000::ExceptionsView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+INT_PTR M68000::ExceptionsView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return TRUE;
+	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------

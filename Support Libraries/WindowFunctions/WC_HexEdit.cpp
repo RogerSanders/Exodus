@@ -881,12 +881,16 @@ LRESULT CALLBACK WC_HexEdit::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPA
 		WC_HexEdit* object = new WC_HexEdit(createStruct->hInstance, hwnd);
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)object);
 		return object->WndProcPrivate(message, wParam, lParam);}
-	case WM_CLOSE:{
+	case WM_DESTROY:{
 		WC_HexEdit* object = (WC_HexEdit*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		LPARAM result = object->WndProcPrivate(message, wParam, lParam);
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
-		delete object;
-		return result;}
+		if(object != 0)
+		{
+			LPARAM result = object->WndProcPrivate(message, wParam, lParam);
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+			delete object;
+			return result;
+		}
+		break;}
 	}
 	return DefWindowProc(hwnd, message, wParam, lParam);
 }
@@ -908,8 +912,8 @@ LRESULT WC_HexEdit::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgWM_CONTEXTMENU(wParam, lParam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(wParam, lParam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(wParam, lParam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(wParam, lParam);
 	case WM_KILLFOCUS:
 		return msgWM_KILLFOCUS(wParam, lParam);
 	case WM_SETFOCUS:
@@ -1208,11 +1212,11 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT WC_HexEdit::msgWM_CLOSE(WPARAM wParam, LPARAM lParam)
+LRESULT WC_HexEdit::msgWM_DESTROY(WPARAM wParam, LPARAM lParam)
 {
 	DeleteObject(hfont);
 	DestroyMenu(hcontextMenu);
-	return 0;
+	return DefWindowProc(hwnd, WM_DESTROY, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------

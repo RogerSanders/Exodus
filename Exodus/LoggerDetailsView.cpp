@@ -33,8 +33,6 @@ INT_PTR System::LoggerDetailsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpa
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
 	}
 	return FALSE;
 }
@@ -46,14 +44,6 @@ INT_PTR System::LoggerDetailsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LP
 {
 	hwndInternal = hwnd;
 	UpdateLogEntryDisplay(hwndInternal);
-
-	return TRUE;
-}
-
-//----------------------------------------------------------------------------------------
-INT_PTR System::LoggerDetailsView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	DestroyWindow(hwnd);
 
 	return TRUE;
 }

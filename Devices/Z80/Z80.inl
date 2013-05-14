@@ -686,7 +686,7 @@ unsigned int Z80::GetInterruptMode() const
 //----------------------------------------------------------------------------------------
 void Z80::SetInterruptMode(unsigned int ainterruptMode)
 {
-	interruptMode =	ainterruptMode % 4;
+	interruptMode = ainterruptMode % 4;
 }
 
 //----------------------------------------------------------------------------------------

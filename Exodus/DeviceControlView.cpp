@@ -24,8 +24,6 @@ INT_PTR System::DeviceControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpa
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
@@ -40,14 +38,6 @@ INT_PTR System::DeviceControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpa
 INT_PTR System::DeviceControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetTimer(hwnd, 1, 200, NULL);
-
-	return TRUE;
-}
-
-//----------------------------------------------------------------------------------------
-INT_PTR System::DeviceControlView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	DestroyWindow(hwnd);
 
 	return TRUE;
 }

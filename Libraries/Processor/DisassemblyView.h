@@ -31,7 +31,7 @@ private:
 
 	//Event handlers
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	LRESULT msgWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_PARENTNOTIFY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -44,7 +44,7 @@ private:
 
 	//Panel dialog event handlers
 	INT_PTR msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgPanelWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgPanelWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgPanelWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgPanelWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 

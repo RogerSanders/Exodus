@@ -21,8 +21,6 @@ INT_PTR S315_5313::DebugSettingsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM 
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	}
@@ -44,14 +42,6 @@ INT_PTR S315_5313::DebugSettingsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam,
 	CheckDlgButton(hwnd, IDC_S315_5313_DEBUGSETTINGS_BOUNDARYACTIVEIMAGE, device->videoShowBoundaryActiveImage? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_DEBUGSETTINGS_BOUNDARYTITLE, device->videoShowBoundaryTitleSafe? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_DEBUGSETTINGS_BOUNDARYACTION, device->videoShowBoundaryActionSafe? BST_CHECKED: BST_UNCHECKED);
-
-	return TRUE;
-}
-
-//----------------------------------------------------------------------------------------
-INT_PTR S315_5313::DebugSettingsView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	DestroyWindow(hwnd);
 
 	return TRUE;
 }

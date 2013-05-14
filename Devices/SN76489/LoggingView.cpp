@@ -21,8 +21,6 @@ INT_PTR SN76489::LoggingView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, 
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	}
@@ -54,14 +52,6 @@ INT_PTR SN76489::LoggingView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM 
 	CheckDlgButton(hwnd, IDC_SN76489_LOGGING_ENABLED_C2, (device->wavLoggingChannelEnabled[2])? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_SN76489_LOGGING_ENABLED_C3, (device->wavLoggingChannelEnabled[3])? BST_CHECKED: BST_UNCHECKED);
 	initializedDialog = true;
-
-	return TRUE;
-}
-
-//----------------------------------------------------------------------------------------
-INT_PTR SN76489::LoggingView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	DestroyWindow(hwnd);
 
 	return TRUE;
 }

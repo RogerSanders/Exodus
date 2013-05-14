@@ -15,10 +15,6 @@ public:
 	virtual double SystemRollbackTime() const = 0;
 	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams) = 0;
 	virtual void ExecuteDeviceStep(DeviceContext* device) = 0;
-
-	//Input functions
-	virtual void HandleInputKeyDown(IDeviceContext::KeyCode keyCode) = 0;
-	virtual void HandleInputKeyUp(IDeviceContext::KeyCode keyCode) = 0;
 };
 
 #endif

@@ -21,8 +21,6 @@ INT_PTR S315_5313::SettingsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpara
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	}
@@ -37,14 +35,6 @@ INT_PTR S315_5313::SettingsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPAR
 	CheckDlgButton(hwnd, IDC_S315_5313_SETTINGS_VIDEOSINGLEBUFFERING, device->videoSingleBuffering? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_SETTINGS_VIDEOFIXEDASPECTRATIO, device->videoFixedAspectRatio? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_SETTINGS_SHOWSTATUSBAR, device->videoShowStatusBar? BST_CHECKED: BST_UNCHECKED);
-
-	return TRUE;
-}
-
-//----------------------------------------------------------------------------------------
-INT_PTR S315_5313::SettingsView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	DestroyWindow(hwnd);
 
 	return TRUE;
 }

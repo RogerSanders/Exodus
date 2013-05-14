@@ -37,7 +37,6 @@
 #pragma comment(lib, "GLu32")
 #pragma comment(lib, "comctl32")
 #pragma comment(lib, "dwmapi")
-#pragma comment(lib, "dwmapi")
 #pragma comment(lib, "shell32")
 #pragma comment(lib, "Version")
 #endif
