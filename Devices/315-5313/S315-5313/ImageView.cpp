@@ -31,8 +31,8 @@ LRESULT S315_5313::ImageView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, 
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_SIZE:
 		return msgWM_SIZE(hwnd, wparam, lparam);
 	case WM_TIMER:
@@ -87,10 +87,19 @@ LRESULT S315_5313::ImageView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lpar
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT S315_5313::ImageView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT S315_5313::ImageView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
-	DestroyWindow(hwnd);
-	return 0;
+	//Note that we need to explicitly destroy the child window here, since we share state
+	//with the child window, passing in the "this" pointer as its state. Since the
+	//destructor for our state may be called anytime after this window is destroyed, and
+	//this window is fully destroyed before child windows are destroyed, we need to
+	//explicitly destroy the child window here. The child window is fully destroyed before
+	//the DestroyWindow() function returns, and our state is still valid until we return
+	//from handling this WM_DESTROY message.
+	DestroyWindow(hwndOpenGL);
+	hwndOpenGL = NULL;
+
+	return DefWindowProc(hwnd, WM_DESTROY, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------
@@ -195,16 +204,20 @@ LRESULT CALLBACK S315_5313::ImageView::WndProcRenderStatic(HWND hwnd, UINT msg, 
 		{
 			return state->WndProcRender(hwnd, msg, wparam, lparam);
 		}
+		break;
 	case WM_DESTROY:
 		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			state->WndProcRender(hwnd, msg, wparam, lparam);
+			LRESULT result = state->WndProcRender(hwnd, msg, wparam, lparam);
 
 			//Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
 		}
-		return TRUE;
+		break;
 	}
 
 	//Pass this message on to the member window procedure function
@@ -222,8 +235,8 @@ LRESULT S315_5313::ImageView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, 
 	{
 	case WM_CREATE:
 		return msgRenderWM_CREATE(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgRenderWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgRenderWM_DESTROY(hwnd, wparam, lparam);
 	case WM_SIZE:
 		return msgRenderWM_SIZE(hwnd, wparam, lparam);
 	case WM_TIMER:
@@ -297,14 +310,13 @@ LRESULT S315_5313::ImageView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARA
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT S315_5313::ImageView::msgRenderWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT S315_5313::ImageView::msgRenderWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if(glrc != NULL)
 	{
 		wglDeleteContext(glrc);
 	}
-	DestroyWindow(hwnd);
-	return 0;
+	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
 }
 
 //----------------------------------------------------------------------------------------

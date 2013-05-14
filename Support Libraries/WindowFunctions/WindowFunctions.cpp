@@ -861,8 +861,8 @@ HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int 
 	LONG_PTR extendedWindowStyle = GetWindowLongPtr(hwndTooltip, GWL_EXSTYLE);
 	if(extendedWindowStyle != 0)
 	{
-		 extendedWindowStyle &= ~((LONG_PTR)WS_EX_LAYERED);
-		 SetWindowLongPtr(hwndTooltip, GWL_EXSTYLE, extendedWindowStyle);
+		extendedWindowStyle &= ~((LONG_PTR)WS_EX_LAYERED);
+		SetWindowLongPtr(hwndTooltip, GWL_EXSTYLE, extendedWindowStyle);
 	}
 
 	//Set the tooltip window as topmost

@@ -167,6 +167,7 @@ private:
 	struct SpriteMappingTableEntry;
 	struct ImageBufferColorEntry;
 	struct SpriteBoundaryLineEntry;
+	struct DecodedPaletteColorEntry;
 
 	//Typedefs
 	typedef RandomTimeAccessBuffer<Data, unsigned int> RegBuffer;
@@ -185,6 +186,9 @@ private:
 
 	//Render constants
 	static const unsigned int renderDigitalBlockPixelSizeY = 8;
+	static const unsigned char paletteEntryTo8Bit[8];
+	static const unsigned char paletteEntryTo8BitShadow[8];
+	static const unsigned char paletteEntryTo8BitHighlight[8];
 	static const VRAMRenderOp vramOperationsH32ActiveLine[171];
 	static const VRAMRenderOp vramOperationsH32InactiveLine[171];
 	static const VRAMRenderOp vramOperationsH40ActiveLine[210];
@@ -211,6 +215,7 @@ private:
 	class SpriteListDetailsViewModel;
 	class PortMonitorViewModel;
 	class PortMonitorDetailsViewModel;
+	class PlaneViewModel;
 	class VRAMView;
 	class PaletteView;
 	class ImageView;
@@ -222,6 +227,7 @@ private:
 	class SpriteListDetailsView;
 	class PortMonitorView;
 	class PortMonitorDetailsView;
+	class PlaneView;
 	friend class VRAMViewModel;
 	friend class PaletteViewModel;
 	friend class ImageViewModel;
@@ -233,6 +239,7 @@ private:
 	friend class SpriteListDetailsViewModel;
 	friend class PortMonitorViewModel;
 	friend class PortMonitorDetailsViewModel;
+	friend class PlaneViewModel;
 	friend class VRAMView;
 	friend class PaletteView;
 	friend class ImageView;
@@ -244,6 +251,7 @@ private:
 	friend class SpriteListDetailsView;
 	friend class PortMonitorView;
 	friend class PortMonitorDetailsView;
+	friend class PlaneView;
 
 private:
 	//Line functions
@@ -265,11 +273,14 @@ private:
 	void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerAVscrollPatternDisplacement, unsigned int& layerBVscrollPatternDisplacement, unsigned int& layerAVscrollMappingDisplacement, unsigned int& layerBVscrollMappingDisplacement) const;
 	void DigitalRenderReadVscrollDataNew(unsigned int screenColumnNumber, unsigned int layerNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerVscrollPatternDisplacement, unsigned int& layerVscrollMappingDisplacement, Data& vsramReadCache) const;
 	void DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const;
+	static unsigned int DigitalRenderCalculatePatternDataRowAddress(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData);
 	void DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const;
 	void DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool interlaceMode2Active, bool screenModeRS1Active, unsigned int& nextTableEntryToRead, bool& spriteSearchComplete, bool& spriteOverflow, unsigned int& spriteDisplayCacheEntryCount, std::vector<SpriteDisplayCacheEntry>& spriteDisplayCache) const;
 	void DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const;
 	unsigned int DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const;
 	void CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shadow, bool& highlight, bool shadowHighlightEnabled, bool spriteIsShadowOperator, bool spriteIsHighlightOperator, bool foundSpritePixel, bool foundLayerAPixel, bool foundLayerBPixel, bool prioritySprite, bool priorityLayerA, bool priorityLayerB) const;
+	static void CalculateEffectiveCellScrollSize(unsigned int hszState, unsigned int vszState, unsigned int& effectiveScrollWidth, unsigned int& effectiveScrollHeight);
+	DecodedPaletteColorEntry ReadDecodedPaletteColor(unsigned int paletteRow, unsigned int paletteIndex) const;
 
 	//Memory interface functions
 	Data GetHVCounter() const;

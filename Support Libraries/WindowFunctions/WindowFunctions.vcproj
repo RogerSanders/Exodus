@@ -20,7 +20,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops"
+			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -84,7 +84,7 @@
 		<Configuration
 			Name="Debug|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops"
+			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -149,7 +149,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops"
+			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -215,7 +215,7 @@
 		<Configuration
 			Name="Release|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops"
+			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -282,7 +282,7 @@
 		<Configuration
 			Name="Release - PGOInstrument|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops"
+			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -348,7 +348,7 @@
 		<Configuration
 			Name="Release - PGOInstrument|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops"
+			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -415,7 +415,7 @@
 		<Configuration
 			Name="Release - PGORebuildOptimised|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops"
+			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -481,7 +481,7 @@
 		<Configuration
 			Name="Release - PGORebuildOptimised|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops"
+			InheritedPropertySheets="..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>

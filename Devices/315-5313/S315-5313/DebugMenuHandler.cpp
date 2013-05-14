@@ -1,6 +1,7 @@
 #include "DebugMenuHandler.h"
 #include "VRAMViewModel.h"
 #include "PaletteViewModel.h"
+#include "PlaneViewModel.h"
 #include "ImageViewModel.h"
 #include "RegistersViewModel.h"
 #include "LayerRemovalViewModel.h"
@@ -72,6 +73,7 @@ void S315_5313::DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& me
 	menuItems.push_back(MenuItemDefinition(MENUITEM_IMAGE, L"Image", L"Image", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_LAYERREMOVAL, L"LayerRemoval", L"Layer Removal", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PALETTEVIEWER, L"Palette", L"Palette", true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_PLANEVIEWER, L"PlaneViewer", L"Plane Viewer", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITOR, L"PortMonitor", L"Port Monitor", true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITORDETAILS, L"PortMonitorDetails", L"Port Monitor Details", true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", L"Registers", true));
@@ -89,6 +91,8 @@ IViewModel* S315_5313::DebugMenuHandler::CreateViewModelForItem(int menuItemID, 
 		return new VRAMViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_VRAMVIEWER, device);
 	case MENUITEM_PALETTEVIEWER:
 		return new PaletteViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_PALETTEVIEWER, device);
+	case MENUITEM_PLANEVIEWER:
+		return new PlaneViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_PLANEVIEWER, device);
 	case MENUITEM_IMAGE:
 		return new ImageViewModel(GetMenuHandlerName(), viewModelName, MENUITEM_IMAGE, device);
 	case MENUITEM_REGISTERS:

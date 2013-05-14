@@ -116,9 +116,14 @@ public:
 	inline const std::vector<DeviceContext*>& GetDependentDeviceArray() const;
 
 	//Input functions
+	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode);
+	virtual bool TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, KeyCode& inputKeyCode);
+	virtual bool TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, KeyCode& inputKeyCode);
+	virtual bool TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo, AxisCode& inputAxisCode);
 	virtual void HandleInputKeyDown(KeyCode keyCode) const;
 	virtual void HandleInputKeyUp(KeyCode keyCode) const;
-	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode);
+	virtual void HandleInputAxisUpdate(AxisCode axisCode, float newValue);
+	virtual void HandleInputScrollUpdate(ScrollCode scrollCode, int scrollTicks);
 
 protected:
 	//System message functions

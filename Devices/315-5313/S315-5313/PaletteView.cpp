@@ -28,8 +28,8 @@ LRESULT S315_5313::PaletteView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	}
@@ -65,15 +65,14 @@ LRESULT S315_5313::PaletteView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lp
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT S315_5313::PaletteView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT S315_5313::PaletteView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if(glrc != NULL)
 	{
 		wglDeleteContext(glrc);
 	}
-	DestroyWindow(hwnd);
 
-	return 0;
+	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
 }
 
 //----------------------------------------------------------------------------------------

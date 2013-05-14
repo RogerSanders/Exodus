@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 S315_5313::RegistersView::RegistersView(S315_5313* adevice)
-:device(adevice), initializedDialog(false), currentControlFocus(0)
+:device(adevice), initializedDialog(false), currentControlFocus(0), activeTabDialog(NULL)
 {
 	lockedColor = RGB(255,127,127);
 	lockedBrush = CreateSolidBrush(lockedColor);
@@ -29,8 +29,8 @@ INT_PTR S315_5313::RegistersView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpar
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_NOTIFY:
 		return msgWM_NOTIFY(hwnd, wparam, lparam);
 	}
@@ -146,10 +146,22 @@ INT_PTR S315_5313::RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPA
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR S315_5313::RegistersView::msgWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam)
+INT_PTR S315_5313::RegistersView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
-	DestroyWindow(hwnd);
-	return TRUE;
+	//Note that we need to explicitly destroy the child window here, since we share state
+	//with the child window, passing in the "this" pointer as its state. Since the
+	//destructor for our state may be called anytime after this window is destroyed, and
+	//this window is fully destroyed before child windows are destroyed, we need to
+	//explicitly destroy the child window here. The child window is fully destroyed before
+	//the DestroyWindow() function returns, and our state is still valid until we return
+	//from handling this WM_DESTROY message.
+	if(activeTabDialog != NULL)
+	{
+		DestroyWindow(activeTabDialog);
+		activeTabDialog = NULL;
+	}
+
+	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------
@@ -162,10 +174,10 @@ INT_PTR S315_5313::RegistersView::msgWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM 
 		{
 			//If we currently have a dialog already associated with the tab control,
 			//destroy it.
-			if(activeTabDialog != 0)
+			if(activeTabDialog != NULL)
 			{
 				DestroyWindow(activeTabDialog);
-				activeTabDialog = 0;
+				activeTabDialog = NULL;
 				initializedDialog = false;
 			}
 
@@ -227,20 +239,24 @@ INT_PTR CALLBACK S315_5313::RegistersView::WndProcRawRegistersStatic(HWND hwnd, 
 		{
 			return state->WndProcRawRegisters(hwnd, msg, wparam, lparam);
 		}
+		break;
 	case WM_DESTROY:
 		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			state->WndProcRawRegisters(hwnd, msg, wparam, lparam);
+			INT_PTR result = state->WndProcRawRegisters(hwnd, msg, wparam, lparam);
 
 			//Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
 		}
-		return TRUE;
+		break;
 	}
 
 	//Pass this message on to the member window procedure function
-	INT_PTR result = TRUE;
+	INT_PTR result = FALSE;
 	if(state != 0)
 	{
 		result = state->WndProcRawRegisters(hwnd, msg, wparam, lparam);
@@ -256,8 +272,8 @@ INT_PTR S315_5313::RegistersView::WndProcRawRegisters(HWND hwnd, UINT msg, WPARA
 	{
 	case WM_INITDIALOG:
 		return msgRawRegistersWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgRawRegistersWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgRawRegistersWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgRawRegistersWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
@@ -324,12 +340,11 @@ INT_PTR S315_5313::RegistersView::msgRawRegistersWM_INITDIALOG(HWND hwnd, WPARAM
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR S315_5313::RegistersView::msgRawRegistersWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+INT_PTR S315_5313::RegistersView::msgRawRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return TRUE;
+	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------
@@ -608,20 +623,24 @@ INT_PTR CALLBACK S315_5313::RegistersView::WndProcModeRegistersStatic(HWND hwnd,
 		{
 			return state->WndProcModeRegisters(hwnd, msg, wparam, lparam);
 		}
+		break;
 	case WM_DESTROY:
 		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			state->WndProcModeRegisters(hwnd, msg, wparam, lparam);
+			INT_PTR result = state->WndProcModeRegisters(hwnd, msg, wparam, lparam);
 
 			//Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
 		}
-		return TRUE;
+		break;
 	}
 
 	//Pass this message on to the member window procedure function
-	INT_PTR result = TRUE;
+	INT_PTR result = FALSE;
 	if(state != 0)
 	{
 		result = state->WndProcModeRegisters(hwnd, msg, wparam, lparam);
@@ -637,8 +656,8 @@ INT_PTR S315_5313::RegistersView::WndProcModeRegisters(HWND hwnd, UINT msg, WPAR
 	{
 	case WM_INITDIALOG:
 		return msgModeRegistersWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgModeRegistersWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgModeRegistersWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgModeRegistersWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
@@ -889,12 +908,11 @@ INT_PTR S315_5313::RegistersView::msgModeRegistersWM_INITDIALOG(HWND hwnd, WPARA
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR S315_5313::RegistersView::msgModeRegistersWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+INT_PTR S315_5313::RegistersView::msgModeRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return TRUE;
+	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1081,20 +1099,24 @@ INT_PTR CALLBACK S315_5313::RegistersView::WndProcOtherRegistersStatic(HWND hwnd
 		{
 			return state->WndProcOtherRegisters(hwnd, msg, wparam, lparam);
 		}
+		break;
 	case WM_DESTROY:
 		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			state->WndProcOtherRegisters(hwnd, msg, wparam, lparam);
+			INT_PTR result = state->WndProcOtherRegisters(hwnd, msg, wparam, lparam);
 
 			//Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
 		}
-		return TRUE;
+		break;
 	}
 
 	//Pass this message on to the member window procedure function
-	INT_PTR result = TRUE;
+	INT_PTR result = FALSE;
 	if(state != 0)
 	{
 		result = state->WndProcOtherRegisters(hwnd, msg, wparam, lparam);
@@ -1110,8 +1132,8 @@ INT_PTR S315_5313::RegistersView::WndProcOtherRegisters(HWND hwnd, UINT msg, WPA
 	{
 	case WM_INITDIALOG:
 		return msgOtherRegistersWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgOtherRegistersWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgOtherRegistersWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgOtherRegistersWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
@@ -1299,12 +1321,11 @@ INT_PTR S315_5313::RegistersView::msgOtherRegistersWM_INITDIALOG(HWND hwnd, WPAR
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR S315_5313::RegistersView::msgOtherRegistersWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+INT_PTR S315_5313::RegistersView::msgOtherRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return TRUE;
+	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1365,22 +1386,15 @@ INT_PTR S315_5313::RegistersView::msgOtherRegistersWM_TIMER(HWND hwnd, WPARAM wp
 	if(currentControlFocus != IDC_VDP_REGISTERS_1256) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1256, 1, device->RegGet1256(accessTarget));
 	if(currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASEY) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASEY, 1, device->RegGetWindowBasePointY(accessTarget));
 
+	//Calculate the effective width and height of the main scroll planes based on the
+	//current register settings
 	unsigned int hszState = device->RegGetHSZ(accessTarget);
 	unsigned int vszState = device->RegGetVSZ(accessTarget);
-	unsigned int screenSizeModeH = hszState;
-	unsigned int screenSizeModeV = ((vszState & 0x1) & ((~hszState & 0x02) >> 1)) | ((vszState & 0x02) & ((~hszState & 0x01) << 1));
-	unsigned int screenSizeCellsH = (screenSizeModeH+1) * 32;
-	unsigned int screenSizeCellsV = (screenSizeModeV+1) * 32;
-	if(screenSizeModeH == 2)
-	{
-		screenSizeCellsH = 32;
-		screenSizeCellsV = 1;
-	}
-	else if(screenSizeModeV == 2)
-	{
-		screenSizeCellsH = 32;
-		screenSizeCellsV = 32;
-	}
+	unsigned int screenSizeCellsH;
+	unsigned int screenSizeCellsV;
+	device->CalculateEffectiveCellScrollSize(hszState, vszState, screenSizeCellsH, screenSizeCellsV);
+
+	//Update the effective scroll plane width and height on the debug window
 	UpdateDlgItemBin(hwnd, IDC_VDP_REGISTERS_HSZ_E, screenSizeCellsH);
 	UpdateDlgItemBin(hwnd, IDC_VDP_REGISTERS_VSZ_E, screenSizeCellsV);
 

@@ -1,6 +1,23 @@
 #include "S315_5313.h"
 
 //----------------------------------------------------------------------------------------
+//##TODO## Our new colour values are basically correct, assuming what is suspected after
+//analysis posted on SpritesMind, that the Mega Drive VDP never actually outputs at full
+//intensity. We haven't taken the apparent "ladder effect" into account however. It is
+//highly recommended that we perform our own tests on the hardware, and make some
+//comparisons between captured video output from the real system, and the output from our
+//emulator, when playing back on the same physical screen. If the ladder effect is real
+//and does have an effect on the way the intensity is perceived on the screen, we should
+//emulate it. We also need to confirm the maximum intensity output by the VDP. A step size
+//of 18 for example would get a max value of 252, which would be more logical.
+//const unsigned char S315_5313::paletteEntryTo8Bit[8] = {0, 36, 73, 109, 146, 182, 219, 255};
+//const unsigned char S315_5313::paletteEntryTo8BitShadow[8] = {0, 18, 37, 55, 73, 91, 110, 128};
+//const unsigned char S315_5313::paletteEntryTo8BitHighlight[8] = {128, 146, 165, 183, 201, 219, 238, 255};
+const unsigned char S315_5313::paletteEntryTo8Bit[8] = {0, 34, 68, 102, 136, 170, 204, 238};
+const unsigned char S315_5313::paletteEntryTo8BitShadow[8] = {0, 17, 34, 51, 68, 85, 102, 119};
+const unsigned char S315_5313::paletteEntryTo8BitHighlight[8] = {119, 136, 153, 170, 187, 204, 221, 238};
+
+//----------------------------------------------------------------------------------------
 //Rendering functions
 //----------------------------------------------------------------------------------------
 void S315_5313::RenderThread()
@@ -1018,6 +1035,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 
 		//Decode the sprite mapping and pattern data
 		layerPriority[LAYER_SPRITE] = false;
+		paletteLineData[LAYER_SPRITE] = 0;
 		paletteIndexData[LAYER_SPRITE] = 0;
 		if(spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex].entryWritten)
 		{
@@ -1202,22 +1220,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	//pixel data for, output the pixel data to the image buffer.
 	if(insidePixelBufferRegion)
 	{
-		//##TODO## Our new colour values are basically correct, assuming what is suspected
-		//after analysis posted on SpritesMind, that the Mega Drive VDP never actually outputs
-		//at full intensity. We haven't taken the apparent "ladder effect" into account
-		//however. It is highly recommended that we perform our own tests on the hardware, and
-		//make some comparisons between captured video output from the real system, and the
-		//output from our emulator, when playing back on the same physical screen. If the
-		//ladder effect is real and does have an effect on the way the intensity is perceived
-		//on the screen, we should emulate it. We also need to confirm the maximum intensity
-		//output by the VDP. A step size of 18 for example would get a max value of 252, which
-		//would be more logical.
-		//const unsigned char paletteEntryTo8Bit[8] = {0, 36, 73, 109, 146, 182, 219, 255};
-		//const unsigned char paletteEntryTo8BitShadow[8] = {0, 18, 37, 55, 73, 91, 110, 128};
-		//const unsigned char paletteEntryTo8BitHighlight[8] = {128, 146, 165, 183, 201, 219, 238, 255};
-		const unsigned char paletteEntryTo8Bit[8] = {0, 34, 68, 102, 136, 170, 204, 238};
-		const unsigned char paletteEntryTo8BitShadow[8] = {0, 17, 34, 51, 68, 85, 102, 119};
-		const unsigned char paletteEntryTo8BitHighlight[8] = {119, 136, 153, 170, 187, 204, 221, 238};
+		//Constants
 		const unsigned int paletteEntriesPerLine = 16;
 		const unsigned int paletteEntrySize = 2;
 
@@ -1630,7 +1633,7 @@ void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, u
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const
+unsigned int S315_5313::DigitalRenderCalculatePatternDataRowAddress(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData)
 {
 	//Calculate the final number of the pattern row to read, taking into account vertical
 	//flip if it is specified in the block mapping.
@@ -1672,6 +1675,14 @@ void S315_5313::DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoF
 	const unsigned int patternDataRowByteSize = 4;
 	const unsigned int blockPatternByteSize = rowsPerTile * patternDataRowByteSize;
 	unsigned int patternDataAddress = (((mappingData.GetData() + patternCellOffset) * blockPatternByteSize) + (patternRowNumber * patternDataRowByteSize)) % vramSize;
+	return patternDataAddress;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const
+{
+	//Calculate the address of the target pattern data row
+	unsigned int patternDataAddress = DigitalRenderCalculatePatternDataRowAddress(patternRowNumberNoFlip, patternCellOffset, interlaceMode2Active, mappingData);
 
 	//Read the target pattern row
 	patternData = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
@@ -2093,6 +2104,52 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 			highlight = false;
 		}
 	}
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::CalculateEffectiveCellScrollSize(unsigned int hszState, unsigned int vszState, unsigned int& effectiveScrollWidth, unsigned int& effectiveScrollHeight)
+{
+	//This method performs a simple version of the logic that's implemented in the
+	//DigitalRenderReadMappingDataPair method. The purpose of this function is to allow
+	//the effective size of the scroll planes to be easily calculated by debug features.
+	unsigned int screenSizeModeH = hszState;
+	unsigned int screenSizeModeV = ((vszState & 0x1) & ((~hszState & 0x02) >> 1)) | ((vszState & 0x02) & ((~hszState & 0x01) << 1));
+	effectiveScrollWidth = (screenSizeModeH+1) * 32;
+	effectiveScrollHeight = (screenSizeModeV+1) * 32;
+	if(screenSizeModeH == 2)
+	{
+		effectiveScrollWidth = 32;
+		effectiveScrollHeight = 1;
+	}
+	else if(screenSizeModeV == 2)
+	{
+		effectiveScrollWidth = 32;
+		effectiveScrollHeight = 32;
+	}
+}
+
+//----------------------------------------------------------------------------------------
+S315_5313::DecodedPaletteColorEntry S315_5313::ReadDecodedPaletteColor(unsigned int paletteRow, unsigned int paletteIndex) const
+{
+	//This method is provided purely for debug windows, and provides an easy and
+	//convenient way to decode palette colours. The actual render process uses a different
+	//method.
+
+	//Read the raw palette entry from CRAM
+	const unsigned int paletteEntriesPerLine = 16;
+	Data paletteEntry(16);
+	unsigned char byte1 = cram->ReadCommitted((paletteIndex + (paletteRow * paletteEntriesPerLine)) * 2);
+	unsigned char byte2 = cram->ReadCommitted(((paletteIndex + (paletteRow * paletteEntriesPerLine)) * 2) + 1);
+	paletteEntry.SetUpperHalf(byte1);
+	paletteEntry.SetLowerHalf(byte2);
+
+	//Extract the actual RGB colour data from the palette entry, and return it to the
+	//caller.
+	DecodedPaletteColorEntry color;
+	color.r = paletteEntry.GetDataSegment(1, 3);
+	color.g = paletteEntry.GetDataSegment(5, 3);
+	color.b = paletteEntry.GetDataSegment(9, 3);
+	return color;
 }
 
 //----------------------------------------------------------------------------------------

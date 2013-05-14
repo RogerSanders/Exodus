@@ -330,6 +330,30 @@ void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool
 //----------------------------------------------------------------------------------------
 //Input functions
 //----------------------------------------------------------------------------------------
+bool DeviceContext::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode)
+{
+	return systemObject->TranslateKeyCode(platformKeyCode, inputKeyCode);
+}
+
+//----------------------------------------------------------------------------------------
+bool DeviceContext::TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, KeyCode& inputKeyCode)
+{
+	return systemObject->TranslateJoystickButton(joystickNo, buttonNo, inputKeyCode);
+}
+
+//----------------------------------------------------------------------------------------
+bool DeviceContext::TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, KeyCode& inputKeyCode)
+{
+	return systemObject->TranslateJoystickAxisAsButton(joystickNo, axisNo, positiveAxis, inputKeyCode);
+}
+
+//----------------------------------------------------------------------------------------
+bool DeviceContext::TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo, AxisCode& inputAxisCode)
+{
+	return systemObject->TranslateJoystickAxis(joystickNo, axisNo, inputAxisCode);
+}
+
+//----------------------------------------------------------------------------------------
 void DeviceContext::HandleInputKeyDown(KeyCode keyCode) const
 {
 	systemObject->HandleInputKeyDown(keyCode);
@@ -342,334 +366,15 @@ void DeviceContext::HandleInputKeyUp(KeyCode keyCode) const
 }
 
 //----------------------------------------------------------------------------------------
-bool DeviceContext::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode)
+void DeviceContext::HandleInputAxisUpdate(AxisCode axisCode, float newValue)
 {
-	switch(platformKeyCode)
-	{
-	//Control keys
-	case VK_ESCAPE:
-		inputKeyCode = KEYCODE_ESCAPE;
-		return true;
-	case VK_TAB:
-		inputKeyCode = KEYCODE_TAB;
-		return true;
-	case VK_RETURN:
-		inputKeyCode = KEYCODE_ENTER;
-		return true;
-	case VK_SPACE:
-		inputKeyCode = KEYCODE_SPACE;
-		return true;
-	case VK_BACK:
-		inputKeyCode = KEYCODE_BACKSPACE;
-		return true;
-	case VK_INSERT:
-		inputKeyCode = KEYCODE_INSERT;
-		return true;
-	case VK_DELETE:
-		inputKeyCode = KEYCODE_DELETE;
-		return true;
-	case VK_PRIOR:
-		inputKeyCode = KEYCODE_PAGEUP;
-		return true;
-	case VK_NEXT:
-		inputKeyCode = KEYCODE_PAGEDOWN;
-		return true;
-	case VK_HOME:
-		inputKeyCode = KEYCODE_HOME;
-		return true;
-	case VK_END:
-		inputKeyCode = KEYCODE_END;
-		return true;
-	case VK_UP:
-		inputKeyCode = KEYCODE_UP;
-		return true;
-	case VK_DOWN:
-		inputKeyCode = KEYCODE_DOWN;
-		return true;
-	case VK_LEFT:
-		inputKeyCode = KEYCODE_LEFT;
-		return true;
-	case VK_RIGHT:
-		inputKeyCode = KEYCODE_RIGHT;
-		return true;
-	case VK_SNAPSHOT:
-		inputKeyCode = KEYCODE_PRINTSCREEN;
-		return true;
-	case VK_PAUSE:
-		inputKeyCode = KEYCODE_PAUSE;
-		return true;
-	case VK_NUMLOCK:
-		inputKeyCode = KEYCODE_NUMLOCK;
-		return true;
-	case VK_CAPITAL:
-		inputKeyCode = KEYCODE_CAPSLOCK;
-		return true;
-	case VK_SCROLL:
-		inputKeyCode = KEYCODE_SCROLLLOCK;
-		return true;
-	case VK_LWIN:
-		inputKeyCode = KEYCODE_LEFTWINDOWS;
-		return true;
-	case VK_RWIN:
-		inputKeyCode = KEYCODE_RIGHTWINDOWS;
-		return true;
-	case VK_APPS:
-		inputKeyCode = KEYCODE_MENU;
-		return true;
+	systemObject->HandleInputAxisUpdate(axisCode, newValue);
+}
 
-	//Modifier keys
-	case VK_CONTROL:
-		inputKeyCode = KEYCODE_CTRL;
-		return true;
-	case VK_MENU:
-		inputKeyCode = KEYCODE_ALT;
-		return true;
-	case VK_SHIFT:
-		inputKeyCode = KEYCODE_SHIFT;
-		return true;
-
-	//Function keys
-	case VK_F1:
-		inputKeyCode = KEYCODE_F1;
-		return true;
-	case VK_F2:
-		inputKeyCode = KEYCODE_F2;
-		return true;
-	case VK_F3:
-		inputKeyCode = KEYCODE_F3;
-		return true;
-	case VK_F4:
-		inputKeyCode = KEYCODE_F4;
-		return true;
-	case VK_F5:
-		inputKeyCode = KEYCODE_F5;
-		return true;
-	case VK_F6:
-		inputKeyCode = KEYCODE_F6;
-		return true;
-	case VK_F7:
-		inputKeyCode = KEYCODE_F7;
-		return true;
-	case VK_F8:
-		inputKeyCode = KEYCODE_F8;
-		return true;
-	case VK_F9:
-		inputKeyCode = KEYCODE_F9;
-		return true;
-	case VK_F10:
-		inputKeyCode = KEYCODE_F10;
-		return true;
-	case VK_F11:
-		inputKeyCode = KEYCODE_F11;
-		return true;
-	case VK_F12:
-		inputKeyCode = KEYCODE_F12;
-		return true;
-
-	//Numbers
-	case '0':
-		inputKeyCode = KEYCODE_0;
-		return true;
-	case '1':
-		inputKeyCode = KEYCODE_1;
-		return true;
-	case '2':
-		inputKeyCode = KEYCODE_2;
-		return true;
-	case '3':
-		inputKeyCode = KEYCODE_3;
-		return true;
-	case '4':
-		inputKeyCode = KEYCODE_4;
-		return true;
-	case '5':
-		inputKeyCode = KEYCODE_5;
-		return true;
-	case '6':
-		inputKeyCode = KEYCODE_6;
-		return true;
-	case '7':
-		inputKeyCode = KEYCODE_7;
-		return true;
-	case '8':
-		inputKeyCode = KEYCODE_8;
-		return true;
-	case '9':
-		inputKeyCode = KEYCODE_9;
-		return true;
-
-	//Letters
-	case 'A':
-		inputKeyCode = KEYCODE_A;
-		return true;
-	case 'B':
-		inputKeyCode = KEYCODE_B;
-		return true;
-	case 'C':
-		inputKeyCode = KEYCODE_C;
-		return true;
-	case 'D':
-		inputKeyCode = KEYCODE_D;
-		return true;
-	case 'E':
-		inputKeyCode = KEYCODE_E;
-		return true;
-	case 'F':
-		inputKeyCode = KEYCODE_F;
-		return true;
-	case 'G':
-		inputKeyCode = KEYCODE_G;
-		return true;
-	case 'H':
-		inputKeyCode = KEYCODE_H;
-		return true;
-	case 'I':
-		inputKeyCode = KEYCODE_I;
-		return true;
-	case 'J':
-		inputKeyCode = KEYCODE_J;
-		return true;
-	case 'K':
-		inputKeyCode = KEYCODE_K;
-		return true;
-	case 'L':
-		inputKeyCode = KEYCODE_L;
-		return true;
-	case 'M':
-		inputKeyCode = KEYCODE_M;
-		return true;
-	case 'N':
-		inputKeyCode = KEYCODE_N;
-		return true;
-	case 'O':
-		inputKeyCode = KEYCODE_O;
-		return true;
-	case 'P':
-		inputKeyCode = KEYCODE_P;
-		return true;
-	case 'Q':
-		inputKeyCode = KEYCODE_Q;
-		return true;
-	case 'R':
-		inputKeyCode = KEYCODE_R;
-		return true;
-	case 'S':
-		inputKeyCode = KEYCODE_S;
-		return true;
-	case 'T':
-		inputKeyCode = KEYCODE_T;
-		return true;
-	case 'U':
-		inputKeyCode = KEYCODE_U;
-		return true;
-	case 'V':
-		inputKeyCode = KEYCODE_V;
-		return true;
-	case 'W':
-		inputKeyCode = KEYCODE_W;
-		return true;
-	case 'X':
-		inputKeyCode = KEYCODE_X;
-		return true;
-	case 'Y':
-		inputKeyCode = KEYCODE_Y;
-		return true;
-	case 'Z':
-		inputKeyCode = KEYCODE_Z;
-		return true;
-
-	//Symbol keys
-	case VK_OEM_1:
-		inputKeyCode = KEYCODE_OEM1;
-		return true;
-	case VK_OEM_PLUS:
-		inputKeyCode = KEYCODE_OEMPLUS;
-		return true;
-	case VK_OEM_COMMA:
-		inputKeyCode = KEYCODE_OEMCOMMA;
-		return true;
-	case VK_OEM_MINUS:
-		inputKeyCode = KEYCODE_OEMMINUS;
-		return true;
-	case VK_OEM_PERIOD:
-		inputKeyCode = KEYCODE_OEMPERIOD;
-		return true;
-	case VK_OEM_2:
-		inputKeyCode = KEYCODE_OEM2;
-		return true;
-	case VK_OEM_3:
-		inputKeyCode = KEYCODE_OEM3;
-		return true;
-	case VK_OEM_4:
-		inputKeyCode = KEYCODE_OEM4;
-		return true;
-	case VK_OEM_5:
-		inputKeyCode = KEYCODE_OEM5;
-		return true;
-	case VK_OEM_6:
-		inputKeyCode = KEYCODE_OEM6;
-		return true;
-	case VK_OEM_7:
-		inputKeyCode = KEYCODE_OEM7;
-		return true;
-	case VK_OEM_8:
-		inputKeyCode = KEYCODE_OEM8;
-		return true;
-	case VK_OEM_AX:
-		inputKeyCode = KEYCODE_OEMAX;
-		return true;
-	case VK_OEM_102:
-		inputKeyCode = KEYCODE_OEM102;
-		return true;
-
-	//Numpad keys
-	case VK_NUMPAD0:
-		inputKeyCode = KEYCODE_NUMPAD0;
-		return true;
-	case VK_NUMPAD1:
-		inputKeyCode = KEYCODE_NUMPAD1;
-		return true;
-	case VK_NUMPAD2:
-		inputKeyCode = KEYCODE_NUMPAD2;
-		return true;
-	case VK_NUMPAD3:
-		inputKeyCode = KEYCODE_NUMPAD3;
-		return true;
-	case VK_NUMPAD4:
-		inputKeyCode = KEYCODE_NUMPAD4;
-		return true;
-	case VK_NUMPAD5:
-		inputKeyCode = KEYCODE_NUMPAD5;
-		return true;
-	case VK_NUMPAD6:
-		inputKeyCode = KEYCODE_NUMPAD6;
-		return true;
-	case VK_NUMPAD7:
-		inputKeyCode = KEYCODE_NUMPAD7;
-		return true;
-	case VK_NUMPAD8:
-		inputKeyCode = KEYCODE_NUMPAD8;
-		return true;
-	case VK_NUMPAD9:
-		inputKeyCode = KEYCODE_NUMPAD9;
-		return true;
-	case VK_MULTIPLY:
-		inputKeyCode = KEYCODE_NUMPADMULTIPLY;
-		return true;
-	case VK_DIVIDE:
-		inputKeyCode = KEYCODE_NUMPADDIVIDE;
-		return true;
-	case VK_SUBTRACT:
-		inputKeyCode = KEYCODE_NUMPADSUBTRACT;
-		return true;
-	case VK_ADD:
-		inputKeyCode = KEYCODE_NUMPADADD;
-		return true;
-	case VK_DECIMAL:
-		inputKeyCode = KEYCODE_NUMPADDECIMAL;
-		return true;
-	}
-	return false;
+//----------------------------------------------------------------------------------------
+void DeviceContext::HandleInputScrollUpdate(ScrollCode scrollCode, int scrollTicks)
+{
+	systemObject->HandleInputScrollUpdate(scrollCode, scrollTicks);
 }
 
 //----------------------------------------------------------------------------------------

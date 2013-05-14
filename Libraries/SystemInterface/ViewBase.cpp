@@ -383,23 +383,48 @@ INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wpa
 		{
 			return state->WndProcDialog(hwnd, msg, wparam, lparam);
 		}
+		break;
+	case WM_CLOSE:
+		if(state != 0)
+		{
+			//Pass this message on to the member window procedure function
+			INT_PTR result = state->WndProcDialog(hwnd, msg, wparam, lparam);
+
+			//By default, Windows does not destroy modeless dialogs in response to a
+			//WM_CLOSE message. We change that default here, and destroy the dialog window
+			//on a WM_CLOSE message, to make the behaviour consistent with a normal
+			//window.
+			if(result == FALSE)
+			{
+				DestroyWindow(hwnd);
+			}
+
+			//Since we've handled this message ourselves, return true. We also need to
+			//abort right here regardless, as if the call to DestroyWindow has completed,
+			//state is no longer valid, as the object may have been destroyed.
+			return TRUE;
+		}
+		break;
 	case WM_DESTROY:
 		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			state->WndProcDialog(hwnd, msg, wparam, lparam);
+			INT_PTR result = state->WndProcDialog(hwnd, msg, wparam, lparam);
 
 			//Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
 
-			//Notify the ViewModel that the view has closed.
+			//Notify the ViewModel that the view has closed
 			state->viewModel->NotifyViewClosed(state);
+
+			//Return the result from processing the message
+			return result;
 		}
-		return TRUE;
+		break;
 	}
 
 	//Pass this message on to the member window procedure function
-	INT_PTR result = TRUE;
+	INT_PTR result = FALSE;
 	if(state != 0)
 	{
 		result = state->WndProcDialog(hwnd, msg, wparam, lparam);
@@ -426,19 +451,23 @@ LRESULT CALLBACK ViewBase::WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wpa
 		{
 			return state->WndProcWindow(hwnd, msg, wparam, lparam);
 		}
+		break;
 	case WM_DESTROY:
 		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			state->WndProcWindow(hwnd, msg, wparam, lparam);
+			LRESULT result = state->WndProcWindow(hwnd, msg, wparam, lparam);
 
 			//Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
 
-			//Notify the ViewModel that the view has closed.
+			//Notify the ViewModel that the view has closed
 			state->viewModel->NotifyViewClosed(state);
+
+			//Return the result from processing the message
+			return result;
 		}
-		return TRUE;
+		break;
 	}
 
 	//Pass this message on to the member window procedure function

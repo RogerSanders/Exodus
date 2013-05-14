@@ -13,6 +13,7 @@ S315_5313::VRAMView::VRAMView(S315_5313* adevice)
 	shadow = false;
 	highlight = false;
 	buffer = 0;
+	hwndRender = NULL;
 	hwndDetails = NULL;
 	hwndDetails16 = NULL;
 	detailsVisible = false;
@@ -30,8 +31,8 @@ INT_PTR S315_5313::VRAMView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, L
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	}
@@ -70,12 +71,11 @@ INT_PTR S315_5313::VRAMView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM l
 	ScreenToClient(hwnd, &markerPos);
 
 	//Create the window
-	HWND hwndOpenGL;
-	hwndOpenGL = CreateWindowEx(0, L"VRAM Render Child", L"VRAM Render Child", WS_CHILD, markerPos.x, markerPos.y, width, height, hwnd, NULL, (HINSTANCE)device->GetAssemblyHandle(), this);
-	ShowWindow(hwndOpenGL, SW_SHOWNORMAL);
-	UpdateWindow(hwndOpenGL);
+	hwndRender = CreateWindowEx(0, L"VRAM Render Child", L"VRAM Render Child", WS_CHILD, markerPos.x, markerPos.y, width, height, hwnd, NULL, (HINSTANCE)device->GetAssemblyHandle(), this);
+	ShowWindow(hwndRender, SW_SHOWNORMAL);
+	UpdateWindow(hwndRender);
 
-	//Set the palette selection controls to their default state
+	//Set the window controls to their default state
 	CheckDlgButton(hwnd, IDC_VDP_VRAM_BLOCKAUTO, (blockSize == BLOCKSIZE_AUTO)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_VDP_VRAM_BLOCK8X8, (blockSize == BLOCKSIZE_8X8)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_VDP_VRAM_BLOCK8X16, (blockSize == BLOCKSIZE_8X16)? BST_CHECKED: BST_UNCHECKED);
@@ -92,11 +92,19 @@ INT_PTR S315_5313::VRAMView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM l
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR S315_5313::VRAMView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+INT_PTR S315_5313::VRAMView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
-	DestroyWindow(hwnd);
+	//Note that we need to explicitly destroy the child window here, since we share state
+	//with the child window, passing in the "this" pointer as its state. Since the
+	//destructor for our state may be called anytime after this window is destroyed, and
+	//this window is fully destroyed before child windows are destroyed, we need to
+	//explicitly destroy the child window here. The child window is fully destroyed before
+	//the DestroyWindow() function returns, and our state is still valid until we return
+	//from handling this WM_DESTROY message.
+	DestroyWindow(hwndRender);
+	hwndRender = NULL;
 
-	return TRUE;
+	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------
@@ -166,16 +174,20 @@ LRESULT CALLBACK S315_5313::VRAMView::WndProcRenderStatic(HWND hwnd, UINT msg, W
 		{
 			return state->WndProcRender(hwnd, msg, wparam, lparam);
 		}
+		break;
 	case WM_DESTROY:
 		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			state->WndProcRender(hwnd, msg, wparam, lparam);
+			LRESULT result = state->WndProcRender(hwnd, msg, wparam, lparam);
 
 			//Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
 		}
-		return TRUE;
+		break;
 	}
 
 	//Pass this message on to the member window procedure function
@@ -193,8 +205,8 @@ LRESULT S315_5313::VRAMView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, L
 	{
 	case WM_CREATE:
 		return msgRenderWM_CREATE(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgRenderWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgRenderWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgRenderWM_TIMER(hwnd, wparam, lparam);
 	case WM_MOUSEMOVE:
@@ -239,7 +251,7 @@ LRESULT S315_5313::VRAMView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT S315_5313::VRAMView::msgRenderWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT S315_5313::VRAMView::msgRenderWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	DestroyWindow(hwndDetails);
 	DestroyWindow(hwndDetails16);
@@ -256,9 +268,8 @@ LRESULT S315_5313::VRAMView::msgRenderWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM 
 		buffer = 0;
 	}
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return 0;
+	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
 }
 
 //----------------------------------------------------------------------------------------
@@ -300,9 +311,6 @@ LRESULT S315_5313::VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 			blockData = vramDataCopy[blockStart + (blockOffset / 2)];
 			unsigned int index = ((blockOffset % 2) == 0)? blockData.GetDataSegment(4, 4): blockData.GetDataSegment(0, 4);
 
-			Color color;
-			color.shadow = shadow;
-			color.highlight = highlight;
 			unsigned char r = 0;
 			unsigned char g = 0;
 			unsigned char b = 0;
@@ -344,34 +352,23 @@ LRESULT S315_5313::VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 			}
 			else
 			{
-				PaletteIndex paletteIndex;
-				paletteIndex.entry = index;
-				paletteIndex.line = selectedPalette;
-				paletteIndex.highlight = highlight;
-				paletteIndex.shadow = shadow;
-
-//				color = state->device->GetPaletteColor(paletteIndex);
-
-				//Assumed constants
-				unsigned int paletteEntriesPerLine = 16;
-				//Decode palette color
-				Data paletteEntry(16);
-				unsigned char byte1 = device->cram->ReadCommitted((paletteIndex.entry + (paletteIndex.line * paletteEntriesPerLine)) * 2);
-				unsigned char byte2 = device->cram->ReadCommitted(((paletteIndex.entry + (paletteIndex.line * paletteEntriesPerLine)) * 2) + 1);
-				paletteEntry.SetUpperHalf(byte1);
-				paletteEntry.SetLowerHalf(byte2);
-				//##TODO## Add some notes here showing the bit structure of a palette entry in a
-				//pretty table.
-				//##TODO## Use GetDataSegment
-				color.r = (paletteEntry.GetData() & 0x000E) >> 1;
-				color.g = (paletteEntry.GetData() & 0x00E0) >> 5;
-				color.b = (paletteEntry.GetData() & 0x0E00) >> 9;
-				color.shadow = paletteIndex.shadow;
-				color.highlight = paletteIndex.highlight;
-
-				r = color.GetR8Bit();
-				g = color.GetG8Bit();
-				b = color.GetB8Bit();
+				//Decode the colour for the target palette entry
+				DecodedPaletteColorEntry color = device->ReadDecodedPaletteColor(selectedPalette, index);
+				unsigned char colorR = device->paletteEntryTo8Bit[color.r];
+				unsigned char colorG = device->paletteEntryTo8Bit[color.g];
+				unsigned char colorB = device->paletteEntryTo8Bit[color.b];
+				if(shadow && !highlight)
+				{
+					colorR = paletteEntryTo8BitShadow[color.r];
+					colorG = paletteEntryTo8BitShadow[color.g];
+					colorB = paletteEntryTo8BitShadow[color.b];
+				}
+				else if(highlight && !shadow)
+				{
+					colorR = paletteEntryTo8BitHighlight[color.r];
+					colorG = paletteEntryTo8BitHighlight[color.g];
+					colorB = paletteEntryTo8BitHighlight[color.b];
+				}
 			}
 
 			//Copy the data into the details popup
@@ -563,20 +560,24 @@ INT_PTR CALLBACK S315_5313::VRAMView::WndProcDetailsStatic(HWND hwnd, UINT msg, 
 		{
 			return state->WndProcDetails(hwnd, msg, wparam, lparam);
 		}
+		break;
 	case WM_DESTROY:
 		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			state->WndProcDetails(hwnd, msg, wparam, lparam);
+			INT_PTR result = state->WndProcDetails(hwnd, msg, wparam, lparam);
 
 			//Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
 		}
-		return TRUE;
+		break;
 	}
 
 	//Pass this message on to the member window procedure function
-	INT_PTR result = TRUE;
+	INT_PTR result = FALSE;
 	if(state != 0)
 	{
 		result = state->WndProcDetails(hwnd, msg, wparam, lparam);
@@ -591,8 +592,8 @@ INT_PTR S315_5313::VRAMView::WndProcDetails(HWND hwnd, UINT msg, WPARAM wparam, 
 	{
 	case WM_INITDIALOG:
 		return msgDetailsWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgDetailsWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgDetailsWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgDetailsWM_TIMER(hwnd, wparam, lparam);
 	}
@@ -610,12 +611,11 @@ INT_PTR S315_5313::VRAMView::msgDetailsWM_INITDIALOG(HWND hwnd, WPARAM wparam, L
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR S315_5313::VRAMView::msgDetailsWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+INT_PTR S315_5313::VRAMView::msgDetailsWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return TRUE;
+	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------

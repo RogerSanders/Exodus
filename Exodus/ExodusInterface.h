@@ -270,6 +270,9 @@ private:
 	static LRESULT CALLBACK WndSavestateProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WndWindowSelectProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+	//Joystick functions
+	void JoystickInputWorkerThread();
+
 private:
 	ISystemExternal& system;
 	HMENU fileMenu;
@@ -294,6 +297,9 @@ private:
 	bool systemDestructionInProgress;
 	bool viewEventProcessingPaused;
 	bool debugConsoleOpen;
+	mutable boost::mutex joystickWorkerThreadMutex;
+	volatile bool joystickWorkerThreadActive;
+	boost::condition joystickWorkerThreadStopped;
 
 	std::list<RegisteredDeviceInfo> registeredDevices;
 	std::list<RegisteredExtensionInfo> registeredExtensions;

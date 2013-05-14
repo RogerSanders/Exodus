@@ -122,7 +122,42 @@ enum IDeviceContext::KeyCode
 	KEYCODE_NUMPADADD,
 	KEYCODE_NUMPADDECIMAL,
 
+	//Joystick buttons
+	KEYCODE_JOYSTICK00BUTTON00,
+	KEYCODE_JOYSTICK15BUTTON31 = (IDeviceContext::KEYCODE_JOYSTICK00BUTTON00 + ((16*32) - 1)),
+
+	//Joystick axes as buttons
+	KEYCODE_JOYSTICK00AXIS0PLUS,
+	KEYCODE_JOYSTICK00AXIS0MINUS,
+	KEYCODE_JOYSTICK15AXIS5PLUS = (IDeviceContext::KEYCODE_JOYSTICK00AXIS0PLUS + ((16*6*2) - 2)),
+	KEYCODE_JOYSTICK15AXIS5MINUS = (IDeviceContext::KEYCODE_JOYSTICK00AXIS0MINUS + ((16*6*2) - 2)),
+
 	KEYCODE_ENDOFLIST
+};
+
+//----------------------------------------------------------------------------------------
+enum IDeviceContext::AxisCode
+{
+	AXISCODE_NONE,
+
+	//Joystick axes
+	AXISCODE_JOYSTICK00AXIS0,
+	AXISCODE_JOYSTICK15AXIS6 = (IDeviceContext::AXISCODE_JOYSTICK00AXIS0 + ((16*6) - 1)),
+
+	AXISCODE_ENDOFLIST
+};
+
+//----------------------------------------------------------------------------------------
+enum IDeviceContext::ScrollCode
+{
+	SCROLLCODE_NONE,
+
+	//Mouse input
+	SCROLLCODE_MOUSEX,
+	SCROLLCODE_MOUSEY,
+	SCROLLCODE_MOUSEZ,
+
+	SCROLLCODE_ENDOFLIST
 };
 
 //----------------------------------------------------------------------------------------

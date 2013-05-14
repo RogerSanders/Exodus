@@ -7688,6 +7688,81 @@ IDeviceContext::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) co
 	else if(keyCodeName == L"Numpad-")    return IDeviceContext::KEYCODE_NUMPADSUBTRACT;
 	else if(keyCodeName == L"Numpad+")    return IDeviceContext::KEYCODE_NUMPADADD;
 	else if(keyCodeName == L"Numpad.")    return IDeviceContext::KEYCODE_NUMPADDECIMAL;
+	//Joysticks
+	else if(keyCodeName.compare(0, 3, L"Joy") == 0)
+	{
+		if(keyCodeName.find(L"Btn") != std::wstring::npos)
+		{
+			//Extract the joystick and button numbers from the string
+			std::wstring joystickText = L"Joy";
+			std::wstring buttonText = L"Btn";
+			unsigned int joystickNo;
+			unsigned int buttonNo;
+			std::wstringstream keyCodeStream;
+			keyCodeStream.str(keyCodeName);
+			keyCodeStream.read(&joystickText[0], 3);
+			keyCodeStream >> joystickNo;
+			keyCodeStream.read(&buttonText[0], 3);
+			keyCodeStream >> buttonNo;
+
+			//Validate the text string components
+			if((joystickText != L"Joy") || (buttonText != L"Btn"))
+			{
+				return IDeviceContext::KEYCODE_NONE;
+			}
+
+			//Ensure the joystick and button numbers are within the valid range
+			const unsigned int maxJoystickCount = 16;
+			const unsigned int maxJoystickButtonCount = 32;
+			if((joystickNo >= maxJoystickCount) || (buttonNo >= maxJoystickButtonCount))
+			{
+				return IDeviceContext::KEYCODE_NONE;
+			}
+
+			//Return the corresponding key code for the target joystick button
+			return (IDeviceContext::KeyCode)((unsigned int)IDeviceContext::KEYCODE_JOYSTICK00BUTTON00 + (joystickNo * maxJoystickButtonCount) + buttonNo);
+		}
+		else if(keyCodeName.find(L"Axis") != std::wstring::npos)
+		{
+			//Extract the joystick and axis numbers, and the axis direction, from the
+			//string.
+			std::wstring joystickText = L"Joy";
+			std::wstring axisText = L"Axis";
+			std::wstring directionText = L" ";
+			unsigned int joystickNo;
+			unsigned int axisNo;
+			std::wstringstream keyCodeStream;
+			keyCodeStream.str(keyCodeName);
+			keyCodeStream.read(&joystickText[0], 3);
+			keyCodeStream >> joystickNo;
+			keyCodeStream.read(&axisText[0], 4);
+			keyCodeStream >> axisNo;
+			keyCodeStream.read(&directionText[0], 1);
+
+			//Validate the text string components
+			if((joystickText != L"Joy") || (axisText != L"Axis") || ((directionText != L"+") && (directionText != L"-")))
+			{
+				return IDeviceContext::KEYCODE_NONE;
+			}
+
+			//Ensure the joystick and axis numbers are within the valid range
+			const unsigned int maxJoystickCount = 16;
+			const unsigned int maxJoystickAxisCount = 6;
+			const unsigned int joystickAxisDirectionCount = 2;
+			if((joystickNo >= maxJoystickCount) || (axisNo >= maxJoystickAxisCount))
+			{
+				return IDeviceContext::KEYCODE_NONE;
+			}
+
+			//Decode the axis direction
+			bool axisPlus = (directionText[0] == L'+');
+			unsigned int axisDirectionOffset = (axisPlus)? 0: 1;
+
+			//Return the corresponding key code for the target joystick axis acting as a
+			//button
+			return (IDeviceContext::KeyCode)((unsigned int)IDeviceContext::KEYCODE_JOYSTICK00AXIS0PLUS + (joystickNo * maxJoystickAxisCount * joystickAxisDirectionCount) + (axisNo * joystickAxisDirectionCount) + axisDirectionOffset);
+		}
+	}
 
 	return IDeviceContext::KEYCODE_NONE;
 }
@@ -7808,7 +7883,422 @@ std::wstring System::GetKeyCodeName(IDeviceContext::KeyCode keyCode) const
 	case IDeviceContext::KEYCODE_NUMPADADD:         return L"Numpad+";
 	case IDeviceContext::KEYCODE_NUMPADDECIMAL:     return L"Numpad.";
 	}
+
+	//Joystick buttons
+	if((keyCode >= IDeviceContext::KEYCODE_JOYSTICK00BUTTON00) && (keyCode <= IDeviceContext::KEYCODE_JOYSTICK15BUTTON31))
+	{
+		//Calculate the joystick and button numbers for this keycode
+		const unsigned int maxJoystickButtonCount = 32;
+		unsigned int keyCodeRebased = (unsigned int)(keyCode - IDeviceContext::KEYCODE_JOYSTICK00BUTTON00);
+		unsigned int joystickNo = keyCodeRebased / maxJoystickButtonCount;
+		unsigned int buttonNo = keyCodeRebased % maxJoystickButtonCount;
+
+		//Build a string representing this joystick button keycode
+		std::wstringstream keyCodeStream;
+		keyCodeStream << L"Joy" << joystickNo << L"Btn" << buttonNo;
+		return keyCodeStream.str();
+	}
+
+	//Joystick axes
+	if((keyCode >= IDeviceContext::KEYCODE_JOYSTICK00AXIS0PLUS) && (keyCode <= IDeviceContext::KEYCODE_JOYSTICK15AXIS5MINUS))
+	{
+		//Calculate the joystick, axis numbers, and direction, for this keycode.
+		const unsigned int maxJoystickAxisCount = 6;
+		const unsigned int joystickAxisDirectionCount = 2;
+		unsigned int keyCodeRebased = (unsigned int)(keyCode - IDeviceContext::KEYCODE_JOYSTICK00AXIS0PLUS);
+		unsigned int joystickNo = keyCodeRebased / (maxJoystickAxisCount * joystickAxisDirectionCount);
+		unsigned int axesNo = (keyCodeRebased % (maxJoystickAxisCount * joystickAxisDirectionCount)) / joystickAxisDirectionCount;
+		bool axisPlus = ((keyCodeRebased % (maxJoystickAxisCount * joystickAxisDirectionCount)) % joystickAxisDirectionCount) == 0;
+
+		//Build a string representing this joystick axis keycode acting as a button
+		std::wstring directionString = (axisPlus)? L"+": L"-";
+		std::wstringstream keyCodeStream;
+		keyCodeStream << L"Joy" << joystickNo << L"Axis" << axesNo << directionString;
+		return keyCodeStream.str();
+	}
+
 	return L"None";
+}
+
+//----------------------------------------------------------------------------------------
+bool System::TranslateKeyCode(unsigned int platformKeyCode, IDeviceContext::KeyCode& inputKeyCode)
+{
+	switch(platformKeyCode)
+	{
+		//Control keys
+	case VK_ESCAPE:
+		inputKeyCode = IDeviceContext::KEYCODE_ESCAPE;
+		return true;
+	case VK_TAB:
+		inputKeyCode = IDeviceContext::KEYCODE_TAB;
+		return true;
+	case VK_RETURN:
+		inputKeyCode = IDeviceContext::KEYCODE_ENTER;
+		return true;
+	case VK_SPACE:
+		inputKeyCode = IDeviceContext::KEYCODE_SPACE;
+		return true;
+	case VK_BACK:
+		inputKeyCode = IDeviceContext::KEYCODE_BACKSPACE;
+		return true;
+	case VK_INSERT:
+		inputKeyCode = IDeviceContext::KEYCODE_INSERT;
+		return true;
+	case VK_DELETE:
+		inputKeyCode = IDeviceContext::KEYCODE_DELETE;
+		return true;
+	case VK_PRIOR:
+		inputKeyCode = IDeviceContext::KEYCODE_PAGEUP;
+		return true;
+	case VK_NEXT:
+		inputKeyCode = IDeviceContext::KEYCODE_PAGEDOWN;
+		return true;
+	case VK_HOME:
+		inputKeyCode = IDeviceContext::KEYCODE_HOME;
+		return true;
+	case VK_END:
+		inputKeyCode = IDeviceContext::KEYCODE_END;
+		return true;
+	case VK_UP:
+		inputKeyCode = IDeviceContext::KEYCODE_UP;
+		return true;
+	case VK_DOWN:
+		inputKeyCode = IDeviceContext::KEYCODE_DOWN;
+		return true;
+	case VK_LEFT:
+		inputKeyCode = IDeviceContext::KEYCODE_LEFT;
+		return true;
+	case VK_RIGHT:
+		inputKeyCode = IDeviceContext::KEYCODE_RIGHT;
+		return true;
+	case VK_SNAPSHOT:
+		inputKeyCode = IDeviceContext::KEYCODE_PRINTSCREEN;
+		return true;
+	case VK_PAUSE:
+		inputKeyCode = IDeviceContext::KEYCODE_PAUSE;
+		return true;
+	case VK_NUMLOCK:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMLOCK;
+		return true;
+	case VK_CAPITAL:
+		inputKeyCode = IDeviceContext::KEYCODE_CAPSLOCK;
+		return true;
+	case VK_SCROLL:
+		inputKeyCode = IDeviceContext::KEYCODE_SCROLLLOCK;
+		return true;
+	case VK_LWIN:
+		inputKeyCode = IDeviceContext::KEYCODE_LEFTWINDOWS;
+		return true;
+	case VK_RWIN:
+		inputKeyCode = IDeviceContext::KEYCODE_RIGHTWINDOWS;
+		return true;
+	case VK_APPS:
+		inputKeyCode = IDeviceContext::KEYCODE_MENU;
+		return true;
+
+		//Modifier keys
+	case VK_CONTROL:
+		inputKeyCode = IDeviceContext::KEYCODE_CTRL;
+		return true;
+	case VK_MENU:
+		inputKeyCode = IDeviceContext::KEYCODE_ALT;
+		return true;
+	case VK_SHIFT:
+		inputKeyCode = IDeviceContext::KEYCODE_SHIFT;
+		return true;
+
+		//Function keys
+	case VK_F1:
+		inputKeyCode = IDeviceContext::KEYCODE_F1;
+		return true;
+	case VK_F2:
+		inputKeyCode = IDeviceContext::KEYCODE_F2;
+		return true;
+	case VK_F3:
+		inputKeyCode = IDeviceContext::KEYCODE_F3;
+		return true;
+	case VK_F4:
+		inputKeyCode = IDeviceContext::KEYCODE_F4;
+		return true;
+	case VK_F5:
+		inputKeyCode = IDeviceContext::KEYCODE_F5;
+		return true;
+	case VK_F6:
+		inputKeyCode = IDeviceContext::KEYCODE_F6;
+		return true;
+	case VK_F7:
+		inputKeyCode = IDeviceContext::KEYCODE_F7;
+		return true;
+	case VK_F8:
+		inputKeyCode = IDeviceContext::KEYCODE_F8;
+		return true;
+	case VK_F9:
+		inputKeyCode = IDeviceContext::KEYCODE_F9;
+		return true;
+	case VK_F10:
+		inputKeyCode = IDeviceContext::KEYCODE_F10;
+		return true;
+	case VK_F11:
+		inputKeyCode = IDeviceContext::KEYCODE_F11;
+		return true;
+	case VK_F12:
+		inputKeyCode = IDeviceContext::KEYCODE_F12;
+		return true;
+
+		//Numbers
+	case '0':
+		inputKeyCode = IDeviceContext::KEYCODE_0;
+		return true;
+	case '1':
+		inputKeyCode = IDeviceContext::KEYCODE_1;
+		return true;
+	case '2':
+		inputKeyCode = IDeviceContext::KEYCODE_2;
+		return true;
+	case '3':
+		inputKeyCode = IDeviceContext::KEYCODE_3;
+		return true;
+	case '4':
+		inputKeyCode = IDeviceContext::KEYCODE_4;
+		return true;
+	case '5':
+		inputKeyCode = IDeviceContext::KEYCODE_5;
+		return true;
+	case '6':
+		inputKeyCode = IDeviceContext::KEYCODE_6;
+		return true;
+	case '7':
+		inputKeyCode = IDeviceContext::KEYCODE_7;
+		return true;
+	case '8':
+		inputKeyCode = IDeviceContext::KEYCODE_8;
+		return true;
+	case '9':
+		inputKeyCode = IDeviceContext::KEYCODE_9;
+		return true;
+
+		//Letters
+	case 'A':
+		inputKeyCode = IDeviceContext::KEYCODE_A;
+		return true;
+	case 'B':
+		inputKeyCode = IDeviceContext::KEYCODE_B;
+		return true;
+	case 'C':
+		inputKeyCode = IDeviceContext::KEYCODE_C;
+		return true;
+	case 'D':
+		inputKeyCode = IDeviceContext::KEYCODE_D;
+		return true;
+	case 'E':
+		inputKeyCode = IDeviceContext::KEYCODE_E;
+		return true;
+	case 'F':
+		inputKeyCode = IDeviceContext::KEYCODE_F;
+		return true;
+	case 'G':
+		inputKeyCode = IDeviceContext::KEYCODE_G;
+		return true;
+	case 'H':
+		inputKeyCode = IDeviceContext::KEYCODE_H;
+		return true;
+	case 'I':
+		inputKeyCode = IDeviceContext::KEYCODE_I;
+		return true;
+	case 'J':
+		inputKeyCode = IDeviceContext::KEYCODE_J;
+		return true;
+	case 'K':
+		inputKeyCode = IDeviceContext::KEYCODE_K;
+		return true;
+	case 'L':
+		inputKeyCode = IDeviceContext::KEYCODE_L;
+		return true;
+	case 'M':
+		inputKeyCode = IDeviceContext::KEYCODE_M;
+		return true;
+	case 'N':
+		inputKeyCode = IDeviceContext::KEYCODE_N;
+		return true;
+	case 'O':
+		inputKeyCode = IDeviceContext::KEYCODE_O;
+		return true;
+	case 'P':
+		inputKeyCode = IDeviceContext::KEYCODE_P;
+		return true;
+	case 'Q':
+		inputKeyCode = IDeviceContext::KEYCODE_Q;
+		return true;
+	case 'R':
+		inputKeyCode = IDeviceContext::KEYCODE_R;
+		return true;
+	case 'S':
+		inputKeyCode = IDeviceContext::KEYCODE_S;
+		return true;
+	case 'T':
+		inputKeyCode = IDeviceContext::KEYCODE_T;
+		return true;
+	case 'U':
+		inputKeyCode = IDeviceContext::KEYCODE_U;
+		return true;
+	case 'V':
+		inputKeyCode = IDeviceContext::KEYCODE_V;
+		return true;
+	case 'W':
+		inputKeyCode = IDeviceContext::KEYCODE_W;
+		return true;
+	case 'X':
+		inputKeyCode = IDeviceContext::KEYCODE_X;
+		return true;
+	case 'Y':
+		inputKeyCode = IDeviceContext::KEYCODE_Y;
+		return true;
+	case 'Z':
+		inputKeyCode = IDeviceContext::KEYCODE_Z;
+		return true;
+
+		//Symbol keys
+	case VK_OEM_1:
+		inputKeyCode = IDeviceContext::KEYCODE_OEM1;
+		return true;
+	case VK_OEM_PLUS:
+		inputKeyCode = IDeviceContext::KEYCODE_OEMPLUS;
+		return true;
+	case VK_OEM_COMMA:
+		inputKeyCode = IDeviceContext::KEYCODE_OEMCOMMA;
+		return true;
+	case VK_OEM_MINUS:
+		inputKeyCode = IDeviceContext::KEYCODE_OEMMINUS;
+		return true;
+	case VK_OEM_PERIOD:
+		inputKeyCode = IDeviceContext::KEYCODE_OEMPERIOD;
+		return true;
+	case VK_OEM_2:
+		inputKeyCode = IDeviceContext::KEYCODE_OEM2;
+		return true;
+	case VK_OEM_3:
+		inputKeyCode = IDeviceContext::KEYCODE_OEM3;
+		return true;
+	case VK_OEM_4:
+		inputKeyCode = IDeviceContext::KEYCODE_OEM4;
+		return true;
+	case VK_OEM_5:
+		inputKeyCode = IDeviceContext::KEYCODE_OEM5;
+		return true;
+	case VK_OEM_6:
+		inputKeyCode = IDeviceContext::KEYCODE_OEM6;
+		return true;
+	case VK_OEM_7:
+		inputKeyCode = IDeviceContext::KEYCODE_OEM7;
+		return true;
+	case VK_OEM_8:
+		inputKeyCode = IDeviceContext::KEYCODE_OEM8;
+		return true;
+	case VK_OEM_AX:
+		inputKeyCode = IDeviceContext::KEYCODE_OEMAX;
+		return true;
+	case VK_OEM_102:
+		inputKeyCode = IDeviceContext::KEYCODE_OEM102;
+		return true;
+
+		//Numpad keys
+	case VK_NUMPAD0:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD0;
+		return true;
+	case VK_NUMPAD1:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD1;
+		return true;
+	case VK_NUMPAD2:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD2;
+		return true;
+	case VK_NUMPAD3:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD3;
+		return true;
+	case VK_NUMPAD4:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD4;
+		return true;
+	case VK_NUMPAD5:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD5;
+		return true;
+	case VK_NUMPAD6:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD6;
+		return true;
+	case VK_NUMPAD7:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD7;
+		return true;
+	case VK_NUMPAD8:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD8;
+		return true;
+	case VK_NUMPAD9:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPAD9;
+		return true;
+	case VK_MULTIPLY:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPADMULTIPLY;
+		return true;
+	case VK_DIVIDE:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPADDIVIDE;
+		return true;
+	case VK_SUBTRACT:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPADSUBTRACT;
+		return true;
+	case VK_ADD:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPADADD;
+		return true;
+	case VK_DECIMAL:
+		inputKeyCode = IDeviceContext::KEYCODE_NUMPADDECIMAL;
+		return true;
+	}
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, IDeviceContext::KeyCode& inputKeyCode)
+{
+	//Ensure the joystick and button numbers are within the valid range
+	const unsigned int maxJoystickCount = 16;
+	const unsigned int maxJoystickButtonCount = 32;
+	if((joystickNo >= maxJoystickCount) || (buttonNo >= maxJoystickButtonCount))
+	{
+		return false;
+	}
+
+	//Map the input joystick and button numbers to the corresponding keycode
+	inputKeyCode = (IDeviceContext::KeyCode)((unsigned int)IDeviceContext::KEYCODE_JOYSTICK00BUTTON00 + (joystickNo * maxJoystickButtonCount) + buttonNo);
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, IDeviceContext::KeyCode& inputKeyCode)
+{
+	//Ensure the joystick and axis numbers are within the valid range
+	const unsigned int maxJoystickCount = 16;
+	const unsigned int maxJoystickAxisCount = 6;
+	const unsigned int joystickAxisDirectionCount = 2;
+	if((joystickNo >= maxJoystickCount) || (axisNo >= maxJoystickAxisCount))
+	{
+		return false;
+	}
+
+	//Map the input joystick and axis numbers to the corresponding keycode
+	unsigned int axisDirectionOffset = (positiveAxis)? 0: 1;
+	inputKeyCode = (IDeviceContext::KeyCode)((unsigned int)IDeviceContext::KEYCODE_JOYSTICK00AXIS0PLUS + (joystickNo * maxJoystickAxisCount * joystickAxisDirectionCount) + (axisNo * joystickAxisDirectionCount) + axisDirectionOffset);
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo, IDeviceContext::AxisCode& inputAxisCode)
+{
+	//Ensure the joystick and axis numbers are within the valid range
+	const unsigned int maxJoystickCount = 16;
+	const unsigned int maxJoystickAxisCount = 6;
+	if((joystickNo >= maxJoystickCount) || (axisNo >= maxJoystickAxisCount))
+	{
+		return false;
+	}
+
+	//Map the input joystick and axis numbers to the corresponding axis code
+	inputAxisCode = (IDeviceContext::AxisCode)((unsigned int)IDeviceContext::AXISCODE_JOYSTICK00AXIS0 + (joystickNo * maxJoystickAxisCount) + axisNo);
+	return true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -7934,6 +8424,18 @@ void System::HandleInputKeyUp(IDeviceContext::KeyCode keyCode)
 			inputEvents.push_back(entry);
 		}
 	}
+}
+
+//----------------------------------------------------------------------------------------
+void System::HandleInputAxisUpdate(IDeviceContext::AxisCode axisCode, float newValue)
+{
+	//##TODO## Add support for axis devices
+}
+
+//----------------------------------------------------------------------------------------
+void System::HandleInputScrollUpdate(IDeviceContext::ScrollCode scrollCode, int scrollTicks)
+{
+	//##TODO## Add support for scroll devices
 }
 
 //----------------------------------------------------------------------------------------

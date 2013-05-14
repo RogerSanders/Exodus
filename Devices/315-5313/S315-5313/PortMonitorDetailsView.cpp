@@ -33,8 +33,6 @@ INT_PTR S315_5313::PortMonitorDetailsView::WndProcDialog(HWND hwnd, UINT msg, WP
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
 	}
 	return FALSE;
 }
@@ -46,14 +44,6 @@ INT_PTR S315_5313::PortMonitorDetailsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wp
 {
 	hwndInternal = hwnd;
 	UpdatePortMonitorDisplay(hwndInternal);
-
-	return TRUE;
-}
-
-//----------------------------------------------------------------------------------------
-INT_PTR S315_5313::PortMonitorDetailsView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	DestroyWindow(hwnd);
 
 	return TRUE;
 }

@@ -21,8 +21,8 @@ INT_PTR SN76489::PropertiesView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpara
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
@@ -43,12 +43,11 @@ INT_PTR SN76489::PropertiesView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPAR
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR SN76489::PropertiesView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+INT_PTR SN76489::PropertiesView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return TRUE;
+	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------

@@ -156,8 +156,14 @@ public:
 	virtual void DeleteSystemViews();
 
 	//Input functions
+	virtual bool TranslateKeyCode(unsigned int platformKeyCode, IDeviceContext::KeyCode& inputKeyCode);
+	virtual bool TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, IDeviceContext::KeyCode& inputKeyCode);
+	virtual bool TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, IDeviceContext::KeyCode& inputKeyCode);
+	virtual bool TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo, IDeviceContext::AxisCode& inputAxisCode);
 	virtual void HandleInputKeyDown(IDeviceContext::KeyCode keyCode);
 	virtual void HandleInputKeyUp(IDeviceContext::KeyCode keyCode);
+	virtual void HandleInputAxisUpdate(IDeviceContext::AxisCode axisCode, float newValue);
+	virtual void HandleInputScrollUpdate(IDeviceContext::ScrollCode scrollCode, int scrollTicks);
 
 protected:
 	//Loaded module info functions

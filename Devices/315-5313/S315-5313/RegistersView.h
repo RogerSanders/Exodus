@@ -18,7 +18,7 @@ protected:
 private:
 	//Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_NOTIFY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 	//Raw registers dialog window procedure
@@ -27,7 +27,7 @@ private:
 
 	//Raw registers dialog event handlers
 	INT_PTR msgRawRegistersWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgRawRegistersWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgRawRegistersWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgRawRegistersWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgRawRegistersWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -39,7 +39,7 @@ private:
 
 	//Mode registers dialog event handlers
 	INT_PTR msgModeRegistersWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgModeRegistersWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgModeRegistersWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgModeRegistersWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgModeRegistersWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
@@ -49,7 +49,7 @@ private:
 
 	//Other registers dialog event handlers
 	INT_PTR msgOtherRegistersWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgOtherRegistersWM_CLOSE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgOtherRegistersWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgOtherRegistersWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgOtherRegistersWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 

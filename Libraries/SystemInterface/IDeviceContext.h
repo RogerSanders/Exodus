@@ -8,6 +8,8 @@ class IDeviceContext
 public:
 	//Enumerations
 	enum KeyCode;
+	enum AxisCode;
+	enum ScrollCode;
 
 public:
 	//Constructors
@@ -53,9 +55,14 @@ public:
 	virtual bool TimesliceExecutionCompleted() const = 0;
 
 	//Input functions
+	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) = 0;
+	virtual bool TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, KeyCode& inputKeyCode) = 0;
+	virtual bool TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, KeyCode& inputKeyCode) = 0;
+	virtual bool TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo, AxisCode& inputAxisCode) = 0;
 	virtual void HandleInputKeyDown(KeyCode keyCode) const = 0;
 	virtual void HandleInputKeyUp(KeyCode keyCode) const = 0;
-	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) = 0;
+	virtual void HandleInputAxisUpdate(AxisCode axisCode, float newValue) = 0;
+	virtual void HandleInputScrollUpdate(ScrollCode scrollCode, int scrollTicks) = 0;
 
 	//Dependent device functions
 	virtual void SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool state) = 0;

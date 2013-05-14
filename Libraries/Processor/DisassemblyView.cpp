@@ -36,8 +36,8 @@ LRESULT Processor::DisassemblyView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wp
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_PARENTNOTIFY:
@@ -47,8 +47,7 @@ LRESULT Processor::DisassemblyView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wp
 	case WM_SIZE:
 		return msgWM_SIZE(hwnd, wparam, lparam);
 	case WM_PAINT:
-		msgWM_PAINT(hwnd, wparam, lparam);
-		break;
+		return msgWM_PAINT(hwnd, wparam, lparam);
 	}
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
@@ -118,7 +117,7 @@ LRESULT Processor::DisassemblyView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARA
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT Processor::DisassemblyView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT Processor::DisassemblyView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Delete our custom font objects
 	SendMessage(hwndGridList, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
@@ -127,9 +126,8 @@ LRESULT Processor::DisassemblyView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM
 	DeleteObject(hfontData);
 
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return 0;
+	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
 }
 
 //----------------------------------------------------------------------------------------
@@ -379,7 +377,7 @@ LRESULT Processor::DisassemblyView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM
 	DeleteObject(hbrush);
 	ReleaseDC(hwnd, hdc);
 
-	return 0;
+	return DefWindowProc(hwnd, WM_PAINT, wparam, lparam);
 }
 
 //----------------------------------------------------------------------------------------
@@ -403,20 +401,24 @@ INT_PTR CALLBACK Processor::DisassemblyView::WndProcPanelStatic(HWND hwnd, UINT 
 		{
 			return state->WndProcPanel(hwnd, msg, wparam, lparam);
 		}
+		break;
 	case WM_DESTROY:
 		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			state->WndProcPanel(hwnd, msg, wparam, lparam);
+			INT_PTR result = state->WndProcPanel(hwnd, msg, wparam, lparam);
 
 			//Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
 		}
-		return TRUE;
+		break;
 	}
 
 	//Pass this message on to the member window procedure function
-	INT_PTR result = TRUE;
+	INT_PTR result = FALSE;
 	if(state != 0)
 	{
 		result = state->WndProcPanel(hwnd, msg, wparam, lparam);
@@ -432,8 +434,8 @@ INT_PTR Processor::DisassemblyView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wpa
 	{
 	case WM_INITDIALOG:
 		return msgPanelWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgPanelWM_CLOSE(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgPanelWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgPanelWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
@@ -460,12 +462,11 @@ INT_PTR Processor::DisassemblyView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wpar
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR Processor::DisassemblyView::msgPanelWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+INT_PTR Processor::DisassemblyView::msgPanelWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
-	DestroyWindow(hwnd);
 
-	return TRUE;
+	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------

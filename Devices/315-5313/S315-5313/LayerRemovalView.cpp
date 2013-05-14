@@ -21,8 +21,6 @@ INT_PTR S315_5313::LayerRemovalView::WndProcDialog(HWND hwnd, UINT msg, WPARAM w
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_CLOSE:
-		return msgWM_CLOSE(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	}
@@ -47,14 +45,6 @@ INT_PTR S315_5313::LayerRemovalView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, 
 	CheckDlgButton(hwnd, IDC_LAYERB, (device->enableLayerBHigh && device->enableLayerBLow)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_WINDOW, (device->enableWindowHigh && device->enableWindowLow)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_SPRITE, (device->enableSpriteHigh && device->enableSpriteLow)? BST_CHECKED: BST_UNCHECKED);
-
-	return TRUE;
-}
-
-//----------------------------------------------------------------------------------------
-INT_PTR S315_5313::LayerRemovalView::msgWM_CLOSE(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	DestroyWindow(hwnd);
 
 	return TRUE;
 }
