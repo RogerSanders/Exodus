@@ -36,6 +36,7 @@ private:
 
 	//Render helper methods
 	void GetScrollPlanePaletteInfo(const std::vector<unsigned char>& vramData, unsigned int mappingBaseAddress, unsigned int patternBaseAddress, unsigned int planeWidth, unsigned int planeHeight, unsigned int xpos, unsigned int ypos, bool interlaceMode2Active, unsigned int& paletteRow, unsigned int& paletteIndex) const;
+	void GetScrollPlaneHScrollData(const std::vector<unsigned char>& vramData, unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, bool layerA, unsigned int& layerHscrollPatternDisplacement, unsigned int& layerHscrollMappingDisplacement) const;
 
 private:
 	//Enumerations
@@ -45,6 +46,21 @@ private:
 		SELECTEDLAYER_LAYERB,
 		SELECTEDLAYER_WINDOW,
 		SELECTEDLAYER_SPRITES
+	};
+
+	//Structures
+	struct ScreenBoundaryPrimitive
+	{
+		ScreenBoundaryPrimitive(unsigned int apixelPosXBegin, unsigned int apixelPosXEnd, unsigned int apixelPosYBegin, unsigned int apixelPosYEnd, bool aprimitiveIsPolygon = false, bool aprimitiveIsScreenBoundary = true)
+		:pixelPosXBegin(apixelPosXBegin), pixelPosXEnd(apixelPosXEnd), pixelPosYBegin(apixelPosYBegin), pixelPosYEnd(apixelPosYEnd), primitiveIsPolygon(aprimitiveIsPolygon), primitiveIsScreenBoundary(aprimitiveIsScreenBoundary)
+		{}
+
+		bool primitiveIsPolygon;
+		bool primitiveIsScreenBoundary;
+		unsigned int pixelPosXBegin;
+		unsigned int pixelPosXEnd;
+		unsigned int pixelPosYBegin;
+		unsigned int pixelPosYEnd;
 	};
 
 private:
@@ -57,9 +73,8 @@ private:
 	unsigned int currentControlFocus;
 
 	SelectedLayer selectedLayer;
-
-	bool applyHScroll;
-	bool applyVScroll;
+	bool displayScreen;
+	bool spriteBoundaries;
 
 	bool layerAScrollPlaneManual;
 	unsigned int layerAScrollPlaneWidth;
