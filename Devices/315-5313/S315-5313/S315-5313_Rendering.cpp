@@ -305,7 +305,7 @@ void S315_5313::UpdateDigitalRenderProcess(const AccessTarget& accessTarget, con
 		{
 			unsigned int& targetLayerPatternDisplacement = (vsramLayerNumber == 0)? renderLayerAVscrollPatternDisplacement: renderLayerBVscrollPatternDisplacement;
 			unsigned int& targetLayerMappingDisplacement = (vsramLayerNumber == 0)? renderLayerAVscrollMappingDisplacement: renderLayerBVscrollMappingDisplacement;
-			DigitalRenderReadVscrollDataNew(vsramColumnNumber, vsramLayerNumber, vscrState, interlaceMode2Active, targetLayerPatternDisplacement, targetLayerMappingDisplacement, renderVSRAMCachedRead);
+			DigitalRenderReadVscrollData(vsramColumnNumber, vsramLayerNumber, vscrState, interlaceMode2Active, targetLayerPatternDisplacement, targetLayerMappingDisplacement, renderVSRAMCachedRead);
 		}
 	}
 
@@ -1332,57 +1332,7 @@ void S315_5313::DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsig
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::DigitalRenderReadVscrollData(unsigned int screenColumnNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerAVscrollPatternDisplacement, unsigned int& layerBVscrollPatternDisplacement, unsigned int& layerAVscrollMappingDisplacement, unsigned int& layerBVscrollMappingDisplacement) const
-{
-	//Calculate the address of the vscroll data to read for this block
-	const unsigned int vscrollDataPairSize = 4;
-	unsigned int vscrollDataAddress = vscrState? (screenColumnNumber * vscrollDataPairSize): 0;
-
-	//##FIX## This is a temporary workaround for handling render reads past the end of the
-	//VSRAM buffer. We need to do more hardware tests on this behaviour, and implement
-	//this properly.
-	unsigned int layerAVscrollOffset = 0;
-	unsigned int layerBVscrollOffset = 0;
-	if(vscrollDataAddress < 0x50)
-	{
-		//Read the vscroll data for this line. Note only the lower 10 bits are
-		//effective, or the lower 11 bits in the case of interlace mode 2, due to the
-		//scrolled address being wrapped to lie within the total field boundaries,
-		//which never exceed 128 blocks.
-		layerAVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+0) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+1);
-		layerBVscrollOffset = ((unsigned int)vsram->ReadCommitted(vscrollDataAddress+2) << 8) | (unsigned int)vsram->ReadCommitted(vscrollDataAddress+3);
-	}
-
-	//Break the vscroll data into its two component parts. The format of the vscroll data
-	//varies depending on whether interlace mode 2 is active. When interlace mode 2 is not
-	//active, the vscroll data is interpreted as a 10-bit value, where the lower 3 bits
-	//represent a vertical shift on the pattern line for the selected block mapping, or in
-	//other words, the displacement of the starting row within each pattern, while the
-	//upper 7 bits represent an offset for the mapping data itself, like so:
-	//------------------------------------------
-	//| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0  |
-	//|----------------------------------------|
-	//|    Column Shift Value     |Displacement|
-	//------------------------------------------
-	//Where interlace mode 2 is active, pattern data is 8x16 pixels, not 8x8 pixels. In
-	//this case, the vscroll data is treated as an 11-bit value, where the lower 4 bits
-	//give the row offset, and the upper 7 bits give the mapping offset, like so:
-	//---------------------------------------------
-	//|10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-	//|-------------------------------------------|
-	//|    Column Shift Value     | Displacement  |
-	//---------------------------------------------
-	//Note that the unused upper bits in the vscroll data are simply discarded, since they
-	//fall outside the maximum virtual playfield size for the mapping data. Since the
-	//virtual playfield wraps, this means they have no effect.
-	layerAVscrollPatternDisplacement = interlaceMode2Active? (layerAVscrollOffset & 0x00F):      (layerAVscrollOffset & 0x007);
-	layerAVscrollMappingDisplacement = interlaceMode2Active? (layerAVscrollOffset & 0x7F0) >> 4: (layerAVscrollOffset & 0x3F8) >> 3;
-	layerBVscrollPatternDisplacement = interlaceMode2Active? (layerBVscrollOffset & 0x00F):      (layerBVscrollOffset & 0x007);
-	layerBVscrollMappingDisplacement = interlaceMode2Active? (layerBVscrollOffset & 0x7F0) >> 4: (layerBVscrollOffset & 0x3F8) >> 3;
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::DigitalRenderReadVscrollDataNew(unsigned int screenColumnNumber, unsigned int layerNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerVscrollPatternDisplacement, unsigned int& layerVscrollMappingDisplacement, Data& vsramReadCache) const
+void S315_5313::DigitalRenderReadVscrollData(unsigned int screenColumnNumber, unsigned int layerNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerVscrollPatternDisplacement, unsigned int& layerVscrollMappingDisplacement, Data& vsramReadCache) const
 {
 	//Calculate the address of the vscroll data to read for this block
 	const unsigned int vscrollDataLayerCount = 2;
@@ -1413,7 +1363,7 @@ void S315_5313::DigitalRenderReadVscrollDataNew(unsigned int screenColumnNumber,
 		//behaviour of VSRAM. Hardware tests do seem to confirm that when the VSRAM read
 		//process passes into the undefined upper region of VSRAM, the returned value is
 		//the ANDed result of the last two entries in VSRAM.
-		vsramReadCache = ((unsigned int)vsram->ReadCommitted(0x4C+0) << 8) | (unsigned int)vsram->ReadCommitted(0x4D+1);
+		vsramReadCache = ((unsigned int)vsram->ReadCommitted(0x4C+0) << 8) | (unsigned int)vsram->ReadCommitted(0x4C+1);
 		vsramReadCache &= ((unsigned int)vsram->ReadCommitted(0x4E+0) << 8) | (unsigned int)vsram->ReadCommitted(0x4E+1);
 	}
 

@@ -12,8 +12,8 @@ S315_5313::PlaneView::PlaneView(S315_5313* adevice)
 	hwndRender = NULL;
 
 	selectedLayer = SELECTEDLAYER_LAYERA;
-	applyHScroll = true;
-	applyVScroll = true;
+	displayScreen = true;
+	spriteBoundaries = true;
 	layerAScrollPlaneManual = false;
 	layerBScrollPlaneManual = false;
 	windowScrollPlaneManual = false;
@@ -136,8 +136,8 @@ INT_PTR S315_5313::PlaneView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM 
 	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERB, (selectedLayer == SELECTEDLAYER_LAYERB)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERWINDOW, (selectedLayer == SELECTEDLAYER_WINDOW)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERSPRITES, (selectedLayer == SELECTEDLAYER_SPRITES)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_ENABLEHSCROLL, (applyHScroll)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_ENABLEVSCROLL, (applyVScroll)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_DISPLAYSCREEN, (displayScreen)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_DISPLAYSPRITEBOUNDARIES, (spriteBoundaries)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZELAYERAMANUAL, (layerAScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZELAYERBMANUAL, (layerBScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZEWINDOWMANUAL, (windowScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
@@ -208,11 +208,11 @@ INT_PTR S315_5313::PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 		case IDC_S315_5313_PLANEVIEW_LAYERWINDOW:
 			selectedLayer = SELECTEDLAYER_WINDOW;
 			break;
-		case IDC_S315_5313_PLANEVIEW_ENABLEHSCROLL:
-			applyHScroll = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+		case IDC_S315_5313_PLANEVIEW_DISPLAYSCREEN:
+			displayScreen = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
 			break;
-		case IDC_S315_5313_PLANEVIEW_ENABLEVSCROLL:
-			applyVScroll = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+		case IDC_S315_5313_PLANEVIEW_DISPLAYSPRITEBOUNDARIES:
+			spriteBoundaries = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
 			break;
 		case IDC_S315_5313_PLANEVIEW_PLANESIZELAYERAMANUAL:
 			layerAScrollPlaneManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
@@ -286,27 +286,67 @@ INT_PTR S315_5313::PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 			{
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA:
 				layerAScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
+				if(layerAScrollPlaneWidth <= 0)
+				{
+					layerAScrollPlaneWidth = 1;
+					UpdateDlgItemBin(hwnd, controlID, layerAScrollPlaneWidth);
+				}
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA:
 				layerAScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
+				if(layerAScrollPlaneHeight <= 0)
+				{
+					layerAScrollPlaneHeight = 1;
+					UpdateDlgItemBin(hwnd, controlID, layerAScrollPlaneHeight);
+				}
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB:
 				layerBScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
+				if(layerBScrollPlaneWidth <= 0)
+				{
+					layerBScrollPlaneWidth = 1;
+					UpdateDlgItemBin(hwnd, controlID, layerBScrollPlaneWidth);
+				}
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB:
 				layerBScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
+				if(layerBScrollPlaneHeight <= 0)
+				{
+					layerBScrollPlaneHeight = 1;
+					UpdateDlgItemBin(hwnd, controlID, layerBScrollPlaneHeight);
+				}
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW:
 				windowScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
+				if(windowScrollPlaneWidth <= 0)
+				{
+					windowScrollPlaneWidth = 1;
+					UpdateDlgItemBin(hwnd, controlID, windowScrollPlaneWidth);
+				}
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW:
 				windowScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
+				if(windowScrollPlaneHeight <= 0)
+				{
+					windowScrollPlaneHeight = 1;
+					UpdateDlgItemBin(hwnd, controlID, windowScrollPlaneHeight);
+				}
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES:
 				spriteScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
+				if(spriteScrollPlaneWidth <= 0)
+				{
+					spriteScrollPlaneWidth = 1;
+					UpdateDlgItemBin(hwnd, controlID, spriteScrollPlaneWidth);
+				}
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES:
 				spriteScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
+				if(spriteScrollPlaneHeight <= 0)
+				{
+					spriteScrollPlaneHeight = 1;
+					UpdateDlgItemBin(hwnd, controlID, spriteScrollPlaneHeight);
+				}
 				break;
 			case IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA:
 				layerAMappingBase = GetDlgItemHex(hwnd, controlID);
@@ -507,18 +547,27 @@ LRESULT S315_5313::PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 	AccessTarget accessTarget;
 	accessTarget.AccessCommitted();
 	bool h40ModeActive = device->RegGetRS1(accessTarget);
+	bool v30ModeActive = device->RegGetM3(accessTarget);
 	bool interlacingActive = device->RegGetLSM0(accessTarget);
 	bool interlaceMode2Active = interlacingActive && device->RegGetLSM1(accessTarget);
+	bool vscrState = device->RegGetVSCR(accessTarget);
+	bool hscrState = device->RegGetHSCR(accessTarget);
+	bool lscrState = device->RegGetLSCR(accessTarget);
+	unsigned int hscrollDataBase = device->RegGetHScrollDataBase(accessTarget, false);
 	unsigned int hszState = device->RegGetHSZ(accessTarget);
 	unsigned int vszState = device->RegGetVSZ(accessTarget);
 	unsigned int paletteRowBackground = device->RegGetBackgroundPaletteRow(accessTarget);
 	unsigned int paletteIndexBackground = device->RegGetBackgroundPaletteColumn(accessTarget);
 
 	//Constants
-	unsigned int blockPixelSizeX = 8;
-	unsigned int blockPixelSizeY = (interlaceMode2Active)? 16: 8;
-	unsigned int width = 64*8;
-	unsigned int height = 64*8;
+	const unsigned int blockPixelSizeX = 8;
+	const unsigned int blockPixelSizeY = (interlaceMode2Active)? 16: 8;
+	const unsigned int width = 64*8;
+	const unsigned int height = 64*8;
+	const unsigned int screenWidthInCells = (h40ModeActive)? 40: 32;
+	const unsigned int screenWidthInPixels = screenWidthInCells * blockPixelSizeX;
+	const unsigned int screenHeightInCells = (v30ModeActive)? 30: 28;
+	const unsigned int screenHeightInPixels = screenHeightInCells * blockPixelSizeY;
 
 	//Calculate the effective width and height of the main scroll planes based on the
 	//current register settings
@@ -671,6 +720,12 @@ LRESULT S315_5313::PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 		SetScrollInfo(GetDlgItem(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_VSCROLL), SB_CTL, &vscrollInfo, TRUE);
 	}
 
+	//Calculate the pixel coordinates of the currently visible window region
+	unsigned int renderRegionPixelStartX = currentScrollPosH * blockPixelSizeX;
+	unsigned int renderRegionPixelStartY = currentScrollPosV * blockPixelSizeY;
+	unsigned int renderRegionPixelEndX = (currentScrollPosH * blockPixelSizeX) + width;
+	unsigned int renderRegionPixelEndY = (currentScrollPosV * blockPixelSizeY) + height;
+
 	//Fill the plane render buffer
 	std::vector<unsigned char> vramDataCopy;
 	device->vram->GetLatestBufferCopy(vramDataCopy);
@@ -679,8 +734,8 @@ LRESULT S315_5313::PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 		for(unsigned int xpos = 0; xpos < width; ++xpos)
 		{
 			//Calculate the position of the current pixel in the currently selected layer
-			unsigned int layerPixelPosX = (currentScrollPosH * blockPixelSizeX) + xpos;
-			unsigned int layerPixelPosY = (currentScrollPosV * blockPixelSizeY) + ypos;
+			unsigned int layerPixelPosX = renderRegionPixelStartX + xpos;
+			unsigned int layerPixelPosY = renderRegionPixelStartY + ypos;
 
 			//Retrieve the pixel value for the selected layer at the current position
 			bool outsideSelectedPlane = true;
@@ -742,14 +797,9 @@ LRESULT S315_5313::PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 	}
 
 	//If the sprite plane is currently selected, render each sprite to the buffer.
+	std::vector<ScreenBoundaryPrimitive> screenBoundaryPrimitives;
 	if(selectedLayer == SELECTEDLAYER_SPRITES)
 	{
-		//Calculate the visible region of the sprite plane
-		unsigned int layerPixelStartX = currentScrollPosH * blockPixelSizeX;
-		unsigned int layerPixelStartY = currentScrollPosV * blockPixelSizeY;
-		unsigned int layerPixelEndX = (currentScrollPosH * blockPixelSizeX) + width;
-		unsigned int layerPixelEndY = (currentScrollPosV * blockPixelSizeY) + height;
-
 		//Render each sprite to the sprite plane
 		unsigned int maxSpriteCount = (h40ModeActive)? 80: 64;
 		unsigned int currentSpriteNo = 0;
@@ -767,8 +817,8 @@ LRESULT S315_5313::PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 				{
 					//If this sprite pixel lies outside the visible buffer region, skip
 					//it.
-					if(((spriteMapping.xpos + xpos) < layerPixelStartX) || ((spriteMapping.xpos + xpos) >= layerPixelEndX)
-					|| ((spriteMapping.ypos + ypos) < layerPixelStartY) || ((spriteMapping.ypos + ypos) >= layerPixelEndY))
+					if(((spriteMapping.xpos + xpos) < renderRegionPixelStartX) || ((spriteMapping.xpos + xpos) >= renderRegionPixelEndX)
+					|| ((spriteMapping.ypos + ypos) < renderRegionPixelStartY) || ((spriteMapping.ypos + ypos) >= renderRegionPixelEndY))
 					{
 						continue;
 					}
@@ -814,8 +864,8 @@ LRESULT S315_5313::PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 					unsigned char colorB = device->paletteEntryTo8Bit[color.b];
 
 					//Calculate the location of the target pixel within the data buffer
-					unsigned int spritePixelPosXInBuffer = (spriteMapping.xpos + xpos) - layerPixelStartX;
-					unsigned int spritePixelPosYInBuffer = (spriteMapping.ypos + ypos) - layerPixelStartY;
+					unsigned int spritePixelPosXInBuffer = (spriteMapping.xpos + xpos) - renderRegionPixelStartX;
+					unsigned int spritePixelPosYInBuffer = (spriteMapping.ypos + ypos) - renderRegionPixelStartY;
 
 					//Write this pixel colour value into the data buffer
 					buffer[((spritePixelPosXInBuffer + (((height-1)-spritePixelPosYInBuffer) * width)) * 4) + 0] = colorR;
@@ -825,10 +875,183 @@ LRESULT S315_5313::PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 				}
 			}
 
+			//Calculate the boundaries of this sprite if requested
+			if(spriteBoundaries)
+			{
+				unsigned int spritePosStartX = spriteMapping.xpos;
+				unsigned int spritePosStartY = spriteMapping.ypos;
+				unsigned int spritePosEndX = spriteMapping.xpos + (spriteWidthInCells * blockPixelSizeX);
+				unsigned int spritePosEndY = spriteMapping.ypos + (spriteHeightInCells * blockPixelSizeY);
+				screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(spritePosStartX, spritePosStartX, spritePosStartY, spritePosEndY, false, false));
+				screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(spritePosEndX, spritePosEndX, spritePosStartY, spritePosEndY, false, false));
+				screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(spritePosStartX, spritePosEndX, spritePosStartY, spritePosStartY, false, false));
+				screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(spritePosStartX, spritePosEndX, spritePosEndY, spritePosEndY, false, false));
+			}
+
 			//Advance to the next sprite in the list
 			currentSpriteNo = spriteMapping.link;
 		}
 		while((currentSpriteNo > 0) && (currentSpriteNo < maxSpriteCount));
+	}
+
+	//Calculate the screen boundary region information for the target layer, if requested.
+	if(displayScreen)
+	{
+		if((selectedLayer == SELECTEDLAYER_LAYERA) || (selectedLayer == SELECTEDLAYER_LAYERB))
+		{
+			for(unsigned int screenRow = 0; screenRow < screenHeightInPixels; ++screenRow)
+			{
+				unsigned int pixelsPerColumn = device->cellsPerColumn * blockPixelSizeX;
+				unsigned int screenColumnCount = (screenWidthInCells / device->cellsPerColumn);
+				for(unsigned int screenColumn = 0; screenColumn < screenColumnCount; ++screenColumn)
+				{
+					//Calculate the properties for the selected layer
+					bool inLayerA = (selectedLayer == SELECTEDLAYER_LAYERA);
+					unsigned int layerScrollPlaneWidthInPixels = ((selectedLayer == SELECTEDLAYER_LAYERA)? layerAScrollPlaneWidth: layerBScrollPlaneWidth) * blockPixelSizeX;
+					unsigned int layerScrollPlaneHeightInPixels = ((selectedLayer == SELECTEDLAYER_LAYERA)? layerAScrollPlaneHeight: layerBScrollPlaneHeight) * blockPixelSizeY;
+
+					//Read the vertical scroll data for this column
+					Data vsramDataCache(16);
+					unsigned int layerVScrollPatternDisplacement;
+					unsigned int layerVScrollMappingDisplacement;
+					device->DigitalRenderReadVscrollData(screenColumn, (inLayerA)? 0: 1, vscrState, interlaceMode2Active, layerVScrollPatternDisplacement, layerVScrollMappingDisplacement, vsramDataCache);
+
+					//Read the horizontal scroll data for this row
+					unsigned int layerHScrollPatternDisplacement;
+					unsigned int layerHScrollMappingDisplacement;
+					GetScrollPlaneHScrollData(vramDataCopy, screenRow, hscrollDataBase, hscrState, lscrState, inLayerA, layerHScrollPatternDisplacement, layerHScrollMappingDisplacement);
+
+					//Calculate the screen boundaries within the selected layer using the
+					//scroll data for the current column and row
+					unsigned int layerPosScreenStartX = (layerScrollPlaneWidthInPixels - (((layerHScrollMappingDisplacement * pixelsPerColumn) + layerHScrollPatternDisplacement) % layerScrollPlaneWidthInPixels)) % layerScrollPlaneWidthInPixels;
+					unsigned int layerPosScreenEndX = (layerPosScreenStartX + screenWidthInPixels) % layerScrollPlaneWidthInPixels;
+					unsigned int layerPosScreenStartY = ((layerVScrollMappingDisplacement * blockPixelSizeY) + layerVScrollPatternDisplacement) % layerScrollPlaneHeightInPixels;
+					unsigned int layerPosScreenEndY = (layerPosScreenStartY + screenHeightInPixels) % layerScrollPlaneHeightInPixels;
+					unsigned int layerPosScreenLastRow = ((layerPosScreenEndY + layerScrollPlaneHeightInPixels) - 1) % layerScrollPlaneHeightInPixels;
+
+					//Calculate the position of the current row and column within the
+					//selected layer
+					unsigned int layerPixelPosX = (layerPosScreenStartX + (screenColumn * pixelsPerColumn)) % layerScrollPlaneWidthInPixels;
+					unsigned int layerPixelPosY = (layerPosScreenStartY + screenRow) % layerScrollPlaneHeightInPixels;
+
+					//Draw the screen boundary line for the left or right of the screen
+					//region, if required.
+					if((layerPixelPosX == layerPosScreenStartX)
+					&& (((layerPosScreenStartY < layerPosScreenEndY) && (layerPixelPosY >= layerPosScreenStartY) && (layerPixelPosY < layerPosScreenEndY))
+					|| ((layerPosScreenStartY > layerPosScreenEndY) && ((layerPixelPosY >= layerPosScreenStartY) || (layerPixelPosY < layerPosScreenEndY)))))
+					{
+						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX+1, layerPixelPosX+1, layerPixelPosY, layerPixelPosY+1));
+					}
+					if((((layerPixelPosX + pixelsPerColumn) % layerScrollPlaneWidthInPixels) == layerPosScreenEndX)
+					&& (((layerPosScreenStartY < layerPosScreenEndY) && (layerPixelPosY >= layerPosScreenStartY) && (layerPixelPosY < layerPosScreenEndY))
+					|| ((layerPosScreenStartY > layerPosScreenEndY) && ((layerPixelPosY >= layerPosScreenStartY) || (layerPixelPosY < layerPosScreenEndY)))))
+					{
+						unsigned int linePosX = (layerPixelPosX + pixelsPerColumn + 1) % layerScrollPlaneWidthInPixels;
+						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(linePosX, linePosX, layerPixelPosY, layerPixelPosY+1));
+					}
+
+					//Draw the screen boundary line for the top or the bottom of the
+					//screen region, if required.
+					if(((layerPixelPosY == layerPosScreenStartY) || (layerPixelPosY == layerPosScreenLastRow))
+					&& (((layerPosScreenStartX < layerPosScreenEndX) && (layerPixelPosX >= layerPosScreenStartX) && (layerPixelPosX < layerPosScreenEndX))
+					|| ((layerPosScreenStartX > layerPosScreenEndX) && ((layerPixelPosX >= layerPosScreenStartX) || (layerPixelPosX < layerPosScreenEndX)))))
+					{
+						//If the current column wraps around to the start of the layer,
+						//split the boundary line, otherwise draw a single line to the end
+						//of the column.
+						if((layerPixelPosX + pixelsPerColumn) > layerScrollPlaneWidthInPixels)
+						{
+							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, layerPixelPosY, layerPixelPosY));
+							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(0, (layerPixelPosX+pixelsPerColumn) % layerScrollPlaneWidthInPixels, layerPixelPosY, layerPixelPosY));
+						}
+						else
+						{
+							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, layerPixelPosY, layerPixelPosY));
+						}
+					}
+
+					//Calculate the shaded region within the window for the current row
+					//and column. If the column wraps around to the start of the layer,
+					//split the shaded region, otherwise draw it as a single block.
+					if((layerPixelPosX + pixelsPerColumn) > layerScrollPlaneWidthInPixels)
+					{
+						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, layerPixelPosY, layerPixelPosY+1, true));
+						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(0, (layerPixelPosX+pixelsPerColumn) % layerScrollPlaneWidthInPixels, layerPixelPosY, layerPixelPosY+1, true));
+					}
+					else
+					{
+						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, layerPixelPosY, layerPixelPosY+1, true));
+					}
+				}
+			}
+		}
+		else if(selectedLayer == SELECTEDLAYER_WINDOW)
+		{
+			//Calculate the screen boundary region for the window layer
+			unsigned int windowPosScreenStartX = 0;
+			unsigned int windowPosScreenStartY = 0;
+			unsigned int windowPosScreenEndX = (windowPosScreenStartX + screenWidthInPixels);
+			unsigned int windowPosScreenEndY = (windowPosScreenStartY + screenHeightInPixels);
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(windowPosScreenStartX, windowPosScreenStartX, windowPosScreenStartY, windowPosScreenEndY));
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(windowPosScreenEndX, windowPosScreenEndX, windowPosScreenStartY, windowPosScreenEndY));
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(windowPosScreenStartX, windowPosScreenEndX, windowPosScreenStartY, windowPosScreenStartY));
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(windowPosScreenStartX, windowPosScreenEndX, windowPosScreenEndY, windowPosScreenEndY));
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(windowPosScreenStartX, windowPosScreenEndX, windowPosScreenStartY, windowPosScreenEndY, true));
+		}
+		else if(selectedLayer == SELECTEDLAYER_SPRITES)
+		{
+			//Calculate the screen boundary region for the sprite layer
+			unsigned int spritePosScreenStartX = 0x80;
+			unsigned int spritePosScreenStartY = (interlaceMode2Active)? 0x100: 0x80;
+			unsigned int spritePosScreenEndX = (spritePosScreenStartX + screenWidthInPixels);
+			unsigned int spritePosScreenEndY = (spritePosScreenStartY + screenHeightInPixels);
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(spritePosScreenStartX, spritePosScreenStartX, spritePosScreenStartY, spritePosScreenEndY));
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(spritePosScreenEndX, spritePosScreenEndX, spritePosScreenStartY, spritePosScreenEndY));
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(spritePosScreenStartX, spritePosScreenEndX, spritePosScreenStartY, spritePosScreenStartY));
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(spritePosScreenStartX, spritePosScreenEndX, spritePosScreenEndY, spritePosScreenEndY));
+			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(spritePosScreenStartX, spritePosScreenEndX, spritePosScreenStartY, spritePosScreenEndY, true));
+		}
+	}
+
+	//Adjust all screen boundary primitives to take scrolling and limiting of the render
+	//region into account
+	std::vector<ScreenBoundaryPrimitive> validScreenBoundaryLines;
+	std::vector<ScreenBoundaryPrimitive> validScreenBoundaryQuads;
+	for(unsigned int i = 0; i < (unsigned int)screenBoundaryPrimitives.size(); ++i)
+	{
+		//Take a copy of this screen boundary primitive
+		ScreenBoundaryPrimitive primitive = screenBoundaryPrimitives[i];
+
+		//If this primitive is entirely outside the visible window region, skip it.
+		if((primitive.pixelPosXBegin >= renderRegionPixelEndX) || (primitive.pixelPosXEnd < renderRegionPixelStartX)
+		|| (primitive.pixelPosYBegin >= renderRegionPixelEndY) || (primitive.pixelPosYEnd < renderRegionPixelStartY))
+		{
+			continue;
+		}
+
+		//Clamp the primitive boundaries to constrain them to the visible render window
+		//region
+		primitive.pixelPosXBegin = (primitive.pixelPosXBegin < renderRegionPixelStartX)? renderRegionPixelStartX: primitive.pixelPosXBegin;
+		primitive.pixelPosXEnd = (primitive.pixelPosXEnd > renderRegionPixelEndX)? renderRegionPixelEndX: primitive.pixelPosXEnd;
+		primitive.pixelPosYBegin = (primitive.pixelPosYBegin < renderRegionPixelStartY)? renderRegionPixelStartY: primitive.pixelPosYBegin;
+		primitive.pixelPosYEnd = (primitive.pixelPosYEnd > renderRegionPixelEndY)? renderRegionPixelEndY: primitive.pixelPosYEnd;
+
+		//Convert this primitive to be relative to the visible render window region
+		primitive.pixelPosXBegin -= renderRegionPixelStartX;
+		primitive.pixelPosXEnd -= renderRegionPixelStartX;
+		primitive.pixelPosYBegin -= renderRegionPixelStartY;
+		primitive.pixelPosYEnd -= renderRegionPixelStartY;
+
+		//Save the modified primitive to the appropriate list of valid primitive
+		//definitions
+		if(primitive.primitiveIsPolygon)
+		{
+			validScreenBoundaryQuads.push_back(primitive);
+		}
+		else
+		{
+			validScreenBoundaryLines.push_back(primitive);
+		}
 	}
 
 	//Draw the rendered buffer data to the window
@@ -847,7 +1070,46 @@ LRESULT S315_5313::PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 			DPIGetScreenScaleFactors(dpiScaleX, dpiScaleY);
 			glPixelZoom(dpiScaleX, dpiScaleY);
 
+			//Draw the pixel buffer to the screen
 			glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+
+			//Draw our screen boundary lines
+			for(unsigned int i = 0; i < (unsigned int)validScreenBoundaryLines.size(); ++i)
+			{
+				//Set the colour for this line
+				if(validScreenBoundaryLines[i].primitiveIsScreenBoundary)
+				{
+					glColor3d(0.0, 1.0, 0.0);
+				}
+				else
+				{
+					glColor3d(1.0, 1.0, 1.0);
+				}
+
+				//Draw the line
+				glBegin(GL_LINES);
+					glVertex2i(validScreenBoundaryLines[i].pixelPosXBegin, validScreenBoundaryLines[i].pixelPosYBegin);
+					glVertex2i(validScreenBoundaryLines[i].pixelPosXEnd, validScreenBoundaryLines[i].pixelPosYEnd);
+				glEnd();
+			}
+			glColor3d(1.0, 1.0, 1.0);
+
+			//Draw our screen boundary quads
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glColor4d(0.0, 1.0, 0.0, 0.5);
+			for(unsigned int i = 0; i < (unsigned int)validScreenBoundaryQuads.size(); ++i)
+			{
+				glBegin(GL_QUADS);
+					glVertex2i(validScreenBoundaryQuads[i].pixelPosXBegin, validScreenBoundaryQuads[i].pixelPosYBegin);
+					glVertex2i(validScreenBoundaryQuads[i].pixelPosXEnd, validScreenBoundaryQuads[i].pixelPosYBegin);
+					glVertex2i(validScreenBoundaryQuads[i].pixelPosXEnd, validScreenBoundaryQuads[i].pixelPosYEnd);
+					glVertex2i(validScreenBoundaryQuads[i].pixelPosXBegin, validScreenBoundaryQuads[i].pixelPosYEnd);
+				glEnd();
+			}
+			glColor4d(1.0, 1.0, 1.0, 1.0);
+			glDisable(GL_BLEND);
+
 			glFlush();
 			SwapBuffers(hdc);
 			wglMakeCurrent(NULL, NULL);
@@ -922,4 +1184,35 @@ void S315_5313::PlaneView::GetScrollPlanePaletteInfo(const std::vector<unsigned 
 	//Return the target palette row and index numbers
 	paletteRow = mappingData.GetDataSegment(13, 2);
 	paletteIndex = patternData.GetDataSegment((patternDataUpperHalf)? 4: 0, 4);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::PlaneView::GetScrollPlaneHScrollData(const std::vector<unsigned char>& vramData, unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, bool layerA, unsigned int& layerHscrollPatternDisplacement, unsigned int& layerHscrollMappingDisplacement) const
+{
+	//Calculate the address of the hscroll data to read for this line
+	unsigned int hscrollDataAddress = hscrollDataBase;
+	if(hscrState)
+	{
+		const unsigned int hscrollDataPairSize = 4;
+		hscrollDataAddress += lscrState? (screenRowNumber * hscrollDataPairSize): (((screenRowNumber / renderDigitalBlockPixelSizeY) * renderDigitalBlockPixelSizeY) * hscrollDataPairSize);
+	}
+	if(!layerA)
+	{
+		hscrollDataAddress += 2;
+	}
+
+	//Read the hscroll data for this line
+	unsigned int layerHscrollOffset = ((unsigned int)vramData[(hscrollDataAddress+0) % (unsigned int)vramData.size()] << 8) | (unsigned int)vramData[(hscrollDataAddress+1) % (unsigned int)vramData.size()];
+
+	//Break the hscroll data into its two component parts. The lower 4 bits represent a
+	//displacement into the 2-cell column, or in other words, the displacement of the
+	//starting pixel within each column, while the upper 6 bits represent an offset for
+	//the column mapping data itself.
+	//-----------------------------------------
+	//| 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	//|---------------------------------------|
+	//|  Column Shift Value   | Displacement  |
+	//-----------------------------------------
+	layerHscrollPatternDisplacement = (layerHscrollOffset & 0x00F);
+	layerHscrollMappingDisplacement = (layerHscrollOffset & 0x3F0) >> 4;
 }
