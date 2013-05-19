@@ -103,6 +103,8 @@ private:
 	//Line access
 	boost::mutex lineMutex;
 	double lastLineAccessTime;
+	double currentTimesliceLength;
+	double bcurrentTimesliceLength;
 	enum LineID
 	{
 		LINE_D0 = 1, //IO

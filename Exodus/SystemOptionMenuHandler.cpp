@@ -102,6 +102,22 @@ void System::SystemOptionMenuHandler::HandleMenuItemSelect(int menuItemID, IView
 		}
 	}
 
+	//If requested, execute a lead-in time before applying the setting change.
+	if(settingInfo->settingChangeLeadInTime > 0)
+	{
+		//Calculate the time to execute until the setting should be changed. If a random
+		//time has been requested, we generate a random number between the specified
+		//minimum and maximum time constraints.
+		double timeTillSettingChange = settingInfo->settingChangeLeadInTime;
+		if(settingInfo->settingChangeLeadInTimeRandom)
+		{
+			timeTillSettingChange = (double)rand() * ((settingInfo->settingChangeLeadInTimeEnd - settingInfo->settingChangeLeadInTime) / (double)RAND_MAX);
+		}
+
+		//Execute the system up to the setting change time
+		device->ExecuteSystemStepManual(timeTillSettingChange);
+	}
+
 	//Apply all system settings changes listed under this option
 	for(std::list<SystemStateChange>::const_iterator i = optionInfo.stateChanges.begin(); i != optionInfo.stateChanges.end(); ++i)
 	{
@@ -112,8 +128,17 @@ void System::SystemOptionMenuHandler::HandleMenuItemSelect(int menuItemID, IView
 	//revert to the previous setting.
 	if(settingInfo->toggleSettingAutoRevert)
 	{
+		//Calculate the time to execute until the setting should be reverted. If a random
+		//time has been requested, we generate a random number between the specified
+		//minimum and maximum time constraints.
+		double timeTillAutoRevert = settingInfo->toggleSettingAutoRevertTime;
+		if(settingInfo->toggleSettingAutoRevertTimeRandom)
+		{
+			timeTillAutoRevert = (double)rand() * ((settingInfo->toggleSettingAutoRevertTimeEnd - settingInfo->toggleSettingAutoRevertTime) / (double)RAND_MAX);
+		}
+
 		//Execute the system up to the revert time
-		device->ExecuteSystemStepManual(settingInfo->toggleSettingAutoRevertTime);
+		device->ExecuteSystemStepManual(timeTillAutoRevert);
 
 		//Obtain info on the reverted option
 		unsigned int revertTargetOption = settingInfo->selectedOption;

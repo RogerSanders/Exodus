@@ -6995,20 +6995,79 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 	setting.name = settingName;
 	setting.displayName = displayName;
 
-	//Extract any optional attributes
+	//Extract any supplied optional lead-in time attributes
+	setting.settingChangeLeadInTime = 0;
+	setting.settingChangeLeadInTimeRandom = false;
+	IHeirarchicalStorageAttribute* settingChangeLeadInTimeAttribute = node.GetAttribute(L"SettingChangeLeadInTime");
+	IHeirarchicalStorageAttribute* settingChangeLeadInRandomTimeRangeBeginAttribute = node.GetAttribute(L"SettingChangeLeadInRandomTimeRangeBegin");
+	IHeirarchicalStorageAttribute* settingChangeLeadInRandomTimeRangeEndAttribute = node.GetAttribute(L"SettingChangeLeadInRandomTimeRangeEnd");
+	if(((settingChangeLeadInTimeAttribute != 0) && ((settingChangeLeadInRandomTimeRangeBeginAttribute != 0) || (settingChangeLeadInRandomTimeRangeEndAttribute != 0)))
+	|| ((settingChangeLeadInRandomTimeRangeBeginAttribute != 0) != (settingChangeLeadInRandomTimeRangeEndAttribute != 0)))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"An invalid combination of lead in time attributes were specified for setting with name : " + setting.name + L" when loading System.Setting node under module file " + fileName + L"."));
+		return false;
+	}
+	if(settingChangeLeadInTimeAttribute != 0)
+	{
+		setting.settingChangeLeadInTimeRandom = false;
+		setting.settingChangeLeadInTime = settingChangeLeadInTimeAttribute->ExtractValue<double>();
+	}
+	if((settingChangeLeadInRandomTimeRangeBeginAttribute != 0) && (settingChangeLeadInRandomTimeRangeEndAttribute != 0))
+	{
+		setting.settingChangeLeadInTimeRandom = true;
+		setting.settingChangeLeadInTime = settingChangeLeadInRandomTimeRangeBeginAttribute->ExtractValue<double>();
+		setting.settingChangeLeadInTimeEnd = settingChangeLeadInRandomTimeRangeEndAttribute->ExtractValue<double>();
+		if(setting.settingChangeLeadInTimeEnd < setting.settingChangeLeadInTime)
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"The start lead in time was greater than the end lead in time for setting with name : " + setting.name + L" when loading System.Setting node under module file " + fileName + L"."));
+			return false;
+		}
+	}
+
+	//Extract any optional toggle setting attributes
 	setting.toggleSetting = false;
-	setting.toggleSettingAutoRevert = false;
-	setting.toggleSettingAutoRevertTime = 0;
 	IHeirarchicalStorageAttribute* toggleSettingAttribute = node.GetAttribute(L"ToggleSetting");
-	IHeirarchicalStorageAttribute* toggleSettingAutoRevertAttribute = node.GetAttribute(L"ToggleSettingAutoRevert");
-	IHeirarchicalStorageAttribute* toggleSettingAutoRevertTimeAttribute = node.GetAttribute(L"ToggleSettingAutoRevertTime");
 	if(toggleSettingAttribute != 0)
 	{
 		setting.toggleSetting = toggleSettingAttribute->ExtractValue<bool>();
-		if((toggleSettingAutoRevertAttribute != 0) && (toggleSettingAutoRevertTimeAttribute != 0))
+	}
+
+	//Extract any optional toggle setting auto-revert attributes
+	setting.toggleSettingAutoRevert = false;
+	setting.toggleSettingAutoRevertTime = 0;
+	setting.toggleSettingAutoRevertTimeRandom = false;
+	if(setting.toggleSetting)
+	{
+		IHeirarchicalStorageAttribute* toggleSettingAutoRevertAttribute = node.GetAttribute(L"ToggleSettingAutoRevert");
+		IHeirarchicalStorageAttribute* toggleSettingAutoRevertTimeAttribute = node.GetAttribute(L"ToggleSettingAutoRevertTime");
+		IHeirarchicalStorageAttribute* toggleSettingAutoRevertRandomTimeRangeBeginAttribute = node.GetAttribute(L"ToggleSettingAutoRevertRandomTimeRangeBegin");
+		IHeirarchicalStorageAttribute* toggleSettingAutoRevertRandomTimeRangeEndAttribute = node.GetAttribute(L"ToggleSettingAutoRevertRandomTimeRangeEnd");
+		if((toggleSettingAutoRevertAttribute != 0) && (((toggleSettingAutoRevertTimeAttribute == 0) && (toggleSettingAutoRevertRandomTimeRangeBeginAttribute == 0) && (toggleSettingAutoRevertRandomTimeRangeEndAttribute == 0))
+		|| ((toggleSettingAutoRevertTimeAttribute != 0) && ((toggleSettingAutoRevertRandomTimeRangeBeginAttribute != 0) || (toggleSettingAutoRevertRandomTimeRangeEndAttribute != 0)))
+		|| ((toggleSettingAutoRevertRandomTimeRangeBeginAttribute != 0) != (toggleSettingAutoRevertRandomTimeRangeEndAttribute != 0))))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"An invalid combination of toggle setting auto revert attributes were specified for setting with name : " + setting.name + L" when loading System.Setting node under module file " + fileName + L"."));
+			return false;
+		}
+		if(toggleSettingAutoRevertAttribute != 0)
 		{
 			setting.toggleSettingAutoRevert = toggleSettingAutoRevertAttribute->ExtractValue<bool>();
-			setting.toggleSettingAutoRevertTime = toggleSettingAutoRevertTimeAttribute->ExtractValue<double>();
+			if(toggleSettingAutoRevertTimeAttribute != 0)
+			{
+				setting.toggleSettingAutoRevertTimeRandom = false;
+				setting.toggleSettingAutoRevertTime = toggleSettingAutoRevertTimeAttribute->ExtractValue<double>();
+			}
+			else
+			{
+				setting.toggleSettingAutoRevertTimeRandom = true;
+				setting.toggleSettingAutoRevertTime = toggleSettingAutoRevertRandomTimeRangeBeginAttribute->ExtractValue<double>();
+				setting.toggleSettingAutoRevertTimeEnd = toggleSettingAutoRevertRandomTimeRangeEndAttribute->ExtractValue<double>();
+				if(setting.toggleSettingAutoRevertTimeEnd < setting.toggleSettingAutoRevertTime)
+				{
+					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"The start auto revert time was greater than the end auto revert time for setting with name : " + setting.name + L" when loading System.Setting node under module file " + fileName + L"."));
+					return false;
+				}
+			}
 		}
 	}
 

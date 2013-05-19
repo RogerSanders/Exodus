@@ -657,7 +657,7 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 //----------------------------------------------------------------------------------------
 void Z80::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
-	SetLineState(targetLine, lineData, 0, 0.0, 0);
+	SetLineState(targetLine, lineData, 0, lastTimesliceLength, 0);
 }
 
 //----------------------------------------------------------------------------------------
