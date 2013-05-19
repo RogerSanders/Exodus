@@ -29,6 +29,7 @@ void MDControl3::Initialize()
 	lineAssertedTR = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TR);
 	lineAssertedTH = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TH);
 	lastLineAccessTime = 0;
+	currentTimesliceLength = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -78,6 +79,7 @@ bool MDControl3::SendNotifyUpcomingTimeslice() const
 //----------------------------------------------------------------------------------------
 void MDControl3::NotifyUpcomingTimeslice(double nanoseconds)
 {
+	currentTimesliceLength = nanoseconds;
 	lastLineAccessTime = 0;
 }
 
@@ -96,6 +98,7 @@ void MDControl3::ExecuteRollback()
 	lineAssertedTL = blineAssertedTL;
 	lineAssertedTR = blineAssertedTR;
 	lineAssertedTH = blineAssertedTH;
+	currentTimesliceLength = bcurrentTimesliceLength;
 }
 
 //----------------------------------------------------------------------------------------
@@ -113,6 +116,7 @@ void MDControl3::ExecuteCommit()
 	blineAssertedTL = lineAssertedTL;
 	blineAssertedTR = lineAssertedTR;
 	blineAssertedTH = lineAssertedTH;
+	bcurrentTimesliceLength = currentTimesliceLength;
 }
 
 //----------------------------------------------------------------------------------------
@@ -223,7 +227,7 @@ void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 //----------------------------------------------------------------------------------------
 void MDControl3::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
-	SetLineState(targetLine, lineData, 0, 0.0, 0);
+	SetLineState(targetLine, lineData, 0, currentTimesliceLength, 0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -505,6 +509,10 @@ void MDControl3::LoadState(IHeirarchicalStorageNode& node)
 				}
 			}
 		}
+		else if(nodeName == L"CurrentTimesliceLength")
+		{
+			node.ExtractData(currentTimesliceLength);
+		}
 	}
 }
 
@@ -523,4 +531,5 @@ void MDControl3::SaveState(IHeirarchicalStorageNode& node) const
 	{
 		node.CreateChild(L"ButtonPressed").CreateAttribute(L"ButtonNo", i).CreateAttribute(L"Pressed", buttonPressed[i]);
 	}
+	node.CreateChild(L"CurrentTimesliceLength", currentTimesliceLength);
 }

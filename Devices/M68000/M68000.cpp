@@ -1479,7 +1479,7 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 //----------------------------------------------------------------------------------------
 void M68000::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
-	SetLineState(targetLine, lineData, 0, 0.0, 0);
+	SetLineState(targetLine, lineData, 0, lastTimesliceLength, 0);
 }
 
 //----------------------------------------------------------------------------------------

@@ -239,7 +239,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 //----------------------------------------------------------------------------------------
 void S315_5313::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
-	SetLineState(targetLine, lineData, 0, 0.0, 0);
+	SetLineState(targetLine, lineData, 0, currentTimesliceLength, 0);
 }
 
 //----------------------------------------------------------------------------------------

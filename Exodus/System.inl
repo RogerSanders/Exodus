@@ -325,7 +325,7 @@ struct System::UnmappedLineStateInfo
 struct System::SystemSettingInfo
 {
 	SystemSettingInfo()
-	:selectedOption(0), defaultOption(0), toggleSetting(false), menuItemEntry(0), onOption(0), offOption(0), toggleSettingAutoRevert(false), toggleSettingAutoRevertTime(0)
+	:selectedOption(0), defaultOption(0), toggleSetting(false), menuItemEntry(0), onOption(0), offOption(0), settingChangeLeadInTimeRandom(false), settingChangeLeadInTime(0), settingChangeLeadInTimeEnd(0), toggleSettingAutoRevert(false), toggleSettingAutoRevertTimeRandom(0), toggleSettingAutoRevertTime(0), toggleSettingAutoRevertTimeEnd(0)
 	{}
 	unsigned int moduleID;
 	std::wstring name;
@@ -339,8 +339,15 @@ struct System::SystemSettingInfo
 	IMenuSelectableOption* menuItemEntry;
 	unsigned int onOption;
 	unsigned int offOption;
+
+	bool settingChangeLeadInTimeRandom;
+	double settingChangeLeadInTime;
+	double settingChangeLeadInTimeEnd;
+
 	bool toggleSettingAutoRevert;
+	bool toggleSettingAutoRevertTimeRandom;
 	double toggleSettingAutoRevertTime;
+	double toggleSettingAutoRevertTimeEnd;
 };
 
 //----------------------------------------------------------------------------------------

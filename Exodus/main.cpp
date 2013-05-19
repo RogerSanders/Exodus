@@ -3,6 +3,8 @@
 #include "ExodusInterface.h"
 #include "System.h"
 #include "resource.h"
+#include <stdlib.h>
+#include <time.h>
 
 //##TODO## Fix the static module linking process. We're not actively using it anymore, but
 //we want to retain support for it. Some users may have cases where it is useful to be
@@ -33,6 +35,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//##TODO## Consider adding a custom crash screen, which will inform the user of the
 	//error in a nicer way and give them some instructions to send a crash report to us.
 	RegisterMinidumpExceptionHandler(L"Exodus", L"Crash Reports", false);
+
+	//Seed the "rand()" random number generator using the current system time
+	srand((unsigned int)time(NULL));
 
 	//Construct the system object
 	System systemObject((void*)GetModuleHandle(NULL));
