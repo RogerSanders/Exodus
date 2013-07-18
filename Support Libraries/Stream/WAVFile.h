@@ -5,7 +5,7 @@
 #include "WindowFunctions/WindowFunctions.pkg"
 namespace Stream {
 
-class WAVFile :public Stream
+class WAVFile :public Stream<IStreamNonSeekable>
 {
 public:
 	//Enumerations
@@ -31,12 +31,7 @@ public:
 	inline bool IsOpen() const;
 
 	//File position
-	//##TODO## Remove this dummy seeking interface, once we have a non-seekable abstract
-	//base class for non-seekable streams.
 	virtual bool IsAtEnd() const;
-	virtual SizeType Size() const;
-	virtual SizeType GetStreamPos() const;
-	virtual void SetStreamPos(SizeType position);
 	virtual bool SkipBytes(SizeType byteCount);
 
 protected:
