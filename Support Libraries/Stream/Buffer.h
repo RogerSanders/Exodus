@@ -4,7 +4,7 @@
 #include <vector>
 namespace Stream {
 
-class Buffer :public Stream
+class Buffer :public Stream<IStream>
 {
 public:
 	//Constructors

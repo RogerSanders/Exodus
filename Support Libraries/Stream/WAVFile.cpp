@@ -20,22 +20,6 @@ bool WAVFile::IsAtEnd() const
 }
 
 //----------------------------------------------------------------------------------------
-WAVFile::SizeType WAVFile::Size() const
-{
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-WAVFile::SizeType WAVFile::GetStreamPos() const
-{
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-void WAVFile::SetStreamPos(SizeType position)
-{}
-
-//----------------------------------------------------------------------------------------
 bool WAVFile::SkipBytes(SizeType byteCount)
 {
 	bool result = false;

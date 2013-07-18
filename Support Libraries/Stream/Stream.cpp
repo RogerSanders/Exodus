@@ -2,12 +2,18 @@
 namespace Stream {
 
 //----------------------------------------------------------------------------------------
+//Explicit template instantiation
+//----------------------------------------------------------------------------------------
+template class Stream<IStream>;
+template class Stream<IStreamNonSeekable>;
+
+//----------------------------------------------------------------------------------------
 //Byte order mark functions
 //----------------------------------------------------------------------------------------
-bool Stream::ProcessByteOrderMark()
+template<> bool Stream<IStream>::ProcessByteOrderMark()
 {
 	//Save the initial stream pos
-	SizeType initialStreamPos = GetStreamPos();
+	IStream::SizeType initialStreamPos = GetStreamPos();
 
 	//Read the first two bytes of the file to check for a byte order mark
 	unsigned char byte1;
@@ -21,13 +27,13 @@ bool Stream::ProcessByteOrderMark()
 	//Check for a UTF-32 big endian mark (00 00 FE FF)
 	if((byte1 == 0x00) && (byte2 == 0x00))
 	{
-		SizeType currentStreamPos = GetStreamPos();
+		IStream::SizeType currentStreamPos = GetStreamPos();
 		unsigned char byte3;
 		unsigned char byte4;
 		if(ReadData(byte3) && ReadData(byte4) && (byte3 == 0xFE) && (byte4 == 0xFF))
 		{
-			SetTextEncoding(TEXTENCODING_UTF32);
-			SetByteOrder(BYTEORDER_BIGENDIAN);
+			SetTextEncoding(IStream::TEXTENCODING_UTF32);
+			SetByteOrder(IStream::BYTEORDER_BIGENDIAN);
 			return true;
 		}
 		SetStreamPos(currentStreamPos);
@@ -36,8 +42,8 @@ bool Stream::ProcessByteOrderMark()
 	//Check for a UTF-16 big endian mark (FE FF)
 	if((byte1 == 0xFE) && (byte2 == 0xFF))
 	{
-		SetTextEncoding(TEXTENCODING_UTF16);
-		SetByteOrder(BYTEORDER_BIGENDIAN);
+		SetTextEncoding(IStream::TEXTENCODING_UTF16);
+		SetByteOrder(IStream::BYTEORDER_BIGENDIAN);
 		return true;
 	}
 
@@ -45,20 +51,20 @@ bool Stream::ProcessByteOrderMark()
 	if((byte1 == 0xFF) && (byte2 == 0xFE))
 	{
 		//Check if this actually actually appears to be a UTF-32 mark
-		SizeType currentStreamPos = GetStreamPos();
+		IStream::SizeType currentStreamPos = GetStreamPos();
 		unsigned char byte3;
 		unsigned char byte4;
 		if(ReadData(byte3) && ReadData(byte4) && (byte3 == 0x00) && (byte4 == 0x00))
 		{
-			SetTextEncoding(TEXTENCODING_UTF32);
-			SetByteOrder(BYTEORDER_LITTLEENDIAN);
+			SetTextEncoding(IStream::TEXTENCODING_UTF32);
+			SetByteOrder(IStream::BYTEORDER_LITTLEENDIAN);
 			return true;
 		}
 		else
 		{
 			SetStreamPos(currentStreamPos);
-			SetTextEncoding(TEXTENCODING_UTF16);
-			SetByteOrder(BYTEORDER_LITTLEENDIAN);
+			SetTextEncoding(IStream::TEXTENCODING_UTF16);
+			SetByteOrder(IStream::BYTEORDER_LITTLEENDIAN);
 			return true;
 		}
 	}
@@ -66,11 +72,11 @@ bool Stream::ProcessByteOrderMark()
 	//Check for UTF-8 mark (EF BB BF)
 	if((byte1 == 0xEF) && (byte2 == 0xBB))
 	{
-		SizeType currentStreamPos = GetStreamPos();
+		IStream::SizeType currentStreamPos = GetStreamPos();
 		unsigned char byte3;
 		if(ReadData(byte3) && (byte3 == 0xBF))
 		{
-			SetTextEncoding(TEXTENCODING_UTF8);
+			SetTextEncoding(IStream::TEXTENCODING_UTF8);
 			return true;
 		}
 		SetStreamPos(currentStreamPos);
@@ -81,11 +87,68 @@ bool Stream::ProcessByteOrderMark()
 }
 
 //----------------------------------------------------------------------------------------
-void Stream::InsertByteOrderMark()
+template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark()
+{
+	//Read the first two bytes of the file to check for a byte order mark
+	unsigned char byte1;
+	unsigned char byte2;
+	unsigned char byte3;
+	unsigned char byte4;
+	if(!ReadData(byte1) || !ReadData(byte2) || !ReadData(byte3) || !ReadData(byte4))
+	{
+		return false;
+	}
+
+	//Check for a UTF-32 big endian mark (00 00 FE FF)
+	if((byte1 == 0x00) && (byte2 == 0x00) && (byte3 == 0xFE) && (byte4 == 0xFF))
+	{
+		SetTextEncoding(IStream::TEXTENCODING_UTF32);
+		SetByteOrder(IStream::BYTEORDER_BIGENDIAN);
+		return true;
+	}
+
+	//Check for a UTF-16 big endian mark (FE FF)
+	if((byte1 == 0xFE) && (byte2 == 0xFF))
+	{
+		SetTextEncoding(IStream::TEXTENCODING_UTF16);
+		SetByteOrder(IStream::BYTEORDER_BIGENDIAN);
+		return true;
+	}
+
+	//Check for a UTF-16 little endian mark (FF FE) or UTF-32 little endian mark (FF FE 00 00)
+	if((byte1 == 0xFF) && (byte2 == 0xFE))
+	{
+		//Check if this actually actually appears to be a UTF-32 mark
+		if((byte3 == 0x00) && (byte4 == 0x00))
+		{
+			SetTextEncoding(IStream::TEXTENCODING_UTF32);
+			SetByteOrder(IStream::BYTEORDER_LITTLEENDIAN);
+			return true;
+		}
+		else
+		{
+			SetTextEncoding(IStream::TEXTENCODING_UTF16);
+			SetByteOrder(IStream::BYTEORDER_LITTLEENDIAN);
+			return true;
+		}
+	}
+
+	//Check for UTF-8 mark (EF BB BF)
+	if((byte1 == 0xEF) && (byte2 == 0xBB) && (byte3 == 0xBF))
+	{
+		SetTextEncoding(IStream::TEXTENCODING_UTF8);
+		return true;
+	}
+
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+template<class B> void Stream<B>::InsertByteOrderMark()
 {
 	switch(textEncoding)
 	{
-	case TEXTENCODING_UTF8:{
+	case B::TEXTENCODING_UTF8:{
 		unsigned char byte1 = 0xEF;
 		unsigned char byte2 = 0xBB;
 		unsigned char byte3 = 0xBF;
@@ -93,11 +156,11 @@ void Stream::InsertByteOrderMark()
 		WriteData(byte2);
 		WriteData(byte3);
 		break;}
-	case TEXTENCODING_UTF16:{
+	case B::TEXTENCODING_UTF16:{
 		unsigned short data = 0xFEFF;
 		WriteData(data);
 		break;}
-	case TEXTENCODING_UTF32:{
+	case B::TEXTENCODING_UTF32:{
 		unsigned short data = 0x0000FEFF;
 		WriteData(data);
 		break;}
@@ -107,13 +170,13 @@ void Stream::InsertByteOrderMark()
 //----------------------------------------------------------------------------------------
 //Text encoding functions
 //----------------------------------------------------------------------------------------
-Stream::TextEncoding Stream::GetTextEncoding() const
+template<class B> typename B::TextEncoding Stream<B>::GetTextEncoding() const
 {
 	return textEncoding;
 }
 
 //----------------------------------------------------------------------------------------
-void Stream::SetTextEncoding(TextEncoding atextEncoding)
+template<class B> void Stream<B>::SetTextEncoding(typename B::TextEncoding atextEncoding)
 {
 	textEncoding = atextEncoding;
 }
@@ -121,13 +184,13 @@ void Stream::SetTextEncoding(TextEncoding atextEncoding)
 //----------------------------------------------------------------------------------------
 //New line encoding functions
 //----------------------------------------------------------------------------------------
-Stream::NewLineEncoding Stream::GetNewLineEncoding() const
+template<class B> typename B::NewLineEncoding Stream<B>::GetNewLineEncoding() const
 {
 	return newLineEncoding;
 }
 
 //----------------------------------------------------------------------------------------
-void Stream::SetNewLineEncoding(NewLineEncoding anewLineEncoding)
+template<class B> void Stream<B>::SetNewLineEncoding(typename B::NewLineEncoding anewLineEncoding)
 {
 	newLineEncoding = anewLineEncoding;
 }
@@ -135,13 +198,13 @@ void Stream::SetNewLineEncoding(NewLineEncoding anewLineEncoding)
 //----------------------------------------------------------------------------------------
 //Byte order functions
 //----------------------------------------------------------------------------------------
-Stream::ByteOrder Stream::GetByteOrder() const
+template<class B> typename B::ByteOrder Stream<B>::GetByteOrder() const
 {
 	return byteOrder;
 }
 
 //----------------------------------------------------------------------------------------
-void Stream::SetByteOrder(ByteOrder abyteOrder)
+template<class B> void Stream<B>::SetByteOrder(typename B::ByteOrder abyteOrder)
 {
 	byteOrder = abyteOrder;
 }
@@ -149,260 +212,260 @@ void Stream::SetByteOrder(ByteOrder abyteOrder)
 //----------------------------------------------------------------------------------------
 //Text char read functions
 //----------------------------------------------------------------------------------------
-bool Stream::ReadChar(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadChar(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return ReadCharInternal(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharAsASCII(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharAsASCII(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return ReadCharInternalAsASCII(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharAsUTF8(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharAsUTF8(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return ReadCharInternalAsUTF8(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharAsUTF16(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharAsUTF16(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return ReadCharInternalAsUTF16(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharAsUTF32(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharAsUTF32(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return ReadCharInternalAsUTF32(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharBigEndian(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharBigEndian(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternal(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternal(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharBigEndianAsASCII(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharBigEndianAsASCII(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsASCII(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternalAsASCII(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharBigEndianAsUTF8(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharBigEndianAsUTF8(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF8(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternalAsUTF8(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharBigEndianAsUTF16(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharBigEndianAsUTF16(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF16(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternalAsUTF16(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharBigEndianAsUTF32(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharBigEndianAsUTF32(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF32(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternalAsUTF32(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharLittleEndian(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharLittleEndian(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternal(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternal(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharLittleEndianAsASCII(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharLittleEndianAsASCII(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsASCII(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternalAsASCII(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharLittleEndianAsUTF8(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharLittleEndianAsUTF8(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF8(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternalAsUTF8(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharLittleEndianAsUTF16(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharLittleEndianAsUTF16(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF16(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternalAsUTF16(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadCharLittleEndianAsUTF32(UnicodeCodePoint& data)
+template<class B> bool Stream<B>::ReadCharLittleEndianAsUTF32(typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF32(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return ReadCharInternalAsUTF32(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 //Fixed length text buffer read functions
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
 	return ReadTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
 	return ReadTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
 	return ReadTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
 	return ReadTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
 	return ReadTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
 	return ReadTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
 	return ReadTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
 	return ReadTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
+template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
+template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 //Data read functions
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(bool& data)
+template<class B> bool Stream<B>::ReadData(bool& data)
 {
 	bool result;
 	unsigned char temp;
@@ -412,97 +475,97 @@ bool Stream::ReadData(bool& data)
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(char& data)
+template<class B> bool Stream<B>::ReadData(char& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(signed char& data)
+template<class B> bool Stream<B>::ReadData(signed char& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned char& data)
+template<class B> bool Stream<B>::ReadData(unsigned char& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(wchar_t& data)
+template<class B> bool Stream<B>::ReadData(wchar_t& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(short& data)
+template<class B> bool Stream<B>::ReadData(short& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned short& data)
+template<class B> bool Stream<B>::ReadData(unsigned short& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(int& data)
+template<class B> bool Stream<B>::ReadData(int& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned int& data)
+template<class B> bool Stream<B>::ReadData(unsigned int& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(long& data)
+template<class B> bool Stream<B>::ReadData(long& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned long& data)
+template<class B> bool Stream<B>::ReadData(unsigned long& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(long long& data)
+template<class B> bool Stream<B>::ReadData(long long& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned long long& data)
+template<class B> bool Stream<B>::ReadData(unsigned long long& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(float& data)
+template<class B> bool Stream<B>::ReadData(float& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(double& data)
+template<class B> bool Stream<B>::ReadData(double& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(long double& data)
+template<class B> bool Stream<B>::ReadData(long double& data)
 {
 	return ReadDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(bool& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(bool& data)
 {
 	bool result;
 	unsigned char temp;
@@ -512,97 +575,97 @@ bool Stream::ReadDataBigEndian(bool& data)
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(char& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(char& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(signed char& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(signed char& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned char& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned char& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(wchar_t& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(wchar_t& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(short& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(short& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned short& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned short& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(int& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(int& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned int& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned int& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(long& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(long& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned long& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned long& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(long long& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(long long& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned long long& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned long long& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(float& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(float& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(double& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(double& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(long double& data)
+template<class B> bool Stream<B>::ReadDataBigEndian(long double& data)
 {
 	return ReadDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(bool& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(bool& data)
 {
 	bool result;
 	unsigned char temp;
@@ -612,91 +675,91 @@ bool Stream::ReadDataLittleEndian(bool& data)
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(char& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(char& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(signed char& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(signed char& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned char& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned char& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(wchar_t& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(wchar_t& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(short& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(short& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned short& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned short& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(int& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(int& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned int& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned int& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(long& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(long& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned long& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned long& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(long long& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(long long& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned long long& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned long long& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(float& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(float& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(double& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(double& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(long double& data)
+template<class B> bool Stream<B>::ReadDataLittleEndian(long double& data)
 {
 	return ReadDataInternalLittleEndian(data);
 }
@@ -704,7 +767,7 @@ bool Stream::ReadDataLittleEndian(long double& data)
 //----------------------------------------------------------------------------------------
 //Array read functions
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(bool* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(bool* data, typename B::SizeType length)
 {
 	bool result = true;
 	for(unsigned int i = 0; i < length; ++i)
@@ -717,97 +780,97 @@ bool Stream::ReadData(bool* data, SizeType length)
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(char* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(char* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(signed char* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(signed char* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned char* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(unsigned char* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(wchar_t* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(wchar_t* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(short* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(short* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned short* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(unsigned short* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(int* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(int* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned int* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(unsigned int* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(long* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(long* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned long* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(unsigned long* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(long long* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(long long* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(unsigned long long* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(unsigned long long* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(float* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(float* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(double* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(double* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadData(long double* data, SizeType length)
+template<class B> bool Stream<B>::ReadData(long double* data, typename B::SizeType length)
 {
 	return ReadDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(bool* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(bool* data, typename B::SizeType length)
 {
 	bool result = true;
 	for(unsigned int i = 0; i < length; ++i)
@@ -820,97 +883,97 @@ bool Stream::ReadDataBigEndian(bool* data, SizeType length)
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(char* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(char* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(signed char* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(signed char* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned char* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned char* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(wchar_t* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(wchar_t* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(short* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(short* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned short* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned short* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(int* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(int* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned int* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned int* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(long* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(long* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned long* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned long* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(long long* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(long long* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(unsigned long long* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(unsigned long long* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(float* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(float* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(double* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(double* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataBigEndian(long double* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataBigEndian(long double* data, typename B::SizeType length)
 {
 	return ReadDataInternalBigEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(bool* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(bool* data, typename B::SizeType length)
 {
 	bool result = true;
 	for(unsigned int i = 0; i < length; ++i)
@@ -923,91 +986,91 @@ bool Stream::ReadDataLittleEndian(bool* data, SizeType length)
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(char* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(char* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(signed char* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(signed char* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned char* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned char* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(wchar_t* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(wchar_t* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(short* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(short* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned short* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned short* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(int* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(int* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned int* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned int* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(long* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(long* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned long* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned long* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(long long* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(long long* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(unsigned long long* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(unsigned long long* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(float* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(float* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(double* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(double* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ReadDataLittleEndian(long double* data, SizeType length)
+template<class B> bool Stream<B>::ReadDataLittleEndian(long double* data, typename B::SizeType length)
 {
 	return ReadDataInternalLittleEndian(data, length);
 }
@@ -1015,724 +1078,724 @@ bool Stream::ReadDataLittleEndian(long double* data, SizeType length)
 //----------------------------------------------------------------------------------------
 //Text char write functions
 //----------------------------------------------------------------------------------------
-bool Stream::WriteChar(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteChar(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return WriteCharInternal(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharAsASCII(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharAsASCII(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return WriteCharInternalAsASCII(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharAsUTF8(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharAsUTF8(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return WriteCharInternalAsUTF8(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharAsUTF16(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharAsUTF16(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return WriteCharInternalAsUTF16(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharAsUTF32(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharAsUTF32(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
 	return WriteCharInternalAsUTF32(data, byteOrder, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharBigEndian(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharBigEndian(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternal(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternal(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharBigEndianAsASCII(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharBigEndianAsASCII(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsASCII(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternalAsASCII(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharBigEndianAsUTF8(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharBigEndianAsUTF8(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF8(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternalAsUTF8(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharBigEndianAsUTF16(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharBigEndianAsUTF16(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF16(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternalAsUTF16(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharBigEndianAsUTF32(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharBigEndianAsUTF32(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF32(data, BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternalAsUTF32(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharLittleEndian(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharLittleEndian(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternal(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternal(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharLittleEndianAsASCII(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharLittleEndianAsASCII(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsASCII(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternalAsASCII(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharLittleEndianAsUTF8(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharLittleEndianAsUTF8(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF8(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternalAsUTF8(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharLittleEndianAsUTF16(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharLittleEndianAsUTF16(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF16(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternalAsUTF16(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteCharLittleEndianAsUTF32(const UnicodeCodePoint& data)
+template<class B> bool Stream<B>::WriteCharLittleEndianAsUTF32(const typename B::UnicodeCodePoint& data)
 {
-	SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF32(data, BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	typename B::SizeType remainingCodeUnitsAvailable = 9999;
+	return WriteCharInternalAsUTF32(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 //Text string write functions
 //----------------------------------------------------------------------------------------
-bool Stream::WriteText(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteText(const char* data, typename B::SizeType bufferSize, char terminator)
 {
 	return WriteTextInternal(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteText(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteText(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
 	return WriteTextInternal(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextAsASCII(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextAsASCII(const char* data, typename B::SizeType bufferSize, char terminator)
 {
 	return WriteTextInternalAsASCII(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextAsASCII(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextAsASCII(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
 	return WriteTextInternalAsASCII(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextAsUTF8(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextAsUTF8(const char* data, typename B::SizeType bufferSize, char terminator)
 {
 	return WriteTextInternalAsUTF8(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextAsUTF8(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextAsUTF8(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
 	return WriteTextInternalAsUTF8(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextAsUTF16(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextAsUTF16(const char* data, typename B::SizeType bufferSize, char terminator)
 {
 	return WriteTextInternalAsUTF16(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextAsUTF16(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextAsUTF16(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
 	return WriteTextInternalAsUTF16(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextAsUTF32(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextAsUTF32(const char* data, typename B::SizeType bufferSize, char terminator)
 {
 	return WriteTextInternalAsUTF32(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextAsUTF32(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextAsUTF32(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
 	return WriteTextInternalAsUTF32(byteOrder, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndian(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextBigEndian(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternal(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternal(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndian(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextBigEndian(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternal(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternal(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianAsASCII(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextBigEndianAsASCII(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsASCII(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsASCII(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianAsASCII(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextBigEndianAsASCII(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsASCII(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsASCII(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianAsUTF8(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextBigEndianAsUTF8(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF8(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF8(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianAsUTF8(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextBigEndianAsUTF8(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF8(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF8(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianAsUTF16(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextBigEndianAsUTF16(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF16(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF16(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianAsUTF16(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextBigEndianAsUTF16(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF16(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF16(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianAsUTF32(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextBigEndianAsUTF32(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF32(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF32(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianAsUTF32(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextBigEndianAsUTF32(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF32(BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF32(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndian(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndian(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternal(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternal(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndian(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndian(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternal(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternal(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianAsASCII(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndianAsASCII(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsASCII(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsASCII(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianAsASCII(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndianAsASCII(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsASCII(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsASCII(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianAsUTF8(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF8(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF8(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF8(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianAsUTF8(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF8(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF8(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF8(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianAsUTF16(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF16(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF16(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF16(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianAsUTF16(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF16(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF16(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF16(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianAsUTF32(const char* data, SizeType bufferSize, char terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF32(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF32(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF32(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianAsUTF32(const wchar_t* data, SizeType bufferSize, wchar_t terminator)
+template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF32(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF32(BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF32(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 //Fixed length buffer text write functions
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
 	return WriteTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
 	return WriteTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
 	return WriteTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
 	return WriteTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
 	return WriteTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
 	return WriteTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
 	return WriteTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
 	return WriteTextInternalFixedLengthBufferAsASCII(byteOrder, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
+template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
+template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 //Data write functions
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(bool data)
+template<class B> bool Stream<B>::WriteData(bool data)
 {
 	return WriteDataInternal(BoolToByte(data));
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(char data)
+template<class B> bool Stream<B>::WriteData(char data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(signed char data)
+template<class B> bool Stream<B>::WriteData(signed char data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(unsigned char data)
+template<class B> bool Stream<B>::WriteData(unsigned char data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(wchar_t data)
+template<class B> bool Stream<B>::WriteData(wchar_t data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(short data)
+template<class B> bool Stream<B>::WriteData(short data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(unsigned short data)
+template<class B> bool Stream<B>::WriteData(unsigned short data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(int data)
+template<class B> bool Stream<B>::WriteData(int data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(unsigned int data)
+template<class B> bool Stream<B>::WriteData(unsigned int data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(long data)
+template<class B> bool Stream<B>::WriteData(long data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(unsigned long data)
+template<class B> bool Stream<B>::WriteData(unsigned long data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(long long data)
+template<class B> bool Stream<B>::WriteData(long long data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(unsigned long long data)
+template<class B> bool Stream<B>::WriteData(unsigned long long data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(float data)
+template<class B> bool Stream<B>::WriteData(float data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(double data)
+template<class B> bool Stream<B>::WriteData(double data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(long double data)
+template<class B> bool Stream<B>::WriteData(long double data)
 {
 	return WriteDataInternal(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(bool data)
+template<class B> bool Stream<B>::WriteDataBigEndian(bool data)
 {
 	return WriteDataInternalBigEndian(BoolToByte(data));
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(char data)
+template<class B> bool Stream<B>::WriteDataBigEndian(char data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(signed char data)
+template<class B> bool Stream<B>::WriteDataBigEndian(signed char data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(unsigned char data)
+template<class B> bool Stream<B>::WriteDataBigEndian(unsigned char data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(wchar_t data)
+template<class B> bool Stream<B>::WriteDataBigEndian(wchar_t data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(short data)
+template<class B> bool Stream<B>::WriteDataBigEndian(short data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(unsigned short data)
+template<class B> bool Stream<B>::WriteDataBigEndian(unsigned short data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(int data)
+template<class B> bool Stream<B>::WriteDataBigEndian(int data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(unsigned int data)
+template<class B> bool Stream<B>::WriteDataBigEndian(unsigned int data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(long data)
+template<class B> bool Stream<B>::WriteDataBigEndian(long data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(unsigned long data)
+template<class B> bool Stream<B>::WriteDataBigEndian(unsigned long data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(long long data)
+template<class B> bool Stream<B>::WriteDataBigEndian(long long data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(unsigned long long data)
+template<class B> bool Stream<B>::WriteDataBigEndian(unsigned long long data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(float data)
+template<class B> bool Stream<B>::WriteDataBigEndian(float data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(double data)
+template<class B> bool Stream<B>::WriteDataBigEndian(double data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(long double data)
+template<class B> bool Stream<B>::WriteDataBigEndian(long double data)
 {
 	return WriteDataInternalBigEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(bool data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(bool data)
 {
 	return WriteDataInternalLittleEndian(BoolToByte(data));
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(char data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(char data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(signed char data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(signed char data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(unsigned char data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(unsigned char data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(wchar_t data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(wchar_t data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(short data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(short data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(unsigned short data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(unsigned short data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(int data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(int data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(unsigned int data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(unsigned int data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(long data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(long data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(unsigned long data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(unsigned long data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(long long data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(long long data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(unsigned long long data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(unsigned long long data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(float data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(float data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(double data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(double data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(long double data)
+template<class B> bool Stream<B>::WriteDataLittleEndian(long double data)
 {
 	return WriteDataInternalLittleEndian(data);
 }
@@ -1740,7 +1803,7 @@ bool Stream::WriteDataLittleEndian(long double data)
 //----------------------------------------------------------------------------------------
 //Array write functions
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const bool* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const bool* data, typename B::SizeType length)
 {
 	bool result = true;
 	for(unsigned int i = 0; i < length; ++i)
@@ -1751,97 +1814,97 @@ bool Stream::WriteData(const bool* data, SizeType length)
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const char* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const char* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const signed char* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const signed char* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const unsigned char* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const unsigned char* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const wchar_t* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const wchar_t* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const short* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const short* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const unsigned short* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const unsigned short* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const int* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const int* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const unsigned int* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const unsigned int* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const long* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const unsigned long* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const unsigned long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const long long* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const long long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const unsigned long long* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const unsigned long long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const float* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const float* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const double* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const double* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteData(const long double* data, SizeType length)
+template<class B> bool Stream<B>::WriteData(const long double* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const bool* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const bool* data, typename B::SizeType length)
 {
 	bool result = true;
 	for(unsigned int i = 0; i < length; ++i)
@@ -1852,97 +1915,97 @@ bool Stream::WriteDataBigEndian(const bool* data, SizeType length)
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const char* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const char* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const signed char* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const signed char* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const unsigned char* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const unsigned char* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const wchar_t* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const wchar_t* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const short* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const short* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const unsigned short* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const unsigned short* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const int* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const int* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const unsigned int* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const unsigned int* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const long* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const unsigned long* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const unsigned long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const long long* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const long long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const unsigned long long* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const unsigned long long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const float* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const float* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const double* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const double* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataBigEndian(const long double* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataBigEndian(const long double* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const bool* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const bool* data, typename B::SizeType length)
 {
 	bool result = true;
 	for(unsigned int i = 0; i < length; ++i)
@@ -1953,91 +2016,91 @@ bool Stream::WriteDataLittleEndian(const bool* data, SizeType length)
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const char* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const char* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const signed char* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const signed char* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const unsigned char* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const unsigned char* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const wchar_t* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const wchar_t* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const short* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const short* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const unsigned short* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const unsigned short* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const int* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const int* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const unsigned int* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const unsigned int* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const long* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const unsigned long* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const unsigned long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const long long* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const long long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const unsigned long long* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const unsigned long long* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const float* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const float* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const double* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const double* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::WriteDataLittleEndian(const long double* data, SizeType length)
+template<class B> bool Stream<B>::WriteDataLittleEndian(const long double* data, typename B::SizeType length)
 {
 	return WriteDataInternal(data, length);
 }
@@ -2045,14 +2108,14 @@ bool Stream::WriteDataLittleEndian(const long double* data, SizeType length)
 //----------------------------------------------------------------------------------------
 //Text conversion functions
 //----------------------------------------------------------------------------------------
-void Stream::ConvertASCIIToUnicodeCodePoint(unsigned char source, UnicodeCodePoint& target)
+template<class B> void Stream<B>::ConvertASCIIToUnicodeCodePoint(unsigned char source, typename B::UnicodeCodePoint& target)
 {
 	target.surrogatePair = false;
 	target.codeUnit1 = (wchar_t)source;
 }
 
 //----------------------------------------------------------------------------------------
-void Stream::ConvertUTF16ToUnicodeCodePoint(unsigned short codeUnit1, unsigned short codeUnit2, bool surrogatePair, UnicodeCodePoint& target)
+template<class B> void Stream<B>::ConvertUTF16ToUnicodeCodePoint(unsigned short codeUnit1, unsigned short codeUnit2, bool surrogatePair, typename B::UnicodeCodePoint& target)
 {
 	//##TODO## Handle platforms where wchar_t uses UTF32 encoding
 	target.surrogatePair = surrogatePair;
@@ -2061,7 +2124,7 @@ void Stream::ConvertUTF16ToUnicodeCodePoint(unsigned short codeUnit1, unsigned s
 }
 
 //----------------------------------------------------------------------------------------
-void Stream::ConvertUTF32ToUnicodeCodePoint(unsigned int source, UnicodeCodePoint& target)
+template<class B> void Stream<B>::ConvertUTF32ToUnicodeCodePoint(unsigned int source, typename B::UnicodeCodePoint& target)
 {
 	//##TODO## Handle platforms where wchar_t uses UTF32 encoding
 	if((source & 0xFFFF0000) == 0)
@@ -2078,7 +2141,7 @@ void Stream::ConvertUTF32ToUnicodeCodePoint(unsigned int source, UnicodeCodePoin
 }
 
 //----------------------------------------------------------------------------------------
-void Stream::ConvertUnicodeCodePointToUTF16(const UnicodeCodePoint& source, unsigned short& codeUnit1, unsigned short& codeUnit2, bool& surrogatePair)
+template<class B> void Stream<B>::ConvertUnicodeCodePointToUTF16(const typename B::UnicodeCodePoint& source, unsigned short& codeUnit1, unsigned short& codeUnit2, bool& surrogatePair)
 {
 	//##TODO## Handle platforms where wchar_t uses UTF32 encoding
 	surrogatePair = source.surrogatePair;
@@ -2087,7 +2150,7 @@ void Stream::ConvertUnicodeCodePointToUTF16(const UnicodeCodePoint& source, unsi
 }
 
 //----------------------------------------------------------------------------------------
-void Stream::ConvertUnicodeCodePointToUTF32(const UnicodeCodePoint& source, unsigned int& target)
+template<class B> void Stream<B>::ConvertUnicodeCodePointToUTF32(const typename B::UnicodeCodePoint& source, unsigned int& target)
 {
 	//##TODO## Handle platforms where wchar_t uses UTF32 encoding
 	if(!source.surrogatePair)
@@ -2101,7 +2164,7 @@ void Stream::ConvertUnicodeCodePointToUTF32(const UnicodeCodePoint& source, unsi
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ConvertCharToUnicodeCodePoint(char source, UnicodeCodePoint& target)
+template<class B> bool Stream<B>::ConvertCharToUnicodeCodePoint(char source, typename B::UnicodeCodePoint& target)
 {
 	target.codeUnit1 = (wchar_t)((unsigned char)source);
 	target.surrogatePair = false;
@@ -2109,7 +2172,7 @@ bool Stream::ConvertCharToUnicodeCodePoint(char source, UnicodeCodePoint& target
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ConvertWCharTToUnicodeCodePoint(const wchar_t* source, UnicodeCodePoint& target, SizeType bufferSize, SizeType& codeUnitsRead)
+template<class B> bool Stream<B>::ConvertWCharTToUnicodeCodePoint(const wchar_t* source, typename B::UnicodeCodePoint& target, typename B::SizeType bufferSize, typename B::SizeType& codeUnitsRead)
 {
 	if((bufferSize - codeUnitsRead) <= 0)
 	{
@@ -2154,7 +2217,7 @@ bool Stream::ConvertWCharTToUnicodeCodePoint(const wchar_t* source, UnicodeCodeP
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ConvertUnicodeCodePointToChar(const UnicodeCodePoint& source, char& target)
+template<class B> bool Stream<B>::ConvertUnicodeCodePointToChar(const typename B::UnicodeCodePoint& source, char& target)
 {
 	//##TODO## Convert unsupported characters to something else?
 	target = (char)source.codeUnit1;
@@ -2162,7 +2225,7 @@ bool Stream::ConvertUnicodeCodePointToChar(const UnicodeCodePoint& source, char&
 }
 
 //----------------------------------------------------------------------------------------
-bool Stream::ConvertUnicodeCodePointToWCharT(const UnicodeCodePoint& source, wchar_t* target, SizeType bufferSize, SizeType& codeUnitsWritten)
+template<class B> bool Stream<B>::ConvertUnicodeCodePointToWCharT(const typename B::UnicodeCodePoint& source, wchar_t* target, typename B::SizeType bufferSize, typename B::SizeType& codeUnitsWritten)
 {
 	if((bufferSize - codeUnitsWritten) <= 0)
 	{

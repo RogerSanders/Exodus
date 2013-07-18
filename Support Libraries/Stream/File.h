@@ -12,7 +12,7 @@ a dramatic performance increase.
 #include "WindowFunctions/WindowFunctions.pkg"
 namespace Stream {
 
-class File :public Stream
+class File :public Stream<IStream>
 {
 public:
 	//Enumerations
