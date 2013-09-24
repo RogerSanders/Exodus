@@ -125,6 +125,7 @@ INT_PTR Processor::ActiveDisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam
 					{
 						device->DisableActiveDisassembly();
 						device->EnableActiveDisassembly(newActiveDisassemblyStartLocation, device->activeDisassemblyEndLocation);
+						UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_START, device->GetAddressBusCharWidth(), device->activeDisassemblyStartLocation);
 					}
 					else
 					{
@@ -132,7 +133,7 @@ INT_PTR Processor::ActiveDisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam
 					}
 					if(updateAnalysisLocation)
 					{
-						device->activeDisassemblyAnalysisStartLocation = newActiveDisassemblyStartLocation;
+						device->activeDisassemblyAnalysisStartLocation = device->activeDisassemblyStartLocation;
 					}
 				}
 				break;}
@@ -145,6 +146,7 @@ INT_PTR Processor::ActiveDisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam
 					{
 						device->DisableActiveDisassembly();
 						device->EnableActiveDisassembly(device->activeDisassemblyStartLocation, newActiveDisassemblyEndLocation);
+						UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_END, device->GetAddressBusCharWidth(), device->activeDisassemblyEndLocation);
 					}
 					else
 					{
@@ -152,7 +154,7 @@ INT_PTR Processor::ActiveDisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam
 					}
 					if(updateAnalysisLocation)
 					{
-						device->activeDisassemblyAnalysisEndLocation = newActiveDisassemblyEndLocation;
+						device->activeDisassemblyAnalysisEndLocation = device->activeDisassemblyEndLocation;
 					}
 				}
 				break;}

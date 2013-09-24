@@ -615,8 +615,8 @@ void Processor::EnableActiveDisassembly(unsigned int startLocation, unsigned int
 	//Flag that an active disassembly is not in progress
 	activeDisassemblyEnabled = false;
 
-	//Validate the start and end locations for the disassembly
-	if(activeDisassemblyEndLocation <= activeDisassemblyStartLocation)
+	//Validate the new start and end locations for the disassembly
+	if(endLocation <= startLocation)
 	{
 		return;
 	}
