@@ -14,3 +14,17 @@ struct DataRemapTable::MappingElement
 	bool forcedBitValue;
 	unsigned int sourceDataBitNumber;
 };
+
+//----------------------------------------------------------------------------------------
+//Data conversion functions
+//----------------------------------------------------------------------------------------
+unsigned int DataRemapTable::GetBitCountConverted() const
+{
+	return bitCountConverted;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int DataRemapTable::GetBitMaskOriginalLinesPreserved() const
+{
+	return bitMaskOriginal;
+}

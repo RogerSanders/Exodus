@@ -117,8 +117,8 @@ void S315_5313::PaletteView::UpdatePalette()
 		for(unsigned int paletteEntry = 0; paletteEntry < 16; ++paletteEntry)
 		{
 			Data paletteData(16);
-			paletteData.SetByte(1, device->cram->ReadLatest(((paletteLine * 16) + paletteEntry) * 2));
-			paletteData.SetByte(0, device->cram->ReadLatest((((paletteLine * 16) + paletteEntry) * 2) + 1));
+			paletteData.SetByteFromBottomUp(1, device->cram->ReadLatest(((paletteLine * 16) + paletteEntry) * 2));
+			paletteData.SetByteFromBottomUp(0, device->cram->ReadLatest((((paletteLine * 16) + paletteEntry) * 2) + 1));
 			float r = (float)paletteData.GetDataSegment(1, 3) / 7;
 			float g = (float)paletteData.GetDataSegment(5, 3) / 7;
 			float b = (float)paletteData.GetDataSegment(9, 3) / 7;

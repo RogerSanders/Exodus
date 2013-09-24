@@ -204,91 +204,91 @@ bool File::ReadBinaryNativeByteOrder(long double& data)
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(char* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(signed char* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(unsigned char* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(wchar_t* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(short* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(unsigned short* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(int* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(unsigned int* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(long* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(unsigned long* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(long long* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(unsigned long long* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(float* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(double* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryNativeByteOrder(long double* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
@@ -388,91 +388,91 @@ bool File::WriteBinaryNativeByteOrder(long double data)
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const char* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const signed char* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const unsigned char* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const wchar_t* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const short* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const unsigned short* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const int* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const unsigned int* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const long* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const unsigned long* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const long long* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const unsigned long long* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const float* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const double* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryNativeByteOrder(const long double* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------

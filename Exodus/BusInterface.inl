@@ -35,6 +35,8 @@ struct BusInterface::DeviceMappingParams
 	 memoryMapSizeDefined(false),
 	 interfaceOffsetDefined(false),
 	 interfaceNumberDefined(false),
+	 addressMaskDefined(false),
+	 addressDiscardLowerBitCount(false),
 	 addressLineFilterDefined(false),
 	 ceLineConditionsDefined(false),
 	 addressLineMappingDefined(false),
@@ -45,6 +47,8 @@ struct BusInterface::DeviceMappingParams
 	bool memoryMapSizeDefined;
 	bool interfaceOffsetDefined;
 	bool interfaceNumberDefined;
+	bool addressMaskDefined;
+	bool addressDiscardLowerBitCountDefined;
 	bool addressLineFilterDefined;
 	bool ceLineConditionsDefined;
 	bool addressLineMappingDefined;
@@ -54,6 +58,8 @@ struct BusInterface::DeviceMappingParams
 	unsigned int memoryMapSize;
 	unsigned int interfaceOffset;
 	unsigned int interfaceNumber;
+	unsigned int addressMask;
+	unsigned int addressDiscardLowerBitCount;
 	std::wstring addressLineFilter;
 	std::wstring ceLineConditions;
 	std::wstring addressLineMapping;
@@ -104,19 +110,23 @@ struct BusInterface::MapEntry
 {
 	MapEntry()
 	:device(0),
+	 address(0),
+	 addressEffectiveBitMaskForTargetting(0),
+	 addressMask(0),
+	 addressDiscardLowerBitCount(0),
+	 ce(0),
+	 ceMask(0),
 	 interfaceSize(0),
 	 interfaceOffset(0),
 	 interfaceNumber(0),
-	 address(0),
-	 ce(0),
-	 addressMask(0),
-	 ceMask(0),
 	 remapAddressLines(false),
 	 remapDataLines(false)
 	{}
 
 	unsigned int address;
+	unsigned int addressEffectiveBitMaskForTargetting;
 	unsigned int addressMask;
+	unsigned int addressDiscardLowerBitCount;
 	unsigned int ce;
 	unsigned int ceMask;
 	std::map<unsigned int, unsigned int> ceConditions;

@@ -132,91 +132,91 @@ bool WAVFile::ReadBinaryNativeByteOrder(long double& data)
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(char* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(signed char* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(unsigned char* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(wchar_t* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(short* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(unsigned short* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(int* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(unsigned int* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(long* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(unsigned long* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(long long* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(unsigned long long* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(float* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(double* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinaryNativeByteOrder(long double* data, SizeType length)
 {
-	return ReadBinary((void*)data, (unsigned int)length);
+	return ReadBinary((void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
@@ -316,91 +316,91 @@ bool WAVFile::WriteBinaryNativeByteOrder(long double data)
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const char* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const signed char* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const unsigned char* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const wchar_t* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const short* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const unsigned short* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const int* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const unsigned int* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const long* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const unsigned long* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const long long* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const unsigned long long* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const float* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const double* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryNativeByteOrder(const long double* data, SizeType length)
 {
-	return WriteBinary((const void*)data, (unsigned int)length);
+	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
 //----------------------------------------------------------------------------------------

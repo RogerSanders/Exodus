@@ -127,19 +127,19 @@ INT_PTR System::EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lp
 				}
 			}
 
-			//Build a string uniquely identifying this device in the system
-			std::wstring deviceNameString = moduleDisplayName;
+			//Build a string uniquely identifying this embedded ROM in the system
+			std::wstring romNameString = moduleDisplayName;
 			if(modulesWithMultipleTargetDevicesSet.find(deviceModuleID) != modulesWithMultipleTargetDevicesSet.end())
 			{
-				deviceNameString += L"." + i->displayName;
+				romNameString += L"." + i->displayName;
 			}
 			if(importedConnectorFound && !multipleImportedConnectorsFound)
 			{
-				deviceNameString += L" {" + importedConnectorName + L"}";
+				romNameString += L" {" + importedConnectorName + L"}";
 			}
 
 			//Add an entry for this device to the list
-			LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_ADDSTRING, 0, (LPARAM)deviceNameString.c_str());
+			LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_ADDSTRING, 0, (LPARAM)romNameString.c_str());
 			SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)i->targetDevice);
 		}
 		SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_SETCURSEL, selected, 0);
@@ -198,13 +198,14 @@ INT_PTR System::EmbeddedROMView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM 
 						bool result = file.Open(romInfoIterator->filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN);
 						if(result)
 						{
-							for(unsigned int i = 0; (i < file.Size()) && (i < romInfoIterator->romRegionSize); ++i)
+							Data romDataEntry(romInfoIterator->romEntryBitCount);
+							Stream::ViewBinary viewBinary(file);
+							unsigned int deviceAddress = 0;
+							while(!file.IsAtEnd() && (deviceAddress < romInfoIterator->romRegionSize))
 							{
-								unsigned char byte;
-								if(file.ReadData(byte))
-								{
-									romInfoIterator->targetDevice->TransparentWriteInterface(romInfoIterator->interfaceNumber, i, Data(8, byte), 0, 0);
-								}
+								viewBinary >> romDataEntry;
+								romInfoIterator->targetDevice->TransparentWriteInterface(romInfoIterator->interfaceNumber, deviceAddress, romDataEntry, 0, 0);
+								++deviceAddress;
 							}
 						}
 

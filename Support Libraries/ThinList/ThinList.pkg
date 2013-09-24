@@ -9,6 +9,7 @@
 #include "ThinListDouble.h"
 #include "ThinListContainer.h"
 #include "ThinListDoubleContainer.h"
+#include "ThinVector.h"
 #endif
 
 #endif

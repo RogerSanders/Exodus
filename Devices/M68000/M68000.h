@@ -14,58 +14,8 @@ due to the opcode step inaccuracy noted above.
 between instructions. This is due to the opcode step inaccuracy noted above.
 
 Disassembly and debugging features to add:
--Implement a boolean flag for each CPU register, which indicates whether the register has
-been modified since the last time the processor reached the stop state. Use this flag to
-colour register values in red in the debugger window if the register has been flagged as
-modified. This will allow for easier debugging when stepping through code. Note that
-interrupts could totally mess this up. For this reason, it might be better to use a more
-primitive method, and simply snapshot the register data, and highlight in red if the
-register data has changed since the last time the processor was stopped. With this
-implementation, the user can set two breakpoints, and easily see what has changed when
-stepping from one breakpoint to the next.
--Note that it would be a good idea to see if we can introduce shading for modified memory
-data as well as register data. This should be implemented on the memory buffers
-themselves.
 -Add the ability to break on read/write to an internal CPU register, eg, break when D0 is
 modified.
--Track the origin of data register contents. Where a data register value is used as a
-displacement from PC for a branching instruction, eg, bra/bsr/jmp/jsr, and we can detect
-that the contents of that register were simply loaded from an address and not modified,
-tag the memory location the offset was read from as an offset from the base address used
-in the branch instruction.
--Where any branching instruction uses an address register as the source, keep a record of
-all resolved target addresses that are jumped to from that branch, and to assist in
-disassembly, record whether it is a call (branch), or a jump.
--Track all access to memory, recording whether it has been accessed as code or data. For
-data references, record the size of the data access. During disassembly, format all data
-using its indicated data size. Where two or more data references at consecutive memory
-addresses share the same data access size, fold the data into an array.
--Rather than just folding into an array when two consecutive addresses have the same data
-access size, implement advanced tracking of post-increment address register modes. Detect
-when an address register is used in post-increment address mode to access consecutive data
-values, without the address register being directly modified. Fold each consecutive
-address accessed into an array. When the address register is modified, the array
-definition is complete.
--Optionally link our disassembly window into the stored data on memory addresses,
-indicating whether they are code or data, and use this advanced information to assist in
-the disassembly process, and format the disassembly nicely. This will be the beginning of
-building up to our emulator doing all the disassembly internally, without needing IDA Pro
-at all.
--With the more powerful disassembler introduced, create an "active disassembly" mode,
-where the disassembler will proceed down all available code paths, performing disassembly
-of instructions which have not actually been executed. Record these addresses differently,
-so that we can differentiate between observed and verified instructions actually executed
-as code during runtime, and those merely believed to be valid code as a result of
-traversing all visible code branches. The user should be able to see in the disassembly
-which memory locations are known to be code and which are simply believed to be code.
--Note that most of the actual code for the above disassembly features should be
-implemented in the base Processor class, with the M68000 core simply feeding data to the
-Processor class during code execution. Active disassembly will simply require each device
-deriving from the Processor class to provide additional information in the OpcodeInfo
-class, in the form of a list of known possible PC values after executing that instruction.
-In the case of an RTS opcode, this list might be empty, while in the case of non-branching
-opcodes, it should simply be pc+opcodeSize. With this information provided to the
-Processor class, active disassembly should be able to be implemented.
 
 Things to do:
 -Implement correct support for the 2-word prefetch pipeline. We now have a very detailed
@@ -100,9 +50,6 @@ the stack pointer to be sure of its correct behaviour.
 byte or the lower byte of the target location is affected. Also confirm the contents of
 the other half of the value, EG, does sign extension occur? Is the data mirrored in both
 halves?
--Reportedly (from http://cgfm2.emuviews.com) the M68000 doesn't actually generate illegal
- instruction exceptions for all illegal instructions. Some of them may be aliases for
- valid instructions. Perform hardware tests to look for these undocumented instructions.
 
 References:
 -M68000 Programmer's Reference Manual (M68000PM), Motorola, Rev 1 1992

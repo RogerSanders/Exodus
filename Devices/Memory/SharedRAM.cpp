@@ -11,13 +11,21 @@ SharedRAM::SharedRAM(const std::wstring& aimplementationName, const std::wstring
 bool SharedRAM::Construct(IHeirarchicalStorageNode& node)
 {
 	bool result = MemoryWrite::Construct(node);
-	if(GetInterfaceSize() <= 0)
+	if(GetMemoryEntryCount() <= 0)
 	{
 		return false;
 	}
-	memory.resize(GetInterfaceSize());
-	memoryLocked.resize(GetInterfaceSize());
+	memory.resize(GetMemoryEntryCount());
+	memoryLocked.resize(GetMemoryEntryCount());
 	return result;
+}
+
+//----------------------------------------------------------------------------------------
+//Memory size functions
+//----------------------------------------------------------------------------------------
+unsigned int SharedRAM::GetMemoryEntrySizeInBytes() const
+{
+	return 1;
 }
 
 //----------------------------------------------------------------------------------------
@@ -26,7 +34,7 @@ bool SharedRAM::Construct(IHeirarchicalStorageNode& node)
 void SharedRAM::Initialize()
 {
 	//Initialize the memory buffer
-	memory.assign(GetInterfaceSize(), 0);
+	memory.assign(GetMemoryEntryCount(), 0);
 
 	//Initialize rollback state
 	buffer.clear();
@@ -84,7 +92,7 @@ IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumbe
 				GetDeviceContext()->SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
 			}
 		}
-		data.SetByte((dataByteSize - 1) - i, memory[(location + i) % memory.size()]);
+		data.SetByteFromTopDown(i, memory[(location + i) % memory.size()]);
 	}
 
 	return true;
@@ -99,7 +107,7 @@ IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumb
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
 		unsigned int bytePos = (location + i) % (unsigned int)memory.size();
-		if(!IsByteLocked(bytePos))
+		if(!IsAddressLocked(bytePos))
 		{
 			MemoryAccessBuffer::iterator bufferEntryIterator = buffer.find(location + i);
 			if(bufferEntryIterator == buffer.end())
@@ -124,7 +132,7 @@ IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumb
 					GetDeviceContext()->SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
 				}
 			}
-			memory[bytePos] = data.GetByte((dataByteSize - 1) - i);
+			memory[bytePos] = data.GetByteFromTopDown(i);
 		}
 	}
 
@@ -137,7 +145,7 @@ void SharedRAM::TransparentReadInterface(unsigned int interfaceNumber, unsigned 
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		data.SetByte((dataByteSize - 1) - i, memory[(location + i) % memory.size()]);
+		data.SetByteFromTopDown(i, memory[(location + i) % memory.size()]);
 	}
 }
 
@@ -147,7 +155,7 @@ void SharedRAM::TransparentWriteInterface(unsigned int interfaceNumber, unsigned
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		memory[(location + i) % memory.size()] = data.GetByte((dataByteSize - 1) - i);
+		memory[(location + i) % memory.size()] = data.GetByteFromTopDown(i);
 	}
 }
 
@@ -169,7 +177,7 @@ void SharedRAM::LockMemoryBlock(unsigned int location, unsigned int size, bool s
 }
 
 //----------------------------------------------------------------------------------------
-bool SharedRAM::IsByteLocked(unsigned int location) const
+bool SharedRAM::IsAddressLocked(unsigned int location) const
 {
 	return memoryLocked[location];
 }

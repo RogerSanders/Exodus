@@ -147,8 +147,8 @@ private:
 	//Generic map entry functions
 	bool BuildMapEntry(MapEntry& mapEntry, IDevice* device, const DeviceMappingParams& params, unsigned int busMappingAddressBusMask, unsigned int busMappingAddressBusWidth, unsigned int busMappingDataBusWidth, bool memoryMapping) const;
 	bool DoMapEntriesOverlap(const MapEntry& entry1, const MapEntry& entry2) const;
-	void AddMapEntryToPhysicalMap(MapEntry* mapEntry, std::vector<ThinList<MapEntry*>*>& physicalMap, unsigned int mappingAddressBusMask) const;
-	void RemoveMapEntryFromPhysicalMap(MapEntry* mapEntry, std::vector<ThinList<MapEntry*>*>& physicalMap, unsigned int mappingAddressBusMask);
+	void AddMapEntryToPhysicalMap(MapEntry* mapEntry, std::vector<ThinVector<MapEntry*,1>*>& physicalMap, unsigned int mappingAddressBusMask) const;
+	void RemoveMapEntryFromPhysicalMap(MapEntry* mapEntry, std::vector<ThinVector<MapEntry*,1>*>& physicalMap, unsigned int mappingAddressBusMask);
 
 	//Memory mapping functions
 	bool MapDevice(MapEntry* mapEntry);
@@ -162,8 +162,9 @@ private:
 
 	//Line mapping functions
 	bool ExtractLineMappingParams(IHeirarchicalStorageNode& node, LineMappingParams& params) const;
-	bool MapLine(const LineEntry& lineEntry);
+	bool MapLine(LineEntry* lineEntry);
 	void UnmapLineForDevice(IDevice* device);
+	void AddLineEntryToPhysicalMap(LineEntry* lineEntry, std::vector<std::vector<ThinVector<LineEntry*,1>*>>& physicalLineMap, IDevice* indexDevice, unsigned int indexLineNo);
 
 	//CE line mapping functions
 	bool DefineCELine(IHeirarchicalStorageNode& node, bool memoryMapping);
@@ -189,11 +190,15 @@ private:
 	//Port interface functions
 	MapEntry* ResolvePortAddress(unsigned int ce, unsigned int location) const;
 
+	//ThinVector helper functions
+	template<class T> static ThinVector<T*,1>* AddItemToThinVector(ThinVector<T*,1>* existingArray, T* item);
+	template<class T> static ThinVector<T*,1>* RemoveItemFromThinVector(ThinVector<T*,1>* existingArray, T* item);
+
 private:
 	//Memory map
 	bool memoryInterfaceDefined;
 	bool usePhysicalMemoryMap;
-	std::vector< ThinList<MapEntry*>* > physicalMemoryMap;
+	std::vector<ThinVector<MapEntry*,1>*> physicalMemoryMap;
 	std::vector<MapEntry*> memoryMap;
 	unsigned int addressBusWidth;
 	unsigned int dataBusWidth;
@@ -202,14 +207,16 @@ private:
 	//Port map
 	bool portInterfaceDefined;
 	bool usePhysicalPortMap;
-	std::vector< ThinList<MapEntry*>* > physicalPortMap;
+	std::vector<ThinVector<MapEntry*,1>*> physicalPortMap;
 	std::vector<MapEntry*> portMap;
 	unsigned int portAddressBusWidth;
 	unsigned int portDataBusWidth;
 	unsigned int portAddressBusMask;
 
 	//Other mapped lines
-	std::list<LineEntry> lineMap;
+	std::vector<LineEntry*> lineMap;
+	std::vector<std::vector<ThinVector<LineEntry*,1>*>> physicalLineMapOnSourceDevice;
+	std::vector<std::vector<ThinVector<LineEntry*,1>*>> physicalLineMapOnTargetDevice;
 
 	//Line mapping templates
 	LineGroupMappings lineGroupMappingTemplates;

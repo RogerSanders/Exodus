@@ -67,7 +67,7 @@ void Buffer::Resize(SizeType size)
 	bufferSize = size;
 	if(bufferSize > (SizeType)buffer.size())
 	{
-		buffer.resize((unsigned int)((bufferSize - (bufferSize % bufferSizeIncrement)) + bufferSizeIncrement));
+		buffer.resize((size_t)((bufferSize - (bufferSize % bufferSizeIncrement)) + bufferSizeIncrement));
 	}
 }
 
@@ -118,7 +118,7 @@ unsigned char& Buffer::operator[](SizeType position)
 //----------------------------------------------------------------------------------------
 //Internal read/write functions
 //----------------------------------------------------------------------------------------
-bool Buffer::ReadBinary(unsigned char* rawData, unsigned int bytesToRead)
+bool Buffer::ReadBinary(unsigned char* rawData, SizeType bytesToRead)
 {
 	//Return false if a read tries to pass the end of the buffer
 	if((streamPos + bytesToRead) > bufferSize)
@@ -127,7 +127,7 @@ bool Buffer::ReadBinary(unsigned char* rawData, unsigned int bytesToRead)
 	}
 
 	//Read the data from the buffer
-	for(unsigned int i = 0; i < bytesToRead; ++i)
+	for(SizeType i = 0; i < bytesToRead; ++i)
 	{
 		*(rawData + i) = buffer[(size_t)streamPos++];
 	}
@@ -135,7 +135,7 @@ bool Buffer::ReadBinary(unsigned char* rawData, unsigned int bytesToRead)
 }
 
 //----------------------------------------------------------------------------------------
-bool Buffer::WriteBinary(const unsigned char* rawData, unsigned int bytesToWrite)
+bool Buffer::WriteBinary(const unsigned char* rawData, SizeType bytesToWrite)
 {
 	//Resize the buffer if a write tries to pass the end of the buffer
 	if((streamPos + bytesToWrite) > bufferSize)
@@ -144,7 +144,7 @@ bool Buffer::WriteBinary(const unsigned char* rawData, unsigned int bytesToWrite
 	}
 
 	//Write the data to the buffer
-	for(unsigned int i = 0; i < bytesToWrite; ++i)
+	for(SizeType i = 0; i < bytesToWrite; ++i)
 	{
 		buffer[(size_t)streamPos++] = *(rawData + i);
 	}

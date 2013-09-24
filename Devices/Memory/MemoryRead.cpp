@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 MemoryRead::MemoryRead(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(aimplementationName, ainstanceName, amoduleID), menuHandler(0), interfaceSize(0)
+:Device(aimplementationName, ainstanceName, amoduleID), menuHandler(0), memoryEntryCount(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -25,10 +25,10 @@ MemoryRead::~MemoryRead()
 bool MemoryRead::Construct(IHeirarchicalStorageNode& node)
 {
 	//Read interface size
-	IHeirarchicalStorageAttribute* interfaceSizeAttribute = node.GetAttribute(L"InterfaceSize");
-	if(interfaceSizeAttribute != 0)
+	IHeirarchicalStorageAttribute* memoryEntryCountAttribute = node.GetAttribute(L"MemoryEntryCount");
+	if(memoryEntryCountAttribute != 0)
 	{
-		SetInterfaceSize(interfaceSizeAttribute->ExtractHexValue<unsigned int>());
+		SetMemoryEntryCount(memoryEntryCountAttribute->ExtractHexValue<unsigned int>());
 	}
 	return true;
 }
@@ -36,15 +36,15 @@ bool MemoryRead::Construct(IHeirarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 //Memory size functions
 //----------------------------------------------------------------------------------------
-unsigned int MemoryRead::GetInterfaceSize() const
+unsigned int MemoryRead::GetMemoryEntryCount() const
 {
-	return interfaceSize;
+	return memoryEntryCount;
 }
 
 //----------------------------------------------------------------------------------------
-void MemoryRead::SetInterfaceSize(unsigned int ainterfaceSize)
+void MemoryRead::SetMemoryEntryCount(unsigned int amemoryEntryCount)
 {
-	interfaceSize = ainterfaceSize;
+	memoryEntryCount = amemoryEntryCount;
 }
 
 //----------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ void MemoryRead::LockMemoryBlock(unsigned int location, unsigned int size, bool 
 {}
 
 //----------------------------------------------------------------------------------------
-bool MemoryRead::IsByteLocked(unsigned int location) const
+bool MemoryRead::IsAddressLocked(unsigned int location) const
 {
 	return false;
 }

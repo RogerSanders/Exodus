@@ -93,7 +93,7 @@ public:
 			target.GetAddress(cpu, address);
 			for(unsigned int i = 0; i < totalData.GetByteSize(); ++i)
 			{
-				M68000Byte byte = totalData.GetByte((totalData.GetByteSize() - 1) - i);
+				M68000Byte byte = totalData.GetByteFromTopDown(i);
 				additionalTime += cpu->WriteMemory(address, byte, cpu->GetFunctionCode(false), location + 2, true, GetInstructionRegister(), false, false);
 				address += 2;
 			}

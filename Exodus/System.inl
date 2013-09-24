@@ -454,11 +454,13 @@ struct System::SystemLineMapping
 //----------------------------------------------------------------------------------------
 struct System::EmbeddedROMInfo
 {
+	std::wstring embeddedROMName;
+	std::wstring displayName;
 	unsigned int moduleID;
 	IDevice* targetDevice;
 	unsigned int interfaceNumber;
 	unsigned int romRegionSize;
-	std::wstring displayName;
+	unsigned int romEntryBitCount;
 	std::wstring filePath;
 };
 

@@ -22,8 +22,9 @@ public:
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 
 	//Memory size functions
-	virtual unsigned int GetInterfaceSize() const;
-	virtual void SetInterfaceSize(unsigned int ainterfaceSize);
+	virtual unsigned int GetMemoryEntrySizeInBytes() const = 0;
+	unsigned int GetMemoryEntryCount() const;
+	void SetMemoryEntryCount(unsigned int amemoryEntryCount);
 
 	//Window functions
 	void CreateMenuHandlers();
@@ -35,7 +36,7 @@ protected:
 	//Memory locking functions
 	virtual bool IsMemoryLockingSupported() const;
 	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state);
-	virtual bool IsByteLocked(unsigned int location) const;
+	virtual bool IsAddressLocked(unsigned int location) const;
 
 private:
 	//View and menu classes
@@ -54,10 +55,11 @@ private:
 	friend class MemoryEditorOldView;
 
 private:
-	unsigned int interfaceSize;
-
 	//Menu handling
 	DebugMenuHandler* menuHandler;
+
+	//Memory size
+	unsigned int memoryEntryCount;
 };
 
 #endif

@@ -47,5 +47,5 @@
 	<System.SelectSettingOption ModuleID="0" SettingName="Region" OptionName="U" />
 	<System.SelectSettingOption ModuleID="0" SettingName="Soft Reset" OptionName="Off" />
 	<System.SelectSettingOption ModuleID="0" SettingName="TMSS" OptionName="Boot ROM without VDP Lockout" />
-	<System.LoadEmbeddedROMData ModuleID="0" DeviceInstanceName="Boot ROM" InterfaceNumber="0" FilePath="Genesis TMSS BIOS (U) [c][!].gen" />
+	<System.LoadEmbeddedROMData ModuleID="0" EmbeddedROMName="Boot ROM" FilePath="Genesis TMSS BIOS (U) [c][!].gen" />
 </System>

@@ -109,8 +109,8 @@ private:
 	inline void CheckBufferSize(SizeType writeSize);
 
 	//Internal read/write functions
-	inline bool ReadBinary(unsigned char* rawData, unsigned int bytesToRead);
-	inline bool WriteBinary(const unsigned char* rawData, unsigned int bytesToWrite);
+	inline bool ReadBinary(unsigned char* rawData, SizeType bytesToRead);
+	inline bool WriteBinary(const unsigned char* rawData, SizeType bytesToWrite);
 
 private:
 	std::vector<unsigned char> buffer;

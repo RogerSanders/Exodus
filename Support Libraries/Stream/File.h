@@ -30,8 +30,8 @@ public:
 	virtual ~File();
 
 	//File binding
-	inline bool Open(const std::string& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize = 8192);
-	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize = 8192);
+	inline bool Open(const std::string& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize = 8192);
+	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize = 8192);
 	inline void Close();
 	inline bool IsOpen() const;
 
@@ -119,10 +119,10 @@ private:
 	static std::wstring ConvertStringToWString(const std::string& source);
 
 	//Internal read/write functions
-	inline bool ReadBinary(void* rawData, unsigned int bytesToRead);
-	inline bool WriteBinary(const void* rawData, unsigned int bytesToWrite);
-	inline bool ReadBinaryUnbuffered(void* rawData, unsigned int bytesToRead);
-	inline bool WriteBinaryUnbuffered(const void* rawData, unsigned int bytesToWrite);
+	inline bool ReadBinary(void* rawData, SizeType bytesToRead);
+	inline bool WriteBinary(const void* rawData, SizeType bytesToWrite);
+	inline bool ReadBinaryUnbuffered(void* rawData, SizeType bytesToRead);
+	inline bool WriteBinaryUnbuffered(const void* rawData, SizeType bytesToWrite);
 
 	//Data buffer functions
 	inline bool EmptyDataBuffer();
@@ -136,9 +136,9 @@ private:
 
 	//Data buffering
 	unsigned char* fileBuffer;
-	unsigned int bufferSize;
-	unsigned int bufferPosOffset;
-	unsigned int bytesRemainingInBuffer;
+	SizeType bufferSize;
+	SizeType bufferPosOffset;
+	SizeType bytesRemainingInBuffer;
 	bool bufferInWriteMode;
 };
 

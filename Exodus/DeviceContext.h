@@ -80,6 +80,8 @@ public:
 	//Device/System interface
 	virtual IDevice* GetTargetDevice() const;
 	inline void SetSystemInterface(ISystemInternal* asystemObject);
+	virtual unsigned int GetDeviceIndexNo() const;
+	inline void SetDeviceIndexNo(unsigned int adeviceIndexNo);
 	inline bool ActiveDevice() const;
 
 	//System message functions
@@ -148,6 +150,8 @@ private:
 	void ExecuteWorkerThread();
 	void ExecuteWorkerThreadStep();
 	void ExecuteWorkerThreadStepWithDependencies();
+	static void ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(DeviceContext* device1, DeviceContext* device2);
+	void ExecuteWorkerThreadStepSharedExecutionThreadSpinoff();
 	void ExecuteWorkerThreadTimeslice();
 	void ExecuteWorkerThreadTimesliceWithDependencies();
 
@@ -158,6 +162,7 @@ private:
 private:
 	//Device properties
 	IDevice* device;
+	unsigned int deviceIndexNo;
 	bool deviceEnabled;
 	std::vector<DeviceDependency> deviceDependencies;
 	std::vector<DeviceContext*> dependentDevices;
@@ -171,6 +176,7 @@ private:
 	mutable boost::mutex executeThreadMutex;
 	boost::condition executeTaskSent;
 	mutable boost::condition executeCompletionStateChanged;
+	bool executeThreadRunningState;
 	boost::condition executeThreadReady;
 	boost::condition executeThreadStopped;
 	boost::mutex* commandMutexPointer;
@@ -186,6 +192,21 @@ private:
 	double remainingTime;
 	double remainingTimeBackup;
 	volatile double currentTimesliceProgress;
+
+	//Combined worker thread data
+	bool sharingExecuteThread;
+	bool primarySharedExecuteThreadDevice;
+	DeviceContext* otherSharedExecuteThreadDevice;
+	DeviceContext* currentSharedExecuteThreadOwner;
+	volatile bool sharedExecuteThreadSpinoffActive;
+	volatile bool sharedExecuteThreadSpinoffRejoinRequested;
+	bool sharedExecuteThreadSpinoffPaused;
+	bool sharedExecuteThreadSpinoffStopRequested;
+	bool sharedExecuteThreadSpinoffRunning;
+	bool sharedExecuteThreadSpinoffTimesliceAvailable;
+	boost::condition sharedExecuteThreadSpinoffStateChangeRequested;
+	boost::condition sharedExecuteThreadSpinoffStoppedOrPaused;
+	boost::condition sharedExecuteThreadSpinoffTimesliceProcessingBegun;
 
 	//Cached settings
 	mutable std::wstring capturePathCached;

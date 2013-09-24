@@ -29,6 +29,7 @@ public:
 
 	//Device/System interface
 	virtual IDevice* GetTargetDevice() const = 0;
+	virtual unsigned int GetDeviceIndexNo() const = 0;
 
 	//System message functions
 	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*) = 0, void* callbackParams = 0) = 0;
