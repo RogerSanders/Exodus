@@ -594,15 +594,27 @@ Data& Data::SetBit(unsigned int bitNumber, bool state)
 }
 
 //----------------------------------------------------------------------------------------
-unsigned char Data::GetByte(unsigned int byte) const
+unsigned char Data::GetByteFromBottomUp(unsigned int byte) const
 {
 	return (unsigned char)GetDataSegment(byte * bitsPerByte, bitsPerByte);
 }
 
 //----------------------------------------------------------------------------------------
-void Data::SetByte(unsigned int byte, unsigned int data)
+void Data::SetByteFromBottomUp(unsigned int byte, unsigned int data)
 {
 	SetDataSegment(byte * bitsPerByte, bitsPerByte, data);
+}
+
+//----------------------------------------------------------------------------------------
+unsigned char Data::GetByteFromTopDown(unsigned int byte) const
+{
+	return (unsigned char)GetDataSegment(((GetByteSize() - 1) - byte) * bitsPerByte, bitsPerByte);
+}
+
+//----------------------------------------------------------------------------------------
+void Data::SetByteFromTopDown(unsigned int byte, unsigned int data)
+{
+	SetDataSegment(((GetByteSize() - 1) - byte) * bitsPerByte, bitsPerByte, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -804,6 +816,88 @@ unsigned int Data::GetSetBitCount() const
 }
 
 //----------------------------------------------------------------------------------------
+bool Data::GetHighestSetBitNumber(unsigned int& bitNumber) const
+{
+	//If the data is zero, return false, since there's no set bits in the data.
+	if(data == 0)
+	{
+		return false;
+	}
+
+	//Calculate the number of the highest set bit in the data
+	unsigned int searchData = data;
+	bitNumber = 0;
+	while((searchData >>= 1) != 0)
+	{
+		++bitNumber;
+	}
+
+	//Since we managed to locate the highest set bit, return true.
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool Data::GetHighestSetBitMask(unsigned int& bitMask) const
+{
+	//If the data is zero, return false, since there's no set bits in the data.
+	if(data == 0)
+	{
+		return false;
+	}
+
+	//Calculate the mask of the highest set bit in the data
+	unsigned int searchData = data;
+	bitMask = 1;
+	while((searchData >>= 1) != 0)
+	{
+		bitMask <<= 1;
+	}
+
+	//Since we managed to locate the highest set bit mask, return true.
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool Data::GetLowestSetBitNumber(unsigned int& bitNumber) const
+{
+	//If the data is zero, return false, since there's no set bits in the data.
+	if(data == 0)
+	{
+		return false;
+	}
+
+	//Calculate the number of the lowest set bit in the data
+	bitNumber = 0;
+	while((data & (1 << bitNumber)) == 0)
+	{
+		++bitNumber;
+	}
+
+	//Since we managed to locate the lowest set bit, return true.
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool Data::GetLowestSetBitMask(unsigned int& bitMask) const
+{
+	//If the data is zero, return false, since there's no set bits in the data.
+	if(data == 0)
+	{
+		return false;
+	}
+
+	//Calculate the mask of the lowest set bit in the data
+	bitMask = 1;
+	while((data & bitMask) == 0)
+	{
+		bitMask <<= 1;
+	}
+
+	//Since we managed to locate the lowest set bit mask, return true.
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 //Stream operators
 //----------------------------------------------------------------------------------------
 Stream::ViewText& operator>>(Stream::ViewText& stream, Data& object)
@@ -826,7 +920,7 @@ Stream::ViewBinary& operator>>(Stream::ViewBinary& stream, Data& object)
 	{
 		unsigned char data;
 		stream >> data;
-		object.SetByte(i, data);
+		object.SetByteFromTopDown(i, data);
 	}
 	return stream;
 }
@@ -836,7 +930,7 @@ Stream::ViewBinary& operator<<(Stream::ViewBinary& stream, const Data& object)
 {
 	for(unsigned int i = 0; i < object.GetByteSize(); ++i)
 	{
-		stream << object.GetByte(i);
+		stream << object.GetByteFromTopDown(i);
 	}
 	return stream;
 }

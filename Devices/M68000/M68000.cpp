@@ -1585,16 +1585,15 @@ bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 		//Wait for the target line state change to be processed from the line access
 		//buffer, or the end of the current timeslice to be reached. Note that we
 		//suspend a dependency on the calling device if one is active. This is
-		//essential in order to avoid deadlocks in the case where a dependent device
-		//of this processor is the device that is triggering this advance request. In
-		//this case, it's possible that we'll enter an infinite loop, since both
-		//devices could end up waiting for each other to advance. We solve the issue
-		//here by temporarily suspending the device dependency, until the advance
-		//request has been fulfilled. The execute thread will restore the dependency
-		//itself when the state change is applied. It is essential for the execute
-		//thread to restore the dependency rather than us doing it here, otherwise the
-		//execute thread could possibly advance further ahead without the dependency
-		//being active.
+		//essential in order to avoid deadlocks in the case where a dependent device of
+		//this processor is the device that is triggering this advance request. In this
+		//case, it's possible that we'll enter an infinite loop, since both devices could
+		//end up waiting for each other to advance. We solve the issue here by temporarily
+		//suspending the device dependency, until the advance request has been fulfilled.
+		//The execute thread will restore the dependency itself when the state change is
+		//applied. It is essential for the execute thread to restore the dependency rather
+		//than us doing it here, otherwise the execute thread could possibly advance
+		//further ahead without the dependency being active.
 		GetDeviceContext()->SetDeviceDependencyEnable(caller, false);
 		//##FIX## Using TimesliceExecutionCompleted() here is a temporary workaround for
 		//our step through deadlock. Using this flag here is not thread safe, as it's
@@ -2234,8 +2233,6 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 //----------------------------------------------------------------------------------------
 void M68000::WriteMemoryTransparent(const M68000Long& location, const Data& data, FunctionCode code, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
 {
-	IBusInterface::AccessResult result;
-
 	switch(data.GetBitCount())
 	{
 	default:
@@ -2449,8 +2446,7 @@ bool M68000::FormatDataForDisassembly(const std::vector<Data>& dataElements, uns
 	}
 
 	//Determine the size of the output data, and write the opcode prefix string.
-	const unsigned int bitsPerByte = 8;
-	unsigned int outputElementBitCount = dataElementByteSize * bitsPerByte;
+	unsigned int outputElementBitCount = dataElementByteSize * Data::bitsPerByte;
 	unsigned int displayCharWidth;
 	switch(outputElementBitCount)
 	{

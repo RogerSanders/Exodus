@@ -40,17 +40,28 @@ struct DeviceContext::DeviceDependency
 //Constructors
 //----------------------------------------------------------------------------------------
 DeviceContext::DeviceContext(IDevice* adevice)
-:device(adevice), systemObject(0), deviceDependencies(0), suspendedThreadCountPointer(0), remainingThreadCountPointer(0), commandMutexPointer(0), suspendManager(0)
+:device(adevice), systemObject(0), deviceDependencies(0), suspendedThreadCountPointer(0), remainingThreadCountPointer(0), commandMutexPointer(0), suspendManager(0), otherSharedExecuteThreadDevice(0), currentSharedExecuteThreadOwner(0)
 {
+	deviceIndexNo = 0;
 	deviceEnabled = true;
 	commandWorkerThreadActive = false;
 	executeWorkerThreadActive = false;
+	executeThreadRunningState = false;
 	executingWaitForCompletionCommand = false;
 
 	timesliceCompleted = false;
 	timesliceSuspended = false;
 	timesliceSuspensionDisable = false;
 	transientExecutionActive = false;
+
+	sharingExecuteThread = false;
+	primarySharedExecuteThreadDevice = false;
+	sharedExecuteThreadSpinoffActive = false;
+	sharedExecuteThreadSpinoffRejoinRequested = false;
+	sharedExecuteThreadSpinoffPaused = false;
+	sharedExecuteThreadSpinoffStopRequested = false;
+	sharedExecuteThreadSpinoffRunning = false;
+	sharedExecuteThreadSpinoffTimesliceAvailable = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -58,12 +69,20 @@ DeviceContext::DeviceContext(IDevice* adevice)
 //----------------------------------------------------------------------------------------
 void DeviceContext::NotifyUpcomingTimeslice(double nanoseconds)
 {
+	//Note that we reset the current timeslice progress here to the total amount of
+	//remaining time for all devices. It is critical that this is done here, before the
+	//execute command is sent, since our execute threads for each device may check the
+	//timeslice progress of another in order to support device dependencies. We need to
+	//reset the current timeslice progress for each device after all devices are finished
+	//executing the last timeslice, but before any device begins executing the next
+	//timeslice, in order to avoid race conditions in the execute threads. This is a
+	//convenient place to do it, as it gives us the synchronization we need between all
+	//our devices, and it can be performed here with very little overhead.
+	currentTimesliceProgress = remainingTime;
+
 	if(device->SendNotifyUpcomingTimeslice())
 	{
 		device->NotifyUpcomingTimeslice(nanoseconds);
-		//##TODO## Figure out why this is here. I'm pretty sure this is completely
-		//redundant, and should be removed.
-		currentTimesliceProgress = remainingTime;
 	}
 }
 
@@ -88,6 +107,7 @@ void DeviceContext::NotifyAfterExecuteCalled()
 //----------------------------------------------------------------------------------------
 void DeviceContext::ExecuteTimeslice(double nanoseconds)
 {
+	boost::mutex::scoped_lock lock(executeThreadMutex);
 	timeslice = nanoseconds;
 	timesliceCompleted = false;
 	executeTaskSent.notify_all();
@@ -277,6 +297,12 @@ void DeviceContext::ClearRemainingTime()
 void DeviceContext::SetSystemInterface(ISystemInternal* asystemObject)
 {
 	systemObject = asystemObject;
+}
+
+//----------------------------------------------------------------------------------------
+void DeviceContext::SetDeviceIndexNo(unsigned int adeviceIndexNo)
+{
+	deviceIndexNo = adeviceIndexNo;
 }
 
 //----------------------------------------------------------------------------------------

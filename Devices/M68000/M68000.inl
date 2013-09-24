@@ -72,6 +72,13 @@ enum M68000::LineID
 	LINE_HALT,
 	LINE_IPL,
 	LINE_VPA
+	//##TODO## Add DTAK and BERR lines, with proper support for both. We need to phase out
+	//the "busError" flag from the IBusInterface::AccessResult structure, and rely on line
+	//based communication for bus errors to be flagged. We also need to implement actual
+	//support for the DTAK line, where an external device is responsible for asserting
+	//DTAK while the M68000 is accessing the bus. If DTAK is not asserted, the M68000
+	//needs to enter a wait state until it is. Note that this might actually be
+	//unachievable until a microcode-level M68000 core is developed.
 };
 
 //----------------------------------------------------------------------------------------

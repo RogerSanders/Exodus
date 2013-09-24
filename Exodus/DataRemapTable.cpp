@@ -333,15 +333,3 @@ unsigned int DataRemapTable::ConvertFrom(unsigned int sourceData) const
 
 	return result;
 }
-
-//----------------------------------------------------------------------------------------
-unsigned int DataRemapTable::GetBitCountConverted() const
-{
-	return bitCountConverted;
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int DataRemapTable::GetBitMaskOriginalLinesPreserved() const
-{
-	return bitMaskOriginal;
-}

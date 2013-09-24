@@ -237,11 +237,29 @@ bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath
 	//essentially unused, and may be incorrect, especially for homebrew ROM files.
 	unsigned int romRegionSize = romHeader.fileSize;
 
+	//Calculate the size of the ROM region to allocated for the specified ROM file. We pad
+	//out the size of the specified ROM file to the nearest power of two in order to do
+	//this. Bytes above the region defined within the specified ROM file will be filled
+	//with zeros.
+	//##TODO## Provide a way to specify the data to be padded out with 0xFFFF.
+	Data romRegionSizePadded(sizeof(romHeader.fileSize) * Data::bitsPerByte, romRegionSize);
+	unsigned int highestSetBitMask;
+	romRegionSizePadded.GetHighestSetBitMask(highestSetBitMask);
+	if(romRegionSize > highestSetBitMask)
+	{
+		romRegionSizePadded = (highestSetBitMask << 1);
+	}
+
+	//Calculate the address mask for the calculated ROM region size
+	unsigned int highestSetBitNumber;
+	romRegionSizePadded.GetHighestSetBitNumber(highestSetBitNumber);
+	unsigned int romRegionAddressMask = (1 << (highestSetBitNumber + 1)) - 1;
+
 	//Add all required child elements for this module definition
 	node.CreateChild(L"System.ImportConnector").CreateAttribute(L"ConnectorClassName", L"CartridgePort").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port");
 	node.CreateChild(L"System.ImportBusInterface").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port").CreateAttribute(L"BusInterfaceName", L"BusInterface").CreateAttribute(L"ImportName", L"BusInterface");
 	node.CreateChild(L"System.ImportSystemLine").CreateAttribute(L"ConnectorInstanceName", L"Cartridge Port").CreateAttribute(L"SystemLineName", L"CART").CreateAttribute(L"ImportName", L"CART");
-	node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"ROM").CreateAttribute(L"InstanceName", L"ROM").CreateAttribute(L"BinaryDataPresent", true).CreateAttribute(L"SeparateBinaryData", true).SetData(filePath);
+	node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"ROM16").CreateAttribute(L"InstanceName", L"ROM").CreateAttribute(L"BinaryDataPresent", true).CreateAttribute(L"SeparateBinaryData", true).SetData(filePath);
 	if(sramPresent)
 	{
 		IHeirarchicalStorageNode& ramDeviceNode = node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"RAM").CreateAttribute(L"InstanceName", L"SRAM").CreateAttributeHex(L"InterfaceSize", sramByteSize, 0).CreateAttribute(L"RepeatData", true).CreateAttribute(L"PersistentData", true);
@@ -250,10 +268,11 @@ bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath
 			ramDeviceNode.InsertBinaryData(initialRAMData, L"RAM.InitialData", true);
 		}
 	}
-	node.CreateChild(L"BusInterface.MapDevice").CreateAttribute(L"BusInterfaceName", L"BusInterface").CreateAttribute(L"DeviceInstanceName", L"ROM").CreateAttribute(L"CELineConditions", L"FCCPUSpace=0, CE0=1").CreateAttributeHex(L"MemoryMapBase", 0, 6).CreateAttributeHex(L"MemoryMapSize", romRegionSize, 0);
+	node.CreateChild(L"BusInterface.MapDevice").CreateAttribute(L"BusInterfaceName", L"BusInterface").CreateAttribute(L"DeviceInstanceName", L"ROM").CreateAttribute(L"CELineConditions", L"FCCPUSpace=0, CE0=1").CreateAttributeHex(L"MemoryMapBase", 0, 6).CreateAttributeHex(L"MemoryMapSize", romRegionSizePadded.GetData(), 0).CreateAttributeHex(L"AddressMask", romRegionAddressMask, 0).CreateAttribute(L"AddressDiscardLowerBitCount", 1);
 	if(sramPresent)
 	{
-		//##TODO## Generate the address and data masks properly
+		//##TODO## Generate address masks and shift counts here rather than using address
+		//line mappings
 
 		//Calculate the size of the SRAM region in the address space. If the SRAM is
 		//16-bit, the region size is simply the byte size of the SRAM. If the SRAM is
@@ -498,17 +517,19 @@ bool MegaDriveROMLoader::AutoDetectBackupRAMSupport(const MegaDriveROMHeader& ro
 	//Address: 10 = Memory on even addresses only
 	//         11 = Memory on odd addresses only
 	//         00 = Memory on even and odd addresses
-	const unsigned int bitsPerByte = 8;
-	Data bramSetting1B2(bitsPerByte, romHeader.bramSetting[2]);
+	Data bramSetting1B2(Data::bitsPerByte, romHeader.bramSetting[2]);
 	bool memoryAddressRestricted = bramSetting1B2.GetBit(4);
 	bool memoryAvailableOnOddAddresses = bramSetting1B2.GetBit(3);
 	linkedToEvenAddress = !memoryAddressRestricted || !memoryAvailableOnOddAddresses;
 	linkedToOddAddress = !memoryAddressRestricted || memoryAvailableOnOddAddresses;
 
 	//Decode the SRAM data from the header
-	//##TODO## Do this properly. I believe there are mode flags we can decode which tell
-	//us about whether the SRAM is mapped on odd or even addresses.
-	//##TODO## Determine if 16-bit SRAM exists
+	//##FIX## Do this properly. Right now we're overriding the "linkedToOddAddress" value
+	//we calculated above, and we're making a lot of assumptions in the SRAM location and
+	//size calculations.
+	//##TODO## Run all dumped Mega Drive games through our detection code to spit out a
+	//table of what games record what for SRAM data, then compare it with our list of
+	//games known to use backup RAM, and cross-check the findings.
 	linkedToOddAddress = ((romHeader.bramLocationStart & 0x1) != 0);
 	sramStartLocation = (romHeader.bramLocationStart & 0xFFFFFFFE);
 	unsigned int sramEndLocation = (romHeader.bramLocationEnd | 0x00000001);
@@ -517,6 +538,7 @@ bool MegaDriveROMLoader::AutoDetectBackupRAMSupport(const MegaDriveROMHeader& ro
 	//No known games use 16-bit SRAM, but since in theory it's possible, and we want our
 	//code to be as flexible as possible, we provide this variable so that we can easily
 	//add support for it later.
+	//##TODO## Determine if 16-bit SRAM is used in any commercial games
 	sram16Bit = false;
 
 	//According to the "Genesis Software Manual", "Addendum 4", SRAM is usually

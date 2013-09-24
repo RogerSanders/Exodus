@@ -573,6 +573,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="ThinVector"
+			>
+			<File
+				RelativePath=".\ThinVector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ThinVector.inl"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ThinList.pkg"
 			>

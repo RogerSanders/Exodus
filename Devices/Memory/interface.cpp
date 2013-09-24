@@ -1,29 +1,159 @@
 #include "SystemInterface/SystemInterface.pkg"
-#include "ROM.h"
-#include "RAM.h"
+#include "ROM8.h"
+#include "ROM16.h"
+#include "ROM32.h"
+#include "ROM8Variable.h"
+#include "ROM16Variable.h"
+#include "ROM32Variable.h"
+#include "RAM8.h"
+#include "RAM16.h"
+#include "RAM32.h"
+#include "RAM8Variable.h"
+#include "RAM16Variable.h"
+#include "RAM32Variable.h"
 #include "SharedRAM.h"
 #include "TimedBufferIntDevice.h"
 
 //----------------------------------------------------------------------------------------
-IDevice* GetROM(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetROM8(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new ROM(implementationName, instanceName, moduleID);
+	return new ROM8(implementationName, instanceName, moduleID);
 }
 
 //----------------------------------------------------------------------------------------
-void DeleteROM(IDevice* device)
+void DeleteROM8(IDevice* device)
 {
 	delete device;
 }
 
 //----------------------------------------------------------------------------------------
-IDevice* GetRAM(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+IDevice* GetROM16(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new RAM(implementationName, instanceName, moduleID);
+	return new ROM16(implementationName, instanceName, moduleID);
 }
 
 //----------------------------------------------------------------------------------------
-void DeleteRAM(IDevice* device)
+void DeleteROM16(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetROM32(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new ROM32(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteROM32(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetROM8Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new ROM8Variable(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteROM8Variable(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetROM16Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new ROM16Variable(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteROM16Variable(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetROM32Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new ROM32Variable(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteROM32Variable(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetRAM8(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new RAM8(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteRAM8(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetRAM16(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new RAM16(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteRAM16(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetRAM32(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new RAM32(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteRAM32(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetRAM8Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new RAM8Variable(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteRAM8Variable(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetRAM16Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new RAM16Variable(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteRAM16Variable(IDevice* device)
+{
+	delete device;
+}
+
+//----------------------------------------------------------------------------------------
+IDevice* GetRAM32Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+{
+	return new RAM32Variable(implementationName, instanceName, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+void DeleteRAM32Variable(IDevice* device)
 {
 	delete device;
 }
@@ -77,15 +207,45 @@ extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDevi
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetDeviceSettings(GetROM, DeleteROM, L"Memory.ROM", L"ROM", 1, copyrightText, commentsText);
+		entry.SetDeviceSettings(GetROM8, DeleteROM8, L"Memory.ROM", L"ROM8", 1, copyrightText, commentsText);
 		return true;
 	case 1:
-		entry.SetDeviceSettings(GetRAM, DeleteRAM, L"Memory.RAM", L"RAM", 1, copyrightText, commentsText);
+		entry.SetDeviceSettings(GetROM16, DeleteROM16, L"Memory.ROM", L"ROM16", 1, copyrightText, commentsText);
 		return true;
 	case 2:
-		entry.SetDeviceSettings(GetSharedRAM, DeleteSharedRAM, L"Memory.RAM", L"SharedRAM", 1, copyrightText, commentsText);
+		entry.SetDeviceSettings(GetROM32, DeleteROM32, L"Memory.ROM", L"ROM32", 1, copyrightText, commentsText);
 		return true;
 	case 3:
+		entry.SetDeviceSettings(GetROM8Variable, DeleteROM8Variable, L"Memory.ROM", L"ROM8Variable", 1, copyrightText, commentsText);
+		return true;
+	case 4:
+		entry.SetDeviceSettings(GetROM16Variable, DeleteROM16Variable, L"Memory.ROM", L"ROM16Variable", 1, copyrightText, commentsText);
+		return true;
+	case 5:
+		entry.SetDeviceSettings(GetROM32Variable, DeleteROM32Variable, L"Memory.ROM", L"ROM32Variable", 1, copyrightText, commentsText);
+		return true;
+	case 6:
+		entry.SetDeviceSettings(GetRAM8, DeleteRAM8, L"Memory.RAM", L"RAM8", 1, copyrightText, commentsText);
+		return true;
+	case 7:
+		entry.SetDeviceSettings(GetRAM16, DeleteRAM16, L"Memory.RAM", L"RAM16", 1, copyrightText, commentsText);
+		return true;
+	case 8:
+		entry.SetDeviceSettings(GetRAM32, DeleteRAM32, L"Memory.RAM", L"RAM32", 1, copyrightText, commentsText);
+		return true;
+	case 9:
+		entry.SetDeviceSettings(GetRAM8Variable, DeleteRAM8Variable, L"Memory.RAM", L"RAM8Variable", 1, copyrightText, commentsText);
+		return true;
+	case 10:
+		entry.SetDeviceSettings(GetRAM16Variable, DeleteRAM16Variable, L"Memory.RAM", L"RAM16Variable", 1, copyrightText, commentsText);
+		return true;
+	case 11:
+		entry.SetDeviceSettings(GetRAM32Variable, DeleteRAM32Variable, L"Memory.RAM", L"RAM32Variable", 1, copyrightText, commentsText);
+		return true;
+	case 12:
+		entry.SetDeviceSettings(GetSharedRAM, DeleteSharedRAM, L"Memory.RAM", L"SharedRAM", 1, copyrightText, commentsText);
+		return true;
+	case 13:
 		entry.SetDeviceSettings(GetTimedBufferIntDeviceDeviceInfo, DeleteTimedBufferIntDeviceDevice, L"Memory.RAM", L"TimedBufferIntDevice", 1, copyrightText, commentsText);
 		return true;
 	}

@@ -45,13 +45,13 @@ File::File(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, ByteOrd
 //----------------------------------------------------------------------------------------
 //File binding
 //----------------------------------------------------------------------------------------
-bool File::Open(const std::string& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize)
+bool File::Open(const std::string& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize)
 {
 	return Open(ConvertStringToWString(filename), openMode, createMode, abufferSize);
 }
 
 //----------------------------------------------------------------------------------------
-bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize)
+bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize)
 {
 	//If a file handle is currently open, close it.
 	if(IsOpen())
@@ -148,7 +148,7 @@ bool File::IsOpen() const
 //----------------------------------------------------------------------------------------
 //Internal read/write functions
 //----------------------------------------------------------------------------------------
-bool File::ReadBinary(void* rawData, unsigned int bytesToRead)
+bool File::ReadBinary(void* rawData, SizeType bytesToRead)
 {
 	//Ensure that a file is currently open
 	if(!fileOpen)
@@ -164,7 +164,7 @@ bool File::ReadBinary(void* rawData, unsigned int bytesToRead)
 	//efficient way of doing this kind of data transfer under all circumstances, being
 	//roughly as efficient for a single byte transfer, and noticeably more efficient for
 	//two bytes or more.
-	unsigned int bytesToReadFromBuffer = 0;
+	SizeType bytesToReadFromBuffer = 0;
 	if(!bufferInWriteMode)
 	{
 		bytesToReadFromBuffer = (bytesToRead <= bytesRemainingInBuffer)? bytesToRead: bytesRemainingInBuffer;
@@ -174,7 +174,7 @@ bool File::ReadBinary(void* rawData, unsigned int bytesToRead)
 	bytesRemainingInBuffer -= bytesToReadFromBuffer;
 
 	//Perform the read operation from the file
-	unsigned int bytesRemainingToRead = bytesToRead - bytesToReadFromBuffer;
+	SizeType bytesRemainingToRead = bytesToRead - bytesToReadFromBuffer;
 	if(bytesRemainingToRead > 0)
 	{
 		//Empty the contents of the data buffer. If the buffer is in write mode, this will
@@ -229,7 +229,7 @@ bool File::ReadBinary(void* rawData, unsigned int bytesToRead)
 }
 
 //----------------------------------------------------------------------------------------
-bool File::WriteBinary(const void* rawData, unsigned int bytesToWrite)
+bool File::WriteBinary(const void* rawData, SizeType bytesToWrite)
 {
 	//Ensure that a file is currently open
 	if(!fileOpen)
@@ -254,7 +254,7 @@ bool File::WriteBinary(const void* rawData, unsigned int bytesToWrite)
 		unsigned char* rawDataAsCharArray = (unsigned char*)rawData;
 
 		//Write data to the buffer
-		unsigned int bytesToWriteToBuffer = 0;
+		SizeType bytesToWriteToBuffer = 0;
 		if(bufferInWriteMode)
 		{
 			bytesToWriteToBuffer = (bytesToWrite <= bytesRemainingInBuffer)? bytesToWrite: bytesRemainingInBuffer;
@@ -265,7 +265,7 @@ bool File::WriteBinary(const void* rawData, unsigned int bytesToWrite)
 
 		//Reload the data buffer if necessary, and write any remaining data to be written
 		//to the buffer.
-		unsigned int bytesRemainingToWrite = bytesToWrite - bytesToWriteToBuffer;
+		SizeType bytesRemainingToWrite = bytesToWrite - bytesToWriteToBuffer;
 		if(bytesRemainingToWrite > 0)
 		{
 			//Set the data buffer to write mode
@@ -283,18 +283,19 @@ bool File::WriteBinary(const void* rawData, unsigned int bytesToWrite)
 }
 
 //----------------------------------------------------------------------------------------
-bool File::ReadBinaryUnbuffered(void* rawData, unsigned int bytesToRead)
+bool File::ReadBinaryUnbuffered(void* rawData, SizeType bytesToRead)
 {
 	if(!fileOpen)
 	{
 		return false;
 	}
 
+	DWORD bytesToReadAsDWORD = (DWORD)bytesToRead;
 	DWORD bytesRead = 0;
-	BOOL readFileReturn = ReadFile(fileHandle, rawData, bytesToRead, &bytesRead, NULL);
+	BOOL readFileReturn = ReadFile(fileHandle, rawData, bytesToReadAsDWORD, &bytesRead, NULL);
 	//If we only managed to read part of the requested data, restore the original stream
 	//position, and return false.
-	if((bytesRead > 0) && (bytesRead != bytesToRead))
+	if((bytesRead > 0) && (bytesRead != bytesToReadAsDWORD))
 	{
 		SetStreamPos(GetStreamPos() - (SizeType)bytesRead);
 		return false;
@@ -305,18 +306,19 @@ bool File::ReadBinaryUnbuffered(void* rawData, unsigned int bytesToRead)
 }
 
 //----------------------------------------------------------------------------------------
-bool File::WriteBinaryUnbuffered(const void* rawData, unsigned int bytesToWrite)
+bool File::WriteBinaryUnbuffered(const void* rawData, SizeType bytesToWrite)
 {
 	if(!fileOpen)
 	{
 		return false;
 	}
 
+	DWORD bytesToWriteAsDWORD = (DWORD)bytesToWrite;
 	DWORD bytesWritten = 0;
-	BOOL writeFileReturn = WriteFile(fileHandle, rawData, bytesToWrite, &bytesWritten, NULL);
+	BOOL writeFileReturn = WriteFile(fileHandle, rawData, bytesToWriteAsDWORD, &bytesWritten, NULL);
 	//If we only managed to write part of the supplied data, restore the original stream
 	//position, and return false.
-	if((bytesWritten > 0) && (bytesWritten != bytesToWrite))
+	if((bytesWritten > 0) && (bytesWritten != bytesToWriteAsDWORD))
 	{
 		SetStreamPos(GetStreamPos() - (SizeType)bytesWritten);
 		return false;
@@ -376,7 +378,7 @@ bool File::PrepareDataBufferForReads()
 		//Read a new page into the data buffer. If there are not enough bytes remaining in
 		//the file, the number returned in bytesRead will be less than the amount
 		//requested in bytesToRead.
-		DWORD bytesToRead = bufferSize;
+		DWORD bytesToRead = (DWORD)bufferSize;
 		DWORD bytesRead = 0;
 		BOOL readFileReturn = ReadFile(fileHandle, (void*)fileBuffer, bytesToRead, &bytesRead, NULL);
 
@@ -391,7 +393,7 @@ bool File::PrepareDataBufferForReads()
 
 		//Calculate the number of bytes remaining in the buffer. This handles the case
 		//where there wasn't enough data remaining in the file to fill the buffer.
-		unsigned int bytesEmptyInBuffer = (unsigned int)(bytesToRead - bytesRead);
+		SizeType bytesEmptyInBuffer = (SizeType)(bytesToRead - bytesRead);
 		bytesRemainingInBuffer = bufferSize - bytesEmptyInBuffer;
 	}
 	else

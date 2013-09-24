@@ -2346,7 +2346,7 @@ void S315_5313::PerformReadCacheOperation()
 		{
 			Data tempDataBuffer(8);
 			M5ReadVRAM8Bit(tempAddress+1, tempDataBuffer, ramAccessTarget);
-			readBuffer.SetByte(1, tempDataBuffer.GetData());
+			readBuffer.SetByteFromBottomUp(1, tempDataBuffer.GetData());
 			readDataHalfCached = true;
 		}
 		else
@@ -2475,7 +2475,7 @@ void S315_5313::PerformFIFOWriteOperation()
 		//of the target address internally, so the target address will be byteswapped
 		//before the write occurs.
 		unsigned int dataByteToRead = (fifoBufferEntry.addressRegData.GetBit(0) ^ fifoBufferEntry.dataWriteHalfWritten)? 1: 0;
-		Data writeData(8, fifoBufferEntry.dataPortWriteData.GetByte(dataByteToRead));
+		Data writeData(8, fifoBufferEntry.dataPortWriteData.GetByteFromBottomUp(dataByteToRead));
 
 		//Perform the VRAM write
 		M5WriteVRAM8Bit(tempAddress, writeData, ramAccessTarget);
@@ -2938,7 +2938,7 @@ void S315_5313::M5ReadVRAM8Bit(const Data& address, Data& data, const RAMAccessT
 	//Read the data. Only a single 8-bit read is performed from VRAM in this case. The
 	//upper 8 bits retain their previous value.
 	//##TODO## Snoop on the VRAM bus to confirm only a single byte is read for this target
-	data.SetByte(0, vram->Read(tempAddress.GetData(), accessTarget));
+	data.SetByteFromBottomUp(0, vram->Read(tempAddress.GetData(), accessTarget));
 }
 
 //----------------------------------------------------------------------------------------
@@ -2956,8 +2956,8 @@ void S315_5313::M5ReadCRAM(const Data& address, Data& data, const RAMAccessTarge
 	//existing value in the FIFO buffer that the read data is being saved into.
 	unsigned int dataMask = 0x0EEE;
 	Data tempData(16);
-	tempData.SetByte(1, cram->Read(tempAddress, accessTarget));
-	tempData.SetByte(0, cram->Read(tempAddress+1, accessTarget));
+	tempData.SetByteFromBottomUp(1, cram->Read(tempAddress, accessTarget));
+	tempData.SetByteFromBottomUp(0, cram->Read(tempAddress+1, accessTarget));
 	data = (data & ~dataMask) | (tempData & dataMask);
 }
 
@@ -3006,8 +3006,8 @@ void S315_5313::M5ReadVSRAM(const Data& address, Data& data, const RAMAccessTarg
 	}
 	else
 	{
-		tempData.SetByte(1, vsram->Read(tempAddress, accessTarget));
-		tempData.SetByte(0, vsram->Read(tempAddress+1, accessTarget));
+		tempData.SetByteFromBottomUp(1, vsram->Read(tempAddress, accessTarget));
+		tempData.SetByteFromBottomUp(0, vsram->Read(tempAddress+1, accessTarget));
 	}
 	data = (data & ~dataMask) | (tempData & dataMask);
 
@@ -3053,11 +3053,11 @@ void S315_5313::M5WriteVRAM8Bit(const Data& address, const Data& data, const RAM
 		spriteCacheAddress = ((spriteCacheAddress >> 1) & ~0x3) | (spriteCacheAddress & 0x3);
 
 		//Perform the write to the sprite cache
-		spriteCache->Write(spriteCacheAddress, data.GetByte(0), accessTarget);
+		spriteCache->Write(spriteCacheAddress, data.GetByteFromBottomUp(0), accessTarget);
 	}
 
 	//Write the data
-	vram->Write(tempAddressData, data.GetByte(0), accessTarget);
+	vram->Write(tempAddressData, data.GetByteFromBottomUp(0), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
@@ -3080,8 +3080,8 @@ void S315_5313::M5WriteCRAM(const Data& address, const Data& data, const RAMAcce
 	tempData = data & dataMask;
 
 	//Write the masked data to CRAM
-	cram->Write(tempAddress, tempData.GetByte(1), accessTarget);
-	cram->Write(tempAddress+1, tempData.GetByte(0), accessTarget);
+	cram->Write(tempAddress, tempData.GetByteFromBottomUp(1), accessTarget);
+	cram->Write(tempAddress+1, tempData.GetByteFromBottomUp(0), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
@@ -3108,8 +3108,8 @@ void S315_5313::M5WriteVSRAM(const Data& address, const Data& data, const RAMAcc
 	if(tempAddress < 0x50)
 	{
 		//Write the masked data to VSRAM
-		vsram->Write(tempAddress, tempData.GetByte(1), accessTarget);
-		vsram->Write(tempAddress+1, tempData.GetByte(0), accessTarget);
+		vsram->Write(tempAddress, tempData.GetByteFromBottomUp(1), accessTarget);
+		vsram->Write(tempAddress+1, tempData.GetByteFromBottomUp(0), accessTarget);
 
 		//##TODO## Determine whether this is correct
 		//vsramReadCacheIndex = tempAddress;

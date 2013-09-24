@@ -1579,8 +1579,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 
 			//Read all values in the array, and add them to a list of values.
 			std::list<Data> dataElements;
-			const unsigned int bitsPerByte = 8;
-			unsigned int entrySizeInBits = arrayinfo.arrayEntrySize * bitsPerByte;
+			unsigned int entrySizeInBits = arrayinfo.arrayEntrySize * Data::bitsPerByte;
 			for(unsigned int i = 0; i < arrayinfo.arrayEntryCount; ++i)
 			{
 				//Read in this array entry
@@ -1589,7 +1588,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 				unsigned int bitsRead = 0;
 				while(bitsRead < entrySizeInBits)
 				{
-					Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+					Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 					unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 					entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 					bitsRead += bitsUsed;
@@ -1740,8 +1739,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 	//Read all detected values in the array, and add them to a set of values.
 	std::set<unsigned int> valuesInArray;
 	unsigned int predictedArrayEntryCount = ((lastKnownEntryLocation - firstKnownEntryLocation) / entryStride) + 1;
-	const unsigned int bitsPerByte = 8;
-	unsigned int entrySizeInBits = entrySize * bitsPerByte;
+	unsigned int entrySizeInBits = entrySize * Data::bitsPerByte;
 	for(unsigned int i = 0; i < predictedArrayEntryCount; ++i)
 	{
 		//Read in this array entry
@@ -1750,7 +1748,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		unsigned int bitsRead = 0;
 		while(bitsRead < entrySizeInBits)
 		{
-			Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+			Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 			unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 			entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 			bitsRead += bitsUsed;
@@ -1803,7 +1801,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 				unsigned int bitsRead = 0;
 				while(bitsRead < entrySizeInBits)
 				{
-					Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+					Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 					unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 					entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 					bitsRead += bitsUsed;
@@ -1852,7 +1850,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 			unsigned int bitsRead = 0;
 			while(bitsRead < entrySizeInBits)
 			{
-				Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+				Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 				unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 				entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 				bitsRead += bitsUsed;
@@ -1917,7 +1915,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		unsigned int bitsRead = 0;
 		while(bitsRead < entrySizeInBits)
 		{
-			Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+			Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 			unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 			entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 			bitsRead += bitsUsed;
@@ -2018,7 +2016,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 			unsigned int bitsRead = 0;
 			while(bitsRead < entrySizeInBits)
 			{
-				Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+				Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 				unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 				entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 				bitsRead += bitsUsed;
@@ -2410,16 +2408,14 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 //----------------------------------------------------------------------------------------
 void Processor::ActiveDisassemblyGenerateLabelsForOffset(ActiveDisassemblyAnalysisData& analysis, const DisassemblyAddressInfo* entry, bool predicted) const
 {
-	const unsigned int bitsPerByte = 8;
-	unsigned int entrySizeInBits = entry->memoryBlockSize * bitsPerByte;
-
 	//Read in the offset data
+	unsigned int entrySizeInBits = entry->memoryBlockSize * Data::bitsPerByte;
 	unsigned int entryLocation = entry->baseMemoryAddress;
 	Data entryData(entrySizeInBits, 0);
 	unsigned int bitsRead = 0;
 	while(bitsRead < entrySizeInBits)
 	{
-		Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+		Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 		unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 		entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 		bitsRead += bitsUsed;
@@ -2763,7 +2759,6 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 
 	//Save our active disassembly analysis to the output file
 	unsigned int location = analysis.minAddress;
-	const unsigned int bitsPerByte = 8;
 	std::list<Data> dataElements;
 	bool currentDataArrayIsFormallyDefined = false;
 	unsigned int dataElementByteSize = GetMinimumDataByteSize();
@@ -2853,12 +2848,12 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		{
 			//Read in the offset data
 			unsigned int entryLocation = offsetEntry->baseMemoryAddress;
-			unsigned int entrySizeInBits = offsetEntry->memoryBlockSize * bitsPerByte;
+			unsigned int entrySizeInBits = offsetEntry->memoryBlockSize * Data::bitsPerByte;
 			Data entryData(entrySizeInBits, 0);
 			unsigned int bitsRead = 0;
 			while(bitsRead < entrySizeInBits)
 			{
-				Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+				Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 				unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 				entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 				bitsRead += bitsUsed;
@@ -2905,12 +2900,12 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		{
 			//Read in the data
 			unsigned int entryLocation = dataEntry->baseMemoryAddress;
-			unsigned int entrySizeInBits = dataEntry->memoryBlockSize * bitsPerByte;
+			unsigned int entrySizeInBits = dataEntry->memoryBlockSize * Data::bitsPerByte;
 			Data entryData(entrySizeInBits, 0);
 			unsigned int bitsRead = 0;
 			while(bitsRead < entrySizeInBits)
 			{
-				Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+				Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 				unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 				entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 				bitsRead += bitsUsed;
@@ -3033,12 +3028,12 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 
 			//If we didn't detect this value as being anything in particular, add it as an
 			//element in a data array.
-			unsigned int dataElementSizeInBits = dataElementByteSize * bitsPerByte;
+			unsigned int dataElementSizeInBits = dataElementByteSize * Data::bitsPerByte;
 			Data entryData(dataElementSizeInBits, 0);
 			unsigned int bitsRead = 0;
 			while(bitsRead < dataElementSizeInBits)
 			{
-				Data dataSegment = GetRawData(location + (bitsRead / bitsPerByte));
+				Data dataSegment = GetRawData(location + (bitsRead / Data::bitsPerByte));
 				unsigned int bitsUsed = (dataSegment.GetBitCount() > (dataElementSizeInBits - bitsRead))? (dataElementSizeInBits - bitsRead): dataSegment.GetBitCount();
 				entryData.SetDataSegment(dataElementSizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 				bitsRead += bitsUsed;
@@ -3249,14 +3244,13 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 		if(ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DISASSEMBLYDATATYPE_INTEGER, dataString))
 		{
 			//Read in the next possible array entry
-			const unsigned int bitsPerByte = 8;
-			unsigned int entrySizeInBits = i->second->memoryBlockSize * bitsPerByte;
+			unsigned int entrySizeInBits = i->second->memoryBlockSize * Data::bitsPerByte;
 			unsigned int entryLocation = i->second->baseMemoryAddress;
 			Data entryData(entrySizeInBits, 0);
 			unsigned int bitsRead = 0;
 			while(bitsRead < entrySizeInBits)
 			{
-				Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+				Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 				unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 				entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 				bitsRead += bitsUsed;
@@ -3270,10 +3264,10 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 			else
 			{
 				//If this offset is negative, and the offset size is less than the PC
-				//register width, handle the offset definition slightly differently.
-				//IDA Pro always considers offsets to be unsigned. We need to define
-				//the offset as the lower 16-bit half of a 32-bit offset in order to
-				//get IDA Pro to generate a correct output.
+				//register width, handle the offset definition slightly differently. IDA
+				//Pro always considers offsets to be unsigned. We need to define the
+				//offset as the lower 16-bit half of a 32-bit offset in order to get IDA
+				//Pro to generate a correct output.
 				if(entryData.Negative() && (entrySizeInBits < GetPCWidth()) && ((entrySizeInBits == 8) || (entrySizeInBits == 16)))
 				{
 					unsigned int offsetTarget = entryData.SignExtend(GetPCWidth()).GetData() + i->second->relativeOffsetBaseAddress;
@@ -3307,14 +3301,13 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 		if(ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DISASSEMBLYDATATYPE_INTEGER, dataString))
 		{
 			//Read in the next possible array entry
-			const unsigned int bitsPerByte = 8;
-			unsigned int entrySizeInBits = i->second->memoryBlockSize * bitsPerByte;
+			unsigned int entrySizeInBits = i->second->memoryBlockSize * Data::bitsPerByte;
 			unsigned int entryLocation = i->second->baseMemoryAddress;
 			Data entryData(entrySizeInBits, 0);
 			unsigned int bitsRead = 0;
 			while(bitsRead < entrySizeInBits)
 			{
-				Data dataSegment = GetRawData(entryLocation + (bitsRead / bitsPerByte));
+				Data dataSegment = GetRawData(entryLocation + (bitsRead / Data::bitsPerByte));
 				unsigned int bitsUsed = (dataSegment.GetBitCount() > (entrySizeInBits - bitsRead))? (entrySizeInBits - bitsRead): dataSegment.GetBitCount();
 				entryData.SetDataSegment(entrySizeInBits - (bitsRead + bitsUsed), bitsUsed, dataSegment.GetDataSegment(dataSegment.GetBitCount() - bitsUsed, bitsUsed));
 				bitsRead += bitsUsed;

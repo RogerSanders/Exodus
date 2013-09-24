@@ -304,6 +304,7 @@ private:
 	bool DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfoInternal& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const;
 
 	//Module loading and unloading
+	unsigned int GetFirstAvailableDeviceIndex() const;
 	unsigned int GenerateFreeModuleID() const;
 	unsigned int GenerateFreeConnectorID() const;
 	unsigned int GenerateFreeLineGroupID() const;

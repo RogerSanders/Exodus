@@ -64,7 +64,7 @@ void WAVFile::SetDataFormat(unsigned int channelCount, unsigned int bitsPerSampl
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int WAVFile::GetSavedSampleCount() const
+WAVFile::SizeType WAVFile::GetSavedSampleCount() const
 {
 	return savedSampleCount;
 }
@@ -72,13 +72,13 @@ unsigned int WAVFile::GetSavedSampleCount() const
 //----------------------------------------------------------------------------------------
 //File binding
 //----------------------------------------------------------------------------------------
-bool WAVFile::Open(const std::string& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize)
+bool WAVFile::Open(const std::string& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize)
 {
 	return Open(ConvertStringToWString(filename), openMode, createMode, abufferSize);
 }
 
 //----------------------------------------------------------------------------------------
-bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, unsigned int abufferSize)
+bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize)
 {
 	//If a file handle is currently open, close it.
 	if(IsOpen())
@@ -360,7 +360,7 @@ bool WAVFile::IsOpen() const
 //----------------------------------------------------------------------------------------
 //Internal read/write functions
 //----------------------------------------------------------------------------------------
-bool WAVFile::ReadBinary(void* rawData, unsigned int bytesToRead)
+bool WAVFile::ReadBinary(void* rawData, SizeType bytesToRead)
 {
 	if(!fileOpen)
 	{
@@ -383,7 +383,7 @@ bool WAVFile::ReadBinary(void* rawData, unsigned int bytesToRead)
 }
 
 //----------------------------------------------------------------------------------------
-bool WAVFile::WriteBinary(const void* rawData, unsigned int bytesToWrite)
+bool WAVFile::WriteBinary(const void* rawData, SizeType bytesToWrite)
 {
 	//Ensure that a file is currently open
 	if(!fileOpen)
@@ -408,7 +408,7 @@ bool WAVFile::WriteBinary(const void* rawData, unsigned int bytesToWrite)
 		unsigned char* rawDataAsCharArray = (unsigned char*)rawData;
 
 		//Write data to the buffer
-		unsigned int bytesToWriteToBuffer = 0;
+		SizeType bytesToWriteToBuffer = 0;
 		bytesToWriteToBuffer = (bytesToWrite <= bytesRemainingInBuffer)? bytesToWrite: bytesRemainingInBuffer;
 		memcpy((void*)(fileBuffer + bufferPosOffset), (void*)rawDataAsCharArray, (size_t)bytesToWriteToBuffer);
 		bufferPosOffset += bytesToWriteToBuffer;
@@ -416,7 +416,7 @@ bool WAVFile::WriteBinary(const void* rawData, unsigned int bytesToWrite)
 
 		//Reload the data buffer if necessary, and write any remaining data to be written
 		//to the buffer.
-		unsigned int bytesRemainingToWrite = bytesToWrite - bytesToWriteToBuffer;
+		SizeType bytesRemainingToWrite = bytesToWrite - bytesToWriteToBuffer;
 		if(bytesRemainingToWrite > 0)
 		{
 			//Set the data buffer to write mode
@@ -433,7 +433,7 @@ bool WAVFile::WriteBinary(const void* rawData, unsigned int bytesToWrite)
 }
 
 //----------------------------------------------------------------------------------------
-bool WAVFile::WriteBinaryUnbuffered(const void* rawData, unsigned int bytesToWrite)
+bool WAVFile::WriteBinaryUnbuffered(const void* rawData, SizeType bytesToWrite)
 {
 	if(!fileOpen)
 	{

@@ -37,6 +37,28 @@ BusInterface::~BusInterface()
 	{
 		delete portMap[i];
 	}
+
+	//Delete all the list entries from the physical line maps
+	for(unsigned int deviceNo = 0; deviceNo < physicalLineMapOnSourceDevice.size(); ++deviceNo)
+	{
+		for(unsigned int lineNo = 0; lineNo < physicalLineMapOnSourceDevice[deviceNo].size(); ++lineNo)
+		{
+			delete physicalLineMapOnSourceDevice[deviceNo][lineNo];
+		}
+	}
+	for(unsigned int deviceNo = 0; deviceNo < physicalLineMapOnTargetDevice.size(); ++deviceNo)
+	{
+		for(unsigned int lineNo = 0; lineNo < physicalLineMapOnTargetDevice[deviceNo].size(); ++lineNo)
+		{
+			delete physicalLineMapOnTargetDevice[deviceNo][lineNo];
+		}
+	}
+
+	//Delete all the allocated LineEntry objects from the line map
+	for(unsigned int i = 0; i < lineMap.size(); ++i)
+	{
+		delete lineMap[i];
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -190,7 +212,23 @@ bool BusInterface::BuildMapEntry(MapEntry& mapEntry, IDevice* device, const Devi
 	if(params.memoryMapBaseDefined)
 	{
 		mapEntry.address = params.memoryMapBase;
+		mapEntry.addressEffectiveBitMaskForTargetting = busMappingAddressBusMask;
+	}
+
+	//Handle an AddressMask parameter
+	if(params.addressMaskDefined)
+	{
+		mapEntry.addressMask = busMappingAddressBusMask & params.addressMask;
+	}
+	else if(!params.addressLineFilterDefined)
+	{
 		mapEntry.addressMask = busMappingAddressBusMask;
+	}
+
+	//Handle an AddressDiscardLowerBitCount parameter
+	if(params.addressDiscardLowerBitCountDefined)
+	{
+		mapEntry.addressDiscardLowerBitCount = params.addressDiscardLowerBitCount;
 	}
 
 	//Handle an AddressLineFilter parameter
@@ -198,7 +236,7 @@ bool BusInterface::BuildMapEntry(MapEntry& mapEntry, IDevice* device, const Devi
 	{
 		std::wstring addressLineFilter = params.addressLineFilter;
 		mapEntry.address = 0;
-		mapEntry.addressMask = busMappingAddressBusMask;
+		unsigned int addressMaskFromFilter = busMappingAddressBusMask;
 		for(unsigned int i = 0; i < addressLineFilter.size(); ++i)
 		{
 			if((addressLineFilter[i] != L'0') && (addressLineFilter[i] != L'1') && (addressLineFilter[i] != L'?'))
@@ -207,17 +245,25 @@ bool BusInterface::BuildMapEntry(MapEntry& mapEntry, IDevice* device, const Devi
 			}
 
 			mapEntry.address <<= 1;
-			mapEntry.addressMask <<= 1;
+			addressMaskFromFilter <<= 1;
 			if(addressLineFilter[i] == L'1')
 			{
 				mapEntry.address |= 1;
 			}
 			else if(addressLineFilter[i] == L'?')
 			{
-				mapEntry.addressMask |= 1;
+				addressMaskFromFilter |= 1;
 			}
 		}
-		mapEntry.addressMask = ~mapEntry.addressMask & busMappingAddressBusMask;
+		addressMaskFromFilter = (~addressMaskFromFilter) & busMappingAddressBusMask;
+		mapEntry.addressEffectiveBitMaskForTargetting = addressMaskFromFilter;
+
+		//If a manual address mask hasn't been defined, assign it to the generated address
+		//mask from the address line filter.
+		if(!params.addressMaskDefined)
+		{
+			mapEntry.addressMask = addressMaskFromFilter;
+		}
 	}
 
 	//Handle a CELineConditions parameter
@@ -368,7 +414,7 @@ bool BusInterface::DoMapEntriesOverlap(const MapEntry& entry1, const MapEntry& e
 {
 	//Build a combined address mask. This will ensure we're only considering bits in the
 	//address value which are exclusive.
-	unsigned int combinedAddressMask = entry2.addressMask & entry1.addressMask;
+	unsigned int combinedAddressMask = entry2.addressEffectiveBitMaskForTargetting & entry1.addressEffectiveBitMaskForTargetting;
 
 	//Check that the masked address regions of the two mappings don't overlap. If they do
 	//overlap, we need to go further and examine the CE line conditions for the mappings.
@@ -415,30 +461,54 @@ bool BusInterface::DoMapEntriesOverlap(const MapEntry& entry1, const MapEntry& e
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::AddMapEntryToPhysicalMap(MapEntry* mapEntry, std::vector<ThinList<MapEntry*>*>& physicalMap, unsigned int mappingAddressBusMask) const
+void BusInterface::AddMapEntryToPhysicalMap(MapEntry* mapEntry, std::vector<ThinVector<MapEntry*,1>*>& physicalMap, unsigned int mappingAddressBusMask) const
 {
 	//We do a bit of voodoo here to calculate each address where a mask is used. By doing
 	//subtraction on the inverted mask, then masking the result with the inverted mask
 	//again, we're able to easily calculate a base offset for any mask value. Run some
 	//numbers on paper and it should be clear how it works.
 	bool done = false;
-	unsigned int addValue = ~mapEntry->addressMask & mappingAddressBusMask;
+	unsigned int addValue = ~mapEntry->addressEffectiveBitMaskForTargetting & mappingAddressBusMask;
 	while(!done)
 	{
 		unsigned int memoryMapBase = (mapEntry->address + addValue) & mappingAddressBusMask;
 		for(unsigned int i = 0; (i < mapEntry->interfaceSize) && ((memoryMapBase + i) <= mappingAddressBusMask); ++i)
 		{
+			//Ensure this memory location is within the size of the physical memory map.
+			//This should always be the case at this point.
 			if((memoryMapBase + i) >= physicalMap.size())
 			{
 				ReleaseAssert(false);
 			}
+
+			//Add this address mapping to the physical memory map at the target memory
+			//location
 			if(physicalMap[memoryMapBase + i] == 0)
 			{
-				physicalMap[memoryMapBase + i] = new ThinList<MapEntry*>(mapEntry);
+				//If no address mappings currently exist at the target memory address,
+				//create a new ThinVector object holding one element, and load this
+				//address mapping into that element.
+				physicalMap[memoryMapBase + i] = new ThinVector<MapEntry*,1>();
+				physicalMap[memoryMapBase + i]->array[0] = mapEntry;
 			}
 			else
 			{
-				physicalMap[memoryMapBase + i]->PushToBack(mapEntry);
+				//If at least one address mapping currently exists at the target memory
+				//address, retrieve the ThinVector object holding the current mappings for
+				//this memory address.
+				ThinVector<MapEntry*,1>* previousArray = physicalMap[memoryMapBase + i];
+
+				//Construct a new ThinVector object which contains all the contents of the
+				//existing ThinVector object, plus the new address mapping.
+				ThinVector<MapEntry*,1>* newArray = AddItemToThinVector(previousArray, mapEntry);
+
+				//Assign our new ThinVector object as the array of entries at the target
+				//memory address
+				physicalMap[memoryMapBase + i] = newArray;
+
+				//Now that we've replaced the existing array with the new array, delete
+				//the existing array.
+				delete previousArray;
 			}
 		}
 
@@ -447,66 +517,43 @@ void BusInterface::AddMapEntryToPhysicalMap(MapEntry* mapEntry, std::vector<Thin
 			done = true;
 			continue;
 		}
-		addValue = ((addValue - 1) & ~mapEntry->addressMask) & mappingAddressBusMask;
+		addValue = ((addValue - 1) & ~mapEntry->addressEffectiveBitMaskForTargetting) & mappingAddressBusMask;
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void BusInterface::RemoveMapEntryFromPhysicalMap(MapEntry* mapEntry, std::vector<ThinList<MapEntry*>*>& physicalMap, unsigned int mappingAddressBusMask)
+void BusInterface::RemoveMapEntryFromPhysicalMap(MapEntry* mapEntry, std::vector<ThinVector<MapEntry*,1>*>& physicalMap, unsigned int mappingAddressBusMask)
 {
 	//We do a bit of voodoo here to calculate each address where a mask is used. By
 	//doing subtraction on the inverted mask, then masking the result with the
 	//inverted mask again, we're able to easily calculate a base offset for any mask
 	//value. Run some numbers on paper and it should be clear how it works.
 	bool done = false;
-	unsigned int addValue = ~mapEntry->addressMask & mappingAddressBusMask;
+	unsigned int addValue = ~mapEntry->addressEffectiveBitMaskForTargetting & mappingAddressBusMask;
 	while(!done)
 	{
 		unsigned int memoryMapBase = (mapEntry->address + addValue) & mappingAddressBusMask;
 		for(unsigned int i = 0; (i < mapEntry->interfaceSize) && ((memoryMapBase + i) <= mappingAddressBusMask); ++i)
 		{
+			//Ensure this memory location is within the size of the physical memory map.
+			//This should always be the case at this point.
 			if((memoryMapBase + i) >= physicalMap.size())
 			{
 				ReleaseAssert(false);
 			}
 
-			//Delete the item from the list structure at this location
-			ThinList<MapEntry*>* nextMapEntry = physicalMap[memoryMapBase + i];
-			if(nextMapEntry->object == mapEntry)
+			//Delete the item from the ThinVector structure at this location
+			ThinVector<MapEntry*,1>* previousArray = physicalMap[memoryMapBase + i];
+			ThinVector<MapEntry*,1>* newArray = 0;
+			if(previousArray->arraySize > 1)
 			{
-				//If the first entry in the list is the target entry, set the start of the
-				//list to be the next list entry, and delete the item list item.
-				physicalMap[memoryMapBase + i] = nextMapEntry->next;
-				nextMapEntry->next = 0;
-				delete nextMapEntry;
+				//If at least one item will remain in the array after removing the
+				//specified item, construct a new array which contains all the contents of
+				//the existing array, minus the target item.
+				newArray = RemoveItemFromThinVector(previousArray, mapEntry);
 			}
-			else
-			{
-				//If the first entry in the list is not the target entry, search the rest
-				//of the list looking for a matching item to erase.
-				ThinList<MapEntry*>* currentMapEntry = nextMapEntry;
-				nextMapEntry = currentMapEntry->next;
-				while(nextMapEntry != 0)
-				{
-					if(nextMapEntry->object == mapEntry)
-					{
-						//If the next map entry is the target object, remove it from the
-						//list.
-						currentMapEntry->next = nextMapEntry->next;
-						nextMapEntry->next = 0;
-						delete nextMapEntry;
-					}
-					else
-					{
-						//If the next map entry is not the target object, advance to it,
-						//and continue the search.
-						currentMapEntry = nextMapEntry;
-					}
-
-					//Set the next item in the list as the next map entry to examine
-					nextMapEntry = currentMapEntry->next;
-				}
-			}
+			physicalMap[memoryMapBase + i] = newArray;
+			delete previousArray;
 		}
 
 		if(addValue == 0)
@@ -514,7 +561,7 @@ void BusInterface::RemoveMapEntryFromPhysicalMap(MapEntry* mapEntry, std::vector
 			done = true;
 			continue;
 		}
-		addValue = ((addValue - 1) & ~mapEntry->addressMask) & mappingAddressBusMask;
+		addValue = ((addValue - 1) & ~mapEntry->addressEffectiveBitMaskForTargetting) & mappingAddressBusMask;
 	}
 }
 
@@ -548,6 +595,18 @@ bool BusInterface::MapDevice(IDevice* device, IHeirarchicalStorageNode& node)
 	{
 		params.interfaceNumberDefined = true;
 		params.interfaceNumber = interfaceNumberAttribute->ExtractValue<unsigned int>();
+	}
+	IHeirarchicalStorageAttribute* addressMaskAttribute = node.GetAttribute(L"AddressMask");
+	if(addressMaskAttribute != 0)
+	{
+		params.addressMaskDefined = true;
+		params.addressMask = addressMaskAttribute->ExtractHexValue<unsigned int>();
+	}
+	IHeirarchicalStorageAttribute* addressDiscardLowerBitCountAttribute = node.GetAttribute(L"AddressDiscardLowerBitCount");
+	if(addressDiscardLowerBitCountAttribute != 0)
+	{
+		params.addressDiscardLowerBitCountDefined = true;
+		params.addressDiscardLowerBitCount = addressDiscardLowerBitCountAttribute->ExtractValue<unsigned int>();
 	}
 	IHeirarchicalStorageAttribute* addressLineFilterAttribute = node.GetAttribute(L"AddressLineFilter");
 	if(addressLineFilterAttribute != 0)
@@ -707,6 +766,18 @@ bool BusInterface::MapPort(IDevice* device, IHeirarchicalStorageNode& node)
 	{
 		params.interfaceNumberDefined = true;
 		params.interfaceNumber = interfaceNumberAttribute->ExtractValue<unsigned int>();
+	}
+	IHeirarchicalStorageAttribute* addressMaskAttribute = node.GetAttribute(L"AddressMask");
+	if(addressMaskAttribute != 0)
+	{
+		params.addressMaskDefined = true;
+		params.addressMask = addressMaskAttribute->ExtractValue<unsigned int>();
+	}
+	IHeirarchicalStorageAttribute* addressDiscardLowerBitCountAttribute = node.GetAttribute(L"AddressDiscardLowerBitCount");
+	if(addressDiscardLowerBitCountAttribute != 0)
+	{
+		params.addressDiscardLowerBitCountDefined = true;
+		params.addressDiscardLowerBitCount = addressDiscardLowerBitCountAttribute->ExtractValue<unsigned int>();
 	}
 	IHeirarchicalStorageAttribute* addressLineFilterAttribute = node.GetAttribute(L"AddressLineFilter");
 	if(addressLineFilterAttribute != 0)
@@ -869,49 +940,52 @@ bool BusInterface::MapLine(IDevice* sourceDevice, IDevice* targetDevice, const L
 	}
 
 	//Begin constructing the line mapping
-	LineEntry lineEntry;
-	lineEntry.sourceDevice = sourceDevice;
-	lineEntry.targetDevice = targetDevice;
+	LineEntry* lineEntry = new LineEntry();
+	lineEntry->sourceDevice = sourceDevice;
+	lineEntry->targetDevice = targetDevice;
 
 	//Handle a SourceLine parameter
 	std::wstring sourceLineString = params.sourceLine;
-	lineEntry.sourceLine = sourceDevice->GetLineID(sourceLineString);
-	lineEntry.sourceLineBitCount = sourceDevice->GetLineWidth(lineEntry.sourceLine);
-	if((lineEntry.sourceLine == 0) || (lineEntry.sourceLineBitCount == 0))
+	lineEntry->sourceLine = sourceDevice->GetLineID(sourceLineString);
+	lineEntry->sourceLineBitCount = sourceDevice->GetLineWidth(lineEntry->sourceLine);
+	if((lineEntry->sourceLine == 0) || (lineEntry->sourceLineBitCount == 0))
 	{
+		delete lineEntry;
 		return false;
 	}
 
 	//Handle a TargetLine parameter
 	std::wstring targetLineString = params.targetLine;
-	lineEntry.targetLine = targetDevice->GetLineID(targetLineString);
-	lineEntry.targetLineBitCount = targetDevice->GetLineWidth(lineEntry.targetLine);
-	if((lineEntry.targetLine == 0) || (lineEntry.targetLineBitCount == 0))
+	lineEntry->targetLine = targetDevice->GetLineID(targetLineString);
+	lineEntry->targetLineBitCount = targetDevice->GetLineWidth(lineEntry->targetLine);
+	if((lineEntry->targetLine == 0) || (lineEntry->targetLineBitCount == 0))
 	{
+		delete lineEntry;
 		return false;
 	}
 
 	//Handle any line mask parameters
 	if(params.lineMaskANDDefined)
 	{
-		lineEntry.lineMaskAND = params.lineMaskAND;
+		lineEntry->lineMaskAND = params.lineMaskAND;
 	}
 	if(params.lineMaskORDefined)
 	{
-		lineEntry.lineMaskOR = params.lineMaskOR;
+		lineEntry->lineMaskOR = params.lineMaskOR;
 	}
 	if(params.lineMaskXORDefined)
 	{
-		lineEntry.lineMaskXOR = params.lineMaskXOR;
+		lineEntry->lineMaskXOR = params.lineMaskXOR;
 	}
 
 	//Handle a LineMapping parameter
 	if(params.lineMappingDefined)
 	{
 		std::wstring lineMapping = params.lineMapping;
-		lineEntry.remapLines = true;
-		if(!lineEntry.lineRemapTable.SetDataMapping(lineMapping, lineEntry.sourceLineBitCount))
+		lineEntry->remapLines = true;
+		if(!lineEntry->lineRemapTable.SetDataMapping(lineMapping, lineEntry->sourceLineBitCount))
 		{
+			delete lineEntry;
 			return false;
 		}
 	}
@@ -1109,11 +1183,14 @@ bool BusInterface::MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice
 //----------------------------------------------------------------------------------------
 bool BusInterface::IsDeviceLineMappedTo(IDevice* device, unsigned int lineNo) const
 {
-	for(std::list<LineEntry>::const_iterator i = lineMap.begin(); i != lineMap.end(); ++i)
+	unsigned int deviceArraySize = (unsigned int)physicalLineMapOnTargetDevice.size();
+	unsigned int deviceIndexNo = device->GetDeviceContext()->GetDeviceIndexNo();
+	if(deviceIndexNo < deviceArraySize)
 	{
-		if((i->targetDevice == device) && (i->targetLine == lineNo))
+		unsigned int lineArraySize = (unsigned int)physicalLineMapOnTargetDevice[deviceIndexNo].size();
+		if(lineNo < lineArraySize)
 		{
-			return true;
+			return (physicalLineMapOnTargetDevice[deviceIndexNo][lineNo] != 0);
 		}
 	}
 	return false;
@@ -1169,25 +1246,94 @@ bool BusInterface::ExtractLineMappingParams(IHeirarchicalStorageNode& node, Line
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapLine(const LineEntry& lineEntry)
+bool BusInterface::MapLine(LineEntry* lineEntry)
 {
+	//Add the new entry to the line map
 	lineMap.push_back(lineEntry);
+
+	//Add to the physical line maps
+	AddLineEntryToPhysicalMap(lineEntry, physicalLineMapOnSourceDevice, lineEntry->sourceDevice, lineEntry->sourceLine);
+	AddLineEntryToPhysicalMap(lineEntry, physicalLineMapOnTargetDevice, lineEntry->targetDevice, lineEntry->targetLine);
+
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
 void BusInterface::UnmapLineForDevice(IDevice* device)
 {
-	//Remove any references to the device from the line map
-	std::list<LineEntry>::iterator i = lineMap.begin();
-	while(i != lineMap.end())
+	//Build a list of LineEntry objects which reference this device, and remove any
+	//references to those LineEntry objects from the line map.
+	std::list<LineEntry*> lineEntryObjectsToDelete;
+	unsigned int lineMapCurrentReadIndex = 0;
+	unsigned int lineMapCurrentWriteIndex = 0;
+	while(lineMapCurrentReadIndex < (unsigned int)lineMap.size())
 	{
-		std::list<LineEntry>::iterator currentEntry = i;
-		++i;
+		LineEntry* currentEntry = lineMap[lineMapCurrentReadIndex];
 		if((currentEntry->sourceDevice == device) || (currentEntry->targetDevice == device))
 		{
-			lineMap.erase(currentEntry);
+			lineEntryObjectsToDelete.push_back(currentEntry);
 		}
+		else
+		{
+			if(lineMapCurrentReadIndex != lineMapCurrentWriteIndex)
+			{
+				lineMap[lineMapCurrentWriteIndex] = lineMap[lineMapCurrentReadIndex];
+			}
+			++lineMapCurrentWriteIndex;
+		}
+		++lineMapCurrentReadIndex;
+	}
+	lineMap.resize(lineMapCurrentWriteIndex, 0);
+
+	//Remove all entries from the physical line maps where the device we're removing isn't
+	//a primary key into the map. We use the list of LineEntry objects being removed that
+	//we generated above to identify the entries that need to be removed.
+	for(std::list<LineEntry*>::const_iterator i = lineEntryObjectsToDelete.begin(); i != lineEntryObjectsToDelete.end(); ++i)
+	{
+		LineEntry* lineEntry = *i;
+
+		//Select the physical line map that this entry is loaded into where the device
+		//being unmapped is not the primary key
+		ThinVector<LineEntry*,1>** previousArrayLocation = (lineEntry->sourceDevice == device)? &physicalLineMapOnTargetDevice[lineEntry->targetDevice->GetDeviceContext()->GetDeviceIndexNo()][lineEntry->targetLine]: &physicalLineMapOnSourceDevice[lineEntry->sourceDevice->GetDeviceContext()->GetDeviceIndexNo()][lineEntry->sourceLine];
+
+		//Delete the target line entry from the physical line map
+		ThinVector<LineEntry*,1>* previousArray = *previousArrayLocation;
+		ThinVector<LineEntry*,1>* newArray = 0;
+		if((previousArray != 0) && (previousArray->arraySize > 1))
+		{
+			//If at least one item will remain in the array after removing the specified
+			//item, construct a new array which contains all the contents of the existing
+			//array, minus the target item.
+			newArray = RemoveItemFromThinVector(previousArray, lineEntry);
+		}
+		*previousArrayLocation = newArray;
+		delete previousArray;
+	}
+
+	//Remove all entries from the physical line maps where the device we're removing is a
+	//primary key into the map
+	unsigned int deviceIndex = device->GetDeviceContext()->GetDeviceIndexNo();
+	if(deviceIndex < physicalLineMapOnSourceDevice.size())
+	{
+		for(unsigned int lineIndex = 0; lineIndex < physicalLineMapOnSourceDevice[deviceIndex].size(); ++lineIndex)
+		{
+			delete physicalLineMapOnSourceDevice[deviceIndex][lineIndex];
+		}
+		physicalLineMapOnSourceDevice[deviceIndex].clear();
+	}
+	if(deviceIndex < physicalLineMapOnTargetDevice.size())
+	{
+		for(unsigned int lineIndex = 0; lineIndex < physicalLineMapOnTargetDevice[deviceIndex].size(); ++lineIndex)
+		{
+			delete physicalLineMapOnTargetDevice[deviceIndex][lineIndex];
+		}
+		physicalLineMapOnTargetDevice[deviceIndex].clear();
+	}
+
+	//Delete any LineEntry objects which referred to this device
+	for(std::list<LineEntry*>::const_iterator i = lineEntryObjectsToDelete.begin(); i != lineEntryObjectsToDelete.end(); ++i)
+	{
+		delete *i;
 	}
 
 	//Remove any line mapping templates which reference the device
@@ -1204,6 +1350,55 @@ void BusInterface::UnmapLineForDevice(IDevice* device)
 				lineGroupMappingInfo.lineMappingTemplates.erase(currentEntry);
 			}
 		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void BusInterface::AddLineEntryToPhysicalMap(LineEntry* lineEntry, std::vector<std::vector<ThinVector<LineEntry*,1>*>>& physicalLineMap, IDevice* indexDevice, unsigned int indexLineNo)
+{
+	//Resize the physical device array for line mappings if the specified device has a
+	//higher index number than is currently available in the array
+	unsigned int currentMaxDeviceIndex = (unsigned int)physicalLineMap.size();
+	unsigned int deviceIndexNo = indexDevice->GetDeviceContext()->GetDeviceIndexNo();
+	if(deviceIndexNo >= currentMaxDeviceIndex)
+	{
+		physicalLineMap.resize(deviceIndexNo+1);
+	}
+
+	//Resize the physical line array for the device if the specified line has a higher
+	//index number than is currently available in the array
+	unsigned int currentMaxLineIndex = (unsigned int)physicalLineMap[deviceIndexNo].size();
+	if(indexLineNo >= currentMaxLineIndex)
+	{
+		physicalLineMap[deviceIndexNo].resize(indexLineNo+1, 0);
+	}
+
+	//Add this entry to the list of entries for this device and line
+	if(physicalLineMap[deviceIndexNo][indexLineNo] == 0)
+	{
+		//If no line mappings currently exist for this device and line, create a new
+		//ThinVector object holding one element, and load this line mapping into that
+		//element.
+		physicalLineMap[deviceIndexNo][indexLineNo] = new ThinVector<LineEntry*,1>();
+		physicalLineMap[deviceIndexNo][indexLineNo]->array[0] = lineEntry;
+	}
+	else
+	{
+		//If at least one line mapping currently exists for the target device and line,
+		//retrieve the ThinVector object holding the current line mappings.
+		ThinVector<LineEntry*,1>* previousArray = physicalLineMap[deviceIndexNo][indexLineNo];
+
+		//Construct a new ThinVector object which contains all the contents of the
+		//existing ThinVector object, plus the new line mapping.
+		ThinVector<LineEntry*,1>* newArray = AddItemToThinVector(previousArray, lineEntry);
+
+		//Assign our new ThinVector object as the array of entries for the target device
+		//and line
+		physicalLineMap[deviceIndexNo][indexLineNo] = newArray;
+
+		//Now that we've replaced the existing array with the new array, delete the
+		//existing array.
+		delete previousArray;
 	}
 }
 
@@ -2208,12 +2403,16 @@ BusInterface::MapEntry* BusInterface::ResolveMemoryAddress(unsigned int ce, unsi
 	if(usePhysicalMemoryMap)
 	{
 		//Resolve the address from the physical memory map
-		for(const ThinList<MapEntry*>* i = physicalMemoryMap[location]; i != 0; i = i->next)
+		const ThinVector<MapEntry*,1>* mappingArrayAtLocation = physicalMemoryMap[location];
+		if(mappingArrayAtLocation != 0)
 		{
-			MapEntry* mapEntry = i->object;
-			if(mapEntry->ce == (ce & mapEntry->ceMask))
+			for(size_t i = 0; i < mappingArrayAtLocation->arraySize; ++i)
 			{
-				return mapEntry;
+				MapEntry* mapEntry = mappingArrayAtLocation->array[i];
+				if(mapEntry->ce == (ce & mapEntry->ceMask))
+				{
+					return mapEntry;
+				}
 			}
 		}
 	}
@@ -2223,9 +2422,9 @@ BusInterface::MapEntry* BusInterface::ResolveMemoryAddress(unsigned int ce, unsi
 		for(unsigned int i = 0; i < (unsigned int)memoryMap.size(); ++i)
 		{
 			MapEntry* mapEntry = memoryMap[i];
-			if((mapEntry->address <= (location & mapEntry->addressMask))	//The current memory map entry starts before or on the target address
-				&& ((mapEntry->address + mapEntry->interfaceSize) > (location & mapEntry->addressMask))	//The current map entry ends after the target address
-				&& (mapEntry->ce == (ce & mapEntry->ceMask)))	//The ce line mapping of the address mapping matches the ce line state of our query
+			if((mapEntry->address <= (location & mapEntry->addressEffectiveBitMaskForTargetting)) //The current memory map entry starts before or on the target address
+			&& ((mapEntry->address + mapEntry->interfaceSize) > (location & mapEntry->addressEffectiveBitMaskForTargetting)) //The current map entry ends after the target address
+			&& (mapEntry->ce == (ce & mapEntry->ceMask))) //The ce line mapping of the address mapping matches the ce line state of our query
 			{
 				return mapEntry;
 			}
@@ -2252,7 +2451,7 @@ BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data&
 		}
 		else
 		{
-			interfaceOffset = ((location & mapEntry->addressMask) - mapEntry->address) + mapEntry->interfaceOffset;
+			interfaceOffset = (((location - mapEntry->address) & mapEntry->addressMask) >> mapEntry->addressDiscardLowerBitCount) + mapEntry->interfaceOffset;
 		}
 
 		if(mapEntry->remapDataLines)
@@ -2305,7 +2504,7 @@ BusInterface::AccessResult BusInterface::WriteMemory(unsigned int location, cons
 		}
 		else
 		{
-			interfaceOffset = ((location & mapEntry->addressMask) - mapEntry->address) + mapEntry->interfaceOffset;
+			interfaceOffset = (((location - mapEntry->address) & mapEntry->addressMask) >> mapEntry->addressDiscardLowerBitCount) + mapEntry->interfaceOffset;
 		}
 
 		if(mapEntry->remapDataLines)
@@ -2339,7 +2538,7 @@ void BusInterface::TransparentReadMemory(unsigned int location, Data& data, IDev
 		}
 		else
 		{
-			interfaceOffset = ((location & mapEntry->addressMask) - mapEntry->address) + mapEntry->interfaceOffset;
+			interfaceOffset = (((location - mapEntry->address) & mapEntry->addressMask) >> mapEntry->addressDiscardLowerBitCount) + mapEntry->interfaceOffset;
 		}
 
 		if(mapEntry->remapDataLines)
@@ -2372,7 +2571,7 @@ void BusInterface::TransparentWriteMemory(unsigned int location, const Data& dat
 		}
 		else
 		{
-			interfaceOffset = ((location & mapEntry->addressMask) - mapEntry->address) + mapEntry->interfaceOffset;
+			interfaceOffset = (((location - mapEntry->address) & mapEntry->addressMask) >> mapEntry->addressDiscardLowerBitCount) + mapEntry->interfaceOffset;
 		}
 
 		if(mapEntry->remapDataLines)
@@ -2397,12 +2596,16 @@ BusInterface::MapEntry* BusInterface::ResolvePortAddress(unsigned int ce, unsign
 	if(usePhysicalPortMap)
 	{
 		//Resolve the address from the physical memory map
-		for(const ThinList<MapEntry*>* i = physicalPortMap[location]; i != 0; i = i->next)
+		const ThinVector<MapEntry*,1>* mappingArrayAtLocation = physicalPortMap[location];
+		if(mappingArrayAtLocation != 0)
 		{
-			MapEntry* mapEntry = i->object;
-			if(mapEntry->ce == (ce & mapEntry->ceMask))
+			for(size_t i = 0; i < mappingArrayAtLocation->arraySize; ++i)
 			{
-				return mapEntry;
+				MapEntry* mapEntry = mappingArrayAtLocation->array[i];
+				if(mapEntry->ce == (ce & mapEntry->ceMask))
+				{
+					return mapEntry;
+				}
 			}
 		}
 	}
@@ -2412,9 +2615,9 @@ BusInterface::MapEntry* BusInterface::ResolvePortAddress(unsigned int ce, unsign
 		for(unsigned int i = 0; i < (unsigned int)portMap.size(); ++i)
 		{
 			MapEntry* mapEntry = portMap[i];
-			if((mapEntry->address <= (location & mapEntry->addressMask))	//The current memory map entry starts before or on the target address
-				&& ((mapEntry->address + mapEntry->interfaceSize) > (location & mapEntry->addressMask))	//The current map entry ends after the target address
-				&& (mapEntry->ce == (ce & mapEntry->ceMask)))	//The ce line mapping of the address mapping matches the ce line state of our query
+			if((mapEntry->address <= (location & mapEntry->addressEffectiveBitMaskForTargetting)) //The current memory map entry starts before or on the target address
+			&& ((mapEntry->address + mapEntry->interfaceSize) > (location & mapEntry->addressEffectiveBitMaskForTargetting)) //The current map entry ends after the target address
+			&& (mapEntry->ce == (ce & mapEntry->ceMask))) //The ce line mapping of the address mapping matches the ce line state of our query
 			{
 				return mapEntry;
 			}
@@ -2441,7 +2644,7 @@ BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& d
 		}
 		else
 		{
-			interfaceOffset = ((location & mapEntry->addressMask) - mapEntry->address) + mapEntry->interfaceOffset;
+			interfaceOffset = (((location - mapEntry->address) & mapEntry->addressMask) >> mapEntry->addressDiscardLowerBitCount) + mapEntry->interfaceOffset;
 		}
 
 		if(mapEntry->remapDataLines)
@@ -2494,7 +2697,7 @@ BusInterface::AccessResult BusInterface::WritePort(unsigned int location, const 
 		}
 		else
 		{
-			interfaceOffset = ((location & mapEntry->addressMask) - mapEntry->address) + mapEntry->interfaceOffset;
+			interfaceOffset = (((location - mapEntry->address) & mapEntry->addressMask) >> mapEntry->addressDiscardLowerBitCount) + mapEntry->interfaceOffset;
 		}
 
 		if(mapEntry->remapDataLines)
@@ -2528,7 +2731,7 @@ void BusInterface::TransparentReadPort(unsigned int location, Data& data, IDevic
 		}
 		else
 		{
-			interfaceOffset = ((location & mapEntry->addressMask) - mapEntry->address) + mapEntry->interfaceOffset;
+			interfaceOffset = (((location - mapEntry->address) & mapEntry->addressMask) >> mapEntry->addressDiscardLowerBitCount) + mapEntry->interfaceOffset;
 		}
 
 		if(mapEntry->remapDataLines)
@@ -2561,7 +2764,7 @@ void BusInterface::TransparentWritePort(unsigned int location, const Data& data,
 		}
 		else
 		{
-			interfaceOffset = ((location & mapEntry->addressMask) - mapEntry->address) + mapEntry->interfaceOffset;
+			interfaceOffset = (((location - mapEntry->address) & mapEntry->addressMask) >> mapEntry->addressDiscardLowerBitCount) + mapEntry->interfaceOffset;
 		}
 
 		if(mapEntry->remapDataLines)
@@ -2585,23 +2788,34 @@ bool BusInterface::SetLineState(unsigned int sourceLine, const Data& lineData, I
 {
 	//##DEBUG##
 //	std::wcout << "SetLineBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
-	for(std::list<LineEntry>::const_iterator i = lineMap.begin(); i != lineMap.end(); ++i)
+	unsigned int deviceArraySize = (unsigned int)physicalLineMapOnSourceDevice.size();
+	unsigned int deviceIndexNo = sourceDevice->GetDeviceIndexNo();
+	if(deviceIndexNo < deviceArraySize)
 	{
-		const LineEntry* lineEntry = &(*i);
-		//##DEBUG##
-//		std::wcout << "SetLineState:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
-		if((lineEntry->sourceDevice == sourceDevice->GetTargetDevice()) && (lineEntry->sourceLine == sourceLine))
+		unsigned int lineArraySize = (unsigned int)physicalLineMapOnSourceDevice[deviceIndexNo].size();
+		if(sourceLine < lineArraySize)
 		{
-			Data tempData(lineEntry->targetLineBitCount, lineData.GetData());
-			if(lineEntry->remapLines)
+			ThinVector<LineEntry*,1>* mappedLineList = physicalLineMapOnSourceDevice[deviceIndexNo][sourceLine];
+			if(mappedLineList != 0)
 			{
-				//Remap lines
-				tempData = lineEntry->lineRemapTable.ConvertTo(lineData.GetData());
+				for(unsigned int i = 0; i < mappedLineList->arraySize; ++i)
+				{
+					const LineEntry* lineEntry = mappedLineList->array[i];
+					//##DEBUG##
+					//std::wcout << "SetLineState:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
+
+					Data tempData(lineEntry->targetLineBitCount, lineData.GetData());
+					if(lineEntry->remapLines)
+					{
+						//Remap lines
+						tempData = lineEntry->lineRemapTable.ConvertTo(lineData.GetData());
+					}
+					tempData &= lineEntry->lineMaskAND;
+					tempData |= lineEntry->lineMaskOR;
+					tempData ^= lineEntry->lineMaskXOR;
+					lineEntry->targetDevice->SetLineState(lineEntry->targetLine, tempData, callingDevice, accessTime, accessContext);
+				}
 			}
-			tempData &= lineEntry->lineMaskAND;
-			tempData |= lineEntry->lineMaskOR;
-			tempData ^= lineEntry->lineMaskXOR;
-			lineEntry->targetDevice->SetLineState(lineEntry->targetLine, tempData, callingDevice, accessTime, accessContext);
 		}
 	}
 	//##DEBUG##
@@ -2614,20 +2828,31 @@ bool BusInterface::RevokeSetLineState(unsigned int sourceLine, const Data& lineD
 {
 	//##DEBUG##
 //	std::wcout << "SetLineBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
-	for(std::list<LineEntry>::const_iterator i = lineMap.begin(); i != lineMap.end(); ++i)
+	unsigned int deviceArraySize = (unsigned int)physicalLineMapOnSourceDevice.size();
+	unsigned int deviceIndexNo = sourceDevice->GetDeviceIndexNo();
+	if(deviceIndexNo < deviceArraySize)
 	{
-		const LineEntry* lineEntry = &(*i);
-		//##DEBUG##
-//		std::wcout << "SetLineState:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
-		if((lineEntry->sourceDevice == sourceDevice->GetTargetDevice()) && (lineEntry->sourceLine == sourceLine))
+		unsigned int lineArraySize = (unsigned int)physicalLineMapOnSourceDevice[deviceIndexNo].size();
+		if(sourceLine < lineArraySize)
 		{
-			Data tempData(lineEntry->targetLineBitCount, lineData.GetData());
-			if(lineEntry->remapLines)
+			ThinVector<LineEntry*,1>* mappedLineList = physicalLineMapOnSourceDevice[deviceIndexNo][sourceLine];
+			if(mappedLineList != 0)
 			{
-				//Remap lines
-				tempData = lineEntry->lineRemapTable.ConvertTo(lineData.GetData());
+				for(unsigned int i = 0; i < mappedLineList->arraySize; ++i)
+				{
+					const LineEntry* lineEntry = mappedLineList->array[i];
+					//##DEBUG##
+					//std::wcout << "SetLineState:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
+
+					Data tempData(lineEntry->targetLineBitCount, lineData.GetData());
+					if(lineEntry->remapLines)
+					{
+						//Remap lines
+						tempData = lineEntry->lineRemapTable.ConvertTo(lineData.GetData());
+					}
+					lineEntry->targetDevice->RevokeSetLineState(lineEntry->targetLine, tempData, reportedTime, callingDevice, accessTime, accessContext);
+				}
 			}
-			lineEntry->targetDevice->RevokeSetLineState(lineEntry->targetLine, tempData, reportedTime, callingDevice, accessTime, accessContext);
 		}
 	}
 	//##DEBUG##
@@ -2642,21 +2867,32 @@ bool BusInterface::AdvanceToLineState(unsigned int sourceLine, const Data& lineD
 //	std::wcout << "AdvanceToLineStateBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
 	bool result = true;
 	bool foundTargetDevice = false;
-	for(std::list<LineEntry>::const_iterator i = lineMap.begin(); i != lineMap.end(); ++i)
+	unsigned int deviceArraySize = (unsigned int)physicalLineMapOnTargetDevice.size();
+	unsigned int deviceIndexNo = sourceDevice->GetDeviceIndexNo();
+	if(deviceIndexNo < deviceArraySize)
 	{
-		const LineEntry* lineEntry = &(*i);
-		//##DEBUG##
-//		std::wcout << "SetLineState:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
-		if((lineEntry->targetDevice == sourceDevice->GetTargetDevice()) && (lineEntry->targetLine == sourceLine))
+		unsigned int lineArraySize = (unsigned int)physicalLineMapOnTargetDevice[deviceIndexNo].size();
+		if(sourceLine < lineArraySize)
 		{
-			foundTargetDevice = true;
-			Data tempData(lineEntry->targetLineBitCount, lineData.GetData());
-			if(lineEntry->remapLines)
+			ThinVector<LineEntry*,1>* mappedLineList = physicalLineMapOnTargetDevice[deviceIndexNo][sourceLine];
+			if(mappedLineList != 0)
 			{
-				//Remap lines
-				tempData = lineEntry->lineRemapTable.ConvertFrom(lineData.GetData());
+				for(unsigned int i = 0; i < mappedLineList->arraySize; ++i)
+				{
+					const LineEntry* lineEntry = mappedLineList->array[i];
+					//##DEBUG##
+					//std::wcout << "AdvanceToLineState:\t" << lineEntry->sourceDevice->GetDeviceInstanceName() << '\t' << lineEntry->targetDevice->GetDeviceInstanceName() << '\t' << lineEntry->sourceLine << '\t' << lineEntry->targetLine << '\n';
+
+					foundTargetDevice = true;
+					Data tempData(lineEntry->targetLineBitCount, lineData.GetData());
+					if(lineEntry->remapLines)
+					{
+						//Remap lines
+						tempData = lineEntry->lineRemapTable.ConvertFrom(lineData.GetData());
+					}
+					result &= lineEntry->sourceDevice->AdvanceToLineState(lineEntry->sourceLine, tempData, callingDevice, accessTime, accessContext);
+				}
 			}
-			result &= lineEntry->sourceDevice->AdvanceToLineState(lineEntry->sourceLine, tempData, callingDevice, accessTime, accessContext);
 		}
 	}
 	//##DEBUG##
@@ -2690,4 +2926,76 @@ void BusInterface::TransparentSetClockRate(double newClockRate, const IClockSour
 			clockSourceEntry->targetDevice->TransparentSetClockSourceRate(clockSourceEntry->targetClockLine, newClockRate);
 		}
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//ThinVector helper functions
+//----------------------------------------------------------------------------------------
+template<class T> ThinVector<T*,1>* BusInterface::AddItemToThinVector(ThinVector<T*,1>* existingArray, T* item)
+{
+	//Calculate the required size in bytes of a new ThinVector object which is large
+	//enough to hold all the content of the existing ThinVector at this location, plus the
+	//new entry we're about to add.
+	size_t newArraySize = existingArray->arraySize + 1;
+	size_t newThinVectorByteSize = sizeof(existingArray->arraySize) + (sizeof(existingArray->array[0]) * newArraySize);
+
+	//Manually allocate a data block on the heap which is the correct size to hold a
+	//ThinVector object with the required number of entries, and cast it to a ThinVector
+	//with a single entry. We do this as a performance optimization. The ThinVector object
+	//is a basic structure which only contains an array size, directly followed by the
+	//elements of that array. It uses the minimum amount of memory possible for this
+	//structure, and it contains both the size and array elements in consecutive memory
+	//locations, giving us the best possible memory layout, and therefore, the lowest
+	//possible runtime overhead in accessing it. In C++, there is no way to create this
+	//kind of object at runtime where the size of an array, which is of a different type
+	//to the array elements, directly proceeds the actual array entries in memory, since
+	//an object size and layout must be known at compile time, but we need to determine
+	//the size of the array here at runtime. We work around this by manually calculating
+	//the correct size of the object itself, and casting it to the required type, then
+	//populating its data manually. We can do this safely, because the structure and
+	//behaviour of the ThinVector class is fully visible and well understood, and there
+	//are no destructors or any reliance on the array size template parameter beyond the
+	//default constructor.
+	ThinVector<T*,1>* newArray = (ThinVector<T*,1>*)new unsigned char[newThinVectorByteSize];
+
+	//Set the array size of our new ThinVector object to the correct size
+	newArray->arraySize = newArraySize;
+
+	//Transfer all entries in the previous ThinVector object into our new ThinVector
+	//object
+	newArray->CopyData(&existingArray->array[0], existingArray->arraySize);
+
+	//Load the new item into the last entry in the new ThinVector object
+	newArray->array[newArraySize-1] = item;
+
+	//Return the new ThinVector object to the caller
+	return newArray;
+}
+
+//----------------------------------------------------------------------------------------
+template<class T> ThinVector<T*,1>* BusInterface::RemoveItemFromThinVector(ThinVector<T*,1>* existingArray, T* item)
+{
+	//Allocate a new ThinVector object of the required size to hold all the content of
+	//the existing ThinVector object, plus the new item. See the AddItemToThinVector
+	//function for a description on how the ThinVector structure is being used here.
+	size_t newArraySize = existingArray->arraySize - 1;
+	size_t newThinVectorByteSize = sizeof(existingArray->arraySize) + (sizeof(existingArray->array[0]) * newArraySize);
+	ThinVector<T*,1>* newArray = (ThinVector<T*,1>*)new unsigned char[newThinVectorByteSize];
+
+	//Set the array size of our new ThinVector object to the correct size
+	newArray->arraySize = newArraySize;
+
+	//Move all remaining entries from the old ThinVector object over to the new
+	//ThinVector object
+	unsigned int newArrayIndex = 0;
+	for(unsigned int previousArrayIndex = 0; previousArrayIndex < existingArray->arraySize; ++previousArrayIndex)
+	{
+		if(existingArray->array[previousArrayIndex] != item)
+		{
+			newArray->array[newArrayIndex++] = existingArray->array[previousArrayIndex];
+		}
+	}
+
+	//Return the new ThinVector object to the caller
+	return newArray;
 }

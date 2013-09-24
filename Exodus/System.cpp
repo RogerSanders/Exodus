@@ -3338,17 +3338,15 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 {
 	//Load the external module ID, device name, system key code, and target key code.
 	IHeirarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* interfaceNumberAttribute = node.GetAttribute(L"InterfaceNumber");
+	IHeirarchicalStorageAttribute* embeddedROMNameAttribute = node.GetAttribute(L"EmbeddedROMName");
 	IHeirarchicalStorageAttribute* filePathAttribute = node.GetAttribute(L"FilePath");
-	if((moduleIDAttribute == 0) || (deviceInstanceNameAttribute == 0) || (interfaceNumberAttribute == 0) || (filePathAttribute == 0))
+	if((moduleIDAttribute == 0) || (embeddedROMNameAttribute == 0) || (filePathAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID, DeviceInstanceName, InterfaceNumber or FilePath attribute for System.LoadEmbeddedROMData!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID, EmbeddedROMName or FilePath attribute for System.LoadEmbeddedROMData!"));
 		return false;
 	}
 	unsigned int moduleIDExternal = moduleIDAttribute->ExtractValue<unsigned int>();
-	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
-	unsigned int interfaceNumber = interfaceNumberAttribute->ExtractValue<unsigned int>();
+	std::wstring embeddedROMName = embeddedROMNameAttribute->GetValue();
 	std::wstring filePath = filePathAttribute->GetValue();
 
 	//Resolve the loaded module ID from the external module ID
@@ -3362,19 +3360,11 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	}
 	unsigned int moduleID = loadedModuleIDIterator->second;
 
-	//Retrieve the specified device from the system
-	IDevice* device = GetDevice(moduleID, deviceName);
-	if(device == 0)
-	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate target device with name " + deviceName + L" for System.LoadEmbeddedROMData!"));
-		return false;
-	}
-
 	//Locate the defined ROM info for this embedded ROM
 	EmbeddedROMInfo* embeddedROMInfoEntry = 0;
 	for(EmbeddedROMList::iterator romInfoIterator = embeddedROMInfo.begin(); romInfoIterator != embeddedROMInfo.end(); ++romInfoIterator)
 	{
-		if(romInfoIterator->targetDevice == device)
+		if((romInfoIterator->moduleID == moduleID) && (romInfoIterator->embeddedROMName == embeddedROMName))
 		{
 			embeddedROMInfoEntry = &(*romInfoIterator);
 		}
@@ -3382,7 +3372,7 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	if(embeddedROMInfoEntry == 0)
 	{
 		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
-		logEntry << L"Could not locate matching embedded ROM definition for device with name " << deviceName << L" and interface number " << interfaceNumber << L" for System.LoadEmbeddedROMData!";
+		logEntry << L"Could not locate matching embedded ROM definition for embedded ROM with name \"" << embeddedROMName << L"\" in module with ID \"" << moduleID << L"\" for System.LoadEmbeddedROMData!";
 		WriteLogEvent(logEntry);
 		return false;
 	}
@@ -3401,19 +3391,20 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	FileStreamReference fileStreamReference(*guiExtensionInterface);
 	if(!fileStreamReference.OpenExistingFileForRead(filePath))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to open target file with path \"" + filePath + L"\" when attempting to load embedded ROM data for device with name " + deviceName + L" for System.LoadEmbeddedROMData!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to open target file with path \"" + filePath + L"\" when attempting to load data for embedded ROM with name \"" + embeddedROMName + L"\" for System.LoadEmbeddedROMData!"));
 		return false;
 	}
 	Stream::IStream& file = *fileStreamReference;
 
 	//Load the data from the target file into this embedded ROM
-	for(unsigned int i = 0; (i < file.Size()) && (i < embeddedROMInfoEntry->romRegionSize); ++i)
+	Data romDataEntry(embeddedROMInfoEntry->romEntryBitCount);
+	Stream::ViewBinary viewBinary(file);
+	unsigned int deviceAddress = 0;
+	while(!file.IsAtEnd() && (deviceAddress < embeddedROMInfoEntry->romRegionSize))
 	{
-		unsigned char byte;
-		if(file.ReadData(byte))
-		{
-			device->TransparentWriteInterface(interfaceNumber, i, Data(8, byte), 0, 0);
-		}
+		viewBinary >> romDataEntry;
+		embeddedROMInfoEntry->targetDevice->TransparentWriteInterface(embeddedROMInfoEntry->interfaceNumber, deviceAddress, romDataEntry, 0, 0);
+		++deviceAddress;
 	}
 
 	return true;
@@ -4205,6 +4196,28 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 }
 
 //----------------------------------------------------------------------------------------
+unsigned int System::GetFirstAvailableDeviceIndex() const
+{
+	bool deviceIndexFree;
+	unsigned int deviceIndex;
+	unsigned int nextDeviceIndexToCheck = 0;
+	do
+	{
+		deviceIndex = nextDeviceIndexToCheck++;
+		deviceIndexFree = true;
+		for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
+		{
+			if(i->deviceContext->GetDeviceIndexNo() == deviceIndex)
+			{
+				deviceIndexFree = false;
+				break;
+			}
+		}
+	} while (!deviceIndexFree);
+	return deviceIndex;
+}
+
+//----------------------------------------------------------------------------------------
 unsigned int System::GenerateFreeModuleID() const
 {
 	bool moduleIDFree;
@@ -4218,6 +4231,7 @@ unsigned int System::GenerateFreeModuleID() const
 			if(i->moduleID == moduleID)
 			{
 				moduleIDFree = false;
+				break;
 			}
 		}
 	} while (!moduleIDFree);
@@ -4302,17 +4316,23 @@ bool System::LoadModule_Device(IHeirarchicalStorageNode& node, unsigned int modu
 		return false;
 	}
 
-	//Create and bind the device context
+	//Create a new device context for this device
 	DeviceContext* deviceContext = new DeviceContext(device);
+
+	//Provide an interface into the system to the device context
+	deviceContext->SetSystemInterface(this);
+
+	//Associate this device with the first available device index number
+	unsigned int newDeviceIndexNumber = GetFirstAvailableDeviceIndex();
+	deviceContext->SetDeviceIndexNo(newDeviceIndexNumber);
+
+	//Bind our device to the device context object
 	if(!device->BindToDeviceContext(deviceContext))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindToDeviceContext failed for  " + instanceName + L"!"));
 		DestroyDevice(deviceName, device);
 		return false;
 	}
-
-	//Provide an interface into the system to the device
-	deviceContext->SetSystemInterface(this);
 
 	//Construct the device object
 	if(!device->Construct(node))
@@ -6783,19 +6803,29 @@ bool System::LoadModule_System_ImportSystemSetting(IHeirarchicalStorageNode& nod
 bool System::LoadModule_System_DefineEmbeddedROM(IHeirarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract all the required attributes
+	IHeirarchicalStorageAttribute* embeddedROMNameAttribute = node.GetAttribute(L"EmbeddedROMName");
 	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"TargetDeviceInstanceName");
 	IHeirarchicalStorageAttribute* interfaceNumberAttribute = node.GetAttribute(L"InterfaceNumber");
-	IHeirarchicalStorageAttribute* romregionSizeAttribute = node.GetAttribute(L"ROMRegionSize");
-	IHeirarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
-	if((deviceInstanceNameAttribute == 0) || (interfaceNumberAttribute == 0) || (romregionSizeAttribute == 0) || (displayNameAttribute == 0))
+	IHeirarchicalStorageAttribute* romRegionSizeAttribute = node.GetAttribute(L"ROMRegionSize");
+	IHeirarchicalStorageAttribute* romEntryBitCountAttribute = node.GetAttribute(L"ROMEntryBitCount");
+	if((embeddedROMNameAttribute == 0) || (deviceInstanceNameAttribute == 0) || (interfaceNumberAttribute == 0) || (romRegionSizeAttribute == 0) || (romEntryBitCountAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing TargetDeviceInstanceName, InterfaceNumber, ROMRegionSize or DisplayName attribute for System.DefineEmbeddedROM!"));
+		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing EmbeddedROMName, TargetDeviceInstanceName, InterfaceNumber, ROMRegionSize, or ROMEntryBitCount attribute for System.DefineEmbeddedROM!"));
 		return false;
 	}
+	std::wstring embeddedROMName = embeddedROMNameAttribute->GetValue();
 	std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
 	unsigned int interfaceNumber = interfaceNumberAttribute->ExtractValue<unsigned int>();
-	unsigned int romRegionSize = romregionSizeAttribute->ExtractHexValue<unsigned int>();
-	std::wstring displayName = displayNameAttribute->GetValue();
+	unsigned int romRegionSize = romRegionSizeAttribute->ExtractHexValue<unsigned int>();
+	unsigned int romEntryBitCount = romEntryBitCountAttribute->ExtractValue<unsigned int>();
+
+	//Retrieve the optional DisplayName attribute
+	IHeirarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
+	std::wstring displayName = embeddedROMName;
+	if(displayNameAttribute != 0)
+	{
+		displayName = displayNameAttribute->GetValue();
+	}
 
 	//Retrieve the referenced device
 	IDevice* device = GetDevice(moduleID, deviceInstanceName);
@@ -6810,10 +6840,12 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHeirarchicalStorageNode& node,
 	//Record details of this embedded ROM
 	EmbeddedROMInfo embeddedROM;
 	embeddedROM.moduleID = moduleID;
+	embeddedROM.embeddedROMName = embeddedROMName;
+	embeddedROM.displayName = displayName;
 	embeddedROM.targetDevice = device;
 	embeddedROM.interfaceNumber = interfaceNumber;
 	embeddedROM.romRegionSize = romRegionSize;
-	embeddedROM.displayName = displayName;
+	embeddedROM.romEntryBitCount = romEntryBitCount;
 	embeddedROMInfo.push_back(embeddedROM);
 
 	return true;

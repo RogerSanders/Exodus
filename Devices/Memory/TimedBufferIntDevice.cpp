@@ -17,7 +17,7 @@ bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 	}
 
 	//Validate the specified interface size
-	if(GetInterfaceSize() <= 0)
+	if(GetMemoryEntryCount() <= 0)
 	{
 		return false;
 	}
@@ -31,7 +31,7 @@ bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 	}
 
 	//Resize the internal memory array based on the specified interface size
-	bufferShell.Resize(GetInterfaceSize(), keepLatestBufferCopy);
+	bufferShell.Resize(GetMemoryEntryCount(), keepLatestBufferCopy);
 
 	//If initial RAM state data has been specified, attempt to load it now.
 	if(node.GetBinaryDataPresent())
@@ -52,7 +52,7 @@ bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 
 		//Read in the initial memory data
 		unsigned int bytesInDataStream = (unsigned int)dataStream.Size();
-		unsigned int memoryArraySize = GetInterfaceSize();
+		unsigned int memoryArraySize = GetMemoryEntryCount();
 		unsigned int bytesToRead = (memoryArraySize < bytesInDataStream)? memoryArraySize: bytesInDataStream;
 		initialMemoryData.resize(bytesInDataStream);
 		if(!dataStream.ReadData(&initialMemoryData[0], bytesToRead))
@@ -65,15 +65,23 @@ bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
+//Memory size functions
+//----------------------------------------------------------------------------------------
+unsigned int TimedBufferIntDevice::GetMemoryEntrySizeInBytes() const
+{
+	return 1;
+}
+
+//----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::Initialize()
 {
 	//Initialize the memory buffer
 	bufferShell.Initialize();
-	for(unsigned int i = 0; i < GetInterfaceSize(); ++i)
+	for(unsigned int i = 0; i < GetMemoryEntryCount(); ++i)
 	{
-		if(!IsByteLocked(i))
+		if(!IsAddressLocked(i))
 		{
 			unsigned char initialValue = 0;
 			if(initialMemoryDataSpecified && (repeatInitialMemoryData || (i < (unsigned int)initialMemoryData.size())))
@@ -91,22 +99,22 @@ void TimedBufferIntDevice::Initialize()
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
-	unsigned int memorySize = GetInterfaceSize();
+	unsigned int memorySize = GetMemoryEntryCount();
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		data.SetByte((dataByteSize - 1) - i, bufferShell.ReadLatest((location + i) % memorySize));
+		data.SetByteFromTopDown(i, bufferShell.ReadLatest((location + i) % memorySize));
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
-	unsigned int memorySize = GetInterfaceSize();
+	unsigned int memorySize = GetMemoryEntryCount();
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		bufferShell.WriteLatest((location + i) % memorySize, data.GetByte((dataByteSize - 1) - i));
+		bufferShell.WriteLatest((location + i) % memorySize, data.GetByteFromTopDown(i));
 	}
 }
 
@@ -158,7 +166,7 @@ void TimedBufferIntDevice::LockMemoryBlock(unsigned int location, unsigned int s
 }
 
 //----------------------------------------------------------------------------------------
-bool TimedBufferIntDevice::IsByteLocked(unsigned int location) const
+bool TimedBufferIntDevice::IsAddressLocked(unsigned int location) const
 {
 	return bufferShell.IsByteLocked(location);
 }

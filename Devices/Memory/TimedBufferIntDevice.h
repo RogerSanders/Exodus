@@ -11,6 +11,9 @@ public:
 	TimedBufferIntDevice(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	virtual bool Construct(IHeirarchicalStorageNode& node);
 
+	//Memory size functions
+	virtual unsigned int GetMemoryEntrySizeInBytes() const;
+
 	//Initialization functions
 	virtual void Initialize();
 
@@ -27,7 +30,7 @@ public:
 	//Memory locking functions
 	virtual bool IsMemoryLockingSupported() const;
 	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state);
-	virtual bool IsByteLocked(unsigned int location) const;
+	virtual bool IsAddressLocked(unsigned int location) const;
 
 	//Buffer functions
 	ITimedBufferInt* GetTimedBuffer();

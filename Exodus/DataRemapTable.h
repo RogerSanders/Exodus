@@ -19,8 +19,8 @@ public:
 	//Data conversion functions
 	unsigned int ConvertTo(unsigned int sourceData) const;
 	unsigned int ConvertFrom(unsigned int sourceData) const;
-	unsigned int GetBitCountConverted() const;
-	unsigned int GetBitMaskOriginalLinesPreserved() const;
+	inline unsigned int GetBitCountConverted() const;
+	inline unsigned int GetBitMaskOriginalLinesPreserved() const;
 
 private:
 	//Structures
@@ -29,14 +29,14 @@ private:
 
 private:
 	//Mapping settings
-	unsigned int bitMaskOriginal;	//Mask of the lines to preserve in the original data
+	unsigned int bitMaskOriginal;   //Mask of the lines to preserve in the original data
 	unsigned int bitMaskConverted;  //Mask of the lines in the converted data that come from the original data
-	unsigned int bitCountOriginal;	//Count of the number of bits in the original data
-	unsigned int bitCountConverted;	//Count of the number of bits in the converted data
+	unsigned int bitCountOriginal;  //Count of the number of bits in the original data
+	unsigned int bitCountConverted; //Count of the number of bits in the converted data
 	unsigned int insertBottomBitCount;  //Count of new bits which are inserted at the bottom of the converted data
 	unsigned int insertTopBitCount;     //Count of new bits which are inserted at the top of the converted data
-	unsigned int discardBottomBitCount;	//Count of discarded bits at the bottom of the original data
-	unsigned int discardTopBitCount;	//Count of discarded bits at the top of the original data
+	unsigned int discardBottomBitCount; //Count of discarded bits at the bottom of the original data
+	unsigned int discardTopBitCount;    //Count of discarded bits at the top of the original data
 	unsigned int forcedSetBitMaskInConverted; //Mask of bits to force as set in the converted value
 
 	//Conversion method settings

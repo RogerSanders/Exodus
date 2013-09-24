@@ -5,6 +5,10 @@
 class Data
 {
 public:
+	//Constants
+	static const unsigned int bitsPerByte = 8;
+
+public:
 	//Constructors
 	explicit inline Data(unsigned int bitCount);
 	inline Data(unsigned int bitCount, unsigned int adata);
@@ -101,8 +105,10 @@ public:
 	inline void LSB(bool state);
 	inline bool GetBit(unsigned int bitNumber) const;
 	inline Data& SetBit(unsigned int bitNumber, bool state);
-	inline unsigned char GetByte(unsigned int byte) const;
-	inline void SetByte(unsigned int byte, unsigned int data);
+	inline unsigned char GetByteFromBottomUp(unsigned int byte) const;
+	inline void SetByteFromBottomUp(unsigned int byte, unsigned int data);
+	inline unsigned char GetByteFromTopDown(unsigned int byte) const;
+	inline void SetByteFromTopDown(unsigned int byte, unsigned int data);
 	inline unsigned int GetDataSegment(unsigned int bitStart, unsigned int abitCount) const;
 	inline Data& SetDataSegment(unsigned int bitStart, unsigned int abitCount, unsigned int adata);
 
@@ -136,6 +142,10 @@ public:
 	inline bool ParityEven() const;
 	inline bool ParityOdd() const;
 	inline unsigned int GetSetBitCount() const;
+	inline bool GetHighestSetBitNumber(unsigned int& bitNumber) const;
+	inline bool GetHighestSetBitMask(unsigned int& bitMask) const;
+	inline bool GetLowestSetBitNumber(unsigned int& bitNumber) const;
+	inline bool GetLowestSetBitMask(unsigned int& bitMask) const;
 
 	//Stream operators
 	friend inline Stream::ViewText& operator>>(Stream::ViewText& stream, Data& object);
@@ -143,12 +153,12 @@ public:
 	friend inline Stream::ViewBinary& operator>>(Stream::ViewBinary& stream, Data& object);
 	friend inline Stream::ViewBinary& operator<<(Stream::ViewBinary& stream, const Data& object);
 
+//##TODO## Eliminate all inheritance from this type, and mark this as private.
 protected:
 	//Management functions
 	inline void MaskData();
 
 protected:
-	static const unsigned int bitsPerByte = 8;
 	unsigned int data;
 	unsigned int bitMask;
 	unsigned char bitCount;
