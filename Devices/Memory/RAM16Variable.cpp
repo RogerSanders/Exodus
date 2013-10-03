@@ -22,9 +22,9 @@ IBusInterface::AccessResult RAM16Variable::ReadInterface(unsigned int interfaceN
 		while(currentDataByte < dataByteSize)
 		{
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
-			unsigned int firstByteOffsetToExtractFromEntry = arrayEntryByteSize - ((location + currentDataByte) % arrayEntryByteSize);
-			unsigned int bytesToExtractFromEntry = ((arrayEntryByteSize - firstByteOffsetToExtractFromEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - firstByteOffsetToExtractFromEntry): (dataByteSize - currentDataByte);
-			for(unsigned int i = firstByteOffsetToExtractFromEntry; i < bytesToExtractFromEntry; ++i)
+			unsigned int firstByteOffsetToExtractFromEntry = (location + currentDataByte) % arrayEntryByteSize;
+			unsigned int lastByteOffsetToExtractFromEntry = ((arrayEntryByteSize - firstByteOffsetToExtractFromEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToExtractFromEntry + ((dataByteSize - 1) - currentDataByte);
+			for(unsigned int i = firstByteOffsetToExtractFromEntry; i <= lastByteOffsetToExtractFromEntry; ++i)
 			{
 				data.SetByteFromTopDown(currentDataByte++, (unsigned char)(memoryArray[baseLocation % memoryArraySize] >> (((arrayEntryByteSize - 1) - i) * Data::bitsPerByte)));
 			}
@@ -60,10 +60,10 @@ IBusInterface::AccessResult RAM16Variable::WriteInterface(unsigned int interface
 		while(currentDataByte < dataByteSize)
 		{
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
-			unsigned int firstByteOffsetToWriteToEntry = arrayEntryByteSize - ((location + currentDataByte) % arrayEntryByteSize);
-			unsigned int bytesToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - firstByteOffsetToWriteToEntry): (dataByteSize - currentDataByte);
+			unsigned int firstByteOffsetToWriteToEntry = (location + currentDataByte) % arrayEntryByteSize;
+			unsigned int lastByteOffsetToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToWriteToEntry + ((dataByteSize - 1) - currentDataByte);
 			Data memoryEntry(arrayEntryByteSize * Data::bitsPerByte, memoryArray[baseLocation % memoryArraySize]);
-			for(unsigned int i = firstByteOffsetToWriteToEntry; i < bytesToWriteToEntry; ++i)
+			for(unsigned int i = firstByteOffsetToWriteToEntry; i <= lastByteOffsetToWriteToEntry; ++i)
 			{
 				memoryEntry.SetByteFromTopDown(i, data.GetByteFromTopDown(currentDataByte++));
 			}
@@ -107,10 +107,10 @@ void RAM16Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 		while(currentDataByte < dataByteSize)
 		{
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
-			unsigned int firstByteOffsetToWriteToEntry = arrayEntryByteSize - ((location + currentDataByte) % arrayEntryByteSize);
-			unsigned int bytesToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - firstByteOffsetToWriteToEntry): (dataByteSize - currentDataByte);
+			unsigned int firstByteOffsetToWriteToEntry = (location + currentDataByte) % arrayEntryByteSize;
+			unsigned int lastByteOffsetToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToWriteToEntry + ((dataByteSize - 1) - currentDataByte);
 			Data memoryEntry(arrayEntryByteSize * Data::bitsPerByte, memoryArray[baseLocation % memoryArraySize]);
-			for(unsigned int i = firstByteOffsetToWriteToEntry; i < bytesToWriteToEntry; ++i)
+			for(unsigned int i = firstByteOffsetToWriteToEntry; i <= lastByteOffsetToWriteToEntry; ++i)
 			{
 				memoryEntry.SetByteFromTopDown(i, data.GetByteFromTopDown(currentDataByte++));
 			}

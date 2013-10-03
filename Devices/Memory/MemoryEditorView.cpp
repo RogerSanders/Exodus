@@ -116,13 +116,13 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPAR
 		unsigned int memoryEntrySizeInBytes = device->GetMemoryEntrySizeInBytes();
 		std::vector<unsigned char> bufferSegment(windowSize);
 		std::vector<unsigned char> markBufferSegment(windowSize);
-		Data data(memoryEntrySizeInBytes * 8);
+		Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
 		unsigned int byteNoInWindow = 0;
 		while((byteNoInWindow < windowSize) && ((windowPos + byteNoInWindow) < totalMemorySize))
 		{
 			unsigned int memoryEntryPos = ((windowPos + byteNoInWindow) / memoryEntrySizeInBytes);
 			unsigned int memoryEntrySkippedBytes = ((windowPos + byteNoInWindow) % memoryEntrySizeInBytes);
-			device->TransparentReadInterface(0, memoryEntryPos, data, device->GetDeviceContext(), 0);
+			device->TransparentReadInterface(memoryEntrySizeInBytes, memoryEntryPos, data, device->GetDeviceContext(), 0);
 			unsigned int byteNoInEntry = memoryEntrySkippedBytes;
 			while((byteNoInWindow < windowSize) && ((windowPos + byteNoInWindow) < totalMemorySize) && (byteNoInEntry < memoryEntrySizeInBytes))
 			{
@@ -151,10 +151,10 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 		{
 			WC_HexEdit::Hex_ReadDataInfo* readDataInfo = (WC_HexEdit::Hex_ReadDataInfo*)lparam;
 			unsigned int memoryEntrySizeInBytes = device->GetMemoryEntrySizeInBytes();
-			Data data(memoryEntrySizeInBytes * 8);
+			Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
 			unsigned int memoryEntryPos = (readDataInfo->offset / memoryEntrySizeInBytes);
 			unsigned int memoryEntrySkippedBytes = (readDataInfo->offset % memoryEntrySizeInBytes);
-			device->TransparentReadInterface(0, memoryEntryPos, data, device->GetDeviceContext(), 0);
+			device->TransparentReadInterface(memoryEntrySizeInBytes, memoryEntryPos, data, device->GetDeviceContext(), 0);
 			readDataInfo->data = data.GetByteFromTopDown(memoryEntrySkippedBytes);
 			readDataInfo->processed = true;
 		}
@@ -164,29 +164,29 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 			unsigned int memoryEntrySizeInBytes = device->GetMemoryEntrySizeInBytes();
 			if(memoryEntrySizeInBytes == 1)
 			{
-				device->TransparentWriteInterface(0, writeDataInfo->offset, Data(8, writeDataInfo->data), device->GetDeviceContext(), 0);
+				device->TransparentWriteInterface(memoryEntrySizeInBytes, writeDataInfo->offset, Data(Data::bitsPerByte, writeDataInfo->data), device->GetDeviceContext(), 0);
 			}
 			else
 			{
-				Data data(memoryEntrySizeInBytes * 8);
+				Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
 				unsigned int memoryEntryPos = (writeDataInfo->offset / memoryEntrySizeInBytes);
 				unsigned int memoryEntrySkippedBytes = (writeDataInfo->offset % memoryEntrySizeInBytes);
-				device->TransparentReadInterface(0, memoryEntryPos, data, device->GetDeviceContext(), 0);
+				device->TransparentReadInterface(memoryEntrySizeInBytes, memoryEntryPos, data, device->GetDeviceContext(), 0);
 				data.SetByteFromTopDown(memoryEntrySkippedBytes, writeDataInfo->data);
-				device->TransparentWriteInterface(0, memoryEntryPos, data, device->GetDeviceContext(), 0);
+				device->TransparentWriteInterface(memoryEntrySizeInBytes, memoryEntryPos, data, device->GetDeviceContext(), 0);
 			}
 		}
 		else if(HIWORD(wparam) == WC_HexEdit::HEX_READDATABLOCK)
 		{
 			WC_HexEdit::Hex_ReadDataBlockInfo* readDataBlockInfo = (WC_HexEdit::Hex_ReadDataBlockInfo*)lparam;
 			unsigned int memoryEntrySizeInBytes = device->GetMemoryEntrySizeInBytes();
-			Data data(memoryEntrySizeInBytes * 8);
+			Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
 			unsigned int byteNoInBlock = 0;
 			while(byteNoInBlock < readDataBlockInfo->size)
 			{
 				unsigned int memoryEntryPos = ((readDataBlockInfo->offset + byteNoInBlock) / memoryEntrySizeInBytes);
 				unsigned int memoryEntrySkippedBytes = ((readDataBlockInfo->offset + byteNoInBlock) % memoryEntrySizeInBytes);
-				device->TransparentReadInterface(0, memoryEntryPos, data, device->GetDeviceContext(), 0);
+				device->TransparentReadInterface(memoryEntrySizeInBytes, memoryEntryPos, data, device->GetDeviceContext(), 0);
 				unsigned int byteNoInEntry = memoryEntrySkippedBytes;
 				while((byteNoInBlock < readDataBlockInfo->size) && (byteNoInEntry < memoryEntrySizeInBytes))
 				{
@@ -201,7 +201,7 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 		{
 			WC_HexEdit::Hex_WriteDataBlockInfo* writeDataBlockInfo = (WC_HexEdit::Hex_WriteDataBlockInfo*)lparam;
 			unsigned int memoryEntrySizeInBytes = device->GetMemoryEntrySizeInBytes();
-			Data data(memoryEntrySizeInBytes * 8);
+			Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
 			unsigned int byteNoInBlock = 0;
 			while(byteNoInBlock < writeDataBlockInfo->size)
 			{
@@ -210,7 +210,7 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 				unsigned int writeDataBlockRemainingBytes = ((writeDataBlockInfo->size - 1) - byteNoInBlock);
 				if((memoryEntrySkippedBytes > 0) || (writeDataBlockRemainingBytes < memoryEntrySizeInBytes))
 				{
-					device->TransparentReadInterface(0, memoryEntryPos, data, device->GetDeviceContext(), 0);
+					device->TransparentReadInterface(memoryEntrySizeInBytes, memoryEntryPos, data, device->GetDeviceContext(), 0);
 				}
 				unsigned int byteNoInEntry = memoryEntrySkippedBytes;
 				while((byteNoInBlock < writeDataBlockInfo->size) && (byteNoInEntry < memoryEntrySizeInBytes))
@@ -219,7 +219,7 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 					++byteNoInBlock;
 					++byteNoInEntry;
 				}
-				device->TransparentWriteInterface(0, memoryEntryPos, data, device->GetDeviceContext(), 0);
+				device->TransparentWriteInterface(memoryEntrySizeInBytes, memoryEntryPos, data, device->GetDeviceContext(), 0);
 			}
 			writeDataBlockInfo->processed = true;
 		}
@@ -235,15 +235,15 @@ LRESULT MemoryRead::MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LP
 				std::vector<unsigned char> markBufferSegment(windowSize);
 
 				unsigned int memoryEntrySizeInBytes = device->GetMemoryEntrySizeInBytes();
-				Data data(memoryEntrySizeInBytes * 8);
+				Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
 				unsigned int byteNoInBlock = 0;
-				while((byteNoInBlock < windowSize) && (windowPos + byteNoInBlock < totalMemorySize))
+				while((byteNoInBlock < windowSize) && ((windowPos + byteNoInBlock) < totalMemorySize))
 				{
 					unsigned int memoryEntryPos = ((windowPos + byteNoInBlock) / memoryEntrySizeInBytes);
 					unsigned int memoryEntrySkippedBytes = ((windowPos + byteNoInBlock) % memoryEntrySizeInBytes);
-					device->TransparentReadInterface(0, memoryEntryPos, data, device->GetDeviceContext(), 0);
+					device->TransparentReadInterface(memoryEntrySizeInBytes, memoryEntryPos, data, device->GetDeviceContext(), 0);
 					unsigned int byteNoInEntry = memoryEntrySkippedBytes;
-					while((byteNoInBlock < windowSize) && (windowPos + byteNoInBlock < totalMemorySize) && (byteNoInEntry < memoryEntrySizeInBytes))
+					while((byteNoInBlock < windowSize) && ((windowPos + byteNoInBlock) < totalMemorySize) && (byteNoInEntry < memoryEntrySizeInBytes))
 					{
 						bufferSegment[byteNoInBlock] = data.GetByteFromTopDown(byteNoInEntry);
 						markBufferSegment[byteNoInBlock] = device->IsAddressLocked(memoryEntryPos)? 1: 0;

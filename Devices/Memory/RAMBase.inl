@@ -189,7 +189,7 @@ template<class T> void RAMBase<T>::WriteArrayValueWithLockCheckAndRollback(unsig
 //----------------------------------------------------------------------------------------
 template<class T> void RAMBase<T>::LoadState(IHeirarchicalStorageNode& node)
 {
-	std::vector<T> savedMemoryData;
+	std::vector<T> savedMemoryData(memoryArraySize, 0);
 	node.ExtractBinaryData(savedMemoryData);
 	unsigned int savedMemoryDataSize = (unsigned int)savedMemoryData.size();
 	unsigned int entriesToLoad = (savedMemoryDataSize <= memoryArraySize)? savedMemoryDataSize: memoryArraySize;
@@ -219,7 +219,7 @@ template<class T> void RAMBase<T>::LoadPersistentState(IHeirarchicalStorageNode&
 {
 	if(dataIsPersistent)
 	{
-		std::vector<T> savedMemoryData;
+		std::vector<T> savedMemoryData(memoryArraySize, 0);
 		node.ExtractBinaryData(savedMemoryData);
 		unsigned int savedMemoryDataSize = (unsigned int)savedMemoryData.size();
 		unsigned int entriesToLoad = (savedMemoryDataSize <= memoryArraySize)? savedMemoryDataSize: memoryArraySize;
@@ -251,7 +251,7 @@ template<class T> void RAMBase<T>::SavePersistentState(IHeirarchicalStorageNode&
 //----------------------------------------------------------------------------------------
 template<class T> void RAMBase<T>::LoadDebuggerState(IHeirarchicalStorageNode& node)
 {
-	std::vector<bool> savedMemoryLockedData;
+	std::vector<bool> savedMemoryLockedData(memoryArraySize, 0);
 	node.ExtractBinaryData(savedMemoryLockedData);
 	unsigned int savedMemoryLockedDataSize = (unsigned int)savedMemoryLockedData.size();
 	unsigned int entriesToLoad = (savedMemoryLockedDataSize <= memoryArraySize)? savedMemoryLockedDataSize: memoryArraySize;

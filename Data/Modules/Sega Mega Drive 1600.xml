@@ -3,7 +3,7 @@
 	<!-- Device Objects -->
 	<Device DeviceName="S315-5313"     InstanceName="VDP" />
 	<Device DeviceName="M68000"        InstanceName="Main 68000" />
-	<Device DeviceName="RAM16Variable" InstanceName="RAM" MemoryEntryCount="0x10000" />
+	<Device DeviceName="RAM16Variable" InstanceName="RAM" MemoryEntryCount="0x8000" />
 	<Device DeviceName="YM2612"        InstanceName="YM2612" />
 	<Device DeviceName="SN76489"       InstanceName="PSG" />
 	<Device DeviceName="RAM8"          InstanceName="Z80 RAM" MemoryEntryCount="0x2000" />
