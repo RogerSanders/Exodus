@@ -1,5 +1,6 @@
 #ifndef __ILOGENTRY_H__
 #define __ILOGENTRY_H__
+#include "InteropSupport/InteropSupport.pkg"
 #include <string>
 
 class ILogEntry
@@ -31,13 +32,13 @@ public:
 
 protected:
 	//Getters
-	virtual const wchar_t* GetTextInternal() const = 0;
-	virtual const wchar_t* GetSourceInternal() const = 0;
-	virtual const wchar_t* GetEventLevelStringInternal() const = 0;
-	virtual const wchar_t* GetTimeStringInternal() const = 0;
+	virtual void GetTextInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void GetSourceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void GetEventLevelStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void GetTimeStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 
 	//Setters
-	virtual void OverrideSourceTextInternal(const wchar_t* asource) const = 0;
+	virtual void OverrideSourceTextInternal(const InteropSupport::ISTLObjectSource<std::wstring>& sourceMarshaller) const = 0;
 };
 
 #include "ILogEntry.inl"

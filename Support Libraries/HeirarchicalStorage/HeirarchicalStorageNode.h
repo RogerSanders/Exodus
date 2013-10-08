@@ -16,6 +16,10 @@ public:
 	~HeirarchicalStorageNode();
 	void Initialize();
 
+	//Name functions
+	inline std::wstring GetName() const;
+	inline void SetName(const std::wstring& aname);
+
 	//Parent functions
 	virtual IHeirarchicalStorageNode& GetParent() const;
 
@@ -27,6 +31,7 @@ public:
 	virtual IHeirarchicalStorageNode& CreateChild();
 	IHeirarchicalStorageNode& CreateChild(const std::wstring& aname);
 	virtual void DeleteChild(IHeirarchicalStorageNode& node);
+	std::list<IHeirarchicalStorageNode*> GetChildList();
 
 	//Attribute functions
 	using IHeirarchicalStorageNode::CreateAttribute;
@@ -34,54 +39,57 @@ public:
 	IHeirarchicalStorageAttribute* GetAttribute(const std::wstring& name) const;
 	IHeirarchicalStorageAttribute& CreateAttribute(const std::wstring& name);
 	virtual void DeleteAttribute(IHeirarchicalStorageAttribute& attribute);
+	std::list<IHeirarchicalStorageAttribute*> GetAttributeList();
 
 	//Binary data functions
 	virtual bool GetBinaryDataPresent() const;
 	virtual void SetBinaryDataPresent(bool state);
-	std::wstring GetBinaryDataBufferName() const;
-	void SetBinaryDataBufferName(const std::wstring& aname);
+	inline std::wstring GetBinaryDataBufferName() const;
+	inline void SetBinaryDataBufferName(const std::wstring& aname);
 	virtual Stream::IStream& GetBinaryDataBufferStream();
 	virtual bool GetInlineBinaryDataEnabled() const;
 	virtual void SetInlineBinaryDataEnabled(bool state);
-	void AddBinaryDataEntitiesToList(std::list<HeirarchicalStorageNode*>& binaryEntityList);
+	void AddBinaryDataEntitiesToList(std::list<IHeirarchicalStorageNode*>& binaryEntityList);
 
 protected:
 	//Name functions
-	virtual const wchar_t* GetNameInternal() const;
-	virtual void SetNameInternal(const wchar_t* aname);
+	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 
 	//Stream functions
 	virtual void ResetInternalStreamPosition() const;
 	virtual Stream::IStream& GetInternalStream() const;
 
 	//Child functions
-	virtual IHeirarchicalStorageNode& CreateChildInternal(const wchar_t* aname);
-	virtual IHeirarchicalStorageNode** GetChildListInternal(unsigned int& childCount);
+	virtual IHeirarchicalStorageNode& CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
+	virtual void GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageNode*>>& marshaller);
 
 	//Attribute functions
-	virtual IHeirarchicalStorageAttribute** GetAttributeListInternal(unsigned int& attributeCount);
-	virtual bool IsAttributePresentInternal(const wchar_t* name) const;
-	virtual IHeirarchicalStorageAttribute* GetAttributeInternal(const wchar_t* name) const;
-	virtual IHeirarchicalStorageAttribute& CreateAttributeInternal(const wchar_t* name);
+	virtual bool IsAttributePresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
+	virtual IHeirarchicalStorageAttribute* GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
+	virtual IHeirarchicalStorageAttribute& CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
+	virtual void GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageAttribute*>>& marshaller);
 
 	//Common data functions
 	virtual void ClearData();
 
 	//Binary data functions
-	virtual const wchar_t* GetBinaryDataBufferNameInternal() const;
-	virtual void SetBinaryDataBufferNameInternal(const wchar_t* aname);
+	virtual void GetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 
 private:
 	//Parent functions
 	void SetParent(HeirarchicalStorageNode* aparent);
 
 private:
+	//Typedefs
 	typedef std::vector<HeirarchicalStorageNode*> ChildList;
 	typedef std::pair<std::wstring, HeirarchicalStorageAttribute*> AttributeListEntry;
 	//Note that this is a vector rather than a map, so that we can preserve the explicit
 	//ordering of attributes.
 	typedef std::vector<AttributeListEntry> AttributeList;
 
+private:
 	std::wstring name;
 	HeirarchicalStorageNode* parent;
 	ChildList children;
@@ -90,7 +98,7 @@ private:
 	bool inlineBinaryData;
 	std::wstring binaryDataName;
 	mutable Stream::Buffer dataStream;
-	std::vector<HeirarchicalStorageAttribute*> attributeArrayCached;
 };
 
+#include "HeirarchicalStorageNode.inl"
 #endif

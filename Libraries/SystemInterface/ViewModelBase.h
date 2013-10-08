@@ -59,15 +59,15 @@ protected:
 	IView* GetOpenView() const;
 
 	//View owner functions
-	virtual void SetViewOwnerAsDeviceInternal(const wchar_t* deviceInstanceName, unsigned int moduleID);
-	virtual const wchar_t* GetViewOwnerDeviceInstanceNameInternal() const;
+	virtual void SetViewOwnerAsDeviceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& deviceInstanceNameMarshaller, unsigned int moduleID);
+	virtual void GetViewOwnerDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Title functions
-	virtual const wchar_t* GetViewTitleInternal() const;
+	virtual void GetViewTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//State functions
-	virtual const wchar_t* GetViewModelGroupNameInternal() const;
-	virtual const wchar_t* GetViewModelNameInternal() const;
+	virtual void GetViewModelGroupNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetViewModelNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	bool viewOpen;
@@ -80,7 +80,6 @@ private:
 	unsigned int viewOwnerModuleID;
 	std::wstring viewModelGroupName;
 	std::wstring viewModelName;
-	mutable std::wstring viewTitleCached;
 };
 
 #endif

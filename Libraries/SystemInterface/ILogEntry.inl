@@ -23,25 +23,33 @@ unsigned int ILogEntry::ThisILogEntryVersion()
 //----------------------------------------------------------------------------------------
 std::wstring ILogEntry::GetText() const
 {
-	return GetTextInternal();
+	std::wstring result;
+	GetTextInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ILogEntry::GetSource() const
 {
-	return GetSourceInternal();
+	std::wstring result;
+	GetSourceInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ILogEntry::GetEventLevelString() const
 {
-	return GetEventLevelStringInternal();
+	std::wstring result;
+	GetEventLevelStringInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ILogEntry::GetTimeString() const
 {
-	return GetTimeStringInternal();
+	std::wstring result;
+	GetTimeStringInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -49,5 +57,5 @@ std::wstring ILogEntry::GetTimeString() const
 //----------------------------------------------------------------------------------------
 void ILogEntry::OverrideSourceText(const std::wstring& asource) const
 {
-	OverrideSourceTextInternal(asource.c_str());
+	OverrideSourceTextInternal(InteropSupport::STLObjectSource<std::wstring>(asource));
 }

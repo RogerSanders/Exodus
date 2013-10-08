@@ -3,13 +3,15 @@
 //----------------------------------------------------------------------------------------
 std::wstring IHeirarchicalStorageNode::GetName() const
 {
-	return GetNameInternal();
+	std::wstring result;
+	GetNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void IHeirarchicalStorageNode::SetName(const std::wstring& aname)
 {
-	SetNameInternal(aname.c_str());
+	SetNameInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
 }
 
 //----------------------------------------------------------------------------------------
@@ -17,13 +19,13 @@ void IHeirarchicalStorageNode::SetName(const std::wstring& aname)
 //----------------------------------------------------------------------------------------
 IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChild(const std::wstring& aname)
 {
-	return CreateChildInternal(aname.c_str());
+	return CreateChildInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
 }
 
 //----------------------------------------------------------------------------------------
 template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChild(const std::wstring& aname, const T& adata)
 {
-	IHeirarchicalStorageNode& child = CreateChildInternal(aname.c_str());
+	IHeirarchicalStorageNode& child = CreateChildInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
 	child.InsertData(adata);
 	return child;
 }
@@ -31,7 +33,7 @@ template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChil
 //----------------------------------------------------------------------------------------
 template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChildHex(const std::wstring& aname, const T& adata, unsigned int length)
 {
-	IHeirarchicalStorageNode& child = CreateChildInternal(aname.c_str());
+	IHeirarchicalStorageNode& child = CreateChildInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
 	child.InsertHexData(adata, length);
 	return child;
 }
@@ -39,7 +41,7 @@ template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChil
 //----------------------------------------------------------------------------------------
 template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChildBinary(const std::wstring& aname, const T& adata, const std::wstring& bufferName, bool ainlineBinaryData)
 {
-	IHeirarchicalStorageNode& child = CreateChildInternal(aname.c_str());
+	IHeirarchicalStorageNode& child = CreateChildInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
 	child.InsertBinaryData(adata, bufferName, ainlineBinaryData);
 	return child;
 }
@@ -47,7 +49,7 @@ template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChil
 //----------------------------------------------------------------------------------------
 template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChildBinary(const std::wstring& aname, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData)
 {
-	IHeirarchicalStorageNode& child = CreateChildInternal(aname.c_str());
+	IHeirarchicalStorageNode& child = CreateChildInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
 	child.InsertBinaryData(buffer, entries, bufferName, ainlineBinaryData);
 	return child;
 }
@@ -55,14 +57,9 @@ template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::CreateChil
 //----------------------------------------------------------------------------------------
 std::list<IHeirarchicalStorageNode*> IHeirarchicalStorageNode::GetChildList()
 {
-	std::list<IHeirarchicalStorageNode*> list;
-	unsigned int childCount;
-	IHeirarchicalStorageNode** childBuffer = GetChildListInternal(childCount);
-	for(unsigned int i = 0; i < childCount; ++i)
-	{
-		list.push_back(*(childBuffer + i));
-	}
-	return list;
+	std::list<IHeirarchicalStorageNode*> result;
+	GetChildListInternal(InteropSupport::STLObjectTarget<std::list<IHeirarchicalStorageNode*>>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -70,19 +67,19 @@ std::list<IHeirarchicalStorageNode*> IHeirarchicalStorageNode::GetChildList()
 //----------------------------------------------------------------------------------------
 bool IHeirarchicalStorageNode::IsAttributePresent(const std::wstring& name) const
 {
-	return IsAttributePresentInternal(name.c_str());
+	return IsAttributePresentInternal(InteropSupport::STLObjectSource<std::wstring>(name));
 }
 
 //----------------------------------------------------------------------------------------
 IHeirarchicalStorageAttribute* IHeirarchicalStorageNode::GetAttribute(const std::wstring& name) const
 {
-	return GetAttributeInternal(name.c_str());
+	return GetAttributeInternal(InteropSupport::STLObjectSource<std::wstring>(name));
 }
 
 //----------------------------------------------------------------------------------------
 IHeirarchicalStorageAttribute& IHeirarchicalStorageNode::CreateAttribute(const std::wstring& name)
 {
-	return CreateAttributeInternal(name.c_str());
+	return CreateAttributeInternal(InteropSupport::STLObjectSource<std::wstring>(name));
 }
 
 //----------------------------------------------------------------------------------------
@@ -128,14 +125,9 @@ template<class T> bool IHeirarchicalStorageNode::ExtractAttributeHex(const std::
 //----------------------------------------------------------------------------------------
 std::list<IHeirarchicalStorageAttribute*> IHeirarchicalStorageNode::GetAttributeList()
 {
-	std::list<IHeirarchicalStorageAttribute*> list;
-	unsigned int attributeCount;
-	IHeirarchicalStorageAttribute** attributeBuffer = GetAttributeListInternal(attributeCount);
-	for(unsigned int i = 0; i < attributeCount; ++i)
-	{
-		list.push_back(*(attributeBuffer + i));
-	}
-	return list;
+	std::list<IHeirarchicalStorageAttribute*> result;
+	GetAttributeListInternal(InteropSupport::STLObjectTarget<std::list<IHeirarchicalStorageAttribute*>>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -235,13 +227,15 @@ template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::InsertHexD
 //----------------------------------------------------------------------------------------
 std::wstring IHeirarchicalStorageNode::GetBinaryDataBufferName() const
 {
-	return GetBinaryDataBufferNameInternal();
+	std::wstring result;
+	GetBinaryDataBufferNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void IHeirarchicalStorageNode::SetBinaryDataBufferName(const std::wstring& aname)
 {
-	return SetBinaryDataBufferNameInternal(aname.c_str());
+	return SetBinaryDataBufferNameInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
 }
 
 //----------------------------------------------------------------------------------------
@@ -319,7 +313,7 @@ template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::InsertBina
 {
 	SetBinaryDataPresent(true);
 	SetInlineBinaryDataEnabled(ainlineBinaryData);
-	SetBinaryDataBufferNameInternal(bufferName.c_str());
+	SetBinaryDataBufferNameInternal(InteropSupport::STLObjectSource<std::wstring>(bufferName));
 	Stream::IStream& dataStream = GetInternalStream();
 	Stream::ViewBinary bufferView(dataStream);
 	bufferView << adata;
@@ -331,7 +325,7 @@ template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::InsertBina
 {
 	SetBinaryDataPresent(true);
 	SetInlineBinaryDataEnabled(ainlineBinaryData);
-	SetBinaryDataBufferNameInternal(bufferName.c_str());
+	SetBinaryDataBufferNameInternal(InteropSupport::STLObjectSource<std::wstring>(bufferName));
 	Stream::IStream& dataStream = GetInternalStream();
 	Stream::ViewBinary bufferView(dataStream);
 	for(unsigned int i = 0; i < adata.size(); ++i)
@@ -346,21 +340,21 @@ template<> IHeirarchicalStorageNode& IHeirarchicalStorageNode::InsertBinaryData(
 {
 	SetBinaryDataPresent(true);
 	SetInlineBinaryDataEnabled(ainlineBinaryData);
-	SetBinaryDataBufferNameInternal(bufferName.c_str());
+	SetBinaryDataBufferNameInternal(InteropSupport::STLObjectSource<std::wstring>(bufferName));
 	Stream::IStream& dataStream = GetInternalStream();
 	dataStream.WriteData(adata);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::InsertBinaryData(const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData)
+template<class T> IHeirarchicalStorageNode& IHeirarchicalStorageNode::InsertBinaryData(const T* buffer, size_t entries, const std::wstring& bufferName, bool ainlineBinaryData)
 {
 	SetBinaryDataPresent(true);
 	SetInlineBinaryDataEnabled(ainlineBinaryData);
-	SetBinaryDataBufferNameInternal(bufferName.c_str());
+	SetBinaryDataBufferNameInternal(InteropSupport::STLObjectSource<std::wstring>(bufferName));
 	Stream::IStream& dataStream = GetInternalStream();
 	Stream::ViewBinary bufferView(dataStream);
-	for(unsigned int i = 0; i < entries; ++i)
+	for(size_t i = 0; i < entries; ++i)
 	{
 		bufferView << *(buffer + i);
 	}

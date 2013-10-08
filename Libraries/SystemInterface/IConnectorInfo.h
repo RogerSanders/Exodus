@@ -1,5 +1,6 @@
 #ifndef __ICONNECTORINFO_H__
 #define __ICONNECTORINFO_H__
+#include "InteropSupport/InteropSupport.pkg"
 #include <string>
 
 class IConnectorInfo
@@ -36,16 +37,16 @@ public:
 
 protected:
 	//Exporting module info
-	virtual const wchar_t* GetConnectorClassNameInternal() const = 0;
-	virtual void SetConnectorClassNameInternal(const wchar_t* aconnectorClassName) = 0;
-	virtual const wchar_t* GetExportingModuleConnectorInstanceNameInternal() const = 0;
-	virtual void SetExportingModuleConnectorInstanceNameInternal(const wchar_t* aexportingModuleConnectorInstanceName) = 0;
-	virtual const wchar_t* GetSystemClassNameInternal() const = 0;
-	virtual void SetSystemClassNameInternal(const wchar_t* asystemClassName) = 0;
+	virtual void GetConnectorClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void SetConnectorClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual void GetExportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void SetExportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual void GetSystemClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void SetSystemClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
 
 	//Importing module info
-	virtual const wchar_t* GetImportingModuleConnectorInstanceNameInternal() const = 0;
-	virtual void SetImportingModuleConnectorInstanceNameInternal(const wchar_t* aimportingModuleConnectorInstanceName) = 0;
+	virtual void GetImportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void SetImportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
 };
 
 #include "IConnectorInfo.inl"

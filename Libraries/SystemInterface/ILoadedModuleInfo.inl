@@ -11,13 +11,15 @@ unsigned int ILoadedModuleInfo::ThisILoadedModuleInfoVersion()
 //----------------------------------------------------------------------------------------
 std::wstring ILoadedModuleInfo::GetModuleFilePath() const
 {
-	return GetModuleFilePathInternal();
+	std::wstring result;
+	GetModuleFilePathInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void ILoadedModuleInfo::SetModuleFilePath(const std::wstring& amoduleFilePath)
 {
-	SetModuleFilePathInternal(amoduleFilePath.c_str());
+	SetModuleFilePathInternal(InteropSupport::STLObjectSource<std::wstring>(amoduleFilePath));
 }
 
 //----------------------------------------------------------------------------------------
@@ -25,49 +27,57 @@ void ILoadedModuleInfo::SetModuleFilePath(const std::wstring& amoduleFilePath)
 //----------------------------------------------------------------------------------------
 std::wstring ILoadedModuleInfo::GetSystemClassName() const
 {
-	return GetSystemClassNameInternal();
+	std::wstring result;
+	GetSystemClassNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void ILoadedModuleInfo::SetSystemClassName(const std::wstring& asystemClassName)
 {
-	SetSystemClassNameInternal(asystemClassName.c_str());
+	SetSystemClassNameInternal(InteropSupport::STLObjectSource<std::wstring>(asystemClassName));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ILoadedModuleInfo::GetClassName() const
 {
-	return GetClassNameInternal();
+	std::wstring result;
+	GetClassNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void ILoadedModuleInfo::SetClassName(const std::wstring& aclassName)
 {
-	SetClassNameInternal(aclassName.c_str());
+	SetClassNameInternal(InteropSupport::STLObjectSource<std::wstring>(aclassName));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ILoadedModuleInfo::GetInstanceName() const
 {
-	return GetInstanceNameInternal();
+	std::wstring result;
+	GetInstanceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void ILoadedModuleInfo::SetInstanceName(const std::wstring& ainstanceName)
 {
-	SetInstanceNameInternal(ainstanceName.c_str());
+	SetInstanceNameInternal(InteropSupport::STLObjectSource<std::wstring>(ainstanceName));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ILoadedModuleInfo::GetDisplayName() const
 {
-	return GetDisplayNameInternal();
+	std::wstring result;
+	GetDisplayNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void ILoadedModuleInfo::SetDisplayName(const std::wstring& adisplayName)
 {
-	SetDisplayNameInternal(adisplayName.c_str());
+	SetDisplayNameInternal(InteropSupport::STLObjectSource<std::wstring>(adisplayName));
 }
 
 //----------------------------------------------------------------------------------------
@@ -75,35 +85,41 @@ void ILoadedModuleInfo::SetDisplayName(const std::wstring& adisplayName)
 //----------------------------------------------------------------------------------------
 std::wstring ILoadedModuleInfo::GetProductionYear() const
 {
-	return GetProductionYearInternal();
+	std::wstring result;
+	GetProductionYearInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void ILoadedModuleInfo::SetProductionYear(const std::wstring& aproductionYear)
 {
-	SetProductionYearInternal(aproductionYear.c_str());
+	SetProductionYearInternal(InteropSupport::STLObjectSource<std::wstring>(aproductionYear));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ILoadedModuleInfo::GetManufacturerCode() const
 {
-	return GetManufacturerCodeInternal();
+	std::wstring result;
+	GetManufacturerCodeInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void ILoadedModuleInfo::SetManufacturerCode(const std::wstring& amanufacturerCode)
 {
-	SetManufacturerCodeInternal(amanufacturerCode.c_str());
+	SetManufacturerCodeInternal(InteropSupport::STLObjectSource<std::wstring>(amanufacturerCode));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ILoadedModuleInfo::GetManufacturerDisplayName() const
 {
-	return GetManufacturerDisplayNameInternal();
+	std::wstring result;
+	GetManufacturerDisplayNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void ILoadedModuleInfo::SetManufacturerDisplayName(const std::wstring& amanufacturerDisplayName)
 {
-	SetManufacturerDisplayNameInternal(amanufacturerDisplayName.c_str());
+	SetManufacturerDisplayNameInternal(InteropSupport::STLObjectSource<std::wstring>(amanufacturerDisplayName));
 }

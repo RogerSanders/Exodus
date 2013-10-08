@@ -79,27 +79,27 @@ bool Device::AddReference(const std::wstring& referenceName, IClockSource* targe
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReferenceInternal(const wchar_t* referenceName, IDevice* target)
+bool Device::AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IDevice* target)
 {
-	return AddReference(referenceName, target);
+	return AddReference(referenceNameMarshaller.MarshalTo(), target);
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReferenceInternal(const wchar_t* referenceName, IExtension* target)
+bool Device::AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IExtension* target)
 {
-	return AddReference(referenceName, target);
+	return AddReference(referenceNameMarshaller.MarshalTo(), target);
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReferenceInternal(const wchar_t* referenceName, IBusInterface* target)
+bool Device::AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IBusInterface* target)
 {
-	return AddReference(referenceName, target);
+	return AddReference(referenceNameMarshaller.MarshalTo(), target);
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReferenceInternal(const wchar_t* referenceName, IClockSource* target)
+bool Device::AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IClockSource* target)
 {
-	return AddReference(referenceName, target);
+	return AddReference(referenceNameMarshaller.MarshalTo(), target);
 }
 
 //----------------------------------------------------------------------------------------
@@ -281,36 +281,33 @@ void Device::NotifyAfterExecuteStepFinishedTimeslice()
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetDeviceImplementationNameInternal() const
+void Device::GetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return implementationName.c_str();
+	marshaller.MarshalFrom(GetDeviceImplementationName());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetDeviceInstanceNameInternal() const
+void Device::GetDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return instanceName.c_str();
+	marshaller.MarshalFrom(GetDeviceInstanceName());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetFullyQualifiedDeviceInstanceNameInternal() const
+void Device::GetFullyQualifiedDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	fullyQualifiedDeviceInstanceNameCached = GetFullyQualifiedDeviceInstanceName();
-	return fullyQualifiedDeviceInstanceNameCached.c_str();
+	marshaller.MarshalFrom(GetFullyQualifiedDeviceInstanceName());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetModuleDisplayNameInternal() const
+void Device::GetModuleDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	moduleDisplayNameCached = GetModuleDisplayName();
-	return moduleDisplayNameCached.c_str();
+	marshaller.MarshalFrom(GetModuleDisplayName());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetModuleInstanceNameInternal() const
+void Device::GetModuleInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	moduleInstanceNameCached = GetModuleInstanceName();
-	return moduleInstanceNameCached.c_str();
+	marshaller.MarshalFrom(GetModuleInstanceName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -368,9 +365,9 @@ unsigned int Device::GetCELineID(const std::wstring& lineName, bool inputLine) c
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetCELineIDInternal(const wchar_t* lineName, bool inputLine) const
+unsigned int Device::GetCELineIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& lineNameMarshaller, bool inputLine) const
 {
-	return GetCELineID(lineName, inputLine);
+	return GetCELineID(lineNameMarshaller.MarshalTo(), inputLine);
 }
 
 //----------------------------------------------------------------------------------------
@@ -464,16 +461,15 @@ std::wstring Device::GetLineName(unsigned int lineID) const
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetLineIDInternal(const wchar_t* lineName) const
+unsigned int Device::GetLineIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& lineNameMarshaller) const
 {
-	return GetLineID(lineName);
+	return GetLineID(lineNameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetLineNameInternal(unsigned int lineID) const
+void Device::GetLineNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int lineID) const
 {
-	lineNameCached = GetLineName(lineID);
-	return lineNameCached.c_str();
+	marshaller.MarshalFrom(GetLineName(lineID));
 }
 
 //----------------------------------------------------------------------------------------
@@ -526,16 +522,15 @@ std::wstring Device::GetClockSourceName(unsigned int clockSourceID) const
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetClockSourceIDInternal(const wchar_t* clockSourceName) const
+unsigned int Device::GetClockSourceIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& clockSourceNameMarshaller) const
 {
-	return GetClockSourceID(clockSourceName);
+	return GetClockSourceID(clockSourceNameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetClockSourceNameInternal(unsigned int clockSourceID) const
+void Device::GetClockSourceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int clockSourceID) const
 {
-	clockSourceNameCached = GetClockSourceName(clockSourceID);
-	return clockSourceNameCached.c_str();
+	marshaller.MarshalFrom(GetClockSourceName(clockSourceID));
 }
 
 //----------------------------------------------------------------------------------------
@@ -561,16 +556,15 @@ std::wstring Device::GetKeyCodeName(unsigned int keyCodeID) const
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetKeyCodeIDInternal(const wchar_t* keyCodeName) const
+unsigned int Device::GetKeyCodeIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& keyCodeNameMarshaller) const
 {
-	return GetKeyCodeID(keyCodeName);
+	return GetKeyCodeID(keyCodeNameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Device::GetKeyCodeNameInternal(unsigned int keyCodeID) const
+void Device::GetKeyCodeNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int keyCodeID) const
 {
-	keyCodeNameCached = GetKeyCodeName(keyCodeID);
-	return keyCodeNameCached.c_str();
+	marshaller.MarshalFrom(GetKeyCodeName(keyCodeID));
 }
 
 //----------------------------------------------------------------------------------------
@@ -612,13 +606,13 @@ void Device::OpenViewModel(const std::wstring& viewModelGroupName, const std::ws
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::RestoreViewModelStateInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Device::RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
+	RestoreViewModelState(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
-void Device::OpenViewModelInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IViewModelLauncher& viewModelLauncher)
+void Device::OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher)
 {
-	OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
+	OpenViewModel(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), viewModelLauncher);
 }

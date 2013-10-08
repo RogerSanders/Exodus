@@ -29,10 +29,10 @@ public:
 
 protected:
 	//Setters
-	virtual void SetExtensionClassNameInternal(const wchar_t* aextensionClassName) = 0;
-	virtual void SetExtensionImplementationNameInternal(const wchar_t* aextensionImplementationName) = 0;
-	virtual void SetExtensionCopyrightInternal(const wchar_t* aextensionCopyright) = 0;
-	virtual void SetExtensionCommentsInternal(const wchar_t* aextensionComments) = 0;
+	virtual void SetExtensionClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual void SetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual void SetExtensionCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual void SetExtensionCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
 };
 
 #include "IExtensionInfo.inl"

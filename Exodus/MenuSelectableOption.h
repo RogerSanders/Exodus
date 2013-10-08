@@ -32,7 +32,7 @@ public:
 
 protected:
 	//Menu handler functions
-	virtual const wchar_t* GetNameInternal() const;
+	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	std::wstring name;

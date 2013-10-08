@@ -129,10 +129,10 @@ public:
 
 protected:
 	//System message functions
-	virtual const wchar_t* GetCapturePathInternal() const;
-	virtual const wchar_t* GetFullyQualifiedDeviceInstanceNameInternal() const;
-	virtual const wchar_t* GetModuleDisplayNameInternal() const;
-	virtual const wchar_t* GetModuleInstanceNameInternal() const;
+	virtual void GetCapturePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetFullyQualifiedDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetModuleDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetModuleInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	//Worker thread control
@@ -207,12 +207,6 @@ private:
 	boost::condition sharedExecuteThreadSpinoffStateChangeRequested;
 	boost::condition sharedExecuteThreadSpinoffStoppedOrPaused;
 	boost::condition sharedExecuteThreadSpinoffTimesliceProcessingBegun;
-
-	//Cached settings
-	mutable std::wstring capturePathCached;
-	mutable std::wstring fullyQualifiedDeviceInstanceNameCached;
-	mutable std::wstring moduleDisplayNameCached;
-	mutable std::wstring moduleInstanceNameCached;
 
 	//Callback parameters
 	ISystemInternal* systemObject;

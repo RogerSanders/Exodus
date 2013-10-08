@@ -511,3 +511,37 @@ System::~System()
 	delete debugMenuHandler;
 	delete systemOptionMenuHandler;
 }
+
+//----------------------------------------------------------------------------------------
+//Loaded module info functions
+//----------------------------------------------------------------------------------------
+std::list<unsigned int> System::GetLoadedModuleIDs() const
+{
+	std::list<unsigned int> idList;
+	for(LoadedModuleInfoList::const_iterator i = loadedModuleInfoList.begin(); i != loadedModuleInfoList.end(); ++i)
+	{
+		idList.push_back(i->moduleID);
+	}
+	return idList;
+}
+
+//----------------------------------------------------------------------------------------
+//Connector info functions
+//----------------------------------------------------------------------------------------
+std::list<unsigned int> System::GetConnectorIDs() const
+{
+	std::list<unsigned int> idList;
+	for(ConnectorDetailsMap::const_iterator i = connectorDetailsMap.begin(); i != connectorDetailsMap.end(); ++i)
+	{
+		idList.push_back(i->second.connectorID);
+	}
+	return idList;
+}
+
+//----------------------------------------------------------------------------------------
+//Assembly handle functions
+//----------------------------------------------------------------------------------------
+void* System::GetAssemblyHandle() const
+{
+	return assemblyHandle;
+}

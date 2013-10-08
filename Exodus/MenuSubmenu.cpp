@@ -49,9 +49,9 @@ std::wstring MenuSubmenu::GetMenuName() const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* MenuSubmenu::GetMenuNameInternal() const
+void MenuSubmenu::GetMenuNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return name.c_str();
+	marshaller.MarshalFrom(GetMenuName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -85,23 +85,9 @@ std::list<IMenuSegment*> MenuSubmenu::GetMenuSegments() const
 }
 
 //----------------------------------------------------------------------------------------
-void MenuSubmenu::GetMenuSegmentsInternal(IMenuSegment* itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const
+void MenuSubmenu::GetMenuSegmentsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuSegment*>>& marshaller) const
 {
-	//Ensure that the supplied array is big enough to hold all the items
-	requiredSize = (unsigned int)menuSegments.size();
-	if(requiredSize > arraySize)
-	{
-		itemsRetrieved = false;
-		return;
-	}
-
-	//Write all the items to the array
-	unsigned int arrayIndex = 0;
-	for(unsigned int i = 0; i < (unsigned int)menuSegments.size(); ++i)
-	{
-		itemArray[arrayIndex++] = menuSegments[i];
-	}
-	itemsRetrieved = true;
+	marshaller.MarshalFrom(GetMenuSegments());
 }
 
 //----------------------------------------------------------------------------------------

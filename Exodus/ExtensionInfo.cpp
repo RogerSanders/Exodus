@@ -62,15 +62,15 @@ void ExtensionInfo::SetExtensionAllocators(AllocatorPointer aAllocator, Destruct
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionClassNameInternal(const wchar_t* aextensionClassName)
+void ExtensionInfo::SetExtensionClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	className = aextensionClassName;
+	SetExtensionClassName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionImplementationNameInternal(const wchar_t* aextensionImplementationName)
+void ExtensionInfo::SetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	implementationName = aextensionImplementationName;
+	SetExtensionImplementationName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -80,13 +80,13 @@ void ExtensionInfo::SetExtensionVersionNo(unsigned int aextensionVersionNo)
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionCopyrightInternal(const wchar_t* aextensionCopyright)
+void ExtensionInfo::SetExtensionCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	copyright = aextensionCopyright;
+	SetExtensionCopyright(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionCommentsInternal(const wchar_t* aextensionComments)
+void ExtensionInfo::SetExtensionCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	comments = aextensionComments;
+	SetExtensionComments(marshaller.MarshalTo());
 }

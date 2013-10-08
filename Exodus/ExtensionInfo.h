@@ -18,20 +18,25 @@ public:
 	DestructorPointer GetDestructor() const;
 	std::wstring GetExtensionClassName() const;
 	std::wstring GetExtensionImplementationName() const;
-	unsigned int GetExtensionVersionNo() const;
+	virtual unsigned int GetExtensionVersionNo() const;
 	std::wstring GetExtensionCopyright() const;
 	std::wstring GetExtensionComments() const;
 
 	//Setters
-	virtual void SetExtensionVersionNo(unsigned int aextensionVersionNo);
+	inline void SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& aextensionClassName, const std::wstring& aextensionImplementationName, unsigned int aextensionVersionNo, const std::wstring& aextensionCopyright, const std::wstring& aextensionComments);
 	virtual void SetExtensionAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor);
+	inline void SetExtensionClassName(const std::wstring& aextensionClassName);
+	inline void SetExtensionImplementationName(const std::wstring& aextensionImplementationName);
+	virtual void SetExtensionVersionNo(unsigned int aextensionVersionNo);
+	inline void SetExtensionCopyright(const std::wstring& aextensionCopyright);
+	inline void SetExtensionComments(const std::wstring& aextensionComments);
 
 protected:
 	//Setters
-	virtual void SetExtensionClassNameInternal(const wchar_t* aextensionClassName);
-	virtual void SetExtensionImplementationNameInternal(const wchar_t* aextensionImplementationName);
-	virtual void SetExtensionCopyrightInternal(const wchar_t* aextensionCopyright);
-	virtual void SetExtensionCommentsInternal(const wchar_t* aextensionComments);
+	virtual void SetExtensionClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void SetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void SetExtensionCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void SetExtensionCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 
 private:
 	AllocatorPointer Allocator;
@@ -43,4 +48,5 @@ private:
 	std::wstring comments;
 };
 
+#include "ExtensionInfo.inl"
 #endif

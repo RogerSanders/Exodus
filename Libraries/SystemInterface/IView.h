@@ -1,6 +1,8 @@
 #ifndef __IVIEW_H__
 #define __IVIEW_H__
 #include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include "InteropSupport/InteropSupport.pkg"
+#include <string>
 class IViewModel;
 
 class IView
@@ -37,7 +39,7 @@ public:
 
 protected:
 	//Title functions
-	virtual const wchar_t* GetViewTitleInternal() const = 0;
+	virtual void GetViewTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
 #include "IView.inl"

@@ -47,23 +47,9 @@ std::list<IMenuItem*> MenuSegment::GetMenuItems() const
 }
 
 //----------------------------------------------------------------------------------------
-void MenuSegment::GetMenuItemsInternal(IMenuItem* itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const
+void MenuSegment::GetMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const
 {
-	//Ensure that the supplied array is big enough to hold all the items
-	requiredSize = (unsigned int)menuItems.size();
-	if(requiredSize > arraySize)
-	{
-		itemsRetrieved = false;
-		return;
-	}
-
-	//Write all the items to the array
-	unsigned int arrayIndex = 0;
-	for(unsigned int i = 0; i < (unsigned int)menuItems.size(); ++i)
-	{
-		itemArray[arrayIndex++] = menuItems[i];
-	}
-	itemsRetrieved = true;
+	marshaller.MarshalFrom(GetMenuItems());
 }
 
 //----------------------------------------------------------------------------------------
@@ -93,15 +79,15 @@ IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& me
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSegment::AddMenuItemSubmenuInternal(const wchar_t* name)
+IMenuSubmenu& MenuSegment::AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
 {
-	return AddMenuItemSubmenu(name);
+	return AddMenuItemSubmenu(nameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const wchar_t* name)
+IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
 {
-	return AddMenuItemSelectableOption(menuHandler, menuItemID, name);
+	return AddMenuItemSelectableOption(menuHandler, menuItemID, nameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------

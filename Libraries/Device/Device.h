@@ -130,46 +130,40 @@ public:
 
 protected:
 	//Reference functions
-	virtual bool AddReferenceInternal(const wchar_t* referenceName, IDevice* target);
-	virtual bool AddReferenceInternal(const wchar_t* referenceName, IExtension* target);
-	virtual bool AddReferenceInternal(const wchar_t* referenceName, IBusInterface* target);
-	virtual bool AddReferenceInternal(const wchar_t* referenceName, IClockSource* target);
+	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IDevice* target);
+	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IExtension* target);
+	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IBusInterface* target);
+	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IClockSource* target);
 
 	//Name functions
-	virtual const wchar_t* GetDeviceImplementationNameInternal() const;
-	virtual const wchar_t* GetDeviceInstanceNameInternal() const;
-	virtual const wchar_t* GetFullyQualifiedDeviceInstanceNameInternal() const;
-	virtual const wchar_t* GetModuleDisplayNameInternal() const;
-	virtual const wchar_t* GetModuleInstanceNameInternal() const;
+	virtual void GetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetFullyQualifiedDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetModuleDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetModuleInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const ;
 
 	//CE line state functions
-	virtual unsigned int GetCELineIDInternal(const wchar_t* lineName, bool inputLine) const;
+	virtual unsigned int GetCELineIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& lineNameMarshaller, bool inputLine) const;
 
 	//Line functions
-	virtual unsigned int GetLineIDInternal(const wchar_t* lineName) const;
-	virtual const wchar_t* GetLineNameInternal(unsigned int lineID) const;
+	virtual unsigned int GetLineIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& lineNameMarshaller) const;
+	virtual void GetLineNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int lineID) const;
 
 	//Clock source functions
-	virtual unsigned int GetClockSourceIDInternal(const wchar_t* clockSourceName) const;
-	virtual const wchar_t* GetClockSourceNameInternal(unsigned int clockSourceID) const;
+	virtual unsigned int GetClockSourceIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& clockSourceNameMarshaller) const;
+	virtual void GetClockSourceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int clockSourceID) const;
 
 	//Input functions
-	virtual unsigned int GetKeyCodeIDInternal(const wchar_t* keyCodeName) const;
-	virtual const wchar_t* GetKeyCodeNameInternal(unsigned int keyCodeID) const;
+	virtual unsigned int GetKeyCodeIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& keyCodeNameMarshaller) const;
+	virtual void GetKeyCodeNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int keyCodeID) const;
 
 	//Window functions
-	virtual void RestoreViewModelStateInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModelInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher);
 
 private:
 	std::wstring implementationName;
 	std::wstring instanceName;
-	mutable std::wstring fullyQualifiedDeviceInstanceNameCached;
-	mutable std::wstring moduleDisplayNameCached;
-	mutable std::wstring moduleInstanceNameCached;
-	mutable std::wstring lineNameCached;
-	mutable std::wstring clockSourceNameCached;
-	mutable std::wstring keyCodeNameCached;
 	unsigned int moduleID;
 	IDeviceContext* deviceContext;
 	AssemblyHandle assemblyHandle;

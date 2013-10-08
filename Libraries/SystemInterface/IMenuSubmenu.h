@@ -1,5 +1,6 @@
 #ifndef __IMENUSUBMENU_H__
 #define __IMENUSUBMENU_H__
+#include "InteropSupport/InteropSupport.pkg"
 #include "IMenuItem.h"
 #include <string>
 #include <list>
@@ -27,10 +28,10 @@ public:
 
 protected:
 	//Menu name functions
-	virtual const wchar_t* GetMenuNameInternal() const = 0;
+	virtual void GetMenuNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 
 	//Item management functions
-	virtual void GetMenuSegmentsInternal(IMenuSegment* itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const = 0;
+	virtual void GetMenuSegmentsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuSegment*>>& marshaller) const = 0;
 };
 
 #include "IMenuSubmenu.inl"

@@ -1,6 +1,7 @@
 #ifndef __IHEIRARCHICALSTORAGEATTRIBUTE_H__
 #define __IHEIRARCHICALSTORAGEATTRIBUTE_H__
 #include "StreamInterface/StreamInterface.pkg"
+#include "InteropSupport/InteropSupport.pkg"
 #include <string>
 
 class IHeirarchicalStorageAttribute
@@ -29,8 +30,8 @@ public:
 
 protected:
 	//Name functions
-	virtual const wchar_t* GetNameInternal() const = 0;
-	virtual void SetNameInternal(const wchar_t* aname) = 0;
+	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
 
 	//Stream functions
 	virtual void ResetInternalStreamPosition() const = 0;

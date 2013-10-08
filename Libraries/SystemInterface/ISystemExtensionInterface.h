@@ -1,5 +1,6 @@
 #ifndef __ISYSTEMEXTENSIONINTERFACE_H__
 #define __ISYSTEMEXTENSIONINTERFACE_H__
+#include "InteropSupport/InteropSupport.pkg"
 #include "ILogEntry.h"
 #include "ILoadedModuleInfo.h"
 #include "IConnectorInfo.h"
@@ -34,10 +35,10 @@ public:
 
 protected:
 	//Loaded module info functions
-	virtual void GetLoadedModuleIDsInternal(unsigned int itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const = 0;
+	virtual void GetLoadedModuleIDsInternal(const InteropSupport::ISTLObjectTarget<std::list<unsigned int>>& marshaller) const = 0;
 
 	//Connector info functions
-	virtual void GetConnectorIDsInternal(unsigned int itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const = 0;
+	virtual void GetConnectorIDsInternal(const InteropSupport::ISTLObjectTarget<std::list<unsigned int>>& marshaller) const = 0;
 };
 
 #include "ISystemExtensionInterface.inl"

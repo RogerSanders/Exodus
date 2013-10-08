@@ -1,6 +1,7 @@
 #ifndef __IVIEWMODEL_H__
 #define __IVIEWMODEL_H__
 #include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include "InteropSupport/InteropSupport.pkg"
 #include "IViewModelNotifier.h"
 #include <string>
 class IView;
@@ -51,15 +52,15 @@ public:
 
 protected:
 	//View owner functions
-	virtual void SetViewOwnerAsDeviceInternal(const wchar_t* deviceInstanceName, unsigned int moduleID) = 0;
-	virtual const wchar_t* GetViewOwnerDeviceInstanceNameInternal() const = 0;
+	virtual void SetViewOwnerAsDeviceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& deviceInstanceNameMarshaller, unsigned int moduleID) = 0;
+	virtual void GetViewOwnerDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 
 	//Title functions
-	virtual const wchar_t* GetViewTitleInternal() const = 0;
+	virtual void GetViewTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 
 	//State functions
-	virtual const wchar_t* GetViewModelGroupNameInternal() const = 0;
-	virtual const wchar_t* GetViewModelNameInternal() const = 0;
+	virtual void GetViewModelGroupNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void GetViewModelNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
 #include "IViewModel.inl"

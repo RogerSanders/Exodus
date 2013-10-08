@@ -3,13 +3,15 @@
 //----------------------------------------------------------------------------------------
 std::wstring IHeirarchicalStorageAttribute::GetName() const
 {
-	return GetNameInternal();
+	std::wstring result;
+	GetNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void IHeirarchicalStorageAttribute::SetName(const std::wstring& aname)
 {
-	SetNameInternal(aname.c_str());
+	SetNameInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
 }
 
 //----------------------------------------------------------------------------------------

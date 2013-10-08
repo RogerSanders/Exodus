@@ -193,9 +193,9 @@ std::wstring ViewBase::GetViewTitle() const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ViewBase::GetViewTitleInternal() const
+void ViewBase::GetViewTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return windowTitle.c_str();
+	marshaller.MarshalFrom(GetViewTitle());
 }
 
 //----------------------------------------------------------------------------------------

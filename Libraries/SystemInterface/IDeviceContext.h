@@ -1,5 +1,6 @@
 #ifndef __IDEVICECONTEXT_H__
 #define __IDEVICECONTEXT_H__
+#include "InteropSupport/InteropSupport.pkg"
 class ILogEntry;
 class IDevice;
 
@@ -70,10 +71,10 @@ public:
 
 protected:
 	//System message functions
-	virtual const wchar_t* GetCapturePathInternal() const = 0;
-	virtual const wchar_t* GetFullyQualifiedDeviceInstanceNameInternal() const = 0;
-	virtual const wchar_t* GetModuleDisplayNameInternal() const = 0;
-	virtual const wchar_t* GetModuleInstanceNameInternal() const = 0;
+	virtual void GetCapturePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void GetFullyQualifiedDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void GetModuleDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void GetModuleInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
 #include "IDeviceContext.inl"

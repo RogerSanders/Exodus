@@ -1,11 +1,12 @@
 #ifndef __IMENUSEGMENT_H__
 #define __IMENUSEGMENT_H__
+#include "InteropSupport/InteropSupport.pkg"
+#include <list>
 class IMenuItem;
 class IMenuSeparator;
 class IMenuSubmenu;
 class IMenuSelectableOption;
 class IMenuHandler;
-#include <list>
 
 class IMenuSegment
 {
@@ -30,11 +31,11 @@ public:
 
 protected:
 	//Item management functions
-	virtual void GetMenuItemsInternal(IMenuItem* itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const = 0;
+	virtual void GetMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const = 0;
 
 	//Menu item creation and deletion
-	virtual IMenuSubmenu& AddMenuItemSubmenuInternal(const wchar_t* name) = 0;
-	virtual IMenuSelectableOption& AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const wchar_t* name) = 0;
+	virtual IMenuSubmenu& AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) = 0;
+	virtual IMenuSelectableOption& AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) = 0;
 };
 
 #include "IMenuSegment.inl"

@@ -1,6 +1,7 @@
 #ifndef __IHEIRARCHICALSTORAGETREE_H__
 #define __IHEIRARCHICALSTORAGETREE_H__
 #include "StreamInterface/StreamInterface.pkg"
+#include "InteropSupport/InteropSupport.pkg"
 #include <string>
 #include <list>
 class IHeirarchicalStorageNode;
@@ -33,12 +34,10 @@ public:
 
 protected:
 	//Error handling functions
-	virtual const wchar_t* GetErrorStringInternal() const = 0;
+	virtual void GetErrorStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 
 	//Node access functions
-	virtual void CreateBinaryDataNodeList() = 0;
-	virtual IHeirarchicalStorageNode** GetBinaryDataNodeList(unsigned int& nodeCount) = 0;
-	virtual void DeleteBinaryDataNodeList() = 0;
+	virtual void GetBinaryDataNodeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageNode*>>& marshaller) = 0;
 };
 
 #include "IHeirarchicalStorageTree.inl"

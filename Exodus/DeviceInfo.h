@@ -18,20 +18,25 @@ public:
 	DestructorPointer GetDestructor() const;
 	std::wstring GetDeviceClassName() const;
 	std::wstring GetDeviceImplementationName() const;
-	unsigned int GetDeviceVersionNo() const;
+	virtual unsigned int GetDeviceVersionNo() const;
 	std::wstring GetDeviceCopyright() const;
 	std::wstring GetDeviceComments() const;
 
 	//Setters
+	inline void SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& adeviceClassName, const std::wstring& adeviceImplementationName, unsigned int adeviceVersionNo, const std::wstring& adeviceCopyright, const std::wstring& adeviceComments);
 	virtual void SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor);
+	inline void SetDeviceClassName(const std::wstring& adeviceClassName);
+	inline void SetDeviceImplementationName(const std::wstring& adeviceImplementationName);
 	virtual void SetDeviceVersionNo(unsigned int adeviceVersionNo);
+	inline void SetDeviceCopyright(const std::wstring& adeviceCopyright);
+	inline void SetDeviceComments(const std::wstring& adeviceComments);
 
 protected:
 	//Setters
-	virtual void SetDeviceClassNameInternal(const wchar_t* adeviceClassName);
-	virtual void SetDeviceImplementationNameInternal(const wchar_t* adeviceImplementationName);
-	virtual void SetDeviceCopyrightInternal(const wchar_t* adeviceCopyright);
-	virtual void SetDeviceCommentsInternal(const wchar_t* adeviceComments);
+	virtual void SetDeviceClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void SetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void SetDeviceCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void SetDeviceCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 
 private:
 	AllocatorPointer Allocator;
@@ -43,4 +48,5 @@ private:
 	std::wstring comments;
 };
 
+#include "DeviceInfo.inl"
 #endif

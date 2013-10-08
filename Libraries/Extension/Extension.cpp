@@ -77,27 +77,27 @@ bool Extension::AddReference(const std::wstring& referenceName, IClockSource* ta
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReferenceInternal(const wchar_t* referenceName, IDevice* target)
+bool Extension::AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IDevice* target)
 {
-	return AddReference(referenceName, target);
+	return AddReference(referenceNameMarshaller.MarshalTo(), target);
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReferenceInternal(const wchar_t* referenceName, IExtension* target)
+bool Extension::AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IExtension* target)
 {
-	return AddReference(referenceName, target);
+	return AddReference(referenceNameMarshaller.MarshalTo(), target);
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReferenceInternal(const wchar_t* referenceName, IBusInterface* target)
+bool Extension::AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IBusInterface* target)
 {
-	return AddReference(referenceName, target);
+	return AddReference(referenceNameMarshaller.MarshalTo(), target);
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReferenceInternal(const wchar_t* referenceName, IClockSource* target)
+bool Extension::AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IClockSource* target)
 {
-	return AddReference(referenceName, target);
+	return AddReference(referenceNameMarshaller.MarshalTo(), target);
 }
 
 //----------------------------------------------------------------------------------------
@@ -141,15 +141,15 @@ IGUIExtensionInterface* Extension::GetGUIInterface() const
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-const wchar_t* Extension::GetExtensionClassNameInternal() const
+void Extension::GetExtensionClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return className.c_str();
+	marshaller.MarshalFrom(GetExtensionClassName());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* Extension::GetExtensionInstanceNameInternal() const
+void Extension::GetExtensionInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return instanceName.c_str();
+	marshaller.MarshalFrom(GetExtensionInstanceName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -211,13 +211,13 @@ void Extension::OpenViewModel(const std::wstring& viewModelGroupName, const std:
 {}
 
 //----------------------------------------------------------------------------------------
-void Extension::RestoreViewModelStateInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Extension::RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
+	RestoreViewModelState(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
-void Extension::OpenViewModelInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IViewModelLauncher& viewModelLauncher)
+void Extension::OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher)
 {
-	OpenViewModel(viewModelGroupName, viewModelName, viewModelLauncher);
+	OpenViewModel(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), viewModelLauncher);
 }

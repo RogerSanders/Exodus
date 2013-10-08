@@ -11,13 +11,15 @@ unsigned int IViewModel::ThisIViewModelVersion()
 //----------------------------------------------------------------------------------------
 std::wstring IViewModel::GetViewOwnerDeviceInstanceName() const
 {
-	return GetViewOwnerDeviceInstanceNameInternal();
+	std::wstring result;
+	GetViewOwnerDeviceInstanceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void IViewModel::SetViewOwnerAsDevice(const std::wstring& deviceInstanceName, unsigned int moduleID)
 {
-	SetViewOwnerAsDeviceInternal(deviceInstanceName.c_str(), moduleID);
+	SetViewOwnerAsDeviceInternal(InteropSupport::STLObjectSource<std::wstring>(deviceInstanceName), moduleID);
 }
 
 //----------------------------------------------------------------------------------------
@@ -25,7 +27,9 @@ void IViewModel::SetViewOwnerAsDevice(const std::wstring& deviceInstanceName, un
 //----------------------------------------------------------------------------------------
 std::wstring IViewModel::GetViewTitle() const
 {
-	return GetViewTitleInternal();
+	std::wstring result;
+	GetViewTitleInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -33,11 +37,15 @@ std::wstring IViewModel::GetViewTitle() const
 //----------------------------------------------------------------------------------------
 std::wstring IViewModel::GetViewModelGroupName() const
 {
-	return GetViewModelGroupNameInternal();
+	std::wstring result;
+	GetViewModelGroupNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IViewModel::GetViewModelName() const
 {
-	return GetViewModelNameInternal();
+	std::wstring result;
+	GetViewModelNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }

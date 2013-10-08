@@ -1000,10 +1000,9 @@ bool ExodusInterface::CanModuleBeLoaded(const std::wstring& filePath) const
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::CanModuleBeLoadedInternal(const wchar_t* filePath) const
+bool ExodusInterface::CanModuleBeLoadedInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller) const
 {
-	std::wstring filePathString = filePath;
-	return CanModuleBeLoaded(filePathString);
+	return CanModuleBeLoaded(filePathMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -1021,10 +1020,9 @@ bool ExodusInterface::LoadModule(const std::wstring& folder)
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadModuleFromFileInternal(const wchar_t* filePath)
+bool ExodusInterface::LoadModuleFromFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller)
 {
-	std::wstring filePathString = filePath;
-	return LoadModuleFromFile(filePathString);
+	return LoadModuleFromFile(filePathMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -1454,51 +1452,51 @@ void ExodusInterface::ApplyPrefs()
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ExodusInterface::GetGlobalPreferencePathModulesInternal() const
+void ExodusInterface::GetGlobalPreferencePathModulesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return prefs.pathModules.c_str();
+	marshaller.MarshalFrom(GetGlobalPreferencePathModules());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ExodusInterface::GetGlobalPreferencePathSavestatesInternal() const
+void ExodusInterface::GetGlobalPreferencePathSavestatesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return prefs.pathSavestates.c_str();
+	marshaller.MarshalFrom(GetGlobalPreferencePathSavestates());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ExodusInterface::GetGlobalPreferencePathPersistentStateInternal() const
+void ExodusInterface::GetGlobalPreferencePathPersistentStateInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return prefs.pathPersistentState.c_str();
+	marshaller.MarshalFrom(GetGlobalPreferencePathPersistentState());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ExodusInterface::GetGlobalPreferencePathWorkspacesInternal() const
+void ExodusInterface::GetGlobalPreferencePathWorkspacesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return prefs.pathWorkspaces.c_str();
+	marshaller.MarshalFrom(GetGlobalPreferencePathWorkspaces());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ExodusInterface::GetGlobalPreferencePathCapturesInternal() const
+void ExodusInterface::GetGlobalPreferencePathCapturesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return prefs.pathCaptures.c_str();
+	marshaller.MarshalFrom(GetGlobalPreferencePathCaptures());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ExodusInterface::GetGlobalPreferencePathAssembliesInternal() const
+void ExodusInterface::GetGlobalPreferencePathAssembliesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return prefs.pathAssemblies.c_str();
+	marshaller.MarshalFrom(GetGlobalPreferencePathAssemblies());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ExodusInterface::GetGlobalPreferenceInitialSystemInternal() const
+void ExodusInterface::GetGlobalPreferenceInitialSystemInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return prefs.loadSystem.c_str();
+	marshaller.MarshalFrom(GetGlobalPreferenceInitialSystem());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ExodusInterface::GetGlobalPreferenceInitialWorkspaceInternal() const
+void ExodusInterface::GetGlobalPreferenceInitialWorkspaceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return prefs.loadWorkspace.c_str();
+	marshaller.MarshalFrom(GetGlobalPreferenceInitialWorkspace());
 }
 
 //----------------------------------------------------------------------------------------
@@ -1625,10 +1623,9 @@ bool ExodusInterface::LoadAssembliesFromFolderSynchronous(const std::wstring& fo
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadAssemblyInternal(const wchar_t* filePath)
+bool ExodusInterface::LoadAssemblyInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller)
 {
-	std::wstring filePathString = filePath;
-	return LoadAssembly(filePathString);
+	return LoadAssembly(filePathMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -2040,62 +2037,33 @@ Stream::IStream* ExodusInterface::OpenExistingFileForRead(const std::wstring& pa
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::SelectExistingFileInternal(const wchar_t* selectionTypeString, const wchar_t* defaultExtension, const wchar_t* initialFilePath, const wchar_t* initialDirectory, bool scanIntoArchives, const wchar_t** selectedFilePath) const
+bool ExodusInterface::SelectExistingFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, bool scanIntoArchives, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const
 {
-	bool result = SelectExistingFile(selectionTypeString, defaultExtension, initialFilePath, initialDirectory, scanIntoArchives, filePathCache);
-	*selectedFilePath = filePathCache.c_str();
+	std::wstring selectedFilePath;
+	bool result = SelectExistingFile(selectionTypeStringMarshaller.MarshalTo(), defaultExtensionMarshaller.MarshalTo(), initialFilePathMarshaller.MarshalTo(), initialDirectoryMarshaller.MarshalTo(), scanIntoArchives, selectedFilePath);
+	selectedFilePathMarshaller.MarshalFrom(selectedFilePath);
 	return result;
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::SelectNewFileInternal(const wchar_t* selectionTypeString, const wchar_t* defaultExtension, const wchar_t* initialFilePath, const wchar_t* initialDirectory, const wchar_t** selectedFilePath) const
+bool ExodusInterface::SelectNewFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const
 {
-	bool result = SelectNewFile(selectionTypeString, defaultExtension, initialFilePath, initialDirectory, filePathCache);
-	*selectedFilePath = filePathCache.c_str();
+	std::wstring selectedFilePath;
+	bool result = SelectNewFile(selectionTypeStringMarshaller.MarshalTo(), defaultExtensionMarshaller.MarshalTo(), initialFilePathMarshaller.MarshalTo(), initialDirectoryMarshaller.MarshalTo(), selectedFilePath);
+	selectedFilePathMarshaller.MarshalFrom(selectedFilePath);
 	return result;
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t** ExodusInterface::PathSplitElementsInternal(const wchar_t* path, unsigned int& arraySize) const
+void ExodusInterface::PathSplitElementsInternal(const InteropSupport::ISTLObjectTarget<std::vector<std::wstring>>& marshaller, const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const
 {
-	//Obtain the set of elements in the path
-	std::vector<std::wstring> pathElements = PathSplitElements(path);
-
-	//Copy each element in the path to a raw array
-	unsigned int pathElementCount = (unsigned int)pathElements.size();
-	wchar_t** rawElementArray = new wchar_t*[pathElementCount];
-	for(unsigned int i = 0; i < pathElementCount; ++i)
-	{
-		unsigned int elementLength = (unsigned int)pathElements[i].size();
-		rawElementArray[i] = new wchar_t[elementLength+1];
-		for(unsigned int elementIndex = 0; elementIndex < elementLength; ++elementIndex)
-		{
-			rawElementArray[i][elementIndex] = pathElements[i][elementIndex];
-		}
-		rawElementArray[i][elementLength] = L'\0';
-	}
-
-	//Return the raw array structure to the caller
-	arraySize = pathElementCount;
-	//##FIX## Why do we need this cast?
-	return (const wchar_t**)rawElementArray;
+	marshaller.MarshalFrom(PathSplitElements(pathMarshaller.MarshalTo()));
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::PathSplitElementsInternalFreeArray(const wchar_t** itemArray, unsigned int arraySize) const
+Stream::IStream* ExodusInterface::OpenExistingFileForReadInternal(const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const
 {
-	//Free all elements in the array, then free the array itself.
-	for(unsigned int i = 0; i < arraySize; ++i)
-	{
-		delete[] itemArray[i];
-	}
-	delete[] itemArray;
-}
-
-//----------------------------------------------------------------------------------------
-Stream::IStream* ExodusInterface::OpenExistingFileForReadInternal(const wchar_t* path) const
-{
-	return OpenExistingFileForRead(path);
+	return OpenExistingFileForRead(pathMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
