@@ -30,9 +30,9 @@ std::wstring MenuSelectableOption::GetName() const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* MenuSelectableOption::GetNameInternal() const
+void MenuSelectableOption::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return name.c_str();
+	marshaller.MarshalFrom(GetName());
 }
 
 //----------------------------------------------------------------------------------------

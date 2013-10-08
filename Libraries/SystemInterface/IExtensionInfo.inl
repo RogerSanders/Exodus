@@ -22,23 +22,23 @@ void IExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, Destructo
 //----------------------------------------------------------------------------------------
 void IExtensionInfo::SetExtensionClassName(const std::wstring& aextensionClassName)
 {
-	SetExtensionClassNameInternal(aextensionClassName.c_str());
+	SetExtensionClassNameInternal(InteropSupport::STLObjectSource<std::wstring>(aextensionClassName));
 }
 
 //----------------------------------------------------------------------------------------
 void IExtensionInfo::SetExtensionImplementationName(const std::wstring& aextensionImplementationName)
 {
-	SetExtensionImplementationNameInternal(aextensionImplementationName.c_str());
+	SetExtensionImplementationNameInternal(InteropSupport::STLObjectSource<std::wstring>(aextensionImplementationName));
 }
 
 //----------------------------------------------------------------------------------------
 void IExtensionInfo::SetExtensionCopyright(const std::wstring& aextensionCopyright)
 {
-	SetExtensionCopyrightInternal(aextensionCopyright.c_str());
+	SetExtensionCopyrightInternal(InteropSupport::STLObjectSource<std::wstring>(aextensionCopyright));
 }
 
 //----------------------------------------------------------------------------------------
 void IExtensionInfo::SetExtensionComments(const std::wstring& aextensionComments)
 {
-	SetExtensionCommentsInternal(aextensionComments.c_str());
+	SetExtensionCommentsInternal(InteropSupport::STLObjectSource<std::wstring>(aextensionComments));
 }

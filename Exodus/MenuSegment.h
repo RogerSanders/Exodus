@@ -26,11 +26,11 @@ public:
 
 protected:
 	//Item management functions
-	virtual void GetMenuItemsInternal(IMenuItem* itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const;
+	virtual void GetMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const;
 
 	//Menu item creation and deletion
-	virtual IMenuSubmenu& AddMenuItemSubmenuInternal(const wchar_t* name);
-	virtual IMenuSelectableOption& AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const wchar_t* name);
+	virtual IMenuSubmenu& AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
+	virtual IMenuSelectableOption& AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
 
 private:
 	std::vector<IMenuItem*> menuItems;

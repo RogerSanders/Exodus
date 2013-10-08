@@ -173,23 +173,31 @@ unsigned int IDeviceContext::ThisIDeviceContextVersion()
 //----------------------------------------------------------------------------------------
 std::wstring IDeviceContext::GetCapturePath() const
 {
-	return GetCapturePathInternal();
+	std::wstring result;
+	GetCapturePathInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDeviceContext::GetFullyQualifiedDeviceInstanceName() const
 {
-	return GetFullyQualifiedDeviceInstanceNameInternal();
+	std::wstring result;
+	GetFullyQualifiedDeviceInstanceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDeviceContext::GetModuleDisplayName() const
 {
-	return GetModuleDisplayNameInternal();
+	std::wstring result;
+	GetModuleDisplayNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDeviceContext::GetModuleInstanceName() const
 {
-	return GetModuleInstanceNameInternal();
+	std::wstring result;
+	GetModuleInstanceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }

@@ -1770,6 +1770,10 @@
 					RelativePath=".\DeviceInfo.h"
 					>
 				</File>
+				<File
+					RelativePath=".\DeviceInfo.inl"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="DataRemapTable"
@@ -1896,6 +1900,10 @@
 				</File>
 				<File
 					RelativePath=".\ExtensionInfo.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ExtensionInfo.inl"
 					>
 				</File>
 			</Filter>

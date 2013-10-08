@@ -504,6 +504,10 @@
 				RelativePath=".\HeirarchicalStorageAttribute.h"
 				>
 			</File>
+			<File
+				RelativePath=".\HeirarchicalStorageAttribute.inl"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="HeirarchicalStorageNode"
@@ -516,6 +520,10 @@
 				RelativePath=".\HeirarchicalStorageNode.h"
 				>
 			</File>
+			<File
+				RelativePath=".\HeirarchicalStorageNode.inl"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="HeirarchicalStorageTree"
@@ -526,6 +534,10 @@
 			</File>
 			<File
 				RelativePath=".\HeirarchicalStorageTree.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HeirarchicalStorageTree.inl"
 				>
 			</File>
 		</Filter>

@@ -44,39 +44,39 @@ void ConnectorInfo::SetExportingModuleID(unsigned int aexportingModuleID)
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ConnectorInfo::GetConnectorClassNameInternal() const
+void ConnectorInfo::GetConnectorClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return systemClassName.c_str();
+	marshaller.MarshalFrom(GetConnectorClassName());
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetConnectorClassNameInternal(const wchar_t* aconnectorClassName)
+void ConnectorInfo::SetConnectorClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	connectorClassName = aconnectorClassName;
+	marshaller.MarshalTo(connectorClassName);
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ConnectorInfo::GetExportingModuleConnectorInstanceNameInternal() const
+void ConnectorInfo::GetExportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return exportingModuleConnectorInstanceName.c_str();
+	marshaller.MarshalFrom(GetExportingModuleConnectorInstanceName());
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetExportingModuleConnectorInstanceNameInternal(const wchar_t* aexportingModuleConnectorInstanceName)
+void ConnectorInfo::SetExportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	exportingModuleConnectorInstanceName = aexportingModuleConnectorInstanceName;
+	marshaller.MarshalTo(exportingModuleConnectorInstanceName);
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ConnectorInfo::GetSystemClassNameInternal() const
+void ConnectorInfo::GetSystemClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return systemClassName.c_str();
+	marshaller.MarshalFrom(GetSystemClassName());
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetSystemClassNameInternal(const wchar_t* asystemClassName)
+void ConnectorInfo::SetSystemClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	systemClassName = asystemClassName;
+	marshaller.MarshalTo(systemClassName);
 }
 
 //----------------------------------------------------------------------------------------
@@ -106,13 +106,13 @@ void ConnectorInfo::SetImportingModuleID(unsigned int aimportingModuleID)
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ConnectorInfo::GetImportingModuleConnectorInstanceNameInternal() const
+void ConnectorInfo::GetImportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return importingModuleConnectorInstanceName.c_str();
+	marshaller.MarshalFrom(GetImportingModuleConnectorInstanceName());
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetImportingModuleConnectorInstanceNameInternal(const wchar_t* aimportingModuleConnectorInstanceName)
+void ConnectorInfo::SetImportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	importingModuleConnectorInstanceName = aimportingModuleConnectorInstanceName;
+	marshaller.MarshalTo(importingModuleConnectorInstanceName);
 }

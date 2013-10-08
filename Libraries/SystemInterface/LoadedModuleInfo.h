@@ -41,26 +41,26 @@ public:
 
 protected:
 	//External information
-	virtual const wchar_t* GetModuleFilePathInternal() const;
-	virtual void SetModuleFilePathInternal(const wchar_t* amoduleFilePath);
+	virtual void GetModuleFilePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetModuleFilePathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 
 	//Required metadata
-	virtual const wchar_t* GetSystemClassNameInternal() const;
-	virtual void SetSystemClassNameInternal(const wchar_t* asystemClassName);
-	virtual const wchar_t* GetClassNameInternal() const;
-	virtual void SetClassNameInternal(const wchar_t* aclassName);
-	virtual const wchar_t* GetInstanceNameInternal() const;
-	virtual void SetInstanceNameInternal(const wchar_t* ainstanceName);
-	virtual const wchar_t* GetDisplayNameInternal() const;
-	virtual void SetDisplayNameInternal(const wchar_t* adisplayName);
+	virtual void GetSystemClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetSystemClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void GetClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void GetInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void GetDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 
 	//Optional metadata
-	virtual const wchar_t* GetProductionYearInternal() const;
-	virtual void SetProductionYearInternal(const wchar_t* aproductionYear);
-	virtual const wchar_t* GetManufacturerCodeInternal() const;
-	virtual void SetManufacturerCodeInternal(const wchar_t* amanufacturerCode);
-	virtual const wchar_t* GetManufacturerDisplayNameInternal() const;
-	virtual void SetManufacturerDisplayNameInternal(const wchar_t* amanufacturerDisplayName);
+	virtual void GetProductionYearInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetProductionYearInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void GetManufacturerCodeInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetManufacturerCodeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void GetManufacturerDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetManufacturerDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 
 private:
 	//Internal data

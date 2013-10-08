@@ -1,7 +1,7 @@
 #ifndef __LOGENTRY_H__
 #define __LOGENTRY_H__
-#include "ILogEntry.h"
 #include "WindowFunctions/WindowFunctions.pkg"
+#include "ILogEntry.h"
 #include <string>
 #include <sstream>
 #include <iomanip>
@@ -20,6 +20,10 @@ public:
 
 	//Getters
 	virtual EventLevel GetEventLevel() const;
+	inline std::wstring GetText() const;
+	inline std::wstring GetSource() const;
+	inline std::wstring GetEventLevelString() const;
+	inline std::wstring GetTimeString() const;
 
 	//Setters
 	inline void SetText(const std::wstring& atext);
@@ -35,21 +39,19 @@ public:
 
 protected:
 	//Getters
-	virtual const wchar_t* GetTextInternal() const;
-	virtual const wchar_t* GetSourceInternal() const;
-	virtual const wchar_t* GetEventLevelStringInternal() const;
-	virtual const wchar_t* GetTimeStringInternal() const;
+	virtual void GetTextInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetSourceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetEventLevelStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetTimeStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Setters
-	virtual void OverrideSourceTextInternal(const wchar_t* asource) const;
+	virtual void OverrideSourceTextInternal(const InteropSupport::ISTLObjectSource<std::wstring>& sourceMarshaller) const;
 
 private:
 	EventLevel eventLevel;
 	SYSTEMTIME time;
 	mutable std::wstring source;
 	std::wstringstream text;
-	mutable std::wstring timeStringCached;
-	mutable std::wstring textStringCached;
 };
 
 #include "LogEntry.inl"

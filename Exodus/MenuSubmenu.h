@@ -33,10 +33,10 @@ public:
 
 protected:
 	//Menu name functions
-	virtual const wchar_t* GetMenuNameInternal() const;
+	virtual void GetMenuNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Item management functions
-	virtual void GetMenuSegmentsInternal(IMenuSegment* itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const;
+	virtual void GetMenuSegmentsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuSegment*>>& marshaller) const;
 
 private:
 	std::wstring name;

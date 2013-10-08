@@ -1,6 +1,7 @@
 #ifndef __IHEIRARCHICALSTORAGENODE_H__
 #define __IHEIRARCHICALSTORAGENODE_H__
 #include "StreamInterface/StreamInterface.pkg"
+#include "InteropSupport/InteropSupport.pkg"
 #include <string>
 #include <list>
 #include <vector>
@@ -78,30 +79,30 @@ public:
 	template<class T> IHeirarchicalStorageNode& InsertBinaryData(const T& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
 	template<class T> IHeirarchicalStorageNode& InsertBinaryData(const std::vector<T>& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
 	template<> inline IHeirarchicalStorageNode& InsertBinaryData(const std::vector<unsigned char>& adata, const std::wstring& bufferName, bool ainlineBinaryData);
-	template<class T> IHeirarchicalStorageNode& InsertBinaryData(const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
+	template<class T> IHeirarchicalStorageNode& InsertBinaryData(const T* buffer, size_t entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
 
 protected:
 	//Name functions
-	virtual const wchar_t* GetNameInternal() const = 0;
-	virtual void SetNameInternal(const wchar_t* aname) = 0;
+	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
 
 	//Stream functions
 	virtual void ResetInternalStreamPosition() const = 0;
 	virtual Stream::IStream& GetInternalStream() const = 0;
 
 	//Child functions
-	virtual IHeirarchicalStorageNode& CreateChildInternal(const wchar_t* aname) = 0;
-	virtual IHeirarchicalStorageNode** GetChildListInternal(unsigned int& childCount) = 0;
+	virtual IHeirarchicalStorageNode& CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) = 0;
+	virtual void GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageNode*>>& marshaller) = 0;
 
 	//Attribute functions
-	virtual IHeirarchicalStorageAttribute** GetAttributeListInternal(unsigned int& attributeCount) = 0;
-	virtual bool IsAttributePresentInternal(const wchar_t* name) const = 0;
-	virtual IHeirarchicalStorageAttribute* GetAttributeInternal(const wchar_t* name) const = 0;
-	virtual IHeirarchicalStorageAttribute& CreateAttributeInternal(const wchar_t* name) = 0;
+	virtual bool IsAttributePresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const = 0;
+	virtual IHeirarchicalStorageAttribute* GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const = 0;
+	virtual IHeirarchicalStorageAttribute& CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) = 0;
+	virtual void GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageAttribute*>>& marshaller) = 0;
 
 	//Binary data functions
-	virtual const wchar_t* GetBinaryDataBufferNameInternal() const = 0;
-	virtual void SetBinaryDataBufferNameInternal(const wchar_t* aname) = 0;
+	virtual void GetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void SetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
 };
 
 #include "IHeirarchicalStorageNode.inl"

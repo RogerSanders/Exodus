@@ -17,53 +17,35 @@ LogEntry::EventLevel LogEntry::GetEventLevel() const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LogEntry::GetTextInternal() const
+void LogEntry::GetTextInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	textStringCached = text.str();
-	return textStringCached.c_str();
+	marshaller.MarshalFrom(GetText());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LogEntry::GetSourceInternal() const
+void LogEntry::GetSourceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return source.c_str();
+	marshaller.MarshalFrom(GetSource());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LogEntry::GetEventLevelStringInternal() const
+void LogEntry::GetEventLevelStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	switch(eventLevel)
-	{
-	case EVENTLEVEL_INFO:
-		return L"1 - Information";
-	case EVENTLEVEL_DEBUG:
-		return L"2 - Debug";
-	case EVENTLEVEL_WARNING:
-		return L"3 - Warning";
-	case EVENTLEVEL_ERROR:
-		return L"4 - Error";
-	case EVENTLEVEL_CRITICAL:
-		return L"5 - Critical";
-	default:
-		return L"";
-	}
+	marshaller.MarshalFrom(GetEventLevelString());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LogEntry::GetTimeStringInternal() const
+void LogEntry::GetTimeStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	std::wstringstream stream;
-	stream << std::setw(2) << std::setfill(L'0') << time.wHour << L':' << time.wMinute << L':' << time.wSecond << L'.' << time.wMilliseconds;
-	timeStringCached = stream.str();
-	return timeStringCached.c_str();
+	marshaller.MarshalFrom(GetTimeString());
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void LogEntry::OverrideSourceTextInternal(const wchar_t* asource) const
+void LogEntry::OverrideSourceTextInternal(const InteropSupport::ISTLObjectSource<std::wstring>& sourceMarshaller) const
 {
-	source = asource;
+	sourceMarshaller.MarshalTo(source);
 }
 
 //----------------------------------------------------------------------------------------

@@ -97,31 +97,27 @@ void DeviceContext::ExecuteDeviceStep()
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* DeviceContext::GetCapturePathInternal() const
+void DeviceContext::GetCapturePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	capturePathCached = GetCapturePath();
-	return capturePathCached.c_str();
+	marshaller.MarshalFrom(GetCapturePath());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* DeviceContext::GetFullyQualifiedDeviceInstanceNameInternal() const
+void DeviceContext::GetFullyQualifiedDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	fullyQualifiedDeviceInstanceNameCached = GetFullyQualifiedDeviceInstanceName();
-	return fullyQualifiedDeviceInstanceNameCached.c_str();
+	marshaller.MarshalFrom(GetFullyQualifiedDeviceInstanceName());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* DeviceContext::GetModuleDisplayNameInternal() const
+void DeviceContext::GetModuleDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	moduleDisplayNameCached = GetModuleDisplayName();
-	return moduleDisplayNameCached.c_str();
+	marshaller.MarshalFrom(GetModuleDisplayName());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* DeviceContext::GetModuleInstanceNameInternal() const
+void DeviceContext::GetModuleInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	moduleInstanceNameCached = GetModuleInstanceName();
-	return moduleInstanceNameCached.c_str();
+	marshaller.MarshalFrom(GetModuleInstanceName());
 }
 
 //----------------------------------------------------------------------------------------

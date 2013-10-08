@@ -3,7 +3,9 @@
 //----------------------------------------------------------------------------------------
 std::wstring IView::GetViewTitle() const
 {
-	return GetViewTitleInternal();
+	std::wstring result;
+	GetViewTitleInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------

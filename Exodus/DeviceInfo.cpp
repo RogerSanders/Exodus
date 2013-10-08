@@ -62,15 +62,15 @@ void DeviceInfo::SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPoin
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceClassNameInternal(const wchar_t* adeviceClassName)
+void DeviceInfo::SetDeviceClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	className = adeviceClassName;
+	SetDeviceClassName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceImplementationNameInternal(const wchar_t* adeviceImplementationName)
+void DeviceInfo::SetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	implementationName = adeviceImplementationName;
+	SetDeviceImplementationName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -80,13 +80,13 @@ void DeviceInfo::SetDeviceVersionNo(unsigned int adeviceVersionNo)
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceCopyrightInternal(const wchar_t* adeviceCopyright)
+void DeviceInfo::SetDeviceCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	copyright = adeviceCopyright;
+	SetDeviceCopyright(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceCommentsInternal(const wchar_t* adeviceComments)
+void DeviceInfo::SetDeviceCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	comments = adeviceComments;
+	SetDeviceComments(marshaller.MarshalTo());
 }

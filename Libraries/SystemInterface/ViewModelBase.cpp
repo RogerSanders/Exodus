@@ -154,15 +154,15 @@ void ViewModelBase::SetViewOwnerAsDevice(const std::wstring& deviceInstanceName,
 }
 
 //----------------------------------------------------------------------------------------
-void ViewModelBase::SetViewOwnerAsDeviceInternal(const wchar_t* deviceInstanceName, unsigned int moduleID)
+void ViewModelBase::SetViewOwnerAsDeviceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& deviceInstanceNameMarshaller, unsigned int moduleID)
 {
-	SetViewOwnerAsDevice(deviceInstanceName, moduleID);
+	SetViewOwnerAsDevice(deviceInstanceNameMarshaller.MarshalTo(), moduleID);
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ViewModelBase::GetViewOwnerDeviceInstanceNameInternal() const
+void ViewModelBase::GetViewOwnerDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return viewOwnerDeviceInstanceName.c_str();
+	marshaller.MarshalFrom(GetViewOwnerDeviceInstanceName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -192,14 +192,9 @@ std::wstring ViewModelBase::GetViewTitle() const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ViewModelBase::GetViewTitleInternal() const
+void ViewModelBase::GetViewTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	viewTitleCached.clear();
-	if(viewOpen)
-	{
-		viewTitleCached = view->GetViewTitle();
-	}
-	return viewTitleCached.c_str();
+	marshaller.MarshalFrom(GetViewTitle());
 }
 
 //----------------------------------------------------------------------------------------
@@ -281,15 +276,15 @@ std::wstring ViewModelBase::GetViewModelName() const
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ViewModelBase::GetViewModelGroupNameInternal() const
+void ViewModelBase::GetViewModelGroupNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return viewModelGroupName.c_str();
+	marshaller.MarshalFrom(GetViewModelGroupName());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* ViewModelBase::GetViewModelNameInternal() const
+void ViewModelBase::GetViewModelNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return viewModelName.c_str();
+	marshaller.MarshalFrom(GetViewModelName());
 }
 
 //----------------------------------------------------------------------------------------

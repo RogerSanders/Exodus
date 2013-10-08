@@ -7548,34 +7548,9 @@ void System::PopUnloadModuleCurrentModuleName()
 //----------------------------------------------------------------------------------------
 //Loaded module info functions
 //----------------------------------------------------------------------------------------
-std::list<unsigned int> System::GetLoadedModuleIDs() const
+void System::GetLoadedModuleIDsInternal(const InteropSupport::ISTLObjectTarget<std::list<unsigned int >>& marshaller) const
 {
-	std::list<unsigned int> idList;
-	for(LoadedModuleInfoList::const_iterator i = loadedModuleInfoList.begin(); i != loadedModuleInfoList.end(); ++i)
-	{
-		idList.push_back(i->moduleID);
-	}
-	return idList;
-}
-
-//----------------------------------------------------------------------------------------
-void System::GetLoadedModuleIDsInternal(unsigned int itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const
-{
-	//Ensure that the supplied array is big enough to hold all the items
-	requiredSize = (unsigned int)loadedModuleInfoList.size();
-	if(requiredSize > arraySize)
-	{
-		itemsRetrieved = false;
-		return;
-	}
-
-	//Write all the items to the array
-	unsigned int arrayIndex = 0;
-	for(LoadedModuleInfoList::const_iterator i = loadedModuleInfoList.begin(); i != loadedModuleInfoList.end(); ++i)
-	{
-		itemArray[arrayIndex++] = i->moduleID;
-	}
-	itemsRetrieved = true;
+	marshaller.MarshalFrom(GetLoadedModuleIDs());
 }
 
 //----------------------------------------------------------------------------------------
@@ -7608,34 +7583,9 @@ bool System::GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& modul
 //----------------------------------------------------------------------------------------
 //Connector info functions
 //----------------------------------------------------------------------------------------
-std::list<unsigned int> System::GetConnectorIDs() const
+void System::GetConnectorIDsInternal(const InteropSupport::ISTLObjectTarget<std::list<unsigned int >>& marshaller) const
 {
-	std::list<unsigned int> idList;
-	for(ConnectorDetailsMap::const_iterator i = connectorDetailsMap.begin(); i != connectorDetailsMap.end(); ++i)
-	{
-		idList.push_back(i->second.connectorID);
-	}
-	return idList;
-}
-
-//----------------------------------------------------------------------------------------
-void System::GetConnectorIDsInternal(unsigned int itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const
-{
-	//Ensure that the supplied array is big enough to hold all the items
-	requiredSize = (unsigned int)connectorDetailsMap.size();
-	if(requiredSize > arraySize)
-	{
-		itemsRetrieved = false;
-		return;
-	}
-
-	//Write all the items to the array
-	unsigned int arrayIndex = 0;
-	for(ConnectorDetailsMap::const_iterator i = connectorDetailsMap.begin(); i != connectorDetailsMap.end(); ++i)
-	{
-		itemArray[arrayIndex++] = i->second.connectorID;
-	}
-	itemsRetrieved = true;
+	marshaller.MarshalFrom(GetConnectorIDs());
 }
 
 //----------------------------------------------------------------------------------------
@@ -8756,12 +8706,4 @@ bool System::SetSystemLineState(unsigned int systemLineID, const Data& lineData)
 	}
 
 	return true;
-}
-
-//----------------------------------------------------------------------------------------
-//Assembly handle functions
-//----------------------------------------------------------------------------------------
-void* System::GetAssemblyHandle() const
-{
-	return assemblyHandle;
 }

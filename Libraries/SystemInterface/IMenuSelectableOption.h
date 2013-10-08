@@ -1,5 +1,6 @@
 #ifndef __IMENUSELECTABLEOPTION_H__
 #define __IMENUSELECTABLEOPTION_H__
+#include "InteropSupport/InteropSupport.pkg"
 #include "IMenuItem.h"
 #include "IMenuHandler.h"
 #include <string>
@@ -22,7 +23,7 @@ public:
 
 protected:
 	//Menu handler functions
-	virtual const wchar_t* GetNameInternal() const = 0;
+	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
 #include "IMenuSelectableOption.inl"

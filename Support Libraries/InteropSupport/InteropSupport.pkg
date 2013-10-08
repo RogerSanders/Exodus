@@ -1,0 +1,14 @@
+#ifndef __INTEROPSUPPORT_PKG__
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#define __INTEROPSUPPORT_PKG__
+#endif
+
+//Include any header files which are part of the public interface for this library here
+#ifndef PACKAGE_LINK_LIBS_ONLY
+#include "ISTLObjectSource.h"
+#include "STLObjectSource.h"
+#include "ISTLObjectTarget.h"
+#include "STLObjectTarget.h"
+#endif
+
+#endif

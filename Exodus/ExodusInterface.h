@@ -101,6 +101,14 @@ public:
 	void SavePrefs(const std::wstring& filePath);
 	void ResolvePrefs();
 	void ApplyPrefs();
+	inline std::wstring GetGlobalPreferencePathModules() const;
+	inline std::wstring GetGlobalPreferencePathSavestates() const;
+	inline std::wstring GetGlobalPreferencePathPersistentState() const;
+	inline std::wstring GetGlobalPreferencePathWorkspaces() const;
+	inline std::wstring GetGlobalPreferencePathCaptures() const;
+	inline std::wstring GetGlobalPreferencePathAssemblies() const;
+	inline std::wstring GetGlobalPreferenceInitialSystem() const;
+	inline std::wstring GetGlobalPreferenceInitialWorkspace() const;
 	virtual bool GetGlobalPreferenceEnableThrottling() const;
 	virtual bool GetGlobalPreferenceRunWhenProgramModuleLoaded() const;
 	virtual bool GetGlobalPreferenceEnablePersistentState() const;
@@ -131,28 +139,27 @@ public:
 
 protected:
 	//Module functions
-	virtual bool CanModuleBeLoadedInternal(const wchar_t* filePath) const;
-	virtual bool LoadModuleFromFileInternal(const wchar_t* filePath);
+	virtual bool CanModuleBeLoadedInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller) const;
+	virtual bool LoadModuleFromFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller);
 
 	//Global preference functions
-	virtual const wchar_t* GetGlobalPreferencePathModulesInternal() const;
-	virtual const wchar_t* GetGlobalPreferencePathSavestatesInternal() const;
-	virtual const wchar_t* GetGlobalPreferencePathPersistentStateInternal() const;
-	virtual const wchar_t* GetGlobalPreferencePathWorkspacesInternal() const;
-	virtual const wchar_t* GetGlobalPreferencePathCapturesInternal() const;
-	virtual const wchar_t* GetGlobalPreferencePathAssembliesInternal() const;
-	virtual const wchar_t* GetGlobalPreferenceInitialSystemInternal() const;
-	virtual const wchar_t* GetGlobalPreferenceInitialWorkspaceInternal() const;
+	virtual void GetGlobalPreferencePathModulesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetGlobalPreferencePathSavestatesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetGlobalPreferencePathPersistentStateInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetGlobalPreferencePathWorkspacesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetGlobalPreferencePathCapturesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetGlobalPreferencePathAssembliesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetGlobalPreferenceInitialSystemInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetGlobalPreferenceInitialWorkspaceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Assembly functions
-	virtual bool LoadAssemblyInternal(const wchar_t* filePath);
+	virtual bool LoadAssemblyInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller);
 
 	//File selection functions
-	virtual bool SelectExistingFileInternal(const wchar_t* selectionTypeString, const wchar_t* defaultExtension, const wchar_t* initialFilePath, const wchar_t* initialDirectory, bool scanIntoArchives, const wchar_t** selectedFilePath) const;
-	virtual bool SelectNewFileInternal(const wchar_t* selectionTypeString, const wchar_t* defaultExtension, const wchar_t* initialFilePath, const wchar_t* initialDirectory, const wchar_t** selectedFilePath) const;
-	virtual const wchar_t** PathSplitElementsInternal(const wchar_t* path, unsigned int& arraySize) const;
-	virtual void PathSplitElementsInternalFreeArray(const wchar_t** itemArray, unsigned int arraySize) const;
-	virtual Stream::IStream* OpenExistingFileForReadInternal(const wchar_t* path) const;
+	virtual bool SelectExistingFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, bool scanIntoArchives, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const;
+	virtual bool SelectNewFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const;
+	virtual void PathSplitElementsInternal(const InteropSupport::ISTLObjectTarget<std::vector<std::wstring>>& marshaller, const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const;
+	virtual Stream::IStream* OpenExistingFileForReadInternal(const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const;
 
 private:
 	//Enumerations
@@ -346,8 +353,6 @@ private:
 	//the view is open would allow us to use a single container.
 	ViewInfoSet viewInfoSet;
 	ViewModels viewModels;
-
-	mutable std::wstring filePathCache;
 };
 
 #include "ExodusInterface.inl"

@@ -11,26 +11,9 @@ unsigned int IMenuSegment::ThisIMenuSegmentVersion()
 //----------------------------------------------------------------------------------------
 std::list<IMenuItem*> IMenuSegment::GetMenuItems() const
 {
-	//Obtain the set of items in an array
-	unsigned int arraySize = 1;
-	std::vector<IMenuItem*> itemArray(arraySize);
-	bool itemsRetrieved = false;
-	do
-	{
-		unsigned int requiredArraySize;
-		GetMenuItemsInternal(&itemArray[0], arraySize, requiredArraySize, itemsRetrieved);
-		itemArray.resize(requiredArraySize);
-		arraySize = requiredArraySize;
-	}
-	while(!itemsRetrieved);
-
-	//Load the set of items into our list structure, and return it to the caller.
-	std::list<IMenuItem*> items;
-	for(unsigned int i = 0; i < arraySize; ++i)
-	{
-		items.push_back(itemArray[i]);
-	}
-	return items;
+	std::list<IMenuItem*> result;
+	GetMenuItemsInternal(InteropSupport::STLObjectTarget<std::list<IMenuItem*>>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -38,11 +21,11 @@ std::list<IMenuItem*> IMenuSegment::GetMenuItems() const
 //----------------------------------------------------------------------------------------
 IMenuSubmenu& IMenuSegment::AddMenuItemSubmenu(const std::wstring& name)
 {
-	return AddMenuItemSubmenuInternal(name.c_str());
+	return AddMenuItemSubmenuInternal(InteropSupport::STLObjectSource<std::wstring>(name));
 }
 
 //----------------------------------------------------------------------------------------
 IMenuSelectableOption& IMenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& name)
 {
-	return AddMenuItemSelectableOptionInternal(menuHandler, menuItemID, name.c_str());
+	return AddMenuItemSelectableOptionInternal(menuHandler, menuItemID, InteropSupport::STLObjectSource<std::wstring>(name));
 }

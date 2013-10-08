@@ -10,6 +10,7 @@
 //to be included here too, otherwise a dependent library may not be linked if this
 //package is used as a private package of another.
 #include "StreamInterface/StreamInterface.pkg"
+#include "InteropSupport/InteropSupport.pkg"
 
 //Include any header files which are part of the public interface for this library here
 #ifndef PACKAGE_LINK_LIBS_ONLY

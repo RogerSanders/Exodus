@@ -157,3 +157,53 @@ struct ExodusInterface::RegisteredExtensionInfo
 	std::wstring assemblyPath;
 	ExtensionInfo info;
 };
+
+//----------------------------------------------------------------------------------------
+//Global preference functions
+//----------------------------------------------------------------------------------------
+std::wstring ExodusInterface::GetGlobalPreferencePathModules() const
+{
+	return prefs.pathModules;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExodusInterface::GetGlobalPreferencePathSavestates() const
+{
+	return prefs.pathSavestates;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExodusInterface::GetGlobalPreferencePathPersistentState() const
+{
+	return prefs.pathPersistentState;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExodusInterface::GetGlobalPreferencePathWorkspaces() const
+{
+	return prefs.pathWorkspaces;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExodusInterface::GetGlobalPreferencePathCaptures() const
+{
+	return prefs.pathCaptures;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExodusInterface::GetGlobalPreferencePathAssemblies() const
+{
+	return prefs.pathAssemblies;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExodusInterface::GetGlobalPreferenceInitialSystem() const
+{
+	return prefs.loadSystem;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExodusInterface::GetGlobalPreferenceInitialWorkspace() const
+{
+	return prefs.loadWorkspace;
+}

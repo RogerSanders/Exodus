@@ -32,15 +32,15 @@ void LoadedModuleInfo::SetModuleID(unsigned int amoduleID)
 //----------------------------------------------------------------------------------------
 //External information
 //----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetModuleFilePathInternal() const
+void LoadedModuleInfo::GetModuleFilePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return filePath.c_str();
+	marshaller.MarshalFrom(GetModuleFilePath());
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleFilePathInternal(const wchar_t* amoduleFilePath)
+void LoadedModuleInfo::SetModuleFilePathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	filePath = amoduleFilePath;
+	SetModuleFilePath(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -58,87 +58,87 @@ void LoadedModuleInfo::SetIsProgramModule(bool aprogramModule)
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetSystemClassNameInternal() const
+void LoadedModuleInfo::GetSystemClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return systemClassName.c_str();
+	marshaller.MarshalFrom(GetSystemClassName());
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetSystemClassNameInternal(const wchar_t* asystemClassName)
+void LoadedModuleInfo::SetSystemClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	systemClassName = asystemClassName;
+	SetSystemClassName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetClassNameInternal() const
+void LoadedModuleInfo::GetClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return className.c_str();
+	marshaller.MarshalFrom(GetClassName());
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetClassNameInternal(const wchar_t* aclassName)
+void LoadedModuleInfo::SetClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	className = aclassName;
+	SetClassName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetInstanceNameInternal() const
+void LoadedModuleInfo::GetInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return instanceName.c_str();
+	marshaller.MarshalFrom(GetDisplayName());
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetInstanceNameInternal(const wchar_t* ainstanceName)
+void LoadedModuleInfo::SetInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	instanceName = ainstanceName;
+	SetInstanceName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetDisplayNameInternal() const
+void LoadedModuleInfo::GetDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return displayName.c_str();
+	marshaller.MarshalFrom(GetDisplayName());
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetDisplayNameInternal(const wchar_t* adisplayName)
+void LoadedModuleInfo::SetDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	displayName = adisplayName;
+	SetDisplayName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
 //Optional metadata
 //----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetProductionYearInternal() const
+void LoadedModuleInfo::GetProductionYearInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return productionYear.c_str();
+	marshaller.MarshalFrom(GetProductionYear());
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetProductionYearInternal(const wchar_t* aproductionYear)
+void LoadedModuleInfo::SetProductionYearInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	productionYear = aproductionYear;
+	SetProductionYear(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetManufacturerCodeInternal() const
+void LoadedModuleInfo::GetManufacturerCodeInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return manufacturerCode.c_str();
+	marshaller.MarshalFrom(GetManufacturerCode());
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetManufacturerCodeInternal(const wchar_t* amanufacturerCode)
+void LoadedModuleInfo::SetManufacturerCodeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	manufacturerCode = amanufacturerCode;
+	SetManufacturerCode(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-const wchar_t* LoadedModuleInfo::GetManufacturerDisplayNameInternal() const
+void LoadedModuleInfo::GetManufacturerDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return manufacturerDisplayName.c_str();
+	marshaller.MarshalFrom(GetManufacturerDisplayName());
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetManufacturerDisplayNameInternal(const wchar_t* amanufacturerDisplayName)
+void LoadedModuleInfo::SetManufacturerDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	manufacturerDisplayName = amanufacturerDisplayName;
+	SetManufacturerDisplayName(marshaller.MarshalTo());
 }

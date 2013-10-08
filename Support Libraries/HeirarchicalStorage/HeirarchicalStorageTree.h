@@ -26,18 +26,19 @@ public:
 	virtual bool GetSeparateBinaryDataEnabled() const;
 	virtual void SetSeparateBinaryDataEnabled(bool state);
 
+	//Error handling functions
+	inline std::wstring GetErrorString() const;
+
 	//Node access functions
-	using IHeirarchicalStorageTree::GetBinaryDataNodeList;
 	virtual IHeirarchicalStorageNode& GetRootNode() const;
+	inline std::list<IHeirarchicalStorageNode*> GetBinaryDataNodeList();
 
 protected:
 	//Error handling functions
-	virtual const wchar_t* GetErrorStringInternal() const;
+	virtual void GetErrorStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Node access functions
-	virtual void CreateBinaryDataNodeList();
-	virtual IHeirarchicalStorageNode** GetBinaryDataNodeList(unsigned int& nodeCount);
-	virtual void DeleteBinaryDataNodeList();
+	virtual void GetBinaryDataNodeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageNode*>>& marshaller);
 
 private:
 	//Save/Load functions
@@ -53,10 +54,10 @@ private:
 private:
 	StorageMode storageMode;
 	HeirarchicalStorageNode* root;
-	IHeirarchicalStorageNode* currentNode;
+	IHeirarchicalStorageNode* currentNodeDuringLoad;
 	mutable std::wstring errorString;
 	bool allowSeparateBinaryData;
-	std::vector<IHeirarchicalStorageNode*> binaryDataNodeList;
 };
 
+#include "HeirarchicalStorageTree.inl"
 #endif

@@ -11,5 +11,7 @@ unsigned int IMenuSelectableOption::ThisIMenuSelectableOptionVersion()
 //----------------------------------------------------------------------------------------
 std::wstring IMenuSelectableOption::GetName() const
 {
-	return GetNameInternal();
+	std::wstring result;
+	GetNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }

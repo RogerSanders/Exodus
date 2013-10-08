@@ -22,23 +22,23 @@ void IDeviceInfo::SetDeviceSettings(AllocatorPointer aAllocator, DestructorPoint
 //----------------------------------------------------------------------------------------
 void IDeviceInfo::SetDeviceClassName(const std::wstring& adeviceClassName)
 {
-	SetDeviceClassNameInternal(adeviceClassName.c_str());
+	SetDeviceClassNameInternal(InteropSupport::STLObjectSource<std::wstring>(adeviceClassName));
 }
 
 //----------------------------------------------------------------------------------------
 void IDeviceInfo::SetDeviceImplementationName(const std::wstring& adeviceImplementationName)
 {
-	SetDeviceImplementationNameInternal(adeviceImplementationName.c_str());
+	SetDeviceImplementationNameInternal(InteropSupport::STLObjectSource<std::wstring>(adeviceImplementationName));
 }
 
 //----------------------------------------------------------------------------------------
 void IDeviceInfo::SetDeviceCopyright(const std::wstring& adeviceCopyright)
 {
-	SetDeviceCopyrightInternal(adeviceCopyright.c_str());
+	SetDeviceCopyrightInternal(InteropSupport::STLObjectSource<std::wstring>(adeviceCopyright));
 }
 
 //----------------------------------------------------------------------------------------
 void IDeviceInfo::SetDeviceComments(const std::wstring& adeviceComments)
 {
-	SetDeviceCommentsInternal(adeviceComments.c_str());
+	SetDeviceCommentsInternal(InteropSupport::STLObjectSource<std::wstring>(adeviceComments));
 }

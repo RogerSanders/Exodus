@@ -42,7 +42,7 @@ public:
 
 protected:
 	//Title functions
-	virtual const wchar_t* GetViewTitleInternal() const;
+	virtual void GetViewTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Helper functions
 	std::wstring BuildWindowTitle(const std::wstring& moduleDisplayName, const std::wstring& deviceInstanceName, const std::wstring& windowTitle) const;

@@ -10,10 +10,14 @@ public:
 	HeirarchicalStorageAttribute();
 	explicit HeirarchicalStorageAttribute(const std::wstring& aname);
 
+	//Name functions
+	inline std::wstring GetName() const;
+	inline void SetName(const std::wstring& aname);
+
 protected:
 	//Name functions
-	virtual const wchar_t* GetNameInternal() const;
-	virtual void SetNameInternal(const wchar_t* aname);
+	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 
 	//Stream functions
 	virtual void ResetInternalStreamPosition() const;
@@ -25,4 +29,5 @@ private:
 	mutable Stream::Buffer buffer;
 };
 
+#include "HeirarchicalStorageAttribute.inl"
 #endif

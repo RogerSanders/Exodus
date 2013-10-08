@@ -29,10 +29,10 @@ public:
 
 protected:
 	//Setters
-	virtual void SetDeviceClassNameInternal(const wchar_t* adeviceClassName) = 0;
-	virtual void SetDeviceImplementationNameInternal(const wchar_t* adeviceImplementationName) = 0;
-	virtual void SetDeviceCopyrightInternal(const wchar_t* adeviceCopyright) = 0;
-	virtual void SetDeviceCommentsInternal(const wchar_t* adeviceComments) = 0;
+	virtual void SetDeviceClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual void SetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual void SetDeviceCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual void SetDeviceCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
 };
 
 #include "IDeviceInfo.inl"

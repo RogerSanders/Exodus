@@ -136,15 +136,15 @@ public:
 	virtual std::wstring UnloadModuleSynchronousCurrentModuleName() const;
 
 	//Loaded module info functions
-	virtual std::list<unsigned int> GetLoadedModuleIDs() const;
+	inline std::list<unsigned int> GetLoadedModuleIDs() const;
 	virtual bool GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& moduleInfo) const;
 
 	//Connector info functions
-	virtual std::list<unsigned int> GetConnectorIDs() const;
+	inline std::list<unsigned int> GetConnectorIDs() const;
 	virtual bool GetConnectorInfo(unsigned int connectorID, IConnectorInfo& connectorInfo) const;
 
 	//Assembly handle functions
-	void* GetAssemblyHandle() const;
+	inline void* GetAssemblyHandle() const;
 
 	//View functions
 	virtual void BuildFileOpenMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
@@ -167,10 +167,10 @@ public:
 
 protected:
 	//Loaded module info functions
-	virtual void GetLoadedModuleIDsInternal(unsigned int itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const;
+	virtual void GetLoadedModuleIDsInternal(const InteropSupport::ISTLObjectTarget<std::list<unsigned int >>& marshaller) const;
 
 	//Connector info functions
-	virtual void GetConnectorIDsInternal(unsigned int itemArray[], unsigned int arraySize, unsigned int& requiredSize, bool& itemsRetrieved) const;
+	virtual void GetConnectorIDsInternal(const InteropSupport::ISTLObjectTarget<std::list<unsigned int >>& marshaller) const;
 
 private:
 	//Enumerations

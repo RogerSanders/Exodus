@@ -21,25 +21,25 @@ unsigned int IDevice::ThisIDeviceVersion()
 //----------------------------------------------------------------------------------------
 bool IDevice::AddReference(const std::wstring& referenceName, IDevice* target)
 {
-	return AddReferenceInternal(referenceName.c_str(), target);
+	return AddReferenceInternal(InteropSupport::STLObjectSource<std::wstring>(referenceName), target);
 }
 
 //----------------------------------------------------------------------------------------
 bool IDevice::AddReference(const std::wstring& referenceName, IExtension* target)
 {
-	return AddReferenceInternal(referenceName.c_str(), target);
+	return AddReferenceInternal(InteropSupport::STLObjectSource<std::wstring>(referenceName), target);
 }
 
 //----------------------------------------------------------------------------------------
 bool IDevice::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	return AddReferenceInternal(referenceName.c_str(), target);
+	return AddReferenceInternal(InteropSupport::STLObjectSource<std::wstring>(referenceName), target);
 }
 
 //----------------------------------------------------------------------------------------
 bool IDevice::AddReference(const std::wstring& referenceName, IClockSource* target)
 {
-	return AddReferenceInternal(referenceName.c_str(), target);
+	return AddReferenceInternal(InteropSupport::STLObjectSource<std::wstring>(referenceName), target);
 }
 
 //----------------------------------------------------------------------------------------
@@ -47,31 +47,41 @@ bool IDevice::AddReference(const std::wstring& referenceName, IClockSource* targ
 //----------------------------------------------------------------------------------------
 std::wstring IDevice::GetDeviceImplementationName() const
 {
-	return GetDeviceImplementationNameInternal();
+	std::wstring result;
+	GetDeviceImplementationNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDevice::GetDeviceInstanceName() const
 {
-	return GetDeviceInstanceNameInternal();
+	std::wstring result;
+	GetDeviceInstanceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDevice::GetFullyQualifiedDeviceInstanceName() const
 {
-	return GetFullyQualifiedDeviceInstanceNameInternal();
+	std::wstring result;
+	GetFullyQualifiedDeviceInstanceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDevice::GetModuleDisplayName() const
 {
-	return GetModuleDisplayNameInternal();
+	std::wstring result;
+	GetModuleDisplayNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDevice::GetModuleInstanceName() const
 {
-	return GetModuleInstanceNameInternal();
+	std::wstring result;
+	GetModuleInstanceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -79,7 +89,7 @@ std::wstring IDevice::GetModuleInstanceName() const
 //----------------------------------------------------------------------------------------
 unsigned int IDevice::GetCELineID(const std::wstring& lineName, bool inputLine) const
 {
-	return GetCELineIDInternal(lineName.c_str(), inputLine);
+	return GetCELineIDInternal(InteropSupport::STLObjectSource<std::wstring>(lineName), inputLine);
 }
 
 //----------------------------------------------------------------------------------------
@@ -87,13 +97,15 @@ unsigned int IDevice::GetCELineID(const std::wstring& lineName, bool inputLine) 
 //----------------------------------------------------------------------------------------
 unsigned int IDevice::GetLineID(const std::wstring& lineName) const
 {
-	return GetLineIDInternal(lineName.c_str());
+	return GetLineIDInternal(InteropSupport::STLObjectSource<std::wstring>(lineName));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDevice::GetLineName(unsigned int lineID) const
 {
-	return GetLineNameInternal(lineID);
+	std::wstring result;
+	GetLineNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result), lineID);
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -101,13 +113,15 @@ std::wstring IDevice::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int IDevice::GetClockSourceID(const std::wstring& lineName) const
 {
-	return GetClockSourceIDInternal(lineName.c_str());
+	return GetClockSourceIDInternal(InteropSupport::STLObjectSource<std::wstring>(lineName));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDevice::GetClockSourceName(unsigned int clockSourceID) const
 {
-	return GetClockSourceNameInternal(clockSourceID);
+	std::wstring result;
+	GetClockSourceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result), clockSourceID);
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -115,13 +129,15 @@ std::wstring IDevice::GetClockSourceName(unsigned int clockSourceID) const
 //----------------------------------------------------------------------------------------
 unsigned int IDevice::GetKeyCodeID(const std::wstring& keyCodeName) const
 {
-	return GetKeyCodeIDInternal(keyCodeName.c_str());
+	return GetKeyCodeIDInternal(InteropSupport::STLObjectSource<std::wstring>(keyCodeName));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IDevice::GetKeyCodeName(unsigned int keyCodeID) const
 {
-	return GetKeyCodeNameInternal(keyCodeID);
+	std::wstring result;
+	GetKeyCodeNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result), keyCodeID);
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -129,11 +145,11 @@ std::wstring IDevice::GetKeyCodeName(unsigned int keyCodeID) const
 //----------------------------------------------------------------------------------------
 void IDevice::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
-	RestoreViewModelStateInternal(viewModelGroupName.c_str(), viewModelName.c_str(), node, xpos, ypos, width, height, viewModelLauncher);
+	RestoreViewModelStateInternal(InteropSupport::STLObjectSource<std::wstring>(viewModelGroupName), InteropSupport::STLObjectSource<std::wstring>(viewModelName), node, xpos, ypos, width, height, viewModelLauncher);
 }
 
 //----------------------------------------------------------------------------------------
 void IDevice::OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher)
 {
-	OpenViewModelInternal(viewModelGroupName.c_str(), viewModelName.c_str(), viewModelLauncher);
+	OpenViewModelInternal(InteropSupport::STLObjectSource<std::wstring>(viewModelGroupName), InteropSupport::STLObjectSource<std::wstring>(viewModelName), viewModelLauncher);
 }

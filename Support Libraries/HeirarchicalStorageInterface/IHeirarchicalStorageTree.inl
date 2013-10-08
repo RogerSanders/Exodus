@@ -11,7 +11,9 @@ enum IHeirarchicalStorageTree::StorageMode
 //----------------------------------------------------------------------------------------
 std::wstring IHeirarchicalStorageTree::GetErrorString() const
 {
-	return std::wstring(GetErrorStringInternal());
+	std::wstring result;
+	GetErrorStringInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -19,14 +21,7 @@ std::wstring IHeirarchicalStorageTree::GetErrorString() const
 //----------------------------------------------------------------------------------------
 std::list<IHeirarchicalStorageNode*> IHeirarchicalStorageTree::GetBinaryDataNodeList()
 {
-	std::list<IHeirarchicalStorageNode*> list;
-	CreateBinaryDataNodeList();
-	unsigned int nodeCount;
-	IHeirarchicalStorageNode** nodeBuffer = GetBinaryDataNodeList(nodeCount);
-	for(unsigned int i = 0; i < nodeCount; ++i)
-	{
-		list.push_back(*(nodeBuffer + i));
-	}
-	DeleteBinaryDataNodeList();
-	return list;
+	std::list<IHeirarchicalStorageNode*> result;
+	GetBinaryDataNodeListInternal(InteropSupport::STLObjectTarget<std::list<IHeirarchicalStorageNode*>>(result));
+	return result;
 }

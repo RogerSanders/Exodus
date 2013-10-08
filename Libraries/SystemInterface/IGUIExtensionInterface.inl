@@ -11,13 +11,13 @@ unsigned int IGUIExtensionInterface::ThisIGUIExtensionInterfaceVersion()
 //----------------------------------------------------------------------------------------
 bool IGUIExtensionInterface::CanModuleBeLoaded(const std::wstring& filePath) const
 {
-	return CanModuleBeLoadedInternal(filePath.c_str());
+	return CanModuleBeLoadedInternal(InteropSupport::STLObjectSource<std::wstring>(filePath));
 }
 
 //----------------------------------------------------------------------------------------
 bool IGUIExtensionInterface::LoadModuleFromFile(const std::wstring& filePath)
 {
-	return LoadModuleFromFileInternal(filePath.c_str());
+	return LoadModuleFromFileInternal(InteropSupport::STLObjectSource<std::wstring>(filePath));
 }
 
 //----------------------------------------------------------------------------------------
@@ -25,49 +25,65 @@ bool IGUIExtensionInterface::LoadModuleFromFile(const std::wstring& filePath)
 //----------------------------------------------------------------------------------------
 std::wstring IGUIExtensionInterface::GetGlobalPreferencePathModules() const
 {
-	return GetGlobalPreferencePathModulesInternal();
+	std::wstring result;
+	GetGlobalPreferencePathModulesInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IGUIExtensionInterface::GetGlobalPreferencePathSavestates() const
 {
-	return GetGlobalPreferencePathSavestatesInternal();
+	std::wstring result;
+	GetGlobalPreferencePathSavestatesInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IGUIExtensionInterface::GetGlobalPreferencePathPersistentState() const
 {
-	return GetGlobalPreferencePathPersistentStateInternal();
+	std::wstring result;
+	GetGlobalPreferencePathPersistentStateInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IGUIExtensionInterface::GetGlobalPreferencePathWorkspaces() const
 {
-	return GetGlobalPreferencePathWorkspacesInternal();
+	std::wstring result;
+	GetGlobalPreferencePathWorkspacesInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IGUIExtensionInterface::GetGlobalPreferencePathCaptures() const
 {
-	return GetGlobalPreferencePathCapturesInternal();
+	std::wstring result;
+	GetGlobalPreferencePathCapturesInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IGUIExtensionInterface::GetGlobalPreferencePathAssemblies() const
 {
-	return GetGlobalPreferencePathAssembliesInternal();
+	std::wstring result;
+	GetGlobalPreferencePathAssembliesInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IGUIExtensionInterface::GetGlobalPreferenceInitialSystem() const
 {
-	return GetGlobalPreferenceInitialSystemInternal();
+	std::wstring result;
+	GetGlobalPreferenceInitialSystemInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IGUIExtensionInterface::GetGlobalPreferenceInitialWorkspace() const
 {
-	return GetGlobalPreferenceInitialWorkspaceInternal();
+	std::wstring result;
+	GetGlobalPreferenceInitialWorkspaceInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -75,7 +91,7 @@ std::wstring IGUIExtensionInterface::GetGlobalPreferenceInitialWorkspace() const
 //----------------------------------------------------------------------------------------
 bool IGUIExtensionInterface::LoadAssembly(const std::wstring& filePath)
 {
-	return LoadAssemblyInternal(filePath.c_str());
+	return LoadAssemblyInternal(InteropSupport::STLObjectSource<std::wstring>(filePath));
 }
 
 //----------------------------------------------------------------------------------------
@@ -83,50 +99,25 @@ bool IGUIExtensionInterface::LoadAssembly(const std::wstring& filePath)
 //----------------------------------------------------------------------------------------
 bool IGUIExtensionInterface::SelectExistingFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, bool scanIntoArchives, std::wstring& selectedFilePath) const
 {
-	const wchar_t* selectedFilePathRawData = 0;
-	if(!SelectExistingFileInternal(selectionTypeString.c_str(), defaultExtension.c_str(), initialFilePath.c_str(), initialDirectory.c_str(), scanIntoArchives, &selectedFilePathRawData))
-	{
-		return false;
-	}
-	selectedFilePath = selectedFilePathRawData;
-	return true;
+	return SelectExistingFileInternal(InteropSupport::STLObjectSource<std::wstring>(selectionTypeString), InteropSupport::STLObjectSource<std::wstring>(defaultExtension), InteropSupport::STLObjectSource<std::wstring>(initialFilePath), InteropSupport::STLObjectSource<std::wstring>(initialDirectory), scanIntoArchives, InteropSupport::STLObjectTarget<std::wstring>(selectedFilePath));
 }
 
 //----------------------------------------------------------------------------------------
 bool IGUIExtensionInterface::SelectNewFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, std::wstring& selectedFilePath) const
 {
-	const wchar_t* selectedFilePathRawData = 0;
-	if(!SelectNewFileInternal(selectionTypeString.c_str(), defaultExtension.c_str(), initialFilePath.c_str(), initialDirectory.c_str(), &selectedFilePathRawData))
-	{
-		return false;
-	}
-	selectedFilePath = selectedFilePathRawData;
-	return true;
+	return SelectNewFileInternal(InteropSupport::STLObjectSource<std::wstring>(selectionTypeString), InteropSupport::STLObjectSource<std::wstring>(defaultExtension), InteropSupport::STLObjectSource<std::wstring>(initialFilePath), InteropSupport::STLObjectSource<std::wstring>(initialDirectory), InteropSupport::STLObjectTarget<std::wstring>(selectedFilePath));
 }
 
 //----------------------------------------------------------------------------------------
 std::vector<std::wstring> IGUIExtensionInterface::PathSplitElements(const std::wstring& path) const
 {
-	//Obtain the set of items in an array
-	unsigned int arraySize = 0;
-	const wchar_t** itemArray = PathSplitElementsInternal(path.c_str(), arraySize);
-
-	//Load the set of items into our list structure
-	std::vector<std::wstring> items;
-	for(unsigned int i = 0; i < arraySize; ++i)
-	{
-		items.push_back(itemArray[i]);
-	}
-
-	//Free the allocated array data
-	PathSplitElementsInternalFreeArray(itemArray, arraySize);
-
-	//Return the set of items to the caller
-	return items;
+	std::vector<std::wstring> result;
+	PathSplitElementsInternal(InteropSupport::STLObjectTarget<std::vector<std::wstring>>(result), InteropSupport::STLObjectSource<std::wstring>(path));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 Stream::IStream* IGUIExtensionInterface::OpenExistingFileForRead(const std::wstring& path) const
 {
-	return OpenExistingFileForReadInternal(path.c_str());
+	return OpenExistingFileForReadInternal(InteropSupport::STLObjectSource<std::wstring>(path));
 }

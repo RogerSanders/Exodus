@@ -58,7 +58,7 @@ bool HeirarchicalStorageTree::LoadTree(Stream::IStream& source)
 	XML_SetCharacterDataHandler(parser, LoadData);
 
 	//Parse the XML data
-	currentNode = 0;
+	currentNodeDuringLoad = 0;
 	if(XML_Parse(parser, (char*)&buffer[0], (int)(buffer.size() * sizeof(wchar_t)), 1) != XML_STATUS_OK)
 	{
 		//If XML parsing failed, set the error string, and return false.
@@ -190,15 +190,15 @@ void XMLCALL HeirarchicalStorageTree::LoadStartElement(void *userData, const XML
 {
 	HeirarchicalStorageTree* tree = (HeirarchicalStorageTree*)userData;
 	HeirarchicalStorageNode* node = 0;
-	if(tree->currentNode == 0)
+	if(tree->currentNodeDuringLoad == 0)
 	{
 		node = tree->root;
-		tree->currentNode = node;
+		tree->currentNodeDuringLoad = node;
 	}
 	else
 	{
-		node = (HeirarchicalStorageNode*)(&tree->currentNode->CreateChild());
-		tree->currentNode = node;
+		node = (HeirarchicalStorageNode*)(&tree->currentNodeDuringLoad->CreateChild());
+		tree->currentNodeDuringLoad = node;
 	}
 
 	node->SetName(aname);
@@ -219,9 +219,9 @@ void XMLCALL HeirarchicalStorageTree::LoadStartElement(void *userData, const XML
 void XMLCALL HeirarchicalStorageTree::LoadEndElement(void *userData, const XML_Char *aname)
 {
 	HeirarchicalStorageTree* tree = (HeirarchicalStorageTree*)userData;
-	if(tree->currentNode != 0)
+	if(tree->currentNodeDuringLoad != 0)
 	{
-		tree->currentNode = &tree->currentNode->GetParent();
+		tree->currentNodeDuringLoad = &tree->currentNodeDuringLoad->GetParent();
 	}
 }
 
@@ -232,9 +232,9 @@ void XMLCALL HeirarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 
 	//Append all printable characters to the data stream
 	std::wstring data;
-	if(!tree->currentNode->GetBinaryDataPresent())
+	if(!tree->currentNodeDuringLoad->GetBinaryDataPresent())
 	{
-		data = tree->currentNode->GetData();
+		data = tree->currentNodeDuringLoad->GetData();
 	}
 	for(int i = 0; i < len; ++i)
 	{
@@ -245,18 +245,18 @@ void XMLCALL HeirarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 			data.push_back(*(s + i));
 		}
 	}
-	if(tree->currentNode->IsAttributePresent(L"BinaryDataPresent"))
+	if(tree->currentNodeDuringLoad->IsAttributePresent(L"BinaryDataPresent"))
 	{
-		tree->currentNode->SetBinaryDataPresent(true);
-		if(tree->currentNode->IsAttributePresent(L"SeparateBinaryData"))
+		tree->currentNodeDuringLoad->SetBinaryDataPresent(true);
+		if(tree->currentNodeDuringLoad->IsAttributePresent(L"SeparateBinaryData"))
 		{
-			tree->currentNode->SetInlineBinaryDataEnabled(false);
+			tree->currentNodeDuringLoad->SetInlineBinaryDataEnabled(false);
 			//Load the name of the separate binary storage buffer
-			tree->currentNode->SetBinaryDataBufferName(tree->currentNode->GetBinaryDataBufferName() + data);
+			tree->currentNodeDuringLoad->SetBinaryDataBufferName(tree->currentNodeDuringLoad->GetBinaryDataBufferName() + data);
 		}
 		else
 		{
-			tree->currentNode->SetInlineBinaryDataEnabled(true);
+			tree->currentNodeDuringLoad->SetInlineBinaryDataEnabled(true);
 			//Load inline binary data from the XML structure
 			size_t charPos = 0;
 			while((data.length() - charPos) >= 2)
@@ -266,7 +266,7 @@ void XMLCALL HeirarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 				unsigned int byte;
 				dataStream >> std::hex >> byte;
 
-				Stream::ViewBinary bufferView(tree->currentNode->GetBinaryDataBufferStream());
+				Stream::ViewBinary bufferView(tree->currentNodeDuringLoad->GetBinaryDataBufferStream());
 				bufferView << (unsigned char)byte;
 
 				charPos	+= 2;
@@ -275,7 +275,7 @@ void XMLCALL HeirarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 	}
 	else
 	{
-		tree->currentNode->SetData(data);
+		tree->currentNodeDuringLoad->SetData(data);
 	}
 }
 
@@ -316,41 +316,17 @@ IHeirarchicalStorageNode& HeirarchicalStorageTree::GetRootNode() const
 //----------------------------------------------------------------------------------------
 //Error handling functions
 //----------------------------------------------------------------------------------------
-const wchar_t* HeirarchicalStorageTree::GetErrorStringInternal() const
+void HeirarchicalStorageTree::GetErrorStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return errorString.c_str();
+	marshaller.MarshalFrom(GetErrorString());
 }
 
 //----------------------------------------------------------------------------------------
 //Node access functions
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageTree::CreateBinaryDataNodeList()
+void HeirarchicalStorageTree::GetBinaryDataNodeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageNode*>>& marshaller)
 {
-	std::list<HeirarchicalStorageNode*> binaryEntityList;
-	root->AddBinaryDataEntitiesToList(binaryEntityList);
-	binaryDataNodeList.resize(binaryEntityList.size());
-	unsigned int arrayPos = 0;
-	for(std::list<HeirarchicalStorageNode*>::const_iterator i = binaryEntityList.begin(); i != binaryEntityList.end(); ++i)
-	{
-		binaryDataNodeList[arrayPos++] = *i;
-	}
-}
-
-//----------------------------------------------------------------------------------------
-IHeirarchicalStorageNode** HeirarchicalStorageTree::GetBinaryDataNodeList(unsigned int& nodeCount)
-{
-	nodeCount = (unsigned int)binaryDataNodeList.size();
-	if(nodeCount > 0)
-	{
-		return &binaryDataNodeList[0];
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-void HeirarchicalStorageTree::DeleteBinaryDataNodeList()
-{
-	binaryDataNodeList.clear();
+	marshaller.MarshalFrom(GetBinaryDataNodeList());
 }
 
 //----------------------------------------------------------------------------------------

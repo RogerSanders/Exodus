@@ -11,37 +11,43 @@ unsigned int IConnectorInfo::ThisIConnectorInfoVersion()
 //----------------------------------------------------------------------------------------
 std::wstring IConnectorInfo::GetConnectorClassName() const
 {
-	return GetConnectorClassNameInternal();
+	std::wstring result;
+	GetConnectorClassNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void IConnectorInfo::SetConnectorClassName(const std::wstring& aconnectorClassName)
 {
-	return SetConnectorClassNameInternal(aconnectorClassName.c_str());
+	SetConnectorClassNameInternal(InteropSupport::STLObjectSource<std::wstring>(aconnectorClassName));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IConnectorInfo::GetExportingModuleConnectorInstanceName() const
 {
-	return GetExportingModuleConnectorInstanceNameInternal();
+	std::wstring result;
+	GetExportingModuleConnectorInstanceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void IConnectorInfo::SetExportingModuleConnectorInstanceName(const std::wstring& aexportingModuleConnectorInstanceName)
 {
-	SetExportingModuleConnectorInstanceNameInternal(aexportingModuleConnectorInstanceName.c_str());
+	SetExportingModuleConnectorInstanceNameInternal(InteropSupport::STLObjectSource<std::wstring>(aexportingModuleConnectorInstanceName));
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IConnectorInfo::GetSystemClassName() const
 {
-	return GetSystemClassNameInternal();
+	std::wstring result;
+	GetSystemClassNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void IConnectorInfo::SetSystemClassName(const std::wstring& asystemClassName)
 {
-	SetSystemClassNameInternal(asystemClassName.c_str());
+	SetSystemClassNameInternal(InteropSupport::STLObjectSource<std::wstring>(asystemClassName));
 }
 
 //----------------------------------------------------------------------------------------
@@ -49,11 +55,13 @@ void IConnectorInfo::SetSystemClassName(const std::wstring& asystemClassName)
 //----------------------------------------------------------------------------------------
 std::wstring IConnectorInfo::GetImportingModuleConnectorInstanceName() const
 {
-	return GetImportingModuleConnectorInstanceNameInternal();
+	std::wstring result;
+	GetImportingModuleConnectorInstanceNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void IConnectorInfo::SetImportingModuleConnectorInstanceName(const std::wstring& aimportingModuleConnectorInstanceName)
 {
-	SetImportingModuleConnectorInstanceNameInternal(aimportingModuleConnectorInstanceName.c_str());
+	SetImportingModuleConnectorInstanceNameInternal(InteropSupport::STLObjectSource<std::wstring>(aimportingModuleConnectorInstanceName));
 }

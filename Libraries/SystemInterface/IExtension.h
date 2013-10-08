@@ -1,11 +1,12 @@
 #ifndef __IEXTENSION_H__
 #define __IEXTENSION_H__
-#include <string>
+#include "InteropSupport/InteropSupport.pkg"
 #include "IBusInterface.h"
 #include "IClockSource.h"
 #include "IMenuSegment.h"
 #include "ISystemExtensionInterface.h"
 #include "IGUIExtensionInterface.h"
+#include <string>
 class IDevice;
 
 class IExtension
@@ -61,18 +62,18 @@ public:
 
 protected:
 	//Reference functions
-	virtual bool AddReferenceInternal(const wchar_t* referenceName, IDevice* target) = 0;
-	virtual bool AddReferenceInternal(const wchar_t* referenceName, IExtension* target) = 0;
-	virtual bool AddReferenceInternal(const wchar_t* referenceName, IBusInterface* target) = 0;
-	virtual bool AddReferenceInternal(const wchar_t* referenceName, IClockSource* target) = 0;
+	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IDevice* target) = 0;
+	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IExtension* target) = 0;
+	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IBusInterface* target) = 0;
+	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IClockSource* target) = 0;
 
 	//Name functions
-	virtual const wchar_t* GetExtensionClassNameInternal() const = 0;
-	virtual const wchar_t* GetExtensionInstanceNameInternal() const = 0;
+	virtual void GetExtensionClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual void GetExtensionInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 
 	//Window functions
-	virtual void RestoreViewModelStateInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
-	virtual void OpenViewModelInternal(const wchar_t* viewModelGroupName, const wchar_t* viewModelName, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual void RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual void OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher) = 0;
 };
 
 #include "IExtension.inl"

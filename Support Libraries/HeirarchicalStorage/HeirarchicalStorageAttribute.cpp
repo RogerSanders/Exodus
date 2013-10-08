@@ -14,15 +14,15 @@ HeirarchicalStorageAttribute::HeirarchicalStorageAttribute(const std::wstring& a
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-const wchar_t* HeirarchicalStorageAttribute::GetNameInternal() const
+void HeirarchicalStorageAttribute::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return name.c_str();
+	marshaller.MarshalFrom(GetName());
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageAttribute::SetNameInternal(const wchar_t* aname)
+void HeirarchicalStorageAttribute::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
-	name = aname;
+	SetName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
