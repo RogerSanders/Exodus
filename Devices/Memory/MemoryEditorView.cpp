@@ -1,6 +1,6 @@
 #include "MemoryEditorView.h"
 #include "resource.h"
-#include "WindowFunctions/WC_HexEdit.h"
+#include "WindowsSupport/WindowsSupport.pkg"
 
 //----------------------------------------------------------------------------------------
 //Constructors

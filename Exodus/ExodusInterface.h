@@ -37,7 +37,7 @@ the slots.
 \*--------------------------------------------------------------------------------------*/
 #ifndef __EXODUSINTERFACE_H__
 #define __EXODUSINTERFACE_H__
-#include <WindowFunctions/WindowFunctions.pkg>
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 #include "ISystemExternal.h"
 #include "Image/Image.pkg"

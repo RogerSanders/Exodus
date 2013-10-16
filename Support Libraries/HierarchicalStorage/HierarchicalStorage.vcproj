@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="WindowFunctions"
-	ProjectGUID="{5AC3CB2C-0A1A-4E29-8A07-2BDED302611B}"
-	RootNamespace="WindowFunctions"
+	Name="HierarchicalStorage"
+	ProjectGUID="{ECC567B9-0DD5-4130-9685-CB9B5C6BD96E}"
+	RootNamespace="HierarchicalStorage"
 	>
 	<Platforms>
 		<Platform
@@ -444,71 +444,55 @@
 	</References>
 	<Files>
 		<Filter
-			Name="WindowFunctions"
+			Name="HierarchicalStorageAttribute"
 			>
 			<File
-				RelativePath=".\WindowFunctions.cpp"
+				RelativePath=".\HierarchicalStorageAttribute.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\WindowFunctions.h"
+				RelativePath=".\HierarchicalStorageAttribute.h"
 				>
 			</File>
 			<File
-				RelativePath=".\WindowFunctions.inl"
+				RelativePath=".\HierarchicalStorageAttribute.inl"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="Controls"
-			>
-			<Filter
-				Name="WC_GridList"
-				>
-				<File
-					RelativePath=".\WC_GridList.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\WC_GridList.h"
-					>
-				</File>
-				<File
-					RelativePath=".\WC_GridList.inl"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="WC_HexEdit"
-				>
-				<File
-					RelativePath=".\WC_HexEdit.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\WC_HexEdit.h"
-					>
-				</File>
-				<File
-					RelativePath=".\WC_HexEdit.inl"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="PathFunctions"
+			Name="HierarchicalStorageNode"
 			>
 			<File
-				RelativePath=".\PathFunctions.cpp"
+				RelativePath=".\HierarchicalStorageNode.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\PathFunctions.h"
+				RelativePath=".\HierarchicalStorageNode.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HierarchicalStorageNode.inl"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="HierarchicalStorageTree"
+			>
+			<File
+				RelativePath=".\HierarchicalStorageTree.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HierarchicalStorageTree.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HierarchicalStorageTree.inl"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\WindowFunctions.pkg"
+			RelativePath=".\HierarchicalStorage.pkg"
 			>
 		</File>
 	</Files>

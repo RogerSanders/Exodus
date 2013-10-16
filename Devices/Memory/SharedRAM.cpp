@@ -8,7 +8,7 @@ SharedRAM::SharedRAM(const std::wstring& aimplementationName, const std::wstring
 {}
 
 //----------------------------------------------------------------------------------------
-bool SharedRAM::Construct(IHeirarchicalStorageNode& node)
+bool SharedRAM::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = MemoryWrite::Construct(node);
 	if(GetMemoryEntryCount() <= 0)
@@ -185,7 +185,7 @@ bool SharedRAM::IsAddressLocked(unsigned int location) const
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void SharedRAM::LoadState(IHeirarchicalStorageNode& node)
+void SharedRAM::LoadState(IHierarchicalStorageNode& node)
 {
 	size_t memorySize = memory.size();
 	node.ExtractBinaryData(memory);
@@ -196,7 +196,7 @@ void SharedRAM::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void SharedRAM::SaveState(IHeirarchicalStorageNode& node) const
+void SharedRAM::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.InsertBinaryData(memory, GetFullyQualifiedDeviceInstanceName(), false);
 }

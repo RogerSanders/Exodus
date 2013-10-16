@@ -1,6 +1,6 @@
 #include "DisassemblyView.h"
 #include "resource.h"
-#include "WindowFunctions/WC_GridList.h"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "DataConversion/DataConversion.pkg"
 
 //----------------------------------------------------------------------------------------

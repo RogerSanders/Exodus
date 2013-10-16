@@ -55,11 +55,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataConversion", "Support L
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioStream", "Support Libraries\AudioStream\AudioStream.vcproj", "{9808C6CB-FC58-4979-8B59-2CB5E0D0F318}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThinList", "Support Libraries\ThinList\ThinList.vcproj", "{E39955EE-E2B3-4D00-A72F-7B7479223547}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThinContainers", "Support Libraries\ThinContainers\ThinContainers.vcproj", "{E39955EE-E2B3-4D00-A72F-7B7479223547}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThreadLib", "Support Libraries\ThreadLib\ThreadLib.vcproj", "{2615B12B-BA5F-4C84-97EE-81761C51BE03}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowFunctions", "Support Libraries\WindowFunctions\WindowFunctions.vcproj", "{5AC3CB2C-0A1A-4E29-8A07-2BDED302611B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowsSupport", "Support Libraries\WindowsSupport\WindowsSupport.vcproj", "{5AC3CB2C-0A1A-4E29-8A07-2BDED302611B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exodus", "Exodus", "{8C5BB0C8-1CD6-407A-974E-CAEBD04BE6C9}"
 EndProject
@@ -125,9 +125,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Device", "Libraries\Device\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StreamInterface", "Support Libraries\StreamInterface\StreamInterface.vcproj", "{264C9955-60D8-46CE-841F-2A311B2311E7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HeirarchicalStorageInterface", "Support Libraries\HeirarchicalStorageInterface\HeirarchicalStorageInterface.vcproj", "{9EDC036B-E856-4066-B306-807394E4B512}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HierarchicalStorageInterface", "Support Libraries\HierarchicalStorageInterface\HierarchicalStorageInterface.vcproj", "{9EDC036B-E856-4066-B306-807394E4B512}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HeirarchicalStorage", "Support Libraries\HeirarchicalStorage\HeirarchicalStorage.vcproj", "{ECC567B9-0DD5-4130-9685-CB9B5C6BD96E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HierarchicalStorage", "Support Libraries\HierarchicalStorage\HierarchicalStorage.vcproj", "{ECC567B9-0DD5-4130-9685-CB9B5C6BD96E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageInterface", "Support Libraries\ImageInterface\ImageInterface.vcproj", "{49625DE6-B44B-456D-8B58-A7F60A3660F2}"
 EndProject

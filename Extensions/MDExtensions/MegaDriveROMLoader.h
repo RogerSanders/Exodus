@@ -30,8 +30,8 @@ private:
 	void UnloadROMFileFromModulePath(const std::wstring& targetROMModulePath) const;
 
 	//ROM module generation
-	bool BuildROMFileModuleFromFile(const std::wstring& filePath, IHeirarchicalStorageNode& node, std::wstring& romName);
-	bool SaveOutputROMModule(IHeirarchicalStorageTree& tree, const std::wstring& filePath);
+	bool BuildROMFileModuleFromFile(const std::wstring& filePath, IHierarchicalStorageNode& node, std::wstring& romName);
+	bool SaveOutputROMModule(IHierarchicalStorageTree& tree, const std::wstring& filePath);
 
 	//ROM analysis functions
 	bool LoadROMHeaderFromFile(const std::wstring& filePath, MegaDriveROMHeader& romHeader) const;

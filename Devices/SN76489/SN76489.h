@@ -84,13 +84,13 @@ public:
 	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 	//Savestate functions
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadState(IHierarchicalStorageNode& node);
+	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 	//Window functions
 	void CreateMenuHandlers();
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
 
 private:

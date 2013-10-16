@@ -15,7 +15,7 @@ template<class T> RAMBase<T>::~RAMBase()
 //----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
-template<class T> bool RAMBase<T>::Construct(IHeirarchicalStorageNode& node)
+template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = MemoryWrite::Construct(node);
 
@@ -39,7 +39,7 @@ template<class T> bool RAMBase<T>::Construct(IHeirarchicalStorageNode& node)
 	memset(&memoryLockedArray[0], 0, (memoryArraySize * sizeof(bool)));
 
 	//Read the PersistentData attribute if specified
-	IHeirarchicalStorageAttribute* persistentDataAttribute = node.GetAttribute(L"PersistentData");
+	IHierarchicalStorageAttribute* persistentDataAttribute = node.GetAttribute(L"PersistentData");
 	if(persistentDataAttribute != 0)
 	{
 		dataIsPersistent = persistentDataAttribute->ExtractValue<bool>();
@@ -56,7 +56,7 @@ template<class T> bool RAMBase<T>::Construct(IHeirarchicalStorageNode& node)
 		dataStream.SetStreamPos(0);
 
 		//Read the RepeatData attribute if specified
-		IHeirarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
+		IHierarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
 		if(repeatDataAttribute != 0)
 		{
 			repeatInitialMemoryData = repeatDataAttribute->ExtractValue<bool>();
@@ -187,7 +187,7 @@ template<class T> void RAMBase<T>::WriteArrayValueWithLockCheckAndRollback(unsig
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::LoadState(IHeirarchicalStorageNode& node)
+template<class T> void RAMBase<T>::LoadState(IHierarchicalStorageNode& node)
 {
 	std::vector<T> savedMemoryData(memoryArraySize, 0);
 	node.ExtractBinaryData(savedMemoryData);
@@ -207,7 +207,7 @@ template<class T> void RAMBase<T>::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::SaveState(IHeirarchicalStorageNode& node) const
+template<class T> void RAMBase<T>::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.InsertBinaryData(memoryArray, memoryArraySize, GetFullyQualifiedDeviceInstanceName(), false);
 
@@ -215,7 +215,7 @@ template<class T> void RAMBase<T>::SaveState(IHeirarchicalStorageNode& node) con
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::LoadPersistentState(IHeirarchicalStorageNode& node)
+template<class T> void RAMBase<T>::LoadPersistentState(IHierarchicalStorageNode& node)
 {
 	if(dataIsPersistent)
 	{
@@ -238,7 +238,7 @@ template<class T> void RAMBase<T>::LoadPersistentState(IHeirarchicalStorageNode&
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::SavePersistentState(IHeirarchicalStorageNode& node) const
+template<class T> void RAMBase<T>::SavePersistentState(IHierarchicalStorageNode& node) const
 {
 	if(dataIsPersistent)
 	{
@@ -249,7 +249,7 @@ template<class T> void RAMBase<T>::SavePersistentState(IHeirarchicalStorageNode&
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::LoadDebuggerState(IHeirarchicalStorageNode& node)
+template<class T> void RAMBase<T>::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	std::vector<bool> savedMemoryLockedData(memoryArraySize, 0);
 	node.ExtractBinaryData(savedMemoryLockedData);
@@ -277,7 +277,7 @@ template<class T> void RAMBase<T>::LoadDebuggerState(IHeirarchicalStorageNode& n
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+template<class T> void RAMBase<T>::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
 	node.InsertBinaryData(memoryLockedArray, memoryArraySize, GetFullyQualifiedDeviceInstanceName() + L".MemoryLockedState", false);
 

@@ -65,10 +65,10 @@ M68000::~M68000()
 }
 
 //----------------------------------------------------------------------------------------
-bool M68000::Construct(IHeirarchicalStorageNode& node)
+bool M68000::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = Processor::Construct(node);
-	IHeirarchicalStorageAttribute* suspendWhenBusReleasedAttribute = node.GetAttribute(L"SuspendWhenBusReleased");
+	IHierarchicalStorageAttribute* suspendWhenBusReleasedAttribute = node.GetAttribute(L"SuspendWhenBusReleased");
 	if(suspendWhenBusReleasedAttribute != 0)
 	{
 		suspendWhenBusReleased = suspendWhenBusReleasedAttribute->ExtractValue<bool>();
@@ -2683,14 +2683,14 @@ bool M68000::FormatLabelUsageForDisassembly(const std::wstring& rawLabel, int la
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void M68000::LoadState(IHeirarchicalStorageNode& node)
+void M68000::LoadState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if((*i)->GetName() == L"Register")
 		{
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
 			if(nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
@@ -2746,15 +2746,15 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 		else if((*i)->GetName() == L"LineAccessBuffer")
 		{
 			lineAccessBuffer.clear();
-			IHeirarchicalStorageNode& lineAccessBufferNode = *(*i);
-			std::list<IHeirarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
+			IHierarchicalStorageNode& lineAccessBufferNode = *(*i);
+			std::list<IHierarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
 			{
 				if((*lineAccessBufferEntry)->GetName() == L"LineAccess")
 				{
-					IHeirarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
-					IHeirarchicalStorageAttribute* clockRateChangeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRateChange");
-					IHeirarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
+					IHierarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
+					IHierarchicalStorageAttribute* clockRateChangeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRateChange");
+					IHierarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
 					if((lineNameAttribute != 0) && (clockRateChangeAttribute != 0) && (accessTimeAttribute != 0))
 					{
 						//Extract the entry from the XML stream
@@ -2765,7 +2765,7 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 						double accessTime = accessTimeAttribute->ExtractValue<double>();
 						if(clockRateChange)
 						{
-							IHeirarchicalStorageAttribute* clockRateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRate");
+							IHierarchicalStorageAttribute* clockRateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRate");
 							if(clockRateAttribute != 0)
 							{
 								unsigned int lineID = GetClockSourceID(lineName.c_str());
@@ -2780,7 +2780,7 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 						}
 						else
 						{
-							IHeirarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
+							IHierarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
 							if(lineStateAttribute != 0)
 							{
 								unsigned int lineID = GetLineID(lineName.c_str());
@@ -2817,7 +2817,7 @@ void M68000::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::SaveState(IHeirarchicalStorageNode& node) const
+void M68000::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.CreateChildHex(L"Register", a[0].GetData(), a[0].GetHexCharCount()).CreateAttribute(L"name", L"A0");
 	node.CreateChildHex(L"Register", a[1].GetData(), a[1].GetHexCharCount()).CreateAttribute(L"name", L"A1");
@@ -2869,10 +2869,10 @@ void M68000::SaveState(IHeirarchicalStorageNode& node) const
 	//Save the lineAccessBuffer state
 	if(lineAccessPending)
 	{
-		IHeirarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
+		IHierarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
 		for(std::list<LineAccess>::const_iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
 		{
-			IHeirarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
+			IHierarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
 			lineAccessEntry.CreateAttribute(L"ClockRateChange", i->clockRateChange);
 			if(i->clockRateChange)
 			{
@@ -2892,18 +2892,18 @@ void M68000::SaveState(IHeirarchicalStorageNode& node) const
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::LoadDebuggerState(IHeirarchicalStorageNode& node)
+void M68000::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	boost::mutex::scoped_lock lock(debugMutex);
 
 	//Exception debugging
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring keyName = (*i)->GetName();
 		if(keyName == L"Register")
 		{
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
 			if(nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
@@ -2921,10 +2921,10 @@ void M68000::LoadDebuggerState(IHeirarchicalStorageNode& node)
 			}
 			exceptionList.clear();
 
-			std::list<IHeirarchicalStorageNode*> childList = (*i)->GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
+			std::list<IHierarchicalStorageNode*> childList = (*i)->GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
 			{
-				IHeirarchicalStorageNode& childNode = *(*childNodeIterator);
+				IHierarchicalStorageNode& childNode = *(*childNodeIterator);
 				if(childNode.GetName() == L"ExceptionDebugListEntry")
 				{
 					ExceptionDebuggingEntry* entry = new ExceptionDebuggingEntry();
@@ -2943,15 +2943,15 @@ void M68000::LoadDebuggerState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+void M68000::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
 	boost::mutex::scoped_lock lock(debugMutex);
 
 	//Exception debugging
-	IHeirarchicalStorageNode& exceptionListNode = node.CreateChild(L"ExceptionDebugList");
+	IHierarchicalStorageNode& exceptionListNode = node.CreateChild(L"ExceptionDebugList");
 	for(ExceptionList::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
 	{
-		IHeirarchicalStorageNode& exceptionListEntry = exceptionListNode.CreateChild(L"ExceptionDebugListEntry");
+		IHierarchicalStorageNode& exceptionListEntry = exceptionListNode.CreateChild(L"ExceptionDebugListEntry");
 		exceptionListEntry.CreateAttributeHex(L"VectorNumber", (*i)->vectorNumber, 8);
 		exceptionListEntry.CreateAttribute(L"EnableLogging", (*i)->enableLogging);
 		exceptionListEntry.CreateAttribute(L"EnableBreak", (*i)->enableBreak);

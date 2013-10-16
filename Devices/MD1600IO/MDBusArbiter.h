@@ -56,8 +56,8 @@ public:
 	bool AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int targetLine, Data targetLineState, double& lineStateReachedTime);
 
 	//Savestate functions
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadState(IHierarchicalStorageNode& node);
+	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
 	//Enumerations

@@ -29,7 +29,7 @@ support for dcx (pcx image archive) format.
 #define __IMAGE_H__
 #include "ImageInterface/ImageInterface.pkg"
 #include <vector>
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #define PNG_SETJMP_NOT_SUPPORTED
 #include <png.h>
 #include <jpeglib.h>

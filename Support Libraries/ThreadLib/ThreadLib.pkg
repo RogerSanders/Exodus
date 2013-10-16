@@ -9,7 +9,7 @@
 //included when the public interface files for this package are included below, they need
 //to be included here too, otherwise a dependent library may not be linked if this
 //package is used as a private package of another.
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 
 //Include any header files which are part of the public interface for this library here
 #ifndef PACKAGE_LINK_LIBS_ONLY

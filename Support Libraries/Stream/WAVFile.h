@@ -2,7 +2,7 @@
 #ifndef __WAVFILE_H__
 #define __WAVFILE_H__
 #include <string>
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 namespace Stream {
 
 class WAVFile :public Stream<IStreamNonSeekable>

@@ -1,6 +1,6 @@
 #ifndef __TIMESTAMP_H__
 #define __TIMESTAMP_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include <string>
 #include <sstream>
 #include <iomanip>

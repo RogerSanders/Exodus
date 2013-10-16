@@ -12,7 +12,7 @@ public:
 public:
 	//Constructors
 	ClockSource();
-	bool Construct(IHeirarchicalStorageNode& node);
+	bool Construct(IHierarchicalStorageNode& node);
 	bool Construct(const ClockSourceParams& params);
 	static bool DecodeClockTypeString(const std::wstring& clockTypeString, ClockType& aclockType);
 

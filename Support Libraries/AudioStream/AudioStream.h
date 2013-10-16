@@ -1,6 +1,6 @@
 #ifndef __AUDIOSTREAM_H__
 #define __AUDIOSTREAM_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include <list>
 #include <vector>
 

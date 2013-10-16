@@ -288,13 +288,13 @@ void ViewBase::SetViewSize(int sizex, int sizey)
 //----------------------------------------------------------------------------------------
 //State functions
 //----------------------------------------------------------------------------------------
-bool ViewBase::SaveViewLayoutState(IHeirarchicalStorageNode& node) const
+bool ViewBase::SaveViewLayoutState(IHierarchicalStorageNode& node) const
 {
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-bool ViewBase::LoadViewLayoutState(IHeirarchicalStorageNode& node)
+bool ViewBase::LoadViewLayoutState(IHierarchicalStorageNode& node)
 {
 	return true;
 }

@@ -22,7 +22,7 @@ void SN76489::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& v
 }
 
 //----------------------------------------------------------------------------------------
-void SN76489::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void SN76489::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	Device::RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 	CreateMenuHandlers();

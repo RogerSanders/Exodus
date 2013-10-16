@@ -1,5 +1,5 @@
 #include "Extension.h"
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 
 //----------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ bool Extension::BindToGUIInterface(IGUIExtensionInterface* aguiInterface)
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::Construct(IHeirarchicalStorageNode& node)
+bool Extension::Construct(IHierarchicalStorageNode& node)
 {
 	return true;
 }
@@ -161,19 +161,19 @@ unsigned int Extension::GetExtensionModuleID() const
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void Extension::LoadSettingsState(IHeirarchicalStorageNode& node)
+void Extension::LoadSettingsState(IHierarchicalStorageNode& node)
 {}
 
 //----------------------------------------------------------------------------------------
-void Extension::SaveSettingsState(IHeirarchicalStorageNode& node) const
+void Extension::SaveSettingsState(IHierarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------
-void Extension::LoadDebuggerState(IHeirarchicalStorageNode& node)
+void Extension::LoadDebuggerState(IHierarchicalStorageNode& node)
 {}
 
 //----------------------------------------------------------------------------------------
-void Extension::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+void Extension::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ void Extension::AddGlobalSettingsMenuItems(IMenuSegment& menuSegment, IViewModel
 {}
 
 //----------------------------------------------------------------------------------------
-void Extension::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Extension::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -211,7 +211,7 @@ void Extension::OpenViewModel(const std::wstring& viewModelGroupName, const std:
 {}
 
 //----------------------------------------------------------------------------------------
-void Extension::RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Extension::RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	RestoreViewModelState(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), node, xpos, ypos, width, height, viewModelLauncher);
 }

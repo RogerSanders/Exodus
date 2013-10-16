@@ -47,8 +47,8 @@ frequently.
 #include <vector>
 #include <list>
 #include <map>
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
-#include "ThinList/ThinList.pkg"
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
+#include "ThinContainers/ThinContainers.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 #include "DataRemapTable.h"
 
@@ -65,7 +65,7 @@ public:
 	//Constructors
 	BusInterface();
 	~BusInterface();
-	bool Construct(IHeirarchicalStorageNode& node);
+	bool Construct(IHierarchicalStorageNode& node);
 	bool Construct(const BusInterfaceParams& params);
 
 	//Interface version functions
@@ -75,33 +75,33 @@ public:
 	void RemoveAllReferencesToDevice(IDevice* device);
 
 	//Memory mapping functions
-	bool MapDevice(IDevice* device, IHeirarchicalStorageNode& node);
+	bool MapDevice(IDevice* device, IHierarchicalStorageNode& node);
 	bool MapDevice(IDevice* device, const DeviceMappingParams& params);
 
 	//Port mapping functions
-	bool MapPort(IDevice* device, IHeirarchicalStorageNode& node);
+	bool MapPort(IDevice* device, IHierarchicalStorageNode& node);
 	bool MapPort(IDevice* device, const DeviceMappingParams& params);
 
 	//Line mapping functions
-	bool MapLine(IDevice* sourceDevice, IDevice* targetDevice, IHeirarchicalStorageNode& node);
+	bool MapLine(IDevice* sourceDevice, IDevice* targetDevice, IHierarchicalStorageNode& node);
 	bool MapLine(IDevice* sourceDevice, IDevice* targetDevice, const LineMappingParams& params);
-	bool MapLine(IDevice* sourceDevice, unsigned int targetLineGroupID, IHeirarchicalStorageNode& node);
+	bool MapLine(IDevice* sourceDevice, unsigned int targetLineGroupID, IHierarchicalStorageNode& node);
 	bool MapLine(IDevice* sourceDevice, unsigned int targetLineGroupID, const LineMappingParams& params);
-	bool MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice, IHeirarchicalStorageNode& node);
+	bool MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice, IHierarchicalStorageNode& node);
 	bool MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice, const LineMappingParams& params);
 	bool IsDeviceLineMappedTo(IDevice* device, unsigned int lineNo) const;
 
 	//CE line mapping functions
-	bool DefineCELineMemory(IHeirarchicalStorageNode& node);
-	bool DefineCELinePort(IHeirarchicalStorageNode& node);
-	bool MapCELineInputMemory(IDevice* device, IHeirarchicalStorageNode& node);
-	bool MapCELineInputPort(IDevice* device, IHeirarchicalStorageNode& node);
-	bool MapCELineOutputMemory(IDevice* device, IHeirarchicalStorageNode& node);
-	bool MapCELineOutputPort(IDevice* device, IHeirarchicalStorageNode& node);
+	bool DefineCELineMemory(IHierarchicalStorageNode& node);
+	bool DefineCELinePort(IHierarchicalStorageNode& node);
+	bool MapCELineInputMemory(IDevice* device, IHierarchicalStorageNode& node);
+	bool MapCELineInputPort(IDevice* device, IHierarchicalStorageNode& node);
+	bool MapCELineOutputMemory(IDevice* device, IHierarchicalStorageNode& node);
+	bool MapCELineOutputPort(IDevice* device, IHierarchicalStorageNode& node);
 	bool BindCELineMappings();
 
 	//Clock source mapping functions
-	bool MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, IHeirarchicalStorageNode& node);
+	bool MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, IHierarchicalStorageNode& node);
 	bool MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, const ClockSourceMappingParams& params);
 
 	//Memory interface functions
@@ -161,20 +161,20 @@ private:
 	void UnmapPort(MapEntry* mapEntry);
 
 	//Line mapping functions
-	bool ExtractLineMappingParams(IHeirarchicalStorageNode& node, LineMappingParams& params) const;
+	bool ExtractLineMappingParams(IHierarchicalStorageNode& node, LineMappingParams& params) const;
 	bool MapLine(LineEntry* lineEntry);
 	void UnmapLineForDevice(IDevice* device);
 	void AddLineEntryToPhysicalMap(LineEntry* lineEntry, std::vector<std::vector<ThinVector<LineEntry*,1>*>>& physicalLineMap, IDevice* indexDevice, unsigned int indexLineNo);
 
 	//CE line mapping functions
-	bool DefineCELine(IHeirarchicalStorageNode& node, bool memoryMapping);
-	bool MapCELineInput(IDevice* device, IHeirarchicalStorageNode& node, bool memoryMapping);
-	bool MapCELineOutput(IDevice* device, IHeirarchicalStorageNode& node, bool memoryMapping);
+	bool DefineCELine(IHierarchicalStorageNode& node, bool memoryMapping);
+	bool MapCELineInput(IDevice* device, IHierarchicalStorageNode& node, bool memoryMapping);
+	bool MapCELineOutput(IDevice* device, IHierarchicalStorageNode& node, bool memoryMapping);
 	bool BindCELineMappings(bool memoryMapping);
 	void UnmapCELinesForDevice(IDevice* device);
 
 	//Clock source mapping functions
-	bool ExtractClockSourceMappingParams(IHeirarchicalStorageNode& node, ClockSourceMappingParams& params) const;
+	bool ExtractClockSourceMappingParams(IHierarchicalStorageNode& node, ClockSourceMappingParams& params) const;
 	bool MapClockSource(const ClockSourceEntry& clockSourceEntry);
 	void UnmapClockSourceForDevice(IDevice* device);
 

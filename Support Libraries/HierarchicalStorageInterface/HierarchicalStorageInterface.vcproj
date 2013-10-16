@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="HeirarchicalStorage"
-	ProjectGUID="{ECC567B9-0DD5-4130-9685-CB9B5C6BD96E}"
-	RootNamespace="HeirarchicalStorage"
+	Name="HierarchicalStorageInterface"
+	ProjectGUID="{9EDC036B-E856-4066-B306-807394E4B512}"
+	RootNamespace="HierarchicalStorageInterface"
 	>
 	<Platforms>
 		<Platform
@@ -444,55 +444,43 @@
 	</References>
 	<Files>
 		<Filter
-			Name="HeirarchicalStorageAttribute"
+			Name="IHierarchicalStorageTree"
 			>
 			<File
-				RelativePath=".\HeirarchicalStorageAttribute.cpp"
+				RelativePath=".\IHierarchicalStorageTree.h"
 				>
 			</File>
 			<File
-				RelativePath=".\HeirarchicalStorageAttribute.h"
-				>
-			</File>
-			<File
-				RelativePath=".\HeirarchicalStorageAttribute.inl"
+				RelativePath=".\IHierarchicalStorageTree.inl"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="HeirarchicalStorageNode"
+			Name="IHierarchicalStorageNode"
 			>
 			<File
-				RelativePath=".\HeirarchicalStorageNode.cpp"
+				RelativePath=".\IHierarchicalStorageNode.h"
 				>
 			</File>
 			<File
-				RelativePath=".\HeirarchicalStorageNode.h"
-				>
-			</File>
-			<File
-				RelativePath=".\HeirarchicalStorageNode.inl"
+				RelativePath=".\IHierarchicalStorageNode.inl"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="HeirarchicalStorageTree"
+			Name="IHierarchicalStorageAttribute"
 			>
 			<File
-				RelativePath=".\HeirarchicalStorageTree.cpp"
+				RelativePath=".\IHierarchicalStorageAttribute.h"
 				>
 			</File>
 			<File
-				RelativePath=".\HeirarchicalStorageTree.h"
-				>
-			</File>
-			<File
-				RelativePath=".\HeirarchicalStorageTree.inl"
+				RelativePath=".\IHierarchicalStorageAttribute.inl"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\HeirarchicalStorage.pkg"
+			RelativePath=".\HierarchicalStorageInterface.pkg"
 			>
 		</File>
 	</Files>

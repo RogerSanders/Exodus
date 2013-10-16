@@ -49,10 +49,10 @@ Z80::~Z80()
 }
 
 //----------------------------------------------------------------------------------------
-bool Z80::Construct(IHeirarchicalStorageNode& node)
+bool Z80::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = Processor::Construct(node);
-	IHeirarchicalStorageAttribute* suspendWhenBusReleasedAttribute = node.GetAttribute(L"SuspendWhenBusReleased");
+	IHierarchicalStorageAttribute* suspendWhenBusReleasedAttribute = node.GetAttribute(L"SuspendWhenBusReleased");
 	if(suspendWhenBusReleasedAttribute != 0)
 	{
 		suspendWhenBusReleased = suspendWhenBusReleasedAttribute->ExtractValue<bool>();
@@ -1465,14 +1465,14 @@ unsigned int Z80::CalculateCELineStateMemoryTransparent(unsigned int location, c
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void Z80::LoadState(IHeirarchicalStorageNode& node)
+void Z80::LoadState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if((*i)->GetName() == L"Register")
 		{
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
 			if(nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
@@ -1511,15 +1511,15 @@ void Z80::LoadState(IHeirarchicalStorageNode& node)
 		else if((*i)->GetName() == L"LineAccessBuffer")
 		{
 			lineAccessBuffer.clear();
-			IHeirarchicalStorageNode& lineAccessBufferNode = *(*i);
-			std::list<IHeirarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
+			IHierarchicalStorageNode& lineAccessBufferNode = *(*i);
+			std::list<IHierarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
 			{
 				if((*lineAccessBufferEntry)->GetName() == L"LineAccess")
 				{
-					IHeirarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
-					IHeirarchicalStorageAttribute* clockRateChangeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRateChange");
-					IHeirarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
+					IHierarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
+					IHierarchicalStorageAttribute* clockRateChangeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRateChange");
+					IHierarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
 					if((lineNameAttribute != 0) && (clockRateChangeAttribute != 0) && (accessTimeAttribute != 0))
 					{
 						//Extract the entry from the XML stream
@@ -1530,7 +1530,7 @@ void Z80::LoadState(IHeirarchicalStorageNode& node)
 						double accessTime = accessTimeAttribute->ExtractValue<double>();
 						if(clockRateChange)
 						{
-							IHeirarchicalStorageAttribute* clockRateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRate");
+							IHierarchicalStorageAttribute* clockRateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRate");
 							if(clockRateAttribute != 0)
 							{
 								unsigned int lineID = GetClockSourceID(lineName.c_str());
@@ -1545,7 +1545,7 @@ void Z80::LoadState(IHeirarchicalStorageNode& node)
 						}
 						else
 						{
-							IHeirarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
+							IHierarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
 							if(lineStateAttribute != 0)
 							{
 								unsigned int lineID = GetLineID(lineName.c_str());
@@ -1582,7 +1582,7 @@ void Z80::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void Z80::SaveState(IHeirarchicalStorageNode& node) const
+void Z80::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.CreateChildHex(L"Register", afreg.GetData(), afreg.GetHexCharCount()).CreateAttribute(L"name", L"AF");
 	node.CreateChildHex(L"Register", bcreg.GetData(), bcreg.GetHexCharCount()).CreateAttribute(L"name", L"BC");
@@ -1617,10 +1617,10 @@ void Z80::SaveState(IHeirarchicalStorageNode& node) const
 	//Save the lineAccessBuffer state
 	if(lineAccessPending)
 	{
-		IHeirarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
+		IHierarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
 		for(std::list<LineAccess>::const_iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
 		{
-			IHeirarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
+			IHierarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
 			lineAccessEntry.CreateAttribute(L"ClockRateChange", i->clockRateChange);
 			if(i->clockRateChange)
 			{

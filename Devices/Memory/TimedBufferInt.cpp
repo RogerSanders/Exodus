@@ -198,19 +198,19 @@ bool TimedBufferInt::IsByteLocked(unsigned int location) const
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void TimedBufferInt::LoadState(IHeirarchicalStorageNode& node)
+void TimedBufferInt::LoadState(IHierarchicalStorageNode& node)
 {
 	memory.LoadState(node);
 }
 
 //----------------------------------------------------------------------------------------
-void TimedBufferInt::SaveState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const
+void TimedBufferInt::SaveState(IHierarchicalStorageNode& node, const std::wstring& bufferName) const
 {
 	memory.SaveState(node, bufferName);
 }
 
 //----------------------------------------------------------------------------------------
-void TimedBufferInt::LoadDebuggerState(IHeirarchicalStorageNode& node)
+void TimedBufferInt::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	size_t memorySize = memoryLocked.size();
 	node.ExtractBinaryData(memoryLocked);
@@ -221,7 +221,7 @@ void TimedBufferInt::LoadDebuggerState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void TimedBufferInt::SaveDebuggerState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const
+void TimedBufferInt::SaveDebuggerState(IHierarchicalStorageNode& node, const std::wstring& bufferName) const
 {
 	node.InsertBinaryData(memoryLocked, bufferName + L".MemoryLockedState", false);
 }

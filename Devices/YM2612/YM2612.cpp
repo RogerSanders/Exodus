@@ -2574,10 +2574,10 @@ void YM2612::UpdateTimers(double timesliceProgress)
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void YM2612::LoadState(IHeirarchicalStorageNode& node)
+void YM2612::LoadState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		//Clock settings
 		if((*i)->GetName() == L"ExternalClockRate")
@@ -2759,7 +2759,7 @@ void YM2612::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SaveState(IHeirarchicalStorageNode& node) const
+void YM2612::SaveState(IHierarchicalStorageNode& node) const
 {
 	//Clock settings
 	node.CreateChild(L"ExternalClockRate").SetData(externalClockRate);
@@ -2768,7 +2768,7 @@ void YM2612::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"ICLineState").SetData(icLineState);
 
 	//Register data
-	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
+	IHierarchicalStorageNode& regNode = node.CreateChild(L"Registers");
 	std::wstring regBufferName = GetFullyQualifiedDeviceInstanceName();
 	regBufferName += L".Registers";
 	reg.SaveState(regNode, regBufferName, false);
@@ -2802,7 +2802,7 @@ void YM2612::SaveState(IHeirarchicalStorageNode& node) const
 		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
 		{
 			const OperatorData* state = &operatorData[channelNo][operatorNo];
-			IHeirarchicalStorageNode& renderDataState = node.CreateChild(L"RenderData");
+			IHierarchicalStorageNode& renderDataState = node.CreateChild(L"RenderData");
 			renderDataState.CreateAttribute(L"ChannelNo", channelNo);
 			renderDataState.CreateAttribute(L"OperatorNo", operatorNo);
 			renderDataState.CreateAttributeHex(L"Attenuation", state->attenuation, (attenuationBitCount+3)/4);
@@ -2833,7 +2833,7 @@ void YM2612::SaveState(IHeirarchicalStorageNode& node) const
 	}
 	for(unsigned int i = 0; i < channelCount; ++i)
 	{
-		IHeirarchicalStorageNode& feedbackData = node.CreateChild(L"OP1FeedbackData");
+		IHierarchicalStorageNode& feedbackData = node.CreateChild(L"OP1FeedbackData");
 		feedbackData.CreateAttribute(L"ChannelNo", i);
 		feedbackData.CreateAttributeHex(L"Sample1", feedbackBuffer[i][0], (operatorOutputBitCount+3)/4);
 		feedbackData.CreateAttributeHex(L"Sample2", feedbackBuffer[i][1], (operatorOutputBitCount+3)/4);

@@ -1,7 +1,7 @@
 #include "System.h"
 #ifndef __SYSTEM_LOGGERDETAILSVIEW_H__
 #define __SYSTEM_LOGGERDETAILSVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 
 class System::LoggerDetailsView :public ViewBase

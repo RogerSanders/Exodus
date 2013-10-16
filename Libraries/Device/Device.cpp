@@ -1,5 +1,5 @@
 #include "Device.h"
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 //##DEBUG##
 #include <iostream>
@@ -31,7 +31,7 @@ bool Device::BindToDeviceContext(IDeviceContext* adeviceContext)
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::Construct(IHeirarchicalStorageNode& node)
+bool Device::Construct(IHierarchicalStorageNode& node)
 {
 	return true;
 }
@@ -325,35 +325,35 @@ bool Device::GetScreenshot(IImage& image) const
 }
 
 //----------------------------------------------------------------------------------------
-void Device::LoadState(IHeirarchicalStorageNode& node)
+void Device::LoadState(IHierarchicalStorageNode& node)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::SaveState(IHeirarchicalStorageNode& node) const
+void Device::SaveState(IHierarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::LoadPersistentState(IHeirarchicalStorageNode& node)
+void Device::LoadPersistentState(IHierarchicalStorageNode& node)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::SavePersistentState(IHeirarchicalStorageNode& node) const
+void Device::SavePersistentState(IHierarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::LoadSettingsState(IHeirarchicalStorageNode& node)
+void Device::LoadSettingsState(IHierarchicalStorageNode& node)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::SaveSettingsState(IHeirarchicalStorageNode& node) const
+void Device::SaveSettingsState(IHierarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::LoadDebuggerState(IHeirarchicalStorageNode& node)
+void Device::LoadDebuggerState(IHierarchicalStorageNode& node)
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+void Device::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {}
 
 //----------------------------------------------------------------------------------------
@@ -598,7 +598,7 @@ void Device::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& vi
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Device::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -606,7 +606,7 @@ void Device::OpenViewModel(const std::wstring& viewModelGroupName, const std::ws
 {}
 
 //----------------------------------------------------------------------------------------
-void Device::RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Device::RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	RestoreViewModelState(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), node, xpos, ypos, width, height, viewModelLauncher);
 }

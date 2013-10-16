@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IHeirarchicalStorageTree::StorageMode
+enum IHierarchicalStorageTree::StorageMode
 {
 	STORAGEMODE_XML
 };
@@ -9,7 +9,7 @@ enum IHeirarchicalStorageTree::StorageMode
 //----------------------------------------------------------------------------------------
 //Error handling functions
 //----------------------------------------------------------------------------------------
-std::wstring IHeirarchicalStorageTree::GetErrorString() const
+std::wstring IHierarchicalStorageTree::GetErrorString() const
 {
 	std::wstring result;
 	GetErrorStringInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
@@ -19,9 +19,9 @@ std::wstring IHeirarchicalStorageTree::GetErrorString() const
 //----------------------------------------------------------------------------------------
 //Node access functions
 //----------------------------------------------------------------------------------------
-std::list<IHeirarchicalStorageNode*> IHeirarchicalStorageTree::GetBinaryDataNodeList()
+std::list<IHierarchicalStorageNode*> IHierarchicalStorageTree::GetBinaryDataNodeList()
 {
-	std::list<IHeirarchicalStorageNode*> result;
-	GetBinaryDataNodeListInternal(InteropSupport::STLObjectTarget<std::list<IHeirarchicalStorageNode*>>(result));
+	std::list<IHierarchicalStorageNode*> result;
+	GetBinaryDataNodeListInternal(InteropSupport::STLObjectTarget<std::list<IHierarchicalStorageNode*>>(result));
 	return result;
 }

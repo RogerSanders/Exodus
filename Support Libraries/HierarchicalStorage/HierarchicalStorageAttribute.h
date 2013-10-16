@@ -1,14 +1,14 @@
-#ifndef __HEIRARCHICALSTORAGEATTRIBUTE_H__
-#define __HEIRARCHICALSTORAGEATTRIBUTE_H__
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#ifndef __HIERARCHICALSTORAGEATTRIBUTE_H__
+#define __HIERARCHICALSTORAGEATTRIBUTE_H__
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "Stream/Stream.pkg"
 
-class HeirarchicalStorageAttribute :public IHeirarchicalStorageAttribute
+class HierarchicalStorageAttribute :public IHierarchicalStorageAttribute
 {
 public:
 	//Constructors
-	HeirarchicalStorageAttribute();
-	explicit HeirarchicalStorageAttribute(const std::wstring& aname);
+	HierarchicalStorageAttribute();
+	explicit HierarchicalStorageAttribute(const std::wstring& aname);
 
 	//Name functions
 	inline std::wstring GetName() const;
@@ -29,5 +29,5 @@ private:
 	mutable Stream::Buffer buffer;
 };
 
-#include "HeirarchicalStorageAttribute.inl"
+#include "HierarchicalStorageAttribute.inl"
 #endif

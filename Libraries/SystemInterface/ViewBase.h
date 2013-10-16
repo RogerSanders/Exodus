@@ -1,6 +1,6 @@
 #ifndef __VIEWBASE_H__
 #define __VIEWBASE_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "IView.h"
 #include "IViewModel.h"
 #include <string>
@@ -36,8 +36,8 @@ public:
 	virtual void SetViewSize(int sizex, int sizey);
 
 	//State functions
-	virtual bool SaveViewLayoutState(IHeirarchicalStorageNode& node) const;
-	virtual bool LoadViewLayoutState(IHeirarchicalStorageNode& node);
+	virtual bool SaveViewLayoutState(IHierarchicalStorageNode& node) const;
+	virtual bool LoadViewLayoutState(IHierarchicalStorageNode& node);
 	virtual bool DoesWindowHandleMatchView(void* awindowHandle) const;
 
 protected:

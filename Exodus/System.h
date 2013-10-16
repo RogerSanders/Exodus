@@ -19,7 +19,7 @@ should be able to be sent to all devices simultaneously.
 \*--------------------------------------------------------------------------------------*/
 #ifndef __SYSTEM_H__
 #define __SYSTEM_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 #include "BusInterface.h"
 #include "ClockSource.h"
@@ -77,8 +77,8 @@ public:
 	virtual bool LoadState(const std::wstring& filePath, FileType fileType, bool debuggerState);
 	virtual bool SaveState(const std::wstring& filePath, FileType fileType, bool debuggerState);
 	virtual StateInfo GetStateInfo(const std::wstring& filePath, FileType fileType) const;
-	virtual bool LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const;
-	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false, const std::wstring& relativePathBase = L"") const;
+	virtual bool LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const;
+	virtual void SaveModuleRelationshipsNode(IHierarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false, const std::wstring& relativePathBase = L"") const;
 
 	//Logging functions
 	virtual void WriteLogEvent(const ILogEntry& entry) const;
@@ -151,8 +151,8 @@ public:
 	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
 	virtual void BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
 	virtual void BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual bool RestoreViewModelStateForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName, const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual bool RestoreViewModelStateForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName, const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void DeleteSystemViews();
 
 	//Input functions
@@ -298,9 +298,9 @@ private:
 	//Savestate functions
 	bool LoadPersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool returnSuccessOnNoFilePresent);
 	bool SavePersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent);
-	bool LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const;
-	void SaveModuleRelationshipsExportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
-	void SaveModuleRelationshipsImportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const;
+	bool LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const;
+	void SaveModuleRelationshipsExportConnectors(IHierarchicalStorageNode& moduleNode, unsigned int moduleID) const;
+	void SaveModuleRelationshipsImportConnectors(IHierarchicalStorageNode& moduleNode, unsigned int moduleID) const;
 	bool DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfoInternal& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const;
 
 	//Module loading and unloading
@@ -310,65 +310,65 @@ private:
 	unsigned int GenerateFreeLineGroupID() const;
 	unsigned int GenerateFreeSystemLineID() const;
 	unsigned int GenerateFreeSystemSettingID() const;
-	bool LoadModule_Device(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Device_SetDependentDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Device_ReferenceExtension(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<InputRegistration>& inputRegistrationRequests);
-	bool LoadModule_GlobalExtension(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Extension(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Extension_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Extension_ReferenceExtension(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Extension_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_Extension_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_DefineLineGroup(IHeirarchicalStorageNode& node, unsigned int moduleID, NameToIDMap& lineGroupNameToIDMap);
-	bool LoadModule_BusInterface_DefineCELineMemory(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_DefineCELinePort(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_MapCELineInputMemory(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_MapCELineInputPort(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_MapCELineOutputMemory(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_MapCELineOutputPort(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_MapDevice(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_MapPort(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_MapLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& lineGroupNameToIDMap);
-	bool LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_BusInterface_UnmappedLineState(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_ClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_ClockSource_SetInputClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<ViewModelOpenRequest>& viewModelOpenRequests);
-	bool LoadModule_System_ExportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ExportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ExportExtension(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, const NameToIDMap& lineGroupNameToIDMap);
-	bool LoadModule_System_ExportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ExportSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ExportSystemSetting(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ImportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, const ConnectorMappingList& connectorMappings, NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ImportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ImportExtension(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap);
-	bool LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ImportSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_ImportSystemSetting(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
-	bool LoadModule_System_DefineEmbeddedROM(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_System_DefineSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID);
-	bool LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName);
-	bool LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption, bool& toggleSettingOnOption);
-	bool LoadModule_System_SelectSettingOption(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
-	bool LoadModule_System_SetClockFrequency(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
-	bool LoadModule_System_SetLineState(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
+	bool LoadModule_Device(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_SetDependentDevice(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_ReferenceDevice(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, unsigned int moduleID, std::list<InputRegistration>& inputRegistrationRequests);
+	bool LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_DefineLineGroup(IHierarchicalStorageNode& node, unsigned int moduleID, NameToIDMap& lineGroupNameToIDMap);
+	bool LoadModule_BusInterface_DefineCELineMemory(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_DefineCELinePort(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& lineGroupNameToIDMap);
+	bool LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_System_OpenViewModel(IHierarchicalStorageNode& node, unsigned int moduleID, std::list<ViewModelOpenRequest>& viewModelOpenRequests);
+	bool LoadModule_System_ExportConnector(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, const NameToIDMap& lineGroupNameToIDMap);
+	bool LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ImportConnector(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, const ConnectorMappingList& connectorMappings, NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap);
+	bool LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap);
+	bool LoadModule_System_DefineEmbeddedROM(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_System_DefineSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID);
+	bool LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName);
+	bool LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption, bool& toggleSettingOnOption);
+	bool LoadModule_System_SelectSettingOption(IHierarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
+	bool LoadModule_System_SetClockFrequency(IHierarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
+	bool LoadModule_System_SetLineState(IHierarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange);
 	bool LoadModule_ProcessViewModelQueue(const std::list<ViewModelOpenRequest>& viewModelOpenRequests, IViewModelLauncher& aviewModelLauncher);
 	bool LoadModuleInternal(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules);
 	void UnloadModuleInternal(unsigned int moduleID);
-	bool LoadSystem_Device_Settings(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
-	bool LoadSystem_Device_MapInput(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
-	bool LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
-	bool LoadSystem_System_SelectSettingOption(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap, SystemStateChange& stateChange);
-	bool LoadSystem(const std::wstring& filePath, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules);
+	bool LoadSystem_Device_Settings(IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
+	bool LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
+	bool LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap);
+	bool LoadSystem_System_SelectSettingOption(IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap, SystemStateChange& stateChange);
+	bool LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules);
 	void PushLoadModuleCurrentModuleName(const std::wstring& moduleName);
 	void PopLoadModuleCurrentModuleName();
 	void PushUnloadModuleCurrentModuleName(const std::wstring& moduleName);

@@ -3184,10 +3184,10 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::LoadState(IHeirarchicalStorageNode& node)
+void S315_5313::LoadState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if((*i)->GetName() == L"Registers")
 		{
@@ -3203,7 +3203,7 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 		}
 		else if((*i)->GetName() == L"Register")
 		{
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
 			if(nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
@@ -3334,10 +3334,10 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 		}
 		else if((*i)->GetName() == L"FIFOBuffer")
 		{
-			std::list<IHeirarchicalStorageNode*> entryList = (*i)->GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
-				IHeirarchicalStorageNode* entryNode = *entryNodeIterator;
+				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
 				unsigned int entryIndex;
 				if(entryNode->ExtractAttribute(L"index", entryIndex))
 				{
@@ -3355,10 +3355,10 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 		}
 		else if((*i)->GetName() == L"RenderSpriteDisplayCache")
 		{
-			std::list<IHeirarchicalStorageNode*> entryList = (*i)->GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
-				IHeirarchicalStorageNode* entryNode = *entryNodeIterator;
+				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
 				unsigned int entryIndex;
 				if(entryNode->ExtractAttribute(L"index", entryIndex))
 				{
@@ -3377,10 +3377,10 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 		}
 		else if((*i)->GetName() == L"RenderSpriteDisplayCellCache")
 		{
-			std::list<IHeirarchicalStorageNode*> entryList = (*i)->GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
-				IHeirarchicalStorageNode* entryNode = *entryNodeIterator;
+				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
 				unsigned int entryIndex;
 				if(entryNode->ExtractAttribute(L"index", entryIndex))
 				{
@@ -3398,10 +3398,10 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 		}
 		else if((*i)->GetName() == L"SpritePixelBuffer")
 		{
-			std::list<IHeirarchicalStorageNode*> entryList = (*i)->GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
-				IHeirarchicalStorageNode* entryNode = *entryNodeIterator;
+				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
 				unsigned int entryIndex;
 				unsigned int renderPlane;
 				if(entryNode->ExtractAttribute(L"index", entryIndex) && entryNode->ExtractAttribute(L"renderPlane", renderPlane))
@@ -3423,9 +3423,9 @@ void S315_5313::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
+void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 {
-	IHeirarchicalStorageNode& regNode = node.CreateChild(L"Registers");
+	IHierarchicalStorageNode& regNode = node.CreateChild(L"Registers");
 	std::wstring regBufferName = GetFullyQualifiedDeviceInstanceName();
 	regBufferName += L".Registers";
 	reg.SaveState(regNode, regBufferName, false);
@@ -3458,10 +3458,10 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 	//FIFO buffer registers
 	node.CreateChildHex(L"Register", fifoNextReadEntry, 1).CreateAttribute(L"name", L"FIFONextReadEntry");
 	node.CreateChildHex(L"Register", fifoNextWriteEntry, 1).CreateAttribute(L"name", L"FIFONextWriteEntry");
-	IHeirarchicalStorageNode& fifoBufferNode = node.CreateChild(L"FIFOBuffer");
+	IHierarchicalStorageNode& fifoBufferNode = node.CreateChild(L"FIFOBuffer");
 	for(unsigned int i = 0; i < fifoBufferSize; ++i)
 	{
-		IHeirarchicalStorageNode& entryNode = fifoBufferNode.CreateChild(L"FIFOBufferEntry");
+		IHierarchicalStorageNode& entryNode = fifoBufferNode.CreateChild(L"FIFOBufferEntry");
 		const FIFOBufferEntry& entry = fifoBuffer[i];
 		entryNode.CreateAttribute(L"index", i);
 		entryNode.CreateAttributeHex(L"codeRegData", entry.codeRegData.GetData(), entry.codeRegData.GetHexCharCount());
@@ -3534,10 +3534,10 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerA, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheLayerA").CreateAttribute(L"name", L"RenderPatternDataCacheLayerA");
 	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheLayerB").CreateAttribute(L"name", L"RenderPatternDataCacheLayerB");
 	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheSprite").CreateAttribute(L"name", L"RenderPatternDataCacheSprite");
-	IHeirarchicalStorageNode& renderSpriteDisplayCacheNode = node.CreateChild(L"RenderSpriteDisplayCache");
+	IHierarchicalStorageNode& renderSpriteDisplayCacheNode = node.CreateChild(L"RenderSpriteDisplayCache");
 	for(unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
 	{
-		IHeirarchicalStorageNode& entryNode = renderSpriteDisplayCacheNode.CreateChild(L"RenderSpriteDisplayCacheEntry");
+		IHierarchicalStorageNode& entryNode = renderSpriteDisplayCacheNode.CreateChild(L"RenderSpriteDisplayCacheEntry");
 		const SpriteDisplayCacheEntry& entry = renderSpriteDisplayCache[i];
 		entryNode.CreateAttribute(L"index", i);
 		entryNode.CreateAttribute(L"spriteTableIndex", entry.spriteTableIndex);
@@ -3552,10 +3552,10 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Register", renderSpriteSearchComplete).CreateAttribute(L"name", L"RenderSpriteSearchComplete");
 	node.CreateChild(L"Register", renderSpriteOverflow).CreateAttribute(L"name", L"RenderSpriteOverflow");
 	node.CreateChild(L"Register", renderSpriteNextAttributeTableEntryToRead).CreateAttribute(L"name", L"RenderSpriteNextAttributeTableEntryToRead");
-	IHeirarchicalStorageNode& renderSpriteDisplayCellCacheNode = node.CreateChild(L"RenderSpriteDisplayCellCache");
+	IHierarchicalStorageNode& renderSpriteDisplayCellCacheNode = node.CreateChild(L"RenderSpriteDisplayCellCache");
 	for(unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
 	{
-		IHeirarchicalStorageNode& entryNode = renderSpriteDisplayCellCacheNode.CreateChild(L"RenderSpriteDisplayCellCacheEntry");
+		IHierarchicalStorageNode& entryNode = renderSpriteDisplayCellCacheNode.CreateChild(L"RenderSpriteDisplayCellCacheEntry");
 		const SpriteCellDisplayCacheEntry& entry = renderSpriteDisplayCellCache[i];
 		entryNode.CreateAttribute(L"index", i);
 		entryNode.CreateAttribute(L"spriteDisplayCacheIndex", entry.spriteDisplayCacheIndex);
@@ -3570,12 +3570,12 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 	node.CreateChild(L"Register", renderSpriteDotOverflowPreviousLine).CreateAttribute(L"name", L"RenderSpriteDotOverflowPreviousLine");
 	node.CreateChild(L"Register", renderSpritePixelBufferDigitalRenderPlane).CreateAttribute(L"name", L"RenderSpritePixelBufferDigitalRenderPlane");
 	node.CreateChild(L"Register", renderSpritePixelBufferAnalogRenderPlane).CreateAttribute(L"name", L"RenderSpritePixelBufferAnalogRenderPlane");
-	IHeirarchicalStorageNode& spritePixelBufferNode = node.CreateChild(L"SpritePixelBuffer");
+	IHierarchicalStorageNode& spritePixelBufferNode = node.CreateChild(L"SpritePixelBuffer");
 	for(unsigned int renderPlane = 0; renderPlane < renderSpritePixelBufferPlaneCount; ++renderPlane)
 	{
 		for(unsigned int i = 0; i < spritePixelBufferSize; ++i)
 		{
-			IHeirarchicalStorageNode& entryNode = spritePixelBufferNode.CreateChild(L"SpritePixelBufferEntry");
+			IHierarchicalStorageNode& entryNode = spritePixelBufferNode.CreateChild(L"SpritePixelBufferEntry");
 			const SpritePixelBufferEntry& entry = spritePixelBuffer[renderPlane][i];
 			entryNode.CreateAttribute(L"renderPlane", renderPlane);
 			entryNode.CreateAttribute(L"index", i);
@@ -3610,15 +3610,15 @@ void S315_5313::SaveState(IHeirarchicalStorageNode& node) const
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::LoadSettingsState(IHeirarchicalStorageNode& node)
+void S315_5313::LoadSettingsState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring keyName = (*i)->GetName();
 		if(keyName == L"Register")
 		{
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
 			if(nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
@@ -3633,7 +3633,7 @@ void S315_5313::LoadSettingsState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::SaveSettingsState(IHeirarchicalStorageNode& node) const
+void S315_5313::SaveSettingsState(IHierarchicalStorageNode& node) const
 {
 	node.CreateChild(L"Register", videoSingleBuffering).CreateAttribute(L"name", L"VideoSingleBuffering");
 	node.CreateChild(L"Register", videoFixedAspectRatio).CreateAttribute(L"name", L"VideoFixedAspectRatio");
@@ -3643,15 +3643,15 @@ void S315_5313::SaveSettingsState(IHeirarchicalStorageNode& node) const
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::LoadDebuggerState(IHeirarchicalStorageNode& node)
+void S315_5313::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring keyName = (*i)->GetName();
 		if(keyName == L"Register")
 		{
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
 			if(nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
@@ -3683,7 +3683,7 @@ void S315_5313::LoadDebuggerState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+void S315_5313::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
 	//Debug output
 	node.CreateChild(L"Register", outputPortAccessDebugMessages).CreateAttribute(L"name", L"OutputPortAccessDebugMessages");

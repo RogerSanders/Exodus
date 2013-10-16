@@ -112,24 +112,24 @@ bool BusInterface::Construct(const BusInterfaceParams& params)
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::Construct(IHeirarchicalStorageNode& node)
+bool BusInterface::Construct(IHierarchicalStorageNode& node)
 {
 	BusInterfaceParams params;
 
 	//Load the memory map parameters
-	IHeirarchicalStorageAttribute* addressBusWidthAttribute = node.GetAttribute(L"AddressBusWidth");
+	IHierarchicalStorageAttribute* addressBusWidthAttribute = node.GetAttribute(L"AddressBusWidth");
 	if(addressBusWidthAttribute != 0)
 	{
 		params.addressBusWidthDefined = true;
 		params.addressBusWidth = addressBusWidthAttribute->ExtractValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* dataBusWidthAttribute = node.GetAttribute(L"DataBusWidth");
+	IHierarchicalStorageAttribute* dataBusWidthAttribute = node.GetAttribute(L"DataBusWidth");
 	if(dataBusWidthAttribute != 0)
 	{
 		params.dataBusWidthDefined = true;
 		params.dataBusWidth = dataBusWidthAttribute->ExtractValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* usePhysicalMemoryMapAttribute = node.GetAttribute(L"UsePhysicalMemoryMap");
+	IHierarchicalStorageAttribute* usePhysicalMemoryMapAttribute = node.GetAttribute(L"UsePhysicalMemoryMap");
 	if(usePhysicalMemoryMapAttribute != 0)
 	{
 		params.usePhysicalMemoryMapDefined = true;
@@ -137,19 +137,19 @@ bool BusInterface::Construct(IHeirarchicalStorageNode& node)
 	}
 
 	//Load the port map parameters
-	IHeirarchicalStorageAttribute* portAddressBusWidthAttribute = node.GetAttribute(L"PortAddressBusWidth");
+	IHierarchicalStorageAttribute* portAddressBusWidthAttribute = node.GetAttribute(L"PortAddressBusWidth");
 	if(portAddressBusWidthAttribute != 0)
 	{
 		params.portAddressBusWidthDefined = true;
 		params.portAddressBusWidth = portAddressBusWidthAttribute->ExtractValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* portDataBusWidthAttribute = node.GetAttribute(L"PortDataBusWidth");
+	IHierarchicalStorageAttribute* portDataBusWidthAttribute = node.GetAttribute(L"PortDataBusWidth");
 	if(portDataBusWidthAttribute != 0)
 	{
 		params.portDataBusWidthDefined = true;
 		params.portDataBusWidth = portDataBusWidthAttribute->ExtractValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* usePhysicalPortMapAttribute = node.GetAttribute(L"UsePhysicalPortMap");
+	IHierarchicalStorageAttribute* usePhysicalPortMapAttribute = node.GetAttribute(L"UsePhysicalPortMap");
 	if(usePhysicalPortMapAttribute != 0)
 	{
 		params.usePhysicalPortMapDefined = true;
@@ -568,65 +568,65 @@ void BusInterface::RemoveMapEntryFromPhysicalMap(MapEntry* mapEntry, std::vector
 //----------------------------------------------------------------------------------------
 //Memory mapping functions
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapDevice(IDevice* device, IHeirarchicalStorageNode& node)
+bool BusInterface::MapDevice(IDevice* device, IHierarchicalStorageNode& node)
 {
 	//Extract all possible parameters from the XMLEntity object
 	DeviceMappingParams params;
-	IHeirarchicalStorageAttribute* memoryMapBaseAttribute = node.GetAttribute(L"MemoryMapBase");
+	IHierarchicalStorageAttribute* memoryMapBaseAttribute = node.GetAttribute(L"MemoryMapBase");
 	if(memoryMapBaseAttribute != 0)
 	{
 		params.memoryMapBaseDefined = true;
 		params.memoryMapBase = memoryMapBaseAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* memoryMapSizeAttribute = node.GetAttribute(L"MemoryMapSize");
+	IHierarchicalStorageAttribute* memoryMapSizeAttribute = node.GetAttribute(L"MemoryMapSize");
 	if(memoryMapSizeAttribute != 0)
 	{
 		params.memoryMapSizeDefined = true;
 		params.memoryMapSize = memoryMapSizeAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* interfaceOffsetAttribute = node.GetAttribute(L"InterfaceOffset");
+	IHierarchicalStorageAttribute* interfaceOffsetAttribute = node.GetAttribute(L"InterfaceOffset");
 	if(interfaceOffsetAttribute != 0)
 	{
 		params.interfaceOffsetDefined = true;
 		params.interfaceOffset = interfaceOffsetAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* interfaceNumberAttribute = node.GetAttribute(L"InterfaceNumber");
+	IHierarchicalStorageAttribute* interfaceNumberAttribute = node.GetAttribute(L"InterfaceNumber");
 	if(interfaceNumberAttribute != 0)
 	{
 		params.interfaceNumberDefined = true;
 		params.interfaceNumber = interfaceNumberAttribute->ExtractValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* addressMaskAttribute = node.GetAttribute(L"AddressMask");
+	IHierarchicalStorageAttribute* addressMaskAttribute = node.GetAttribute(L"AddressMask");
 	if(addressMaskAttribute != 0)
 	{
 		params.addressMaskDefined = true;
 		params.addressMask = addressMaskAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* addressDiscardLowerBitCountAttribute = node.GetAttribute(L"AddressDiscardLowerBitCount");
+	IHierarchicalStorageAttribute* addressDiscardLowerBitCountAttribute = node.GetAttribute(L"AddressDiscardLowerBitCount");
 	if(addressDiscardLowerBitCountAttribute != 0)
 	{
 		params.addressDiscardLowerBitCountDefined = true;
 		params.addressDiscardLowerBitCount = addressDiscardLowerBitCountAttribute->ExtractValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* addressLineFilterAttribute = node.GetAttribute(L"AddressLineFilter");
+	IHierarchicalStorageAttribute* addressLineFilterAttribute = node.GetAttribute(L"AddressLineFilter");
 	if(addressLineFilterAttribute != 0)
 	{
 		params.addressLineFilterDefined = true;
 		params.addressLineFilter = addressLineFilterAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* ceLineConditionsAttribute = node.GetAttribute(L"CELineConditions");
+	IHierarchicalStorageAttribute* ceLineConditionsAttribute = node.GetAttribute(L"CELineConditions");
 	if(ceLineConditionsAttribute != 0)
 	{
 		params.ceLineConditionsDefined = true;
 		params.ceLineConditions = ceLineConditionsAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* addressLineMappingAttribute = node.GetAttribute(L"AddressLineMapping");
+	IHierarchicalStorageAttribute* addressLineMappingAttribute = node.GetAttribute(L"AddressLineMapping");
 	if(addressLineMappingAttribute != 0)
 	{
 		params.addressLineMappingDefined = true;
 		params.addressLineMapping = addressLineMappingAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* dataLineMappingAttribute = node.GetAttribute(L"DataLineMapping");
+	IHierarchicalStorageAttribute* dataLineMappingAttribute = node.GetAttribute(L"DataLineMapping");
 	if(dataLineMappingAttribute != 0)
 	{
 		params.dataLineMappingDefined = true;
@@ -739,65 +739,65 @@ void BusInterface::UnmapDevice(MapEntry* mapEntry)
 //----------------------------------------------------------------------------------------
 //Port mapping functions
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapPort(IDevice* device, IHeirarchicalStorageNode& node)
+bool BusInterface::MapPort(IDevice* device, IHierarchicalStorageNode& node)
 {
 	//Extract all possible parameters from the XMLEntity object
 	DeviceMappingParams params;
-	IHeirarchicalStorageAttribute* memoryMapBaseAttribute = node.GetAttribute(L"PortMapBase");
+	IHierarchicalStorageAttribute* memoryMapBaseAttribute = node.GetAttribute(L"PortMapBase");
 	if(memoryMapBaseAttribute != 0)
 	{
 		params.memoryMapBaseDefined = true;
 		params.memoryMapBase = memoryMapBaseAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* memoryMapSizeAttribute = node.GetAttribute(L"PortMapSize");
+	IHierarchicalStorageAttribute* memoryMapSizeAttribute = node.GetAttribute(L"PortMapSize");
 	if(memoryMapSizeAttribute != 0)
 	{
 		params.memoryMapSizeDefined = true;
 		params.memoryMapSize = memoryMapSizeAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* interfaceOffsetAttribute = node.GetAttribute(L"InterfaceOffset");
+	IHierarchicalStorageAttribute* interfaceOffsetAttribute = node.GetAttribute(L"InterfaceOffset");
 	if(interfaceOffsetAttribute != 0)
 	{
 		params.interfaceOffsetDefined = true;
 		params.interfaceOffset = interfaceOffsetAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* interfaceNumberAttribute = node.GetAttribute(L"InterfaceNumber");
+	IHierarchicalStorageAttribute* interfaceNumberAttribute = node.GetAttribute(L"InterfaceNumber");
 	if(interfaceNumberAttribute != 0)
 	{
 		params.interfaceNumberDefined = true;
 		params.interfaceNumber = interfaceNumberAttribute->ExtractValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* addressMaskAttribute = node.GetAttribute(L"AddressMask");
+	IHierarchicalStorageAttribute* addressMaskAttribute = node.GetAttribute(L"AddressMask");
 	if(addressMaskAttribute != 0)
 	{
 		params.addressMaskDefined = true;
 		params.addressMask = addressMaskAttribute->ExtractValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* addressDiscardLowerBitCountAttribute = node.GetAttribute(L"AddressDiscardLowerBitCount");
+	IHierarchicalStorageAttribute* addressDiscardLowerBitCountAttribute = node.GetAttribute(L"AddressDiscardLowerBitCount");
 	if(addressDiscardLowerBitCountAttribute != 0)
 	{
 		params.addressDiscardLowerBitCountDefined = true;
 		params.addressDiscardLowerBitCount = addressDiscardLowerBitCountAttribute->ExtractValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* addressLineFilterAttribute = node.GetAttribute(L"AddressLineFilter");
+	IHierarchicalStorageAttribute* addressLineFilterAttribute = node.GetAttribute(L"AddressLineFilter");
 	if(addressLineFilterAttribute != 0)
 	{
 		params.addressLineFilterDefined = true;
 		params.addressLineFilter = addressLineFilterAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* ceLineConditionsAttribute = node.GetAttribute(L"CELineConditions");
+	IHierarchicalStorageAttribute* ceLineConditionsAttribute = node.GetAttribute(L"CELineConditions");
 	if(ceLineConditionsAttribute != 0)
 	{
 		params.ceLineConditionsDefined = true;
 		params.ceLineConditions = ceLineConditionsAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* addressLineMappingAttribute = node.GetAttribute(L"AddressLineMapping");
+	IHierarchicalStorageAttribute* addressLineMappingAttribute = node.GetAttribute(L"AddressLineMapping");
 	if(addressLineMappingAttribute != 0)
 	{
 		params.addressLineMappingDefined = true;
 		params.addressLineMapping = addressLineMappingAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* dataLineMappingAttribute = node.GetAttribute(L"DataLineMapping");
+	IHierarchicalStorageAttribute* dataLineMappingAttribute = node.GetAttribute(L"DataLineMapping");
 	if(dataLineMappingAttribute != 0)
 	{
 		params.dataLineMappingDefined = true;
@@ -910,7 +910,7 @@ void BusInterface::UnmapPort(MapEntry* mapEntry)
 //----------------------------------------------------------------------------------------
 //Line mapping functions
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapLine(IDevice* sourceDevice, IDevice* targetDevice, IHeirarchicalStorageNode& node)
+bool BusInterface::MapLine(IDevice* sourceDevice, IDevice* targetDevice, IHierarchicalStorageNode& node)
 {
 	//Extract all line mapping params from the node
 	LineMappingParams params;
@@ -995,7 +995,7 @@ bool BusInterface::MapLine(IDevice* sourceDevice, IDevice* targetDevice, const L
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapLine(IDevice* sourceDevice, unsigned int targetLineGroupID, IHeirarchicalStorageNode& node)
+bool BusInterface::MapLine(IDevice* sourceDevice, unsigned int targetLineGroupID, IHierarchicalStorageNode& node)
 {
 	//Extract all line mapping params from the node
 	LineMappingParams params;
@@ -1088,7 +1088,7 @@ bool BusInterface::MapLine(IDevice* sourceDevice, unsigned int targetLineGroupID
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice, IHeirarchicalStorageNode& node)
+bool BusInterface::MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice, IHierarchicalStorageNode& node)
 {
 	//Extract all line mapping params from the node
 	LineMappingParams params;
@@ -1197,46 +1197,46 @@ bool BusInterface::IsDeviceLineMappedTo(IDevice* device, unsigned int lineNo) co
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::ExtractLineMappingParams(IHeirarchicalStorageNode& node, LineMappingParams& params) const
+bool BusInterface::ExtractLineMappingParams(IHierarchicalStorageNode& node, LineMappingParams& params) const
 {
 	//Extract all possible parameters from the XMLEntity object
-	IHeirarchicalStorageAttribute* sourceLineAttribute = node.GetAttribute(L"SourceLine");
+	IHierarchicalStorageAttribute* sourceLineAttribute = node.GetAttribute(L"SourceLine");
 	if(sourceLineAttribute != 0)
 	{
 		params.sourceLineDefined = true;
 		params.sourceLine = sourceLineAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
+	IHierarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
 	if(targetLineAttribute != 0)
 	{
 		params.targetLineDefined = true;
 		params.targetLine = targetLineAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* lineMaskANDAttribute = node.GetAttribute(L"ANDMask");
+	IHierarchicalStorageAttribute* lineMaskANDAttribute = node.GetAttribute(L"ANDMask");
 	if(lineMaskANDAttribute != 0)
 	{
 		params.lineMaskANDDefined = true;
 		params.lineMaskAND = lineMaskANDAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* lineMaskORAttribute = node.GetAttribute(L"ORMask");
+	IHierarchicalStorageAttribute* lineMaskORAttribute = node.GetAttribute(L"ORMask");
 	if(lineMaskORAttribute != 0)
 	{
 		params.lineMaskORDefined = true;
 		params.lineMaskOR = lineMaskORAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* lineMaskXORAttribute = node.GetAttribute(L"XORMask");
+	IHierarchicalStorageAttribute* lineMaskXORAttribute = node.GetAttribute(L"XORMask");
 	if(lineMaskXORAttribute != 0)
 	{
 		params.lineMaskXORDefined = true;
 		params.lineMaskXOR = lineMaskXORAttribute->ExtractHexValue<unsigned int>();
 	}
-	IHeirarchicalStorageAttribute* lineMappingAttribute = node.GetAttribute(L"LineMapping");
+	IHierarchicalStorageAttribute* lineMappingAttribute = node.GetAttribute(L"LineMapping");
 	if(lineMappingAttribute != 0)
 	{
 		params.lineMappingDefined = true;
 		params.lineMapping = lineMappingAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* declaringPartialMappingTemplate = node.GetAttribute(L"DeclaringPartialMappingTemplate");
+	IHierarchicalStorageAttribute* declaringPartialMappingTemplate = node.GetAttribute(L"DeclaringPartialMappingTemplate");
 	if(declaringPartialMappingTemplate != 0)
 	{
 		params.declaringPartialMappingTemplate = declaringPartialMappingTemplate->ExtractValue<bool>();
@@ -1405,27 +1405,27 @@ void BusInterface::AddLineEntryToPhysicalMap(LineEntry* lineEntry, std::vector<s
 //----------------------------------------------------------------------------------------
 //CE line mapping functions
 //----------------------------------------------------------------------------------------
-bool BusInterface::DefineCELineMemory(IHeirarchicalStorageNode& node)
+bool BusInterface::DefineCELineMemory(IHierarchicalStorageNode& node)
 {
 	return DefineCELine(node, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::DefineCELinePort(IHeirarchicalStorageNode& node)
+bool BusInterface::DefineCELinePort(IHierarchicalStorageNode& node)
 {
 	return DefineCELine(node, false);
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::DefineCELine(IHeirarchicalStorageNode& node, bool memoryMapping)
+bool BusInterface::DefineCELine(IHierarchicalStorageNode& node, bool memoryMapping)
 {
 	//Select the target CE line map we want to work with
 	CELineMap& targetCELineMap = memoryMapping? ceLineDefinitionsMemory: ceLineDefinitionsPort;
 
 	//Extract all the necessary attributes
 	CELineDefinition ceLineDefinition;
-	IHeirarchicalStorageAttribute* lineNameAttribute = node.GetAttribute(L"LineName");
-	IHeirarchicalStorageAttribute* bitCountAttribute = node.GetAttribute(L"BitCount");
+	IHierarchicalStorageAttribute* lineNameAttribute = node.GetAttribute(L"LineName");
+	IHierarchicalStorageAttribute* bitCountAttribute = node.GetAttribute(L"BitCount");
 	if((lineNameAttribute == 0) || (bitCountAttribute == 0))
 	{
 		return false;
@@ -1435,7 +1435,7 @@ bool BusInterface::DefineCELine(IHeirarchicalStorageNode& node, bool memoryMappi
 
 	//Extract any optional attributes
 	ceLineDefinition.defaultValueDefined = false;
-	IHeirarchicalStorageAttribute* defaultValueAttribute = node.GetAttribute(L"DefaultValue");
+	IHierarchicalStorageAttribute* defaultValueAttribute = node.GetAttribute(L"DefaultValue");
 	if(defaultValueAttribute != 0)
 	{
 		ceLineDefinition.defaultValueDefined = true;
@@ -1465,19 +1465,19 @@ bool BusInterface::DefineCELine(IHeirarchicalStorageNode& node, bool memoryMappi
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapCELineInputMemory(IDevice* device, IHeirarchicalStorageNode& node)
+bool BusInterface::MapCELineInputMemory(IDevice* device, IHierarchicalStorageNode& node)
 {
 	return MapCELineInput(device, node, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapCELineInputPort(IDevice* device, IHeirarchicalStorageNode& node)
+bool BusInterface::MapCELineInputPort(IDevice* device, IHierarchicalStorageNode& node)
 {
 	return MapCELineInput(device, node, false);
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapCELineInput(IDevice* device, IHeirarchicalStorageNode& node, bool memoryMapping)
+bool BusInterface::MapCELineInput(IDevice* device, IHierarchicalStorageNode& node, bool memoryMapping)
 {
 	//Select the target CE line maps we want to work with
 	CELineMap& targetCELineMap = ceLineDefinitionsMemory;
@@ -1509,8 +1509,8 @@ bool BusInterface::MapCELineInput(IDevice* device, IHeirarchicalStorageNode& nod
 	CELineDeviceEntry& deviceEntry = targetCELineDeviceMappings[deviceMappingIndex];
 
 	//Extract all the necessary attributes
-	IHeirarchicalStorageAttribute* busLineNameAttribute = node.GetAttribute(L"BusLineName");
-	IHeirarchicalStorageAttribute* deviceLineNameAttribute = node.GetAttribute(L"DeviceLineName");
+	IHierarchicalStorageAttribute* busLineNameAttribute = node.GetAttribute(L"BusLineName");
+	IHierarchicalStorageAttribute* deviceLineNameAttribute = node.GetAttribute(L"DeviceLineName");
 	if((busLineNameAttribute == 0) || (deviceLineNameAttribute == 0))
 	{
 		return false;
@@ -1569,19 +1569,19 @@ bool BusInterface::MapCELineInput(IDevice* device, IHeirarchicalStorageNode& nod
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapCELineOutputMemory(IDevice* device, IHeirarchicalStorageNode& node)
+bool BusInterface::MapCELineOutputMemory(IDevice* device, IHierarchicalStorageNode& node)
 {
 	return MapCELineOutput(device, node, true);
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapCELineOutputPort(IDevice* device, IHeirarchicalStorageNode& node)
+bool BusInterface::MapCELineOutputPort(IDevice* device, IHierarchicalStorageNode& node)
 {
 	return MapCELineOutput(device, node, false);
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapCELineOutput(IDevice* device, IHeirarchicalStorageNode& node, bool memoryMapping)
+bool BusInterface::MapCELineOutput(IDevice* device, IHierarchicalStorageNode& node, bool memoryMapping)
 {
 	//Select the target CE line maps we want to work with
 	CELineMap& targetCELineMap = ceLineDefinitionsMemory;
@@ -1613,8 +1613,8 @@ bool BusInterface::MapCELineOutput(IDevice* device, IHeirarchicalStorageNode& no
 	CELineDeviceEntry& deviceEntry = targetCELineDeviceMappings[deviceMappingIndex];
 
 	//Extract all the necessary attributes
-	IHeirarchicalStorageAttribute* busLineNameAttribute = node.GetAttribute(L"BusLineName");
-	IHeirarchicalStorageAttribute* deviceLineNameAttribute = node.GetAttribute(L"DeviceLineName");
+	IHierarchicalStorageAttribute* busLineNameAttribute = node.GetAttribute(L"BusLineName");
+	IHierarchicalStorageAttribute* deviceLineNameAttribute = node.GetAttribute(L"DeviceLineName");
 	if((busLineNameAttribute == 0) || (deviceLineNameAttribute == 0))
 	{
 		return false;
@@ -2253,7 +2253,7 @@ void BusInterface::UnmapCELinesForDevice(IDevice* device)
 //----------------------------------------------------------------------------------------
 //Clock source mapping functions
 //----------------------------------------------------------------------------------------
-bool BusInterface::MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, IHeirarchicalStorageNode& node)
+bool BusInterface::MapClockSource(IClockSource* sourceClock, IDevice* targetDevice, IHierarchicalStorageNode& node)
 {
 	//Extract all clock source mapping params from the node
 	ClockSourceMappingParams params;
@@ -2293,10 +2293,10 @@ bool BusInterface::MapClockSource(IClockSource* sourceClock, IDevice* targetDevi
 }
 
 //----------------------------------------------------------------------------------------
-bool BusInterface::ExtractClockSourceMappingParams(IHeirarchicalStorageNode& node, ClockSourceMappingParams& params) const
+bool BusInterface::ExtractClockSourceMappingParams(IHierarchicalStorageNode& node, ClockSourceMappingParams& params) const
 {
 	//Extract all possible parameters from the XMLEntity object
-	IHeirarchicalStorageAttribute* targetClockLineAttribute = node.GetAttribute(L"TargetClockLine");
+	IHierarchicalStorageAttribute* targetClockLineAttribute = node.GetAttribute(L"TargetClockLine");
 	if(targetClockLineAttribute != 0)
 	{
 		params.targetClockLineDefined = true;

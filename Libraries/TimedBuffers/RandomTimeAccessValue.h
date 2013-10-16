@@ -55,10 +55,10 @@ public:
 	void AddTimeslice(TimesliceType timeslice);
 
 	//Savestate functions
-	bool LoadState(IHeirarchicalStorageNode& node);
-	bool LoadTimesliceEntries(IHeirarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);
-	bool LoadWriteEntries(IHeirarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
-	bool SaveState(IHeirarchicalStorageNode& node) const;
+	bool LoadState(IHierarchicalStorageNode& node);
+	bool LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);
+	bool LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
+	bool SaveState(IHierarchicalStorageNode& node) const;
 
 private:
 	mutable boost::mutex accessLock;

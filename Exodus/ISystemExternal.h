@@ -56,8 +56,8 @@ public:
 	virtual bool LoadState(const std::wstring& filePath, FileType fileType, bool debuggerState) = 0;
 	virtual bool SaveState(const std::wstring& filePath, FileType fileType, bool debuggerState) = 0;
 	virtual StateInfo GetStateInfo(const std::wstring& filePath, FileType fileType) const = 0;
-	virtual bool LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const = 0;
-	virtual void SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false, const std::wstring& relativePathBase = L"") const = 0;
+	virtual bool LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const = 0;
+	virtual void SaveModuleRelationshipsNode(IHierarchicalStorageNode& relationshipsNode, bool saveFilePathInfo = false, const std::wstring& relativePathBase = L"") const = 0;
 
 	//Path functions
 	virtual std::wstring GetCapturePath() const = 0;
@@ -110,8 +110,8 @@ public:
 	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void BuildSettingsMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void BuildDebugMenu(IMenuSubmenu& menuSubmenu, IViewModelLauncher& viewModelLauncher) = 0;
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
-	virtual bool RestoreViewModelStateForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName, const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
+	virtual bool RestoreViewModelStateForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName, const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher) = 0;
 	virtual void DeleteSystemViews() = 0;
 
 	//Input functions

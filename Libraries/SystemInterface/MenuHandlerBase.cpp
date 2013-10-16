@@ -162,7 +162,7 @@ void MenuHandlerBase::HandleViewModelMenuItemSelect(MenuItemInternal& menuItem)
 }
 
 //----------------------------------------------------------------------------------------
-void MenuHandlerBase::RestoreMenuViewModelOpen(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& aviewModelLauncher)
+void MenuHandlerBase::RestoreMenuViewModelOpen(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& aviewModelLauncher)
 {
 	//Save a reference to the viewModelLauncher
 	if(viewModelLauncher == 0)

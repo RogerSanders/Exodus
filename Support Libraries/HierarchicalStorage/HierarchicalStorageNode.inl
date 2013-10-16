@@ -1,13 +1,13 @@
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-std::wstring HeirarchicalStorageNode::GetName() const
+std::wstring HierarchicalStorageNode::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetName(const std::wstring& aname)
+void HierarchicalStorageNode::SetName(const std::wstring& aname)
 {
 	name = aname;
 }
@@ -15,13 +15,13 @@ void HeirarchicalStorageNode::SetName(const std::wstring& aname)
 //----------------------------------------------------------------------------------------
 //Binary data functions
 //----------------------------------------------------------------------------------------
-std::wstring HeirarchicalStorageNode::GetBinaryDataBufferName() const
+std::wstring HierarchicalStorageNode::GetBinaryDataBufferName() const
 {
 	return binaryDataName.c_str();
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetBinaryDataBufferName(const std::wstring& aname)
+void HierarchicalStorageNode::SetBinaryDataBufferName(const std::wstring& aname)
 {
 	binaryDataName = aname;
 }

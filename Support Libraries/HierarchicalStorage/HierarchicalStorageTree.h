@@ -1,18 +1,18 @@
-#ifndef __HEIRARCHICALSTORAGETREE_H__
-#define __HEIRARCHICALSTORAGETREE_H__
+#ifndef __HIERARCHICALSTORAGETREE_H__
+#define __HIERARCHICALSTORAGETREE_H__
 #define XML_STATIC
 #define XML_UNICODE_WCHAR_T
 #include <expat.h>
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
-#include "HeirarchicalStorageNode.h"
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
+#include "HierarchicalStorageNode.h"
 #include <vector>
 
-class HeirarchicalStorageTree :public IHeirarchicalStorageTree
+class HierarchicalStorageTree :public IHierarchicalStorageTree
 {
 public:
 	//Constructors
-	HeirarchicalStorageTree();
-	~HeirarchicalStorageTree();
+	HierarchicalStorageTree();
+	~HierarchicalStorageTree();
 	void Initialize();
 
 	//Save/Load functions
@@ -30,19 +30,19 @@ public:
 	inline std::wstring GetErrorString() const;
 
 	//Node access functions
-	virtual IHeirarchicalStorageNode& GetRootNode() const;
-	inline std::list<IHeirarchicalStorageNode*> GetBinaryDataNodeList();
+	virtual IHierarchicalStorageNode& GetRootNode() const;
+	inline std::list<IHierarchicalStorageNode*> GetBinaryDataNodeList();
 
 protected:
 	//Error handling functions
 	virtual void GetErrorStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Node access functions
-	virtual void GetBinaryDataNodeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageNode*>>& marshaller);
+	virtual void GetBinaryDataNodeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller);
 
 private:
 	//Save/Load functions
-	bool SaveNode(IHeirarchicalStorageNode& node, Stream::IStream& stream, const std::wstring& indentPrefix) const;
+	bool SaveNode(IHierarchicalStorageNode& node, Stream::IStream& stream, const std::wstring& indentPrefix) const;
 	static void XMLCALL LoadStartElement(void *userData, const XML_Char *aname, const XML_Char **aatts);
 	static void XMLCALL LoadEndElement(void *userData, const XML_Char *aname);
 	static void XMLCALL LoadData(void *userData, const XML_Char *s, int len);
@@ -53,11 +53,11 @@ private:
 
 private:
 	StorageMode storageMode;
-	HeirarchicalStorageNode* root;
-	IHeirarchicalStorageNode* currentNodeDuringLoad;
+	HierarchicalStorageNode* root;
+	IHierarchicalStorageNode* currentNodeDuringLoad;
 	mutable std::wstring errorString;
 	bool allowSeparateBinaryData;
 };
 
-#include "HeirarchicalStorageTree.inl"
+#include "HierarchicalStorageTree.inl"
 #endif

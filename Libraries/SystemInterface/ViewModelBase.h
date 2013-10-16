@@ -50,8 +50,8 @@ public:
 	virtual int GetViewID() const;
 	std::wstring GetViewModelGroupName() const;
 	std::wstring GetViewModelName() const;
-	virtual bool SaveViewLayoutState(IHeirarchicalStorageNode& node) const;
-	virtual bool LoadViewLayoutState(IHeirarchicalStorageNode& node);
+	virtual bool SaveViewLayoutState(IHierarchicalStorageNode& node) const;
+	virtual bool LoadViewLayoutState(IHierarchicalStorageNode& node);
 	virtual bool DoesWindowHandleMatchView(void* awindowHandle) const;
 
 protected:

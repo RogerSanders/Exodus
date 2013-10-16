@@ -14,7 +14,7 @@ public:
 
 	//Initialization functions
 	virtual bool BindToDeviceContext(IDeviceContext* adeviceContext);
-	virtual bool Construct(IHeirarchicalStorageNode& node);
+	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
 	virtual void Initialize();
@@ -67,14 +67,14 @@ public:
 
 	//Savestate functions
 	virtual bool GetScreenshot(IImage& image) const;
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void SaveState(IHeirarchicalStorageNode& node) const;
-	virtual void LoadPersistentState(IHeirarchicalStorageNode& node);
-	virtual void SavePersistentState(IHeirarchicalStorageNode& node) const;
-	virtual void LoadSettingsState(IHeirarchicalStorageNode& node);
-	virtual void SaveSettingsState(IHeirarchicalStorageNode& node) const;
-	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
-	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadState(IHierarchicalStorageNode& node);
+	virtual void SaveState(IHierarchicalStorageNode& node) const;
+	virtual void LoadPersistentState(IHierarchicalStorageNode& node);
+	virtual void SavePersistentState(IHierarchicalStorageNode& node) const;
+	virtual void LoadSettingsState(IHierarchicalStorageNode& node);
+	virtual void SaveSettingsState(IHierarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
 	//CE line state functions
 	virtual unsigned int GetCELineID(const std::wstring& lineName, bool inputLine) const;
@@ -125,7 +125,7 @@ public:
 	virtual AssemblyHandle GetAssemblyHandle() const;
 	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
 
 protected:
@@ -158,7 +158,7 @@ protected:
 	virtual void GetKeyCodeNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int keyCodeID) const;
 
 	//Window functions
-	virtual void RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher);
 
 private:

@@ -49,7 +49,7 @@ References:
 \*--------------------------------------------------------------------------------------*/
 #ifndef __S315_5313_H__
 #define __S315_5313_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 #include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
@@ -129,19 +129,19 @@ public:
 
 	//Savestate functions
 	virtual bool GetScreenshot(IImage& targetImage) const;
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void SaveState(IHeirarchicalStorageNode& node) const;
-	virtual void LoadSettingsState(IHeirarchicalStorageNode& node);
-	virtual void SaveSettingsState(IHeirarchicalStorageNode& node) const;
-	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
-	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadState(IHierarchicalStorageNode& node);
+	virtual void SaveState(IHierarchicalStorageNode& node) const;
+	virtual void LoadSettingsState(IHierarchicalStorageNode& node);
+	virtual void SaveSettingsState(IHierarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
 protected:
 	//Window functions
 	void CreateMenuHandlers();
 	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
 
 private:

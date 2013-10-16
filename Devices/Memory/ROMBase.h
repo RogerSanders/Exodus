@@ -10,7 +10,7 @@ public:
 	virtual ~ROMBase();
 
 	//Initialization functions
-	virtual bool Construct(IHeirarchicalStorageNode& node);
+	virtual bool Construct(IHierarchicalStorageNode& node);
 
 	//Memory size functions
 	virtual unsigned int GetMemoryEntrySizeInBytes() const;

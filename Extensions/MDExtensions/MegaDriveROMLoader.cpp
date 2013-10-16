@@ -1,8 +1,8 @@
 #include "MegaDriveROMLoader.h"
 #include "FileOpenMenuHandler.h"
-#include "HeirarchicalStorage/HeirarchicalStorage.pkg"
+#include "HierarchicalStorage/HierarchicalStorage.pkg"
 #include "DataConversion/DataConversion.pkg"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -71,7 +71,7 @@ void MegaDriveROMLoader::LoadROMFile()
 
 	//Build a module definition for the target ROM file
 	std::wstring romName;
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	if(!BuildROMFileModuleFromFile(selectedFilePath, tree.GetRootNode(), romName))
 	{
 		return;
@@ -180,7 +180,7 @@ void MegaDriveROMLoader::UnloadROMFileFromModulePath(const std::wstring& targetR
 //----------------------------------------------------------------------------------------
 //ROM module generation
 //----------------------------------------------------------------------------------------
-bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath, IHeirarchicalStorageNode& node, std::wstring& romName)
+bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath, IHierarchicalStorageNode& node, std::wstring& romName)
 {
 	//##TODO## Add control over these features. They should be added as system settings
 	//for this extension.
@@ -262,7 +262,7 @@ bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath
 	node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"ROM16").CreateAttribute(L"InstanceName", L"ROM").CreateAttribute(L"BinaryDataPresent", true).CreateAttribute(L"SeparateBinaryData", true).SetData(filePath);
 	if(sramPresent)
 	{
-		IHeirarchicalStorageNode& ramDeviceNode = node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"RAM").CreateAttribute(L"InstanceName", L"SRAM").CreateAttributeHex(L"InterfaceSize", sramByteSize, 0).CreateAttribute(L"RepeatData", true).CreateAttribute(L"PersistentData", true);
+		IHierarchicalStorageNode& ramDeviceNode = node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"RAM").CreateAttribute(L"InstanceName", L"SRAM").CreateAttributeHex(L"InterfaceSize", sramByteSize, 0).CreateAttribute(L"RepeatData", true).CreateAttribute(L"PersistentData", true);
 		if(!initialRAMData.empty())
 		{
 			ramDeviceNode.InsertBinaryData(initialRAMData, L"RAM.InitialData", true);
@@ -309,7 +309,7 @@ bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath
 }
 
 //----------------------------------------------------------------------------------------
-bool MegaDriveROMLoader::SaveOutputROMModule(IHeirarchicalStorageTree& tree, const std::wstring& filePath)
+bool MegaDriveROMLoader::SaveOutputROMModule(IHierarchicalStorageTree& tree, const std::wstring& filePath)
 {
 	//Ensure the target output directory exists
 	std::wstring fileDir = PathGetDirectory(filePath);

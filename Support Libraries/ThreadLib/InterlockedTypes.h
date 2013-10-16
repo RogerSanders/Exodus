@@ -1,6 +1,6 @@
 #ifndef __INTERLOCKEDTYPES_H__
 #define __INTERLOCKEDTYPES_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 
 //In VS2005, these intrinsics are defined within the WinNT.h file as well as intrin.h, so
 //including both results in a compilation error. We work around that issue here by forcing

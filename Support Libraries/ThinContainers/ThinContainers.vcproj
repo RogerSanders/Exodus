@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="ThinList"
+	Name="ThinContainers"
 	ProjectGUID="{E39955EE-E2B3-4D00-A72F-7B7479223547}"
-	RootNamespace="ThinList"
+	RootNamespace="ThinContainers"
 	>
 	<Platforms>
 		<Platform
@@ -504,7 +504,7 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\ThinList.pkg"
+			RelativePath=".\ThinContainers.pkg"
 			>
 		</File>
 	</Files>

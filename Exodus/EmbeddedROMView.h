@@ -1,7 +1,7 @@
 #include "System.h"
 #ifndef __SYSTEM_INPUTMAPPINGVIEW_H__
 #define __SYSTEM_INPUTMAPPINGVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 
 class System::EmbeddedROMView :public ViewBase

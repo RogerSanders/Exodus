@@ -1,5 +1,5 @@
 #include "YM2612.h"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "DebugMenuHandler.h"
 
 //----------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ void YM2612::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& vi
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void YM2612::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	Device::RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 	CreateMenuHandlers();

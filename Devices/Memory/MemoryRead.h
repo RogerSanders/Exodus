@@ -19,7 +19,7 @@ public:
 	~MemoryRead();
 
 	//Initialization functions
-	virtual bool Construct(IHeirarchicalStorageNode& node);
+	virtual bool Construct(IHierarchicalStorageNode& node);
 
 	//Memory size functions
 	virtual unsigned int GetMemoryEntrySizeInBytes() const = 0;
@@ -29,7 +29,7 @@ public:
 	//Window functions
 	void CreateMenuHandlers();
 	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
 
 protected:

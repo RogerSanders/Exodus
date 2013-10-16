@@ -143,7 +143,7 @@ std::wstring IDevice::GetKeyCodeName(unsigned int keyCodeID) const
 //----------------------------------------------------------------------------------------
 //Window functions
 //----------------------------------------------------------------------------------------
-void IDevice::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void IDevice::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	RestoreViewModelStateInternal(InteropSupport::STLObjectSource<std::wstring>(viewModelGroupName), InteropSupport::STLObjectSource<std::wstring>(viewModelName), node, xpos, ypos, width, height, viewModelLauncher);
 }

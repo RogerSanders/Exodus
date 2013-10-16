@@ -52,12 +52,12 @@ bool ClockSource::Construct(const ClockSourceParams& params)
 }
 
 //----------------------------------------------------------------------------------------
-bool ClockSource::Construct(IHeirarchicalStorageNode& node)
+bool ClockSource::Construct(IHierarchicalStorageNode& node)
 {
 	ClockSourceParams params;
 
 	//Load the clock type parameter
-	IHeirarchicalStorageAttribute* clockTypeAttribute = node.GetAttribute(L"ClockType");
+	IHierarchicalStorageAttribute* clockTypeAttribute = node.GetAttribute(L"ClockType");
 	if(clockTypeAttribute != 0)
 	{
 		std::wstring clockTypeString = clockTypeAttribute->GetValue();
@@ -71,7 +71,7 @@ bool ClockSource::Construct(IHeirarchicalStorageNode& node)
 	}
 
 	//Load the initial value parameter
-	IHeirarchicalStorageAttribute* initialValueAttribute = node.GetAttribute(L"InitialValue");
+	IHierarchicalStorageAttribute* initialValueAttribute = node.GetAttribute(L"InitialValue");
 	if(initialValueAttribute != 0)
 	{
 		params.initialValueDefined = true;

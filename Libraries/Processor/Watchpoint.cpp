@@ -70,7 +70,7 @@ bool Watchpoint::PassesWriteCondition(unsigned int data)
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void Watchpoint::LoadState(IHeirarchicalStorageNode& node)
+void Watchpoint::LoadState(IHierarchicalStorageNode& node)
 {
 	Breakpoint::LoadState(node);
 
@@ -93,7 +93,7 @@ void Watchpoint::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::SaveState(IHeirarchicalStorageNode& node) const
+void Watchpoint::SaveState(IHierarchicalStorageNode& node) const
 {
 	Breakpoint::SaveState(node);
 

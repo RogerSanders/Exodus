@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-std::wstring IHeirarchicalStorageAttribute::GetName() const
+std::wstring IHierarchicalStorageAttribute::GetName() const
 {
 	std::wstring result;
 	GetNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
@@ -9,7 +9,7 @@ std::wstring IHeirarchicalStorageAttribute::GetName() const
 }
 
 //----------------------------------------------------------------------------------------
-void IHeirarchicalStorageAttribute::SetName(const std::wstring& aname)
+void IHierarchicalStorageAttribute::SetName(const std::wstring& aname)
 {
 	SetNameInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
 }
@@ -17,7 +17,7 @@ void IHeirarchicalStorageAttribute::SetName(const std::wstring& aname)
 //----------------------------------------------------------------------------------------
 //Value read functions
 //----------------------------------------------------------------------------------------
-std::wstring IHeirarchicalStorageAttribute::GetValue() const
+std::wstring IHierarchicalStorageAttribute::GetValue() const
 {
 	ResetInternalStreamPosition();
 	Stream::IStream& buffer = GetInternalStream();
@@ -28,7 +28,7 @@ std::wstring IHeirarchicalStorageAttribute::GetValue() const
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> T IHeirarchicalStorageAttribute::ExtractValue()
+template<class T> T IHierarchicalStorageAttribute::ExtractValue()
 {
 	ResetInternalStreamPosition();
 	Stream::IStream& buffer = GetInternalStream();
@@ -39,7 +39,7 @@ template<class T> T IHeirarchicalStorageAttribute::ExtractValue()
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> T IHeirarchicalStorageAttribute::ExtractHexValue()
+template<class T> T IHierarchicalStorageAttribute::ExtractHexValue()
 {
 	ResetInternalStreamPosition();
 	Stream::IStream& buffer = GetInternalStream();
@@ -50,7 +50,7 @@ template<class T> T IHeirarchicalStorageAttribute::ExtractHexValue()
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void IHeirarchicalStorageAttribute::ExtractValue(T& target)
+template<class T> void IHierarchicalStorageAttribute::ExtractValue(T& target)
 {
 	ResetInternalStreamPosition();
 	Stream::IStream& buffer = GetInternalStream();
@@ -59,7 +59,7 @@ template<class T> void IHeirarchicalStorageAttribute::ExtractValue(T& target)
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void IHeirarchicalStorageAttribute::ExtractHexValue(T& target)
+template<class T> void IHierarchicalStorageAttribute::ExtractHexValue(T& target)
 {
 	ResetInternalStreamPosition();
 	Stream::IStream& buffer = GetInternalStream();
@@ -70,7 +70,7 @@ template<class T> void IHeirarchicalStorageAttribute::ExtractHexValue(T& target)
 //----------------------------------------------------------------------------------------
 //Value write functions
 //----------------------------------------------------------------------------------------
-template<class T> void IHeirarchicalStorageAttribute::SetValue(const T& adata)
+template<class T> void IHierarchicalStorageAttribute::SetValue(const T& adata)
 {
 	ResetInternalStreamPosition();
 	EmptyInternalStream();
@@ -80,7 +80,7 @@ template<class T> void IHeirarchicalStorageAttribute::SetValue(const T& adata)
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void IHeirarchicalStorageAttribute::InsertValue(const T& adata)
+template<class T> void IHierarchicalStorageAttribute::InsertValue(const T& adata)
 {
 	Stream::IStream& buffer = GetInternalStream();
 	Stream::ViewText bufferView(buffer);
@@ -88,7 +88,7 @@ template<class T> void IHeirarchicalStorageAttribute::InsertValue(const T& adata
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void IHeirarchicalStorageAttribute::InsertHexValue(const T& adata, unsigned int length)
+template<class T> void IHierarchicalStorageAttribute::InsertHexValue(const T& adata, unsigned int length)
 {
 	Stream::IStream& buffer = GetInternalStream();
 	Stream::ViewText bufferView(buffer);

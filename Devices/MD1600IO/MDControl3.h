@@ -56,8 +56,8 @@ public:
 	virtual void HandleInputKeyUp(unsigned int keyCodeID);
 
 	//Savestate functions
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadState(IHierarchicalStorageNode& node);
+	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
 	enum Button

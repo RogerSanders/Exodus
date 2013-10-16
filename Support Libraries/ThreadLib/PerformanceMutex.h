@@ -1,6 +1,6 @@
 #ifndef __PERFORMANCEMUTEX_H__
 #define __PERFORMANCEMUTEX_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "InterlockedTypes.h"
 
 //##NOTE## Tests have shown no significant performance improvements with these locking

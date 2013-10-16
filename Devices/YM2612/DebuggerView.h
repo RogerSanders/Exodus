@@ -1,7 +1,7 @@
 #include "YM2612.h"
 #ifndef __YM2612_DEBUGGERVIEW_H__
 #define __YM2612_DEBUGGERVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 
 class YM2612::DebuggerView :public ViewBase

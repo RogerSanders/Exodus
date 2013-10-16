@@ -675,10 +675,10 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void SN76489::LoadState(IHeirarchicalStorageNode& node)
+void SN76489::LoadState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		//Clock settings
 		if((*i)->GetName() == L"ExternalClockRate")
@@ -745,7 +745,7 @@ void SN76489::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void SN76489::SaveState(IHeirarchicalStorageNode& node) const
+void SN76489::SaveState(IHierarchicalStorageNode& node) const
 {
 	//Clock settings
 	node.CreateChild(L"ExternalClockRate").SetData(externalClockRate);
@@ -763,7 +763,7 @@ void SN76489::SaveState(IHeirarchicalStorageNode& node) const
 	//Render data
 	for(unsigned int i = 0; i < channelCount; ++i)
 	{
-		IHeirarchicalStorageNode& renderDataState = node.CreateChild(L"RenderData");
+		IHierarchicalStorageNode& renderDataState = node.CreateChild(L"RenderData");
 		renderDataState.CreateAttribute(L"ChannelNo", i);
 		renderDataState.CreateAttributeHex(L"InitialToneCycles", channelRenderData[i].initialToneCycles, (toneRegisterBitCount+3)/4);
 		renderDataState.CreateAttributeHex(L"RemainingToneCycles", channelRenderData[i].remainingToneCycles, (toneRegisterBitCount+3)/4);
