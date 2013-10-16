@@ -20,9 +20,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\SymbolGeneration.vsprops;..\IntermediateDirectory.vsprops;..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\DebugOptimization.vsprops;..\Build\PropertySheets\IntermediateDirectory.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx86.vsprops;..\Build\PropertySheets\OutputNameExodusDebug.vsprops;..\Build\PropertySheets\ExodusManifestx86.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeDebugDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -42,19 +41,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;EX_DLLINTERFACE"
-				MinimalRebuild="true"
-				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -67,23 +53,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName) - Debug.exe"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeForWindows98="1"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -106,9 +81,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\SymbolGeneration.vsprops;..\IntermediateDirectory.vsprops;..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\DebugOptimization.vsprops;..\Build\PropertySheets\IntermediateDirectory.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx64.vsprops;..\Build\PropertySheets\OutputNameExodusDebug.vsprops;..\Build\PropertySheets\ExodusManifestx64.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeDebugDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -125,23 +99,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;EX_DLLINTERFACE"
-				MinimalRebuild="true"
-				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -154,23 +114,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName) - Debug.exe"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeForWindows98="1"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifestx64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -193,9 +142,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\IntermediateDirectory.vsprops;..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\IntermediateDirectory.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx86.vsprops;..\Build\PropertySheets\ExodusManifestx86.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -216,20 +164,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="_SECURE_SCL=0;WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -242,25 +176,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -283,9 +204,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\IntermediateDirectory.vsprops;..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\IntermediateDirectory.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx64.vsprops;..\Build\PropertySheets\ExodusManifestx64.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -303,24 +223,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="_SECURE_SCL=0;WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -333,25 +238,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifestx64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -374,9 +266,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug - Static|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\SymbolGeneration.vsprops;..\IntermediateDirectory.vsprops;..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\DebugOptimization.vsprops;..\Build\PropertySheets\IntermediateDirectory.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx86.vsprops;..\Build\PropertySheets\OutputNameExodusDebug.vsprops;..\Build\PropertySheets\ExodusManifestx86.vsprops;..\Build\PropertySheets\RuntimeDebug.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -396,19 +287,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
-				MinimalRebuild="true"
-				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -421,23 +299,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName) - Debug.exe"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeForWindows98="1"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -460,9 +327,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug - Static|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\SymbolGeneration.vsprops;..\IntermediateDirectory.vsprops;..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\DebugOptimization.vsprops;..\Build\PropertySheets\IntermediateDirectory.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx64.vsprops;..\Build\PropertySheets\OutputNameExodusDebug.vsprops;..\Build\PropertySheets\ExodusManifestx64.vsprops;..\Build\PropertySheets\RuntimeDebug.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -479,23 +345,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
-				MinimalRebuild="true"
-				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -508,23 +360,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName) - Debug.exe"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeForWindows98="1"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifestx64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -547,9 +388,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release - Static|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\IntermediateDirectory.vsprops;..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\IntermediateDirectory.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx86.vsprops;..\Build\PropertySheets\ExodusManifestx86.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeRelease.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -570,20 +410,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				ExceptionHandling="1"
-				RuntimeLibrary="0"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -596,25 +422,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -637,9 +450,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release - Static|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\IntermediateDirectory.vsprops;..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\IntermediateDirectory.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx64.vsprops;..\Build\PropertySheets\ExodusManifestx64.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeRelease.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -657,24 +469,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				ExceptionHandling="1"
-				RuntimeLibrary="0"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -687,25 +484,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifestx64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -729,9 +513,9 @@
 		<Configuration
 			Name="Release - PGOInstrument|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOInstrument.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\PGOInstrument.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx86.vsprops;..\Build\PropertySheets\ExodusManifestx86.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -750,20 +534,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -776,26 +546,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="2"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -819,9 +575,9 @@
 		<Configuration
 			Name="Release - PGOInstrument|x64"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOInstrument.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\PGOInstrument.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx64.vsprops;..\Build\PropertySheets\ExodusManifestx64.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -837,24 +593,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -867,26 +608,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="2"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifestx64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -908,11 +635,11 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release - PGOOptimise|Win32"
+			Name="Release - PGOOptimize|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOOptimize.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\PGOOptimize.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx86.vsprops;..\Build\PropertySheets\ExodusManifestx86.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="3"
 			ExcludeBuckets="7"
 			>
 			<Tool
@@ -932,20 +659,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)\Support Libraries&quot;;..\Libraries\SystemInterface;..\Libraries\Processor;&quot;.\Header Files&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -958,26 +671,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="3"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -999,11 +698,11 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release - PGOOptimise|x64"
+			Name="Release - PGOOptimize|x64"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOOptimize.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\PGOOptimize.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx64.vsprops;..\Build\PropertySheets\ExodusManifestx64.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="3"
 			ExcludeBuckets="7"
 			>
 			<Tool
@@ -1020,24 +719,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)\Support Libraries&quot;;..\Libraries\SystemInterface;..\Libraries\Processor;&quot;.\Header Files&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1050,26 +734,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="3"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifestx64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -1093,9 +763,9 @@
 		<Configuration
 			Name="Release - PGOUpdate|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOUpdate.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\PGOUpdate.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx86.vsprops;..\Build\PropertySheets\ExodusManifestx86.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="4"
 			ExcludeBuckets="7"
 			>
 			<Tool
@@ -1115,20 +785,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)\Support Libraries&quot;;..\Libraries\SystemInterface;..\Libraries\Processor;&quot;.\Header Files&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1141,26 +797,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="4"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -1184,9 +826,9 @@
 		<Configuration
 			Name="Release - PGOUpdate|x64"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGOUpdate.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\PGOUpdate.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx64.vsprops;..\Build\PropertySheets\ExodusManifestx64.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="4"
 			ExcludeBuckets="7"
 			>
 			<Tool
@@ -1203,24 +845,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)\Support Libraries&quot;;..\Libraries\SystemInterface;..\Libraries\Processor;&quot;.\Header Files&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1233,26 +860,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="4"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifestx64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -1274,9 +887,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release - PGORebuildOptimised|Win32"
+			Name="Release - PGORebuildOptimized|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGORebuildOptimized.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\PGORebuildOptimized.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx86.vsprops;..\Build\PropertySheets\ExodusManifestx86.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -1297,20 +910,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1323,25 +922,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifest.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -1363,9 +949,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release - PGORebuildOptimised|x64"
+			Name="Release - PGORebuildOptimized|x64"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\IncludeReference.vsprops;..\CompileWarningLevel.vsprops;..\PGORebuildOptimized.vsprops;..\SymbolGeneration.vsprops;..\ReleaseOptimization.vsprops;..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\Build\PropertySheets\IncludeReference.vsprops;..\Build\PropertySheets\CompileWarningLevel.vsprops;..\Build\PropertySheets\SymbolGeneration.vsprops;..\Build\PropertySheets\ReleaseOptimization.vsprops;..\Build\PropertySheets\PGORebuildOptimized.vsprops;..\Build\PropertySheets\OutputDirectoryExodus.vsprops;..\Build\PropertySheets\ThirdDirectoryPathsx64.vsprops;..\Build\PropertySheets\ExodusManifestx64.vsprops;..\Build\PropertySheets\ExportExodusDLLInterface.vsprops;..\Build\PropertySheets\RuntimeReleaseDLL.vsprops;..\Build\PropertySheets\ExodusAdditionalLibs.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -1383,24 +969,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;EX_DLLINTERFACE"
-				ExceptionHandling="1"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1413,25 +984,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
-				OutputFile="$(SolutionDir)\$(ProjectName).exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(SolutionDir)\$(TargetName).pdb"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="manifestx64.xml"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"

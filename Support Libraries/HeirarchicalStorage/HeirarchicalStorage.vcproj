@@ -20,7 +20,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\LibraryDebugx86.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -40,13 +40,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -59,7 +52,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName)d.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -80,7 +72,7 @@
 		<Configuration
 			Name="Debug|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\LibraryDebugx64.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -97,17 +89,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -120,7 +104,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName)d.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -141,7 +124,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\LibraryReleasex86.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -162,11 +145,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_SECURE_SCL=0;_STATICLIB"
-				RuntimeLibrary="2"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -199,7 +177,7 @@
 		<Configuration
 			Name="Release|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectory.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\LibraryReleasex64.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -217,15 +195,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_SECURE_SCL=0;_STATICLIB"
-				RuntimeLibrary="2"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -258,7 +230,7 @@
 		<Configuration
 			Name="Release - PGOInstrument|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\LibraryPGOInstrumentx86.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -279,11 +251,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_SECURE_SCL=0;_STATICLIB"
-				RuntimeLibrary="2"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -316,7 +283,7 @@
 		<Configuration
 			Name="Release - PGOInstrument|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\LibraryPGOInstrumentx64.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -334,15 +301,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_SECURE_SCL=0;_STATICLIB"
-				RuntimeLibrary="2"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -375,7 +336,7 @@
 		<Configuration
 			Name="Release - PGORebuildOptimized|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\LibraryPGORebuildOptimizedx86.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -396,11 +357,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_SECURE_SCL=0;_STATICLIB"
-				RuntimeLibrary="2"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -433,7 +389,7 @@
 		<Configuration
 			Name="Release - PGORebuildOptimized|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\LibraryPGORebuildOptimizedx64.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -451,15 +407,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="_SECURE_SCL=0;_STATICLIB"
-				RuntimeLibrary="2"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

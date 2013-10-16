@@ -20,7 +20,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginDebugx86.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -40,15 +40,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -61,12 +52,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				OutputFile="$(OutDir)\$(ProjectName).dll"
-				GenerateDebugInformation="true"
-				LargeAddressAware="2"
-				OptimizeForWindows98="1"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -96,7 +81,7 @@
 		<Configuration
 			Name="Debug|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginDebugx64.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -113,19 +98,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -138,12 +113,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				OutputFile="$(OutDir)\$(ProjectName).dll"
-				GenerateDebugInformation="true"
-				LargeAddressAware="2"
-				OptimizeForWindows98="1"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -172,9 +141,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginReleasex86.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -195,16 +163,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="_SECURE_SCL=0;EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -217,14 +175,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -254,7 +204,7 @@
 		<Configuration
 			Name="Release|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginReleasex64.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -272,20 +222,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="_SECURE_SCL=0;EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -298,14 +237,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -335,7 +266,7 @@
 		<Configuration
 			Name="Debug - Static|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryStaticModule.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginDebugx86Static.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -355,15 +286,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="_STATICLIB"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -376,8 +298,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName)d.lib"
-				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -398,7 +318,7 @@
 		<Configuration
 			Name="Debug - Static|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryStaticModule.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginDebugx64Static.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -415,19 +335,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="_STATICLIB"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -440,8 +350,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName)d.lib"
-				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -462,7 +370,7 @@
 		<Configuration
 			Name="Release - Static|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryStaticModule.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginReleasex86Static.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -483,16 +391,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="_STATICLIB"
-				RuntimeLibrary="0"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -505,7 +403,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -526,7 +423,7 @@
 		<Configuration
 			Name="Release - Static|x64"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\IntermediateDirectory.vsprops;..\..\OutputDirectoryStaticModule.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginReleasex64Static.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -544,20 +441,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="_STATICLIB"
-				RuntimeLibrary="0"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -570,7 +456,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -591,9 +476,9 @@
 		<Configuration
 			Name="Release - PGOInstrument|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginPGOInstrumentx86.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -612,16 +497,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -634,15 +509,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="2"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -672,9 +538,9 @@
 		<Configuration
 			Name="Release - PGOInstrument|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOInstrument.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginPGOInstrumentx64.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -690,20 +556,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -716,15 +571,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="2"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -752,11 +598,11 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release - PGOOptimise|Win32"
+			Name="Release - PGOOptimize|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOOptimize.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginPGOOptimizex86.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="3"
 			ExcludeBuckets="7"
 			>
 			<Tool
@@ -776,16 +622,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)\Support Libraries&quot;;..\..\Libraries\Processor;..\..\Libraries\SystemInterface;&quot;..\..\Exodus\Header Files&quot;"
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -798,15 +634,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="3"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -834,11 +661,11 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release - PGOOptimise|x64"
+			Name="Release - PGOOptimize|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOOptimize.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginPGOOptimizex64.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="3"
 			ExcludeBuckets="7"
 			>
 			<Tool
@@ -855,20 +682,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)\Support Libraries&quot;;..\..\Libraries\Processor;..\..\Libraries\SystemInterface;&quot;..\..\Exodus\Header Files&quot;"
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -881,15 +697,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="3"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -919,9 +726,9 @@
 		<Configuration
 			Name="Release - PGOUpdate|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOUpdate.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginPGOUpdatex86.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="4"
 			ExcludeBuckets="7"
 			>
 			<Tool
@@ -941,16 +748,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)\Support Libraries&quot;;..\..\Libraries\Processor;..\..\Libraries\SystemInterface;&quot;..\..\Exodus\Header Files&quot;"
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -963,15 +760,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="4"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -1001,9 +789,9 @@
 		<Configuration
 			Name="Release - PGOUpdate|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGOUpdate.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginPGOUpdatex64.vsprops"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="4"
 			ExcludeBuckets="7"
 			>
 			<Tool
@@ -1020,20 +808,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)\Support Libraries&quot;;..\..\Libraries\Processor;..\..\Libraries\SystemInterface;&quot;..\..\Exodus\Header Files&quot;"
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1046,15 +823,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="4"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -1082,9 +850,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release - PGORebuildOptimised|Win32"
+			Name="Release - PGORebuildOptimized|Win32"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx86.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginPGORebuildOptimizedx86.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -1105,16 +873,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1127,14 +885,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -1162,9 +912,9 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release - PGORebuildOptimised|x64"
+			Name="Release - PGORebuildOptimized|x64"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\IncludeReference.vsprops;..\..\CompileWarningLevel.vsprops;..\..\PGORebuildOptimized.vsprops;..\..\SymbolGeneration.vsprops;..\..\ReleaseOptimization.vsprops;..\..\OutputDirectoryModule.vsprops;..\..\ExportExodusDLLInterface.vsprops;..\..\ThirdDirectoryPathsx64.vsprops"
+			InheritedPropertySheets="..\..\Build\PropertySheets\PluginPGORebuildOptimizedx64.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -1182,20 +932,9 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="EX_DLLINTERFACE"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -1208,14 +947,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				LargeAddressAware="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -1252,96 +983,6 @@
 			<File
 				RelativePath=".\YM2612.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOInstrument|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOInstrument|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOOptimise|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOOptimise|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOUpdate|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOUpdate|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGORebuildOptimised|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGORebuildOptimised|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\YM2612.h"
@@ -1358,106 +999,6 @@
 			<File
 				RelativePath=".\YM2612_Wnd.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOInstrument|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOInstrument|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOOptimise|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOOptimise|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOUpdate|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGOUpdate|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGORebuildOptimised|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release - PGORebuildOptimised|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-						KeepComments="false"
-						ShowIncludes="false"
-					/>
-				</FileConfiguration>
 			</File>
 			<Filter
 				Name="DebugMenuHandler"

@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="ReleaseOptimization"
+	WholeProgramOptimization="65535"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -11,8 +12,13 @@
 		FavorSizeOrSpeed="1"
 		OmitFramePointers="true"
 		WholeProgramOptimization="true"
-		PreprocessorDefinitions="_SECURE_SCL=0"
+		PreprocessorDefinitions="_SECURE_SCL=0;NDEBUG;WIN32;_WINDOWS"
 		BufferSecurityCheck="false"
+	/>
+	<Tool
+		Name="VCLibrarianTool"
+		AdditionalOptions="/LTCG"
+		IgnoreAllDefaultLibraries="true"
 	/>
 	<Tool
 		Name="VCLinkerTool"

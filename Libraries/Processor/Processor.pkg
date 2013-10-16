@@ -9,6 +9,7 @@
 //included when the public interface files for this package are included below, they need
 //to be included here too, otherwise a dependent library may not be linked if this
 //package is used as a private package of another.
+#include "SystemInterface/SystemInterface.pkg"
 #include "Device/Device.pkg"
 #include "ThinList/ThinList.pkg"
 #include "DataConversion/DataConversion.pkg"
@@ -26,12 +27,14 @@
 #define PACKAGE_LINK_LIBS_ONLY
 //List all dependencies here
 #include "WindowFunctions/WindowFunctions.pkg"
-#include "SharedState/SharedState.pkg"
+#include "ThreadLib/ThreadLib.pkg"
+#include "Stream/Stream.pkg"
 #undef PACKAGE_LINK_LIBS_ONLY
 #else
 //List all dependencies here again
 #include "WindowFunctions/WindowFunctions.pkg"
-#include "SharedState/SharedState.pkg"
+#include "ThreadLib/ThreadLib.pkg"
+#include "Stream/Stream.pkg"
 #endif
 #endif
 
