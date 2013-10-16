@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="PluginReleasex64Static"
+	InheritedPropertySheets=".\IncludeReference.vsprops;.\CompileWarningLevel.vsprops;.\SymbolGeneration.vsprops;.\ReleaseOptimization.vsprops;.\IntermediateDirectory.vsprops;.\OutputDirectoryStaticModule.vsprops;.\ExportExodusStaticInterface.vsprops;.\ThirdDirectoryPathsx64.vsprops;.\RuntimeRelease.vsprops;.\StaticLibDefines.vsprops"
+	>
+</VisualStudioPropertySheet>
