@@ -456,12 +456,12 @@ void MDControl3::HandleInputKeyUp(unsigned int keyCodeID)
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void MDControl3::LoadState(IHeirarchicalStorageNode& node)
+void MDControl3::LoadState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		IHeirarchicalStorageNode& node = *(*i);
+		IHierarchicalStorageNode& node = *(*i);
 		std::wstring nodeName = node.GetName();
 		if(nodeName == L"LineInputStateTH")
 		{
@@ -497,7 +497,7 @@ void MDControl3::LoadState(IHeirarchicalStorageNode& node)
 		}
 		else if(nodeName == L"ButtonPressed")
 		{
-			IHeirarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
+			IHierarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
 			if(buttonNumberAttribute != 0)
 			{
 				unsigned int buttonNo = buttonNumberAttribute->ExtractValue<unsigned int>();
@@ -517,7 +517,7 @@ void MDControl3::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void MDControl3::SaveState(IHeirarchicalStorageNode& node) const
+void MDControl3::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.CreateChild(L"LineInputStateTH", lineInputStateTH);
 	node.CreateChild(L"LineAssertedD0", lineAssertedD0);

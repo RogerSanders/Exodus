@@ -9,7 +9,7 @@ a dramatic performance increase.
 #define __FILE_H__
 #include <string>
 #include <vector>
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 namespace Stream {
 
 class File :public Stream<IStream>

@@ -1,6 +1,6 @@
 #ifndef __PERFORMANCEMUTEXREENTRANT_H__
 #define __PERFORMANCEMUTEXREENTRANT_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "InterlockedTypes.h"
 
 struct PerformanceMutexReentrant

@@ -1,5 +1,5 @@
 #include "CrashReport.h"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include <Dbghelp.h>
 #include "ZIP/ZIP.pkg"
 #include "ZIP/ZIPArchive.h"

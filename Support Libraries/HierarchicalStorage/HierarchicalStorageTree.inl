@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------
 //Error handling functions
 //----------------------------------------------------------------------------------------
-std::wstring HeirarchicalStorageTree::GetErrorString() const
+std::wstring HierarchicalStorageTree::GetErrorString() const
 {
 	return errorString;
 }
@@ -9,9 +9,9 @@ std::wstring HeirarchicalStorageTree::GetErrorString() const
 //----------------------------------------------------------------------------------------
 //Node access functions
 //----------------------------------------------------------------------------------------
-std::list<IHeirarchicalStorageNode*> HeirarchicalStorageTree::GetBinaryDataNodeList()
+std::list<IHierarchicalStorageNode*> HierarchicalStorageTree::GetBinaryDataNodeList()
 {
-	std::list<IHeirarchicalStorageNode*> binaryEntityList;
+	std::list<IHierarchicalStorageNode*> binaryEntityList;
 	root->AddBinaryDataEntitiesToList(binaryEntityList);
 	return binaryEntityList;
 }

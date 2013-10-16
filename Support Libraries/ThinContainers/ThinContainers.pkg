@@ -1,6 +1,6 @@
-#ifndef __THINLIST_PKG__
+#ifndef __THINCONTAINERS_PKG__
 #ifndef PACKAGE_LINK_LIBS_ONLY
-#define __THINLIST_PKG__
+#define __THINCONTAINERS_PKG__
 #endif
 
 //Include any header files which are part of the external interface for this library here

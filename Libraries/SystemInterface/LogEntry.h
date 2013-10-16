@@ -1,6 +1,6 @@
 #ifndef __LOGENTRY_H__
 #define __LOGENTRY_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "ILogEntry.h"
 #include <string>
 #include <sstream>

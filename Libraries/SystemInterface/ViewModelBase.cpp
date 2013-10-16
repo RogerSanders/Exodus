@@ -288,7 +288,7 @@ void ViewModelBase::GetViewModelNameInternal(const InteropSupport::ISTLObjectTar
 }
 
 //----------------------------------------------------------------------------------------
-bool ViewModelBase::SaveViewLayoutState(IHeirarchicalStorageNode& node) const
+bool ViewModelBase::SaveViewLayoutState(IHierarchicalStorageNode& node) const
 {
 	if(viewOpen)
 	{
@@ -298,7 +298,7 @@ bool ViewModelBase::SaveViewLayoutState(IHeirarchicalStorageNode& node) const
 }
 
 //----------------------------------------------------------------------------------------
-bool ViewModelBase::LoadViewLayoutState(IHeirarchicalStorageNode& node)
+bool ViewModelBase::LoadViewLayoutState(IHierarchicalStorageNode& node)
 {
 	if(viewOpen)
 	{

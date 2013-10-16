@@ -1,5 +1,5 @@
 #include "DebuggerView.h"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "resource.h"
 #include <boost/bind.hpp>
 

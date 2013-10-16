@@ -861,12 +861,12 @@ void MDControl6::HandleInputKeyUp(unsigned int keyCodeID)
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void MDControl6::LoadState(IHeirarchicalStorageNode& node)
+void MDControl6::LoadState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		IHeirarchicalStorageNode& node = *(*i);
+		IHierarchicalStorageNode& node = *(*i);
 		std::wstring nodeName = node.GetName();
 		if(nodeName == L"CurrentTimesliceLength")
 		{
@@ -890,7 +890,7 @@ void MDControl6::LoadState(IHeirarchicalStorageNode& node)
 		}
 		else if(nodeName == L"OutputLineState")
 		{
-			IHeirarchicalStorageAttribute* lineNumberAttribute = node.GetAttribute(L"LineNo");
+			IHierarchicalStorageAttribute* lineNumberAttribute = node.GetAttribute(L"LineNo");
 			if(lineNumberAttribute != 0)
 			{
 				unsigned int lineNo = lineNumberAttribute->ExtractValue<unsigned int>();
@@ -905,7 +905,7 @@ void MDControl6::LoadState(IHeirarchicalStorageNode& node)
 		}
 		else if(nodeName == L"ButtonPressed")
 		{
-			IHeirarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
+			IHierarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
 			if(buttonNumberAttribute != 0)
 			{
 				unsigned int buttonNo = buttonNumberAttribute->ExtractValue<unsigned int>();
@@ -921,7 +921,7 @@ void MDControl6::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void MDControl6::SaveState(IHeirarchicalStorageNode& node) const
+void MDControl6::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.CreateChild(L"CurrentTimesliceLength", currentTimesliceLength);
 	node.CreateChild(L"LineInputStateTH", lineInputStateTH);

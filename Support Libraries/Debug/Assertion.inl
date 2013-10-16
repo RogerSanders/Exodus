@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <iostream>
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 
 //----------------------------------------------------------------------------------------
 //Assert functions

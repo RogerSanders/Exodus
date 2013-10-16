@@ -18,14 +18,14 @@
 #include "Stream/Stream.pkg"
 #include "ZIP/ZIP.pkg"
 #include "ThreadLib/ThreadLib.pkg"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #undef PACKAGE_LINK_LIBS_ONLY
 #else
 //List all dependencies here again
 #include "Stream/Stream.pkg"
 #include "ZIP/ZIP.pkg"
 #include "ThreadLib/ThreadLib.pkg"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #endif
 #endif
 

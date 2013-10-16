@@ -1,7 +1,7 @@
 #ifndef __IIMAGE_H__
 #define __IIMAGE_H__
 #include "StreamInterface/StreamInterface.pkg"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 
 class IImage
 {

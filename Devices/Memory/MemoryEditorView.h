@@ -1,7 +1,7 @@
 #include "MemoryRead.h"
 #ifndef __MEMORYREAD_MEMORYEDITORVIEW_H__
 #define __MEMORYREAD_MEMORYEDITORVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 
 class MemoryRead::MemoryEditorView :public ViewBase

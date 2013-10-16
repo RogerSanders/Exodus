@@ -85,11 +85,11 @@ Processor::~Processor()
 }
 
 //----------------------------------------------------------------------------------------
-bool Processor::Construct(IHeirarchicalStorageNode& node)
+bool Processor::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = Device::Construct(node);
 
-	IHeirarchicalStorageAttribute* clockSpeedAttribute = node.GetAttribute(L"ClockSpeed");
+	IHierarchicalStorageAttribute* clockSpeedAttribute = node.GetAttribute(L"ClockSpeed");
 	if(clockSpeedAttribute != 0)
 	{
 		clockSpeed = clockSpeedAttribute->ExtractValue<double>();
@@ -3427,15 +3427,15 @@ bool Processor::FormatLabelUsageForDisassembly(const std::wstring& rawLabel, int
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void Processor::LoadState(IHeirarchicalStorageNode& node)
+void Processor::LoadState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring keyName = (*i)->GetName();
 		if(keyName == L"Register")
 		{
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
 			if(nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
@@ -3452,17 +3452,17 @@ void Processor::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::SaveState(IHeirarchicalStorageNode& node) const
+void Processor::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.CreateChild(L"Register", clockSpeed).CreateAttribute(L"name", L"ClockSpeed");
-	IHeirarchicalStorageNode& callStackNode = node.CreateChild(L"CallStack");
+	IHierarchicalStorageNode& callStackNode = node.CreateChild(L"CallStack");
 	SaveCallStack(callStackNode);
 
 	Device::SaveState(node);
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::LoadDebuggerState(IHeirarchicalStorageNode& node)
+void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	boost::mutex::scoped_lock lock(debugMutex);
 
@@ -3471,13 +3471,13 @@ void Processor::LoadDebuggerState(IHeirarchicalStorageNode& node)
 	unsigned int newActiveDisassemblyStartLocation = activeDisassemblyStartLocation;
 	unsigned int newActiveDisassemblyEndLocation = activeDisassemblyEndLocation;
 
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring keyName = (*i)->GetName();
 		if(keyName == L"Register")
 		{
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
 			if(nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
@@ -3545,10 +3545,10 @@ void Processor::LoadDebuggerState(IHeirarchicalStorageNode& node)
 			}
 			breakpoints.clear();
 
-			std::list<IHeirarchicalStorageNode*> childList = (*i)->GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
+			std::list<IHierarchicalStorageNode*> childList = (*i)->GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
 			{
-				IHeirarchicalStorageNode& childNode = *(*childNodeIterator);
+				IHierarchicalStorageNode& childNode = *(*childNodeIterator);
 				if(childNode.GetName() == L"Breakpoint")
 				{
 					Breakpoint* breakpoint = new Breakpoint(GetAddressBusWidth());
@@ -3566,10 +3566,10 @@ void Processor::LoadDebuggerState(IHeirarchicalStorageNode& node)
 			}
 			watchpoints.clear();
 
-			std::list<IHeirarchicalStorageNode*> childList = (*i)->GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
+			std::list<IHierarchicalStorageNode*> childList = (*i)->GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
 			{
-				IHeirarchicalStorageNode& childNode = *(*childNodeIterator);
+				IHierarchicalStorageNode& childNode = *(*childNodeIterator);
 				if(childNode.GetName() == L"Watchpoint")
 				{
 					Watchpoint* watchpoint = new Watchpoint(GetAddressBusWidth());
@@ -3718,7 +3718,7 @@ void Processor::LoadDebuggerState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
 	boost::mutex::scoped_lock lock(debugMutex);
 
@@ -3732,16 +3732,16 @@ void Processor::SaveDebuggerState(IHeirarchicalStorageNode& node) const
 	}
 
 	//Breakpoints
-	IHeirarchicalStorageNode& breakpointListNode = node.CreateChild(L"BreakpointList");
+	IHierarchicalStorageNode& breakpointListNode = node.CreateChild(L"BreakpointList");
 	for(BreakpointList::const_iterator i = breakpoints.begin(); i != breakpoints.end(); ++i)
 	{
-		IHeirarchicalStorageNode& breakpointListEntry = breakpointListNode.CreateChild(L"Breakpoint");
+		IHierarchicalStorageNode& breakpointListEntry = breakpointListNode.CreateChild(L"Breakpoint");
 		(*i)->SaveState(breakpointListEntry);
 	}
-	IHeirarchicalStorageNode& watchpointListNode = node.CreateChild(L"WatchpointList");
+	IHierarchicalStorageNode& watchpointListNode = node.CreateChild(L"WatchpointList");
 	for(WatchpointList::const_iterator i = watchpoints.begin(); i != watchpoints.end(); ++i)
 	{
-		IHeirarchicalStorageNode& watchpointListEntry = watchpointListNode.CreateChild(L"Watchpoint");
+		IHierarchicalStorageNode& watchpointListEntry = watchpointListNode.CreateChild(L"Watchpoint");
 		(*i)->SaveState(watchpointListEntry);
 	}
 
@@ -3781,7 +3781,7 @@ void Processor::SaveDebuggerState(IHeirarchicalStorageNode& node) const
 	{
 		//Create and configure the child node to store our active disassembly data as a
 		//binary data stream.
-		IHeirarchicalStorageNode& childNode = node.CreateChild(L"ActiveDisassemblyData");
+		IHierarchicalStorageNode& childNode = node.CreateChild(L"ActiveDisassemblyData");
 		childNode.SetBinaryDataPresent(true);
 		childNode.SetInlineBinaryDataEnabled(false);
 		childNode.SetBinaryDataBufferName(GetFullyQualifiedDeviceInstanceName() + L".DisassemblyAddressInfo");
@@ -3852,11 +3852,11 @@ void Processor::SaveDebuggerState(IHeirarchicalStorageNode& node) const
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::LoadCallStack(IHeirarchicalStorageNode& node)
+void Processor::LoadCallStack(IHierarchicalStorageNode& node)
 {
 	callStack.clear();
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if((*i)->GetName() == L"CallStackEntry")
 		{
@@ -3871,12 +3871,12 @@ void Processor::LoadCallStack(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::SaveCallStack(IHeirarchicalStorageNode& node) const
+void Processor::SaveCallStack(IHierarchicalStorageNode& node) const
 {
 	unsigned int pcCharWidth = GetPCCharWidth();
 	for(CallStack::iterator i = callStack.begin(); i != callStack.end(); ++i)
 	{
-		IHeirarchicalStorageNode& callStackEntry = node.CreateChild(L"CallStackEntry");
+		IHierarchicalStorageNode& callStackEntry = node.CreateChild(L"CallStackEntry");
 		callStackEntry.CreateAttributeHex(L"SourceAddress", i->sourceAddress, pcCharWidth);
 		callStackEntry.CreateAttributeHex(L"TargetAddress", i->targetAddress, pcCharWidth);
 		callStackEntry.CreateAttributeHex(L"ReturnAddress", i->returnAddress, pcCharWidth);
@@ -3905,7 +3905,7 @@ void Processor::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher&
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void Processor::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	Device::RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 	CreateMenuHandlers();

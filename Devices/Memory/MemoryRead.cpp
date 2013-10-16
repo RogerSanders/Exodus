@@ -22,10 +22,10 @@ MemoryRead::~MemoryRead()
 //----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
-bool MemoryRead::Construct(IHeirarchicalStorageNode& node)
+bool MemoryRead::Construct(IHierarchicalStorageNode& node)
 {
 	//Read interface size
-	IHeirarchicalStorageAttribute* memoryEntryCountAttribute = node.GetAttribute(L"MemoryEntryCount");
+	IHierarchicalStorageAttribute* memoryEntryCountAttribute = node.GetAttribute(L"MemoryEntryCount");
 	if(memoryEntryCountAttribute != 0)
 	{
 		SetMemoryEntryCount(memoryEntryCountAttribute->ExtractHexValue<unsigned int>());

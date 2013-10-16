@@ -1,5 +1,5 @@
 #include "Threading.h"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 
 //----------------------------------------------------------------------------------------
 std::string ConvertWStringToString(const std::wstring& source)

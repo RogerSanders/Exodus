@@ -23,7 +23,7 @@ void M68000::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& vi
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void M68000::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	Processor::RestoreViewModelState(viewModelGroupName, viewModelName, node, xpos, ypos, width, height, viewModelLauncher);
 	CreateMenuHandlers();

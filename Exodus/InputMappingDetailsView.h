@@ -1,7 +1,7 @@
 #include "System.h"
 #ifndef __SYSTEM_INPUTMAPPINGDETAILSVIEW_H__
 #define __SYSTEM_INPUTMAPPINGDETAILSVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>

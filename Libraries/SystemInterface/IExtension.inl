@@ -51,7 +51,7 @@ std::wstring IExtension::GetExtensionInstanceName() const
 //----------------------------------------------------------------------------------------
 //Window functions
 //----------------------------------------------------------------------------------------
-void IExtension::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+void IExtension::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
 {
 	RestoreViewModelStateInternal(InteropSupport::STLObjectSource<std::wstring>(viewModelGroupName), InteropSupport::STLObjectSource<std::wstring>(viewModelName), node, xpos, ypos, width, height, viewModelLauncher);
 }

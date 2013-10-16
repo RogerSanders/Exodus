@@ -1,7 +1,7 @@
 #include "S315_5313.h"
 #ifndef __S315_5313_SPRITELISTVIEW_H__
 #define __S315_5313_SPRITELISTVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 
 class S315_5313::SpriteListView :public ViewBase

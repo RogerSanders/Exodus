@@ -1,5 +1,5 @@
 #include "MemoryBarrier.h"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 //#include <intrin.h>
 
 //----------------------------------------------------------------------------------------

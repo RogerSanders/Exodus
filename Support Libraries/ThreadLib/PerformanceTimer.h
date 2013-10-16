@@ -1,6 +1,6 @@
 #ifndef __PERFORMANCETIMER_H__
 #define __PERFORMANCETIMER_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 
 class PerformanceTimer
 {

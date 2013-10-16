@@ -12,7 +12,7 @@ public:
 	virtual ~RAMBase();
 
 	//Initialization functions
-	virtual bool Construct(IHeirarchicalStorageNode& node);
+	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual void Initialize();
 
 	//Memory size functions
@@ -28,12 +28,12 @@ public:
 	virtual bool IsAddressLocked(unsigned int location) const;
 
 	//Savestate functions
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void SaveState(IHeirarchicalStorageNode& node) const;
-	virtual void LoadPersistentState(IHeirarchicalStorageNode& node);
-	virtual void SavePersistentState(IHeirarchicalStorageNode& node) const;
-	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
-	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadState(IHierarchicalStorageNode& node);
+	virtual void SaveState(IHierarchicalStorageNode& node) const;
+	virtual void LoadPersistentState(IHierarchicalStorageNode& node);
+	virtual void SavePersistentState(IHierarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
 protected:
 	//Access helper functions

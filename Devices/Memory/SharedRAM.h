@@ -10,7 +10,7 @@ class SharedRAM :public MemoryWrite
 public:
 	//Constructors
 	SharedRAM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
-	virtual bool Construct(IHeirarchicalStorageNode& node);
+	virtual bool Construct(IHierarchicalStorageNode& node);
 
 	//Memory size functions
 	virtual unsigned int GetMemoryEntrySizeInBytes() const;
@@ -34,8 +34,8 @@ public:
 	virtual bool IsAddressLocked(unsigned int location) const;
 
 	//Savestate functions
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadState(IHierarchicalStorageNode& node);
+	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
 	//Rollback data

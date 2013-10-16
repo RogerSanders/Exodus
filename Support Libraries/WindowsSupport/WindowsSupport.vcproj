@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="HeirarchicalStorageInterface"
-	ProjectGUID="{9EDC036B-E856-4066-B306-807394E4B512}"
-	RootNamespace="HeirarchicalStorageInterface"
+	Name="WindowsSupport"
+	ProjectGUID="{5AC3CB2C-0A1A-4E29-8A07-2BDED302611B}"
+	RootNamespace="WindowsSupport"
 	>
 	<Platforms>
 		<Platform
@@ -444,43 +444,71 @@
 	</References>
 	<Files>
 		<Filter
-			Name="IHeirarchicalStorageTree"
+			Name="WindowFunctions"
 			>
 			<File
-				RelativePath=".\IHeirarchicalStorageTree.h"
+				RelativePath=".\WindowFunctions.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\IHeirarchicalStorageTree.inl"
+				RelativePath=".\WindowFunctions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WindowFunctions.inl"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="IHeirarchicalStorageNode"
+			Name="Controls"
 			>
-			<File
-				RelativePath=".\IHeirarchicalStorageNode.h"
+			<Filter
+				Name="WC_GridList"
 				>
-			</File>
-			<File
-				RelativePath=".\IHeirarchicalStorageNode.inl"
+				<File
+					RelativePath=".\WC_GridList.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\WC_GridList.h"
+					>
+				</File>
+				<File
+					RelativePath=".\WC_GridList.inl"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="WC_HexEdit"
 				>
-			</File>
+				<File
+					RelativePath=".\WC_HexEdit.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\WC_HexEdit.h"
+					>
+				</File>
+				<File
+					RelativePath=".\WC_HexEdit.inl"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
-			Name="IHeirarchicalStorageAttribute"
+			Name="PathFunctions"
 			>
 			<File
-				RelativePath=".\IHeirarchicalStorageAttribute.h"
+				RelativePath=".\PathFunctions.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\IHeirarchicalStorageAttribute.inl"
+				RelativePath=".\PathFunctions.h"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\HeirarchicalStorageInterface.pkg"
+			RelativePath=".\WindowsSupport.pkg"
 			>
 		</File>
 	</Files>

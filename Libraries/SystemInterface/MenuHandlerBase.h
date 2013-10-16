@@ -1,6 +1,6 @@
 #ifndef __MENUHANDLERBASE_H__
 #define __MENUHANDLERBASE_H__
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "IMenuHandler.h"
 #include "IMenuSegment.h"
 #include "IMenuSelectableOption.h"
@@ -32,7 +32,7 @@ public:
 
 	//Menu item handler functions
 	virtual void HandleMenuItemSelect(int menuItemID, IViewModelLauncher& aviewModelLauncher);
-	void RestoreMenuViewModelOpen(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& aviewModelLauncher);
+	void RestoreMenuViewModelOpen(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& aviewModelLauncher);
 	void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& aviewModelLauncher);
 
 protected:

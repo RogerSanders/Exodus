@@ -1,6 +1,6 @@
 #ifndef __IVIEW_H__
 #define __IVIEW_H__
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "InteropSupport/InteropSupport.pkg"
 #include <string>
 class IViewModel;
@@ -33,8 +33,8 @@ public:
 	virtual void SetViewSize(int sizex, int sizey) = 0;
 
 	//State functions
-	virtual bool SaveViewLayoutState(IHeirarchicalStorageNode& node) const = 0;
-	virtual bool LoadViewLayoutState(IHeirarchicalStorageNode& node) = 0;
+	virtual bool SaveViewLayoutState(IHierarchicalStorageNode& node) const = 0;
+	virtual bool LoadViewLayoutState(IHierarchicalStorageNode& node) = 0;
 	virtual bool DoesWindowHandleMatchView(void* awindowHandle) const = 0;
 
 protected:

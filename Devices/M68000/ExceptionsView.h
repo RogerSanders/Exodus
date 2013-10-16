@@ -1,7 +1,7 @@
 #include "M68000.h"
 #ifndef __M68000_EXCEPTIONSVIEW_H__
 #define __M68000_EXCEPTIONSVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 namespace M68000{
 

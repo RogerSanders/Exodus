@@ -15,7 +15,7 @@ public:
 	//Initialization functions
 	virtual bool BindToSystemInterface(ISystemExtensionInterface* asystemInterface);
 	virtual bool BindToGUIInterface(IGUIExtensionInterface* aguiInterface);
-	virtual bool Construct(IHeirarchicalStorageNode& node);
+	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildExtension();
 	virtual bool ValidateExtension();
 
@@ -40,10 +40,10 @@ public:
 	virtual unsigned int GetExtensionModuleID() const;
 
 	//Savestate functions
-	virtual void LoadSettingsState(IHeirarchicalStorageNode& node);
-	virtual void SaveSettingsState(IHeirarchicalStorageNode& node) const;
-	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
-	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadSettingsState(IHierarchicalStorageNode& node);
+	virtual void SaveSettingsState(IHierarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
 	//Window functions
 	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle);
@@ -51,7 +51,7 @@ public:
 	virtual void AddFileOpenMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
 	virtual void AddGlobalSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
 
 protected:
@@ -66,7 +66,7 @@ protected:
 	virtual void GetExtensionInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Window functions
-	virtual void RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHeirarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
+	virtual void RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
 	virtual void OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher);
 
 private:

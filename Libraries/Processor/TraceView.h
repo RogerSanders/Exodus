@@ -1,7 +1,7 @@
 #include "Processor.h"
 #ifndef __PROCESSOR_TRACEVIEW_H__
 #define __PROCESSOR_TRACEVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 
 class Processor::TraceView :public ViewBase

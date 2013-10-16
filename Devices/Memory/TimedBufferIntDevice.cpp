@@ -8,7 +8,7 @@ TimedBufferIntDevice::TimedBufferIntDevice(const std::wstring& aimplementationNa
 {}
 
 //----------------------------------------------------------------------------------------
-bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
+bool TimedBufferIntDevice::Construct(IHierarchicalStorageNode& node)
 {
 	//Call the base class Construct method
 	if(!MemoryWrite::Construct(node))
@@ -24,7 +24,7 @@ bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 
 	//Read the KeepLatestBufferCopy attribute
 	bool keepLatestBufferCopy = false;
-	IHeirarchicalStorageAttribute* keepLatestBufferCopyAttribute = node.GetAttribute(L"KeepLatestBufferCopy");
+	IHierarchicalStorageAttribute* keepLatestBufferCopyAttribute = node.GetAttribute(L"KeepLatestBufferCopy");
 	if(keepLatestBufferCopyAttribute != 0)
 	{
 		keepLatestBufferCopy = keepLatestBufferCopyAttribute->ExtractValue<bool>();
@@ -44,7 +44,7 @@ bool TimedBufferIntDevice::Construct(IHeirarchicalStorageNode& node)
 		dataStream.SetStreamPos(0);
 
 		//Read the RepeatData attribute if specified
-		IHeirarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
+		IHierarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
 		if(repeatDataAttribute != 0)
 		{
 			repeatInitialMemoryData = repeatDataAttribute->ExtractValue<bool>();
@@ -121,7 +121,7 @@ void TimedBufferIntDevice::TransparentWriteInterface(unsigned int interfaceNumbe
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void TimedBufferIntDevice::LoadState(IHeirarchicalStorageNode& node)
+void TimedBufferIntDevice::LoadState(IHierarchicalStorageNode& node)
 {
 	bufferShell.LoadState(node);
 
@@ -129,7 +129,7 @@ void TimedBufferIntDevice::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void TimedBufferIntDevice::SaveState(IHeirarchicalStorageNode& node) const
+void TimedBufferIntDevice::SaveState(IHierarchicalStorageNode& node) const
 {
 	bufferShell.SaveState(node, GetFullyQualifiedDeviceInstanceName());
 
@@ -137,7 +137,7 @@ void TimedBufferIntDevice::SaveState(IHeirarchicalStorageNode& node) const
 }
 
 //----------------------------------------------------------------------------------------
-void TimedBufferIntDevice::LoadDebuggerState(IHeirarchicalStorageNode& node)
+void TimedBufferIntDevice::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	bufferShell.LoadDebuggerState(node);
 
@@ -145,7 +145,7 @@ void TimedBufferIntDevice::LoadDebuggerState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void TimedBufferIntDevice::SaveDebuggerState(IHeirarchicalStorageNode& node) const
+void TimedBufferIntDevice::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
 	bufferShell.SaveDebuggerState(node, GetFullyQualifiedDeviceInstanceName());
 

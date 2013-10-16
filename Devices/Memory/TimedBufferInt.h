@@ -45,10 +45,10 @@ public:
 	virtual bool IsByteLocked(unsigned int location) const;
 
 	//Savestate functions
-	void LoadState(IHeirarchicalStorageNode& node);
-	void SaveState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const;
-	void LoadDebuggerState(IHeirarchicalStorageNode& node);
-	void SaveDebuggerState(IHeirarchicalStorageNode& node, const std::wstring& bufferName) const;
+	void LoadState(IHierarchicalStorageNode& node);
+	void SaveState(IHierarchicalStorageNode& node, const std::wstring& bufferName) const;
+	void LoadDebuggerState(IHierarchicalStorageNode& node);
+	void SaveDebuggerState(IHierarchicalStorageNode& node, const std::wstring& bufferName) const;
 
 protected:
 	//Access functions

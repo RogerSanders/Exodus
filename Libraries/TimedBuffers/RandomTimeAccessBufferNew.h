@@ -2,7 +2,7 @@
 #define __RANDOMTIMEACCESSBUFFERNEW_H__
 #include <list>
 #include <vector>
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include <boost/thread/mutex.hpp>
 
 //template<class T> class RandomTimeAccessBufferNew
@@ -144,12 +144,12 @@ public:
 	//Control functions: Require global exclusive access
 	void Initialize();
 	void Resize(unsigned int size);
-	void LoadState(IHeirarchicalStorageNode& node);
-	void GetState(IHeirarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData = false) const;
+	void LoadState(IHierarchicalStorageNode& node);
+	void GetState(IHierarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData = false) const;
 
 private:
-	std::list<TimesliceSaveEntry> LoadTimesliceEntries(IHeirarchicalStorageNode* entity);
-	std::list<WriteSaveEntry> LoadWriteEntries(IHeirarchicalStorageNode* entity);
+	std::list<TimesliceSaveEntry> LoadTimesliceEntries(IHierarchicalStorageNode* entity);
+	std::list<WriteSaveEntry> LoadWriteEntries(IHierarchicalStorageNode* entity);
 
 private:
 	typedef ThinListDoubleContainer<TimesliceEntry> TimesliceList;

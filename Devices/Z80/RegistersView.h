@@ -1,7 +1,7 @@
 #include "Z80.h"
 #ifndef __Z80_REGISTERSVIEW_H__
 #define __Z80_REGISTERSVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 namespace Z80{
 

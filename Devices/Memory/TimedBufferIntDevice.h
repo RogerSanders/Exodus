@@ -9,7 +9,7 @@ class TimedBufferIntDevice :public MemoryWrite, public ITimedBufferIntDevice
 public:
 	//Constructors
 	TimedBufferIntDevice(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
-	virtual bool Construct(IHeirarchicalStorageNode& node);
+	virtual bool Construct(IHierarchicalStorageNode& node);
 
 	//Memory size functions
 	virtual unsigned int GetMemoryEntrySizeInBytes() const;
@@ -22,10 +22,10 @@ public:
 	virtual void TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext);
 
 	//Savestate functions
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void SaveState(IHeirarchicalStorageNode& node) const;
-	virtual void LoadDebuggerState(IHeirarchicalStorageNode& node);
-	virtual void SaveDebuggerState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadState(IHierarchicalStorageNode& node);
+	virtual void SaveState(IHierarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
 	//Memory locking functions
 	virtual bool IsMemoryLockingSupported() const;

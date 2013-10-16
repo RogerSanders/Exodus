@@ -26,7 +26,7 @@ anyway.
 #include <list>
 #include <vector>
 #include <boost/thread/mutex.hpp>
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "TimedBufferWriteInfo.h"
 #include "TimedBufferAccessTarget.h"
 #include "TimedBufferAdvanceSession.h"
@@ -111,8 +111,8 @@ public:
 	void BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice& targetTimeslice, bool retrieveWriteInfo) const;
 
 	//Savestate functions
-	bool LoadState(IHeirarchicalStorageNode& node);
-	bool SaveState(IHeirarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData = false) const;
+	bool LoadState(IHierarchicalStorageNode& node);
+	bool SaveState(IHierarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData = false) const;
 
 private:
 	//Structures
@@ -124,8 +124,8 @@ private:
 	TimesliceType GetNextWriteTimeNoLock(const Timeslice& targetTimeslice) const;
 
 	//Savestate functions
-	bool LoadTimesliceEntries(IHeirarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);
-	bool LoadWriteEntries(IHeirarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
+	bool LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);
+	bool LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
 
 private:
 	mutable boost::mutex accessLock;

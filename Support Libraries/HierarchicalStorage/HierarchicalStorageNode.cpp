@@ -1,25 +1,25 @@
-#include "HeirarchicalStorageNode.h"
+#include "HierarchicalStorageNode.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-HeirarchicalStorageNode::HeirarchicalStorageNode()
+HierarchicalStorageNode::HierarchicalStorageNode()
 :parent(0), binaryDataPresent(false), inlineBinaryData(false), dataStream(Stream::IStream::TEXTENCODING_UTF16, Stream::IStream::NEWLINEENCODING_UNIX, Stream::IStream::BYTEORDER_BIGENDIAN, 0)
 {}
 
 //----------------------------------------------------------------------------------------
-HeirarchicalStorageNode::HeirarchicalStorageNode(const std::wstring& aname)
+HierarchicalStorageNode::HierarchicalStorageNode(const std::wstring& aname)
 :name(aname), parent(0), binaryDataPresent(false), inlineBinaryData(false), dataStream(Stream::IStream::TEXTENCODING_UTF16, Stream::IStream::NEWLINEENCODING_UNIX, Stream::IStream::BYTEORDER_BIGENDIAN, 0)
 {}
 
 //----------------------------------------------------------------------------------------
-HeirarchicalStorageNode::~HeirarchicalStorageNode()
+HierarchicalStorageNode::~HierarchicalStorageNode()
 {
 	Initialize();
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::Initialize()
+void HierarchicalStorageNode::Initialize()
 {
 	for(ChildList::iterator i = children.begin(); i != children.end(); ++i)
 	{
@@ -38,13 +38,13 @@ void HeirarchicalStorageNode::Initialize()
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+void HierarchicalStorageNode::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
 	marshaller.MarshalFrom(GetName());
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void HierarchicalStorageNode::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
 	SetName(marshaller.MarshalTo());
 }
@@ -52,13 +52,13 @@ void HeirarchicalStorageNode::SetNameInternal(const InteropSupport::ISTLObjectSo
 //----------------------------------------------------------------------------------------
 //Parent functions
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageNode& HeirarchicalStorageNode::GetParent() const
+IHierarchicalStorageNode& HierarchicalStorageNode::GetParent() const
 {
 	return *parent;
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetParent(HeirarchicalStorageNode* aparent)
+void HierarchicalStorageNode::SetParent(HierarchicalStorageNode* aparent)
 {
 	parent = aparent;
 }
@@ -66,7 +66,7 @@ void HeirarchicalStorageNode::SetParent(HeirarchicalStorageNode* aparent)
 //----------------------------------------------------------------------------------------
 //Content functions
 //----------------------------------------------------------------------------------------
-bool HeirarchicalStorageNode::IsEmpty() const
+bool HierarchicalStorageNode::IsEmpty() const
 {
 	return (children.empty() && attributes.empty() && !binaryDataPresent && (dataStream.Size() == 0));
 }
@@ -74,13 +74,13 @@ bool HeirarchicalStorageNode::IsEmpty() const
 //----------------------------------------------------------------------------------------
 //Stream functions
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::ResetInternalStreamPosition() const
+void HierarchicalStorageNode::ResetInternalStreamPosition() const
 {
 	dataStream.SetStreamPos(0);
 }
 
 //----------------------------------------------------------------------------------------
-Stream::IStream& HeirarchicalStorageNode::GetInternalStream() const
+Stream::IStream& HierarchicalStorageNode::GetInternalStream() const
 {
 	return dataStream;
 }
@@ -88,31 +88,31 @@ Stream::IStream& HeirarchicalStorageNode::GetInternalStream() const
 //----------------------------------------------------------------------------------------
 //Child functions
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageNode& HeirarchicalStorageNode::CreateChild()
+IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild()
 {
-	HeirarchicalStorageNode* child = new HeirarchicalStorageNode();
+	HierarchicalStorageNode* child = new HierarchicalStorageNode();
 	child->SetParent(this);
 	children.push_back(child);
 	return *child;
 }
 
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageNode& HeirarchicalStorageNode::CreateChild(const std::wstring& aname)
+IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild(const std::wstring& aname)
 {
-	HeirarchicalStorageNode* child = new HeirarchicalStorageNode(aname);
+	HierarchicalStorageNode* child = new HierarchicalStorageNode(aname);
 	child->SetParent(this);
 	children.push_back(child);
 	return *child;
 }
 
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageNode& HeirarchicalStorageNode::CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
+IHierarchicalStorageNode& HierarchicalStorageNode::CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
 {
 	return CreateChild(nameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::DeleteChild(IHeirarchicalStorageNode& node)
+void HierarchicalStorageNode::DeleteChild(IHierarchicalStorageNode& node)
 {
 	ChildList::iterator childListIterator = children.begin();
 	while(childListIterator != children.end())
@@ -127,9 +127,9 @@ void HeirarchicalStorageNode::DeleteChild(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IHeirarchicalStorageNode*> HeirarchicalStorageNode::GetChildList()
+std::list<IHierarchicalStorageNode*> HierarchicalStorageNode::GetChildList()
 {
-	std::list<IHeirarchicalStorageNode*> childList;
+	std::list<IHierarchicalStorageNode*> childList;
 	for(size_t i = 0; i < children.size(); ++i)
 	{
 		childList.push_back(children[i]);
@@ -138,7 +138,7 @@ std::list<IHeirarchicalStorageNode*> HeirarchicalStorageNode::GetChildList()
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageNode*>>& marshaller)
+void HierarchicalStorageNode::GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller)
 {
 	marshaller.MarshalFrom(GetChildList());
 }
@@ -146,7 +146,7 @@ void HeirarchicalStorageNode::GetChildListInternal(const InteropSupport::ISTLObj
 //----------------------------------------------------------------------------------------
 //Attribute functions
 //----------------------------------------------------------------------------------------
-bool HeirarchicalStorageNode::IsAttributePresent(const std::wstring& name) const
+bool HierarchicalStorageNode::IsAttributePresent(const std::wstring& name) const
 {
 	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
 	{
@@ -159,7 +159,7 @@ bool HeirarchicalStorageNode::IsAttributePresent(const std::wstring& name) const
 }
 
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageAttribute* HeirarchicalStorageNode::GetAttribute(const std::wstring& name) const
+IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttribute(const std::wstring& name) const
 {
 	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
 	{
@@ -172,12 +172,12 @@ IHeirarchicalStorageAttribute* HeirarchicalStorageNode::GetAttribute(const std::
 }
 
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageAttribute& HeirarchicalStorageNode::CreateAttribute(const std::wstring& name)
+IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttribute(const std::wstring& name)
 {
-	IHeirarchicalStorageAttribute* attribute = GetAttribute(name);
+	IHierarchicalStorageAttribute* attribute = GetAttribute(name);
 	if(attribute == 0)
 	{
-		HeirarchicalStorageAttribute* newAttribute = new HeirarchicalStorageAttribute(name);
+		HierarchicalStorageAttribute* newAttribute = new HierarchicalStorageAttribute(name);
 		attribute = newAttribute;
 		attributes.push_back(AttributeListEntry(name, newAttribute));
 	}
@@ -185,25 +185,25 @@ IHeirarchicalStorageAttribute& HeirarchicalStorageNode::CreateAttribute(const st
 }
 
 //----------------------------------------------------------------------------------------
-bool HeirarchicalStorageNode::IsAttributePresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const
+bool HierarchicalStorageNode::IsAttributePresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const
 {
 	return IsAttributePresent(nameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageAttribute* HeirarchicalStorageNode::GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const
+IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const
 {
 	return GetAttribute(nameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-IHeirarchicalStorageAttribute& HeirarchicalStorageNode::CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
+IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
 {
 	return CreateAttribute(nameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::DeleteAttribute(IHeirarchicalStorageAttribute& attribute)
+void HierarchicalStorageNode::DeleteAttribute(IHierarchicalStorageAttribute& attribute)
 {
 	AttributeList::iterator attributeIterator = attributes.begin();
 	while(attributeIterator != attributes.end())
@@ -217,9 +217,9 @@ void HeirarchicalStorageNode::DeleteAttribute(IHeirarchicalStorageAttribute& att
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IHeirarchicalStorageAttribute*> HeirarchicalStorageNode::GetAttributeList()
+std::list<IHierarchicalStorageAttribute*> HierarchicalStorageNode::GetAttributeList()
 {
-	std::list<IHeirarchicalStorageAttribute*> attributeList;
+	std::list<IHierarchicalStorageAttribute*> attributeList;
 	for(size_t i = 0; i < attributes.size(); ++i)
 	{
 		attributeList.push_back(attributes[i].second);
@@ -228,7 +228,7 @@ std::list<IHeirarchicalStorageAttribute*> HeirarchicalStorageNode::GetAttributeL
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageAttribute*>>& marshaller)
+void HierarchicalStorageNode::GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageAttribute*>>& marshaller)
 {
 	marshaller.MarshalFrom(GetAttributeList());
 }
@@ -236,7 +236,7 @@ void HeirarchicalStorageNode::GetAttributeListInternal(const InteropSupport::IST
 //----------------------------------------------------------------------------------------
 //Common data functions
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::ClearData()
+void HierarchicalStorageNode::ClearData()
 {
 	binaryDataPresent = false;
 	inlineBinaryData = false;
@@ -247,49 +247,49 @@ void HeirarchicalStorageNode::ClearData()
 //----------------------------------------------------------------------------------------
 //Binary data functions
 //----------------------------------------------------------------------------------------
-bool HeirarchicalStorageNode::GetBinaryDataPresent() const
+bool HierarchicalStorageNode::GetBinaryDataPresent() const
 {
 	return binaryDataPresent;
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetBinaryDataPresent(bool state)
+void HierarchicalStorageNode::SetBinaryDataPresent(bool state)
 {
 	binaryDataPresent = state;
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::GetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+void HierarchicalStorageNode::GetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
 	marshaller.MarshalFrom(GetBinaryDataBufferName());
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void HierarchicalStorageNode::SetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
 	SetBinaryDataBufferName(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-Stream::IStream& HeirarchicalStorageNode::GetBinaryDataBufferStream()
+Stream::IStream& HierarchicalStorageNode::GetBinaryDataBufferStream()
 {
 	return dataStream;
 }
 
 //----------------------------------------------------------------------------------------
-bool HeirarchicalStorageNode::GetInlineBinaryDataEnabled() const
+bool HierarchicalStorageNode::GetInlineBinaryDataEnabled() const
 {
 	return inlineBinaryData;
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::SetInlineBinaryDataEnabled(bool state)
+void HierarchicalStorageNode::SetInlineBinaryDataEnabled(bool state)
 {
 	inlineBinaryData = state;
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageNode::AddBinaryDataEntitiesToList(std::list<IHeirarchicalStorageNode*>& binaryEntityList)
+void HierarchicalStorageNode::AddBinaryDataEntitiesToList(std::list<IHierarchicalStorageNode*>& binaryEntityList)
 {
 	if(binaryDataPresent && !inlineBinaryData)
 	{

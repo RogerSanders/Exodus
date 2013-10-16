@@ -1,14 +1,14 @@
-#ifndef __IHEIRARCHICALSTORAGEATTRIBUTE_H__
-#define __IHEIRARCHICALSTORAGEATTRIBUTE_H__
+#ifndef __IHIERARCHICALSTORAGEATTRIBUTE_H__
+#define __IHIERARCHICALSTORAGEATTRIBUTE_H__
 #include "StreamInterface/StreamInterface.pkg"
 #include "InteropSupport/InteropSupport.pkg"
 #include <string>
 
-class IHeirarchicalStorageAttribute
+class IHierarchicalStorageAttribute
 {
 public:
 	//Constructors
-	virtual ~IHeirarchicalStorageAttribute() = 0 {}
+	virtual ~IHierarchicalStorageAttribute() = 0 {}
 
 	//Name functions
 	inline std::wstring GetName() const;
@@ -39,5 +39,5 @@ protected:
 	virtual Stream::IStream& GetInternalStream() const = 0;
 };
 
-#include "IHeirarchicalStorageAttribute.inl"
+#include "IHierarchicalStorageAttribute.inl"
 #endif

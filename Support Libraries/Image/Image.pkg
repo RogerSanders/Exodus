@@ -10,7 +10,7 @@
 //to be included here too, otherwise a dependent library may not be linked if this
 //package is used as a private package of another.
 #include "StreamInterface/StreamInterface.pkg"
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "ImageInterface/ImageInterface.pkg"
 #include "Debug/Debug.pkg"
 

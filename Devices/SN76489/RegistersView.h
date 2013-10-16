@@ -1,7 +1,7 @@
 #include "SN76489.h"
 #ifndef __SN76489_REGISTERSVIEW_H__
 #define __SN76489_REGISTERSVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 
 class SN76489::RegistersView :public ViewBase

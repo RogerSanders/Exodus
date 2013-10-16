@@ -1482,10 +1482,10 @@ bool MDBusArbiter::AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* cal
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void MDBusArbiter::LoadState(IHeirarchicalStorageNode& node)
+void MDBusArbiter::LoadState(IHierarchicalStorageNode& node)
 {
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if((*i)->GetName() == L"ActivateTMSS")
 		{
@@ -1567,15 +1567,15 @@ void MDBusArbiter::LoadState(IHeirarchicalStorageNode& node)
 		else if((*i)->GetName() == L"LineAccessBuffer")
 		{
 			lineAccessBuffer.clear();
-			IHeirarchicalStorageNode& lineAccessBufferNode = *(*i);
-			std::list<IHeirarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
-			for(std::list<IHeirarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
+			IHierarchicalStorageNode& lineAccessBufferNode = *(*i);
+			std::list<IHierarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
+			for(std::list<IHierarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
 			{
 				if((*lineAccessBufferEntry)->GetName() == L"LineAccess")
 				{
-					IHeirarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
-					IHeirarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
-					IHeirarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
+					IHierarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
+					IHierarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
+					IHierarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
 					if((lineNameAttribute != 0) && (lineStateAttribute != 0) && (accessTimeAttribute != 0))
 					{
 						//Extract the entry from the XML stream
@@ -1606,7 +1606,7 @@ void MDBusArbiter::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void MDBusArbiter::SaveState(IHeirarchicalStorageNode& node) const
+void MDBusArbiter::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.CreateChild(L"ActivateTMSS", activateTMSS);
 	node.CreateChild(L"ActivateBootROM", activateBootROM);
@@ -1631,10 +1631,10 @@ void MDBusArbiter::SaveState(IHeirarchicalStorageNode& node) const
 	//Save the lineAccessBuffer state
 	if(lineAccessPending)
 	{
-		IHeirarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
+		IHierarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
 		for(std::list<LineAccess>::const_iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
 		{
-			IHeirarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
+			IHierarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
 			lineAccessEntry.CreateAttribute(L"LineName", GetLineName(i->lineID));
 			lineAccessEntry.CreateAttribute(L"LineState", i->state);
 			lineAccessEntry.CreateAttribute(L"AccessTime", i->accessTime);

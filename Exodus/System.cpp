@@ -1,5 +1,5 @@
 #include "System.h"
-#include "HeirarchicalStorage/HeirarchicalStorage.pkg"
+#include "HierarchicalStorage/HierarchicalStorage.pkg"
 #include "Stream/Stream.pkg"
 #include "ZIP/ZIP.pkg"
 #include "ThreadLib/ThreadLib.pkg"
@@ -49,7 +49,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 	}
 	Stream::IStream& source = *sourceStreamReference;
 
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	if(fileType == FILETYPE_ZIP)
 	{
 		//Load the ZIP header structure
@@ -99,9 +99,9 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 		}
 
 		//Load external binary data into the XML tree
-		std::list<IHeirarchicalStorageNode*> binaryList;
+		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
-		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		for(std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
 			ZIPFileEntry* entry = archive.GetFileEntry(binaryFileName);
@@ -146,9 +146,9 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 
 		//Load external binary data into the XML tree
 		std::wstring fileDir = PathGetDirectory(filePath);
-		std::list<IHeirarchicalStorageNode*> binaryList;
+		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
-		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		for(std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
 			std::wstring binaryFilePath = binaryFileName;
@@ -203,7 +203,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 	}
 
 	//Validate the root node
-	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if(rootNode.GetName() != L"State")
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the root node in the XML tree wasn't of type \"State\"!"));
@@ -216,8 +216,8 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 
 	//Restore system state from XML data
 	ModuleRelationshipMap relationshipMap;
-	std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring elementName = (*i)->GetName();
 
@@ -225,8 +225,8 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 		if(elementName == L"Device")
 		{
 			//Extract the mandatory attributes
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"Name");
-			IHeirarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"Name");
+			IHierarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
 			if((nameAttribute != 0) && (moduleIDAttribute != 0))
 			{
 				std::wstring deviceName = nameAttribute->GetValue();
@@ -314,11 +314,11 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 	StopSystem();
 
 	//Create the new savestate XML tree
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	tree.GetRootNode().SetName(L"State");
 
 	//Fill in general information about the savestate
-	IHeirarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
+	IHierarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
 	Timestamp timestamp = GetTimestamp();
 	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
 	stateInfo.CreateAttribute(L"CreationTime", timestamp.GetTime());
@@ -339,13 +339,13 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 	}
 
 	//Save the ModuleRelationships node
-	IHeirarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
+	IHierarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
 	SaveModuleRelationshipsNode(moduleRelationshipsNode);
 
 	//Save the system state to the XML tree
 	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 	{
-		IHeirarchicalStorageNode& node = tree.GetRootNode().CreateChild(L"Device");
+		IHierarchicalStorageNode& node = tree.GetRootNode().CreateChild(L"Device");
 		node.CreateAttribute(L"Name", (*i).device->GetDeviceInstanceName());
 		node.CreateAttribute(L"ModuleID").SetValue((*i).moduleID);
 		if(debuggerState)
@@ -389,9 +389,9 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 		archive.AddFileEntry(entry);
 
 		//Save external binary data to separate files
-		std::list<IHeirarchicalStorageNode*> binaryList;
+		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
-		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		for(std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			ZIPFileEntry entry;
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
@@ -486,9 +486,9 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 		//Save external binary data to separate files
 		std::wstring fileName = PathGetFileName(filePath);
 		std::wstring fileDir = PathGetDirectory(filePath);
-		std::list<IHeirarchicalStorageNode*> binaryList;
+		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
-		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		for(std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = fileName + L" - " + (*i)->GetBinaryDataBufferName() + L".bin";
 			std::wstring binaryFilePath = PathCombinePaths(fileDir, binaryFileName);
@@ -586,7 +586,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 	}
 	Stream::IStream& source = *sourceStreamReference;
 
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	if(fileType == FILETYPE_ZIP)
 	{
 		//Load the ZIP header structure
@@ -620,9 +620,9 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 		}
 
 		//Load external binary data into the XML tree
-		std::list<IHeirarchicalStorageNode*> binaryList;
+		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
-		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		for(std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
 			ZIPFileEntry* entry = archive.GetFileEntry(binaryFileName);
@@ -655,9 +655,9 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 
 		//Load external binary data into the XML tree
 		std::wstring fileDir = PathGetDirectory(filePath);
-		std::list<IHeirarchicalStorageNode*> binaryList;
+		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
-		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		for(std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
 			std::wstring binaryFilePath = binaryFileName;
@@ -700,7 +700,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 	}
 
 	//Validate the root node
-	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if(rootNode.GetName() != L"PersistentState")
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the root node in the XML tree wasn't of type \"PersistentState\"!"));
@@ -708,8 +708,8 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 	}
 
 	//Restore persistent system state from XML data
-	std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring elementName = (*i)->GetName();
 
@@ -717,7 +717,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 		if(elementName == L"Device")
 		{
 			//Extract the mandatory attributes
-			IHeirarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"Name");
+			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"Name");
 			if(nameAttribute != 0)
 			{
 				std::wstring deviceName = nameAttribute->GetValue();
@@ -766,7 +766,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent)
 {
 	//Create the new savestate XML tree
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	tree.GetRootNode().SetName(L"PersistentState");
 
 	//Save the system state to the XML tree
@@ -774,7 +774,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 	{
 		if(i->moduleID == moduleID)
 		{
-			IHeirarchicalStorageNode& deviceNode = tree.GetRootNode().CreateChild(L"Device");
+			IHierarchicalStorageNode& deviceNode = tree.GetRootNode().CreateChild(L"Device");
 			(*i).device->SavePersistentState(deviceNode);
 			if(deviceNode.IsEmpty())
 			{
@@ -793,7 +793,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 	}
 
 	//Fill in general information about the savestate
-	IHeirarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
+	IHierarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
 	Timestamp timestamp = GetTimestamp();
 	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
 	stateInfo.CreateAttribute(L"CreationTime", timestamp.GetTime());
@@ -821,9 +821,9 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 		archive.AddFileEntry(entry);
 
 		//Save external binary data to separate files
-		std::list<IHeirarchicalStorageNode*> binaryList;
+		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
-		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		for(std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			ZIPFileEntry entry;
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
@@ -870,9 +870,9 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 		//Save external binary data to separate files
 		std::wstring fileName = PathGetFileName(filePath);
 		std::wstring fileDir = PathGetDirectory(filePath);
-		std::list<IHeirarchicalStorageNode*> binaryList;
+		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
-		for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+		for(std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = fileName + L" - " + (*i)->GetBinaryDataBufferName() + L".bin";
 			std::wstring binaryFilePath = PathCombinePaths(fileDir, binaryFileName);
@@ -922,7 +922,7 @@ System::StateInfo System::GetStateInfo(const std::wstring& filePath, FileType fi
 	}
 	Stream::IStream& source = *sourceStreamReference;
 
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	if(fileType == FILETYPE_ZIP)
 	{
 		//Load the ZIP header structure
@@ -962,13 +962,13 @@ System::StateInfo System::GetStateInfo(const std::wstring& filePath, FileType fi
 	}
 
 	//Load savestate info from XML data
-	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if(rootNode.GetName() == L"State")
 	{
 		stateInfo.valid = true;
-		std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
+		std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
 		bool foundStateInfo = false;
-		std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin();
+		std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin();
 		while(!foundStateInfo && (i != childList.end()))
 		{
 			if((*i)->GetName() == L"Info")
@@ -992,7 +992,7 @@ System::StateInfo System::GetStateInfo(const std::wstring& filePath, FileType fi
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const
+bool System::LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const
 {
 	//Validate the name of the node
 	if(node.GetName() != L"ModuleRelationships")
@@ -1001,16 +1001,16 @@ bool System::LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelat
 	}
 
 	//Load the saved module relationship data
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if((*i)->GetName() == L"Module")
 		{
 			//Extract the mandatory attributes
-			IHeirarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
-			IHeirarchicalStorageAttribute* systemClassNameAttribute = (*i)->GetAttribute(L"SystemClassName");
-			IHeirarchicalStorageAttribute* moduleClassNameAttribute = (*i)->GetAttribute(L"ModuleClassName");
-			IHeirarchicalStorageAttribute* moduleInstanceNameAttribute = (*i)->GetAttribute(L"ModuleInstanceName");
+			IHierarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
+			IHierarchicalStorageAttribute* systemClassNameAttribute = (*i)->GetAttribute(L"SystemClassName");
+			IHierarchicalStorageAttribute* moduleClassNameAttribute = (*i)->GetAttribute(L"ModuleClassName");
+			IHierarchicalStorageAttribute* moduleInstanceNameAttribute = (*i)->GetAttribute(L"ModuleInstanceName");
 			if((moduleIDAttribute != 0) && (systemClassNameAttribute != 0) && (moduleClassNameAttribute != 0) && (moduleInstanceNameAttribute != 0))
 			{
 				//Extract info on this module
@@ -1019,21 +1019,21 @@ bool System::LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelat
 				savedData.systemClassName = systemClassNameAttribute->GetValue();
 				savedData.className = moduleClassNameAttribute->GetValue();
 				savedData.instanceName = moduleInstanceNameAttribute->GetValue();
-				IHeirarchicalStorageAttribute* filePathAttribute = (*i)->GetAttribute(L"FilePath");
+				IHierarchicalStorageAttribute* filePathAttribute = (*i)->GetAttribute(L"FilePath");
 				if(filePathAttribute != 0)
 				{
 					savedData.filePath = filePathAttribute->GetValue();
 				}
 
 				//Extract any connector info
-				std::list<IHeirarchicalStorageNode*> moduleChildList = (*i)->GetChildList();
-				for(std::list<IHeirarchicalStorageNode*>::const_iterator moduleChildIterator = moduleChildList.begin(); moduleChildIterator != moduleChildList.end(); ++moduleChildIterator)
+				std::list<IHierarchicalStorageNode*> moduleChildList = (*i)->GetChildList();
+				for(std::list<IHierarchicalStorageNode*>::const_iterator moduleChildIterator = moduleChildList.begin(); moduleChildIterator != moduleChildList.end(); ++moduleChildIterator)
 				{
 					if((*moduleChildIterator)->GetName() == L"ExportConnector")
 					{
 						//Extract the mandatory attributes
-						IHeirarchicalStorageAttribute* connectorClassNameAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorClassName");
-						IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorInstanceName");
+						IHierarchicalStorageAttribute* connectorClassNameAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorClassName");
+						IHierarchicalStorageAttribute* connectorInstanceNameAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorInstanceName");
 						if((connectorClassNameAttribute != 0) && (connectorInstanceNameAttribute != 0))
 						{
 							SavedRelationshipExportConnector savedConnectorData;
@@ -1045,10 +1045,10 @@ bool System::LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelat
 					else if((*moduleChildIterator)->GetName() == L"ImportConnector")
 					{
 						//Extract the mandatory attributes
-						IHeirarchicalStorageAttribute* connectorModuleIDAttribute = (*moduleChildIterator)->GetAttribute(L"ExportingModuleID");
-						IHeirarchicalStorageAttribute* connectorClassNameAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorClassName");
-						IHeirarchicalStorageAttribute* connectorInstanceNameLocalAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorInstanceNameLocal");
-						IHeirarchicalStorageAttribute* connectorInstanceNameRemoteAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorInstanceNameRemote");
+						IHierarchicalStorageAttribute* connectorModuleIDAttribute = (*moduleChildIterator)->GetAttribute(L"ExportingModuleID");
+						IHierarchicalStorageAttribute* connectorClassNameAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorClassName");
+						IHierarchicalStorageAttribute* connectorInstanceNameLocalAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorInstanceNameLocal");
+						IHierarchicalStorageAttribute* connectorInstanceNameRemoteAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorInstanceNameRemote");
 						if((connectorModuleIDAttribute != 0) && (connectorClassNameAttribute != 0) && (connectorInstanceNameLocalAttribute != 0) && (connectorInstanceNameRemoteAttribute != 0))
 						{
 							SavedRelationshipImportConnector savedConnectorData;
@@ -1071,7 +1071,7 @@ bool System::LoadSavedRelationshipMap(IHeirarchicalStorageNode& node, SavedRelat
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const
+bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const
 {
 	//Load the saved module relationship data
 	SavedRelationshipMap savedRelationshipData;
@@ -1148,11 +1148,11 @@ bool System::LoadModuleRelationshipsNode(IHeirarchicalStorageNode& node, ModuleR
 }
 
 //----------------------------------------------------------------------------------------
-void System::SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationshipsNode, bool saveFilePathInfo, const std::wstring& relativePathBase) const
+void System::SaveModuleRelationshipsNode(IHierarchicalStorageNode& relationshipsNode, bool saveFilePathInfo, const std::wstring& relativePathBase) const
 {
 	for(LoadedModuleInfoList::const_iterator i = loadedModuleInfoList.begin(); i != loadedModuleInfoList.end(); ++i)
 	{
-		IHeirarchicalStorageNode& moduleNode = relationshipsNode.CreateChild(L"Module");
+		IHierarchicalStorageNode& moduleNode = relationshipsNode.CreateChild(L"Module");
 		moduleNode.CreateAttribute(L"ModuleID").SetValue(i->moduleID);
 		moduleNode.CreateAttribute(L"SystemClassName", i->systemClassName);
 		moduleNode.CreateAttribute(L"ModuleClassName", i->className);
@@ -1180,13 +1180,13 @@ void System::SaveModuleRelationshipsNode(IHeirarchicalStorageNode& relationships
 }
 
 //----------------------------------------------------------------------------------------
-void System::SaveModuleRelationshipsExportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const
+void System::SaveModuleRelationshipsExportConnectors(IHierarchicalStorageNode& moduleNode, unsigned int moduleID) const
 {
 	for(ConnectorDetailsMap::const_iterator i = connectorDetailsMap.begin(); i != connectorDetailsMap.end(); ++i)
 	{
 		if(i->second.exportingModuleID == moduleID)
 		{
-			IHeirarchicalStorageNode& exportNode = moduleNode.CreateChild(L"ExportConnector");
+			IHierarchicalStorageNode& exportNode = moduleNode.CreateChild(L"ExportConnector");
 			exportNode.CreateAttribute(L"ConnectorClassName", i->second.connectorClassName);
 			exportNode.CreateAttribute(L"ConnectorInstanceName", i->second.exportingModuleConnectorInstanceName);
 		}
@@ -1194,13 +1194,13 @@ void System::SaveModuleRelationshipsExportConnectors(IHeirarchicalStorageNode& m
 }
 
 //----------------------------------------------------------------------------------------
-void System::SaveModuleRelationshipsImportConnectors(IHeirarchicalStorageNode& moduleNode, unsigned int moduleID) const
+void System::SaveModuleRelationshipsImportConnectors(IHierarchicalStorageNode& moduleNode, unsigned int moduleID) const
 {
 	for(ConnectorDetailsMap::const_iterator i = connectorDetailsMap.begin(); i != connectorDetailsMap.end(); ++i)
 	{
 		if(i->second.connectorUsed && (i->second.importingModuleID == moduleID))
 		{
-			IHeirarchicalStorageNode& exportNode = moduleNode.CreateChild(L"ImportConnector");
+			IHierarchicalStorageNode& exportNode = moduleNode.CreateChild(L"ImportConnector");
 			exportNode.CreateAttribute(L"ExportingModuleID").SetValue(i->second.exportingModuleID);
 			exportNode.CreateAttribute(L"ConnectorClassName", i->second.connectorClassName);
 			exportNode.CreateAttribute(L"ConnectorInstanceNameLocal", i->second.importingModuleConnectorInstanceName);
@@ -2780,19 +2780,19 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	source.ProcessByteOrderMark();
 
 	//Load the XML structure from the file
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	if(!tree.LoadTree(source))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error loading XML structure from module file " + filePath + L"! The xml error string is as follows: " + tree.GetErrorString()));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
-	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 
 	//Load external binary data into the XML tree
-	std::list<IHeirarchicalStorageNode*> binaryList;
+	std::list<IHierarchicalStorageNode*> binaryList;
 	binaryList = tree.GetBinaryDataNodeList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
+	for(std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 	{
 		std::wstring binaryFileName = (*i)->GetBinaryDataBufferName();
 		std::wstring binaryFilePath = binaryFileName;
@@ -2861,9 +2861,9 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	moduleInfo.filePath = filePath;
 
 	//Extract mandatory module metadata
-	IHeirarchicalStorageAttribute* systemClassNameAttribute = rootNode.GetAttribute(L"SystemClassName");
-	IHeirarchicalStorageAttribute* moduleClassNameAttribute = rootNode.GetAttribute(L"ModuleClassName");
-	IHeirarchicalStorageAttribute* moduleInstanceNameAttribute = rootNode.GetAttribute(L"ModuleInstanceName");
+	IHierarchicalStorageAttribute* systemClassNameAttribute = rootNode.GetAttribute(L"SystemClassName");
+	IHierarchicalStorageAttribute* moduleClassNameAttribute = rootNode.GetAttribute(L"ModuleClassName");
+	IHierarchicalStorageAttribute* moduleInstanceNameAttribute = rootNode.GetAttribute(L"ModuleInstanceName");
 	if((systemClassNameAttribute == 0) || (moduleClassNameAttribute == 0) || (moduleInstanceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SystemClassName, ModuleClassName, or ModuleInstanceName attribute on root node!"));
@@ -2875,17 +2875,17 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	moduleInfo.instanceName = moduleInstanceNameAttribute->GetValue();
 
 	//Load any additional optional metadata
-	IHeirarchicalStorageAttribute* programModuleAttribute = rootNode.GetAttribute(L"ProgramModule");
+	IHierarchicalStorageAttribute* programModuleAttribute = rootNode.GetAttribute(L"ProgramModule");
 	if(programModuleAttribute != 0)
 	{
 		moduleInfo.programModule = programModuleAttribute->ExtractValue<bool>();
 	}
-	IHeirarchicalStorageAttribute* manufacturerCodeAttribute = rootNode.GetAttribute(L"ManufacturerCode");
+	IHierarchicalStorageAttribute* manufacturerCodeAttribute = rootNode.GetAttribute(L"ManufacturerCode");
 	if(manufacturerCodeAttribute != 0)
 	{
 		moduleInfo.manufacturerCode = manufacturerCodeAttribute->GetValue();
 	}
-	IHeirarchicalStorageAttribute* moduleDisplayNameAttribute = rootNode.GetAttribute(L"ModuleDisplayName");
+	IHierarchicalStorageAttribute* moduleDisplayNameAttribute = rootNode.GetAttribute(L"ModuleDisplayName");
 	if(moduleDisplayNameAttribute != 0)
 	{
 		moduleInfo.displayName = moduleDisplayNameAttribute->GetValue();
@@ -2958,9 +2958,9 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	NameToIDMap connectorNameToIDMap;
 	NameToIDMap lineGroupNameToIDMap;
 	unsigned int entriesProcessed = 0;
-	std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
+	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
 	unsigned int entryCount = (unsigned int)childList.size();
-	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); !loadSystemAbort && (i != childList.end()); ++i)
+	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); !loadSystemAbort && (i != childList.end()); ++i)
 	{
 		loadSystemProgress = ((float)++entriesProcessed / (float)entryCount);
 
@@ -3233,11 +3233,11 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadSystem_Device_Settings(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
+bool System::LoadSystem_Device_Settings(IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
 {
 	//Load the external module ID and device name
-	IHeirarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if((moduleIDAttribute == 0) || (deviceInstanceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID or DeviceInstanceName attribute for Device.Settings!"));
@@ -3272,13 +3272,13 @@ bool System::LoadSystem_Device_Settings(IHeirarchicalStorageNode& node, std::map
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadSystem_Device_MapInput(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
+bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
 {
 	//Load the external module ID, device name, system key code, and target key code.
-	IHeirarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"SystemKeyCode");
-	IHeirarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
+	IHierarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"SystemKeyCode");
+	IHierarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
 	if((moduleIDAttribute == 0) || (deviceInstanceNameAttribute == 0) || (systemKeyCodeAttribute == 0) || (deviceKeyCodeAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID, DeviceInstanceName, SystemKeyCode or DeviceKeyCode attribute for Device.MapInput!"));
@@ -3334,12 +3334,12 @@ bool System::LoadSystem_Device_MapInput(IHeirarchicalStorageNode& node, std::map
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
+bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
 {
 	//Load the external module ID, device name, system key code, and target key code.
-	IHeirarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
-	IHeirarchicalStorageAttribute* embeddedROMNameAttribute = node.GetAttribute(L"EmbeddedROMName");
-	IHeirarchicalStorageAttribute* filePathAttribute = node.GetAttribute(L"FilePath");
+	IHierarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
+	IHierarchicalStorageAttribute* embeddedROMNameAttribute = node.GetAttribute(L"EmbeddedROMName");
+	IHierarchicalStorageAttribute* filePathAttribute = node.GetAttribute(L"FilePath");
 	if((moduleIDAttribute == 0) || (embeddedROMNameAttribute == 0) || (filePathAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID, EmbeddedROMName or FilePath attribute for System.LoadEmbeddedROMData!"));
@@ -3411,10 +3411,10 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadSystem_System_SelectSettingOption(IHeirarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap, SystemStateChange& stateChange)
+bool System::LoadSystem_System_SelectSettingOption(IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap, SystemStateChange& stateChange)
 {
 	//Load the external module ID, device name, system key code, and target key code.
-	IHeirarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
+	IHierarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
 	if(moduleIDAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID attribute for System.SelectSettingOption!"));
@@ -3438,13 +3438,13 @@ bool System::LoadSystem_System_SelectSettingOption(IHeirarchicalStorageNode& nod
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadSystem(const std::wstring& filePath, IHeirarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules)
+bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& rootNode, std::list<ViewModelOpenRequest>& viewModelOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, LoadedModuleInfoList& addedModules)
 {
 	//Extract the module relationships data from the file
 	bool moduleRelationshipsLoaded = false;
 	SavedRelationshipMap savedRelationshipData;
-	std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		//Load the ModuleRelationships node
 		if((*i)->GetName() == L"ModuleRelationships")
@@ -3552,7 +3552,7 @@ bool System::LoadSystem(const std::wstring& filePath, IHeirarchicalStorageNode& 
 	bool loadedWithoutErrors = true;
 	NameToIDMap connectorNameToIDMap;
 	NameToIDMap lineGroupNameToIDMap;
-	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); !loadSystemAbort && (i != childList.end()); ++i)
+	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); !loadSystemAbort && (i != childList.end()); ++i)
 	{
 		std::wstring elementName = (*i)->GetName();
 		if(elementName == L"ModuleRelationships")
@@ -3622,24 +3622,24 @@ bool System::SaveSystem(const std::wstring& filePath)
 	StopSystem();
 
 	//Create the new system XML tree
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	tree.GetRootNode().SetName(L"System");
 
 	//Fill in general information about the file
-	IHeirarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
+	IHierarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
 	Timestamp timestamp = GetTimestamp();
 	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
 	stateInfo.CreateAttribute(L"CreationTime", timestamp.GetTime());
 
 	//Save the ModuleRelationships node
 	std::wstring fileDir = PathGetDirectory(filePath);
-	IHeirarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
+	IHierarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
 	SaveModuleRelationshipsNode(moduleRelationshipsNode, true, fileDir);
 
 	//Save device settings to the system file
 	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 	{
-		IHeirarchicalStorageNode& node = tree.GetRootNode().CreateChild(L"Device.Settings");
+		IHierarchicalStorageNode& node = tree.GetRootNode().CreateChild(L"Device.Settings");
 		node.CreateAttribute(L"DeviceInstanceName", (*i).device->GetDeviceInstanceName());
 		node.CreateAttribute(L"ModuleID").SetValue((*i).moduleID);
 		(*i).device->SaveSettingsState(node);
@@ -3672,7 +3672,7 @@ bool System::SaveSystem(const std::wstring& filePath)
 			}
 
 			//Create the input registration node for this input key map entry
-			IHeirarchicalStorageNode& registerInputNode = tree.GetRootNode().CreateChild(L"Device.MapInput");
+			IHierarchicalStorageNode& registerInputNode = tree.GetRootNode().CreateChild(L"Device.MapInput");
 			registerInputNode.CreateAttribute(L"ModuleID", moduleID);
 			registerInputNode.CreateAttribute(L"DeviceInstanceName", inputMapEntry.targetDevice->GetDeviceInstanceName());
 			registerInputNode.CreateAttribute(L"SystemKeyCode", GetKeyCodeName(inputMapEntry.keyCode));
@@ -3687,7 +3687,7 @@ bool System::SaveSystem(const std::wstring& filePath)
 		if(systemSettingInfo.selectedOption < (unsigned int)systemSettingInfo.options.size())
 		{
 			//Create the system option selection node for this setting
-			IHeirarchicalStorageNode& selectSettingOptionNode = tree.GetRootNode().CreateChild(L"System.SelectSettingOption");
+			IHierarchicalStorageNode& selectSettingOptionNode = tree.GetRootNode().CreateChild(L"System.SelectSettingOption");
 			selectSettingOptionNode.CreateAttribute(L"ModuleID", systemSettingInfo.moduleID);
 			selectSettingOptionNode.CreateAttribute(L"SettingName", systemSettingInfo.name);
 			selectSettingOptionNode.CreateAttribute(L"OptionName", systemSettingInfo.options[systemSettingInfo.selectedOption].name);
@@ -3717,7 +3717,7 @@ bool System::SaveSystem(const std::wstring& filePath)
 		}
 
 		//Create the embedded ROM selection node for this setting
-		IHeirarchicalStorageNode& loadROMDataNode = tree.GetRootNode().CreateChild(L"System.LoadEmbeddedROMData");
+		IHierarchicalStorageNode& loadROMDataNode = tree.GetRootNode().CreateChild(L"System.LoadEmbeddedROMData");
 		loadROMDataNode.CreateAttribute(L"ModuleID", i->moduleID);
 		loadROMDataNode.CreateAttribute(L"DeviceInstanceName", i->targetDevice->GetDeviceInstanceName());
 		loadROMDataNode.CreateAttribute(L"InterfaceNumber", i->interfaceNumber);
@@ -4295,11 +4295,11 @@ unsigned int System::GenerateFreeSystemSettingID() const
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Device(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the device class and instance names
-	IHeirarchicalStorageAttribute* deviceNameAttribute = node.GetAttribute(L"DeviceName");
-	IHeirarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
+	IHierarchicalStorageAttribute* deviceNameAttribute = node.GetAttribute(L"DeviceName");
+	IHierarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
 	if((deviceNameAttribute == 0) || (instanceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceName or InstanceName attribute for Device entry!"));
@@ -4363,11 +4363,11 @@ bool System::LoadModule_Device(IHeirarchicalStorageNode& node, unsigned int modu
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Device_SetDependentDevice(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Device_SetDependentDevice(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the device names
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
 	if((deviceInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or TargetInstanceName attribute for Device.SetDependentDevice!"));
@@ -4393,12 +4393,12 @@ bool System::LoadModule_Device_SetDependentDevice(IHeirarchicalStorageNode& node
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Device_ReferenceDevice(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the device names, and reference name.
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
-	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
+	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName, TargetInstanceName, or ReferenceName attribute for Device.ReferenceDevice!"));
@@ -4428,11 +4428,11 @@ bool System::LoadModule_Device_ReferenceDevice(IHeirarchicalStorageNode& node, u
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Device_ReferenceExtension(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the GlobalExtensionName or ExtensionInstanceName attributes
-	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
-	IHeirarchicalStorageAttribute* globalExtensionNameAttribute = node.GetAttribute(L"GlobalExtensionName");
+	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
+	IHierarchicalStorageAttribute* globalExtensionNameAttribute = node.GetAttribute(L"GlobalExtensionName");
 	if((extensionInstanceNameAttribute == 0) && (globalExtensionNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Either the ExtensionInstanceName or the GlobalExtensionName attribute must be specified for Device.ReferenceExtension!"));
@@ -4484,8 +4484,8 @@ bool System::LoadModule_Device_ReferenceExtension(IHeirarchicalStorageNode& node
 	}
 
 	//Load the device name and reference name.
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or ReferenceName attribute for Device.ReferenceExtension!"));
@@ -4513,10 +4513,10 @@ bool System::LoadModule_Device_ReferenceExtension(IHeirarchicalStorageNode& node
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the BusInterfaceName attribute
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for Device.ReferenceBus!"));
@@ -4535,8 +4535,8 @@ bool System::LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsi
 	}
 
 	//Load the device name and reference name.
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or ReferenceName attribute for Device.ReferenceBus!"));
@@ -4564,12 +4564,12 @@ bool System::LoadModule_Device_ReferenceBus(IHeirarchicalStorageNode& node, unsi
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the clock source name, device name, and reference name.
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
-	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
+	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName, ClockSourceName, or ReferenceName attribute for Device.ReferenceClockSource!"));
@@ -4606,11 +4606,11 @@ bool System::LoadModule_Device_ReferenceClockSource(IHeirarchicalStorageNode& no
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<InputRegistration>& inputRegistrationRequests)
+bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, unsigned int moduleID, std::list<InputRegistration>& inputRegistrationRequests)
 {
 	//Load the device name, system key code, and target key code.
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
 	if((deviceInstanceNameAttribute == 0) || (deviceKeyCodeAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or DeviceKeyCode attribute for Device.RegisterInput!"));
@@ -4638,7 +4638,7 @@ bool System::LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, uns
 	//Retrieve the preferred system key code attribute if one has been specified
 	bool preferredSystemKeyCodeSpecified = false;
 	IDeviceContext::KeyCode systemKeyCode = IDeviceContext::KEYCODE_NONE;
-	IHeirarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"PreferredSystemKeyCode");
+	IHierarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"PreferredSystemKeyCode");
 	if(systemKeyCodeAttribute != 0)
 	{
 		//Extract the system key code string
@@ -4669,10 +4669,10 @@ bool System::LoadModule_Device_RegisterInput(IHeirarchicalStorageNode& node, uns
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_GlobalExtension(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the extension class name
-	IHeirarchicalStorageAttribute* extensionNameAttribute = node.GetAttribute(L"ExtensionName");
+	IHierarchicalStorageAttribute* extensionNameAttribute = node.GetAttribute(L"ExtensionName");
 	if(extensionNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionName attribute for GlobalExtension entry!"));
@@ -4741,11 +4741,11 @@ bool System::LoadModule_GlobalExtension(IHeirarchicalStorageNode& node, unsigned
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Extension(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the extension class and instance names
-	IHeirarchicalStorageAttribute* extensionNameAttribute = node.GetAttribute(L"ExtensionName");
-	IHeirarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
+	IHierarchicalStorageAttribute* extensionNameAttribute = node.GetAttribute(L"ExtensionName");
+	IHierarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
 	if((extensionNameAttribute == 0) || (instanceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionName or InstanceName attribute for Extension entry!"));
@@ -4807,10 +4807,10 @@ bool System::LoadModule_Extension(IHeirarchicalStorageNode& node, unsigned int m
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Extension_ReferenceDevice(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the ExtensionInstanceName attribute
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for Extension.ReferenceDevice!"));
@@ -4829,8 +4829,8 @@ bool System::LoadModule_Extension_ReferenceDevice(IHeirarchicalStorageNode& node
 	}
 
 	//Load the device name and reference name.
-	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
-	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
+	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceDevice!"));
@@ -4858,11 +4858,11 @@ bool System::LoadModule_Extension_ReferenceDevice(IHeirarchicalStorageNode& node
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Extension_ReferenceExtension(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the GlobalExtensionName or ExtensionInstanceName attributes
-	IHeirarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
-	IHeirarchicalStorageAttribute* targetGlobalExtensionNameAttribute = node.GetAttribute(L"TargetGlobalExtensionName");
+	IHierarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
+	IHierarchicalStorageAttribute* targetGlobalExtensionNameAttribute = node.GetAttribute(L"TargetGlobalExtensionName");
 	if((targetInstanceNameAttribute == 0) && (targetGlobalExtensionNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Either the TargetInstanceName or the TargetGlobalExtensionName attribute must be specified for Extension.ReferenceExtension!"));
@@ -4914,8 +4914,8 @@ bool System::LoadModule_Extension_ReferenceExtension(IHeirarchicalStorageNode& n
 	}
 
 	//Load the ExtensionInstanceName and ReferenceName attributes
-	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
-	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
+	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceExtension!"));
@@ -4943,10 +4943,10 @@ bool System::LoadModule_Extension_ReferenceExtension(IHeirarchicalStorageNode& n
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Extension_ReferenceBus(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the BusInterfaceName attribute
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for Extension.ReferenceBus!"));
@@ -4965,8 +4965,8 @@ bool System::LoadModule_Extension_ReferenceBus(IHeirarchicalStorageNode& node, u
 	}
 
 	//Load the extension name and reference name.
-	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
-	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
+	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceBus!"));
@@ -4994,12 +4994,12 @@ bool System::LoadModule_Extension_ReferenceBus(IHeirarchicalStorageNode& node, u
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_Extension_ReferenceClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the clock source name, device name, and reference name.
-	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
-	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
-	IHeirarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
+	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
+	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
+	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((extensionInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName, ClockSourceName, or ReferenceName attribute for Extension.ReferenceClockSource!"));
@@ -5036,10 +5036,10 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHeirarchicalStorageNode&
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the bus name
-	IHeirarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
+	IHierarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
 	if(nameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for BusInterface!"));
@@ -5078,10 +5078,10 @@ bool System::LoadModule_BusInterface(IHeirarchicalStorageNode& node, unsigned in
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_DefineLineGroup(IHeirarchicalStorageNode& node, unsigned int moduleID, NameToIDMap& lineGroupNameToIDMap)
+bool System::LoadModule_BusInterface_DefineLineGroup(IHierarchicalStorageNode& node, unsigned int moduleID, NameToIDMap& lineGroupNameToIDMap)
 {
 	//Locate the bus interface name and module ID
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if((busInterfaceNameAttribute != 0))
@@ -5097,7 +5097,7 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHeirarchicalStorageNode& n
 	}
 
 	//Extract the LineGroupName attribute
-	IHeirarchicalStorageAttribute* lineGroupNameAttribute = node.GetAttribute(L"LineGroupName");
+	IHierarchicalStorageAttribute* lineGroupNameAttribute = node.GetAttribute(L"LineGroupName");
 	if(lineGroupNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing LineGroupName attribute for BusInterface.DefineLineGroup!"));
@@ -5129,10 +5129,10 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHeirarchicalStorageNode& n
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_DefineCELineMemory(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_DefineCELineMemory(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Locate the bus interface name and module ID
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if((busInterfaceNameAttribute != 0))
@@ -5168,10 +5168,10 @@ bool System::LoadModule_BusInterface_DefineCELineMemory(IHeirarchicalStorageNode
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_DefineCELinePort(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_DefineCELinePort(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Locate the bus interface name and module ID
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if((busInterfaceNameAttribute != 0))
@@ -5207,10 +5207,10 @@ bool System::LoadModule_BusInterface_DefineCELinePort(IHeirarchicalStorageNode& 
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_MapCELineInputMemory(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Locate the bus interface name and module ID
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if((busInterfaceNameAttribute != 0))
@@ -5236,7 +5236,7 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHeirarchicalStorageNo
 	}
 
 	//Load the device name
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineInputMemory!"));
@@ -5263,10 +5263,10 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHeirarchicalStorageNo
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_MapCELineInputPort(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Locate the bus interface name and module ID
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if((busInterfaceNameAttribute != 0))
@@ -5292,7 +5292,7 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHeirarchicalStorageNode
 	}
 
 	//Load the device name
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineInputPort!"));
@@ -5319,10 +5319,10 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHeirarchicalStorageNode
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Locate the bus interface name and module ID
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if((busInterfaceNameAttribute != 0))
@@ -5348,7 +5348,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHeirarchicalStorageN
 	}
 
 	//Load the device name
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineOutputMemory!"));
@@ -5375,10 +5375,10 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHeirarchicalStorageN
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_MapCELineOutputPort(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Locate the bus interface name and module ID
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if((busInterfaceNameAttribute != 0))
@@ -5404,7 +5404,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHeirarchicalStorageNod
 	}
 
 	//Load the device name
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineOutputPort!"));
@@ -5431,10 +5431,10 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHeirarchicalStorageNod
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_MapDevice(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the BusInterfaceName attribute
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName for BusInterface.MapDevice!"));
@@ -5453,7 +5453,7 @@ bool System::LoadModule_BusInterface_MapDevice(IHeirarchicalStorageNode& node, u
 	}
 
 	//Load the device name
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapDevice!"));
@@ -5480,10 +5480,10 @@ bool System::LoadModule_BusInterface_MapDevice(IHeirarchicalStorageNode& node, u
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_MapPort(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the BusInterfaceName attribute
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapPort!"));
@@ -5502,7 +5502,7 @@ bool System::LoadModule_BusInterface_MapPort(IHeirarchicalStorageNode& node, uns
 	}
 
 	//Load the device name
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapPort!"));
@@ -5529,15 +5529,15 @@ bool System::LoadModule_BusInterface_MapPort(IHeirarchicalStorageNode& node, uns
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_MapLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& lineGroupNameToIDMap)
+bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& lineGroupNameToIDMap)
 {
 	//Attempt to extract all possible attributes defining the source and target of the
 	//line mapping.
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
-	IHeirarchicalStorageAttribute* sourceDeviceNameAttribute = node.GetAttribute(L"SourceDeviceInstanceName");
-	IHeirarchicalStorageAttribute* sourceLineGroupNameAttribute = node.GetAttribute(L"SourceLineGroupName");
-	IHeirarchicalStorageAttribute* targetDeviceNameAttribute = node.GetAttribute(L"TargetDeviceInstanceName");
-	IHeirarchicalStorageAttribute* targetLineGroupNameAttribute = node.GetAttribute(L"TargetLineGroupName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* sourceDeviceNameAttribute = node.GetAttribute(L"SourceDeviceInstanceName");
+	IHierarchicalStorageAttribute* sourceLineGroupNameAttribute = node.GetAttribute(L"SourceLineGroupName");
+	IHierarchicalStorageAttribute* targetDeviceNameAttribute = node.GetAttribute(L"TargetDeviceInstanceName");
+	IHierarchicalStorageAttribute* targetLineGroupNameAttribute = node.GetAttribute(L"TargetLineGroupName");
 	if((sourceDeviceNameAttribute != 0) && (targetDeviceNameAttribute != 0) && (busInterfaceNameAttribute != 0))
 	{
 		//Load the bus, source device, and target device names.
@@ -5656,10 +5656,10 @@ bool System::LoadModule_BusInterface_MapLine(IHeirarchicalStorageNode& node, uns
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the BusInterfaceName attribute
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapClockSource!"));
@@ -5678,7 +5678,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& no
 	}
 
 	//Extract the ClockSourceName attribute
-	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
+	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
 	if(clockSourceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ClockSourceName attribute for BusInterface.MapClockSource!"));
@@ -5697,7 +5697,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& no
 	}
 
 	//Load the device name
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapClockSource!"));
@@ -5727,12 +5727,12 @@ bool System::LoadModule_BusInterface_MapClockSource(IHeirarchicalStorageNode& no
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_BusInterface_UnmappedLineState(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract all required attributes
-	IHeirarchicalStorageAttribute* deviceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
-	IHeirarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
+	IHierarchicalStorageAttribute* deviceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
+	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if((deviceNameAttribute == 0) || (targetLineAttribute == 0) || (valueAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName, TargetLine, or Value attribute for BusInterface.UnmappedLineState!"));
@@ -5778,10 +5778,10 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHeirarchicalStorageNode&
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_ClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the clock source name
-	IHeirarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
+	IHierarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
 	if(nameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for ClockSource!"));
@@ -5821,10 +5821,10 @@ bool System::LoadModule_ClockSource(IHeirarchicalStorageNode& node, unsigned int
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_ClockSource_SetInputClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Load the source clock source name
-	IHeirarchicalStorageAttribute* inputClockSourceNameAttribute = node.GetAttribute(L"InputClockSourceName");
+	IHierarchicalStorageAttribute* inputClockSourceNameAttribute = node.GetAttribute(L"InputClockSourceName");
 	if(inputClockSourceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing InputClockSourceName attribute for ClockSource.SetInputClockSource!"));
@@ -5833,7 +5833,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHeirarchicalStorageNode
 	std::wstring inputClockSourceName = inputClockSourceNameAttribute->GetValue();
 
 	//Load the target clock source name
-	IHeirarchicalStorageAttribute* targetClockSourceNameAttribute = node.GetAttribute(L"TargetClockSourceName");
+	IHierarchicalStorageAttribute* targetClockSourceNameAttribute = node.GetAttribute(L"TargetClockSourceName");
 	if(targetClockSourceNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing TargetClockSourceName attribute for ClockSource.SetInputClockSource!"));
@@ -5866,12 +5866,12 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHeirarchicalStorageNode
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, unsigned int moduleID, std::list<ViewModelOpenRequest>& viewModelOpenRequests)
+bool System::LoadModule_System_OpenViewModel(IHierarchicalStorageNode& node, unsigned int moduleID, std::list<ViewModelOpenRequest>& viewModelOpenRequests)
 {
 	//Extract the Owner, MenuHandlerName, and ViewID attributes
-	IHeirarchicalStorageAttribute* ownerAttribute = node.GetAttribute(L"Owner");
-	IHeirarchicalStorageAttribute* viewModelGroupAttribute = node.GetAttribute(L"ViewModelGroupName");
-	IHeirarchicalStorageAttribute* viewModelNameAttribute = node.GetAttribute(L"ViewModelName");
+	IHierarchicalStorageAttribute* ownerAttribute = node.GetAttribute(L"Owner");
+	IHierarchicalStorageAttribute* viewModelGroupAttribute = node.GetAttribute(L"ViewModelGroupName");
+	IHierarchicalStorageAttribute* viewModelNameAttribute = node.GetAttribute(L"ViewModelName");
 	if((ownerAttribute == 0) || (viewModelGroupAttribute == 0) || (viewModelNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Owner, ViewModelGroupName, or ViewModelName attribute for System.OpenViewModel!"));
@@ -5893,7 +5893,7 @@ bool System::LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, uns
 	else if(owner == L"Device")
 	{
 		//Extract the device instance name attribute
-		IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+		IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 		if(deviceInstanceNameAttribute == 0)
 		{
 			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for System.OpenViewModel!"));
@@ -5919,11 +5919,11 @@ bool System::LoadModule_System_OpenViewModel(IHeirarchicalStorageNode& node, uns
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ExportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ExportConnector(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the BusInterfaceName, ConnectorClassName, and ConnectorInstanceName attributes
-	IHeirarchicalStorageAttribute* connectorClassNameAttribute = node.GetAttribute(L"ConnectorClassName");
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* connectorClassNameAttribute = node.GetAttribute(L"ConnectorClassName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	if((connectorClassNameAttribute == 0) || (connectorInstanceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorClassName or ConnectorInstanceName attribute for System.ExportConnector!"));
@@ -5947,12 +5947,12 @@ bool System::LoadModule_System_ExportConnector(IHeirarchicalStorageNode& node, u
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ExportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, DeviceInstanceName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (deviceInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ExportDevice!"));
@@ -6003,12 +6003,12 @@ bool System::LoadModule_System_ExportDevice(IHeirarchicalStorageNode& node, unsi
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ExportExtension(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, ExtensionInstanceName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (extensionInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ExportExtension!"));
@@ -6056,12 +6056,12 @@ bool System::LoadModule_System_ExportExtension(IHeirarchicalStorageNode& node, u
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, const NameToIDMap& lineGroupNameToIDMap)
+bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, const NameToIDMap& lineGroupNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, BusInterfaceName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (busInterfaceNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ExportBusInterface!"));
@@ -6105,16 +6105,16 @@ bool System::LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node
 	exportedBusInfo.importName = importName;
 
 	//Process any child elements of this node
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		IHeirarchicalStorageNode& childNode = *(*i);
+		IHierarchicalStorageNode& childNode = *(*i);
 		std::wstring elementName = childNode.GetName();
 		if(elementName == L"ExportLineGroup")
 		{
 			//Extract the LineGroupName and ImportName attributes
-			IHeirarchicalStorageAttribute* childLineGroupNameAttribute = childNode.GetAttribute(L"LineGroupName");
-			IHeirarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
+			IHierarchicalStorageAttribute* childLineGroupNameAttribute = childNode.GetAttribute(L"LineGroupName");
+			IHierarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
 			if((childLineGroupNameAttribute == 0) || (childImportNameAttribute == 0))
 			{
 				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing LineGroupName or ImportName attribute for ExportLineGroup on System.ExportBusInterface!"));
@@ -6173,12 +6173,12 @@ bool System::LoadModule_System_ExportBusInterface(IHeirarchicalStorageNode& node
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ExportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, ClockSourceName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ExportClockSource!"));
@@ -6226,12 +6226,12 @@ bool System::LoadModule_System_ExportClockSource(IHeirarchicalStorageNode& node,
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ExportSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, SystemLineName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* systemLineNameAttribute = node.GetAttribute(L"SystemLineName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* systemLineNameAttribute = node.GetAttribute(L"SystemLineName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemLineNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ExportSystemLine!"));
@@ -6279,12 +6279,12 @@ bool System::LoadModule_System_ExportSystemLine(IHeirarchicalStorageNode& node, 
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ExportSystemSetting(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, SystemSettingName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* systemSettingNameAttribute = node.GetAttribute(L"SystemSettingName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* systemSettingNameAttribute = node.GetAttribute(L"SystemSettingName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemSettingNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ExportSystemSetting!"));
@@ -6332,11 +6332,11 @@ bool System::LoadModule_System_ExportSystemSetting(IHeirarchicalStorageNode& nod
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ImportConnector(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, const ConnectorMappingList& connectorMappings, NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ImportConnector(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, const ConnectorMappingList& connectorMappings, NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorClassName and ConnectorInstanceName attributes
-	IHeirarchicalStorageAttribute* connectorClassNameAttribute = node.GetAttribute(L"ConnectorClassName");
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* connectorClassNameAttribute = node.GetAttribute(L"ConnectorClassName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	if((connectorClassNameAttribute == 0) || (connectorInstanceNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorClassName or ConnectorInstanceName attribute for System.ImportConnector!"));
@@ -6398,12 +6398,12 @@ bool System::LoadModule_System_ImportConnector(IHeirarchicalStorageNode& node, u
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ImportDevice(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, DeviceInstanceName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (deviceInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ImportDevice!"));
@@ -6455,12 +6455,12 @@ bool System::LoadModule_System_ImportDevice(IHeirarchicalStorageNode& node, unsi
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ImportExtension(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, ExtensionInstanceName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (extensionInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ImportExtension!"));
@@ -6511,12 +6511,12 @@ bool System::LoadModule_System_ImportExtension(IHeirarchicalStorageNode& node, u
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap)
+bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, BusInterfaceName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (busInterfaceNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ImportBusInterface!"));
@@ -6563,16 +6563,16 @@ bool System::LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node
 	importedBusInfo.connectorID = connectorID;
 
 	//Process any child elements of this node
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		IHeirarchicalStorageNode& childNode = *(*i);
+		IHierarchicalStorageNode& childNode = *(*i);
 		std::wstring elementName = childNode.GetName();
 		if(elementName == L"ImportLineGroup")
 		{
 			//Extract the LineGroupName and ImportName attributes
-			IHeirarchicalStorageAttribute* childLineGroupNameAttribute = childNode.GetAttribute(L"LineGroupName");
-			IHeirarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
+			IHierarchicalStorageAttribute* childLineGroupNameAttribute = childNode.GetAttribute(L"LineGroupName");
+			IHierarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
 			if((childLineGroupNameAttribute == 0) || (childImportNameAttribute == 0))
 			{
 				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing LineGroupName or ImportName attribute for ImportLineGroup on System.ImportBusInterface!"));
@@ -6632,12 +6632,12 @@ bool System::LoadModule_System_ImportBusInterface(IHeirarchicalStorageNode& node
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, ClockSourceName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ImportClockSource!"));
@@ -6688,12 +6688,12 @@ bool System::LoadModule_System_ImportClockSource(IHeirarchicalStorageNode& node,
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ImportSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, SystemLineName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* systemLineNameAttribute = node.GetAttribute(L"SystemLineName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* systemLineNameAttribute = node.GetAttribute(L"SystemLineName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemLineNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ImportSystemLine!"));
@@ -6744,12 +6744,12 @@ bool System::LoadModule_System_ImportSystemLine(IHeirarchicalStorageNode& node, 
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_ImportSystemSetting(IHeirarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
+bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
 	//Extract the ConnectorInstanceName, SystemOptionName, and ImportName attributes
-	IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
-	IHeirarchicalStorageAttribute* systemSettingNameAttribute = node.GetAttribute(L"SystemSettingName");
-	IHeirarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
+	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
+	IHierarchicalStorageAttribute* systemSettingNameAttribute = node.GetAttribute(L"SystemSettingName");
+	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemSettingNameAttribute == 0) || (importNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ImportSystemSetting!"));
@@ -6800,14 +6800,14 @@ bool System::LoadModule_System_ImportSystemSetting(IHeirarchicalStorageNode& nod
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_DefineEmbeddedROM(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_System_DefineEmbeddedROM(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract all the required attributes
-	IHeirarchicalStorageAttribute* embeddedROMNameAttribute = node.GetAttribute(L"EmbeddedROMName");
-	IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"TargetDeviceInstanceName");
-	IHeirarchicalStorageAttribute* interfaceNumberAttribute = node.GetAttribute(L"InterfaceNumber");
-	IHeirarchicalStorageAttribute* romRegionSizeAttribute = node.GetAttribute(L"ROMRegionSize");
-	IHeirarchicalStorageAttribute* romEntryBitCountAttribute = node.GetAttribute(L"ROMEntryBitCount");
+	IHierarchicalStorageAttribute* embeddedROMNameAttribute = node.GetAttribute(L"EmbeddedROMName");
+	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"TargetDeviceInstanceName");
+	IHierarchicalStorageAttribute* interfaceNumberAttribute = node.GetAttribute(L"InterfaceNumber");
+	IHierarchicalStorageAttribute* romRegionSizeAttribute = node.GetAttribute(L"ROMRegionSize");
+	IHierarchicalStorageAttribute* romEntryBitCountAttribute = node.GetAttribute(L"ROMEntryBitCount");
 	if((embeddedROMNameAttribute == 0) || (deviceInstanceNameAttribute == 0) || (interfaceNumberAttribute == 0) || (romRegionSizeAttribute == 0) || (romEntryBitCountAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing EmbeddedROMName, TargetDeviceInstanceName, InterfaceNumber, ROMRegionSize, or ROMEntryBitCount attribute for System.DefineEmbeddedROM!"));
@@ -6820,7 +6820,7 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHeirarchicalStorageNode& node,
 	unsigned int romEntryBitCount = romEntryBitCountAttribute->ExtractValue<unsigned int>();
 
 	//Retrieve the optional DisplayName attribute
-	IHeirarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
+	IHierarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
 	std::wstring displayName = embeddedROMName;
 	if(displayNameAttribute != 0)
 	{
@@ -6852,11 +6852,11 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHeirarchicalStorageNode& node,
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_DefineSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_System_DefineSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the Name and Width attributes
-	IHeirarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
-	IHeirarchicalStorageAttribute* widthAttribute = node.GetAttribute(L"Width");
+	IHierarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
+	IHierarchicalStorageAttribute* widthAttribute = node.GetAttribute(L"Width");
 	if((nameAttribute == 0) || (widthAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name or Width attribute for System.DefineSystemLine!"));
@@ -6885,12 +6885,12 @@ bool System::LoadModule_System_DefineSystemLine(IHeirarchicalStorageNode& node, 
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, unsigned int moduleID)
+bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
 	//Extract the Name and Width attributes
-	IHeirarchicalStorageAttribute* sourceSystemLineNameAttribute = node.GetAttribute(L"SourceSystemLineName");
-	IHeirarchicalStorageAttribute* targetDeviceInstanceNameAttribute = node.GetAttribute(L"TargetDeviceInstanceName");
-	IHeirarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
+	IHierarchicalStorageAttribute* sourceSystemLineNameAttribute = node.GetAttribute(L"SourceSystemLineName");
+	IHierarchicalStorageAttribute* targetDeviceInstanceNameAttribute = node.GetAttribute(L"TargetDeviceInstanceName");
+	IHierarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
 	if((sourceSystemLineNameAttribute == 0) || (targetDeviceInstanceNameAttribute == 0) || (targetLineAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SourceSystemLineName, TargetDeviceInstanceName, or TargetLine attribute for System.MapSystemLine!"));
@@ -6903,7 +6903,7 @@ bool System::LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, uns
 	//Extract the LineMapping attribute if one has been specified
 	bool lineMappingSpecified = false;
 	std::wstring lineMapping;
-	IHeirarchicalStorageAttribute* lineMappingAttribute = node.GetAttribute(L"LineMapping");
+	IHierarchicalStorageAttribute* lineMappingAttribute = node.GetAttribute(L"LineMapping");
 	if(lineMappingAttribute != 0)
 	{
 		lineMappingSpecified = true;
@@ -6952,19 +6952,19 @@ bool System::LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, uns
 
 	//Extract any line bitmasks that have been specified
 	unsigned int lineMaskAND = 0xFFFFFFFF;
-	IHeirarchicalStorageAttribute* lineMaskANDAttribute = node.GetAttribute(L"ANDMask");
+	IHierarchicalStorageAttribute* lineMaskANDAttribute = node.GetAttribute(L"ANDMask");
 	if(lineMaskANDAttribute != 0)
 	{
 		lineMaskAND = lineMaskANDAttribute->ExtractHexValue<unsigned int>();
 	}
 	unsigned int lineMaskOR = 0;
-	IHeirarchicalStorageAttribute* lineMaskORAttribute = node.GetAttribute(L"ORMask");
+	IHierarchicalStorageAttribute* lineMaskORAttribute = node.GetAttribute(L"ORMask");
 	if(lineMaskORAttribute != 0)
 	{
 		lineMaskOR = lineMaskORAttribute->ExtractHexValue<unsigned int>();
 	}
 	unsigned int lineMaskXOR = 0;
-	IHeirarchicalStorageAttribute* lineMaskXORAttribute = node.GetAttribute(L"XORMask");
+	IHierarchicalStorageAttribute* lineMaskXORAttribute = node.GetAttribute(L"XORMask");
 	if(lineMaskXORAttribute != 0)
 	{
 		lineMaskXOR = lineMaskXORAttribute->ExtractHexValue<unsigned int>();
@@ -7002,10 +7002,10 @@ bool System::LoadModule_System_MapSystemLine(IHeirarchicalStorageNode& node, uns
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName)
+bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName)
 {
 	//Extract the Name attribute
-	IHeirarchicalStorageAttribute* settingNameAttribute = node.GetAttribute(L"Name");
+	IHierarchicalStorageAttribute* settingNameAttribute = node.GetAttribute(L"Name");
 	if(settingNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for System.Setting!"));
@@ -7015,7 +7015,7 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 
 	//Build the display name
 	std::wstring displayName = settingName;
-	IHeirarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
+	IHierarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
 	if(displayNameAttribute != 0)
 	{
 		displayName = displayNameAttribute->GetValue();
@@ -7030,9 +7030,9 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 	//Extract any supplied optional lead-in time attributes
 	setting.settingChangeLeadInTime = 0;
 	setting.settingChangeLeadInTimeRandom = false;
-	IHeirarchicalStorageAttribute* settingChangeLeadInTimeAttribute = node.GetAttribute(L"SettingChangeLeadInTime");
-	IHeirarchicalStorageAttribute* settingChangeLeadInRandomTimeRangeBeginAttribute = node.GetAttribute(L"SettingChangeLeadInRandomTimeRangeBegin");
-	IHeirarchicalStorageAttribute* settingChangeLeadInRandomTimeRangeEndAttribute = node.GetAttribute(L"SettingChangeLeadInRandomTimeRangeEnd");
+	IHierarchicalStorageAttribute* settingChangeLeadInTimeAttribute = node.GetAttribute(L"SettingChangeLeadInTime");
+	IHierarchicalStorageAttribute* settingChangeLeadInRandomTimeRangeBeginAttribute = node.GetAttribute(L"SettingChangeLeadInRandomTimeRangeBegin");
+	IHierarchicalStorageAttribute* settingChangeLeadInRandomTimeRangeEndAttribute = node.GetAttribute(L"SettingChangeLeadInRandomTimeRangeEnd");
 	if(((settingChangeLeadInTimeAttribute != 0) && ((settingChangeLeadInRandomTimeRangeBeginAttribute != 0) || (settingChangeLeadInRandomTimeRangeEndAttribute != 0)))
 	|| ((settingChangeLeadInRandomTimeRangeBeginAttribute != 0) != (settingChangeLeadInRandomTimeRangeEndAttribute != 0)))
 	{
@@ -7058,7 +7058,7 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 
 	//Extract any optional toggle setting attributes
 	setting.toggleSetting = false;
-	IHeirarchicalStorageAttribute* toggleSettingAttribute = node.GetAttribute(L"ToggleSetting");
+	IHierarchicalStorageAttribute* toggleSettingAttribute = node.GetAttribute(L"ToggleSetting");
 	if(toggleSettingAttribute != 0)
 	{
 		setting.toggleSetting = toggleSettingAttribute->ExtractValue<bool>();
@@ -7070,10 +7070,10 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 	setting.toggleSettingAutoRevertTimeRandom = false;
 	if(setting.toggleSetting)
 	{
-		IHeirarchicalStorageAttribute* toggleSettingAutoRevertAttribute = node.GetAttribute(L"ToggleSettingAutoRevert");
-		IHeirarchicalStorageAttribute* toggleSettingAutoRevertTimeAttribute = node.GetAttribute(L"ToggleSettingAutoRevertTime");
-		IHeirarchicalStorageAttribute* toggleSettingAutoRevertRandomTimeRangeBeginAttribute = node.GetAttribute(L"ToggleSettingAutoRevertRandomTimeRangeBegin");
-		IHeirarchicalStorageAttribute* toggleSettingAutoRevertRandomTimeRangeEndAttribute = node.GetAttribute(L"ToggleSettingAutoRevertRandomTimeRangeEnd");
+		IHierarchicalStorageAttribute* toggleSettingAutoRevertAttribute = node.GetAttribute(L"ToggleSettingAutoRevert");
+		IHierarchicalStorageAttribute* toggleSettingAutoRevertTimeAttribute = node.GetAttribute(L"ToggleSettingAutoRevertTime");
+		IHierarchicalStorageAttribute* toggleSettingAutoRevertRandomTimeRangeBeginAttribute = node.GetAttribute(L"ToggleSettingAutoRevertRandomTimeRangeBegin");
+		IHierarchicalStorageAttribute* toggleSettingAutoRevertRandomTimeRangeEndAttribute = node.GetAttribute(L"ToggleSettingAutoRevertRandomTimeRangeEnd");
 		if((toggleSettingAutoRevertAttribute != 0) && (((toggleSettingAutoRevertTimeAttribute == 0) && (toggleSettingAutoRevertRandomTimeRangeBeginAttribute == 0) && (toggleSettingAutoRevertRandomTimeRangeEndAttribute == 0))
 		|| ((toggleSettingAutoRevertTimeAttribute != 0) && ((toggleSettingAutoRevertRandomTimeRangeBeginAttribute != 0) || (toggleSettingAutoRevertRandomTimeRangeEndAttribute != 0)))
 		|| ((toggleSettingAutoRevertRandomTimeRangeBeginAttribute != 0) != (toggleSettingAutoRevertRandomTimeRangeEndAttribute != 0))))
@@ -7106,8 +7106,8 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 	//Load the child elements from this setting node
 	unsigned int toggleSettingOnOptionIndex;
 	bool toggleSettingOnOptionIndexDefined = false;
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		bool loadedSettingOptionSuccessfully = false;
 		SystemSettingOption settingOption;
@@ -7193,10 +7193,10 @@ bool System::LoadModule_System_Setting(IHeirarchicalStorageNode& node, unsigned 
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption, bool& toggleSettingOnOption)
+bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption, bool& toggleSettingOnOption)
 {
 	//Extract the Name attribute
-	IHeirarchicalStorageAttribute* optionNameAttribute = node.GetAttribute(L"Name");
+	IHierarchicalStorageAttribute* optionNameAttribute = node.GetAttribute(L"Name");
 	if(optionNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for System.Setting.Option!"));
@@ -7206,7 +7206,7 @@ bool System::LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, un
 
 	//Build the display name
 	std::wstring displayName = optionName;
-	IHeirarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
+	IHierarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
 	if(displayNameAttribute != 0)
 	{
 		displayName = displayNameAttribute->GetValue();
@@ -7214,7 +7214,7 @@ bool System::LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, un
 
 	//Extract the Default attribute
 	defaultOption = false;
-	IHeirarchicalStorageAttribute* defaultAttribute = node.GetAttribute(L"Default");
+	IHierarchicalStorageAttribute* defaultAttribute = node.GetAttribute(L"Default");
 	if(defaultAttribute != 0)
 	{
 		defaultOption = defaultAttribute->ExtractValue<bool>();
@@ -7222,7 +7222,7 @@ bool System::LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, un
 
 	//Extract the ToggleSettingOnOption attribute
 	toggleSettingOnOption = false;
-	IHeirarchicalStorageAttribute* toggleSettingOnOptionAttribute = node.GetAttribute(L"ToggleSettingOnOption");
+	IHierarchicalStorageAttribute* toggleSettingOnOptionAttribute = node.GetAttribute(L"ToggleSettingOnOption");
 	if(toggleSettingOnOptionAttribute != 0)
 	{
 		toggleSettingOnOption = toggleSettingOnOptionAttribute->ExtractValue<bool>();
@@ -7233,8 +7233,8 @@ bool System::LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, un
 	option.displayName = displayName;
 
 	//Load the child elements from this option node
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		bool loadedSettingChangeSuccessfully = false;
 		SystemStateChange settingChange;
@@ -7273,11 +7273,11 @@ bool System::LoadModule_System_Setting_Option(IHeirarchicalStorageNode& node, un
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_SelectSettingOption(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange)
+bool System::LoadModule_System_SelectSettingOption(IHierarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange)
 {
 	//Extract the SettingName and OptionName attributes
-	IHeirarchicalStorageAttribute* settingNameAttribute = node.GetAttribute(L"SettingName");
-	IHeirarchicalStorageAttribute* optionNameAttribute = node.GetAttribute(L"OptionName");
+	IHierarchicalStorageAttribute* settingNameAttribute = node.GetAttribute(L"SettingName");
+	IHierarchicalStorageAttribute* optionNameAttribute = node.GetAttribute(L"OptionName");
 	if((settingNameAttribute == 0) || (optionNameAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SettingName or OptionName attribute for System.SelectSettingOption!"));
@@ -7296,12 +7296,12 @@ bool System::LoadModule_System_SelectSettingOption(IHeirarchicalStorageNode& nod
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_SetClockFrequency(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange)
+bool System::LoadModule_System_SetClockFrequency(IHierarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange)
 {
 	//Extract the TargetClockName, ClockType, and Value attributes
-	IHeirarchicalStorageAttribute* targetClockNameAttribute = node.GetAttribute(L"TargetClockName");
-	IHeirarchicalStorageAttribute* clockTypeAttribute = node.GetAttribute(L"ClockType");
-	IHeirarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
+	IHierarchicalStorageAttribute* targetClockNameAttribute = node.GetAttribute(L"TargetClockName");
+	IHierarchicalStorageAttribute* clockTypeAttribute = node.GetAttribute(L"ClockType");
+	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if((targetClockNameAttribute == 0) || (clockTypeAttribute == 0) || (valueAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing TargetClockName, ClockType, or Value attribute for System.SetClockFrequency!"));
@@ -7330,11 +7330,11 @@ bool System::LoadModule_System_SetClockFrequency(IHeirarchicalStorageNode& node,
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule_System_SetLineState(IHeirarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange)
+bool System::LoadModule_System_SetLineState(IHierarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange)
 {
 	//Extract the SystemLineName and Value attributes
-	IHeirarchicalStorageAttribute* systemLineNameAttribute = node.GetAttribute(L"SystemLineName");
-	IHeirarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
+	IHierarchicalStorageAttribute* systemLineNameAttribute = node.GetAttribute(L"SystemLineName");
+	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if((systemLineNameAttribute == 0) || (valueAttribute == 0))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SystemLineName or Value attribute for System.SetClockFrequency!"));
@@ -7431,13 +7431,13 @@ bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring&
 	source.ProcessByteOrderMark();
 
 	//Load the XML structure from the file
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	if(!tree.LoadTree(source))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error loading XML structure from module file " + filePath + L"! The xml error string is as follows: " + tree.GetErrorString()));
 		return false;
 	}
-	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 
 	//If this is a system module, no connector info exists. In this case, return true with
 	//no data in the connector import and export lists, and a blank system class name.
@@ -7447,7 +7447,7 @@ bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring&
 	}
 
 	//Extract the system class name
-	IHeirarchicalStorageAttribute* systemClassNameAttribute = rootNode.GetAttribute(L"SystemClassName");
+	IHierarchicalStorageAttribute* systemClassNameAttribute = rootNode.GetAttribute(L"SystemClassName");
 	if(systemClassNameAttribute == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SystemClassName on root node!"));
@@ -7456,14 +7456,14 @@ bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring&
 	systemClassName = systemClassNameAttribute->GetValue();
 
 	//Extract connector definitions
-	std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); !loadSystemAbort && (i != childList.end()); ++i)
+	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); !loadSystemAbort && (i != childList.end()); ++i)
 	{
 		std::wstring elementName = (*i)->GetName();
 		if(elementName == L"System.ExportConnector")
 		{
-			IHeirarchicalStorageAttribute* connectorClassNameAttribute = (*i)->GetAttribute(L"ConnectorClassName");
-			IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = (*i)->GetAttribute(L"ConnectorInstanceName");
+			IHierarchicalStorageAttribute* connectorClassNameAttribute = (*i)->GetAttribute(L"ConnectorClassName");
+			IHierarchicalStorageAttribute* connectorInstanceNameAttribute = (*i)->GetAttribute(L"ConnectorInstanceName");
 			if((connectorClassNameAttribute != 0) && (connectorInstanceNameAttribute != 0))
 			{
 				std::wstring connectorClassName = connectorClassNameAttribute->GetValue();
@@ -7476,8 +7476,8 @@ bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring&
 		}
 		else if(elementName == L"System.ImportConnector")
 		{
-			IHeirarchicalStorageAttribute* connectorClassNameAttribute = (*i)->GetAttribute(L"ConnectorClassName");
-			IHeirarchicalStorageAttribute* connectorInstanceNameAttribute = (*i)->GetAttribute(L"ConnectorInstanceName");
+			IHierarchicalStorageAttribute* connectorClassNameAttribute = (*i)->GetAttribute(L"ConnectorClassName");
+			IHierarchicalStorageAttribute* connectorInstanceNameAttribute = (*i)->GetAttribute(L"ConnectorInstanceName");
 			if((connectorClassNameAttribute != 0) && (connectorInstanceNameAttribute != 0))
 			{
 				std::wstring connectorClassName = connectorClassNameAttribute->GetValue();

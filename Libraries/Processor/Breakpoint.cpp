@@ -1,6 +1,6 @@
 #include "Breakpoint.h"
 #include <sstream>
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "DataConversion/DataConversion.pkg"
 
 //----------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ std::wstring Breakpoint::GenerateName(unsigned int addressCharWidth) const
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-void Breakpoint::LoadState(IHeirarchicalStorageNode& node)
+void Breakpoint::LoadState(IHierarchicalStorageNode& node)
 {
 	node.ExtractAttribute(L"Name", name);
 	node.ExtractAttribute(L"Enabled", enabled);
@@ -94,7 +94,7 @@ void Breakpoint::LoadState(IHeirarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-void Breakpoint::SaveState(IHeirarchicalStorageNode& node) const
+void Breakpoint::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.CreateAttribute(L"Name", name);
 	node.CreateAttribute(L"Enabled", enabled);

@@ -1732,7 +1732,7 @@ template<class T> void RandomTimeAccessBufferNew<T>::Resize(unsigned int size)
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::LoadState(IHeirarchicalStorageNode& node)
+template<class T> void RandomTimeAccessBufferNew<T>::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	std::list<WriteSaveEntry> writeSaveList;
@@ -1741,8 +1741,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::LoadState(IHeirarchicalStor
 	node.ExtractAttribute(L"CurrentTimeOffset", currentTimeOffset);
 
 	//Read saved data from the XML tree
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if(i->GetName() == L"TimesliceList")
 		{
@@ -1804,17 +1804,17 @@ template<class T> void RandomTimeAccessBufferNew<T>::LoadState(IHeirarchicalStor
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> std::list<typename RandomTimeAccessBufferNew<T>::TimesliceSaveEntry> RandomTimeAccessBufferNew<T>::LoadTimesliceEntries(IHeirarchicalStorageNode& node)
+template<class T> std::list<typename RandomTimeAccessBufferNew<T>::TimesliceSaveEntry> RandomTimeAccessBufferNew<T>::LoadTimesliceEntries(IHierarchicalStorageNode& node)
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if(i->GetName() == L"Timeslice")
 		{
-			IHeirarchicalStorageAttribute* timesliceID = i->GetAttribute(L"TimesliceID");
-			IHeirarchicalStorageAttribute* timesliceLength = i->GetAttribute(L"TimesliceLength");
+			IHierarchicalStorageAttribute* timesliceID = i->GetAttribute(L"TimesliceID");
+			IHierarchicalStorageAttribute* timesliceLength = i->GetAttribute(L"TimesliceLength");
 			if((timesliceID != 0) && (timesliceLength != 0))
 			{
 				TimesliceSaveEntry entry(timesliceID->ExtractValue<unsigned int>(), timesliceLength->ExtractValue<double>());
@@ -1835,19 +1835,19 @@ template<class T> std::list<typename RandomTimeAccessBufferNew<T>::TimesliceSave
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> std::list<typename RandomTimeAccessBufferNew<T>::WriteSaveEntry> RandomTimeAccessBufferNew<T>::LoadWriteEntries(IHeirarchicalStorageNode& node)
+template<class T> std::list<typename RandomTimeAccessBufferNew<T>::WriteSaveEntry> RandomTimeAccessBufferNew<T>::LoadWriteEntries(IHierarchicalStorageNode& node)
 {
 	std::list<WriteSaveEntry> writeSaveList;
 
-	std::list<IHeirarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if(i->GetName() == L"Write")
 		{
-			IHeirarchicalStorageAttribute* writeAddress = i->GetAttribute(L"WriteAddress");
-			IHeirarchicalStorageAttribute* writeTime = i->GetAttribute(L"WriteTime");
-			IHeirarchicalStorageAttribute* oldValue = i->GetAttribute(L"OldValue");
-			IHeirarchicalStorageAttribute* timesliceID = i->GetAttribute(L"TimesliceID");
+			IHierarchicalStorageAttribute* writeAddress = i->GetAttribute(L"WriteAddress");
+			IHierarchicalStorageAttribute* writeTime = i->GetAttribute(L"WriteTime");
+			IHierarchicalStorageAttribute* oldValue = i->GetAttribute(L"OldValue");
+			IHierarchicalStorageAttribute* timesliceID = i->GetAttribute(L"TimesliceID");
 			if((writeAddress != 0) && (writeTime != 0) && (oldValue != 0) && (timesliceID != 0))
 			{
 				//Extract the write entry from the XML stream
@@ -1871,7 +1871,7 @@ template<class T> std::list<typename RandomTimeAccessBufferNew<T>::WriteSaveEntr
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::GetState(IHeirarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData) const
+template<class T> void RandomTimeAccessBufferNew<T>::GetState(IHierarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData) const
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	std::vector<T> saveMemory;
@@ -1890,37 +1890,37 @@ template<class T> void RandomTimeAccessBufferNew<T>::GetState(IHeirarchicalStora
 	saveMemory.insert(saveMemory.begin(), memory.begin(), memory.end());
 
 	//Build numeric ID's to identify each timeslice, and save the timeslice list state
-	IHeirarchicalStorageNode& timesliceListState = node.CreateChild(L"TimesliceList");
+	IHierarchicalStorageNode& timesliceListState = node.CreateChild(L"TimesliceList");
 	unsigned int id = 0;
 	for(TimesliceList::Element* i = timesliceList.GetFirstEntry(); i != 0; i = i->next)
 	{
 		if(i->object.notDeleted)
 		{
 			timesliceSaveList.push_back(TimesliceSaveEntry(i, id));
-			IHeirarchicalStorageNode timesliceEntry(L"Timeslice");
-			timesliceEntry.AddAttribute(IHeirarchicalStorageAttribute(L"TimesliceID", id));
-			timesliceEntry.AddAttribute(IHeirarchicalStorageAttribute(L"TimesliceLength", i->object.timesliceLength));
+			IHierarchicalStorageNode timesliceEntry(L"Timeslice");
+			timesliceEntry.AddAttribute(IHierarchicalStorageAttribute(L"TimesliceID", id));
+			timesliceEntry.AddAttribute(IHierarchicalStorageAttribute(L"TimesliceLength", i->object.timesliceLength));
 			timesliceListState.AddChild(timesliceEntry);
 			++id;
 		}
 	}
 
 	//Save the writeList state
-	IHeirarchicalStorageNode& writeListState = node.CreateChild(L"WriteList");
+	IHierarchicalStorageNode& writeListState = node.CreateChild(L"WriteList");
 	std::list<TimesliceSaveEntry>::iterator currentTimeslice = timesliceSaveList.begin();
 	for(WriteList::Element* i = writeList.GetFirstEntry(); i != 0; i = i->next)
 	{
 		if(i->object.notDeleted)
 		{
-			IHeirarchicalStorageNode writeEntry(L"Write");
+			IHierarchicalStorageNode writeEntry(L"Write");
 			while(currentTimeslice->timeslice != i->object.currentTimeslice)
 			{
 				++currentTimeslice;
 			}
-			writeEntry.AddAttribute(IHeirarchicalStorageAttribute(L"TimesliceID", currentTimeslice->id));
-			writeEntry.AddAttribute(IHeirarchicalStorageAttribute(L"WriteAddress", i->object.writeAddress));
-			writeEntry.AddAttribute(IHeirarchicalStorageAttribute(L"WriteTime", i->object.writeTime));
-			writeEntry.AddAttribute(IHeirarchicalStorageAttribute(L"OldValue", saveMemory[i->object.writeAddress]));
+			writeEntry.AddAttribute(IHierarchicalStorageAttribute(L"TimesliceID", currentTimeslice->id));
+			writeEntry.AddAttribute(IHierarchicalStorageAttribute(L"WriteAddress", i->object.writeAddress));
+			writeEntry.AddAttribute(IHierarchicalStorageAttribute(L"WriteTime", i->object.writeTime));
+			writeEntry.AddAttribute(IHierarchicalStorageAttribute(L"OldValue", saveMemory[i->object.writeAddress]));
 			writeListState.AddChild(writeEntry);
 			saveMemory[i->object.writeAddress] = i->object.newValue;
 		}

@@ -1,26 +1,26 @@
-#include "HeirarchicalStorageAttribute.h"
+#include "HierarchicalStorageAttribute.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-HeirarchicalStorageAttribute::HeirarchicalStorageAttribute()
+HierarchicalStorageAttribute::HierarchicalStorageAttribute()
 {}
 
 //----------------------------------------------------------------------------------------
-HeirarchicalStorageAttribute::HeirarchicalStorageAttribute(const std::wstring& aname)
+HierarchicalStorageAttribute::HierarchicalStorageAttribute(const std::wstring& aname)
 :name(aname)
 {}
 
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageAttribute::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+void HierarchicalStorageAttribute::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
 	marshaller.MarshalFrom(GetName());
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageAttribute::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void HierarchicalStorageAttribute::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
 {
 	SetName(marshaller.MarshalTo());
 }
@@ -28,19 +28,19 @@ void HeirarchicalStorageAttribute::SetNameInternal(const InteropSupport::ISTLObj
 //----------------------------------------------------------------------------------------
 //Stream functions
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageAttribute::ResetInternalStreamPosition() const
+void HierarchicalStorageAttribute::ResetInternalStreamPosition() const
 {
 	buffer.SetStreamPos(0);
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageAttribute::EmptyInternalStream()
+void HierarchicalStorageAttribute::EmptyInternalStream()
 {
 	buffer.Resize(0);
 }
 
 //----------------------------------------------------------------------------------------
-Stream::IStream& HeirarchicalStorageAttribute::GetInternalStream() const
+Stream::IStream& HierarchicalStorageAttribute::GetInternalStream() const
 {
 	return buffer;
 }

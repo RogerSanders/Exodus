@@ -1,19 +1,19 @@
-#ifndef __HEIRARCHICALSTORAGENODE_H__
-#define __HEIRARCHICALSTORAGENODE_H__
-#include "HeirarchicalStorageInterface/HeirarchicalStorageInterface.pkg"
-#include "HeirarchicalStorageAttribute.h"
+#ifndef __HIERARCHICALSTORAGENODE_H__
+#define __HIERARCHICALSTORAGENODE_H__
+#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
+#include "HierarchicalStorageAttribute.h"
 #include "Stream/Stream.pkg"
 #include <vector>
 #include <map>
 #include <string>
 
-class HeirarchicalStorageNode :public IHeirarchicalStorageNode
+class HierarchicalStorageNode :public IHierarchicalStorageNode
 {
 public:
 	//Constructors
-	HeirarchicalStorageNode();
-	explicit HeirarchicalStorageNode(const std::wstring& aname);
-	~HeirarchicalStorageNode();
+	HierarchicalStorageNode();
+	explicit HierarchicalStorageNode(const std::wstring& aname);
+	~HierarchicalStorageNode();
 	void Initialize();
 
 	//Name functions
@@ -21,25 +21,25 @@ public:
 	inline void SetName(const std::wstring& aname);
 
 	//Parent functions
-	virtual IHeirarchicalStorageNode& GetParent() const;
+	virtual IHierarchicalStorageNode& GetParent() const;
 
 	//Content functions
 	virtual bool IsEmpty() const;
 
 	//Child functions
-	using IHeirarchicalStorageNode::CreateChild;
-	virtual IHeirarchicalStorageNode& CreateChild();
-	IHeirarchicalStorageNode& CreateChild(const std::wstring& aname);
-	virtual void DeleteChild(IHeirarchicalStorageNode& node);
-	std::list<IHeirarchicalStorageNode*> GetChildList();
+	using IHierarchicalStorageNode::CreateChild;
+	virtual IHierarchicalStorageNode& CreateChild();
+	IHierarchicalStorageNode& CreateChild(const std::wstring& aname);
+	virtual void DeleteChild(IHierarchicalStorageNode& node);
+	std::list<IHierarchicalStorageNode*> GetChildList();
 
 	//Attribute functions
-	using IHeirarchicalStorageNode::CreateAttribute;
+	using IHierarchicalStorageNode::CreateAttribute;
 	bool IsAttributePresent(const std::wstring& name) const;
-	IHeirarchicalStorageAttribute* GetAttribute(const std::wstring& name) const;
-	IHeirarchicalStorageAttribute& CreateAttribute(const std::wstring& name);
-	virtual void DeleteAttribute(IHeirarchicalStorageAttribute& attribute);
-	std::list<IHeirarchicalStorageAttribute*> GetAttributeList();
+	IHierarchicalStorageAttribute* GetAttribute(const std::wstring& name) const;
+	IHierarchicalStorageAttribute& CreateAttribute(const std::wstring& name);
+	virtual void DeleteAttribute(IHierarchicalStorageAttribute& attribute);
+	std::list<IHierarchicalStorageAttribute*> GetAttributeList();
 
 	//Binary data functions
 	virtual bool GetBinaryDataPresent() const;
@@ -49,7 +49,7 @@ public:
 	virtual Stream::IStream& GetBinaryDataBufferStream();
 	virtual bool GetInlineBinaryDataEnabled() const;
 	virtual void SetInlineBinaryDataEnabled(bool state);
-	void AddBinaryDataEntitiesToList(std::list<IHeirarchicalStorageNode*>& binaryEntityList);
+	void AddBinaryDataEntitiesToList(std::list<IHierarchicalStorageNode*>& binaryEntityList);
 
 protected:
 	//Name functions
@@ -61,14 +61,14 @@ protected:
 	virtual Stream::IStream& GetInternalStream() const;
 
 	//Child functions
-	virtual IHeirarchicalStorageNode& CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
-	virtual void GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageNode*>>& marshaller);
+	virtual IHierarchicalStorageNode& CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
+	virtual void GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller);
 
 	//Attribute functions
 	virtual bool IsAttributePresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
-	virtual IHeirarchicalStorageAttribute* GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
-	virtual IHeirarchicalStorageAttribute& CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
-	virtual void GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageAttribute*>>& marshaller);
+	virtual IHierarchicalStorageAttribute* GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
+	virtual IHierarchicalStorageAttribute& CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
+	virtual void GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageAttribute*>>& marshaller);
 
 	//Common data functions
 	virtual void ClearData();
@@ -79,19 +79,19 @@ protected:
 
 private:
 	//Parent functions
-	void SetParent(HeirarchicalStorageNode* aparent);
+	void SetParent(HierarchicalStorageNode* aparent);
 
 private:
 	//Typedefs
-	typedef std::vector<HeirarchicalStorageNode*> ChildList;
-	typedef std::pair<std::wstring, HeirarchicalStorageAttribute*> AttributeListEntry;
+	typedef std::vector<HierarchicalStorageNode*> ChildList;
+	typedef std::pair<std::wstring, HierarchicalStorageAttribute*> AttributeListEntry;
 	//Note that this is a vector rather than a map, so that we can preserve the explicit
 	//ordering of attributes.
 	typedef std::vector<AttributeListEntry> AttributeList;
 
 private:
 	std::wstring name;
-	HeirarchicalStorageNode* parent;
+	HierarchicalStorageNode* parent;
 	ChildList children;
 	AttributeList attributes;
 	bool binaryDataPresent;
@@ -100,5 +100,5 @@ private:
 	mutable Stream::Buffer dataStream;
 };
 
-#include "HeirarchicalStorageNode.inl"
+#include "HierarchicalStorageNode.inl"
 #endif

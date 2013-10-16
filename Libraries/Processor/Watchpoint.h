@@ -47,8 +47,8 @@ public:
 	bool PassesWriteCondition(unsigned int data);
 
 	//Savestate functions
-	virtual void LoadState(IHeirarchicalStorageNode& node);
-	virtual void SaveState(IHeirarchicalStorageNode& node) const;
+	virtual void LoadState(IHierarchicalStorageNode& node);
+	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
 	//Read/Write condition flag data

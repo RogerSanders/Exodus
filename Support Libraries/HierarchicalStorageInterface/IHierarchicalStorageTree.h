@@ -1,19 +1,19 @@
-#ifndef __IHEIRARCHICALSTORAGETREE_H__
-#define __IHEIRARCHICALSTORAGETREE_H__
+#ifndef __IHIERARCHICALSTORAGETREE_H__
+#define __IHIERARCHICALSTORAGETREE_H__
 #include "StreamInterface/StreamInterface.pkg"
 #include "InteropSupport/InteropSupport.pkg"
 #include <string>
 #include <list>
-class IHeirarchicalStorageNode;
+class IHierarchicalStorageNode;
 
-class IHeirarchicalStorageTree
+class IHierarchicalStorageTree
 {
 public:
 	//Enumerations
 	enum StorageMode;
 
 	//Constructors
-	virtual ~IHeirarchicalStorageTree() = 0 {}
+	virtual ~IHierarchicalStorageTree() = 0 {}
 
 	//Save/Load functions
 	virtual bool SaveTree(Stream::IStream& target) = 0;
@@ -29,16 +29,16 @@ public:
 	inline std::wstring GetErrorString() const;
 
 	//Node access functions
-	virtual IHeirarchicalStorageNode& GetRootNode() const = 0;
-	inline std::list<IHeirarchicalStorageNode*> GetBinaryDataNodeList();
+	virtual IHierarchicalStorageNode& GetRootNode() const = 0;
+	inline std::list<IHierarchicalStorageNode*> GetBinaryDataNodeList();
 
 protected:
 	//Error handling functions
 	virtual void GetErrorStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 
 	//Node access functions
-	virtual void GetBinaryDataNodeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHeirarchicalStorageNode*>>& marshaller) = 0;
+	virtual void GetBinaryDataNodeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller) = 0;
 };
 
-#include "IHeirarchicalStorageTree.inl"
+#include "IHierarchicalStorageTree.inl"
 #endif

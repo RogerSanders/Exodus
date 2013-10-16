@@ -1,7 +1,7 @@
 #include "Processor.h"
 #ifndef __PROCESSOR_CONTROLVIEW_H__
 #define __PROCESSOR_CONTROLVIEW_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 
 class Processor::ControlView :public ViewBase

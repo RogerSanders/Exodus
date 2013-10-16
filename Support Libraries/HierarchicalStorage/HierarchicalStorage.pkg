@@ -1,6 +1,6 @@
-#ifndef __HEIRARCHICALSTORAGE_PKG__
+#ifndef __HIERARCHICALSTORAGE_PKG__
 #ifndef PACKAGE_LINK_LIBS_ONLY
-#define __HEIRARCHICALSTORAGE_PKG__
+#define __HIERARCHICALSTORAGE_PKG__
 #endif
 
 //Include any public package dependencies here. A package has a public dependency on
@@ -14,9 +14,9 @@
 
 //Include any header files which are part of the public interface for this library here
 #ifndef PACKAGE_LINK_LIBS_ONLY
-#include "HeirarchicalStorageTree.h"
-#include "HeirarchicalStorageNode.h"
-#include "HeirarchicalStorageAttribute.h"
+#include "HierarchicalStorageTree.h"
+#include "HierarchicalStorageNode.h"
+#include "HierarchicalStorageAttribute.h"
 #endif
 
 //Automatically link library dependencies

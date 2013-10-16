@@ -1,10 +1,9 @@
 #include "ExodusInterface.h"
-#include "WindowFunctions/WindowFunctions.pkg"
-#include "WindowFunctions/WC_GridList.h"
+#include "WindowsSupport/WindowsSupport.pkg"
 #include "resource.h"
 #include "ZIP/ZIP.pkg"
 #include "Stream/Stream.pkg"
-#include "HeirarchicalStorage/HeirarchicalStorage.pkg"
+#include "HierarchicalStorage/HierarchicalStorage.pkg"
 #include "DataConversion/DataConversion.pkg"
 #include "MenuSelectableOption.h"
 #include <boost/functional/hash.hpp>
@@ -696,12 +695,12 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 	//Attempt to load an XML structure from the file
 	file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
 	file.ProcessByteOrderMark();
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	if(!tree.LoadTree(file))
 	{
 		return false;
 	}
-	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if(rootNode.GetName() == L"Workspace")
 	{
 		//Save details about all views which are currently open
@@ -724,20 +723,20 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 		//listed in the file.
 		ISystemExternal::ModuleRelationshipMap relationshipMap;
 		std::list<WorkspaceViewEntryDetails> loadedWorkspaceViewInfo;
-		std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
-		for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
+		std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
+		for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 		{
 			if((*i)->GetName() == L"Window")
 			{
-				IHeirarchicalStorageAttribute* ownerAttribute = (*i)->GetAttribute(L"Owner");
-				IHeirarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
-				IHeirarchicalStorageAttribute* deviceInstanceNameAttribute = (*i)->GetAttribute(L"DeviceInstanceName");
-				IHeirarchicalStorageAttribute* viewModelGroupNameAttribute = (*i)->GetAttribute(L"ViewModelGroupName");
-				IHeirarchicalStorageAttribute* viewModelNameAttribute = (*i)->GetAttribute(L"ViewModelName");
-				IHeirarchicalStorageAttribute* xposAttribute = (*i)->GetAttribute(L"XPos");
-				IHeirarchicalStorageAttribute* yposAttribute = (*i)->GetAttribute(L"YPos");
-				IHeirarchicalStorageAttribute* widthAttribute = (*i)->GetAttribute(L"Width");
-				IHeirarchicalStorageAttribute* heightAttribute = (*i)->GetAttribute(L"Height");
+				IHierarchicalStorageAttribute* ownerAttribute = (*i)->GetAttribute(L"Owner");
+				IHierarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
+				IHierarchicalStorageAttribute* deviceInstanceNameAttribute = (*i)->GetAttribute(L"DeviceInstanceName");
+				IHierarchicalStorageAttribute* viewModelGroupNameAttribute = (*i)->GetAttribute(L"ViewModelGroupName");
+				IHierarchicalStorageAttribute* viewModelNameAttribute = (*i)->GetAttribute(L"ViewModelName");
+				IHierarchicalStorageAttribute* xposAttribute = (*i)->GetAttribute(L"XPos");
+				IHierarchicalStorageAttribute* yposAttribute = (*i)->GetAttribute(L"YPos");
+				IHierarchicalStorageAttribute* widthAttribute = (*i)->GetAttribute(L"Width");
+				IHierarchicalStorageAttribute* heightAttribute = (*i)->GetAttribute(L"Height");
 				if((ownerAttribute != 0) && (viewModelGroupNameAttribute != 0) && (viewModelNameAttribute != 0) && (xposAttribute != 0) && (yposAttribute != 0))
 				{
 					//Extract the basic attributes which are defined for all entries
@@ -858,12 +857,12 @@ void ExodusInterface::SaveWorkspace(const std::wstring& folder)
 bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 {
 	//Create a new XML tree to store our saved workspace info
-	HeirarchicalStorageTree tree;
-	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	HierarchicalStorageTree tree;
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	rootNode.SetName(L"Workspace");
 
 	//Save the ModuleRelationships node
-	IHeirarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
+	IHierarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
 	system.SaveModuleRelationshipsNode(moduleRelationshipsNode);
 
 	//Scan all open windows, and build a list of all child windows belonging to our
@@ -901,7 +900,7 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 				windowPosY = DPIReverseScaleHeight(windowPosY);
 
 				//Save the basic attributes of the window
-				IHeirarchicalStorageNode& node = rootNode.CreateChild(L"Window");
+				IHierarchicalStorageNode& node = rootNode.CreateChild(L"Window");
 				if(viewModel->IsViewOwnerSystem())
 				{
 					node.CreateAttribute(L"Owner", "System");
@@ -1260,22 +1259,22 @@ bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 	//Attempt to decode the XML contents of the file
 	file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
 	file.ProcessByteOrderMark();
-	HeirarchicalStorageTree tree;
+	HierarchicalStorageTree tree;
 	if(!tree.LoadTree(file))
 	{
 		return false;
 	}
 
 	//Validate the root node of the XML tree
-	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if(rootNode.GetName() != L"Settings")
 	{
 		return false;
 	}
 
 	//Extract each preference from the loaded data
-	std::list<IHeirarchicalStorageNode*> childList = rootNode.GetChildList();
-	for(std::list<IHeirarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
+	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
+	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if((*i)->GetName() == L"ModulesPath")
 		{
@@ -1337,8 +1336,8 @@ bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 //----------------------------------------------------------------------------------------
 void ExodusInterface::SavePrefs(const std::wstring& filePath)
 {
-	HeirarchicalStorageTree tree;
-	IHeirarchicalStorageNode& rootNode = tree.GetRootNode();
+	HierarchicalStorageTree tree;
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	rootNode.SetName(L"Settings");
 	rootNode.CreateChild(L"ModulesPath").SetData(prefs.pathModulesRaw);
 	rootNode.CreateChild(L"SavestatesPath").SetData(prefs.pathSavestatesRaw);

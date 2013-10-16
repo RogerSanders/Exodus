@@ -15,7 +15,7 @@ reached, that the counter will definitely not change again.
 */
 #ifndef __REFERENCECOUNTER_H__
 #define __REFERENCECOUNTER_H__
-#include "WindowFunctions/WindowFunctions.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
 
 //##FIX## These methods can be replaced with a call to InterlockedIncrement and
 //InterlockedDecrement

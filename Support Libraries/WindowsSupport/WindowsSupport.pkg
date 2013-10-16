@@ -16,12 +16,10 @@
 #define PACKAGE_LINK_LIBS_ONLY
 //List all dependencies here
 #include "DataConversion/DataConversion.pkg"
-#include "WindowFunctions/WindowFunctions.pkg"
 #undef PACKAGE_LINK_LIBS_ONLY
 #else
 //List all dependencies here again
 #include "DataConversion/DataConversion.pkg"
-#include "WindowFunctions/WindowFunctions.pkg"
 #endif
 #endif
 
@@ -29,6 +27,8 @@
 #ifndef PACKAGE_LINK_LIBS_ONLY
 #include "WindowFunctions.h"
 #include "PathFunctions.h"
+#include "WC_GridList.h"
+#include "WC_HexEdit.h"
 #endif
 
 //Automatically link library dependencies

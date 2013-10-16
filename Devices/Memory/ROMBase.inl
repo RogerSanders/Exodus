@@ -14,7 +14,7 @@ template<class T> ROMBase<T>::~ROMBase()
 //----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
-template<class T> bool ROMBase<T>::Construct(IHeirarchicalStorageNode& node)
+template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = MemoryRead::Construct(node);
 
@@ -72,7 +72,7 @@ template<class T> bool ROMBase<T>::Construct(IHeirarchicalStorageNode& node)
 
 		//Read the RepeatData attribute if specified
 		bool repeatData = false;
-		IHeirarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
+		IHierarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
 		if(repeatDataAttribute != 0)
 		{
 			repeatData = repeatDataAttribute->ExtractValue<bool>();

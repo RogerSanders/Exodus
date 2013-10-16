@@ -1,13 +1,13 @@
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-std::wstring HeirarchicalStorageAttribute::GetName() const
+std::wstring HierarchicalStorageAttribute::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void HeirarchicalStorageAttribute::SetName(const std::wstring& aname)
+void HierarchicalStorageAttribute::SetName(const std::wstring& aname)
 {
 	name = aname;
 }
