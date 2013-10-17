@@ -1,5 +1,5 @@
 #include "PortMonitorView.h"
-#include "..\resource.h"
+#include "resource.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors

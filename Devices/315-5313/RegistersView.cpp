@@ -1,5 +1,5 @@
 #include "RegistersView.h"
-#include "..\resource.h"
+#include "resource.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors

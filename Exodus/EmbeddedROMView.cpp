@@ -201,7 +201,7 @@ INT_PTR System::EmbeddedROMView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM 
 							Data romDataEntry(romInfoIterator->romEntryBitCount);
 							Stream::ViewBinary viewBinary(file);
 							unsigned int deviceAddress = 0;
-							while(!file.IsAtEnd() && (deviceAddress < romInfoIterator->romRegionSize))
+							while(!viewBinary.IsAtEnd() && viewBinary.NoErrorsOccurred() && (deviceAddress < romInfoIterator->romRegionSize))
 							{
 								viewBinary >> romDataEntry;
 								romInfoIterator->targetDevice->TransparentWriteInterface(romInfoIterator->interfaceNumber, deviceAddress, romDataEntry, 0, 0);

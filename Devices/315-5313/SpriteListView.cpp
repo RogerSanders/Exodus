@@ -1,5 +1,5 @@
 #include "SpriteListView.h"
-#include "..\resource.h"
+#include "resource.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors

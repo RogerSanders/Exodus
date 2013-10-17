@@ -1,5 +1,5 @@
 #include "DebugSettingsView.h"
-#include "..\resource.h"
+#include "resource.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors

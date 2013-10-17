@@ -201,6 +201,20 @@ private:
 	static const unsigned int hintIPLLineState = 4;
 	static const unsigned int vintIPLLineState = 6;
 
+	//Horizontal scan timing settings
+	static const HScanSettings h32ScanSettingsStatic;
+	static const HScanSettings h40ScanSettingsStatic;
+
+	//Vertical scan timing settings
+	static const VScanSettings v28PalNoIntScanSettingsStatic;
+	static const VScanSettings v28PalIntEnScanSettingsStatic;
+	static const VScanSettings v30PalNoIntScanSettingsStatic;
+	static const VScanSettings v30PalIntEnScanSettingsStatic;
+	static const VScanSettings v28NtscNoIntScanSettingsStatic;
+	static const VScanSettings v28NtscIntEnScanSettingsStatic;
+	static const VScanSettings v30NtscNoIntScanSettingsStatic;
+	static const VScanSettings v30NtscIntEnScanSettingsStatic;
+
 	//View and menu classes
 	class SettingsMenuHandler;
 	class DebugMenuHandler;

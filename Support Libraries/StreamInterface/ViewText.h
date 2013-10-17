@@ -9,6 +9,13 @@ public:
 	//Constructors
 	inline ViewText(IStream& astream);
 
+	//State functions
+	inline bool NoErrorsOccurred() const;
+	inline void ClearErrorState();
+	inline bool IsAtEnd() const;
+	inline IStream::ByteOrder GetViewByteOrder() const;
+	inline void SetViewByteOrder(IStream::ByteOrder abyteOrder);
+
 	//Text-based access functions
 	template<class T> bool Read(T& data);
 	template<> bool Read(bool& data);
@@ -48,13 +55,16 @@ private:
 	//String length functions
 	inline static IStream::SizeType GetStringLength(const char* data);
 	inline static IStream::SizeType GetStringLength(const wchar_t* data);
+	inline static IStream::SizeType GetStringLength(const char* data, size_t bufferSize);
+	inline static IStream::SizeType GetStringLength(const wchar_t* data, size_t bufferSize);
 
 private:
 	IStream& stream;
 	std::wstringstream wcharStream;
+	IStream::ByteOrder byteOrder;
+	bool noErrorState;
 };
 
 } //Close namespace Stream
-#include "ViewTextManipulators.h"
 #include "ViewText.inl"
 #endif

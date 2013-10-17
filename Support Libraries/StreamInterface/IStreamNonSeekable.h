@@ -44,6 +44,11 @@ public:
 	//Text char read functions
 	//These functions read in text with newline and text format translation. Designed for
 	//use on plain text files.
+	inline bool ReadChar(ByteOrder abyteOrder, UnicodeCodePoint& data);
+	inline bool ReadCharAsASCII(ByteOrder abyteOrder, UnicodeCodePoint& data);
+	inline bool ReadCharAsUTF8(ByteOrder abyteOrder, UnicodeCodePoint& data);
+	inline bool ReadCharAsUTF16(ByteOrder abyteOrder, UnicodeCodePoint& data);
+	inline bool ReadCharAsUTF32(ByteOrder abyteOrder, UnicodeCodePoint& data);
 	virtual bool ReadChar(UnicodeCodePoint& data) = 0;
 	virtual bool ReadCharAsASCII(UnicodeCodePoint& data) = 0;
 	virtual bool ReadCharAsUTF8(UnicodeCodePoint& data) = 0;
@@ -70,6 +75,14 @@ public:
 	//Note that it is not an error for the string to not be terminated in the file source.
 	//The read string will always be stored as null terminated in memory, so the
 	//destination buffer needs to be at least length+1 code units in size.
+	inline bool ReadTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar = '\0');
+	inline bool ReadTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar = L'\0');
+	inline bool ReadTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar = '\0');
+	inline bool ReadTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar = L'\0');
+	inline bool ReadTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar = '\0');
+	inline bool ReadTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar = L'\0');
+	inline bool ReadTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar = '\0');
+	inline bool ReadTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar = L'\0');
 	virtual bool ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar = '\0') = 0;
 	virtual bool ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar = L'\0') = 0;
 	virtual bool ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar = '\0') = 0;
@@ -94,6 +107,14 @@ public:
 	virtual bool ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar = L'\0') = 0;
 	virtual bool ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar = '\0') = 0;
 	virtual bool ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar = L'\0') = 0;
+	inline bool ReadTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar = '\0');
+	inline bool ReadTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar = L'\0');
+	inline bool ReadTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar = '\0');
+	inline bool ReadTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar = L'\0');
+	inline bool ReadTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar = '\0');
+	inline bool ReadTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar = L'\0');
+	inline bool ReadTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar = '\0');
+	inline bool ReadTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar = L'\0');
 	inline bool ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar = '\0');
 	inline bool ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar = L'\0');
 	inline bool ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar = '\0');
@@ -120,6 +141,22 @@ public:
 	inline bool ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar = L'\0');
 
 	//Data read functions
+	inline bool ReadData(ByteOrder abyteOrder, bool& data);
+	inline bool ReadData(ByteOrder abyteOrder, char& data);
+	inline bool ReadData(ByteOrder abyteOrder, signed char& data);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned char& data);
+	inline bool ReadData(ByteOrder abyteOrder, wchar_t& data);
+	inline bool ReadData(ByteOrder abyteOrder, short& data);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned short& data);
+	inline bool ReadData(ByteOrder abyteOrder, int& data);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned int& data);
+	inline bool ReadData(ByteOrder abyteOrder, long& data);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned long& data);
+	inline bool ReadData(ByteOrder abyteOrder, long long& data);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned long long& data);
+	inline bool ReadData(ByteOrder abyteOrder, float& data);
+	inline bool ReadData(ByteOrder abyteOrder, double& data);
+	inline bool ReadData(ByteOrder abyteOrder, long double& data);
 	virtual bool ReadData(bool& data) = 0;
 	virtual bool ReadData(char& data) = 0;
 	virtual bool ReadData(signed char& data) = 0;
@@ -170,6 +207,22 @@ public:
 	virtual bool ReadDataLittleEndian(long double& data) = 0;
 
 	//Array read functions
+	inline bool ReadData(ByteOrder abyteOrder, bool* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, char* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, signed char* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned char* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, wchar_t* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, short* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned short* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, int* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned int* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, long* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned long* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, long long* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, unsigned long long* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, float* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, double* data, SizeType length);
+	inline bool ReadData(ByteOrder abyteOrder, long double* data, SizeType length);
 	virtual bool ReadData(bool* data, SizeType length) = 0;
 	virtual bool ReadData(char* data, SizeType length) = 0;
 	virtual bool ReadData(signed char* data, SizeType length) = 0;
@@ -218,13 +271,22 @@ public:
 	virtual bool ReadDataLittleEndian(float* data, SizeType length) = 0;
 	virtual bool ReadDataLittleEndian(double* data, SizeType length) = 0;
 	virtual bool ReadDataLittleEndian(long double* data, SizeType length) = 0;
+	template<class T> inline bool ReadData(ByteOrder abyteOrder, std::vector<T>& data, SizeType length);
 	template<class T> inline bool ReadData(std::vector<T>& data, SizeType length);
 	template<class T> inline bool ReadDataBigEndian(std::vector<T>& data, SizeType length);
 	template<class T> inline bool ReadDataLittleEndian(std::vector<T>& data, SizeType length);
+	inline bool ReadData(std::vector<bool>& data, SizeType length);
+	inline bool ReadDataBigEndian(std::vector<bool>& data, SizeType length);
+	inline bool ReadDataLittleEndian(std::vector<bool>& data, SizeType length);
 
 	//Text char write functions
 	//These functions write text with newline and text format translation. Designed for
 	//use on plain text files.
+	inline bool WriteChar(ByteOrder abyteOrder, const UnicodeCodePoint& data);
+	inline bool WriteCharAsASCII(ByteOrder abyteOrder, const UnicodeCodePoint& data);
+	inline bool WriteCharAsUTF8(ByteOrder abyteOrder, const UnicodeCodePoint& data);
+	inline bool WriteCharAsUTF16(ByteOrder abyteOrder, const UnicodeCodePoint& data);
+	inline bool WriteCharAsUTF32(ByteOrder abyteOrder, const UnicodeCodePoint& data);
 	virtual bool WriteChar(const UnicodeCodePoint& data) = 0;
 	virtual bool WriteCharAsASCII(const UnicodeCodePoint& data) = 0;
 	virtual bool WriteCharAsUTF8(const UnicodeCodePoint& data) = 0;
@@ -244,6 +306,16 @@ public:
 	//Text string write functions
 	//These functions write text with newline and text format translation. Designed for
 	//use on plain text files.
+	inline bool WriteText(ByteOrder abyteOrder, const char* data, SizeType bufferSize, char terminator = '\0');
+	inline bool WriteText(ByteOrder abyteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator = L'\0');
+	inline bool WriteTextAsASCII(ByteOrder abyteOrder, const char* data, SizeType bufferSize, char terminator = '\0');
+	inline bool WriteTextAsASCII(ByteOrder abyteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator = L'\0');
+	inline bool WriteTextAsUTF8(ByteOrder abyteOrder, const char* data, SizeType bufferSize, char terminator = '\0');
+	inline bool WriteTextAsUTF8(ByteOrder abyteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator = L'\0');
+	inline bool WriteTextAsUTF16(ByteOrder abyteOrder, const char* data, SizeType bufferSize, char terminator = '\0');
+	inline bool WriteTextAsUTF16(ByteOrder abyteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator = L'\0');
+	inline bool WriteTextAsUTF32(ByteOrder abyteOrder, const char* data, SizeType bufferSize, char terminator = '\0');
+	inline bool WriteTextAsUTF32(ByteOrder abyteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator = L'\0');
 	virtual bool WriteText(const char* data, SizeType bufferSize, char terminator = '\0') = 0;
 	virtual bool WriteText(const wchar_t* data, SizeType bufferSize, wchar_t terminator = L'\0') = 0;
 	virtual bool WriteTextAsASCII(const char* data, SizeType bufferSize, char terminator = '\0') = 0;
@@ -274,6 +346,16 @@ public:
 	virtual bool WriteTextLittleEndianAsUTF16(const wchar_t* data, SizeType bufferSize, wchar_t terminator = L'\0') = 0;
 	virtual bool WriteTextLittleEndianAsUTF32(const char* data, SizeType bufferSize, char terminator = '\0') = 0;
 	virtual bool WriteTextLittleEndianAsUTF32(const wchar_t* data, SizeType bufferSize, wchar_t terminator = L'\0') = 0;
+	inline bool WriteText(ByteOrder abyteOrder, const std::string& data);
+	inline bool WriteText(ByteOrder abyteOrder, const std::wstring& data);
+	inline bool WriteTextAsASCII(ByteOrder abyteOrder, const std::string& data);
+	inline bool WriteTextAsASCII(ByteOrder abyteOrder, const std::wstring& data);
+	inline bool WriteTextAsUTF8(ByteOrder abyteOrder, const std::string& data);
+	inline bool WriteTextAsUTF8(ByteOrder abyteOrder, const std::wstring& data);
+	inline bool WriteTextAsUTF16(ByteOrder abyteOrder, const std::string& data);
+	inline bool WriteTextAsUTF16(ByteOrder abyteOrder, const std::wstring& data);
+	inline bool WriteTextAsUTF32(ByteOrder abyteOrder, const std::string& data);
+	inline bool WriteTextAsUTF32(ByteOrder abyteOrder, const std::wstring& data);
 	inline bool WriteText(const std::string& data);
 	inline bool WriteText(const std::wstring& data);
 	inline bool WriteTextAsASCII(const std::string& data);
@@ -306,6 +388,14 @@ public:
 	inline bool WriteTextLittleEndianAsUTF32(const std::wstring& data);
 
 	//Fixed length text buffer write functions
+	inline bool WriteTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar = '\0');
+	inline bool WriteTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar = L'\0');
+	inline bool WriteTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar = '\0');
+	inline bool WriteTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar = L'\0');
+	inline bool WriteTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar = '\0');
+	inline bool WriteTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar = L'\0');
+	inline bool WriteTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar = '\0');
+	inline bool WriteTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar = L'\0');
 	virtual bool WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar = '\0') = 0;
 	virtual bool WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar = L'\0') = 0;
 	virtual bool WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar = '\0') = 0;
@@ -330,6 +420,14 @@ public:
 	virtual bool WriteTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar = L'\0') = 0;
 	virtual bool WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar = '\0') = 0;
 	virtual bool WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar = L'\0') = 0;
+	inline bool WriteTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar = '\0');
+	inline bool WriteTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar = L'\0');
+	inline bool WriteTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar = '\0');
+	inline bool WriteTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar = L'\0');
+	inline bool WriteTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar = '\0');
+	inline bool WriteTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar = L'\0');
+	inline bool WriteTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar = '\0');
+	inline bool WriteTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar = L'\0');
 	inline bool WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar = '\0');
 	inline bool WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar = L'\0');
 	inline bool WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar = '\0');
@@ -356,6 +454,22 @@ public:
 	inline bool WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar = L'\0');
 
 	//Data write functions
+	inline bool WriteData(ByteOrder abyteOrder, bool data);
+	inline bool WriteData(ByteOrder abyteOrder, char data);
+	inline bool WriteData(ByteOrder abyteOrder, signed char data);
+	inline bool WriteData(ByteOrder abyteOrder, unsigned char data);
+	inline bool WriteData(ByteOrder abyteOrder, wchar_t data);
+	inline bool WriteData(ByteOrder abyteOrder, short data);
+	inline bool WriteData(ByteOrder abyteOrder, unsigned short data);
+	inline bool WriteData(ByteOrder abyteOrder, int data);
+	inline bool WriteData(ByteOrder abyteOrder, unsigned int data);
+	inline bool WriteData(ByteOrder abyteOrder, long data);
+	inline bool WriteData(ByteOrder abyteOrder, unsigned long data);
+	inline bool WriteData(ByteOrder abyteOrder, long long data);
+	inline bool WriteData(ByteOrder abyteOrder, unsigned long long data);
+	inline bool WriteData(ByteOrder abyteOrder, float data);
+	inline bool WriteData(ByteOrder abyteOrder, double data);
+	inline bool WriteData(ByteOrder abyteOrder, long double data);
 	virtual bool WriteData(bool data) = 0;
 	virtual bool WriteData(char data) = 0;
 	virtual bool WriteData(signed char data) = 0;
@@ -406,6 +520,22 @@ public:
 	virtual bool WriteDataLittleEndian(long double data) = 0;
 
 	//Array write functions
+	inline bool WriteData(ByteOrder abyteOrder, const bool* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const char* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const signed char* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const unsigned char* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const wchar_t* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const short* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const unsigned short* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const int* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const unsigned int* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const long* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const unsigned long* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const long long* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const unsigned long long* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const float* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const double* data, SizeType length);
+	inline bool WriteData(ByteOrder abyteOrder, const long double* data, SizeType length);
 	virtual bool WriteData(const bool* data, SizeType length) = 0;
 	virtual bool WriteData(const char* data, SizeType length) = 0;
 	virtual bool WriteData(const signed char* data, SizeType length) = 0;
@@ -454,11 +584,16 @@ public:
 	virtual bool WriteDataLittleEndian(const float* data, SizeType length) = 0;
 	virtual bool WriteDataLittleEndian(const double* data, SizeType length) = 0;
 	virtual bool WriteDataLittleEndian(const long double* data, SizeType length) = 0;
+	template<class T> inline bool WriteData(ByteOrder abyteOrder, const std::vector<T>& data);
 	template<class T> inline bool WriteData(const std::vector<T>& data);
-	template<class T> inline bool WriteDataMultipleTimes(T data, SizeType count);
 	template<class T> inline bool WriteDataBigEndian(const std::vector<T>& data);
-	template<class T> inline bool WriteDataBigEndianMultipleTimes(T data, SizeType count);
 	template<class T> inline bool WriteDataLittleEndian(const std::vector<T>& data);
+	inline bool WriteData(const std::vector<bool>& data);
+	inline bool WriteDataBigEndian(const std::vector<bool>& data);
+	inline bool WriteDataLittleEndian(const std::vector<bool>& data);
+	template<class T> inline bool WriteDataMultipleTimes(ByteOrder abyteOrder, T data, SizeType count);
+	template<class T> inline bool WriteDataMultipleTimes(T data, SizeType count);
+	template<class T> inline bool WriteDataBigEndianMultipleTimes(T data, SizeType count);
 	template<class T> inline bool WriteDataLittleEndianMultipleTimes(T data, SizeType count);
 };
 

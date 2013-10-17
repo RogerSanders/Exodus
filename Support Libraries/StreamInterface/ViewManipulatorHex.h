@@ -1,5 +1,5 @@
-#ifndef __VIEWTEXTMANIPULATORS_H__
-#define __VIEWTEXTMANIPULATORS_H__
+#ifndef __VIEWMANIPULATORHEX_H__
+#define __VIEWMANIPULATORHEX_H__
 #include <iomanip>
 namespace Stream {
 class ViewText;
@@ -23,5 +23,5 @@ private:
 };
 
 } //Close namespace Stream
-#include "ViewTextManipulators.inl"
+#include "ViewManipulatorHex.inl"
 #endif

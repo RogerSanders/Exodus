@@ -1,5 +1,5 @@
 #include "SystemInterface/SystemInterface.pkg"
-#include "S315-5313/S315_5313.h"
+#include "S315_5313.h"
 
 IDevice* GetS315_5313(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {

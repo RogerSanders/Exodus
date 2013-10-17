@@ -266,10 +266,10 @@ void XMLCALL HierarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 				unsigned int byte;
 				dataStream >> std::hex >> byte;
 
-				Stream::ViewBinary bufferView(tree->currentNodeDuringLoad->GetBinaryDataBufferStream());
-				bufferView << (unsigned char)byte;
+				Stream::IStream& bufferStream = tree->currentNodeDuringLoad->GetBinaryDataBufferStream();
+				bufferStream.WriteData((unsigned char)byte);
 
-				charPos	+= 2;
+				charPos += 2;
 			}
 		}
 	}

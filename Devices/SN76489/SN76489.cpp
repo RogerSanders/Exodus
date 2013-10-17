@@ -369,10 +369,10 @@ void SN76489::RenderThread()
 					if(wavLoggingChannelEnabled[channelNo])
 					{
 						boost::mutex::scoped_lock lock(waveLoggingMutex);
-						Stream::ViewBinary wavlogStream(wavLogChannel[channelNo]);
 						for(unsigned int i = 0; i < channelBuffer[channelNo].size(); ++i)
 						{
-							wavlogStream << (short)(channelBuffer[channelNo][i] * (32767.0f/channelCount));
+							short sample = (short)(channelBuffer[channelNo][i] * (32767.0f/channelCount));
+							wavLogChannel[channelNo].WriteData(sample);
 						}
 					}
 				}

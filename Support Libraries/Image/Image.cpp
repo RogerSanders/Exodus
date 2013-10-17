@@ -1617,7 +1617,9 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 	//Read and validate the "BM" file type marker from the file header. If this marker is
 	//not present, abort any further processing.
 	BITMAPFILEHEADER fileHeader;
-	stream.ReadData(fileHeader.bfType);
+	WORD fileHeader_bfType;
+	stream.ReadData(fileHeader_bfType);
+	fileHeader.bfType = fileHeader_bfType;
 	char typeByte1 = (char)fileHeader.bfType;
 	char typeByte2 = (char)(fileHeader.bfType >> 8);
 	if((typeByte1 != 'B') && (typeByte2 != 'M'))
@@ -1627,10 +1629,18 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 
 	//Load the bitmap file header
 	unsigned int bitmapFileOffset = 0;
-	stream.ReadData(fileHeader.bfSize);
-	stream.ReadData(fileHeader.bfReserved1);
-	stream.ReadData(fileHeader.bfReserved2);
-	stream.ReadData(fileHeader.bfOffBits);
+	DWORD fileHeader_bfSize;
+	WORD fileHeader_bfReserved1;
+	WORD fileHeader_bfReserved2;
+	DWORD fileHeader_bfOffBits;
+	stream.ReadData(fileHeader_bfSize);
+	stream.ReadData(fileHeader_bfReserved1);
+	stream.ReadData(fileHeader_bfReserved2);
+	stream.ReadData(fileHeader_bfOffBits);
+	fileHeader.bfSize = fileHeader_bfSize;
+	fileHeader.bfReserved1 = fileHeader_bfReserved1;
+	fileHeader.bfReserved2 = fileHeader_bfReserved2;
+	fileHeader.bfOffBits = fileHeader_bfOffBits;
 	bitmapFileOffset += sizeof(fileHeader);
 
 	//Load the bitmap V3 info header

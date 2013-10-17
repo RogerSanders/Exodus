@@ -117,7 +117,7 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 	{
 		bufferSize = abufferSize;
 		delete[] fileBuffer;
-		fileBuffer = new unsigned char[bufferSize];
+		fileBuffer = new unsigned char[(size_t)bufferSize];
 	}
 	bufferPosOffset = bufferSize;
 	bytesRemainingInBuffer = 0;

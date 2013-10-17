@@ -1,5 +1,4 @@
 //#include "Stream/Stream.pkg"
-//#include "Stream/ViewBinary.h"
 //
 ////----------------------------------------------------------------------------------------
 ////Structures
@@ -796,18 +795,7 @@
 //	}
 //
 //	//Load memory buffer
-//	std::vector<unsigned char> savedMemory;
-//	entity->ExtractBinaryData(savedMemory);
-//	Buffer saveBuffer(savedMemory.size());
-//	for(unsigned int i = 0; i < savedMemory.size(); ++i)
-//	{
-//		saveBuffer.WriteBinary(savedMemory[i]);
-//	}
-//	Stream::ViewBinary bufferView(saveBuffer);
-//	for(unsigned int i = 0; i < memory.size(); ++i)
-//	{
-//		bufferView >> memory[i];
-//	}
+//	node.ExtractBinaryData(memory);
 //
 //	//Load write list, and rebuild memory buffer
 //	writeList.clear();
@@ -1768,18 +1756,7 @@ template<class T> void RandomTimeAccessBufferNew<T>::LoadState(IHierarchicalStor
 	latestTimeslice = timesliceList.GetLastEntry();
 
 	//Load memory buffer
-	std::vector<unsigned char> savedMemory;
-	node.ExtractBinaryData(savedMemory);
-	Stream::Buffer saveBuffer(savedMemory.size());
-	for(unsigned int i = 0; i < savedMemory.size(); ++i)
-	{
-		saveBuffer.WriteBinary(savedMemory[i]);
-	}
-	Stream::ViewBinary bufferView(saveBuffer);
-	for(unsigned int i = 0; i < memory.size(); ++i)
-	{
-		bufferView >> memory[i];
-	}
+	node.ExtractBinaryData(memory);
 
 	//Load write list, and rebuild memory buffer
 	writeList.Clear();

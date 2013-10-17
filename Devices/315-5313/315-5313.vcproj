@@ -80,8 +80,6 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\Build\PropertySheets\PluginDebugx64.vsprops"
 			CharacterSet="1"
@@ -205,8 +203,6 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\Build\PropertySheets\PluginReleasex64.vsprops"
 			CharacterSet="1"
@@ -269,8 +265,6 @@
 		</Configuration>
 		<Configuration
 			Name="Debug - Static|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="..\..\Build\PropertySheets\PluginDebugx86Static.vsprops"
 			CharacterSet="1"
@@ -987,42 +981,42 @@
 			Name="S315-5313 (VDP)"
 			>
 			<File
-				RelativePath=".\S315-5313\S315-5313_General.cpp"
+				RelativePath=".\S315-5313_General.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\S315-5313\S315-5313_Ports.cpp"
+				RelativePath=".\S315-5313_Ports.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\S315-5313\S315-5313_Rendering.cpp"
+				RelativePath=".\S315-5313_Rendering.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\S315-5313\S315-5313_Timing.cpp"
+				RelativePath=".\S315-5313_Timing.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\S315-5313\S315_5313.h"
+				RelativePath=".\S315_5313.h"
 				>
 			</File>
 			<File
-				RelativePath=".\S315-5313\S315_5313.inl"
+				RelativePath=".\S315_5313.inl"
 				>
 			</File>
 			<File
-				RelativePath=".\S315-5313\S315_5313_Wnd.cpp"
+				RelativePath=".\S315_5313_Wnd.cpp"
 				>
 			</File>
 			<Filter
 				Name="DebugMenuHandler"
 				>
 				<File
-					RelativePath=".\S315-5313\DebugMenuHandler.cpp"
+					RelativePath=".\DebugMenuHandler.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\DebugMenuHandler.h"
+					RelativePath=".\DebugMenuHandler.h"
 					>
 				</File>
 			</Filter>
@@ -1030,19 +1024,19 @@
 				Name="VRAMView"
 				>
 				<File
-					RelativePath=".\S315-5313\VRAMView.cpp"
+					RelativePath=".\VRAMView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\VRAMView.h"
+					RelativePath=".\VRAMView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\VRAMViewModel.cpp"
+					RelativePath=".\VRAMViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\VRAMViewModel.h"
+					RelativePath=".\VRAMViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1050,19 +1044,19 @@
 				Name="RegistersView"
 				>
 				<File
-					RelativePath=".\S315-5313\RegistersView.cpp"
+					RelativePath=".\RegistersView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\RegistersView.h"
+					RelativePath=".\RegistersView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\RegistersViewModel.cpp"
+					RelativePath=".\RegistersViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\RegistersViewModel.h"
+					RelativePath=".\RegistersViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1070,19 +1064,19 @@
 				Name="PaletteView"
 				>
 				<File
-					RelativePath=".\S315-5313\PaletteView.cpp"
+					RelativePath=".\PaletteView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PaletteView.h"
+					RelativePath=".\PaletteView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PaletteViewModel.cpp"
+					RelativePath=".\PaletteViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PaletteViewModel.h"
+					RelativePath=".\PaletteViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1090,19 +1084,19 @@
 				Name="LayerRemovalView"
 				>
 				<File
-					RelativePath=".\S315-5313\LayerRemovalView.cpp"
+					RelativePath=".\LayerRemovalView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\LayerRemovalView.h"
+					RelativePath=".\LayerRemovalView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\LayerRemovalViewModel.cpp"
+					RelativePath=".\LayerRemovalViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\LayerRemovalViewModel.h"
+					RelativePath=".\LayerRemovalViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1110,19 +1104,19 @@
 				Name="PortMonitorView"
 				>
 				<File
-					RelativePath=".\S315-5313\PortMonitorView.cpp"
+					RelativePath=".\PortMonitorView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PortMonitorView.h"
+					RelativePath=".\PortMonitorView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PortMonitorViewModel.cpp"
+					RelativePath=".\PortMonitorViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PortMonitorViewModel.h"
+					RelativePath=".\PortMonitorViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1130,19 +1124,19 @@
 				Name="PortMonitorDetailsView"
 				>
 				<File
-					RelativePath=".\S315-5313\PortMonitorDetailsView.cpp"
+					RelativePath=".\PortMonitorDetailsView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PortMonitorDetailsView.h"
+					RelativePath=".\PortMonitorDetailsView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PortMonitorDetailsViewModel.cpp"
+					RelativePath=".\PortMonitorDetailsViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PortMonitorDetailsViewModel.h"
+					RelativePath=".\PortMonitorDetailsViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1150,19 +1144,19 @@
 				Name="SettingsView"
 				>
 				<File
-					RelativePath=".\S315-5313\SettingsView.cpp"
+					RelativePath=".\SettingsView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SettingsView.h"
+					RelativePath=".\SettingsView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SettingsViewModel.cpp"
+					RelativePath=".\SettingsViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SettingsViewModel.h"
+					RelativePath=".\SettingsViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1170,19 +1164,19 @@
 				Name="SpriteListDetailsView"
 				>
 				<File
-					RelativePath=".\S315-5313\SpriteListDetailsView.cpp"
+					RelativePath=".\SpriteListDetailsView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SpriteListDetailsView.h"
+					RelativePath=".\SpriteListDetailsView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SpriteListDetailsViewModel.cpp"
+					RelativePath=".\SpriteListDetailsViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SpriteListDetailsViewModel.h"
+					RelativePath=".\SpriteListDetailsViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1190,19 +1184,19 @@
 				Name="SpriteListView"
 				>
 				<File
-					RelativePath=".\S315-5313\SpriteListView.cpp"
+					RelativePath=".\SpriteListView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SpriteListView.h"
+					RelativePath=".\SpriteListView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SpriteListViewModel.cpp"
+					RelativePath=".\SpriteListViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SpriteListViewModel.h"
+					RelativePath=".\SpriteListViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1210,19 +1204,19 @@
 				Name="ImageView"
 				>
 				<File
-					RelativePath=".\S315-5313\ImageView.cpp"
+					RelativePath=".\ImageView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\ImageView.h"
+					RelativePath=".\ImageView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\ImageViewModel.cpp"
+					RelativePath=".\ImageViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\ImageViewModel.h"
+					RelativePath=".\ImageViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1230,19 +1224,19 @@
 				Name="DebugSettingsView"
 				>
 				<File
-					RelativePath=".\S315-5313\DebugSettingsView.cpp"
+					RelativePath=".\DebugSettingsView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\DebugSettingsView.h"
+					RelativePath=".\DebugSettingsView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\DebugSettingsViewModel.cpp"
+					RelativePath=".\DebugSettingsViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\DebugSettingsViewModel.h"
+					RelativePath=".\DebugSettingsViewModel.h"
 					>
 				</File>
 			</Filter>
@@ -1250,11 +1244,11 @@
 				Name="SettingsMenuHandler"
 				>
 				<File
-					RelativePath=".\S315-5313\SettingsMenuHandler.cpp"
+					RelativePath=".\SettingsMenuHandler.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\SettingsMenuHandler.h"
+					RelativePath=".\SettingsMenuHandler.h"
 					>
 				</File>
 			</Filter>
@@ -1262,19 +1256,19 @@
 				Name="PlaneView"
 				>
 				<File
-					RelativePath=".\S315-5313\PlaneView.cpp"
+					RelativePath=".\PlaneView.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PlaneView.h"
+					RelativePath=".\PlaneView.h"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PlaneViewModel.cpp"
+					RelativePath=".\PlaneViewModel.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\S315-5313\PlaneViewModel.h"
+					RelativePath=".\PlaneViewModel.h"
 					>
 				</File>
 			</Filter>

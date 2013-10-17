@@ -11,8 +11,8 @@ void Assert(bool expression, unsigned int line, const wchar_t* file, const wchar
 	{
 		std::wcout << L"Assert failed:\n"
 		           << L"-Expression:\t" << message << '\n'
-				   << L"-File:\t" << file << '\n'
-				   << L"-Line:\t" << std::dec << line << '\n';
+		           << L"-File:\t" << file << '\n'
+		           << L"-Line:\t" << std::dec << line << '\n';
 		//##TODO## Implement our own message box, and eliminate use of the CRT assert
 		//function.
 		assert(expression);

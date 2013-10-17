@@ -474,14 +474,6 @@
 				RelativePath=".\ViewText.inl"
 				>
 			</File>
-			<File
-				RelativePath=".\ViewTextManipulators.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ViewTextManipulators.inl"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="IStreamNonSeekable"
@@ -492,6 +484,26 @@
 			</File>
 			<File
 				RelativePath=".\IStreamNonSeekable.inl"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="ViewManipulators"
+			>
+			<File
+				RelativePath=".\ViewManipulatorByteOrder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ViewManipulatorByteOrder.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\ViewManipulatorHex.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ViewManipulatorHex.inl"
 				>
 			</File>
 		</Filter>
