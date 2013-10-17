@@ -79,11 +79,11 @@ LRESULT Processor::DisassemblyView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARA
 	SendMessage(hwndGridList, WC_GridList::GRID_SETMANUALSCROLLING, 1, 0);
 
 	//Insert our columns into the GridList control
-	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Address", COLUMN_ADDRESS, 70));
-	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Opcode", COLUMN_OPCODE, 70));
-	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Args", COLUMN_ARGS, 140));
-	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Comment", COLUMN_COMMENT, 80));
-	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Machine Code", COLUMN_BINARY, 300));
+	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Address", COLUMN_ADDRESS, 70));
+	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Opcode", COLUMN_OPCODE, 70));
+	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Args", COLUMN_ARGS, 140));
+	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Comment", COLUMN_COMMENT, 80));
+	SendMessage(hwndGridList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Machine Code", COLUMN_BINARY, 300));
 
 	//Create the dialog control panel
 	hwndControlPanel = CreateDialogParam((HINSTANCE)device->GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_DISASSEMBLY_PANEL), hwnd, WndProcPanelStatic, (LPARAM)this);

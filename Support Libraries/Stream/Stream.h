@@ -19,7 +19,7 @@ template<class B> class Stream :public B
 {
 public:
 	//Constructors
-	inline Stream(typename B::TextEncoding atextEncoding = B::TEXTENCODING_ASCII, typename B::NewLineEncoding anewLineEncoding = B::STREAM_PLATFORMNEWLINEENCODING, typename B::ByteOrder abyteOrder = B::BYTEORDER_PLATFORM);
+	inline Stream(typename B::TextEncoding atextEncoding = B::TEXTENCODING_UTF8, typename B::NewLineEncoding anewLineEncoding = B::STREAM_PLATFORMNEWLINEENCODING, typename B::ByteOrder abyteOrder = B::BYTEORDER_PLATFORM);
 
 	//Byte order mark functions
 	virtual bool ProcessByteOrderMark();

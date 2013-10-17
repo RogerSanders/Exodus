@@ -9,7 +9,8 @@
 #include "IStream.h"
 #include "ViewBinary.h"
 #include "ViewText.h"
-#include "ViewTextManipulators.h"
+#include "ViewManipulatorHex.h"
+#include "ViewManipulatorByteOrder.h"
 #endif
 
 #endif

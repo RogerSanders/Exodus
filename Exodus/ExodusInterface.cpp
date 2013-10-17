@@ -3814,12 +3814,12 @@ INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wPar
 		}
 
 		//Insert our columns into the device GridList control
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Name", 1, 80));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Assembly", 2, 80));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Copyright", 3, 160));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Class Name", 4, 120));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Version", 5, 40));
-		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Comments", 6, 300));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Name", 1, 80));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Assembly", 2, 80));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Copyright", 3, 160));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Class Name", 4, 120));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Version", 5, 40));
+		SendMessage(hwndDeviceList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Comments", 6, 300));
 		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 1, (LPARAM)&deviceColumnDataName);
 		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 2, (LPARAM)&deviceColumnDataAssembly);
 		SendMessage(hwndDeviceList, WC_GridList::GRID_UPDATECOLUMNTEXT, 3, (LPARAM)&deviceColumnDataCopyright);
@@ -3850,12 +3850,12 @@ INT_PTR CALLBACK ExodusInterface::AboutProc(HWND hwnd, UINT Message, WPARAM wPar
 		}
 
 		//Insert our columns into the device GridList control
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Name", 1, 80));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Assembly", 2, 80));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Copyright", 3, 160));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Class Name", 4, 120));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Version", 5, 40));
-		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&WC_GridList::Grid_InsertColumn(L"Comments", 6, 300));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Name", 1, 80));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Assembly", 2, 80));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Copyright", 3, 160));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Class Name", 4, 120));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Version", 5, 40));
+		SendMessage(hwndExtensionList, WC_GridList::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_GridList::Grid_InsertColumn&)WC_GridList::Grid_InsertColumn(L"Comments", 6, 300));
 		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 1, (LPARAM)&extensionColumnDataName);
 		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 2, (LPARAM)&extensionColumnDataAssembly);
 		SendMessage(hwndExtensionList, WC_GridList::GRID_UPDATECOLUMNTEXT, 3, (LPARAM)&extensionColumnDataCopyright);

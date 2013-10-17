@@ -71,14 +71,9 @@ public:
 	//Binary data read functions
 	template<class T> T ExtractBinaryData();
 	template<class T> IHierarchicalStorageNode& ExtractBinaryData(T& target);
-	template<class T> IHierarchicalStorageNode& ExtractBinaryData(std::vector<T>& target);
-	template<> inline IHierarchicalStorageNode& ExtractBinaryData(std::vector<bool>& target);
-	template<> inline IHierarchicalStorageNode& ExtractBinaryData(std::vector<unsigned char>& target);
 
 	//Binary data write functions
 	template<class T> IHierarchicalStorageNode& InsertBinaryData(const T& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
-	template<class T> IHierarchicalStorageNode& InsertBinaryData(const std::vector<T>& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
-	template<> inline IHierarchicalStorageNode& InsertBinaryData(const std::vector<unsigned char>& adata, const std::wstring& bufferName, bool ainlineBinaryData);
 	template<class T> IHierarchicalStorageNode& InsertBinaryData(const T* buffer, size_t entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
 
 protected:

@@ -319,7 +319,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 	{
 		bufferSize = abufferSize;
 		delete[] fileBuffer;
-		fileBuffer = new unsigned char[bufferSize];
+		fileBuffer = new unsigned char[(size_t)bufferSize];
 	}
 	bufferPosOffset = 0;
 	bytesRemainingInBuffer = bufferSize;

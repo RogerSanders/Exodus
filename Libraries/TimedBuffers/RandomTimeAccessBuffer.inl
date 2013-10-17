@@ -1007,19 +1007,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataTy
 	}
 
 	//Load memory buffer
-	std::vector<unsigned char> savedMemory;
-	node.ExtractBinaryData(savedMemory);
-	Stream::Buffer saveBuffer;
-	if(!saveBuffer.WriteData(savedMemory))
-	{
-		return false;
-	}
-	saveBuffer.SetStreamPos(0);
-	Stream::ViewBinary bufferView(saveBuffer);
-	for(unsigned int i = 0; i < memory.size(); ++i)
-	{
-		bufferView >> memory[i];
-	}
+	node.ExtractBinaryData(memory);
 
 	//Load write list, and rebuild memory buffer
 	writeList.clear();

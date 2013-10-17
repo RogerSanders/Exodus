@@ -1,11 +1,44 @@
+#include <iomanip>
 namespace Stream {
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
 ViewText::ViewText(IStream& astream)
-:stream(astream)
+:stream(astream), byteOrder(IStream::BYTEORDER_PLATFORM), noErrorState(true)
 {}
+
+//----------------------------------------------------------------------------------------
+//State functions
+//----------------------------------------------------------------------------------------
+bool ViewText::NoErrorsOccurred() const
+{
+	return noErrorState;
+}
+
+//----------------------------------------------------------------------------------------
+void ViewText::ClearErrorState()
+{
+	noErrorState = true;
+}
+
+//----------------------------------------------------------------------------------------
+bool ViewText::IsAtEnd() const
+{
+	return stream.IsAtEnd();
+}
+
+//----------------------------------------------------------------------------------------
+IStream::ByteOrder ViewText::GetViewByteOrder() const
+{
+	return byteOrder;
+}
+
+//----------------------------------------------------------------------------------------
+void ViewText::SetViewByteOrder(IStream::ByteOrder abyteOrder)
+{
+	byteOrder = abyteOrder;
+}
 
 //----------------------------------------------------------------------------------------
 //Text-based access functions
@@ -24,8 +57,9 @@ template<class T> bool ViewText::Read(T& data)
 	while(!done && !stream.IsAtEnd())
 	{
 		IStream::UnicodeCodePoint codePoint;
-		if(!stream.ReadChar(codePoint))
+		if(!stream.ReadChar(byteOrder, codePoint))
 		{
+			noErrorState = false;
 			return false;
 		}
 		if(!codePoint.surrogatePair && ((codePoint.codeUnit1 == L'\0') || (codePoint.codeUnit1 == L'\n')))
@@ -53,8 +87,9 @@ template<class T> bool ViewText::Read(T& data)
 	for(IStream::SizeType i = 0; i < charsInData; ++i)
 	{
 		IStream::UnicodeCodePoint codePoint;
-		if(!stream.ReadChar(codePoint))
+		if(!stream.ReadChar(byteOrder, codePoint))
 		{
+			noErrorState = false;
 			return false;
 		}
 	}
@@ -77,7 +112,7 @@ template<> bool ViewText::Read(bool& data)
 	{
 		//Attempt to read the next character from the stream
 		IStream::UnicodeCodePoint codePoint;
-		if(!stream.ReadChar(codePoint))
+		if(!stream.ReadChar(byteOrder, codePoint))
 		{
 			completedRead = true;
 		}
@@ -130,27 +165,36 @@ template<> bool ViewText::Read(bool& data)
 		//false.
 		completedRead = true;
 	}
+	if(!result)
+	{
+		noErrorState = true;
+	}
 	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Read(std::string& data)
 {
-	return ReadTextString(data, true);
+	bool result = ReadTextString(data, true);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Read(std::wstring& data)
 {
-	return ReadTextString(data, true);
+	bool result = ReadTextString(data, true);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Read(char& data)
 {
 	IStream::UnicodeCodePoint codePoint;
-	if(!stream.ReadChar(codePoint))
+	if(!stream.ReadChar(byteOrder, codePoint))
 	{
+		noErrorState = false;
 		return false;
 	}
 	//##FIX## Use a stream provided conversion function
@@ -162,12 +206,14 @@ template<> bool ViewText::Read(char& data)
 template<> bool ViewText::Read(wchar_t& data)
 {
 	IStream::UnicodeCodePoint codePoint;
-	if(!stream.ReadChar(codePoint))
+	if(!stream.ReadChar(byteOrder, codePoint))
 	{
+		noErrorState = false;
 		return false;
 	}
 	if(codePoint.surrogatePair)
 	{
+		noErrorState = false;
 		return false;
 	}
 	//##FIX## Use a stream provided conversion function
@@ -181,6 +227,7 @@ template<> bool ViewText::Read(signed char& data)
 	int temp;
 	bool result = Read(temp);
 	data = (signed char)temp;
+	noErrorState &= result;
 	return result;
 }
 
@@ -190,6 +237,7 @@ template<> bool ViewText::Read(unsigned char& data)
 	unsigned int temp;
 	bool result = Read(temp);
 	data = (unsigned char)temp;
+	noErrorState &= result;
 	return result;
 }
 
@@ -198,14 +246,18 @@ template<class T> bool ViewText::Write(const T& data)
 {
 	wcharStream.str(L"");
 	wcharStream << data;
-	return stream.WriteText(wcharStream.str());
+	bool result = stream.WriteText(byteOrder, wcharStream.str());
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const bool& data)
 {
 	wchar_t* boolAsString = data? L"1": L"0";
-	return stream.WriteText(boolAsString);
+	bool result = stream.WriteText(byteOrder, boolAsString);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -213,7 +265,9 @@ template<> bool ViewText::Write(const float& data)
 {
 	wcharStream.str(L"");
 	wcharStream << std::fixed << std::setprecision(7) << data;
-	return stream.WriteText(wcharStream.str());
+	bool result = stream.WriteText(byteOrder, wcharStream.str());
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -221,7 +275,9 @@ template<> bool ViewText::Write(const double& data)
 {
 	wcharStream.str(L"");
 	wcharStream << std::fixed << std::setprecision(16) << data;
-	return stream.WriteText(wcharStream.str());
+	bool result = stream.WriteText(byteOrder, wcharStream.str());
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -229,56 +285,84 @@ template<> bool ViewText::Write(const long double& data)
 {
 	wcharStream.str(L"");
 	wcharStream << std::fixed << std::setprecision(64) << data;
-	return stream.WriteText(wcharStream.str());
+	bool result = stream.WriteText(byteOrder, wcharStream.str());
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const std::string& data)
 {
-	return stream.WriteText(data);
+	bool result = stream.WriteText(byteOrder, data);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const std::wstring& data)
 {
-	return stream.WriteText(data);
+	bool result = stream.WriteText(byteOrder, data);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 //##FIX## These functions are unsafe
 template<> bool ViewText::Write(char* const& data)
 {
-	return stream.WriteText(data, GetStringLength(data));
+	bool result = stream.WriteText(byteOrder, data, GetStringLength(data));
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Write(wchar_t* const& data)
 {
-	return stream.WriteText(data, GetStringLength(data));
+	bool result = stream.WriteText(byteOrder, data, GetStringLength(data));
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const char* const& data)
 {
-	return stream.WriteText(data, GetStringLength(data));
+	bool result = stream.WriteText(byteOrder, data, GetStringLength(data));
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const wchar_t* const& data)
 {
-	return stream.WriteText(data, GetStringLength(data));
+	bool result = stream.WriteText(byteOrder, data, GetStringLength(data));
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<size_t S> bool ViewText::Write(const char(&data)[S])
 {
-	return stream.WriteText(&data[0], GetStringLength(data));
+	IStream::SizeType stringLength = GetStringLength(data, S);
+	if(stringLength <= 0)
+	{
+		return true;
+	}
+	bool result = stream.WriteText(byteOrder, &data[0], stringLength);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<size_t S> bool ViewText::Write(const wchar_t(&data)[S])
 {
-	return stream.WriteText(&data[0], GetStringLength(data));
+	IStream::SizeType stringLength = GetStringLength(data, S);
+	if(stringLength <= 0)
+	{
+		return true;
+	}
+	bool result = stream.WriteText(byteOrder, &data[0], stringLength);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -286,7 +370,9 @@ template<> bool ViewText::Write(const char& data)
 {
 	std::string temp;
 	temp.push_back(data);
-	return Write(temp);
+	bool result = Write(temp);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -294,21 +380,27 @@ template<> bool ViewText::Write(const wchar_t& data)
 {
 	std::wstring temp;
 	temp.push_back(data);
-	return Write(temp);
+	bool result = Write(temp);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const signed char& data)
 {
 	int temp = data;
-	return Write(temp);
+	bool result = Write(temp);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const unsigned char& data)
 {
 	unsigned int temp = data;
-	return Write(temp);
+	bool result = Write(temp);
+	noErrorState &= result;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -323,8 +415,9 @@ bool ViewText::ReadTextString(std::string& data, bool stopAtNewline)
 	while(!done && !stream.IsAtEnd())
 	{
 		IStream::UnicodeCodePoint codePoint;
-		if(!stream.ReadChar(codePoint))
+		if(!stream.ReadChar(byteOrder, codePoint))
 		{
+			noErrorState = false;
 			return false;
 		}
 		if(!codePoint.surrogatePair && ((codePoint.codeUnit1 == L'\0') || (codePoint.codeUnit1 == L'\n')))
@@ -348,8 +441,9 @@ bool ViewText::ReadTextString(std::wstring& data, bool stopAtNewline)
 	while(!done && !stream.IsAtEnd())
 	{
 		IStream::UnicodeCodePoint codePoint;
-		if(!stream.ReadChar(codePoint))
+		if(!stream.ReadChar(byteOrder, codePoint))
 		{
+			noErrorState = false;
 			return false;
 		}
 		if(!codePoint.surrogatePair && ((codePoint.codeUnit1 == L'\0') || (stopAtNewline && (codePoint.codeUnit1 == L'\n'))))
@@ -401,6 +495,28 @@ IStream::SizeType ViewText::GetStringLength(const wchar_t* data)
 {
 	IStream::SizeType size = 0;
 	while(data[size] != L'\0')
+	{
+		++size;
+	}
+	return size;
+}
+
+//----------------------------------------------------------------------------------------
+IStream::SizeType ViewText::GetStringLength(const char* data, size_t bufferSize)
+{
+	IStream::SizeType size = 0;
+	while((size < (IStream::SizeType)bufferSize) && (data[size] != '\0'))
+	{
+		++size;
+	}
+	return size;
+}
+
+//----------------------------------------------------------------------------------------
+IStream::SizeType ViewText::GetStringLength(const wchar_t* data, size_t bufferSize)
+{
+	IStream::SizeType size = 0;
+	while((size < (IStream::SizeType)bufferSize) && (data[size] != L'\0'))
 	{
 		++size;
 	}

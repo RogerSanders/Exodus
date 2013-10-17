@@ -2908,9 +2908,9 @@ void M68000::LoadDebuggerState(IHierarchicalStorageNode& node)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
 				//Exception debugging
-				if(registerName == L"LogAllExceptions")				logAllExceptions = (*i)->ExtractData<bool>();
-				else if(registerName == L"BreakOnAllExceptions")	breakOnAllExceptions = (*i)->ExtractData<bool>();
-				else if(registerName == L"DisableAllExceptions")	disableAllExceptions = (*i)->ExtractData<bool>();
+				if(registerName == L"LogAllExceptions")          logAllExceptions = (*i)->ExtractData<bool>();
+				else if(registerName == L"BreakOnAllExceptions") breakOnAllExceptions = (*i)->ExtractData<bool>();
+				else if(registerName == L"DisableAllExceptions") disableAllExceptions = (*i)->ExtractData<bool>();
 			}
 		}
 		else if(keyName == L"ExceptionDebugList")

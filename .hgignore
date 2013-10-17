@@ -5,6 +5,7 @@ Crash Reports/
 Data/Captures/
 Data/DebugSessions/
 Data/Savestates/
+Data/PersistentState/
 
 # We ignore the documentation folder for now, but once we've cleaned this folder
 # up and made it useful, we'll want to commit it to the repository.
@@ -17,16 +18,19 @@ Documentation/
 *.pgc
 *.pgd
 *.aps
+*.APS
 
 # Compiled output folders to ignore
+Devices/M68000V2/
+Third/
 Win32/
 x64/
 Modules/
 StaticModules/
+Exodus.exe
+Exodus.ilk
+Exodus.pdb
 Exodus - Debug.exe
 Exodus - Debug.ilk
 Exodus - Debug.pdb
-Exodus - Release.exe
-Exodus - Release.ilk
-Exodus - Release.pdb
 settings.xml

@@ -3400,14 +3400,15 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	Data romDataEntry(embeddedROMInfoEntry->romEntryBitCount);
 	Stream::ViewBinary viewBinary(file);
 	unsigned int deviceAddress = 0;
-	while(!file.IsAtEnd() && (deviceAddress < embeddedROMInfoEntry->romRegionSize))
+	while(!viewBinary.IsAtEnd() && viewBinary.NoErrorsOccurred() && (deviceAddress < embeddedROMInfoEntry->romRegionSize))
 	{
 		viewBinary >> romDataEntry;
 		embeddedROMInfoEntry->targetDevice->TransparentWriteInterface(embeddedROMInfoEntry->interfaceNumber, deviceAddress, romDataEntry, 0, 0);
 		++deviceAddress;
 	}
+	bool romDataLoadedSuccessfully = viewBinary.NoErrorsOccurred();
 
-	return true;
+	return romDataLoadedSuccessfully;
 }
 
 //----------------------------------------------------------------------------------------
