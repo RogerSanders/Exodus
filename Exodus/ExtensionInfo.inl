@@ -1,4 +1,30 @@
 //----------------------------------------------------------------------------------------
+//Getters
+//----------------------------------------------------------------------------------------
+std::wstring ExtensionInfo::GetExtensionClassName() const
+{
+	return className;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExtensionInfo::GetExtensionImplementationName() const
+{
+	return implementationName;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExtensionInfo::GetExtensionCopyright() const
+{
+	return copyright;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ExtensionInfo::GetExtensionComments() const
+{
+	return comments;
+}
+
+//----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
 void ExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& aextensionClassName, const std::wstring& aextensionImplementationName, unsigned int aextensionVersionNo, const std::wstring& aextensionCopyright, const std::wstring& aextensionComments)

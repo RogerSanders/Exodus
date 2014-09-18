@@ -3,6 +3,7 @@
 #include <commctrl.h>
 #include <shlobj.h>
 #include <sstream>
+#include <locale>
 
 //----------------------------------------------------------------------------------------
 //Path handling functions
@@ -80,9 +81,56 @@ std::wstring PathCombinePaths(const std::wstring& pathHead, const std::wstring& 
 }
 
 //----------------------------------------------------------------------------------------
-bool PathStartsWithBasePath(const std::wstring& basePath, const std::wstring path)
+bool PathStartsWithBasePath(const std::wstring& basePath, const std::wstring& path)
 {
-	return (path.compare(0, basePath.length(), basePath) == 0);
+	//If the specified path string is shorter that the specified base path, return false,
+	//since the path cannot start with the base path.
+	if(path.length() < basePath.length())
+	{
+		return false;
+	}
+
+	//If the target path doesn't begin with the base path, return false. Note that a case
+	//insensitive string comparison is used, as paths are case insensitive on Windows.
+	std::wstring::size_type stringSearchPos = 0;
+	std::locale compareLocale = std::locale::classic();
+	while(stringSearchPos < basePath.length())
+	{
+		if(std::tolower(basePath[stringSearchPos], compareLocale) != std::tolower(path[stringSearchPos], compareLocale))
+		{
+			return false;
+		}
+		++stringSearchPos;
+	}
+
+	//Since the target path begins with the specified base path, return true.
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring PathRemoveBasePath(const std::wstring& basePath, const std::wstring& path)
+{
+	//If the target path doesn't begin with the specified base path, return it to the
+	//caller.
+	if(!PathStartsWithBasePath(basePath, path))
+	{
+		return path;
+	}
+
+	//Calculate the number of characters to remove from the specified path
+	const std::wstring directorySeparators = L"\\/";
+	std::wstring::size_type charCountToRemove = basePath.size();
+	std::wstring::size_type firstNonSeparatorPosAfterBasePath = path.find_first_not_of(directorySeparators, charCountToRemove);
+	if(firstNonSeparatorPosAfterBasePath != std::wstring::npos)
+	{
+		charCountToRemove = firstNonSeparatorPosAfterBasePath;
+	}
+
+	//Remove the specified base path from the specified path, and return the modified path
+	//to the caller.
+	std::wstring modifiedPath = path;
+	modifiedPath.erase(0, charCountToRemove);
+	return modifiedPath;
 }
 
 //----------------------------------------------------------------------------------------
@@ -128,6 +176,18 @@ std::vector<std::wstring> SplitPathIntoComponents(const std::wstring& path)
 		currentPos = (separatorPos != std::wstring::npos)? (separatorPos + 1): std::wstring::npos;
 	}
 	return pathElements;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring BuildPathFromComponents(const std::vector<std::wstring>& pathComponents)
+{
+	//Combine each path component into a path, and return it to the caller.
+	std::wstring path;
+	for(size_t i = 0; i < pathComponents.size(); ++i)
+	{
+		path = PathCombinePaths(path, pathComponents[i]);
+	}
+	return path;
 }
 
 //----------------------------------------------------------------------------------------
@@ -280,7 +340,7 @@ std::list<FileSelectionType> ParseSelectionTypeString(const std::wstring& select
 		typeStringCurrentPos = (separatorPos != std::wstring::npos)? (separatorPos + 1): std::wstring::npos;
 	}
 
-	//Decode the extacted type element strings, and build a FileSelectionType structure
+	//Decode the extracted type element strings, and build a FileSelectionType structure
 	//for each one.
 	std::list<FileSelectionType> selectionTypes;
 	for(std::list<std::wstring>::const_iterator i = typeElementStrings.begin(); i != typeElementStrings.end(); ++i)
@@ -665,7 +725,7 @@ bool SelectExistingDirectory(HWND parentWindow, const std::wstring& initialDirec
 	}
 
 	//Obtain a path from the folder selection results
-	if(SHGetPathFromIDList(itemIDList, &folderDataBuffer[0]) != TRUE)
+	if(SHGetPathFromIDList(itemIDList, &folderDataBuffer[0]) == FALSE)
 	{
 		CoTaskMemFree(itemIDList);
 		return false;

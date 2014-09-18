@@ -8,4 +8,8 @@
 		Name="VCCLCompilerTool"
 		RuntimeLibrary="2"
 	/>
+	<Tool
+		Name="VCLinkerTool"
+		IgnoreDefaultLibraryNames=""
+	/>
 </VisualStudioPropertySheet>

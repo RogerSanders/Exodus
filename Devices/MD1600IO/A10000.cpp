@@ -1,4 +1,6 @@
 #include "A10000.h"
+//##DEBUG##
+#include <iostream>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -444,7 +446,7 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	//already passed that time.
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//If this is a line state change which needs to be processed immediately, apply it now
@@ -507,7 +509,7 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	//already passed that time.
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//Find the matching line state change entry in the line access buffer
@@ -924,7 +926,7 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 	boost::mutex::scoped_lock lineLock(lineMutex);
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastLineCheckTime = accessTime;
 
@@ -1017,7 +1019,7 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 	boost::mutex::scoped_lock lineLock(lineMutex);
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastLineCheckTime = accessTime;
 

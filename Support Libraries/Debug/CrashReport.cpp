@@ -1,9 +1,8 @@
 #include "CrashReport.h"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include <Dbghelp.h>
-#include "ZIP/ZIP.pkg"
-#include "ZIP/ZIPArchive.h"
 #include "Stream/Stream.pkg"
+#include "ZIP/ZIP.pkg"
+#include <Dbghelp.h>
 
 //----------------------------------------------------------------------------------------
 std::wstring GetMinidumpPath()

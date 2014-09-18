@@ -28,27 +28,34 @@ References:
 -The Undocumented Z80 Documented, Sean Young and Jan, v0.91 2005
 -Interrupt Behaviour of the Z80 CPU, http://www.z80.info/interrup.htm, retrieved 15/4/2008
 \*--------------------------------------------------------------------------------------*/
+#include "IZ80.h"
 #ifndef __Z80_Z80_H__
 #define __Z80_Z80_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 #include "ThreadLib/ThreadLib.pkg"
 #include "Data.h"
 #include "ExecuteTime.h"
 #include <boost/thread/mutex.hpp>
 #include <list>
+//View and menu classes
+class RegistersViewPresenter;
+class RegistersView;
 namespace Z80 {
 class Z80Instruction;
 
-class Z80 :public Processor
+class Z80 :public Processor, public IZ80
 {
 public:
 	//Constructors
 	Z80(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	~Z80();
-	virtual bool Construct(IHierarchicalStorageNode& node);
+
+	//Interface version functions
+	virtual unsigned int GetIZ80Version() const;
 
 	//Initialization functions
+	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
 	virtual void Initialize();
@@ -65,6 +72,7 @@ public:
 	virtual bool UsesExecuteSuspend() const;
 
 	//Execute functions
+	virtual double ExecuteStep();
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 	virtual bool SendNotifyUpcomingTimeslice() const;
@@ -89,17 +97,18 @@ public:
 	void ApplyClockStateChange(unsigned int targetClock, double clockRate);
 
 	//Instruction functions
-	virtual double ExecuteStep();
-	virtual OpcodeInfo GetOpcodeInfo(unsigned int location) const;
-	virtual Data GetRawData(unsigned int location) const;
 	//##TODO##
 	//virtual bool FormatDataForDisassembly(const std::vector<Data>& dataElements, unsigned int outputElementBitCount, std::wstring& disassembly) const;
+	virtual unsigned int GetByteBitCount() const;
 	virtual unsigned int GetCurrentPC() const;
 	virtual unsigned int GetPCWidth() const;
 	virtual unsigned int GetAddressBusWidth() const;
 	virtual unsigned int GetDataBusWidth() const;
 	virtual unsigned int GetMinimumOpcodeByteSize() const;
 	virtual unsigned int GetMinimumDataByteSize() const;
+	virtual unsigned int GetMemorySpaceByte(unsigned int location) const;
+	virtual void SetMemorySpaceByte(unsigned int location, unsigned int data);
+	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const;
 
 	//Register functions
 	inline Z80Byte GetA() const;
@@ -255,11 +264,11 @@ public:
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
-	//Window functions
-	void CreateMenuHandlers();
-	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
+	//Data read/write functions
+	using IGenericAccess::ReadGenericData;
+	using IGenericAccess::WriteGenericData;
+	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
+	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
 
 private:
 	//Enumerations
@@ -272,16 +281,10 @@ private:
 	struct CalculateCELineStateContext;
 
 	//View and menu classes
-	class DebugMenuHandler;
-	class RegistersViewModel;
-	class RegistersView;
-	friend class RegistersViewModel;
+	friend class RegistersViewPresenter;
 	friend class RegistersView;
 
 private:
-	//Menu handling
-	DebugMenuHandler* menuHandler;
-
 	//Bus interface
 	IBusInterface* memoryBus;
 
@@ -356,10 +359,22 @@ private:
 	volatile unsigned int regChangedE;
 	volatile unsigned int regChangedH;
 	volatile unsigned int regChangedL;
+	volatile unsigned int regChangedA2;
+	volatile unsigned int regChangedF2;
+	volatile unsigned int regChangedB2;
+	volatile unsigned int regChangedC2;
+	volatile unsigned int regChangedD2;
+	volatile unsigned int regChangedE2;
+	volatile unsigned int regChangedH2;
+	volatile unsigned int regChangedL2;
 	volatile unsigned int regChangedI;
 	volatile unsigned int regChangedR;
 	volatile unsigned int regChangedIX;
 	volatile unsigned int regChangedIY;
+	volatile unsigned int regChangedIXHigh;
+	volatile unsigned int regChangedIXLow;
+	volatile unsigned int regChangedIYHigh;
+	volatile unsigned int regChangedIYLow;
 	volatile unsigned int regChangedSP;
 	volatile unsigned int regChangedPC;
 	volatile unsigned int regChangedIM;
@@ -386,6 +401,7 @@ private:
 	volatile bool suspendUntilLineStateChangeReceived;
 	bool bsuspendUntilLineStateChangeReceived;
 	bool resetLineState;
+	bool resetLastStep;
 	bool busreqLineState;
 	bool busackLineState;
 	bool intLineState;

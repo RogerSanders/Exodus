@@ -1,6 +1,6 @@
 #ifndef __MENUSUBMENU_H__
 #define __MENUSUBMENU_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
 #include <string>
 #include <vector>
 
@@ -8,7 +8,7 @@ class MenuSubmenu :public IMenuSubmenu
 {
 public:
 	//Constructors
-	MenuSubmenu(const std::wstring& aname);
+	MenuSubmenu(const std::wstring& atitle);
 	~MenuSubmenu();
 
 	//Interface version functions
@@ -18,29 +18,34 @@ public:
 	//Type functions
 	virtual Type GetType() const;
 
-	//Menu name functions
-	std::wstring GetMenuName() const;
+	//Menu title functions
+	std::wstring GetMenuTitle() const;
 
 	//Item management functions
-	virtual bool NoMenuSegmentsExist() const;
 	virtual bool NoMenuItemsExist() const;
-	std::list<IMenuSegment*> GetMenuSegments() const;
+	std::list<IMenuItem*> GetMenuItems() const;
 
-	//Menu segment creation and deletion
-	virtual IMenuSegment& CreateMenuSegment();
-	virtual void DeleteMenuSegment(IMenuSegment& menuSegment);
-	virtual void DeleteAllMenuSegments();
+	//Menu item creation and deletion
+	virtual IMenuSegment& AddMenuItemSegment(bool asurroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER);
+	inline IMenuSubmenu& AddMenuItemSubmenu(const std::wstring& title);
+	inline IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title);
+	virtual void DeleteMenuItem(IMenuItem& menuItem);
+	virtual void DeleteAllMenuItems();
 
 protected:
 	//Menu name functions
-	virtual void GetMenuNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetMenuTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Item management functions
-	virtual void GetMenuSegmentsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuSegment*>>& marshaller) const;
+	virtual void GetMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const;
+
+	//Menu item creation and deletion
+	virtual IMenuSubmenu& AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller);
+	virtual IMenuSelectableOption& AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller);
 
 private:
-	std::wstring name;
-	std::vector<IMenuSegment*> menuSegments;
+	std::wstring title;
+	std::list<IMenuItem*> menuItems;
 };
 
 #endif

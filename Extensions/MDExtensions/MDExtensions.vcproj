@@ -976,6 +976,18 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{D4F63DCA-8FA8-4FD3-B449-DBB7E5AD7FFB}"
+			RelativePathToProject=".\Support Libraries\Stream\Stream.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{8196F896-D9AE-4F6B-9B5A-AF2553EA0B32}"
+			RelativePathToProject=".\Libraries\Extension\Extension.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{ECC567B9-0DD5-4130-9685-CB9B5C6BD96E}"
+			RelativePathToProject=".\Support Libraries\HierarchicalStorage\HierarchicalStorage.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -1006,6 +1018,18 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="Resources"
+			>
+			<File
+				RelativePath=".\MDExtensions.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\interface.cpp"
 			>
@@ -1014,15 +1038,11 @@
 			RelativePath=".\interface.h"
 			>
 		</File>
-		<File
-			RelativePath=".\MDExtensions.rc"
-			>
-		</File>
-		<File
-			RelativePath=".\resource.h"
-			>
-		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

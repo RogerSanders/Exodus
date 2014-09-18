@@ -1,14 +1,14 @@
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Z80.h"
 
 IDevice* GetZ80(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new Z80::Z80(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new Z80::Z80(implementationName, instanceName, moduleID));
 }
 
 void DeleteZ80(IDevice* device)
 {
-	delete device;
+	delete static_cast<Z80::Z80*>(device);
 }
 
 #ifdef EX_DLLINTERFACE

@@ -975,10 +975,18 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{36693E5E-1462-4CFC-A240-2CCAA6483833}"
+			RelativePathToProject=".\Libraries\Device\Device.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{7E84CDBB-E45F-4CCE-8AE9-3A74DEAA0881}"
+			RelativePathToProject=".\Support Libraries\Image\Image.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
-			Name="S315-5313 (VDP)"
+			Name="S315-5313"
 			>
 			<File
 				RelativePath=".\S315-5313_General.cpp"
@@ -1004,279 +1012,31 @@
 				RelativePath=".\S315_5313.inl"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Resources"
+			>
 			<File
-				RelativePath=".\S315_5313_Wnd.cpp"
+				RelativePath=".\315-5313.rc"
 				>
 			</File>
-			<Filter
-				Name="DebugMenuHandler"
+			<File
+				RelativePath=".\resource.h"
 				>
-				<File
-					RelativePath=".\DebugMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DebugMenuHandler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="VRAMView"
-				>
-				<File
-					RelativePath=".\VRAMView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\VRAMView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\VRAMViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\VRAMViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="RegistersView"
-				>
-				<File
-					RelativePath=".\RegistersView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="PaletteView"
-				>
-				<File
-					RelativePath=".\PaletteView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PaletteView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\PaletteViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PaletteViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="LayerRemovalView"
-				>
-				<File
-					RelativePath=".\LayerRemovalView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\LayerRemovalView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\LayerRemovalViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\LayerRemovalViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="PortMonitorView"
-				>
-				<File
-					RelativePath=".\PortMonitorView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PortMonitorView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\PortMonitorViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PortMonitorViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="PortMonitorDetailsView"
-				>
-				<File
-					RelativePath=".\PortMonitorDetailsView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PortMonitorDetailsView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\PortMonitorDetailsViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PortMonitorDetailsViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SettingsView"
-				>
-				<File
-					RelativePath=".\SettingsView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SettingsView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\SettingsViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SettingsViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SpriteListDetailsView"
-				>
-				<File
-					RelativePath=".\SpriteListDetailsView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SpriteListDetailsView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\SpriteListDetailsViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SpriteListDetailsViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SpriteListView"
-				>
-				<File
-					RelativePath=".\SpriteListView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SpriteListView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\SpriteListViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SpriteListViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ImageView"
-				>
-				<File
-					RelativePath=".\ImageView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ImageView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ImageViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ImageViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="DebugSettingsView"
-				>
-				<File
-					RelativePath=".\DebugSettingsView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DebugSettingsView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\DebugSettingsViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DebugSettingsViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SettingsMenuHandler"
-				>
-				<File
-					RelativePath=".\SettingsMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SettingsMenuHandler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="PlaneView"
-				>
-				<File
-					RelativePath=".\PlaneView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PlaneView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\PlaneViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PlaneViewModel.h"
-					>
-				</File>
-			</Filter>
+			</File>
 		</Filter>
-		<File
-			RelativePath=".\315-5313.rc"
+		<Filter
+			Name="IS315-5313"
 			>
-		</File>
+			<File
+				RelativePath=".\IS315_5313.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IS315_5313.inl"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\interface.cpp"
 			>
@@ -1285,11 +1045,11 @@
 			RelativePath=".\interface.h"
 			>
 		</File>
-		<File
-			RelativePath=".\resource.h"
-			>
-		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

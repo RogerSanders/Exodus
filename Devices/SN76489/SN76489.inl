@@ -7,20 +7,6 @@ enum SN76489::ClockID
 };
 
 //----------------------------------------------------------------------------------------
-enum SN76489::LockedRegisterKey
-{
-	LOCKEDREG_NONE,
-	LOCKEDREG_C0V,
-	LOCKEDREG_C0D,
-	LOCKEDREG_C1V,
-	LOCKEDREG_C1D,
-	LOCKEDREG_C2V,
-	LOCKEDREG_C2D,
-	LOCKEDREG_C3V,
-	LOCKEDREG_C3D
-};
-
-//----------------------------------------------------------------------------------------
 enum SN76489::DebugWindow
 {
 	DEBUGWINDOW_REGISTERS,
@@ -31,7 +17,7 @@ enum SN76489::DebugWindow
 //----------------------------------------------------------------------------------------
 //Raw register functions
 //----------------------------------------------------------------------------------------
-Data SN76489::GetVolumeRegister(unsigned int channelNo, const AccessTarget& accessTarget)
+Data SN76489::GetVolumeRegister(unsigned int channelNo, const AccessTarget& accessTarget) const
 {
 	Data data(volumeRegisterBitCount);
 	data = reg.Read((channelNo * 2) + 0, accessTarget);
@@ -45,7 +31,7 @@ void SN76489::SetVolumeRegister(unsigned int channelNo, const Data& adata, const
 }
 
 //----------------------------------------------------------------------------------------
-Data SN76489::GetToneRegister(unsigned int channelNo, const AccessTarget& accessTarget)
+Data SN76489::GetToneRegister(unsigned int channelNo, const AccessTarget& accessTarget) const
 {
 	Data data(toneRegisterBitCount);
 	data = reg.Read((channelNo * 2) + 1, accessTarget);

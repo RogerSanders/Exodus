@@ -21,23 +21,6 @@ enum Processor::DisassemblyDataType
 //----------------------------------------------------------------------------------------
 //Structures
 //----------------------------------------------------------------------------------------
-struct Processor::OpcodeInfo
-{
-	OpcodeInfo()
-	:valid(false), opcodeSize(1), undeterminedResultantPCLocation(false)
-	{}
-
-	bool valid;
-	unsigned int opcodeSize;
-	std::wstring disassemblyOpcode;
-	std::wstring disassemblyArguments;
-	std::wstring disassemblyComment;
-	std::set<unsigned int> labelTargetLocations;
-	std::set<unsigned int> resultantPCLocations;
-	bool undeterminedResultantPCLocation;
-};
-
-//----------------------------------------------------------------------------------------
 struct Processor::LabelSubstitutionSettings
 {
 	LabelSubstitutionSettings()
@@ -80,29 +63,10 @@ struct Processor::BreakpointCallbackParams
 };
 
 //----------------------------------------------------------------------------------------
-struct Processor::CallStackEntry
+struct Processor::WatchpointCallbackParams
 {
-	CallStackEntry()
-	{}
-	CallStackEntry(unsigned int asourceAddress, unsigned int atargetAddress, unsigned int areturnAddress, const std::wstring& adisassembly)
-	:sourceAddress(asourceAddress), targetAddress(atargetAddress), returnAddress(areturnAddress), disassembly(adisassembly)
-	{}
-
-	unsigned int sourceAddress;
-	unsigned int targetAddress;
-	unsigned int returnAddress;
-	std::wstring disassembly;
-};
-
-//----------------------------------------------------------------------------------------
-struct Processor::TraceLogEntry
-{
-	TraceLogEntry(unsigned int aaddress)
-	:address(aaddress)
-	{}
-
-	unsigned int address;
-	std::wstring disassembly;
+	Processor* object;
+	Watchpoint* watchpoint;
 };
 
 //----------------------------------------------------------------------------------------
@@ -214,3 +178,109 @@ struct Processor::ActiveDisassemblyAnalysisData
 	std::map<unsigned int, DisassemblyAddressInfo*> predictedOffsetEntries;
 	std::vector<std::list<DisassemblyAddressInfo*>> disassemblyAddressInfo;
 };
+
+//----------------------------------------------------------------------------------------
+//Control functions
+//----------------------------------------------------------------------------------------
+double Processor::CalculateExecutionTime(unsigned int cycles) const
+{
+	return ((double)cycles * (1000000000.0 / reportedClockSpeed));
+}
+
+//----------------------------------------------------------------------------------------
+//Breakpoint functions
+//----------------------------------------------------------------------------------------
+std::list<IBreakpoint*> Processor::GetBreakpointList() const
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+	std::list<IBreakpoint*> result(breakpoints.begin(), breakpoints.end());
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::CheckExecution(unsigned int location) const
+{
+	//Note that we split the internals of this method outside this inline wrapper function
+	//for performance. If we fold all the logic into one method, we can't effectively
+	//inline it, and we get a big performance penalty in the case that this test fails,
+	//which we expect it will almost all the time, due to a lack of inlining and needing
+	//to prepare the stack and registers for inner variables that never get used. This has
+	//been verified through profiling as a performance bottleneck.
+	if(breakpointExists || breakOnNextOpcode || stepOver)
+	{
+		CheckExecutionInternal(location);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+//Watchpoint functions
+//----------------------------------------------------------------------------------------
+std::list<IWatchpoint*> Processor::GetWatchpointList() const
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+	std::list<IWatchpoint*> result(watchpoints.begin(), watchpoints.end());
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::CheckMemoryRead(unsigned int location, unsigned int data) const
+{
+	//Note that we split the internals of this method outside this inline wrapper function
+	//for performance. If we fold all the logic into one method, we can't effectively
+	//inline it, and we get a big performance penalty in the case that this test fails,
+	//which we expect it will almost all the time, due to a lack of inlining and needing
+	//to prepare the stack and registers for inner variables that never get used. This has
+	//been verified through profiling as a performance bottleneck.
+	if(watchpointExists)
+	{
+		CheckMemoryReadInternal(location, data);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::CheckMemoryWrite(unsigned int location, unsigned int data) const
+{
+	//Note that we split the internals of this method outside this inline wrapper function
+	//for performance. If we fold all the logic into one method, we can't effectively
+	//inline it, and we get a big performance penalty in the case that this test fails,
+	//which we expect it will almost all the time, due to a lack of inlining and needing
+	//to prepare the stack and registers for inner variables that never get used. This has
+	//been verified through profiling as a performance bottleneck.
+	if(watchpointExists)
+	{
+		CheckMemoryWriteInternal(location, data);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+//Call stack functions
+//----------------------------------------------------------------------------------------
+std::list<Processor::CallStackEntry> Processor::GetCallStack() const
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+	return callStack;
+}
+
+//----------------------------------------------------------------------------------------
+//Trace functions
+//----------------------------------------------------------------------------------------
+std::list<Processor::TraceLogEntry> Processor::GetTraceLog() const
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+	return traceLog;
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::RecordTrace(unsigned int pc)
+{
+	//Note that we split the internals of this method outside this inline wrapper function
+	//for performance. If we fold all the logic into one method, we can't effectively
+	//inline it, and we get a big performance penalty in the case that this test fails,
+	//which we expect it will almost all the time, due to a lack of inlining and needing
+	//to prepare the stack and registers for inner variables that never get used. This has
+	//been verified through profiling as a performance bottleneck.
+	if(traceLogEnabled)
+	{
+		return RecordTraceInternal(pc);
+	}
+}

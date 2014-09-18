@@ -25,7 +25,6 @@ public:
 	inline SizeType GetSavedSampleCount() const;
 
 	//File binding
-	inline bool Open(const std::string& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize = 8192);
 	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize = 8192);
 	inline void Close();
 	inline bool IsOpen() const;
@@ -107,9 +106,6 @@ protected:
 	virtual bool WriteBinaryNativeByteOrder(const long double* data, SizeType length);
 
 private:
-	//String conversion functions
-	static std::wstring ConvertStringToWString(const std::string& source);
-
 	//Internal read/write functions
 	inline bool ReadBinary(void* rawData, SizeType bytesToRead);
 	inline bool WriteBinary(const void* rawData, SizeType bytesToWrite);

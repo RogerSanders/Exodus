@@ -1,4 +1,6 @@
 #include "ISTLObjectKeyMarshaller.h"
+#include "IMarshallingObject.h"
+#include "MarshalObject.h"
 #include <memory.h>
 #ifdef INTEROPSUPPORT_CPP11SUPPORTED
 #include <type_traits>
@@ -236,7 +238,11 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], ISTLObjec
 	std::vector<ElementType> elementContents(elementSize);
 	for(size_t containerEntryNo = 0; containerEntryNo < elementSize; ++containerEntryNo)
 	{
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+		elementContents[containerEntryNo] = std::move(elementCopy.top());
+#else
 		elementContents[containerEntryNo] = elementCopy.top();
+#endif
 		elementCopy.pop();
 	}
 	for(size_t containerEntryNo = 0; containerEntryNo < elementSize; ++containerEntryNo)
@@ -292,7 +298,11 @@ template<class ElementType>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], ISTLObjectKeyMarshallerBase* const keyMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t keyMarshallerArrayIndex, const ElementType& element)
 {
 	ElementType* itemArrayWithType = (ElementType*)itemArray;
-	itemArrayWithType[elementArrayIndex++] = element;
+	ElementType& arrayElement = itemArrayWithType[elementArrayIndex++];
+	if(!MarshalObject<INTEROPSUPPORT_ISBASEOF(IMarshallingObject, ElementType)>(&element, &arrayElement))
+	{
+		arrayElement = element;
+	}
 }
 
 } //Close namespace InteropSupport

@@ -1,13 +1,14 @@
 #include "Breakpoint.h"
 #include <sstream>
-#include "WindowsSupport/WindowsSupport.pkg"
 #include "DataConversion/DataConversion.pkg"
 
 //----------------------------------------------------------------------------------------
-//Constructors
+//Interface version functions
 //----------------------------------------------------------------------------------------
-Breakpoint::~Breakpoint()
-{}
+unsigned int Breakpoint::GetIBreakpointVersion() const
+{
+	return ThisIBreakpointVersion();
+}
 
 //----------------------------------------------------------------------------------------
 //Breakpoint logging functions
@@ -20,7 +21,157 @@ std::wstring Breakpoint::GetLogString() const
 }
 
 //----------------------------------------------------------------------------------------
+//Breakpoint event triggers
+//----------------------------------------------------------------------------------------
+bool Breakpoint::GetEnabled() const
+{
+	return enabled;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetEnabled(bool state)
+{
+	enabled = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool Breakpoint::GetLogEvent() const
+{
+	return logEvent;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetLogEvent(bool state)
+{
+	logEvent = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool Breakpoint::GetBreakEvent() const
+{
+	return breakEvent;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetBreakEvent(bool state)
+{
+	breakEvent = state;
+}
+
+//----------------------------------------------------------------------------------------
+//Name functions
+//----------------------------------------------------------------------------------------
+void Breakpoint::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+{
+	marshaller.MarshalFrom(GetName());
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+{
+	SetName(marshaller.MarshalTo());
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::GenerateNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+{
+	marshaller.MarshalFrom(GenerateName());
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring Breakpoint::GenerateName() const
+{
+	std::wstring newName;
+	switch(locationCondition)
+	{
+	case CONDITION_EQUAL:{
+		std::wstring locationData1AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
+		newName += (!locationConditionNot)? locationData1AsString: L"!=" + locationData1AsString;
+		break;}
+	case CONDITION_GREATER:{
+		std::wstring locationData1AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
+		newName += (!locationConditionNot)? L">" + locationData1AsString: L"<=" + locationData1AsString;
+		break;}
+	case CONDITION_LESS:{
+		std::wstring locationData1AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
+		newName += (!locationConditionNot)? L"<" + locationData1AsString: L">=" + locationData1AsString;
+		break;}
+	case CONDITION_GREATER_AND_LESS:{
+		std::wstring locationData1AsString;
+		std::wstring locationData2AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
+		IntToStringBase16(GetLocationConditionData2(), locationData2AsString, addressBusCharWidth, false);
+		newName += (!locationConditionNot)? L">" + locationData1AsString + L" && " + L"<" + locationData2AsString: L"<=" + locationData1AsString + L" || " + L">=" + locationData2AsString;
+		break;}
+	}
+	return newName;
+}
+
+//----------------------------------------------------------------------------------------
 //Location condition functions
+//----------------------------------------------------------------------------------------
+bool Breakpoint::GetLocationConditionNot() const
+{
+	return locationConditionNot;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetLocationConditionNot(bool state)
+{
+	locationConditionNot = state;
+}
+
+//----------------------------------------------------------------------------------------
+Breakpoint::Condition Breakpoint::GetLocationCondition() const
+{
+	return locationCondition;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetLocationCondition(Condition condition)
+{
+	locationCondition = condition;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Breakpoint::GetLocationConditionData1() const
+{
+	return locationConditionData1;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetLocationConditionData1(unsigned int data)
+{
+	locationConditionData1 = data;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Breakpoint::GetLocationConditionData2() const
+{
+	return locationConditionData2;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetLocationConditionData2(unsigned int data)
+{
+	locationConditionData2 = data;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Breakpoint::GetLocationMask() const
+{
+	return locationMask;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetLocationMask(unsigned int data)
+{
+	locationMask = data & ((1 << addressBusWidth) - 1);
+}
+
 //----------------------------------------------------------------------------------------
 bool Breakpoint::PassesLocationCondition(unsigned int location)
 {
@@ -48,6 +199,42 @@ bool Breakpoint::PassesLocationCondition(unsigned int location)
 //----------------------------------------------------------------------------------------
 //Hit counter functions
 //----------------------------------------------------------------------------------------
+unsigned int Breakpoint::GetHitCounter() const
+{
+	return hitCounter;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetHitCounter(unsigned int ahitCounter)
+{
+	hitCounter = ahitCounter;
+}
+
+//----------------------------------------------------------------------------------------
+bool Breakpoint::GetBreakOnCounter() const
+{
+	return breakOnCounter;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetBreakOnCounter(bool state)
+{
+	breakOnCounter = state;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Breakpoint::GetBreakCounter() const
+{
+	return breakCounter;
+}
+
+//----------------------------------------------------------------------------------------
+void Breakpoint::SetBreakCounter(unsigned int abreakCounter)
+{
+	breakCounter = (abreakCounter > 0)? abreakCounter: 1;
+}
+
+//----------------------------------------------------------------------------------------
 bool Breakpoint::CheckHitCounter()
 {
 	IncrementHitCounter();
@@ -59,16 +246,6 @@ bool Breakpoint::CheckHitCounter()
 		}
 	}
 	return true;
-}
-
-//----------------------------------------------------------------------------------------
-//Name functions
-//----------------------------------------------------------------------------------------
-std::wstring Breakpoint::GenerateName(unsigned int addressCharWidth) const
-{
-	std::wstring newName;
-	IntToStringBase16(GetLocationConditionData1(), newName, addressCharWidth, false);
-	return newName;
 }
 
 //----------------------------------------------------------------------------------------

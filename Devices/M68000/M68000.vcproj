@@ -975,6 +975,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{47967EF3-5853-4BC8-B863-E6674079871B}"
+			RelativePathToProject=".\Libraries\Processor\Processor.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -1428,62 +1432,30 @@
 				RelativePath=".\M68000.inl"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Resources"
+			>
 			<File
-				RelativePath=".\M68000_Wnd.cpp"
+				RelativePath=".\M68000.rc"
 				>
 			</File>
-			<Filter
-				Name="DebugMenuHandler"
+			<File
+				RelativePath=".\resource.h"
 				>
-				<File
-					RelativePath=".\DebugMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DebugMenuHandler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="RegistersView"
+			</File>
+		</Filter>
+		<Filter
+			Name="IM68000"
+			>
+			<File
+				RelativePath=".\IM68000.h"
 				>
-				<File
-					RelativePath=".\RegistersView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ExceptionsView"
+			</File>
+			<File
+				RelativePath=".\IM68000.inl"
 				>
-				<File
-					RelativePath=".\ExceptionsView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ExceptionsView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ExceptionsViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ExceptionsViewModel.h"
-					>
-				</File>
-			</Filter>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\interface.cpp"
@@ -1493,15 +1465,11 @@
 			RelativePath=".\interface.h"
 			>
 		</File>
-		<File
-			RelativePath=".\M68000.rc"
-			>
-		</File>
-		<File
-			RelativePath=".\resource.h"
-			>
-		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

@@ -1,18 +1,28 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Watchpoint::Watchpoint(unsigned int addressBusWidth)
-:Breakpoint(addressBusWidth)
+Watchpoint::Watchpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth, unsigned int aaddressBusCharWidth)
 {
-	Initialize(addressBusWidth);
-}
+	addressBusWidth = aaddressBusWidth;
+	dataBusWidth = adataBusWidth;
+	addressBusCharWidth = aaddressBusCharWidth;
 
-//----------------------------------------------------------------------------------------
-//Initialization functions
-//----------------------------------------------------------------------------------------
-void Watchpoint::Initialize(unsigned int addressBusWidth)
-{
-	Breakpoint::Initialize(addressBusWidth);
+	name.clear();
+	enabled = true;
+	logEvent = true;
+	breakEvent = true;
+
+	locationConditionNot = false;
+	locationCondition = CONDITION_EQUAL;
+	locationConditionData1 = 0;
+	locationConditionData2 = 0;
+	locationMask = ((1 << addressBusWidth) - 1);
+
+	hitCounter = 0;
+	hitCounterIncrement = 0;
+	breakOnCounter = false;
+	breakCounter = 0;
+
 	read = true;
 	write = true;
 
@@ -30,152 +40,55 @@ void Watchpoint::Initialize(unsigned int addressBusWidth)
 }
 
 //----------------------------------------------------------------------------------------
-//Read/write condition flag functions
+//Execute functions
 //----------------------------------------------------------------------------------------
-bool Watchpoint::GetOnRead() const
+void Watchpoint::Commit()
 {
-	return read;
+	hitCounter += hitCounterIncrement;
+	hitCounterIncrement = 0;
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::SetOnRead(bool state)
+void Watchpoint::Rollback()
 {
-	read = state;
+	hitCounterIncrement = 0;
 }
 
 //----------------------------------------------------------------------------------------
-bool Watchpoint::GetOnWrite() const
+//Name functions
+//----------------------------------------------------------------------------------------
+std::wstring Watchpoint::GetName() const
 {
-	return write;
+	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::SetOnWrite(bool state)
+void Watchpoint::SetName(const std::wstring& aname)
 {
-	write = state;
+	name = aname;
 }
 
 //----------------------------------------------------------------------------------------
-//Read condition functions
+//Hit counter functions
 //----------------------------------------------------------------------------------------
-bool Watchpoint::GetReadConditionEnabled() const
+unsigned int Watchpoint::GetLiveHitCounter() const
 {
-	return readConditionEnabled;
+	return hitCounter + hitCounterIncrement;
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::SetReadConditionEnabled(bool state)
+void Watchpoint::IncrementHitCounter()
 {
-	readConditionEnabled = state;
+	if(!preIncrementCounter)
+	{
+		++hitCounterIncrement;
+	}
+	preIncrementCounter = false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Watchpoint::GetReadConditionNot() const
+void Watchpoint::PreIncrementHitCounter()
 {
-	return readConditionNot;
-}
-
-//----------------------------------------------------------------------------------------
-void Watchpoint::SetReadConditionNot(bool state)
-{
-	readConditionNot = state;
-}
-
-//----------------------------------------------------------------------------------------
-Watchpoint::Condition Watchpoint::GetReadCondition() const
-{
-	return readCondition;
-}
-
-//----------------------------------------------------------------------------------------
-void Watchpoint::SetReadCondition(Condition condition)
-{
-	readCondition = condition;
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Watchpoint::GetReadConditionData1() const
-{
-	return readConditionData1;
-}
-
-//----------------------------------------------------------------------------------------
-void Watchpoint::SetReadConditionData1(unsigned int data, unsigned int dataBusWidth)
-{
-	readConditionData1 = data & ((1 << dataBusWidth) - 1);
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Watchpoint::GetReadConditionData2() const
-{
-	return readConditionData2;
-}
-
-//----------------------------------------------------------------------------------------
-void Watchpoint::SetReadConditionData2(unsigned int data, unsigned int dataBusWidth)
-{
-	readConditionData2 = data & ((1 << dataBusWidth) - 1);
-}
-
-
-//----------------------------------------------------------------------------------------
-//Write condition functions
-//----------------------------------------------------------------------------------------
-bool Watchpoint::GetWriteConditionEnabled() const
-{
-	return writeConditionEnabled;
-}
-
-//----------------------------------------------------------------------------------------
-void Watchpoint::SetWriteConditionEnabled(bool state)
-{
-	writeConditionEnabled = state;
-}
-
-//----------------------------------------------------------------------------------------
-bool Watchpoint::GetWriteConditionNot() const
-{
-	return writeConditionNot;
-}
-
-//----------------------------------------------------------------------------------------
-void Watchpoint::SetWriteConditionNot(bool state)
-{
-	writeConditionNot = state;
-}
-
-//----------------------------------------------------------------------------------------
-Watchpoint::Condition Watchpoint::GetWriteCondition() const
-{
-	return writeCondition;
-}
-
-//----------------------------------------------------------------------------------------
-void Watchpoint::SetWriteCondition(Condition condition)
-{
-	writeCondition = condition;
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Watchpoint::GetWriteConditionData1() const
-{
-	return writeConditionData1;
-}
-
-//----------------------------------------------------------------------------------------
-void Watchpoint::SetWriteConditionData1(unsigned int data, unsigned int dataBusWidth)
-{
-	writeConditionData1 = data & ((1 << dataBusWidth) - 1);
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Watchpoint::GetWriteConditionData2() const
-{
-	return writeConditionData2;
-}
-
-//----------------------------------------------------------------------------------------
-void Watchpoint::SetWriteConditionData2(unsigned int data, unsigned int dataBusWidth)
-{
-	writeConditionData2 = data & ((1 << dataBusWidth) - 1);
+	preIncrementCounter = true;
+	++hitCounterIncrement;
 }

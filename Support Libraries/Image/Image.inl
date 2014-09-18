@@ -325,7 +325,7 @@ Image::Image(unsigned int aimageWidth, unsigned int aimageHeight, PixelFormat ap
 void Image::GetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData& data) const
 {
 	unsigned int dataPos = ((posX + (posY * imageWidth)) * dataPlaneCount) + planeNo;
-	ReleaseAssert(dataPos < imageData.size());
+	DebugAssert(dataPos < imageData.size());
 	data = imageData[dataPos];
 }
 
@@ -333,7 +333,7 @@ void Image::GetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsign
 void Image::SetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData data)
 {
 	unsigned int dataPos = ((posX + (posY * imageWidth)) * dataPlaneCount) + planeNo;
-	ReleaseAssert(dataPos < imageData.size());
+	DebugAssert(dataPos < imageData.size());
 	imageData[dataPos] = data;
 }
 
@@ -351,7 +351,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 		data = ((float)pixelData.data8Bit / 255.0f);
 		break;
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		return;
 	}
 }
@@ -370,7 +370,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 		data = pixelData.data8Bit;
 		break;
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		return;
 	}
 }
@@ -390,7 +390,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 		data = (unsigned int)(((double)pixelData.data8Bit * ((double)maxValue / 255.0)) + 0.5f);
 		break;
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		return;
 	}
 }
@@ -408,7 +408,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 		pixelData.data8Bit = (unsigned char)((data * 255.0f) + 0.5f);
 		break;
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		return;
 	}
 	SetRawPixelDataInternal(posX, posY, planeNo, pixelData);
@@ -427,7 +427,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 		pixelData.data8Bit = data;
 		break;
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		return;
 	}
 	SetRawPixelDataInternal(posX, posY, planeNo, pixelData);
@@ -447,7 +447,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 		pixelData.data8Bit = (unsigned char)(((double)data * (255.0 / (double)maxValue)) + 0.5f);
 		break;
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		return;
 	}
 	SetRawPixelDataInternal(posX, posY, planeNo, pixelData);

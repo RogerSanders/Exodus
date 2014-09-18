@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 RAM16Variable::RAM16Variable(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:RAM16(aimplementationName, ainstanceName, amoduleID)
+:RAMBase(aimplementationName, ainstanceName, amoduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -132,4 +132,18 @@ void RAM16Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 		memoryArray[(baseLocation + 1) % memoryArraySize] = (unsigned short)data.GetDataSegment((((interfaceNumber / arrayEntryByteSize) - 1) - 1) * Data::bitsPerByte, arrayEntryByteSize * Data::bitsPerByte);
 		break;}
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int RAM16Variable::ReadMemoryEntry(unsigned int location) const
+{
+	return memoryArray[location % memoryArraySize];
+}
+
+//----------------------------------------------------------------------------------------
+void RAM16Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	memoryArray[location % memoryArraySize] = (unsigned short)data;
 }

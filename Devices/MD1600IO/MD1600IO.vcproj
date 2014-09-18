@@ -975,6 +975,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{36693E5E-1462-4CFC-A240-2CCAA6483833}"
+			RelativePathToProject=".\Libraries\Device\Device.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -1033,6 +1037,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Resources"
+			>
+			<File
+				RelativePath=".\MD1600IO.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\interface.cpp"
 			>
@@ -1041,15 +1057,11 @@
 			RelativePath=".\interface.h"
 			>
 		</File>
-		<File
-			RelativePath=".\MD1600IO.rc"
-			>
-		</File>
-		<File
-			RelativePath=".\resource.h"
-			>
-		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

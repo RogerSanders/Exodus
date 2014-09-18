@@ -13,8 +13,9 @@ References:
 \*--------------------------------------------------------------------------------------*/
 #ifndef __MDCONTROL3_H__
 #define __MDCONTROL3_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Device/Device.pkg"
+#include <boost/thread/mutex.hpp>
 
 class MDControl3 :public Device
 {

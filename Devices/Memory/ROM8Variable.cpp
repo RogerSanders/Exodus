@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ROM8Variable::ROM8Variable(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:ROM8(aimplementationName, ainstanceName, amoduleID)
+:ROMBase(aimplementationName, ainstanceName, amoduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -80,4 +80,18 @@ void ROM8Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsig
 		memoryArray[(baseLocation + 3) % memoryArraySize] = data.GetByteFromTopDown(3);
 		break;}
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int ROM8Variable::ReadMemoryEntry(unsigned int location) const
+{
+	return memoryArray[location % memoryArraySize];
+}
+
+//----------------------------------------------------------------------------------------
+void ROM8Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	memoryArray[location % memoryArraySize] = (unsigned char)data;
 }

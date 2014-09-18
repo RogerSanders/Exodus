@@ -1,20 +1,16 @@
+#include "IBreakpoint.h"
 #ifndef __BREAKPOINT_H__
 #define __BREAKPOINT_H__
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
-#include <string>
 
-class Breakpoint
+class Breakpoint :public IBreakpoint
 {
 public:
-	//Enumerations
-	enum Condition;
-
 	//Constructors
-	inline Breakpoint(unsigned int addressBusWidth);
-	virtual ~Breakpoint();
+	inline Breakpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth, unsigned int aaddressBusCharWidth);
 
-	//Initialization functions
-	inline void Initialize(unsigned int addressBusWidth);
+	//Interface version functions
+	virtual unsigned int GetIBreakpointVersion() const;
 
 	//Execute functions
 	inline void Commit();
@@ -24,48 +20,59 @@ public:
 	std::wstring GetLogString() const;
 
 	//Breakpoint event triggers
-	inline bool GetEnabled() const;
-	inline void SetEnabled(bool state);
-	inline bool GetLogEvent() const;
-	inline void SetLogEvent(bool state);
-	inline bool GetBreakEvent() const;
-	inline void SetBreakEvent(bool state);
+	virtual bool GetEnabled() const;
+	virtual void SetEnabled(bool state);
+	virtual bool GetLogEvent() const;
+	virtual void SetLogEvent(bool state);
+	virtual bool GetBreakEvent() const;
+	virtual void SetBreakEvent(bool state);
 
 	//Name functions
 	inline std::wstring GetName() const;
 	inline void SetName(const std::wstring& aname);
-	std::wstring GenerateName(unsigned int addressCharWidth) const;
+	std::wstring GenerateName() const;
 
 	//Location condition functions
-	inline bool GetLocationConditionNot() const;
-	inline void SetLocationConditionNot(bool state);
-	inline Condition GetLocationCondition() const;
-	inline void SetLocationCondition(Condition condition);
-	inline unsigned int GetLocationConditionData1() const;
-	inline void SetLocationConditionData1(unsigned int data);
-	inline unsigned int GetLocationConditionData2() const;
-	inline void SetLocationConditionData2(unsigned int data);
-	inline unsigned int GetLocationMask() const;
-	inline void SetLocationMask(unsigned int data);
-	bool PassesLocationCondition(unsigned int location);
+	virtual bool GetLocationConditionNot() const;
+	virtual void SetLocationConditionNot(bool state);
+	virtual Condition GetLocationCondition() const;
+	virtual void SetLocationCondition(Condition condition);
+	virtual unsigned int GetLocationConditionData1() const;
+	virtual void SetLocationConditionData1(unsigned int data);
+	virtual unsigned int GetLocationConditionData2() const;
+	virtual void SetLocationConditionData2(unsigned int data);
+	virtual unsigned int GetLocationMask() const;
+	virtual void SetLocationMask(unsigned int data);
+	virtual bool PassesLocationCondition(unsigned int location);
 
 	//Hit counter functions
-	inline unsigned int GetHitCounter() const;
-	inline void SetHitCounter(unsigned int ahitCounter);
+	virtual unsigned int GetHitCounter() const;
+	virtual void SetHitCounter(unsigned int ahitCounter);
 	inline unsigned int GetLiveHitCounter() const;
 	inline void IncrementHitCounter();
 	inline void PreIncrementHitCounter();
-	inline bool GetBreakOnCounter() const;
-	inline void SetBreakOnCounter(bool state);
-	inline unsigned int GetBreakCounter() const;
-	inline void SetBreakCounter(unsigned int abreakCounter);
+	virtual bool GetBreakOnCounter() const;
+	virtual void SetBreakOnCounter(bool state);
+	virtual unsigned int GetBreakCounter() const;
+	virtual void SetBreakCounter(unsigned int abreakCounter);
 	bool CheckHitCounter();
 
 	//Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
+protected:
+	//Name functions
+	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void GenerateNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+
 private:
+	//Bus sizes
+	unsigned int addressBusWidth;
+	unsigned int dataBusWidth;
+	unsigned int addressBusCharWidth;
+
 	//Breakpoint name
 	std::wstring name;
 

@@ -460,42 +460,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Controls"
-			>
-			<Filter
-				Name="WC_GridList"
-				>
-				<File
-					RelativePath=".\WC_GridList.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\WC_GridList.h"
-					>
-				</File>
-				<File
-					RelativePath=".\WC_GridList.inl"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="WC_HexEdit"
-				>
-				<File
-					RelativePath=".\WC_HexEdit.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\WC_HexEdit.h"
-					>
-				</File>
-				<File
-					RelativePath=".\WC_HexEdit.inl"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
 			Name="PathFunctions"
 			>
 			<File
@@ -513,5 +477,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

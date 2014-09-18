@@ -1,6 +1,6 @@
 #ifndef __DEVICEINFO_H__
 #define __DEVICEINFO_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include <string>
 
 class DeviceInfo :public IDeviceInfo
@@ -10,17 +10,13 @@ public:
 	virtual unsigned int GetIDeviceInfoVersion() const;
 
 	//Getters
-	//This is much neater using a typedef. See below for the correct syntax without a
-	//typedef for the function pointers:
-	//IDevice* (*GetAllocator() const)(const wchar_t*, const wchar_t*, unsigned int);
-	//void (*GetDestructor() const)(IDevice*);
-	AllocatorPointer GetAllocator() const;
-	DestructorPointer GetDestructor() const;
-	std::wstring GetDeviceClassName() const;
-	std::wstring GetDeviceImplementationName() const;
+	virtual AllocatorPointer GetAllocator() const;
+	virtual DestructorPointer GetDestructor() const;
+	inline std::wstring GetDeviceClassName() const;
+	inline std::wstring GetDeviceImplementationName() const;
 	virtual unsigned int GetDeviceVersionNo() const;
-	std::wstring GetDeviceCopyright() const;
-	std::wstring GetDeviceComments() const;
+	inline std::wstring GetDeviceCopyright() const;
+	inline std::wstring GetDeviceComments() const;
 
 	//Setters
 	inline void SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& adeviceClassName, const std::wstring& adeviceImplementationName, unsigned int adeviceVersionNo, const std::wstring& adeviceCopyright, const std::wstring& adeviceComments);
@@ -32,6 +28,12 @@ public:
 	inline void SetDeviceComments(const std::wstring& adeviceComments);
 
 protected:
+	//Getters
+	virtual void GetDeviceClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetDeviceCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetDeviceCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+
 	//Setters
 	virtual void SetDeviceClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 	virtual void SetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);

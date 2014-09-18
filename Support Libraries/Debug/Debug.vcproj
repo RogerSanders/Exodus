@@ -441,6 +441,22 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{AA212D36-1347-47AB-B658-7CE6BA7FA425}"
+			RelativePathToProject=".\Support Libraries\ZIP\ZIP.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{D4F63DCA-8FA8-4FD3-B449-DBB7E5AD7FFB}"
+			RelativePathToProject=".\Support Libraries\Stream\Stream.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{5AC3CB2C-0A1A-4E29-8A07-2BDED302611B}"
+			RelativePathToProject=".\Support Libraries\WindowsSupport\WindowsSupport.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{2615B12B-BA5F-4C84-97EE-81761C51BE03}"
+			RelativePathToProject=".\Support Libraries\ThreadLib\ThreadLib.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -485,5 +501,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

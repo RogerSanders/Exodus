@@ -107,7 +107,7 @@ bool EffectiveAddress::Decode16BitRegister(unsigned int adata)
 	switch(adata & 0x03)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case 0:	//00
 		mode = MODE_BC;

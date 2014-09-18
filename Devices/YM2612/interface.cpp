@@ -1,14 +1,14 @@
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "YM2612.h"
 
 IDevice* GetYM2612(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new YM2612(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new YM2612(implementationName, instanceName, moduleID));
 }
 
 void DeleteYM2612(IDevice* device)
 {
-	delete device;
+	delete static_cast<YM2612*>(device);
 }
 
 #ifdef EX_DLLINTERFACE

@@ -119,6 +119,22 @@ void TimedBufferIntDevice::TransparentWriteInterface(unsigned int interfaceNumbe
 }
 
 //----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int TimedBufferIntDevice::ReadMemoryEntry(unsigned int location) const
+{
+	unsigned int memorySize = GetMemoryEntryCount();
+	return bufferShell.ReadLatest(location % memorySize);
+}
+
+//----------------------------------------------------------------------------------------
+void TimedBufferIntDevice::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	unsigned int memorySize = GetMemoryEntryCount();
+	bufferShell.WriteLatest(location % memorySize, (unsigned char)data);
+}
+
+//----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::LoadState(IHierarchicalStorageNode& node)

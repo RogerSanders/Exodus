@@ -21,4 +21,14 @@
 #endif
 #endif
 
+//Define a macro for how to perform an is_base_of type trait check, based on whether C++11
+//is supported. We can emulate this check with a C++03 conformant compiler if required.
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+#include <type_traits>
+#define INTEROPSUPPORT_ISBASEOF(B, D) std::is_base_of<B, D>
+#else
+#include "IsBaseOfTypeTraitEmulator.h"
+#define INTEROPSUPPORT_ISBASEOF(B, D) is_base_of_emulator<B, D>::result
+#endif
+
 #endif

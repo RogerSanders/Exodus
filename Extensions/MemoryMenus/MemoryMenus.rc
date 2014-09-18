@@ -1,0 +1,204 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MEMORY_DATA_EDIT DIALOGEX 0, 0, 191, 79
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_0,38,34,18,12,ES_UPPERCASE | ES_AUTOHSCROLL | WS_GROUP
+    CTEXT           "0",IDC_MEMORY_DATA_LABEL_0,38,25,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_1,56,34,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "1",IDC_MEMORY_DATA_LABEL_1,56,25,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_2,74,34,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "2",IDC_MEMORY_DATA_LABEL_2,74,25,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_3,92,34,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "3",IDC_MEMORY_DATA_LABEL_3,92,25,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_4,110,34,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "4",IDC_MEMORY_DATA_LABEL_4,110,25,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_5,128,34,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "5",IDC_MEMORY_DATA_LABEL_5,128,25,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_6,146,34,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "6",IDC_MEMORY_DATA_LABEL_6,146,25,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_7,164,34,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "7",IDC_MEMORY_DATA_LABEL_7,164,25,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_8,38,58,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "8",IDC_MEMORY_DATA_LABEL_8,38,50,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_9,56,58,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "9",IDC_MEMORY_DATA_LABEL_9,56,50,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_A,74,58,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "A",IDC_MEMORY_DATA_LABEL_A,74,50,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_B,92,58,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "B",IDC_MEMORY_DATA_LABEL_B,92,50,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_C,110,58,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "C",IDC_MEMORY_DATA_LABEL_C,110,50,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_D,128,58,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "D",IDC_MEMORY_DATA_LABEL_D,128,50,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_E,146,58,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "E",IDC_MEMORY_DATA_LABEL_E,146,50,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_F,164,58,18,12,ES_UPPERCASE | ES_AUTOHSCROLL
+    CTEXT           "F",IDC_MEMORY_DATA_LABEL_F,164,50,18,8
+    EDITTEXT        IDC_MEMORY_DATA_EDIT_LOCATION,83,7,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
+    LTEXT           "Location",IDC_STATIC,53,9,28,8
+    RTEXT           "LINE1",IDC_MEMORY_DATA_LABEL_LINE1,5,60,32,8
+    RTEXT           "LINE0",IDC_MEMORY_DATA_LABEL_LINE0,5,36,32,8
+END
+
+IDD_MEMORY_DATA DIALOGEX 0, 0, 221, 271
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_CLIPSIBLINGS | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_MEMORY_DATA_SIZE,92,252,48,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
+    EDITTEXT        IDC_MEMORY_DATA_LOCATION,23,252,48,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
+    LTEXT           "Location",IDC_STATIC,35,242,28,8
+    LTEXT           "Size",IDC_STATIC,109,242,14,8
+    EDITTEXT        IDC_MEMORY_DATA_WIDTH,167,252,21,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
+    LTEXT           "Width",IDC_STATIC,169,242,20,8
+    LISTBOX         IDC_MEMORY_LIST,7,7,206,233,LBS_SORT | LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_MEMORY_DATA_EDIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 184
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 70
+    END
+
+    IDD_MEMORY_DATA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 213
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 264
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x17L
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Nemesis Software"
+            VALUE "FileDescription", "Exodus Plugin"
+            VALUE "FileVersion", "1.0.0"
+            VALUE "InternalName", "MemoryMenus"
+            VALUE "LegalCopyright", "© 2013 Roger Sanders"
+            VALUE "OriginalFilename", "MemoryMenus.dll"
+            VALUE "ProductName", "MemoryMenus"
+            VALUE "ProductVersion", "1.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Australia) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (Australia) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

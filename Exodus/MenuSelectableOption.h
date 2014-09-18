@@ -1,24 +1,26 @@
 #ifndef __MENUSELECTABLEOPTION_H__
 #define __MENUSELECTABLEOPTION_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
 
 class MenuSelectableOption :public IMenuSelectableOption
 {
 public:
 	//Constructors
-	MenuSelectableOption(IMenuHandler& amenuHandler, int amenuItemID, const std::wstring& aname);
+	MenuSelectableOption(IMenuHandler& amenuHandler, int amenuItemID, const std::wstring& atitle);
 
 	//Interface version functions
 	virtual unsigned int GetIMenuItemVersion() const;
 	virtual unsigned int GetIMenuSelectableOptionVersion() const;
 
-	//Menu handler functions
-	std::wstring GetName() const;
-	virtual IMenuHandler& GetMenuHandler() const;
-	virtual int GetMenuItemID() const;
-
 	//Type functions
 	virtual Type GetType() const;
+
+	//Menu title functions
+	std::wstring GetMenuTitle() const;
+
+	//Menu handler functions
+	virtual IMenuHandler& GetMenuHandler() const;
+	virtual int GetMenuItemID() const;
 
 	//Physical menu functions
 	HMENU GetPhysicalMenuHandle() const;
@@ -31,11 +33,11 @@ public:
 	virtual void SetCheckedState(bool acheckedState);
 
 protected:
-	//Menu handler functions
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	//Menu title functions
+	virtual void GetMenuTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
-	std::wstring name;
+	std::wstring title;
 	IMenuHandler& menuHandler;
 	int menuItemID;
 	HMENU physicalMenuHandle;

@@ -1,14 +1,14 @@
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "SN76489.h"
 
 IDevice* GetSN76489(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new SN76489(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new SN76489(implementationName, instanceName, moduleID));
 }
 
 void DeleteSN76489(IDevice* device)
 {
-	delete device;
+	delete static_cast<SN76489*>(device);
 }
 
 #ifdef EX_DLLINTERFACE

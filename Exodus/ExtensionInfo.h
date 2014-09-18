@@ -1,6 +1,6 @@
 #ifndef __EXTENSIONINFO_H__
 #define __EXTENSIONINFO_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
 #include <string>
 
 class ExtensionInfo :public IExtensionInfo
@@ -10,17 +10,13 @@ public:
 	virtual unsigned int GetIExtensionInfoVersion() const;
 
 	//Getters
-	//This is much neater using a typedef. See below for the correct syntax without a
-	//typedef for the function pointers:
-	//IExtension* (*GetAllocator() const)(const wchar_t*, const wchar_t*, unsigned int);
-	//void (*GetDestructor() const)(IExtension*);
-	AllocatorPointer GetAllocator() const;
-	DestructorPointer GetDestructor() const;
-	std::wstring GetExtensionClassName() const;
-	std::wstring GetExtensionImplementationName() const;
+	virtual AllocatorPointer GetAllocator() const;
+	virtual DestructorPointer GetDestructor() const;
+	inline std::wstring GetExtensionClassName() const;
+	inline std::wstring GetExtensionImplementationName() const;
 	virtual unsigned int GetExtensionVersionNo() const;
-	std::wstring GetExtensionCopyright() const;
-	std::wstring GetExtensionComments() const;
+	inline std::wstring GetExtensionCopyright() const;
+	inline std::wstring GetExtensionComments() const;
 
 	//Setters
 	inline void SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& aextensionClassName, const std::wstring& aextensionImplementationName, unsigned int aextensionVersionNo, const std::wstring& aextensionCopyright, const std::wstring& aextensionComments);
@@ -32,6 +28,12 @@ public:
 	inline void SetExtensionComments(const std::wstring& aextensionComments);
 
 protected:
+	//Getters
+	virtual void GetExtensionClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetExtensionCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetExtensionCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+
 	//Setters
 	virtual void SetExtensionClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 	virtual void SetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);

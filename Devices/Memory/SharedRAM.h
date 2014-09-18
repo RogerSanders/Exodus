@@ -28,6 +28,10 @@ public:
 	virtual void TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext);
 	virtual void TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext);
 
+	//Debug memory access functions
+	virtual unsigned int ReadMemoryEntry(unsigned int location) const;
+	virtual void WriteMemoryEntry(unsigned int location, unsigned int data);
+
 	//Memory locking functions
 	virtual bool IsMemoryLockingSupported() const;
 	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state);

@@ -33,3 +33,17 @@ void ROM32::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int
 {
 	memoryArray[location % memoryArraySize] = (unsigned int)data.GetData();
 }
+
+//----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int ROM32::ReadMemoryEntry(unsigned int location) const
+{
+	return memoryArray[location % memoryArraySize];
+}
+
+//----------------------------------------------------------------------------------------
+void ROM32::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	memoryArray[location % memoryArraySize] = data;
+}

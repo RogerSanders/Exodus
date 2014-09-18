@@ -1,21 +1,21 @@
 #include "MenuSubmenu.h"
 #include "MenuSegment.h"
+#include "MenuSelectableOption.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MenuSubmenu::MenuSubmenu(const std::wstring& aname)
-:name(aname)
+MenuSubmenu::MenuSubmenu(const std::wstring& atitle)
+:title(atitle)
 {}
 
 //----------------------------------------------------------------------------------------
 MenuSubmenu::~MenuSubmenu()
 {
-	for(std::vector<IMenuSegment*>::const_iterator i = menuSegments.begin(); i != menuSegments.end(); ++i)
+	for(std::list<IMenuItem*>::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 	{
 		delete *i;
 	}
-	menuSegments.clear();
 }
 
 //----------------------------------------------------------------------------------------
@@ -35,83 +35,120 @@ unsigned int MenuSubmenu::GetIMenuSubmenuVersion() const
 //----------------------------------------------------------------------------------------
 //Type functions
 //----------------------------------------------------------------------------------------
-IMenuSubmenu::Type MenuSubmenu::GetType() const
+MenuSubmenu::Type MenuSubmenu::GetType() const
 {
 	return TYPE_SUBMENU;
 }
 
 //----------------------------------------------------------------------------------------
-//Menu name functions
+//Menu title functions
 //----------------------------------------------------------------------------------------
-std::wstring MenuSubmenu::GetMenuName() const
+std::wstring MenuSubmenu::GetMenuTitle() const
 {
-	return name;
+	return title;
 }
 
 //----------------------------------------------------------------------------------------
-void MenuSubmenu::GetMenuNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+void MenuSubmenu::GetMenuTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	marshaller.MarshalFrom(GetMenuName());
+	marshaller.MarshalFrom(GetMenuTitle());
 }
 
 //----------------------------------------------------------------------------------------
 //Item management functions
 //----------------------------------------------------------------------------------------
-bool MenuSubmenu::NoMenuSegmentsExist() const
-{
-	return menuSegments.empty();
-}
-
-//----------------------------------------------------------------------------------------
 bool MenuSubmenu::NoMenuItemsExist() const
 {
-	bool noMenuItems = true;
-	for(std::vector<IMenuSegment*>::const_iterator i = menuSegments.begin(); i != menuSegments.end(); ++i)
+	for(std::list<IMenuItem*>::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 	{
-		noMenuItems &= (*i)->NoMenuItemsExist();
-	}
-	return noMenuItems;
-}
-
-//----------------------------------------------------------------------------------------
-std::list<IMenuSegment*> MenuSubmenu::GetMenuSegments() const
-{
-	std::list<IMenuSegment*> menuSegmentList;
-	for(unsigned int i = 0; i < (unsigned int)menuSegments.size(); ++i)
-	{
-		menuSegmentList.push_back(menuSegments[i]);
-	}
-	return menuSegmentList;
-}
-
-//----------------------------------------------------------------------------------------
-void MenuSubmenu::GetMenuSegmentsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuSegment*>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetMenuSegments());
-}
-
-//----------------------------------------------------------------------------------------
-//Menu segment creation and deletion
-//----------------------------------------------------------------------------------------
-IMenuSegment& MenuSubmenu::CreateMenuSegment()
-{
-	IMenuSegment* newMenuSegment = new MenuSegment();
-	menuSegments.push_back(newMenuSegment);
-	return *newMenuSegment;
-}
-
-//----------------------------------------------------------------------------------------
-void MenuSubmenu::DeleteMenuSegment(IMenuSegment& menuSegment)
-{
-	IMenuSegment* menuSegmentPointer = &menuSegment;
-	bool done = false;
-	std::vector<IMenuSegment*>::iterator i = menuSegments.begin();
-	while(!done && (i != menuSegments.end()))
-	{
-		if(*i == menuSegmentPointer)
+		const IMenuItem* menuItem = *i;
+		IMenuItem::Type menuItemType = menuItem->GetType();
+		if(menuItemType == IMenuItem::TYPE_SEGMENT)
 		{
-			menuSegments.erase(i);
-			delete menuSegmentPointer;
+			const IMenuSegment* menuItemAsSegment = (IMenuSegment*)menuItem;
+			if(!menuItemAsSegment->NoMenuItemsExist())
+			{
+				return false;
+			}
+		}
+		else if(menuItemType == IMenuItem::TYPE_SUBMENU)
+		{
+			const IMenuSubmenu* menuItemAsSubmenu = (IMenuSubmenu*)menuItem;
+			if(!menuItemAsSubmenu->NoMenuItemsExist())
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+std::list<IMenuItem*> MenuSubmenu::GetMenuItems() const
+{
+	return menuItems;
+}
+
+//----------------------------------------------------------------------------------------
+void MenuSubmenu::GetMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const
+{
+	marshaller.MarshalFrom(GetMenuItems());
+}
+
+//----------------------------------------------------------------------------------------
+//Menu item creation functions
+//----------------------------------------------------------------------------------------
+IMenuSegment& MenuSubmenu::AddMenuItemSegment(bool asurroundWithSeparators, IMenuSegment::SortMode sortMode)
+{
+	IMenuSegment* newMenuItem = new MenuSegment(asurroundWithSeparators, sortMode);
+	menuItems.push_back(newMenuItem);
+	return *newMenuItem;
+}
+
+//----------------------------------------------------------------------------------------
+IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenu(const std::wstring& title)
+{
+	IMenuSubmenu* newMenuItem = new MenuSubmenu(title);
+	menuItems.push_back(newMenuItem);
+	return *newMenuItem;
+}
+
+//----------------------------------------------------------------------------------------
+IMenuSelectableOption& MenuSubmenu::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title)
+{
+	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, title);
+	menuItems.push_back(newMenuItem);
+	return *newMenuItem;
+}
+
+//----------------------------------------------------------------------------------------
+IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller)
+{
+	return AddMenuItemSubmenu(titleMarshaller.MarshalTo());
+}
+
+//----------------------------------------------------------------------------------------
+IMenuSelectableOption& MenuSubmenu::AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller)
+{
+	return AddMenuItemSelectableOption(menuHandler, menuItemID, titleMarshaller.MarshalTo());
+}
+
+//----------------------------------------------------------------------------------------
+void MenuSubmenu::DeleteMenuItem(IMenuItem& menuItem)
+{
+	IMenuItem* menuItemPointer = &menuItem;
+	bool done = false;
+	std::list<IMenuItem*>::iterator i = menuItems.begin();
+	while(!done && (i != menuItems.end()))
+	{
+		if(*i == menuItemPointer)
+		{
+			menuItems.erase(i);
+			delete menuItemPointer;
 			done = true;
 			continue;
 		}
@@ -120,11 +157,11 @@ void MenuSubmenu::DeleteMenuSegment(IMenuSegment& menuSegment)
 }
 
 //----------------------------------------------------------------------------------------
-void MenuSubmenu::DeleteAllMenuSegments()
+void MenuSubmenu::DeleteAllMenuItems()
 {
-	for(std::vector<IMenuSegment*>::iterator i = menuSegments.begin(); i != menuSegments.end(); ++i)
+	for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 	{
 		delete *i;
 	}
-	menuSegments.clear();
+	menuItems.clear();
 }

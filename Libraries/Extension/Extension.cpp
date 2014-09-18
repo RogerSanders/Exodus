@@ -1,6 +1,4 @@
 #include "Extension.h"
-#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
-#include "SystemInterface/SystemInterface.pkg"
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -125,20 +123,6 @@ bool Extension::RemoveReference(IClockSource* target)
 }
 
 //----------------------------------------------------------------------------------------
-//Interface functions
-//----------------------------------------------------------------------------------------
-ISystemExtensionInterface* Extension::GetSystemInterface() const
-{
-	return systemInterface;
-}
-
-//----------------------------------------------------------------------------------------
-IGUIExtensionInterface* Extension::GetGUIInterface() const
-{
-	return guiInterface;
-}
-
-//----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
 void Extension::GetExtensionClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
@@ -179,45 +163,165 @@ void Extension::SaveDebuggerState(IHierarchicalStorageNode& node) const
 //----------------------------------------------------------------------------------------
 //Window functions
 //----------------------------------------------------------------------------------------
+AssemblyHandle Extension::GetAssemblyHandle() const
+{
+	return assemblyHandle;
+}
+
+//----------------------------------------------------------------------------------------
 void Extension::SetAssemblyHandle(AssemblyHandle aassemblyHandle)
 {
 	assemblyHandle = aassemblyHandle;
 }
 
 //----------------------------------------------------------------------------------------
-Extension::AssemblyHandle Extension::GetAssemblyHandle() const
+bool Extension::RegisterSystemMenuHandler()
 {
-	return assemblyHandle;
+	return false;
 }
 
 //----------------------------------------------------------------------------------------
-void Extension::AddFileOpenMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
+void Extension::UnregisterSystemMenuHandler()
 {}
 
 //----------------------------------------------------------------------------------------
-void Extension::AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
-{}
-
-//----------------------------------------------------------------------------------------
-void Extension::AddGlobalSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
-{}
-
-//----------------------------------------------------------------------------------------
-void Extension::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
-{}
-
-//----------------------------------------------------------------------------------------
-void Extension::OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher)
-{}
-
-//----------------------------------------------------------------------------------------
-void Extension::RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
+bool Extension::RegisterModuleMenuHandler(unsigned int moduleID)
 {
-	RestoreViewModelState(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), node, xpos, ypos, width, height, viewModelLauncher);
+	return false;
 }
 
 //----------------------------------------------------------------------------------------
-void Extension::OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher)
+void Extension::UnregisterModuleMenuHandler(unsigned int moduleID)
+{}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RegisterDeviceMenuHandler(IDevice* targetDevice)
 {
-	OpenViewModel(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), viewModelLauncher);
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+void Extension::UnregisterDeviceMenuHandler(IDevice* targetDevice)
+{}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RegisterExtensionMenuHandler(IExtension* targetExtension)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+void Extension::UnregisterExtensionMenuHandler(IExtension* targetExtension)
+{}
+
+//----------------------------------------------------------------------------------------
+void Extension::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& menuSegment)
+{}
+
+//----------------------------------------------------------------------------------------
+void Extension::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& menuSegment, unsigned int moduleID)
+{}
+
+//----------------------------------------------------------------------------------------
+void Extension::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
+{}
+
+//----------------------------------------------------------------------------------------
+void Extension::AddExtensionMenuItems(ExtensionMenu extensionMenu, IMenuSegment& menuSegment, IExtension* targetExtension)
+{}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RestoreSystemViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RestoreModuleViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RestoreDeviceViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IDevice* targetDevice)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RestoreExtensionViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IExtension* targetExtension)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::OpenSystemView(const std::wstring& viewGroupName, const std::wstring& viewName)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::OpenModuleView(const std::wstring& viewGroupName, const std::wstring& viewName, unsigned int moduleID)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::OpenDeviceView(const std::wstring& viewGroupName, const std::wstring& viewName, IDevice* targetDevice)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::OpenExtensionView(const std::wstring& viewGroupName, const std::wstring& viewName, IExtension* targetExtension)
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RestoreSystemViewStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IHierarchicalStorageNode& viewState)
+{
+	return RestoreSystemViewState(viewGroupNameMarshaller.MarshalTo(), viewNameMarshaller.MarshalTo(), viewState);
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RestoreModuleViewStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IHierarchicalStorageNode& viewState, unsigned int moduleID)
+{
+	return RestoreModuleViewState(viewGroupNameMarshaller.MarshalTo(), viewNameMarshaller.MarshalTo(), viewState, moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RestoreDeviceViewStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IHierarchicalStorageNode& viewState, IDevice* targetDevice)
+{
+	return RestoreDeviceViewState(viewGroupNameMarshaller.MarshalTo(), viewNameMarshaller.MarshalTo(), viewState, targetDevice);
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::RestoreExtensionViewStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IHierarchicalStorageNode& viewState, IExtension* targetExtension)
+{
+	return RestoreExtensionViewState(viewGroupNameMarshaller.MarshalTo(), viewNameMarshaller.MarshalTo(), viewState, targetExtension);
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::OpenSystemViewInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller)
+{
+	return OpenSystemView(viewGroupNameMarshaller.MarshalTo(), viewNameMarshaller.MarshalTo());
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::OpenModuleViewInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, unsigned int moduleID)
+{
+	return OpenModuleView(viewGroupNameMarshaller.MarshalTo(), viewNameMarshaller.MarshalTo(), moduleID);
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::OpenDeviceViewInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IDevice* targetDevice)
+{
+	return OpenDeviceView(viewGroupNameMarshaller.MarshalTo(), viewNameMarshaller.MarshalTo(), targetDevice);
+}
+
+//----------------------------------------------------------------------------------------
+bool Extension::OpenExtensionViewInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IExtension* targetExtension)
+{
+	return OpenExtensionView(viewGroupNameMarshaller.MarshalTo(), viewNameMarshaller.MarshalTo(), targetExtension);
 }

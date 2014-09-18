@@ -1,30 +1,95 @@
 #include "MenuSegment.h"
-#include "MenuSeparator.h"
-#include "MenuSelectableOption.h"
 #include "MenuSubmenu.h"
+#include "MenuSelectableOption.h"
+#include <map>
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MenuSegment::MenuSegment()
+MenuSegment::MenuSegment(bool asurroundWithSeparators, SortMode asortMode)
+:surroundWithSeparators(asurroundWithSeparators), sortMode(asortMode)
 {}
 
 //----------------------------------------------------------------------------------------
 MenuSegment::~MenuSegment()
 {
-	for(std::vector<IMenuItem*>::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	for(std::list<IMenuItem*>::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 	{
 		delete *i;
 	}
-	menuItems.clear();
 }
 
 //----------------------------------------------------------------------------------------
 //Interface version functions
 //----------------------------------------------------------------------------------------
+unsigned int MenuSegment::GetIMenuItemVersion() const
+{
+	return ThisIMenuItemVersion();
+}
+
+//----------------------------------------------------------------------------------------
 unsigned int MenuSegment::GetIMenuSegmentVersion() const
 {
 	return ThisIMenuSegmentVersion();
+}
+
+//----------------------------------------------------------------------------------------
+//Type functions
+//----------------------------------------------------------------------------------------
+MenuSegment::Type MenuSegment::GetType() const
+{
+	return TYPE_SEGMENT;
+}
+
+//----------------------------------------------------------------------------------------
+//Menu title functions
+//----------------------------------------------------------------------------------------
+std::wstring MenuSegment::GetMenuSortTitle() const
+{
+	//If we have no child menu items, return an empty string.
+	if(menuItems.empty())
+	{
+		return L"";
+	}
+
+	//Return the title of the first child menu item to the caller
+	IMenuItem* firstChildMenuItem = menuItems.front();
+	std::wstring firstChildMenuItemTitle;
+	switch(firstChildMenuItem->GetType())
+	{
+	case TYPE_SEGMENT:
+		firstChildMenuItemTitle = ((IMenuSegment*)firstChildMenuItem)->GetMenuSortTitle();
+		break;
+	case TYPE_SELECTABLEOPTION:
+		firstChildMenuItemTitle = ((IMenuSelectableOption*)firstChildMenuItem)->GetMenuTitle();
+		break;
+	case TYPE_SUBMENU:
+		firstChildMenuItemTitle = ((IMenuSubmenu*)firstChildMenuItem)->GetMenuTitle();
+		break;
+	}
+	return firstChildMenuItemTitle;
+}
+
+//----------------------------------------------------------------------------------------
+void MenuSegment::GetMenuSortTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+{
+	marshaller.MarshalFrom(GetMenuSortTitle());
+}
+
+//----------------------------------------------------------------------------------------
+//Sort mode functions
+//----------------------------------------------------------------------------------------
+MenuSegment::SortMode MenuSegment::GetSortMode() const
+{
+	return sortMode;
+}
+
+//----------------------------------------------------------------------------------------
+//Separator functions
+//----------------------------------------------------------------------------------------
+bool MenuSegment::GetSurroundWithSeparators() const
+{
+	return surroundWithSeparators;
 }
 
 //----------------------------------------------------------------------------------------
@@ -38,12 +103,7 @@ bool MenuSegment::NoMenuItemsExist() const
 //----------------------------------------------------------------------------------------
 std::list<IMenuItem*> MenuSegment::GetMenuItems() const
 {
-	std::list<IMenuItem*> menuItemList;
-	for(unsigned int i = 0; i < (unsigned int)menuItems.size(); ++i)
-	{
-		menuItemList.push_back(menuItems[i]);
-	}
-	return menuItemList;
+	return menuItems;
 }
 
 //----------------------------------------------------------------------------------------
@@ -53,41 +113,89 @@ void MenuSegment::GetMenuItemsInternal(const InteropSupport::ISTLObjectTarget<st
 }
 
 //----------------------------------------------------------------------------------------
+std::list<IMenuItem*> MenuSegment::GetSortedMenuItems() const
+{
+	//If the menu items in this segment are sorted based on the order items were added,
+	//return the actual menu item list directly here, and abort any further processing.
+	if(sortMode == SORTMODE_ADDITIONORDER)
+	{
+		return menuItems;
+	}
+
+	//If the menu items in this segment are sorted based on their title, build a container
+	//to sort each menu item entry based on their titles.
+	std::map<std::wstring, IMenuItem*> menuItemSortContainer;
+	for(std::list<IMenuItem*>::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	{
+		IMenuItem* childMenuItem = *i;
+		std::wstring childMenuItemTitle;
+		switch(childMenuItem->GetType())
+		{
+		case TYPE_SEGMENT:
+			childMenuItemTitle = ((IMenuSegment*)childMenuItem)->GetMenuSortTitle();
+			break;
+		case TYPE_SELECTABLEOPTION:
+			childMenuItemTitle = ((IMenuSelectableOption*)childMenuItem)->GetMenuTitle();
+			break;
+		case TYPE_SUBMENU:
+			childMenuItemTitle = ((IMenuSubmenu*)childMenuItem)->GetMenuTitle();
+			break;
+		}
+		menuItemSortContainer.insert(std::pair<std::wstring, IMenuItem*>(childMenuItemTitle, childMenuItem));
+	}
+
+	//Build and return a list of each item in this menu, sorted based on the specified
+	//sort order.
+	std::list<IMenuItem*> sortedMenuItems;
+	for(std::map<std::wstring, IMenuItem*>::const_iterator i = menuItemSortContainer.begin(); i != menuItemSortContainer.end(); ++i)
+	{
+		sortedMenuItems.push_back(i->second);
+	}
+	return sortedMenuItems;
+}
+
+//----------------------------------------------------------------------------------------
+void MenuSegment::GetSortedMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const
+{
+	marshaller.MarshalFrom(GetSortedMenuItems());
+}
+
+//----------------------------------------------------------------------------------------
 //Menu item creation functions
 //----------------------------------------------------------------------------------------
-IMenuSeparator& MenuSegment::AddMenuItemSeparator()
+IMenuSegment& MenuSegment::AddMenuItemSegment(bool asurroundWithSeparators, IMenuSegment::SortMode sortMode)
 {
-	IMenuSeparator* newMenuItem = new MenuSeparator();
+	IMenuSegment* newMenuItem = new MenuSegment(asurroundWithSeparators, sortMode);
 	menuItems.push_back(newMenuItem);
 	return *newMenuItem;
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const std::wstring& name)
+IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const std::wstring& title)
 {
-	IMenuSubmenu* newMenuItem = new MenuSubmenu(name);
+	IMenuSubmenu* newMenuItem = new MenuSubmenu(title);
 	menuItems.push_back(newMenuItem);
 	return *newMenuItem;
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& name)
+IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title)
 {
-	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, name);
+	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, title);
 	menuItems.push_back(newMenuItem);
 	return *newMenuItem;
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSegment::AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
+IMenuSubmenu& MenuSegment::AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller)
 {
-	return AddMenuItemSubmenu(nameMarshaller.MarshalTo());
+	return AddMenuItemSubmenu(titleMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
+IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller)
 {
-	return AddMenuItemSelectableOption(menuHandler, menuItemID, nameMarshaller.MarshalTo());
+	return AddMenuItemSelectableOption(menuHandler, menuItemID, titleMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -95,7 +203,7 @@ void MenuSegment::DeleteMenuItem(IMenuItem& menuItem)
 {
 	IMenuItem* menuItemPointer = &menuItem;
 	bool done = false;
-	std::vector<IMenuItem*>::iterator i = menuItems.begin();
+	std::list<IMenuItem*>::iterator i = menuItems.begin();
 	while(!done && (i != menuItems.end()))
 	{
 		if(*i == menuItemPointer)
@@ -112,7 +220,7 @@ void MenuSegment::DeleteMenuItem(IMenuItem& menuItem)
 //----------------------------------------------------------------------------------------
 void MenuSegment::DeleteAllMenuItems()
 {
-	for(std::vector<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
 	{
 		delete *i;
 	}

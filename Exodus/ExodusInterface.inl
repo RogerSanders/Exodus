@@ -1,17 +1,4 @@
 //----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
-enum ExodusInterface::ViewOperationType
-{
-	VIEWOPERATIONTYPE_OPEN,
-	VIEWOPERATIONTYPE_CLOSE,
-	VIEWOPERATIONTYPE_DELETE,
-	VIEWOPERATIONTYPE_ACTIVATE,
-	VIEWOPERATIONTYPE_SHOW,
-	VIEWOPERATIONTYPE_HIDE
-};
-
-//----------------------------------------------------------------------------------------
 //Structures
 //----------------------------------------------------------------------------------------
 struct ExodusInterface::NewMenuItem
@@ -23,39 +10,6 @@ struct ExodusInterface::NewMenuItem
 	HMENU parentMenu;
 	unsigned int menuID;
 	IMenuSelectableOption& menuItem;
-};
-
-//----------------------------------------------------------------------------------------
-struct ExodusInterface::ViewInfo
-{
-	ViewInfo()
-	:waitCount(0), viewCurrentlyOpen(false), ignoreForLayoutPurposes(false)
-	{}
-
-	bool viewCurrentlyOpen;
-	bool openHidden;
-	bool ignoreForLayoutPurposes;
-	int waitCount;
-	IViewModel* viewModel;
-	ViewModelNotifier* notifier;
-	boost::condition viewClosed;
-	boost::condition viewOpened;
-	boost::condition viewInfoSafeToDelete;
-};
-
-//----------------------------------------------------------------------------------------
-struct ExodusInterface::Region2D
-{
-	Region2D()
-	{}
-	Region2D(long aposx, long aposy, long asizex, long asizey)
-	:posx(aposx), posy(aposy), sizex(asizex), sizey(asizey)
-	{}
-
-	long posx;
-	long posy;
-	long sizex;
-	long sizey;
 };
 
 //----------------------------------------------------------------------------------------
@@ -88,31 +42,6 @@ struct ExodusInterface::SavestateCellWindowState
 };
 
 //----------------------------------------------------------------------------------------
-struct ExodusInterface::ViewOperation
-{
-	ViewOperation(ViewOperationType atype, IViewModel* aviewModel)
-	:type(atype), viewModel(aviewModel)
-	{}
-
-	ViewOperationType type;
-	IViewModel* viewModel;
-};
-
-//----------------------------------------------------------------------------------------
-struct ExodusInterface::WorkspaceViewEntryDetails
-{
-	WorkspaceViewEntryDetails(const std::wstring& aviewModelGroupName, const std::wstring& aviewModelName, bool aownerIsSystem, const std::wstring& adeviceInstanceName, IViewModel* aviewModel = 0)
-	:viewModelGroupName(aviewModelGroupName), viewModelName(aviewModelName), ownerIsSystem(aownerIsSystem), deviceInstanceName(adeviceInstanceName), viewModel(aviewModel)
-	{}
-
-	bool ownerIsSystem;
-	std::wstring deviceInstanceName;
-	std::wstring viewModelName;
-	std::wstring viewModelGroupName;
-	IViewModel* viewModel;
-};
-
-//----------------------------------------------------------------------------------------
 struct ExodusInterface::MapConnectorDialogParams
 {
 	MapConnectorDialogParams()
@@ -122,7 +51,7 @@ struct ExodusInterface::MapConnectorDialogParams
 	bool selectionMade;
 	std::list<ConnectorInfo> connectorList;
 	ConnectorInfo selectedConnector;
-	ISystemExternal* system;
+	ISystemGUIInterface* system;
 };
 
 //----------------------------------------------------------------------------------------
@@ -159,7 +88,23 @@ struct ExodusInterface::RegisteredExtensionInfo
 };
 
 //----------------------------------------------------------------------------------------
+struct ExodusInterface::PluginInfo
+{
+	AssemblyHandle assemblyHandle;
+	unsigned int interfaceVersion;
+	bool (*GetDeviceEntry)(unsigned int entryNo, IDeviceInfo& entry);
+	bool (*GetExtensionEntry)(unsigned int entryNo, IExtensionInfo& entry);
+	bool (*GetSystemEntry)(unsigned int entryNo, ISystemInfo& entry);
+};
+
+//----------------------------------------------------------------------------------------
 //Global preference functions
+//----------------------------------------------------------------------------------------
+std::wstring ExodusInterface::GetPreferenceDirectoryPath() const
+{
+	return preferenceDirectoryPath;
+}
+
 //----------------------------------------------------------------------------------------
 std::wstring ExodusInterface::GetGlobalPreferencePathModules() const
 {
@@ -206,4 +151,190 @@ std::wstring ExodusInterface::GetGlobalPreferenceInitialSystem() const
 std::wstring ExodusInterface::GetGlobalPreferenceInitialWorkspace() const
 {
 	return prefs.loadWorkspace;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathModules(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathModules = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathSavestates(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathSavestates = absolutePath;
+
+	//Update our savestate cell slots
+	UpdateSaveSlots();
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathPersistentState(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathPersistentState = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathWorkspaces(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathWorkspaces = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathCaptures(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathCaptures = absolutePath;
+	system->SetCapturePath(prefs.pathCaptures);
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathAssemblies(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathAssemblies = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceInitialSystem(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(!absolutePath.empty() && PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(prefs.pathModules, state);
+	}
+
+	//Apply the new preference setting
+	prefs.loadSystem = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceInitialWorkspace(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(!absolutePath.empty() && PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(prefs.pathWorkspaces, state);
+	}
+
+	//Apply the new preference setting
+	prefs.loadWorkspace = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceEnableThrottling(bool state)
+{
+	//Apply the new preference setting
+	prefs.enableThrottling = state;
+	system->SetThrottlingState(prefs.enableThrottling);
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceRunWhenProgramModuleLoaded(bool state)
+{
+	//Apply the new preference setting
+	prefs.runWhenProgramModuleLoaded = state;
+	system->SetRunWhenProgramModuleLoadedState(prefs.runWhenProgramModuleLoaded);
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceEnablePersistentState(bool state)
+{
+	//Apply the new preference setting
+	prefs.enablePersistentState = state;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceLoadWorkspaceWithDebugState(bool state)
+{
+	//Apply the new preference setting
+	prefs.loadWorkspaceWithDebugState = state;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceShowDebugConsole(bool state)
+{
+	//Apply the new preference setting
+	prefs.showDebugConsole = state;
+	if(debugConsoleOpen != prefs.showDebugConsole)
+	{
+		if(!debugConsoleOpen)
+		{
+			//Create a debug command console
+			AllocConsole();
+			BindStdHandlesToConsole();
+		}
+		else
+		{
+			//Close the current debug command console
+			FreeConsole();
+		}
+		debugConsoleOpen = prefs.showDebugConsole;
+	}
 }

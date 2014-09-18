@@ -441,6 +441,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{D4F63DCA-8FA8-4FD3-B449-DBB7E5AD7FFB}"
+			RelativePathToProject=".\Support Libraries\Stream\Stream.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -497,5 +501,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

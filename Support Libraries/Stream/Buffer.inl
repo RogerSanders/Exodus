@@ -104,14 +104,14 @@ unsigned char* Buffer::GetRawBuffer() const
 //----------------------------------------------------------------------------------------
 const unsigned char& Buffer::operator[](SizeType position) const
 {
-	ReleaseAssert(position < bufferSize);
+	DebugAssert(position < bufferSize);
 	return buffer[(size_t)position];
 }
 
 //----------------------------------------------------------------------------------------
 unsigned char& Buffer::operator[](SizeType position)
 {
-	ReleaseAssert(position < bufferSize);
+	DebugAssert(position < bufferSize);
 	return buffer[(size_t)position];
 }
 

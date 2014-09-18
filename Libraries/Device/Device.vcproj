@@ -441,6 +441,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{DB781392-9752-4607-B90C-614FA1670D47}"
+			RelativePathToProject=".\Libraries\ExodusDeviceInterface\ExodusDeviceInterface.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -459,11 +463,27 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="DeviceInternal"
+			>
+			<File
+				RelativePath=".\DeviceInternal.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DeviceInternal.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Device.pkg"
 			>
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

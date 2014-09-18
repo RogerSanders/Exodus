@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 RAM8Variable::RAM8Variable(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:RAM8(aimplementationName, ainstanceName, amoduleID)
+:RAMBase(aimplementationName, ainstanceName, amoduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -107,4 +107,18 @@ void RAM8Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsig
 		memoryArray[(baseLocation + 3) % memoryArraySize] = data.GetByteFromTopDown(3);
 		break;}
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int RAM8Variable::ReadMemoryEntry(unsigned int location) const
+{
+	return memoryArray[location % memoryArraySize];
+}
+
+//----------------------------------------------------------------------------------------
+void RAM8Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	memoryArray[location % memoryArraySize] = (unsigned char)data;
 }

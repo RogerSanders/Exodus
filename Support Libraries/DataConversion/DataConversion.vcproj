@@ -447,10 +447,6 @@
 			Name="DataConversion"
 			>
 			<File
-				RelativePath=".\DataConversion.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\DataConversion.h"
 				>
 			</File>
@@ -465,5 +461,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

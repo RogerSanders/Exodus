@@ -1,8 +1,8 @@
 #ifndef __ROM32VARIABLE_H__
 #define __ROM32VARIABLE_H__
-#include "ROM32.h"
+#include "ROMBase.h"
 
-class ROM32Variable :public ROM32
+class ROM32Variable :public ROMBase<unsigned int>
 {
 public:
 	//Constructors
@@ -13,6 +13,10 @@ public:
 	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext);
 	virtual void TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext);
+
+	//Debug memory access functions
+	virtual unsigned int ReadMemoryEntry(unsigned int location) const;
+	virtual void WriteMemoryEntry(unsigned int location, unsigned int data);
 };
 
 #endif

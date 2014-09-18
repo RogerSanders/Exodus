@@ -1,6 +1,8 @@
-#ifndef __TIMEDBUFFERS_PKG__
+#if !defined(__TIMEDBUFFERS_PKG__) && (!defined(PACKAGE_LINK_LIBS_ONLY) || !defined(__TIMEDBUFFERS_PKG_LIBS_ONLY__))
 #ifndef PACKAGE_LINK_LIBS_ONLY
 #define __TIMEDBUFFERS_PKG__
+#else
+#define __TIMEDBUFFERS_PKG_LIBS_ONLY__
 #endif
 
 //Include any public package dependencies here. A package has a public dependency on
@@ -10,7 +12,6 @@
 //to be included here too, otherwise a dependent library may not be linked if this
 //package is used as a private package of another.
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
-#include "Stream/Stream.pkg"
 #include "Debug/Debug.pkg"
 #include "WindowsSupport/WindowsSupport.pkg"
 
@@ -38,6 +39,13 @@
 #include "ITimedBufferIntDevice.h"
 #include "RandomTimeAccessValue.h"
 #include "RandomTimeAccessBuffer.h"
+#endif
+
+//Automatically link static library dependencies
+#ifndef _STATICLIB
+//List any static library dependencies here in the following form:
+//#pragma comment(lib, "<libname>")
+//Where <libname> is the name of the target library, without its extension.
 #endif
 
 #endif

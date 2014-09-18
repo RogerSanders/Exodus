@@ -244,6 +244,10 @@ void BindStdHandlesToConsole()
 	}
 
 	//Make cin, wcin, cout, wcout, cerr, wcerr, clog and wclog point to console as well.
+	//##FIX## I don't think that's what this function actually does. Documentation and
+	//internal checking show all it actually does is set a flag to indicate that IO should
+	//be synchronized between the C and C++ runtimes, but this is set by default anyway.
+	//Do some more testing and determine if we can eliminate this call.
 	std::ios::sync_with_stdio();
 }
 
@@ -477,6 +481,159 @@ void WindowsMessageLoop(HWND hwnd)
 		}
 	}
 	return;
+}
+
+//----------------------------------------------------------------------------------------
+//Parent and owner window functions
+//----------------------------------------------------------------------------------------
+void SetWindowParent(HWND targetWindow, HWND newParent)
+{
+	//Check if we have an existing parent window. Note that we need to use the GetAncestor
+	//function here rather than GetParent, as GetParent returns the owner window instead
+	//of the parent window if it has been defined. Also note that GetAncestor, unlike
+	//GetParent, returns the desktop window as a root parent window for all top-level
+	//windows, where GetParent returns NULL in this case, so we need to test if the
+	//returned parent window is the desktop window to identify top-level windows.
+	HWND existingParent = GetAncestor(targetWindow, GA_PARENT);
+	HWND desktopWindow = GetDesktopWindow();
+	bool hasExistingParent = ((existingParent != NULL) && (existingParent != desktopWindow));
+
+	//If the target window is currently a top-level window and is about to become a child
+	//window, alter any state which needs to be modified.
+	if(!hasExistingParent && (newParent != NULL))
+	{
+		//Remove any current owner window bound to the target window. We need to do this,
+		//because it's apparently invalid for a window to have both an owner and a parent,
+		//but if a window already has an owner and no parent, and then SetParent is called
+		//to assign a parent, the owner window is not removed, and this causes the
+		//GetParent function to actually return the owner window, not the new parent
+		//window. Also note that despite the naming of the GWL_HWNDPARENT flag, this flag
+		//will change the owner window if the target window doesn't currently have a
+		//parent window, otherwise it will change the parent window. Since we've confirmed
+		//there's no parent window currently, we can safely clear it here to remove the
+		//owner.
+		SetWindowLongPtr(targetWindow, GWLP_HWNDPARENT, NULL);
+
+		//Clear the WS_POPUP window style, and set the WS_CHILD window style. MSDN docs
+		//state this should be done before calling SetParent when a previously top-level
+		//window is being assigned as a child window.
+		LONG_PTR currentWindowStyle = GetWindowLongPtr(targetWindow, GWL_STYLE);
+		LONG_PTR newWindowStyle = (currentWindowStyle & ~WS_POPUP) | WS_CHILD;
+		SetWindowLongPtr(targetWindow, GWL_STYLE, newWindowStyle);
+
+		//Since we've changed window style data, trigger a notification of the change to
+		//flush any cached state. This may not be required for these changes, but
+		//documentation isn't clear, and warns that some changes made by SetWindowLongPtr
+		//won't take effect until we trigger this update, so we do it here for safety.
+		SetWindowPos(targetWindow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+	}
+
+	//Set the new parent window for the target control
+	SetParent(targetWindow, newParent);
+
+	//If the target window is was a child window and has just become a top-level window,
+	//alter any state which needs to be modified.
+	if(hasExistingParent && (newParent == NULL))
+	{
+		//Clear the WS_CHILD window style, and set the WS_POPUP window style. MSDN docs
+		//state this should be done after calling SetParent when what was previously a
+		//child window is becoming a top-level window.
+		LONG_PTR currentWindowStyle = GetWindowLongPtr(targetWindow, GWL_STYLE);
+		LONG_PTR newWindowStyle = (currentWindowStyle & ~WS_CHILD) | WS_POPUP;
+		SetWindowLongPtr(targetWindow, GWL_STYLE, newWindowStyle);
+
+		//Since we've changed window style data, trigger a notification of the change to
+		//flush any cached state. This may not be required for these changes, but
+		//documentation isn't clear, and warns that some changes made by SetWindowLongPtr
+		//won't take effect until we trigger this update, so we do it here for safety.
+		SetWindowPos(targetWindow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+	}
+
+	//##FIX## According to MSDN docs under the SetParent function:
+	//"When you change the parent of a window, you should synchronize the UISTATE of both
+	// windows. For more information, see WM_CHANGEUISTATE and WM_UPDATEUISTATE."
+}
+
+//----------------------------------------------------------------------------------------
+HWND GetFirstOwnerWindow(HWND targetWindow)
+{
+	//Return the owner of the target window, if present.
+	HWND ownerWindow = GetWindow(targetWindow, GW_OWNER);
+	if(ownerWindow != NULL)
+	{
+		return ownerWindow;
+	}
+
+	//Check if we have an existing parent window. Note that we need to use the GetAncestor
+	//function here rather than GetParent, as GetParent returns the owner window instead
+	//of the parent window if it has been defined. Also note that GetAncestor, unlike
+	//GetParent, returns the desktop window as a root parent window for all top-level
+	//windows, where GetParent returns NULL in this case, so we need to test if the
+	//returned parent window is the desktop window to identify top-level windows.
+	HWND existingParent = GetAncestor(targetWindow, GA_PARENT);
+	HWND desktopWindow = GetDesktopWindow();
+	bool hasExistingParent = ((existingParent != NULL) && (existingParent != desktopWindow));
+
+	//Return the owner of the parent window, if present.
+	if(hasExistingParent)
+	{
+		return GetFirstOwnerWindow(existingParent);
+	}
+
+	//Since no owner window could be found, return NULL;
+	return NULL;
+}
+
+//----------------------------------------------------------------------------------------
+HWND GetFirstOwnerWindowOrTopLevelParent(HWND targetWindow)
+{
+	//Return the first owner window at the top of the chain of parent windows for the
+	//target window, if present.
+	HWND firstOwnerWindow = GetFirstOwnerWindow(targetWindow);
+	if(firstOwnerWindow != NULL)
+	{
+		return firstOwnerWindow;
+	}
+
+	//If the target window has no owner window at the top of the parent chain, return the
+	//top level parent window of the target window, if present.
+	//##TODO## Confirm if this method returns the target window if there are no parent
+	//windows
+	HWND topLevelParentWindow = GetAncestor(targetWindow, GA_ROOT);
+	if(topLevelParentWindow != NULL)
+	{
+		return topLevelParentWindow;
+	}
+
+	//If the target window has no parent or owner windows, return the target window.
+	return targetWindow;
+}
+
+//----------------------------------------------------------------------------------------
+void SetOwnerWindow(HWND targetWindow, HWND newOwnerWindow)
+{
+	//Check if we have an existing parent window. Note that we need to use the GetAncestor
+	//function here rather than GetParent, as GetParent returns the owner window instead
+	//of the parent window if it has been defined. Also note that GetAncestor, unlike
+	//GetParent, returns the desktop window as a root parent window for all top-level
+	//windows, where GetParent returns NULL in this case, so we need to test if the
+	//returned parent window is the desktop window to identify top-level windows.
+	HWND existingParent = GetAncestor(targetWindow, GA_PARENT);
+	HWND desktopWindow = GetDesktopWindow();
+	bool hasExistingParent = ((existingParent != NULL) && (existingParent != desktopWindow));
+
+	//If the target window doesn't have a parent window, set the owner window for the
+	//target window. We ensure no parent exists first because it's invalid for a window to
+	//have both an owner and a parent, and problems arise when querying parents or testing
+	//if windows are children if a child window ends up with an owner set. Note that
+	//despite the naming of the GWL_HWNDPARENT flag, this flag will change the owner
+	//window if the target window doesn't currently have a parent window, otherwise it
+	//will change the parent window. Since we've confirmed there's no parent window
+	//currently, we can safely set it here to assign the new owner window.
+	if(!hasExistingParent)
+	{
+		SetWindowLongPtr(targetWindow, GWLP_HWNDPARENT, (LONG_PTR)newOwnerWindow);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -1000,6 +1157,31 @@ LRESULT CALLBACK BounceBackSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
 }
 
 //----------------------------------------------------------------------------------------
+LRESULT CALLBACK ResizableStaticControlSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+	//As a bit of an oversight, the win32 static text control doesn't invalidate its
+	//content region when word wrapping is active, even when the text wrapping position
+	//changes as a result of a window size change. To resolve this problem, after
+	//processing a WM_SIZE event, we invalidate the client region to force the entire
+	//client area to redraw.
+	LRESULT result = DefSubclassProc(hwnd, uMsg, wParam, lParam);
+	if(uMsg == WM_SIZE)
+	{
+		//Note that the static control doesn't use a full bitmask for its style, but
+		//instead has a set of mutually exclusive "base" styles that use the lower 5 bits
+		//of the window style. We test for each of these styles that applies word
+		//wrapping, and invalidate the content region if one of them is active.
+		unsigned int windowStyle = (unsigned int)GetWindowLongPtr(hwnd, GWL_STYLE);
+		unsigned int baseStaticControlStyle = (windowStyle & 0x1F);
+		if((baseStaticControlStyle == SS_LEFT) || (baseStaticControlStyle == SS_RIGHT) || (baseStaticControlStyle == SS_CENTER))
+		{
+			InvalidateRect(hwnd, NULL, FALSE);
+		}
+	}
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
 //Highlight extensions
 //----------------------------------------------------------------------------------------
 void PaintCheckboxHighlight(HWND hwnd)
@@ -1102,4 +1284,249 @@ void PaintCheckboxHighlight(HWND hwnd)
 	DeleteObject(hbitmap);
 	DeleteDC(hdcBitmap);
 	ReleaseDC(hwnd, hdcControl);
+}
+
+//----------------------------------------------------------------------------------------
+//Icon helper functions
+//-The following structures and types are sourced mainly from the following MSDN article:
+// http://msdn.microsoft.com/en-us/library/ms997538.aspx
+//-Some additions and alterations have been made, in particular the addition of the
+// RTCURSORDATA structure, which is key to allow cursor files to be mapped to cursor
+// resources. The layout of this structure is completely undocumented and unmentioned in
+// the public domain as far as has been observed. The layout of this structure was
+// determined by disassembling the CreateIconFromResourceEx function within user32.dll.
+//----------------------------------------------------------------------------------------
+enum ICONIMAGETYPE
+{
+	ICONIMAGETYPE_ICON = 1,
+	ICONIMAGETYPE_CURSOR = 2
+};
+
+//----------------------------------------------------------------------------------------
+struct ICONDIRENTRY
+{
+	BYTE        bWidth;          // Width, in pixels, of the image
+	BYTE        bHeight;         // Height, in pixels, of the image
+	BYTE        bColorCount;     // Number of colors in image (0 if >=8bpp)
+	BYTE        bReserved;       // Reserved ( must be 0)
+	union
+	{
+		WORD   wPlanes;              // Color Plane count for icons
+		WORD   wHotSpotX;            // Hotspot X coordinate for cursors
+	};
+	union
+	{
+		WORD   wBitCount;            // Bits per pixel for icons
+		WORD   wHotSpotY;            // Hotspot Y coordinate for cursors
+	};
+	DWORD       dwBytesInRes;    // How many bytes in this resource?
+	DWORD       dwImageOffset;   // Where in the file is this image?
+};
+
+//----------------------------------------------------------------------------------------
+struct ICONDIR
+{
+	WORD           idReserved;   // Reserved (must be 0)
+	WORD           idType;       // Resource Type (1 for icons)
+	WORD           idCount;      // How many images?
+	ICONDIRENTRY   idEntries[1]; // An entry for each image (idCount of 'em)
+};
+
+//----------------------------------------------------------------------------------------
+struct ICONIMAGE
+{
+	BITMAPINFOHEADER   icHeader;      // DIB header
+	RGBQUAD         icColors[1];   // Color table
+	BYTE            icXOR[1];      // DIB bits for XOR mask
+	BYTE            icAND[1];      // DIB bits for AND mask
+};
+
+//----------------------------------------------------------------------------------------
+struct GRPICONDIRENTRY //(RT_GROUP_ICON and RT_GROUP_CURSOR resource data)
+{
+	BYTE   bWidth;               // Width, in pixels, of the image
+	BYTE   bHeight;              // Height, in pixels, of the image
+	BYTE   bColorCount;          // Number of colors in image (0 if >=8bpp)
+	BYTE   bReserved;            // Reserved
+	union
+	{
+		WORD   wPlanes;              // Color Plane count for icons
+		WORD   wHotSpotX;            // Hotspot X coordinate for cursors
+	};
+	union
+	{
+		WORD   wBitCount;            // Bits per pixel for icons
+		WORD   wHotSpotY;            // Hotspot Y coordinate for cursors
+	};
+	DWORD   dwBytesInRes;         // how many bytes in this resource?
+	WORD   nID;                  // the ID
+};
+
+//----------------------------------------------------------------------------------------
+struct GRPICONDIR
+{
+	WORD            idReserved;   // Reserved (must be 0)
+	WORD            idType;       // Resource type (1 for icons)
+	WORD            idCount;      // How many images?
+	GRPICONDIRENTRY   idEntries[1]; // The entries for each image
+};
+
+//----------------------------------------------------------------------------------------
+struct RTICONDATA //(RT_ICON resource data)
+{
+	ICONIMAGE iconImage;
+};
+
+//----------------------------------------------------------------------------------------
+struct RTCURSORDATA //(RT_CURSOR resource data)
+{
+	WORD wHotSpotX;
+	WORD wHotSpotY;
+	ICONIMAGE iconImage;
+};
+
+//----------------------------------------------------------------------------------------
+unsigned int GetIconFileEntryCount(Stream::IStream& iconFileStream)
+{
+	//Save the original stream seek position
+	Stream::IStream::SizeType originalSeekPos = iconFileStream.GetStreamPos();
+
+	//Read the icon file header
+	bool result = true;
+	ICONDIR iconDir;
+	result &= iconFileStream.ReadDataLittleEndian(iconDir.idReserved);
+	result &= iconFileStream.ReadDataLittleEndian(iconDir.idType);
+	result &= iconFileStream.ReadDataLittleEndian(iconDir.idCount);
+	if(!result)
+	{
+		iconDir.idCount = 0;
+	}
+
+	//Restore the original stream seek position
+	iconFileStream.SetStreamPos(originalSeekPos);
+
+	//Return the number of directory entries in this icon file
+	return (unsigned int)iconDir.idCount;
+}
+
+//----------------------------------------------------------------------------------------
+bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStream& iconDirectoryData, const std::map<int, Stream::IStream*>& iconResourceData)
+{
+	//Read the icon file header
+	bool result = true;
+	ICONDIR iconDir;
+	result &= iconFileStream.ReadDataLittleEndian(iconDir.idReserved);
+	result &= iconFileStream.ReadDataLittleEndian(iconDir.idType);
+	result &= iconFileStream.ReadDataLittleEndian(iconDir.idCount);
+	if(!result)
+	{
+		return false;
+	}
+
+	//Convert the icon file header to an icon resource header
+	GRPICONDIR resourceIconDir;
+	resourceIconDir.idReserved = iconDir.idReserved;
+	resourceIconDir.idType = iconDir.idType;
+	resourceIconDir.idCount = iconDir.idCount;
+
+	//Write the icon resource header to our icon directory resource stream
+	result &= iconDirectoryData.WriteDataLittleEndian(iconDir.idReserved);
+	result &= iconDirectoryData.WriteDataLittleEndian(iconDir.idType);
+	result &= iconDirectoryData.WriteDataLittleEndian(iconDir.idCount);
+	if(!result)
+	{
+		return false;
+	}
+
+	//Convert each icon entry in the supplied icon file
+	for(unsigned int i = 0; i < (unsigned int)iconDir.idCount; ++i)
+	{
+		//Read the next icon file directory entry
+		ICONDIRENTRY iconDirEntry;
+		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.bWidth);
+		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.bHeight);
+		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.bColorCount);
+		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.bReserved);
+		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.wPlanes);
+		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.wBitCount);
+		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.dwBytesInRes);
+		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.dwImageOffset);
+		if(!result)
+		{
+			return false;
+		}
+
+		//Convert this icon file directory entry structure into an icon resource directory
+		//entry structure
+		GRPICONDIRENTRY resourceIconDirEntry;
+		resourceIconDirEntry.bWidth = iconDirEntry.bWidth;
+		resourceIconDirEntry.bHeight = iconDirEntry.bHeight;
+		resourceIconDirEntry.bColorCount = iconDirEntry.bColorCount;
+		resourceIconDirEntry.bReserved = iconDirEntry.bReserved;
+		resourceIconDirEntry.wPlanes = iconDirEntry.wPlanes;
+		resourceIconDirEntry.wBitCount = iconDirEntry.wBitCount;
+		resourceIconDirEntry.dwBytesInRes = iconDirEntry.dwBytesInRes;
+		resourceIconDirEntry.nID = (WORD)i;
+
+		//Load this icon file directory entry structure into the icon resource directory
+		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.bWidth);
+		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.bHeight);
+		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.bColorCount);
+		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.bReserved);
+		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.wPlanes);
+		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.wBitCount);
+		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.dwBytesInRes);
+		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.nID);
+		if(!result)
+		{
+			return false;
+		}
+
+		//Ensure this icon entry has a valid location and size specified within the
+		//supplied icon file
+		if(((size_t)iconDirEntry.dwImageOffset + (size_t)iconDirEntry.dwBytesInRes) > (size_t)iconFileStream.Size())
+		{
+			return false;
+		}
+
+		//Seek to the location of the data for this icon entry
+		Stream::IStream::SizeType currentSeekLocation = iconFileStream.GetStreamPos();
+		iconFileStream.SetStreamPos(iconDirEntry.dwImageOffset);
+
+		//Retrieve the provided resource stream for this icon entry
+		std::map<int, Stream::IStream*>::const_iterator iconResourceDataIterator = iconResourceData.find((int)i);
+		if(iconResourceDataIterator == iconResourceData.end())
+		{
+			return false;
+		}
+		Stream::IStream& iconResourceDataStream = *(iconResourceDataIterator->second);
+
+		//Transfer the additional cursor data from a file structure into a resource
+		//structure. Cursor resources have the cursor hotspot X and Y coordinates first,
+		//followed by the ICONIMAGE structure.
+		if(iconDir.idType == ICONIMAGETYPE_CURSOR)
+		{
+			//Build the RTCURSORDATA data structure
+			RTCURSORDATA cursorData;
+			cursorData.wHotSpotX = iconDirEntry.wHotSpotX;
+			cursorData.wHotSpotY = iconDirEntry.wHotSpotY;
+
+			//Write the RTCURSORDATA data structure to the icon image data
+			result &= iconResourceDataStream.WriteData(cursorData.wHotSpotX);
+			result &= iconResourceDataStream.WriteData(cursorData.wHotSpotY);
+		}
+
+		//Transfer the ICONIMAGE icon data from a file structure into a resource
+		//structure. This structure is the only data present for an RT_ICON resource type.
+		//Since the two structures are equivalent in this case, we just copy the data.
+		std::vector<unsigned char> iconResourceDataRaw;
+		result &= iconFileStream.ReadData(iconResourceDataRaw, iconDirEntry.dwBytesInRes);
+		result &= iconResourceDataStream.WriteData(iconResourceDataRaw);
+		iconResourceDataStream.SetStreamPos(0);
+
+		//Restore the seek location back to the end of the icon entry we just processed
+		iconFileStream.SetStreamPos(currentSeekLocation);
+	}
+
+	return result;
 }

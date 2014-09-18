@@ -1,3 +1,4 @@
+#include "Debug/Debug.pkg"
 namespace M68000 {
 
 //----------------------------------------------------------------------------------------
@@ -145,7 +146,6 @@ void EffectiveAddress::BuildAbsoluteAddressLong(Bitcount asize, const M68000Long
 void EffectiveAddress::BuildPCIndirectDisplace(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	size = asize;
-	savedPC = location;
 	mode = PC_INDIRECT_DISPLACE;
 
 	//Note that all PC-relative address calculations work by taking the address of the
@@ -164,7 +164,6 @@ void EffectiveAddress::BuildPCIndirectDisplace(Bitcount asize, const M68000Long&
 void EffectiveAddress::BuildPCIndirectIndex(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	size = asize;
-	savedPC = location;
 	mode = PC_INDIRECT_INDEX_8BIT;
 
 	//Note that all PC-relative address calculations work by taking the address of the
@@ -270,7 +269,7 @@ unsigned int EffectiveAddress::ExtensionSize()
 	switch(size)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case BITCOUNT_BYTE:
 	case BITCOUNT_WORD:
@@ -289,7 +288,7 @@ ExecuteTime EffectiveAddress::DecodeTime()
 	switch(size)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case BITCOUNT_BYTE:
 	case BITCOUNT_WORD:

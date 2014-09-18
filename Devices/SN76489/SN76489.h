@@ -37,9 +37,10 @@ References:
 -SN76494 Datasheet, Texas Instruments
 -SN76489 sound chip details, John Kortink, http://web.inter.nl.net/users/J.Kortink/home/articles/sn76489/index.htm
 \*--------------------------------------------------------------------------------------*/
+#include "ISN76489.h"
 #ifndef __SN76489_H__
 #define __SN76489_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
 #include <map>
@@ -50,14 +51,15 @@ References:
 #include "Stream/Stream.pkg"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include <boost/function.hpp>
 
-class SN76489 :public Device
+class SN76489 :public Device, public GenericAccessBase<ISN76489>
 {
 public:
 	//Constructors
 	SN76489(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
-	~SN76489();
+
+	//Interface version functions
+	virtual unsigned int GetISN76489Version() const;
 
 	//Initialization functions
 	virtual bool BuildDevice();
@@ -86,17 +88,20 @@ public:
 	//Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
+	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
+	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
-	//Window functions
-	void CreateMenuHandlers();
-	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
+	//Data read/write functions
+	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
+	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
+
+	//Data locking functions
+	virtual bool GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const;
+	virtual bool SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state);
 
 private:
 	//Enumerations
 	enum ClockID;
-	enum LockedRegisterKey;
 	enum DebugWindow;
 
 	//Structures
@@ -107,50 +112,25 @@ private:
 		bool polarityNegative;
 	};
 
-	//View and menu classes
-	class DebugMenuHandler;
-	class RegistersViewModel;
-	class PropertiesViewModel;
-	class LoggingViewModel;
-	class RegistersView;
-	class PropertiesView;
-	class LoggingView;
-	friend class RegistersViewModel;
-	friend class PropertiesViewModel;
-	friend class LoggingViewModel;
-	friend class RegistersView;
-	friend class PropertiesView;
-	friend class LoggingView;
-
 	//Typedefs
 	typedef RandomTimeAccessBuffer<Data, double>::AccessTarget AccessTarget;
 
+private:
 	//Render functions
 	void RenderThread();
 	void UpdateChannel(unsigned int channelNo, unsigned int outputSampleCount, std::vector<float>& outputBuffer);
 
 	//Raw register functions
-	inline Data GetVolumeRegister(unsigned int channelNo, const AccessTarget& accessTarget);
+	inline Data GetVolumeRegister(unsigned int channelNo, const AccessTarget& accessTarget) const;
 	inline void SetVolumeRegister(unsigned int channelNo, const Data& adata, const AccessTarget& accessTarget);
-	inline Data GetToneRegister(unsigned int channelNo, const AccessTarget& accessTarget);
+	inline Data GetToneRegister(unsigned int channelNo, const AccessTarget& accessTarget) const;
 	inline void SetToneRegister(unsigned int channelNo, const Data& adata, const AccessTarget& accessTarget);
 
-	//Register locking
-	void LockRegister(LockedRegisterKey key, const boost::function<void()>& function);
-	void UnlockRegister(LockedRegisterKey key);
-	bool IsRegisterLocked(LockedRegisterKey key);
+	//Audio logging functions
+	void SetAudioLoggingEnabled(bool state);
+	void SetChannelAudioLoggingEnabled(unsigned int channelNo, bool state);
 
 private:
-	//Constants
-	static const unsigned int channelCount = 4;
-	static const unsigned int noiseChannelNo = 3;
-	static const unsigned int toneRegisterBitCount = 10;
-	static const unsigned int volumeRegisterBitCount = 4;
-	static const unsigned int noiseRegisterBitCount = 3;
-
-	//Menu handling
-	DebugMenuHandler* menuHandler;
-
 	//Registers
 	mutable boost::mutex accessMutex;
 	double lastAccessTime;
@@ -189,13 +169,11 @@ private:
 	unsigned int shiftRegisterDefaultValue;
 	unsigned int noiseWhiteTappedBitMask;
 	unsigned int noisePeriodicTappedBitMask;
+	std::list<GenericAccessDataInfo*> genericDataToUpdateOnShiftRegisterBitCountChange;
 
 	//Register locking
-	mutable boost::mutex registerLockMutex;
-	typedef std::pair<LockedRegisterKey, boost::function<void()> > LockedRegisterListEntry;
-	typedef std::map<LockedRegisterKey, boost::function<void()> > LockedRegisterList;
-	LockedRegisterList lockedRegisters;
-	std::set<LockedRegisterKey> lockedRegisterIndex;
+	bool channelVolumeRegisterLocked[channelCount];
+	bool channelDataRegisterLocked[channelCount];
 
 	//Wave logging
 	mutable boost::mutex waveLoggingMutex;

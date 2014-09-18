@@ -1,4 +1,4 @@
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "ROM8.h"
 #include "ROM16.h"
 #include "ROM32.h"
@@ -17,169 +17,169 @@
 //----------------------------------------------------------------------------------------
 IDevice* GetROM8(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new ROM8(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new ROM8(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteROM8(IDevice* device)
 {
-	delete device;
+	delete static_cast<ROM8*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetROM16(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new ROM16(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new ROM16(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteROM16(IDevice* device)
 {
-	delete device;
+	delete static_cast<ROM16*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetROM32(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new ROM32(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new ROM32(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteROM32(IDevice* device)
 {
-	delete device;
+	delete static_cast<ROM32*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetROM8Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new ROM8Variable(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new ROM8Variable(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteROM8Variable(IDevice* device)
 {
-	delete device;
+	delete static_cast<ROM8Variable*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetROM16Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new ROM16Variable(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new ROM16Variable(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteROM16Variable(IDevice* device)
 {
-	delete device;
+	delete static_cast<ROM16Variable*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetROM32Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new ROM32Variable(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new ROM32Variable(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteROM32Variable(IDevice* device)
 {
-	delete device;
+	delete static_cast<ROM32Variable*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetRAM8(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new RAM8(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new RAM8(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteRAM8(IDevice* device)
 {
-	delete device;
+	delete static_cast<RAM8*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetRAM16(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new RAM16(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new RAM16(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteRAM16(IDevice* device)
 {
-	delete device;
+	delete static_cast<RAM16*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetRAM32(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new RAM32(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new RAM32(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteRAM32(IDevice* device)
 {
-	delete device;
+	delete static_cast<RAM32*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetRAM8Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new RAM8Variable(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new RAM8Variable(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteRAM8Variable(IDevice* device)
 {
-	delete device;
+	delete static_cast<RAM8Variable*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetRAM16Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new RAM16Variable(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new RAM16Variable(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteRAM16Variable(IDevice* device)
 {
-	delete device;
+	delete static_cast<RAM16Variable*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetRAM32Variable(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new RAM32Variable(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new RAM32Variable(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteRAM32Variable(IDevice* device)
 {
-	delete device;
+	delete static_cast<RAM32Variable*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetSharedRAM(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new SharedRAM(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new SharedRAM(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteSharedRAM(IDevice* device)
 {
-	delete device;
+	delete static_cast<SharedRAM*>(device);
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* GetTimedBufferIntDeviceDeviceInfo(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new TimedBufferIntDevice(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new TimedBufferIntDevice(implementationName, instanceName, moduleID));
 }
 
 //----------------------------------------------------------------------------------------
 void DeleteTimedBufferIntDeviceDevice(IDevice* device)
 {
-	delete device;
+	delete static_cast<TimedBufferIntDevice*>(device);
 }
 
 #ifdef EX_DLLINTERFACE

@@ -1,7 +1,7 @@
 #include "MegaDriveROMLoader.h"
 #ifndef __MEGADRIVEROMLOADER_FILEOPENMENUHANDLER_H__
 #define __MEGADRIVEROMLOADER_FILEOPENMENUHANDLER_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 
 class MegaDriveROMLoader::FileOpenMenuHandler :public MenuHandlerBase
 {
@@ -15,17 +15,17 @@ public:
 
 public:
 	//Constructors
-	FileOpenMenuHandler(MegaDriveROMLoader* adevice);
+	FileOpenMenuHandler(MegaDriveROMLoader& aextension);
 
 protected:
 	//Management functions
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const;
-	virtual IViewModel* CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName);
-	virtual void DeleteViewModelForItem(int menuItemID, IViewModel* viewModel);
-	virtual void HandleMenuItemSelectNonViewModel(int menuItemID, IViewModelLauncher& aviewModelLauncher);
+	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName);
+	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
+	virtual void HandleMenuItemSelectNonView(int menuItemID, IViewManager& aviewManager);
 
 private:
-	MegaDriveROMLoader* device;
+	MegaDriveROMLoader& extension;
 };
 
 #endif

@@ -441,6 +441,26 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{36693E5E-1462-4CFC-A240-2CCAA6483833}"
+			RelativePathToProject=".\Libraries\Device\Device.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{D4F63DCA-8FA8-4FD3-B449-DBB7E5AD7FFB}"
+			RelativePathToProject=".\Support Libraries\Stream\Stream.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{2615B12B-BA5F-4C84-97EE-81761C51BE03}"
+			RelativePathToProject=".\Support Libraries\ThreadLib\ThreadLib.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{5AC3CB2C-0A1A-4E29-8A07-2BDED302611B}"
+			RelativePathToProject=".\Support Libraries\WindowsSupport\WindowsSupport.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{DB781392-9752-4607-B90C-614FA1670D47}"
+			RelativePathToProject=".\Libraries\ExodusDeviceInterface\ExodusDeviceInterface.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -458,158 +478,6 @@
 				RelativePath=".\Processor.inl"
 				>
 			</File>
-			<Filter
-				Name="DebugMenuHandler"
-				>
-				<File
-					RelativePath=".\DebugMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DebugMenuHandler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ControlView"
-				>
-				<File
-					RelativePath=".\ControlView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ControlView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ControlViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ControlViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="BreakpointView"
-				>
-				<File
-					RelativePath=".\BreakpointView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\BreakpointView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\BreakpointViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\BreakpointViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="WatchpointView"
-				>
-				<File
-					RelativePath=".\WatchpointView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\WatchpointView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\WatchpointViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\WatchpointViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="CallStackView"
-				>
-				<File
-					RelativePath=".\CallStackView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\CallStackView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\CallStackViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\CallStackViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="TraceView"
-				>
-				<File
-					RelativePath=".\TraceView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\TraceView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\TraceViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\TraceViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="DisassemblyView"
-				>
-				<File
-					RelativePath=".\DisassemblyView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DisassemblyView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\DisassemblyViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DisassemblyViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ActiveDisassemblyView"
-				>
-				<File
-					RelativePath=".\ActiveDisassemblyView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ActiveDisassemblyView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ActiveDisassemblyViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ActiveDisassemblyViewModel.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Breakpoint"
@@ -655,19 +523,79 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="IProcessor"
+			>
+			<File
+				RelativePath=".\IProcessor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IProcessor.inl"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="IBreakpoint"
+			>
+			<File
+				RelativePath=".\IBreakpoint.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IBreakpoint.inl"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="IWatchpoint"
+			>
+			<File
+				RelativePath=".\IWatchpoint.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IWatchpoint.inl"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="IOpcodeInfo"
+			>
+			<File
+				RelativePath=".\IOpcodeInfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IOpcodeInfo.inl"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="OpcodeInfo"
+			>
+			<File
+				RelativePath=".\OpcodeInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\OpcodeInfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OpcodeInfo.inl"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Processor.pkg"
 			>
 		</File>
-		<File
-			RelativePath=".\Processor.rc"
-			>
-		</File>
-		<File
-			RelativePath=".\resource.h"
-			>
-		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

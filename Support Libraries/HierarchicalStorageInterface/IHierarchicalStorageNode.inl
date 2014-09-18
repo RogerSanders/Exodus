@@ -55,11 +55,23 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChil
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IHierarchicalStorageNode*> IHierarchicalStorageNode::GetChildList()
+std::list<IHierarchicalStorageNode*> IHierarchicalStorageNode::GetChildList() const
 {
 	std::list<IHierarchicalStorageNode*> result;
 	GetChildListInternal(InteropSupport::STLObjectTarget<std::list<IHierarchicalStorageNode*>>(result));
 	return result;
+}
+
+//----------------------------------------------------------------------------------------
+bool IHierarchicalStorageNode::IsChildPresent(const std::wstring& name) const
+{
+	return IsChildPresentInternal(InteropSupport::STLObjectSource<std::wstring>(name));
+}
+
+//----------------------------------------------------------------------------------------
+IHierarchicalStorageNode* IHierarchicalStorageNode::GetChild(const std::wstring& name, const IHierarchicalStorageNode* searchAfterChildNode) const
+{
+	return GetChildInternal(InteropSupport::STLObjectSource<std::wstring>(name), searchAfterChildNode);
 }
 
 //----------------------------------------------------------------------------------------
@@ -123,7 +135,7 @@ template<class T> bool IHierarchicalStorageNode::ExtractAttributeHex(const std::
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IHierarchicalStorageAttribute*> IHierarchicalStorageNode::GetAttributeList()
+std::list<IHierarchicalStorageAttribute*> IHierarchicalStorageNode::GetAttributeList() const
 {
 	std::list<IHierarchicalStorageAttribute*> result;
 	GetAttributeListInternal(InteropSupport::STLObjectTarget<std::list<IHierarchicalStorageAttribute*>>(result));

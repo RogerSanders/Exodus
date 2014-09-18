@@ -33,8 +33,9 @@ References:
 \*--------------------------------------------------------------------------------------*/
 #ifndef __A10000_H__
 #define __A10000_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Device/Device.pkg"
+#include <boost/thread/mutex.hpp>
 #include <vector>
 
 //Physical port interface:
