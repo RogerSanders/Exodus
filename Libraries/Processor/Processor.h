@@ -98,27 +98,29 @@ breakpoints can be toggled from the disassembly view.
 disassembly is optionally linked to the code coverage data, and ensures opcodes which are
 actually executed are disassembled correctly.
 \*--------------------------------------------------------------------------------------*/
+#include "IProcessor.h"
 #ifndef __PROCESSOR_H__
 #define __PROCESSOR_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Device/Device.pkg"
 #include <string>
 #include <vector>
 #include <list>
 #include <set>
+#include <map>
 #include "Breakpoint.h"
 #include "Watchpoint.h"
 #include "ThinContainers/ThinContainers.pkg"
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 
-class Processor :public Device
+class Processor :public Device, public GenericAccessBase<IProcessor>
 {
 public:
 	//Enumerations
 	enum DisassemblyDataType;
 
 	//Structures
-	struct OpcodeInfo;
 	struct LabelSubstitutionSettings;
 	struct LabelSubstitutionEntry;
 	struct LabelEntry;
@@ -127,76 +129,164 @@ public:
 	//Constructors
 	Processor(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	~Processor();
+
+	//Interface version functions
+	virtual unsigned int GetIProcessorVersion() const;
+
+	//Device access functions
+	virtual IDevice* GetDevice();
+
+	//Initialization functions
 	virtual bool Construct(IHierarchicalStorageNode& node);
+	virtual bool BuildDevice();
 
 	//Execute functions
-	virtual void Reset() = 0;
 	virtual double ExecuteStep() = 0;
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 	virtual UpdateMethod GetUpdateMethod() const;
+	virtual void BreakOnCurrentOpcode() const;
+	virtual void BreakOnStepOverCurrentOpcode();
+	virtual void BreakOnStepOutCurrentOpcode();
 
 	//Control functions
-	double GetClockSpeed() const;
-	void SetClockSpeed(double aclockSpeed);
-	void OverrideClockSpeed(double aclockSpeed);
-	void RestoreClockSpeed();
-	double CalculateExecutionTime(unsigned int cycles) const;
+	virtual double GetClockSpeed() const;
+	virtual void SetClockSpeed(double aclockSpeed);
+	virtual void OverrideClockSpeed(double aclockSpeed);
+	virtual void RestoreClockSpeed();
+	inline double CalculateExecutionTime(unsigned int cycles) const;
 
 	//Instruction functions
-	virtual OpcodeInfo GetOpcodeInfo(unsigned int location) const;
-	virtual Data GetRawData(unsigned int location) const;
-	virtual unsigned int GetCurrentPC() const = 0;
-	virtual unsigned int GetPCWidth() const = 0;
-	virtual unsigned int GetAddressBusWidth() const = 0;
-	virtual unsigned int GetDataBusWidth() const = 0;
-	virtual unsigned int GetMinimumOpcodeByteSize() const = 0;
-	virtual unsigned int GetMinimumDataByteSize() const = 0;
-	unsigned int GetPCCharWidth() const;
-	unsigned int GetAddressBusCharWidth() const;
-	unsigned int GetDataBusCharWidth() const;
-	unsigned int GetPCMask() const;
-	unsigned int GetAddressBusMask() const;
-	unsigned int GetDataBusMask() const;
+	//##TODO## Make these following virtual functions inline sealed when we have C++11
+	//support, to improve performance.
+	virtual unsigned int GetByteCharWidth() const;
+	virtual unsigned int GetPCCharWidth() const;
+	virtual unsigned int GetAddressBusCharWidth() const;
+	virtual unsigned int GetDataBusCharWidth() const;
+	virtual unsigned int GetPCMask() const;
+	virtual unsigned int GetAddressBusMask() const;
+	virtual unsigned int GetDataBusMask() const;
+	virtual unsigned int GetMemorySpaceByte(unsigned int location) const;
+	virtual void SetMemorySpaceByte(unsigned int location, unsigned int data);
+	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const;
 
 	//Breakpoint functions
-	void CheckExecution(unsigned int location) const;
-	void CheckMemoryRead(unsigned int location, unsigned int data) const;
-	void CheckMemoryWrite(unsigned int location, unsigned int data) const;
-	void TriggerBreak() const;
-	void TriggerBreakpoint(Breakpoint* breakpoint) const;
-	static void BreakpointCallbackRaw(void* aparams);
-	void BreakpointCallback(Breakpoint* breakpoint) const;
-	void SetStepOver(bool state);
-	void SetStepOut(bool state);
+	inline std::list<IBreakpoint*> GetBreakpointList() const;
+	virtual IBreakpoint* CreateBreakpoint();
+	virtual bool LockBreakpoint(IBreakpoint* breakpoint) const;
+	virtual void UnlockBreakpoint(IBreakpoint* breakpoint) const;
+	virtual void DeleteBreakpoint(IBreakpoint* breakpoint);
+	//##FIX## Make all these functions non-const once we fix our const issues surrounding
+	//disassembly for processors
+	inline void CheckExecution(unsigned int location) const;
 
-	//Stack functions
+	//Watchpoint functions
+	inline std::list<IWatchpoint*> GetWatchpointList() const;
+	virtual IWatchpoint* CreateWatchpoint();
+	virtual bool LockWatchpoint(IWatchpoint* watchpoint) const;
+	virtual void UnlockWatchpoint(IWatchpoint* watchpoint) const;
+	virtual void DeleteWatchpoint(IWatchpoint* watchpoint);
+	//##FIX## Make all these functions non-const once we fix our const issues surrounding
+	//disassembly for processors
+	inline void CheckMemoryRead(unsigned int location, unsigned int data) const;
+	inline void CheckMemoryWrite(unsigned int location, unsigned int data) const;
+
+	//Call stack functions
+	virtual bool GetCallStackDisassemble() const;
+	virtual void SetCallStackDisassemble(bool state);
+	inline std::list<CallStackEntry> GetCallStack() const;
 	void PushCallStack(unsigned int sourceAddress, unsigned int targetAddress, unsigned int returnAddress, const std::wstring& entry, bool fixedDisassembly = false);
 	void PopCallStack(unsigned int returnAddress);
-	void ClearCallStack();
+	virtual void ClearCallStack();
 
 	//Trace functions
-	void RecordTrace(unsigned int pc);
-	void ClearTraceLog();
-	std::set<unsigned int> GetTraceCoverageLog() const;
-	void ClearTraceCoverageLog();
-	unsigned int GetTraceCoverageLogSize() const;
-	bool GetTraceEnabled() const;
-	void SetTraceEnabled(bool astate);
-	unsigned int GetTraceLength() const;
-	void SetTraceLength(unsigned int length);
+	virtual bool GetTraceEnabled() const;
+	virtual void SetTraceEnabled(bool state);
+	virtual bool GetTraceDisassemble() const;
+	virtual void SetTraceDisassemble(bool state);
+	virtual unsigned int GetTraceLength() const;
+	virtual void SetTraceLength(unsigned int state);
+	inline std::list<TraceLogEntry> GetTraceLog() const;
+	inline void RecordTrace(unsigned int pc);
+	virtual void ClearTraceLog();
 
-	//Active disassembly functions
-	bool ActiveDisassemblyEnabled() const;
-	void EnableActiveDisassembly(unsigned int startLocation, unsigned int endLocation);
-	void DisableActiveDisassembly();
-	void ClearActiveDisassembly();
+	//Active disassembly info functions
+	virtual bool ActiveDisassemblySupported() const;
+	//##TODO## Make this following virtual function inline sealed when we have C++11
+	//support, to improve performance.
+	virtual bool ActiveDisassemblyEnabled() const;
+	virtual unsigned int GetActiveDisassemblyStartLocation() const;
+	virtual void SetActiveDisassemblyStartLocation(unsigned int state);
+	virtual unsigned int GetActiveDisassemblyEndLocation() const;
+	virtual void SetActiveDisassemblyEndLocation(unsigned int state);
+	virtual unsigned int GetActiveDisassemblyAnalysisStartLocation() const;
+	virtual void SetActiveDisassemblyAnalysisStartLocation(unsigned int state);
+	virtual unsigned int GetActiveDisassemblyAnalysisEndLocation() const;
+	virtual void SetActiveDisassemblyAnalysisEndLocation(unsigned int state);
+	virtual bool GetActiveDisassemblyAnalyzeCode() const;
+	virtual void SetActiveDisassemblyAnalyzeCode(bool state);
+	virtual bool GetActiveDisassemblyAnalyzeData() const;
+	virtual void SetActiveDisassemblyAnalyzeData(bool state);
+	virtual bool GetActiveDisassemblyAnalyzeCodeOffsets() const;
+	virtual void SetActiveDisassemblyAnalyzeCodeOffsets(bool state);
+	virtual bool GetActiveDisassemblyAnalyzeDataOffsets() const;
+	virtual void SetActiveDisassemblyAnalyzeDataOffsets(bool state);
+	virtual bool GetActiveDisassemblyAnalyzePredictedArrays() const;
+	virtual void SetActiveDisassemblyAnalyzePredictedArrays(bool state);
+	virtual bool GetActiveDisassemblyAnalyzePredictedJumpTables() const;
+	virtual void SetActiveDisassemblyAnalyzePredictedJumpTables(bool state);
+	virtual bool GetActiveDisassemblyExploreCodePaths() const;
+	virtual void SetActiveDisassemblyExploreCodePaths(bool state);
+	virtual bool GetActiveDisassemblyPerformLabelSubstitution() const;
+	virtual void SetActiveDisassemblyPerformLabelSubstitution(bool state);
+	virtual bool GetActiveDisassemblyDetectOffsets() const;
+	virtual void SetActiveDisassemblyDetectOffsets(bool state);
+	virtual bool GetActiveDisassemblyDetectJumpTables() const;
+	virtual void SetActiveDisassemblyDetectJumpTables(bool state);
+	virtual bool GetActiveDisassemblyDetectData() const;
+	virtual void SetActiveDisassemblyDetectData(bool state);
+	virtual bool GetActiveDisassemblyDetectDataArrays() const;
+	virtual void SetActiveDisassemblyDetectDataArrays(bool state);
+	virtual bool GetActiveDisassemblyDetectTextData() const;
+	virtual void SetActiveDisassemblyDetectTextData(bool state);
+	virtual double GetActiveDisassemblyOffsetArrayIncreaseTolerance() const;
+	virtual void SetActiveDisassemblyOffsetArrayIncreaseTolerance(double state);
+	virtual unsigned int GetActiveDisassemblyMinimumArrayEntryCount() const;
+	virtual void SetActiveDisassemblyMinimumArrayEntryCount(unsigned int state);
+	virtual unsigned int GetActiveDisassemblyOffsetArrayDistanceTolerance() const;
+	virtual void SetActiveDisassemblyOffsetArrayDistanceTolerance(unsigned int state);
+	virtual unsigned int GetActiveDisassemblyJumpTableDistanceTolerance() const;
+	virtual void SetActiveDisassemblyJumpTableDistanceTolerance(unsigned int state);
+	virtual unsigned int GetActiveDisassemblyRecordedItemCount() const;
+	virtual unsigned int GetActiveDisassemblyAnalysisCodeEntryCount() const;
+	virtual unsigned int GetActiveDisassemblyAnalysisOffsetEntryCount() const;
+	virtual unsigned int GetActiveDisassemblyAnalysisDataEntryCount() const;
+	virtual unsigned int GetActiveDisassemblyAnalysisLabelEntryCount() const;
+	virtual unsigned int GetActiveDisassemblyAnalysisPredictedCodeEntryCount() const;
+	virtual unsigned int GetActiveDisassemblyAnalysisPredictedOffsetEntryCount() const;
+	virtual unsigned int GetActiveDisassemblyAnalysisPredictedDataEntryCount() const;
+	virtual unsigned int GetActiveDisassemblyAnalysisPredictedLabelEntryCount() const;
+
+	//Active disassembly operation functions
+	virtual void EnableActiveDisassembly();
+	virtual void DisableActiveDisassembly();
+	virtual void ClearActiveDisassembly();
+
+	//Active disassembly logging functions
 	unsigned int MakeDataArrayAtLocation(unsigned int location, unsigned int dataSize, DisassemblyDataType dataType);
 	void AddDisassemblyAddressInfoCode(unsigned int location, unsigned int dataSize, const std::wstring& comment = L"");
 	void AddDisassemblyAddressInfoData(unsigned int location, unsigned int dataSize, DisassemblyDataType dataType, unsigned int arrayID = 0, const std::wstring& comment = L"");
 	void AddDisassemblyAddressInfoOffset(unsigned int location, unsigned int dataSize, bool offsetToCode, bool relativeOffset, unsigned int relativeOffsetBaseAddress);
 	void AddDisassemblyPossibleBranchTable(unsigned int baseAddress, unsigned int confirmedEntry, unsigned int entrySize);
-	virtual bool ActiveDisassemblySupported() const;
+
+	//Active disassembly analysis functions
+	virtual bool PerformActiveDisassemblyAnalysis();
+	virtual void ClearActiveDisassemblyAnalysis();
+	bool ActiveDisassemblyExportAnalysisToASMFile(const std::wstring& filePath) const;
+	bool ActiveDisassemblyExportAnalysisToTextFile(const std::wstring& filePath) const;
+	bool ActiveDisassemblyExportAnalysisToIDCFile(const std::wstring& filePath) const;
+
+	//Active disassembly formatting functions
 	virtual bool GetLeadingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
 	virtual bool GetTrailingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
 	virtual bool FormatOpcodeForDisassembly(unsigned int opcodeAddress, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& opcodeArguments, std::wstring& opcodeComments) const;
@@ -214,11 +304,30 @@ public:
 	void LoadCallStack(IHierarchicalStorageNode& node);
 	void SaveCallStack(IHierarchicalStorageNode& node) const;
 
-	//Window functions
-	void CreateMenuHandlers();
-	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
+	//Data read/write functions
+	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
+	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
+
+	//Command execution functions
+	virtual bool ExecuteGenericCommand(unsigned int commandID, const DataContext* dataContext);
+
+protected:
+	//Breakpoint functions
+	virtual void GetBreakpointListInternal(const InteropSupport::ISTLObjectTarget<std::list<IBreakpoint*>>& marshaller) const;
+
+	//Watchpoint functions
+	virtual void GetWatchpointListInternal(const InteropSupport::ISTLObjectTarget<std::list<IWatchpoint*>>& marshaller) const;
+
+	//Call stack functions
+	virtual void GetCallStackInternal(const InteropSupport::ISTLObjectTarget<std::list<CallStackEntry>>& marshaller) const;
+
+	//Trace functions
+	virtual void GetTraceLogInternal(const InteropSupport::ISTLObjectTarget<std::list<TraceLogEntry>>& marshaller) const;
+
+	//Active disassembly analysis functions
+	virtual bool ActiveDisassemblyExportAnalysisToASMFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const;
+	virtual bool ActiveDisassemblyExportAnalysisToTextFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const;
+	virtual bool ActiveDisassemblyExportAnalysisToIDCFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const;
 
 private:
 	//Enumerations
@@ -226,47 +335,11 @@ private:
 
 	//Structures
 	struct BreakpointCallbackParams;
-	struct CallStackEntry;
-	struct TraceLogEntry;
+	struct WatchpointCallbackParams;
 	struct DisassemblyAddressInfo;
 	struct DisassemblyArrayInfo;
 	struct DisassemblyJumpTableInfo;
 	struct ActiveDisassemblyAnalysisData;
-
-	//View and menu classes
-	class DebugMenuHandler;
-	class ControlViewModel;
-	class BreakpointViewModel;
-	class WatchpointViewModel;
-	class CallStackViewModel;
-	class TraceViewModel;
-	class DisassemblyViewModel;
-	class DisassemblyOldViewModel;
-	class ActiveDisassemblyViewModel;
-	class ControlView;
-	class BreakpointView;
-	class WatchpointView;
-	class CallStackView;
-	class TraceView;
-	class DisassemblyView;
-	class DisassemblyOldView;
-	class ActiveDisassemblyView;
-	friend class ControlViewModel;
-	friend class BreakpointViewModel;
-	friend class WatchpointViewModel;
-	friend class CallStackViewModel;
-	friend class TraceViewModel;
-	friend class DisassemblyViewModel;
-	friend class DisassemblyOldViewModel;
-	friend class ActiveDisassemblyViewModel;
-	friend class ControlView;
-	friend class BreakpointView;
-	friend class WatchpointView;
-	friend class CallStackView;
-	friend class TraceView;
-	friend class DisassemblyView;
-	friend class DisassemblyOldView;
-	friend class ActiveDisassemblyView;
 
 	//Typedefs
 	typedef std::map<unsigned int, DisassemblyArrayInfo> DisassemblyArrayInfoMap;
@@ -275,8 +348,31 @@ private:
 	typedef std::pair<unsigned int, DisassemblyJumpTableInfo> DisassemblyJumpTableInfoMapEntry;
 
 private:
-	//Active disassembly functions
+	//Breakpoint functions
+	void CheckExecutionInternal(unsigned int location) const;
+	void TriggerBreakpoint(Breakpoint* breakpoint) const;
+	static void BreakpointCallbackRaw(void* aparams);
+	void BreakpointCallback(Breakpoint* breakpoint) const;
+
+	//Watchpoint functions
+	void CheckMemoryReadInternal(unsigned int location, unsigned int data) const;
+	void CheckMemoryWriteInternal(unsigned int location, unsigned int data) const;
+	void TriggerWatchpoint(Watchpoint* watchpoint) const;
+	static void WatchpointCallbackRaw(void* aparams);
+	void WatchpointCallback(Watchpoint* watchpoint) const;
+
+	//Trace functions
+	void RecordTraceInternal(unsigned int pc);
+
+	//Active disassembly operation functions
+	void EnableActiveDisassembly(unsigned int startLocation, unsigned int endLocation);
+	void DisableActiveDisassemblyInternal();
+	void ClearActiveDisassemblyInternal();
+
+	//Active disassembly logging functions
 	void AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* newEntry);
+
+	//Active disassembly analysis functions
 	bool PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsigned int maxAddress, ActiveDisassemblyAnalysisData& analysis) const;
 	bool ActiveDisassemblyEntrySeemsToBePartOfArray(ActiveDisassemblyAnalysisData& analysis, const DisassemblyAddressInfo* currentEntry, unsigned int firstKnownEntryLocation, unsigned int lastKnownEntryLocation, unsigned int entrySize, DisassemblyEntryType offsetType, bool relativeOffset, unsigned int relativeOffsetBaseAddress) const;
 	void ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisassemblyAnalysisData& analysis, std::map<unsigned int, const DisassemblyAddressInfo*> knownOffsetArrayEntries, unsigned int firstKnownEntryLocation, unsigned int lastKnownEntryLocation, unsigned int entrySize, DisassemblyEntryType offsetType, bool relativeOffset, unsigned int relativeOffsetBaseAddress) const;
@@ -295,9 +391,6 @@ private:
 	bool ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassemblyAnalysisData& analysis, const std::wstring& filePath) const;
 
 private:
-	//Menu handling
-	DebugMenuHandler* menuHandler;
-
 	//Clock speed
 	double clockSpeed;
 	double bclockSpeed;
@@ -305,19 +398,21 @@ private:
 	double reportedClockSpeed;
 
 	//Breakpoints
-	typedef std::list<Breakpoint*> BreakpointList;
-	typedef std::list<Watchpoint*> WatchpointList;
-	mutable BreakpointList breakpoints;
-	mutable WatchpointList watchpoints;
+	//##FIX## Make these non-mutable once we fix our const issues
+	mutable std::vector<Breakpoint*> breakpoints;
+	mutable std::vector<Watchpoint*> watchpoints;
+	mutable std::set<IBreakpoint*> lockedBreakpoints;
+	mutable std::set<IWatchpoint*> lockedWatchpoints;
+	mutable boost::condition breakpointLockReleased;
+	mutable boost::condition watchpointLockReleased;
 	volatile bool breakpointExists;
 	volatile bool watchpointExists;
 
 	//Call stack
-	typedef std::list<CallStackEntry> CallStack;
 	volatile mutable bool breakOnNextOpcode;
 	bool bbreakOnNextOpcode;
-	mutable CallStack callStack;
-	CallStack bcallStack;
+	std::list<CallStackEntry> callStack;
+	std::list<CallStackEntry> bcallStack;
 	bool stepOver;
 	bool bstepOver;
 	bool stepOut;
@@ -327,18 +422,19 @@ private:
 	bool stackDisassemble;
 
 	//Trace
-	typedef std::list<TraceLogEntry> Trace;
-	mutable Trace trace;
-	Trace btrace;
-	bool traceEnabled;
-	bool traceDisassemble;
-	unsigned int traceLength;
+	std::list<TraceLogEntry> traceLog;
+	std::list<TraceLogEntry> btraceLog;
+	volatile bool traceLogEnabled;
+	bool traceLogDisassemble;
+	unsigned int traceLogLength;
 
-	//Active Disassembly
+	//Active disassembly
 	bool activeDisassemblyEnabled;
 	unsigned int activeDisassemblyArrayNextFreeID;
 	unsigned int activeDisassemblyStartLocation;
 	unsigned int activeDisassemblyEndLocation;
+	unsigned int activeDisassemblyUncommittedStartLocation;
+	unsigned int activeDisassemblyUncommittedEndLocation;
 	std::vector<std::list<DisassemblyAddressInfo*>> activeDisassemblyAddressInfo;
 	std::set<DisassemblyAddressInfo*> activeDisassemblyAddressInfoSet;
 	DisassemblyArrayInfoMap activeDisassemblyArrayInfo;
@@ -363,6 +459,9 @@ private:
 	unsigned int activeDisassemblyOffsetArrayDistanceTolerance;
 	unsigned int activeDisassemblyJumpTableDistanceTolerance;
 	ActiveDisassemblyAnalysisData* activeDisassemblyAnalysis;
+
+	//Generic access page groups
+	GenericAccessGroupCollectionEntry* breakpointCollection;
 
 	//Debug
 	mutable boost::mutex debugMutex;

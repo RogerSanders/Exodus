@@ -24,7 +24,7 @@ public:
 	{
 		if(labelSettings.enableSubstitution)
 		{
-			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), target.DisassembleImmediateAsPCDisplacement(labelSettings), target.DisassembleImmediateAsPCDisplacementTargetAddressString());
+			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), target.DisassembleImmediateAsPCDisplacement(labelSettings));
 		}
 		else
 		{

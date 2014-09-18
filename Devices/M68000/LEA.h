@@ -8,9 +8,14 @@ class LEA :public M68000Instruction
 public:
 	ExecuteTime GetExecuteTime(EffectiveAddress::Mode targetMode)
 	{
-		const ExecuteTime executeTimeArray[9] = {
-			//(An)					(An)+					-(An)					d(An)					d(An,ix)+				xxx.W					xxx.L					d(PC)					d(PC,ix)
-			ExecuteTime(4, 1, 0),	ExecuteTime(0, 0, 0),	ExecuteTime(0, 0, 0),	ExecuteTime(8, 2, 0),	ExecuteTime(12, 2, 0),	ExecuteTime(8, 2, 0),	ExecuteTime(12, 3, 0),	ExecuteTime(8, 2, 0),	ExecuteTime(12, 2, 0)};
+		//##FIX## Note that while C++11 makes this thread safe, Visual Studio 2013 still
+		//doesn't implement this feature. It's down on the conformance roadmap as
+		//"Thread-safe function local static init", to be implemented in the near future
+		//after VS2013.
+		static const ExecuteTime executeTimeArray[9] = {
+			//(An)                (An)+                -(An)                  d(An)                 d(An,ix)+              xxx.W                 xxx.L                  d(PC)                 d(PC,ix)
+			ExecuteTime(4, 1, 0), ExecuteTime(0, 0, 0), ExecuteTime(0, 0, 0), ExecuteTime(8, 2, 0), ExecuteTime(12, 2, 0), ExecuteTime(8, 2, 0), ExecuteTime(12, 3, 0), ExecuteTime(8, 2, 0), ExecuteTime(12, 2, 0)};
+
 		unsigned int targetIndex = 0;
 		switch(targetMode)
 		{

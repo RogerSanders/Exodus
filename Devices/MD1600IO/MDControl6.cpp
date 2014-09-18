@@ -262,7 +262,7 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 	//device has been accessed out of order.
 	if(lastLineAccessTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	lastLineAccessTime = accessTime;
 

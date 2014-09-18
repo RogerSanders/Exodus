@@ -8,34 +8,35 @@ class MOVE :public M68000Instruction
 public:
 	ExecuteTime GetExecuteTime(EffectiveAddress::Mode sourceMode, EffectiveAddress::Mode targetMode, Bitcount size)
 	{
-		const ExecuteTime executeTimeArray[12][9] = {
-			//Dn					An						(An)					(An)+					-(An)					d(An)					d(An,ix)				xxx.W					xxx.L
-/*Dn*/		{ExecuteTime(4, 1, 0),	ExecuteTime(4, 1, 0),	ExecuteTime(8, 1, 1),	ExecuteTime(8, 1, 1),	ExecuteTime(8, 1, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(14, 2, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(16, 3, 1)},
-/*An*/		{ExecuteTime(4, 1, 0),	ExecuteTime(4, 1, 0),	ExecuteTime(8, 1, 1),	ExecuteTime(8, 1, 1),	ExecuteTime(8, 1, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(14, 2, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(16, 3, 1)},
-/*(An)*/	{ExecuteTime(8, 2, 0),	ExecuteTime(8, 2, 0),	ExecuteTime(12, 2, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(18, 3, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(20, 4, 1)},
-/*(An)+*/	{ExecuteTime(8, 2, 0),	ExecuteTime(8, 2, 0),	ExecuteTime(12, 2, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(18, 3, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(20, 4, 1)},
-/*-(An)*/	{ExecuteTime(10, 2, 0),	ExecuteTime(10, 2, 0),	ExecuteTime(14, 2, 1),	ExecuteTime(14, 2, 1),	ExecuteTime(14, 2, 1),	ExecuteTime(18, 3, 1),	ExecuteTime(20, 4, 1),	ExecuteTime(18, 3, 1),	ExecuteTime(22, 4, 1)},
-/*d(An)*/	{ExecuteTime(12, 3, 0),	ExecuteTime(12, 3, 0),	ExecuteTime(16, 3, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(20, 4, 1),	ExecuteTime(22, 4, 1),	ExecuteTime(20, 4, 1),	ExecuteTime(24, 5, 1)},
-/*d(An,ix)*/{ExecuteTime(14, 3, 0),	ExecuteTime(14, 3, 0),	ExecuteTime(18, 3, 1),	ExecuteTime(18, 3, 1),	ExecuteTime(18, 3, 1),	ExecuteTime(22, 4, 1),	ExecuteTime(24, 4, 1),	ExecuteTime(22, 4, 1),	ExecuteTime(26, 5, 1)},
-/*xxx.W*/	{ExecuteTime(12, 3, 0),	ExecuteTime(12, 3, 0),	ExecuteTime(16, 3, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(20, 4, 1),	ExecuteTime(22, 4, 1),	ExecuteTime(20, 4, 1),	ExecuteTime(24, 5, 1)},
-/*xxx.L*/	{ExecuteTime(16, 4, 0),	ExecuteTime(16, 4, 0),	ExecuteTime(20, 4, 1),	ExecuteTime(20, 4, 1),	ExecuteTime(20, 4, 1),	ExecuteTime(24, 5, 1),	ExecuteTime(26, 5, 1),	ExecuteTime(24, 5, 1),	ExecuteTime(28, 6, 1)},
-/*d(PC)*/	{ExecuteTime(12, 3, 0),	ExecuteTime(12, 3, 0),	ExecuteTime(16, 3, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(20, 4, 1),	ExecuteTime(22, 4, 1),	ExecuteTime(20, 4, 1),	ExecuteTime(24, 5, 1)},
-/*d(PC,ix)*/{ExecuteTime(14, 3, 0),	ExecuteTime(14, 3, 0),	ExecuteTime(18, 3, 1),	ExecuteTime(18, 3, 1),	ExecuteTime(18, 3, 1),	ExecuteTime(22, 4, 1),	ExecuteTime(24, 4, 1),	ExecuteTime(22, 4, 1),	ExecuteTime(26, 5, 1)},
-/*#xxx*/	{ExecuteTime(8, 2, 0),	ExecuteTime(8, 2, 0),	ExecuteTime(12, 2, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(12, 2, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(18, 3, 1),	ExecuteTime(16, 3, 1),	ExecuteTime(20, 4, 1)}};
-		const ExecuteTime executeTimeArrayLong[12][9] = {
-			//Dn					An						(An)					(An)+					-(An)					d(An)					d(An,ix)				xxx.W					xxx.L
-/*Dn*/		{ExecuteTime(4, 1, 0),	ExecuteTime(4, 1, 0),	ExecuteTime(12, 1, 2),	ExecuteTime(12, 1, 2),	ExecuteTime(12, 1, 2),	ExecuteTime(16, 2, 2),	ExecuteTime(18, 2, 2),	ExecuteTime(16, 2, 2),	ExecuteTime(20, 3, 2)},
-/*An*/		{ExecuteTime(4, 1, 0),	ExecuteTime(4, 1, 0),	ExecuteTime(12, 1, 2),	ExecuteTime(12, 1, 2),	ExecuteTime(12, 1, 2),	ExecuteTime(16, 2, 2),	ExecuteTime(18, 2, 2),	ExecuteTime(16, 2, 2),	ExecuteTime(20, 3, 2)},
-/*(An)*/	{ExecuteTime(12, 3, 0),	ExecuteTime(12, 3, 0),	ExecuteTime(20, 3, 2),	ExecuteTime(20, 3, 2),	ExecuteTime(20, 3, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(26, 4, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(28, 5, 2)},
-/*(An)+*/	{ExecuteTime(12, 3, 0),	ExecuteTime(12, 3, 0),	ExecuteTime(20, 3, 2),	ExecuteTime(20, 3, 2),	ExecuteTime(20, 3, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(26, 4, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(28, 5, 2)},
-/*-(An)*/	{ExecuteTime(14, 3, 0),	ExecuteTime(14, 3, 0),	ExecuteTime(22, 3, 2),	ExecuteTime(22, 3, 2),	ExecuteTime(22, 3, 2),	ExecuteTime(26, 4, 2),	ExecuteTime(28, 4, 2),	ExecuteTime(26, 4, 2),	ExecuteTime(30, 5, 2)},
-/*d(An)*/	{ExecuteTime(16, 4, 0),	ExecuteTime(16, 4, 0),	ExecuteTime(24, 4, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(28, 5, 2),	ExecuteTime(30, 5, 2),	ExecuteTime(28, 5, 2),	ExecuteTime(32, 6, 2)},
-/*d(An,ix)*/{ExecuteTime(18, 4, 0),	ExecuteTime(18, 4, 0),	ExecuteTime(26, 4, 2),	ExecuteTime(26, 4, 2),	ExecuteTime(26, 4, 2),	ExecuteTime(30, 5, 2),	ExecuteTime(32, 5, 2),	ExecuteTime(30, 5, 2),	ExecuteTime(34, 6, 2)},
-/*xxx.W*/	{ExecuteTime(16, 4, 0),	ExecuteTime(16, 4, 0),	ExecuteTime(24, 4, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(28, 5, 2),	ExecuteTime(30, 5, 2),	ExecuteTime(28, 5, 2),	ExecuteTime(32, 6, 2)},
-/*xxx.L*/	{ExecuteTime(20, 5, 0),	ExecuteTime(20, 5, 0),	ExecuteTime(28, 5, 2),	ExecuteTime(28, 5, 2),	ExecuteTime(28, 5, 2),	ExecuteTime(32, 6, 2),	ExecuteTime(34, 6, 2),	ExecuteTime(32, 6, 2),	ExecuteTime(36, 7, 2)},
-/*d(PC)*/	{ExecuteTime(16, 4, 0),	ExecuteTime(16, 4, 0),	ExecuteTime(24, 4, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(28, 5, 2),	ExecuteTime(30, 5, 2),	ExecuteTime(28, 5, 2),	ExecuteTime(32, 5, 2)},
-/*d(PC,ix)*/{ExecuteTime(18, 4, 0),	ExecuteTime(18, 4, 0),	ExecuteTime(26, 4, 2),	ExecuteTime(26, 4, 2),	ExecuteTime(26, 4, 2),	ExecuteTime(30, 5, 2),	ExecuteTime(32, 5, 2),	ExecuteTime(30, 5, 2),	ExecuteTime(34, 6, 2)},
-/*#xxx*/	{ExecuteTime(12, 3, 0),	ExecuteTime(12, 3, 0),	ExecuteTime(20, 3, 2),	ExecuteTime(20, 3, 2),	ExecuteTime(20, 3, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(26, 4, 2),	ExecuteTime(24, 4, 2),	ExecuteTime(28, 5, 2)}};
+		static const ExecuteTime executeTimeArray[12][9] = {
+			           //Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
+			/*Dn*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(12, 2, 1), ExecuteTime(14, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1)},
+			/*An*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(12, 2, 1), ExecuteTime(14, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1)},
+			/*(An)*/    {ExecuteTime(8, 2, 0),  ExecuteTime(8, 2, 0),  ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1)},
+			/*(An)+*/   {ExecuteTime(8, 2, 0),  ExecuteTime(8, 2, 0),  ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1)},
+			/*-(An)*/   {ExecuteTime(10, 2, 0), ExecuteTime(10, 2, 0), ExecuteTime(14, 2, 1), ExecuteTime(14, 2, 1), ExecuteTime(14, 2, 1), ExecuteTime(18, 3, 1), ExecuteTime(20, 4, 1), ExecuteTime(18, 3, 1), ExecuteTime(22, 4, 1)},
+			/*d(An)*/   {ExecuteTime(12, 3, 0), ExecuteTime(12, 3, 0), ExecuteTime(16, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1), ExecuteTime(22, 4, 1), ExecuteTime(20, 4, 1), ExecuteTime(24, 5, 1)},
+			/*d(An,ix)*/{ExecuteTime(14, 3, 0), ExecuteTime(14, 3, 0), ExecuteTime(18, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(22, 4, 1), ExecuteTime(24, 4, 1), ExecuteTime(22, 4, 1), ExecuteTime(26, 5, 1)},
+			/*xxx.W*/   {ExecuteTime(12, 3, 0), ExecuteTime(12, 3, 0), ExecuteTime(16, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1), ExecuteTime(22, 4, 1), ExecuteTime(20, 4, 1), ExecuteTime(24, 5, 1)},
+			/*xxx.L*/   {ExecuteTime(16, 4, 0), ExecuteTime(16, 4, 0), ExecuteTime(20, 4, 1), ExecuteTime(20, 4, 1), ExecuteTime(20, 4, 1), ExecuteTime(24, 5, 1), ExecuteTime(26, 5, 1), ExecuteTime(24, 5, 1), ExecuteTime(28, 6, 1)},
+			/*d(PC)*/   {ExecuteTime(12, 3, 0), ExecuteTime(12, 3, 0), ExecuteTime(16, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1), ExecuteTime(22, 4, 1), ExecuteTime(20, 4, 1), ExecuteTime(24, 5, 1)},
+			/*d(PC,ix)*/{ExecuteTime(14, 3, 0), ExecuteTime(14, 3, 0), ExecuteTime(18, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(22, 4, 1), ExecuteTime(24, 4, 1), ExecuteTime(22, 4, 1), ExecuteTime(26, 5, 1)},
+			/*#xxx*/    {ExecuteTime(8, 2, 0),  ExecuteTime(8, 2, 0),  ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1)}};
+		static const ExecuteTime executeTimeArrayLong[12][9] = {
+			           //Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
+			/*Dn*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(16, 2, 2), ExecuteTime(18, 2, 2), ExecuteTime(16, 2, 2), ExecuteTime(20, 3, 2)},
+			/*An*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(16, 2, 2), ExecuteTime(18, 2, 2), ExecuteTime(16, 2, 2), ExecuteTime(20, 3, 2)},
+			/*(An)*/    {ExecuteTime(12, 3, 0), ExecuteTime(12, 3, 0), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(24, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(28, 5, 2)},
+			/*(An)+*/   {ExecuteTime(12, 3, 0), ExecuteTime(12, 3, 0), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(24, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(28, 5, 2)},
+			/*-(An)*/   {ExecuteTime(14, 3, 0), ExecuteTime(14, 3, 0), ExecuteTime(22, 3, 2), ExecuteTime(22, 3, 2), ExecuteTime(22, 3, 2), ExecuteTime(26, 4, 2), ExecuteTime(28, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(30, 5, 2)},
+			/*d(An)*/   {ExecuteTime(16, 4, 0), ExecuteTime(16, 4, 0), ExecuteTime(24, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(28, 5, 2), ExecuteTime(30, 5, 2), ExecuteTime(28, 5, 2), ExecuteTime(32, 6, 2)},
+			/*d(An,ix)*/{ExecuteTime(18, 4, 0), ExecuteTime(18, 4, 0), ExecuteTime(26, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(30, 5, 2), ExecuteTime(32, 5, 2), ExecuteTime(30, 5, 2), ExecuteTime(34, 6, 2)},
+			/*xxx.W*/   {ExecuteTime(16, 4, 0), ExecuteTime(16, 4, 0), ExecuteTime(24, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(28, 5, 2), ExecuteTime(30, 5, 2), ExecuteTime(28, 5, 2), ExecuteTime(32, 6, 2)},
+			/*xxx.L*/   {ExecuteTime(20, 5, 0), ExecuteTime(20, 5, 0), ExecuteTime(28, 5, 2), ExecuteTime(28, 5, 2), ExecuteTime(28, 5, 2), ExecuteTime(32, 6, 2), ExecuteTime(34, 6, 2), ExecuteTime(32, 6, 2), ExecuteTime(36, 7, 2)},
+			/*d(PC)*/   {ExecuteTime(16, 4, 0), ExecuteTime(16, 4, 0), ExecuteTime(24, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(28, 5, 2), ExecuteTime(30, 5, 2), ExecuteTime(28, 5, 2), ExecuteTime(32, 5, 2)},
+			/*d(PC,ix)*/{ExecuteTime(18, 4, 0), ExecuteTime(18, 4, 0), ExecuteTime(26, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(30, 5, 2), ExecuteTime(32, 5, 2), ExecuteTime(30, 5, 2), ExecuteTime(34, 6, 2)},
+			/*#xxx*/    {ExecuteTime(12, 3, 0), ExecuteTime(12, 3, 0), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(24, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(28, 5, 2)}};
+
 		unsigned int sourceIndex = 0;
 		unsigned int targetIndex = 0;
 		switch(sourceMode)

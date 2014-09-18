@@ -23,15 +23,15 @@ ExtensionInfo::DestructorPointer ExtensionInfo::GetDestructor() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ExtensionInfo::GetExtensionClassName() const
+void ExtensionInfo::GetExtensionClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return className;
+	marshaller.MarshalFrom(GetExtensionClassName());
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ExtensionInfo::GetExtensionImplementationName() const
+void ExtensionInfo::GetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return implementationName;
+	marshaller.MarshalFrom(GetExtensionImplementationName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -41,15 +41,15 @@ unsigned int ExtensionInfo::GetExtensionVersionNo() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ExtensionInfo::GetExtensionCopyright() const
+void ExtensionInfo::GetExtensionCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return copyright;
+	marshaller.MarshalFrom(GetExtensionCopyright());
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ExtensionInfo::GetExtensionComments() const
+void ExtensionInfo::GetExtensionCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return comments;
+	marshaller.MarshalFrom(GetExtensionComments());
 }
 
 //----------------------------------------------------------------------------------------

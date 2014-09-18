@@ -31,7 +31,9 @@ public:
 	virtual IHierarchicalStorageNode& CreateChild();
 	IHierarchicalStorageNode& CreateChild(const std::wstring& aname);
 	virtual void DeleteChild(IHierarchicalStorageNode& node);
-	std::list<IHierarchicalStorageNode*> GetChildList();
+	std::list<IHierarchicalStorageNode*> GetChildList() const;
+	bool IsChildPresent(const std::wstring& name) const;
+	IHierarchicalStorageNode* GetChild(const std::wstring& name, const IHierarchicalStorageNode* searchAfterChildNode = 0) const;
 
 	//Attribute functions
 	using IHierarchicalStorageNode::CreateAttribute;
@@ -39,7 +41,7 @@ public:
 	IHierarchicalStorageAttribute* GetAttribute(const std::wstring& name) const;
 	IHierarchicalStorageAttribute& CreateAttribute(const std::wstring& name);
 	virtual void DeleteAttribute(IHierarchicalStorageAttribute& attribute);
-	std::list<IHierarchicalStorageAttribute*> GetAttributeList();
+	std::list<IHierarchicalStorageAttribute*> GetAttributeList() const;
 
 	//Binary data functions
 	virtual bool GetBinaryDataPresent() const;
@@ -62,13 +64,15 @@ protected:
 
 	//Child functions
 	virtual IHierarchicalStorageNode& CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
-	virtual void GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller);
+	virtual void GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller) const;
+	virtual bool IsChildPresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
+	virtual IHierarchicalStorageNode* GetChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller, const IHierarchicalStorageNode* searchAfterChildNode) const;
 
 	//Attribute functions
 	virtual bool IsAttributePresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
 	virtual IHierarchicalStorageAttribute* GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
 	virtual IHierarchicalStorageAttribute& CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
-	virtual void GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageAttribute*>>& marshaller);
+	virtual void GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageAttribute*>>& marshaller) const;
 
 	//Common data functions
 	virtual void ClearData();

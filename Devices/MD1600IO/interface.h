@@ -1,6 +1,6 @@
 #ifndef __MD1600IO_INTERFACE_H__
 #define __MD1600IO_INTERFACE_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 
 void GetA10000DeviceInfo(IDeviceInfo& deviceInfo);
 void GetA04000DeviceInfo(IDeviceInfo& deviceInfo);

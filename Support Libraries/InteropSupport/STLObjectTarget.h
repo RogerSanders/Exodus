@@ -6,6 +6,7 @@
 #include "CreateSTLContainerKeyMarshallers.h"
 #include "DeleteSTLContainerKeyMarshallers.h"
 #include "CreateSTLContainerItemArray.h"
+#include "DeleteSTLContainerItemArray.h"
 #include "ClearSTLContainer.h"
 #include "RecomposeSTLContainer.h"
 #ifdef INTEROPSUPPORT_CPP11SUPPORTED
@@ -14,6 +15,14 @@
 #endif
 namespace InteropSupport {
 
+//Disable warning about using "this" pointer in initializer list. Our usage here is safe,
+//and guaranteed by the standard. See section 12.6.2 [class.base.init] paragraph 7 of the
+//standard for clarification.
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4355)
+#endif
+
 //----------------------------------------------------------------------------------------
 template<class ContainerType>
 class STLObjectTarget :public ISTLObjectTarget<ContainerType>
@@ -21,17 +30,11 @@ class STLObjectTarget :public ISTLObjectTarget<ContainerType>
 public:
 	//Constructors
 	STLObjectTarget(ContainerType& atargetObject)
-		:targetObject(atargetObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
+	:selfReference(*this), targetObject(atargetObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
 	{ }
 	virtual ~STLObjectTarget()
 	{
-		delete[] itemArray;
-		delete[] elementSizeArray;
-		if(HasKeyMarshallers())
-		{
-			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (ContainerType*)0);
-			delete[] keyMarshallerArray;
-		}
+		selfReference.DestroyDataArrays();
 	}
 
 protected:
@@ -39,7 +42,7 @@ protected:
 	virtual void RetrieveFlatArrays(size_t itemArraySize, size_t elementSizeArraySize, void*& aitemArray, size_t*& aelementSizeArray, ISTLObjectKeyMarshallerBase* const*& akeyMarshallerArray) const
 	{
 		//Allocate our flat arrays to hold the decomposed object data
-		delete[] itemArray;
+		DeleteSTLContainerItemArray(itemArray, &targetObject);
 		delete[] elementSizeArray;
 		itemArray = CreateSTLContainerItemArray(itemArraySize, &targetObject);
 		elementSizeArray = new size_t[elementSizeArraySize];
@@ -76,6 +79,26 @@ protected:
 	}
 
 private:
+	//Disable copying and moving
+	STLObjectTarget(const STLObjectTarget& source);
+	STLObjectTarget& operator=(const STLObjectTarget& source);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+	STLObjectTarget(STLObjectTarget&& source);
+	STLObjectTarget& operator=(STLObjectTarget&& source);
+#endif
+
+	//Cleanup methods
+	virtual void DestroyDataArrays()
+	{
+		DeleteSTLContainerItemArray(itemArray, &targetObject);
+		delete[] elementSizeArray;
+		if(HasKeyMarshallers())
+		{
+			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (ContainerType*)0);
+			delete[] keyMarshallerArray;
+		}
+	}
+
 	//Marshalling methods
 	INTEROPSUPPORT_CONSTEXPR bool HasKeyMarshallers() const
 	{
@@ -83,6 +106,7 @@ private:
 	}
 
 private:
+	STLObjectTarget<ContainerType>& selfReference;
 	mutable void* itemArray;
 	mutable size_t* elementSizeArray;
 	mutable ISTLObjectKeyMarshallerBase** keyMarshallerArray;
@@ -96,17 +120,11 @@ class STLObjectTarget<std::vector<ElementType>> :public ISTLObjectTarget<std::ve
 public:
 	//Constructors
 	STLObjectTarget(std::vector<ElementType>& atargetObject)
-		:targetObject(atargetObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
+	:selfReference(*this), targetObject(atargetObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
 	{ }
 	virtual ~STLObjectTarget()
 	{
-		delete[] itemArray;
-		delete[] elementSizeArray;
-		if(HasKeyMarshallers())
-		{
-			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (std::vector<ElementType>*)0);
-			delete[] keyMarshallerArray;
-		}
+		selfReference.DestroyDataArrays();
 	}
 
 protected:
@@ -114,7 +132,7 @@ protected:
 	virtual void RetrieveFlatArrays(size_t itemArraySize, size_t elementSizeArraySize, void*& aitemArray, size_t*& aelementSizeArray, ISTLObjectKeyMarshallerBase* const*& akeyMarshallerArray) const
 	{
 		//Allocate our flat arrays to hold the decomposed object data
-		delete[] itemArray;
+		DeleteSTLContainerItemArray(itemArray, &targetObject);
 		delete[] elementSizeArray;
 		itemArray = CreateSTLContainerItemArray(itemArraySize, &targetObject);
 		elementSizeArray = new size_t[elementSizeArraySize];
@@ -152,6 +170,26 @@ protected:
 	}
 
 private:
+	//Disable copying and moving
+	STLObjectTarget(const STLObjectTarget& source);
+	STLObjectTarget& operator=(const STLObjectTarget& source);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+	STLObjectTarget(STLObjectTarget&& source);
+	STLObjectTarget& operator=(STLObjectTarget&& source);
+#endif
+
+	//Cleanup methods
+	virtual void DestroyDataArrays()
+	{
+		DeleteSTLContainerItemArray(itemArray, &targetObject);
+		delete[] elementSizeArray;
+		if(HasKeyMarshallers())
+		{
+			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (std::vector<ElementType>*)0);
+			delete[] keyMarshallerArray;
+		}
+	}
+
 	//Marshalling methods
 	INTEROPSUPPORT_CONSTEXPR bool HasKeyMarshallers() const
 	{
@@ -159,6 +197,7 @@ private:
 	}
 
 private:
+	STLObjectTarget<std::vector<ElementType>>& selfReference;
 	mutable void* itemArray;
 	mutable size_t* elementSizeArray;
 	mutable ISTLObjectKeyMarshallerBase** keyMarshallerArray;
@@ -172,7 +211,7 @@ class STLObjectTarget<std::vector<bool>> :public ISTLObjectTarget<std::vector<bo
 public:
 	//Constructors
 	STLObjectTarget(std::vector<bool>& atargetObject)
-		:targetObject(atargetObject)
+	:targetObject(atargetObject)
 	{ }
 
 protected:
@@ -181,6 +220,15 @@ protected:
 	{
 		targetObject.assign(sourceData, sourceData + sourceDataLength);
 	}
+
+private:
+	//Disable copying and moving
+	STLObjectTarget(const STLObjectTarget& source);
+	STLObjectTarget& operator=(const STLObjectTarget& source);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+	STLObjectTarget(STLObjectTarget&& source);
+	STLObjectTarget& operator=(STLObjectTarget&& source);
+#endif
 
 private:
 	mutable std::vector<bool>& targetObject;
@@ -194,17 +242,11 @@ class STLObjectTarget<std::array<ElementType, ArraySize>> :public ISTLObjectTarg
 public:
 	//Constructors
 	STLObjectTarget(std::array<ElementType, ArraySize>& atargetObject)
-		:targetObject(atargetObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
+	:selfReference(*this), targetObject(atargetObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
 	{ }
 	virtual ~STLObjectTarget()
 	{
-		delete[] itemArray;
-		delete[] elementSizeArray;
-		if(HasKeyMarshallers())
-		{
-			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (std::array<ElementType, ArraySize>*)0);
-			delete[] keyMarshallerArray;
-		}
+		selfReference.DestroyDataArrays();
 	}
 
 protected:
@@ -212,7 +254,7 @@ protected:
 	virtual void RetrieveFlatArrays(size_t itemArraySize, size_t elementSizeArraySize, void*& aitemArray, size_t*& aelementSizeArray, ISTLObjectKeyMarshallerBase* const*& akeyMarshallerArray) const
 	{
 		//Allocate our flat arrays to hold the decomposed object data
-		delete[] itemArray;
+		DeleteSTLContainerItemArray(itemArray, &targetObject);
 		delete[] elementSizeArray;
 		itemArray = CreateSTLContainerItemArray(itemArraySize, &targetObject);
 		elementSizeArray = new size_t[elementSizeArraySize];
@@ -260,6 +302,24 @@ protected:
 	}
 
 private:
+	//Disable copying and moving
+	STLObjectTarget(const STLObjectTarget& source);
+	STLObjectTarget& operator=(const STLObjectTarget& source);
+	STLObjectTarget(STLObjectTarget&& source);
+	STLObjectTarget& operator=(STLObjectTarget&& source);
+
+	//Cleanup methods
+	virtual void DestroyDataArrays()
+	{
+		DeleteSTLContainerItemArray(itemArray, &targetObject);
+		delete[] elementSizeArray;
+		if(HasKeyMarshallers())
+		{
+			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (std::array<ElementType, ArraySize>*)0);
+			delete[] keyMarshallerArray;
+		}
+	}
+
 	//Marshalling methods
 	INTEROPSUPPORT_CONSTEXPR bool HasKeyMarshallers() const
 	{
@@ -267,6 +327,7 @@ private:
 	}
 
 private:
+	STLObjectTarget<std::array<ElementType, ArraySize>>& selfReference;
 	mutable void* itemArray;
 	mutable size_t* elementSizeArray;
 	mutable ISTLObjectKeyMarshallerBase** keyMarshallerArray;
@@ -276,12 +337,12 @@ private:
 
 //----------------------------------------------------------------------------------------
 template<class ElementType>
-class STLObjectTarget<std::basic_string<ElementType>> :public ISTLObjectTarget<std::wstring>
+class STLObjectTarget<std::basic_string<ElementType>> :public ISTLObjectTarget<std::basic_string<ElementType>>
 {
 public:
 	//Constructors
 	STLObjectTarget(std::basic_string<ElementType>& atargetObject)
-		:targetObject(atargetObject)
+	:targetObject(atargetObject)
 	{}
 
 protected:
@@ -293,8 +354,22 @@ protected:
 	}
 
 private:
+	//Disable copying and moving
+	STLObjectTarget(const STLObjectTarget& source);
+	STLObjectTarget& operator=(const STLObjectTarget& source);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+	STLObjectTarget(STLObjectTarget&& source);
+	STLObjectTarget& operator=(STLObjectTarget&& source);
+#endif
+
+private:
 	mutable std::basic_string<ElementType>& targetObject;
 };
+
+//Restore the disabled C4355 warning
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } //Close namespace InteropSupport
 #endif

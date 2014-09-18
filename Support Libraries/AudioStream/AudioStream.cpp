@@ -185,7 +185,7 @@ void AudioStream::DeleteAudioBuffer(AudioBuffer* buffer)
 	EnterCriticalSection(&waveMutex);
 	std::list<AudioBuffer*>::iterator pendingBufferIterator = pendingBuffers.begin();
 	bool done = false;
-	while(!done && (pendingBufferIterator != pendingBuffers.end()));
+	while(!done && (pendingBufferIterator != pendingBuffers.end()))
 	{
 		if(*pendingBufferIterator == buffer)
 		{

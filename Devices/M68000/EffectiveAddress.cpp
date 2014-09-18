@@ -77,7 +77,7 @@ void EffectiveAddress::Decode(unsigned int areg, unsigned int amode, Bitcount as
 	switch(amode)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case 0:	//000
 		BuildDataDirect(asize, location, areg);
@@ -130,7 +130,7 @@ bool EffectiveAddress::GetAddress(const M68000* cpu, Data& aaddress) const
 	switch(mode)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		return false;
 	case ADDREG_INDIRECT:
 		cpu->GetA(reg, aaddress);
@@ -234,7 +234,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 	switch(mode)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case DATAREG_DIRECT:
 		cpu->GetD(reg, target);
@@ -398,7 +398,7 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 	switch(mode)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case DATAREG_DIRECT:{
 		M68000Long newReg;
@@ -508,7 +508,7 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 		break;
 
 	case IMMEDIATE:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	}
 	return additionalTime;
@@ -554,7 +554,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount re
 	switch(mode)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case DATAREG_DIRECT:
 		targetUnmodified = cpu->DisassemblyGetDataRegisterUnmodified(reg, sourceMemoryAddress);
@@ -672,7 +672,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryReadV2(M68000* cpu, unsigned 
 	switch(mode)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case ADDREG_INDIRECT:
 		targetUnmodified = cpu->DisassemblyGetAddressRegisterUnmodified(reg, sourceMemoryAddress);

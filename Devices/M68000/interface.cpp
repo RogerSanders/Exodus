@@ -1,14 +1,14 @@
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "M68000.h"
 
 IDevice* GetM68000(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new M68000::M68000(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new M68000::M68000(implementationName, instanceName, moduleID));
 }
 
 void DeleteM68000(IDevice* device)
 {
-	delete device;
+	delete static_cast<M68000::M68000*>(device);
 }
 
 #ifdef EX_DLLINTERFACE
@@ -34,7 +34,7 @@ extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDevi
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetDeviceSettings(GetM68000, DeleteM68000, L"Processor.68000", L"M68000", 1, copyrightText,commentsText);
+		entry.SetDeviceSettings(GetM68000, DeleteM68000, L"Processor.68000", L"M68000", 1, copyrightText, commentsText);
 		return true;
 	}
 	return false;

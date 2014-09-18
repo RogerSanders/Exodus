@@ -100,7 +100,7 @@ public:
 	void AdvanceToTimeslice(const Timeslice& targetTimeslice);
 	void AdvanceByTime(TimesliceType step, const Timeslice& targetTimeslice);
 	bool AdvanceByStep(const Timeslice& targetTimeslice);
-	void AdvanceBySession(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice);
+	inline void AdvanceBySession(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice);
 	TimesliceType GetNextWriteTime(const Timeslice& targetTimeslice) const;
 	WriteInfo GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice);
 	void Commit();
@@ -122,6 +122,7 @@ private:
 
 	//Time management functions
 	TimesliceType GetNextWriteTimeNoLock(const Timeslice& targetTimeslice) const;
+	void AdvanceBySessionInternal(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice);
 
 	//Savestate functions
 	bool LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);

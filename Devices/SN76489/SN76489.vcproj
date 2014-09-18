@@ -975,8 +975,32 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{36693E5E-1462-4CFC-A240-2CCAA6483833}"
+			RelativePathToProject=".\Libraries\Device\Device.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{D4F63DCA-8FA8-4FD3-B449-DBB7E5AD7FFB}"
+			RelativePathToProject=".\Support Libraries\Stream\Stream.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{9808C6CB-FC58-4979-8B59-2CB5E0D0F318}"
+			RelativePathToProject=".\Support Libraries\AudioStream\AudioStream.vcproj"
+		/>
 	</References>
 	<Files>
+		<Filter
+			Name="ISN76489"
+			>
+			<File
+				RelativePath=".\ISN76489.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ISN76489.inl"
+				>
+			</File>
+		</Filter>
 		<Filter
 			Name="SN76489"
 			>
@@ -992,91 +1016,19 @@
 				RelativePath=".\SN76489.inl"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Resources"
+			>
+			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
 			<File
 				RelativePath=".\SN76489.rc"
 				>
 			</File>
-			<File
-				RelativePath=".\SN76489_Wnd.cpp"
-				>
-			</File>
-			<Filter
-				Name="PropertiesView"
-				>
-				<File
-					RelativePath=".\PropertiesView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PropertiesView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\PropertiesViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PropertiesViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="RegistersView"
-				>
-				<File
-					RelativePath=".\RegistersView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="LoggingView"
-				>
-				<File
-					RelativePath=".\LoggingView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\LoggingView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\LoggingViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\LoggingViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="DebugMenuHandler"
-				>
-				<File
-					RelativePath=".\DebugMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DebugMenuHandler.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
-		<File
-			RelativePath="..\..\Exodus\Resources\folder.ico"
-			>
-		</File>
 		<File
 			RelativePath=".\interface.cpp"
 			>
@@ -1085,11 +1037,11 @@
 			RelativePath=".\interface.h"
 			>
 		</File>
-		<File
-			RelativePath=".\resource.h"
-			>
-		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

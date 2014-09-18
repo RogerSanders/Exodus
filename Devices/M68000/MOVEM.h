@@ -16,46 +16,46 @@ public:
 
 	ExecuteTime GetExecuteTime(EffectiveAddress::Mode targetMode, bool memoryToRegisters, Bitcount size, unsigned int n)
 	{
-	const ExecuteTime executeTimeMemoryToRegisters16[9] = {
-		ExecuteTime(12+(4*n), (3+n), 0),		//(An)
-		ExecuteTime(12+(4*n), (3+n), 0),		//(An)+
-		ExecuteTime(0, 0, 0),					//-(An)
-		ExecuteTime(16+(4*n), (4+n), 0),		//d(An)
-		ExecuteTime(18+(4*n), (4+n), 0),		//d(An,ix)+
-		ExecuteTime(16+(4*n), (4+n), 0),		//xxx.W
-		ExecuteTime(20+(4*n), (5+n), 0),		//xxx.L
-		ExecuteTime(16+(4*n), (4+n), 0),		//d(PC)
-		ExecuteTime(18+(4*n), (4+n), 0)};		//d(PC,ix)
-	const ExecuteTime executeTimeMemoryToRegisters32[9] = {
-		ExecuteTime(12+(8*n), (3+(2*n)), 0),	//(An)
-		ExecuteTime(12+(8*n), (3+n), 0),		//(An)+
-		ExecuteTime(0, 0, 0),					//-(An)
-		ExecuteTime(16+(8*n), (4+(2*n)), 0),	//d(An)
-		ExecuteTime(18+(8*n), (4+(2*n)), 0),	//d(An,ix)+
-		ExecuteTime(16+(8*n), (4+(2*n)), 0),	//xxx.W
-		ExecuteTime(20+(8*n), (5+(2*n)), 0),	//xxx.L
-		ExecuteTime(16+(8*n), (4+(2*n)), 0),	//d(PC)
-		ExecuteTime(18+(8*n), (4+(2*n)), 0)};	//d(PC,ix)
-	const ExecuteTime executeTimeRegistersToMemory16[9] = {
-		ExecuteTime(8+(4*n), (2+n), 0),			//(An)
-		ExecuteTime(0, 0, 0),					//(An)+
-		ExecuteTime(8+(4*n), (2+n), 0),			//-(An)
-		ExecuteTime(12+(4*n), (3+n), 0),		//d(An)
-		ExecuteTime(14+(4*n), (3+n), 0),		//d(An,ix)+
-		ExecuteTime(12+(4*n), (3+n), 0),		//xxx.W
-		ExecuteTime(16+(4*n), (4+n), 0),		//xxx.L
-		ExecuteTime(0, 0, 0),					//d(PC)
-		ExecuteTime(0, 0, 0)};					//d(PC,ix)
-	const ExecuteTime executeTimeRegistersToMemory32[9] = {
-		ExecuteTime(8+(8*n), (2+n), 0),			//(An)
-		ExecuteTime(0, 0, 0),					//(An)+
-		ExecuteTime(8+(8*n), (2+n), 0),			//-(An)
-		ExecuteTime(12+(8*n), (3+n), 0),		//d(An)
-		ExecuteTime(14+(8*n), (3+n), 0),		//d(An,ix)+
-		ExecuteTime(12+(8*n), (3+n), 0),		//xxx.W
-		ExecuteTime(16+(8*n), (4+n), 0),		//xxx.L
-		ExecuteTime(0, 0, 0),					//d(PC)
-		ExecuteTime(0, 0, 0)};					//d(PC,ix)
+		static const ExecuteTime executeTimeMemoryToRegisters16[9] = {
+			ExecuteTime(12+(4*n), (3+n), 0),       //(An)
+			ExecuteTime(12+(4*n), (3+n), 0),       //(An)+
+			ExecuteTime(0, 0, 0),                  //-(An)
+			ExecuteTime(16+(4*n), (4+n), 0),       //d(An)
+			ExecuteTime(18+(4*n), (4+n), 0),       //d(An,ix)+
+			ExecuteTime(16+(4*n), (4+n), 0),       //xxx.W
+			ExecuteTime(20+(4*n), (5+n), 0),       //xxx.L
+			ExecuteTime(16+(4*n), (4+n), 0),       //d(PC)
+			ExecuteTime(18+(4*n), (4+n), 0)};      //d(PC,ix)
+		static const ExecuteTime executeTimeMemoryToRegisters32[9] = {
+			ExecuteTime(12+(8*n), (3+(2*n)), 0),   //(An)
+			ExecuteTime(12+(8*n), (3+n), 0),       //(An)+
+			ExecuteTime(0, 0, 0),                  //-(An)
+			ExecuteTime(16+(8*n), (4+(2*n)), 0),   //d(An)
+			ExecuteTime(18+(8*n), (4+(2*n)), 0),   //d(An,ix)+
+			ExecuteTime(16+(8*n), (4+(2*n)), 0),   //xxx.W
+			ExecuteTime(20+(8*n), (5+(2*n)), 0),   //xxx.L
+			ExecuteTime(16+(8*n), (4+(2*n)), 0),   //d(PC)
+			ExecuteTime(18+(8*n), (4+(2*n)), 0)};  //d(PC,ix)
+		static const ExecuteTime executeTimeRegistersToMemory16[9] = {
+			ExecuteTime(8+(4*n), (2+n), 0),        //(An)
+			ExecuteTime(0, 0, 0),                  //(An)+
+			ExecuteTime(8+(4*n), (2+n), 0),        //-(An)
+			ExecuteTime(12+(4*n), (3+n), 0),       //d(An)
+			ExecuteTime(14+(4*n), (3+n), 0),       //d(An,ix)+
+			ExecuteTime(12+(4*n), (3+n), 0),       //xxx.W
+			ExecuteTime(16+(4*n), (4+n), 0),       //xxx.L
+			ExecuteTime(0, 0, 0),                  //d(PC)
+			ExecuteTime(0, 0, 0)};                 //d(PC,ix)
+		static const ExecuteTime executeTimeRegistersToMemory32[9] = {
+			ExecuteTime(8+(8*n), (2+n), 0),        //(An)
+			ExecuteTime(0, 0, 0),                  //(An)+
+			ExecuteTime(8+(8*n), (2+n), 0),        //-(An)
+			ExecuteTime(12+(8*n), (3+n), 0),       //d(An)
+			ExecuteTime(14+(8*n), (3+n), 0),       //d(An,ix)+
+			ExecuteTime(12+(8*n), (3+n), 0),       //xxx.W
+			ExecuteTime(16+(8*n), (4+n), 0),       //xxx.L
+			ExecuteTime(0, 0, 0),                  //d(PC)
+			ExecuteTime(0, 0, 0)};                 //d(PC,ix)
 
 		unsigned int targetIndex = 0;
 		switch(targetMode)

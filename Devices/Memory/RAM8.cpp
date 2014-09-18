@@ -34,3 +34,17 @@ void RAM8::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int 
 {
 	memoryArray[location % memoryArraySize] = (unsigned char)data.GetData();
 }
+
+//----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int RAM8::ReadMemoryEntry(unsigned int location) const
+{
+	return memoryArray[location % memoryArraySize];
+}
+
+//----------------------------------------------------------------------------------------
+void RAM8::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	memoryArray[location % memoryArraySize] = (unsigned char)data;
+}

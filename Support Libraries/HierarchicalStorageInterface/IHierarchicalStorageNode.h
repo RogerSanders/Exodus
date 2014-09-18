@@ -31,7 +31,9 @@ public:
 	template<class T> IHierarchicalStorageNode& CreateChildBinary(const std::wstring& aname, const T& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
 	template<class T> IHierarchicalStorageNode& CreateChildBinary(const std::wstring& aname, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
 	virtual void DeleteChild(IHierarchicalStorageNode& node) = 0;
-	inline std::list<IHierarchicalStorageNode*> GetChildList();
+	inline std::list<IHierarchicalStorageNode*> GetChildList() const;
+	inline bool IsChildPresent(const std::wstring& name) const;
+	inline IHierarchicalStorageNode* GetChild(const std::wstring& name, const IHierarchicalStorageNode* searchAfterChildNode = 0) const;
 
 	//Attribute functions
 	inline bool IsAttributePresent(const std::wstring& name) const;
@@ -42,7 +44,7 @@ public:
 	template<class T> bool ExtractAttribute(const std::wstring& name, T& target);
 	template<class T> bool ExtractAttributeHex(const std::wstring& name, T& target);
 	virtual void DeleteAttribute(IHierarchicalStorageAttribute& attribute) = 0;
-	inline std::list<IHierarchicalStorageAttribute*> GetAttributeList();
+	inline std::list<IHierarchicalStorageAttribute*> GetAttributeList() const;
 
 	//Common data functions
 	virtual void ClearData() = 0;
@@ -87,13 +89,15 @@ protected:
 
 	//Child functions
 	virtual IHierarchicalStorageNode& CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) = 0;
-	virtual void GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller) = 0;
+	virtual void GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller) const = 0;
+	virtual bool IsChildPresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const = 0;
+	virtual IHierarchicalStorageNode* GetChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller, const IHierarchicalStorageNode* searchAfterChildNode) const = 0;
 
 	//Attribute functions
 	virtual bool IsAttributePresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const = 0;
 	virtual IHierarchicalStorageAttribute* GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const = 0;
 	virtual IHierarchicalStorageAttribute& CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) = 0;
-	virtual void GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageAttribute*>>& marshaller) = 0;
+	virtual void GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageAttribute*>>& marshaller) const = 0;
 
 	//Binary data functions
 	virtual void GetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;

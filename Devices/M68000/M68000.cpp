@@ -1,7 +1,6 @@
 #include "M68000.h"
 #include "M68000Opcodes.pkg"
 #include "Debug/Debug.pkg"
-#include "DebugMenuHandler.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -9,7 +8,7 @@ namespace M68000 {
 
 //----------------------------------------------------------------------------------------
 M68000::M68000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Processor(aimplementationName, ainstanceName, amoduleID), menuHandler(0), opcodeTable(16), opcodeBuffer(0), memoryBus(0)
+:Processor(aimplementationName, ainstanceName, amoduleID), opcodeTable(16), opcodeBuffer(0), memoryBus(0)
 {
 	//Set the default state for our device preferences
 	suspendWhenBusReleased = false;
@@ -47,23 +46,18 @@ M68000::~M68000()
 	{
 		delete *i;
 	}
-
-	//Delete any remaining exception debugging objects
-	for(ExceptionList::iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
-	{
-		delete *i;
-	}
-	exceptionList.clear();
-	exceptionListEmpty = true;
-
-	//Delete the menu handler
-	if(menuHandler != 0)
-	{
-		menuHandler->ClearMenuItems();
-		delete menuHandler;
-	}
 }
 
+//----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int M68000::GetIM68000Version() const
+{
+	return ThisIM68000Version();
+}
+
+//----------------------------------------------------------------------------------------
+//Initialization functions
 //----------------------------------------------------------------------------------------
 bool M68000::Construct(IHierarchicalStorageNode& node)
 {
@@ -77,11 +71,9 @@ bool M68000::Construct(IHierarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-//Initialization functions
-//----------------------------------------------------------------------------------------
 bool M68000::BuildDevice()
 {
-	bool result = true;
+	bool result = Processor::BuildDevice();
 
 	//Initialize our opcode table
 	opcodeTable.InitializeOpcodeTable();
@@ -226,10 +218,58 @@ bool M68000::BuildDevice()
 	//largest opcode object.
 	opcodeBuffer = (void*)new unsigned char[largestObjectSize];
 
-	//##TODO## Remove this debug code, and make a proper interface for controlling active
-	//disassembly.
-	//##DEBUG## Enable active disassembly in the ROM region for the MegaDrive
-	//EnableActiveDisassembly(0x0, 0x400000);
+	//Register each data source with the generic data access base class
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRX, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRN, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRZ, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRV, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRC, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRT, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRS, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRIPM, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0x07));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_PC, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SR, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_CCR, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SP, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SSP, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_USP, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_A, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_D, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+
+	//Register page layouts for generic access to this device
+	GenericAccessGroup* addressRegistersGroup = new GenericAccessGroup(L"Address Registers");
+	for(unsigned int registerNo = 0; registerNo < addressRegCount; ++registerNo)
+	{
+		std::wstring registerNoAsString;
+		IntToString(registerNo + 1, registerNoAsString);
+		addressRegistersGroup->AddEntry((new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_A, L"A" + registerNoAsString))->SetDataContext(new RegisterDataContext(registerNo)));
+	}
+	GenericAccessGroup* dataRegistersGroup = new GenericAccessGroup(L"Data Registers");
+	for(unsigned int registerNo = 0; registerNo < dataRegCount; ++registerNo)
+	{
+		std::wstring registerNoAsString;
+		IntToString(registerNo + 1, registerNoAsString);
+		dataRegistersGroup->AddEntry((new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_D, L"D" + registerNoAsString))->SetDataContext(new RegisterDataContext(registerNo)));
+	}
+	GenericAccessPage* registersPage = new GenericAccessPage(L"Generic - Registers");
+	registersPage->AddEntry((new GenericAccessGroup(L"User Registers"))
+	                 ->AddEntry(addressRegistersGroup)
+	                 ->AddEntry(dataRegistersGroup)
+	                 ->AddEntry((new GenericAccessGroup(L"CCR Flags"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRX, L"X"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRN, L"N"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRZ, L"Z"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRV, L"V"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRC, L"C")))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_PC, L"PC")))
+	             ->AddEntry((new GenericAccessGroup(L"Supervisor Registers"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_USP, L"USP"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SSP, L"SSP"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRS, L"S"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRT, L"T"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRIPM, L"IPM"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SR, L"SR")));
+	result &= AddGenericAccessPage(registersPage);
 
 	return result;
 }
@@ -314,12 +354,14 @@ void M68000::BeginExecution()
 	regChangedZ = GetZ();
 	regChangedV = GetV();
 	regChangedC = GetC();
+	regChangedSP = GetSP().GetData();
 	regChangedUSP = GetUSP().GetData();
 	regChangedSSP = GetSSP().GetData();
 	regChangedS = GetSR_S();
 	regChangedT = GetSR_T();
 	regChangedIPM = GetSR_IPM();
 	regChangedSR = GetSR().GetData();
+	regChangedCCR = GetCCR().GetData();
 
 	//Increment the system paused toggle counter
 	++systemPausedToggleCounter;
@@ -514,121 +556,6 @@ ExecuteTime M68000::GetExceptionProcessingTime(unsigned int vector) const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring M68000::GetExceptionName(unsigned int vector) const
-{
-	switch(vector)
-	{
-	case 0x00:
-		return L"Reset";
-	case 0x01:
-		return L"Invalid";
-	case 0x02:
-		return L"Bus Error";
-	case 0x03:
-		return L"Address Error";
-	case 0x04:
-		return L"Illegal Instruction";
-	case 0x05:
-		return L"Zero Divide";
-	case 0x06:
-		return L"CHK Instruction";
-	case 0x07:
-		return L"TRAPV Instruction";
-	case 0x08:
-		return L"Privilege Violation";
-	case 0x09:
-		return L"Trace";
-	case 0x0A:
-		return L"Line 1010 Emulator";
-	case 0x0B:
-		return L"Line 1111 Emulator";
-	case 0x0C:
-	case 0x0D:
-	case 0x0E:
-		return L"Reserved";
-	case 0x0F:
-		return L"Uninitialized Interrupt Vector";
-	case 0x10:
-	case 0x11:
-	case 0x12:
-	case 0x13:
-	case 0x14:
-	case 0x15:
-	case 0x16:
-	case 0x17:
-		return L"Reserved";
-	case 0x18:
-		return L"Spurious Interrupt";
-	case 0x19:
-		return L"L1 Interrupt Autovector";
-	case 0x1A:
-		return L"L2 Interrupt Autovector";
-	case 0x1B:
-		return L"L3 Interrupt Autovector";
-	case 0x1C:
-		return L"L4 Interrupt Autovector";
-	case 0x1D:
-		return L"L5 Interrupt Autovector";
-	case 0x1E:
-		return L"L6 Interrupt Autovector";
-	case 0x1F:
-		return L"L7 Interrupt Autovector";
-	case 0x20:
-		return L"Trap $0";
-	case 0x21:
-		return L"Trap $1";
-	case 0x22:
-		return L"Trap $2";
-	case 0x23:
-		return L"Trap $3";
-	case 0x24:
-		return L"Trap $4";
-	case 0x25:
-		return L"Trap $5";
-	case 0x26:
-		return L"Trap $6";
-	case 0x27:
-		return L"Trap $7";
-	case 0x28:
-		return L"Trap $8";
-	case 0x29:
-		return L"Trap $9";
-	case 0x2A:
-		return L"Trap $A";
-	case 0x2B:
-		return L"Trap $B";
-	case 0x2C:
-		return L"Trap $C";
-	case 0x2D:
-		return L"Trap $D";
-	case 0x2E:
-		return L"Trap $E";
-	case 0x2F:
-		return L"Trap $F";
-	case 0x30:
-	case 0x31:
-	case 0x32:
-	case 0x33:
-	case 0x34:
-	case 0x35:
-	case 0x36:
-	case 0x37:
-	case 0x38:
-	case 0x39:
-	case 0x3A:
-	case 0x3B:
-	case 0x3C:
-	case 0x3D:
-	case 0x3E:
-	case 0x3F:
-		return L"Reserved";
-	}
-	std::wstringstream nameStream;
-	nameStream << L"User Interrupt 0x" << std::hex << std::uppercase << vector;
-	return nameStream.str();
-}
-
-//----------------------------------------------------------------------------------------
 bool M68000::ExceptionDisabled(unsigned int vector)
 {
 	//Check if all exceptions are disabled
@@ -638,15 +565,15 @@ bool M68000::ExceptionDisabled(unsigned int vector)
 	}
 
 	//Check if this specific exception is disabled
-	if(exceptionListEmpty)
+	if(!exceptionListEmpty)
 	{
 		boost::mutex::scoped_lock lock(debugMutex);
-		for(ExceptionList::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
+		for(std::list<ExceptionDebuggingEntry>::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
 		{
-			ExceptionDebuggingEntry* entry = *i;
-			if(entry->vectorNumber == vector)
+			const ExceptionDebuggingEntry& entry = *i;
+			if(entry.vectorNumber == vector)
 			{
-				return entry->disable;
+				return entry.disable;
 			}
 		}
 	}
@@ -670,12 +597,12 @@ void M68000::ExceptionLogIfRequested(unsigned int vector)
 	if(!exceptionListEmpty)
 	{
 		boost::mutex::scoped_lock lock(debugMutex);
-		for(ExceptionList::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
+		for(std::list<ExceptionDebuggingEntry>::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
 		{
-			ExceptionDebuggingEntry* entry = *i;
-			if(entry->vectorNumber == vector)
+			const ExceptionDebuggingEntry& entry = *i;
+			if(entry.vectorNumber == vector)
 			{
-				if(entry->enableLogging)
+				if(entry.enableLogging)
 				{
 					//Log the event
 					LogEntry logEntry(LogEntry::EVENTLEVEL_DEBUG);
@@ -693,33 +620,26 @@ void M68000::ExceptionBreakIfRequested(unsigned int vector)
 {
 	if(breakOnAllExceptions)
 	{
-		TriggerBreak();
+		BreakOnCurrentOpcode();
 		return;
 	}
 
 	if(!exceptionListEmpty)
 	{
 		boost::mutex::scoped_lock lock(debugMutex);
-		for(ExceptionList::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
+		for(std::list<ExceptionDebuggingEntry>::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
 		{
-			ExceptionDebuggingEntry* entry = *i;
-			if(entry->vectorNumber == vector)
+			const ExceptionDebuggingEntry& entry = *i;
+			if(entry.vectorNumber == vector)
 			{
-				if(entry->enableBreak)
+				if(entry.enableBreak)
 				{
-					TriggerBreak();
+					BreakOnCurrentOpcode();
 					return;
 				}
 			}
 		}
 	}
-}
-
-//----------------------------------------------------------------------------------------
-void M68000::TriggerExceptionFromDebugger(unsigned int vector)
-{
-	debugExceptionTriggerVector = vector;
-	debugExceptionTriggerPending = true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -850,6 +770,7 @@ double M68000::ExecuteStep()
 	//If an exception has been triggered from the debugger, process it.
 	if(debugExceptionTriggerPending)
 	{
+		boost::mutex::scoped_lock lock(debugMutex);
 		debugExceptionTriggerPending = false;
 
 		//Push the appropriate stack frame for this exception
@@ -1256,51 +1177,11 @@ void M68000::NotifyAfterExecuteStepFinishedTimeslice()
 }
 
 //----------------------------------------------------------------------------------------
-M68000::OpcodeInfo M68000::GetOpcodeInfo(unsigned int location) const
-{
-	OpcodeInfo opcodeInfo;
-	opcodeInfo.valid = false;
-
-	M68000Long instructionLocation = location;
-	M68000Word opcode;
-	ReadMemoryTransparent(instructionLocation, opcode, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
-
-	const M68000Instruction* targetOpcodeType = 0;
-	targetOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
-	if(targetOpcodeType != 0)
-	{
-		M68000Instruction* targetOpcode = targetOpcodeType->Clone();
-
-		targetOpcode->SetTransparentFlag(true);
-		targetOpcode->SetInstructionSize(2);
-		targetOpcode->SetInstructionLocation(instructionLocation);
-		targetOpcode->SetInstructionRegister(opcode);
-
-		targetOpcode->M68000Decode(this, targetOpcode->GetInstructionLocation(), targetOpcode->GetInstructionRegister(), targetOpcode->GetTransparentFlag());
-		LabelSubstitutionSettings labelSettings;
-		labelSettings.enableSubstitution = false;
-		M68000Instruction::Disassembly disassembly = targetOpcode->M68000Disassemble(labelSettings);
-
-		opcodeInfo.valid = true;
-		opcodeInfo.opcodeSize = targetOpcode->GetInstructionSize();
-		opcodeInfo.disassemblyOpcode = disassembly.disassemblyOpcode;
-		opcodeInfo.disassemblyArguments = disassembly.disassemblyArguments;
-		opcodeInfo.disassemblyComment = disassembly.disassemblyComment;
-		targetOpcode->GetResultantPCLocations(opcodeInfo.resultantPCLocations, opcodeInfo.undeterminedResultantPCLocation);
-		targetOpcode->GetLabelTargetLocations(opcodeInfo.labelTargetLocations);
-
-		delete targetOpcode;
-	}
-
-	return opcodeInfo;
-}
-
+//Instruction functions
 //----------------------------------------------------------------------------------------
-Data M68000::GetRawData(unsigned int location) const
+unsigned int M68000::GetByteBitCount() const
 {
-	M68000Word data;
-	ReadMemoryTransparent(location, data, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
-	return data;
+	return 8;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1337,6 +1218,66 @@ unsigned int M68000::GetMinimumOpcodeByteSize() const
 unsigned int M68000::GetMinimumDataByteSize() const
 {
 	return 1;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int M68000::GetMemorySpaceByte(unsigned int location) const
+{
+	M68000Byte data;
+	ReadMemoryTransparent(location, data, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
+	return data.GetData();
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SetMemorySpaceByte(unsigned int location, unsigned int data)
+{
+	M68000Byte byte(data);
+	WriteMemoryTransparent(location, byte, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
+{
+	opcodeInfo.SetIsValidOpcode(false);
+
+	M68000Long instructionLocation = location;
+	M68000Word opcode;
+	ReadMemoryTransparent(instructionLocation, opcode, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
+
+	const M68000Instruction* targetOpcodeType = 0;
+	targetOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
+	if(targetOpcodeType != 0)
+	{
+		M68000Instruction* targetOpcode = targetOpcodeType->Clone();
+
+		targetOpcode->SetTransparentFlag(true);
+		targetOpcode->SetInstructionSize(2);
+		targetOpcode->SetInstructionLocation(instructionLocation);
+		targetOpcode->SetInstructionRegister(opcode);
+
+		targetOpcode->M68000Decode(this, targetOpcode->GetInstructionLocation(), targetOpcode->GetInstructionRegister(), targetOpcode->GetTransparentFlag());
+		LabelSubstitutionSettings labelSettings;
+		labelSettings.enableSubstitution = false;
+		M68000Instruction::Disassembly disassembly = targetOpcode->M68000Disassemble(labelSettings);
+
+		opcodeInfo.SetIsValidOpcode(true);
+		opcodeInfo.SetOpcodeSize(targetOpcode->GetInstructionSize());
+		opcodeInfo.SetOpcodeNameDisassembly(disassembly.disassemblyOpcode);
+		opcodeInfo.SetOpcodeArgumentsDisassembly(disassembly.disassemblyArguments);
+		opcodeInfo.SetDisassemblyComment(disassembly.disassemblyComment);
+		bool undeterminedResultantPCLocation;
+		std::set<unsigned int> resultantPCLocations;
+		targetOpcode->GetResultantPCLocations(resultantPCLocations, undeterminedResultantPCLocation);
+		opcodeInfo.SetHasUndeterminedResultantPCLocation(undeterminedResultantPCLocation);
+		opcodeInfo.SetResultantPCLocations(resultantPCLocations);
+		std::set<unsigned int> labelTargetLocations;
+		targetOpcode->GetLabelTargetLocations(labelTargetLocations);
+		opcodeInfo.SetLabelTargetLocations(labelTargetLocations);
+
+		delete targetOpcode;
+	}
+
+	return true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1459,7 +1400,7 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	//already passed that time.
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//Insert the line access into the buffer. Note that entries in the buffer are sorted
@@ -1491,7 +1432,7 @@ void M68000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	//already passed that time.
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//Find the matching line state change entry in the line access buffer
@@ -1769,7 +1710,7 @@ void M68000::SetClockSourceRate(unsigned int clockInput, double clockRate, IDevi
 	//already passed that time.
 	if(lastLineCheckTime > accessTime)
 	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//Insert the line access into the buffer. Note that entries in the buffer are sorted
@@ -1983,7 +1924,7 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 		switch(data.GetBitCount())
 		{
 		default:
-			ReleaseAssert(true);
+			DebugAssert(true);
 			break;
 		case BITCOUNT_BYTE:
 			{
@@ -2083,7 +2024,7 @@ void M68000::ReadMemoryTransparent(const M68000Long& location, Data& data, Funct
 	switch(data.GetBitCount())
 	{
 	default:
-		ReleaseAssert(true);
+		DebugAssert(true);
 		break;
 	case BITCOUNT_BYTE:
 		{
@@ -2165,7 +2106,7 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 		switch(data.GetBitCount())
 		{
 		default:
-			ReleaseAssert(true);
+			DebugAssert(true);
 			break;
 		case BITCOUNT_BYTE:
 			{
@@ -2236,7 +2177,7 @@ void M68000::WriteMemoryTransparent(const M68000Long& location, const Data& data
 	switch(data.GetBitCount())
 	{
 	default:
-		ReleaseAssert(true);
+		DebugAssert(true);
 		break;
 	case BITCOUNT_BYTE:
 		{
@@ -2385,6 +2326,8 @@ bool M68000::ActiveDisassemblySupported() const
 	return true;
 }
 
+//----------------------------------------------------------------------------------------
+//Active disassembly formatting functions
 //----------------------------------------------------------------------------------------
 bool M68000::GetLeadingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const
 {
@@ -2681,6 +2624,200 @@ bool M68000::FormatLabelUsageForDisassembly(const std::wstring& rawLabel, int la
 }
 
 //----------------------------------------------------------------------------------------
+//Exception debugging functions
+//----------------------------------------------------------------------------------------
+bool M68000::GetLogAllExceptions() const
+{
+	return logAllExceptions;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SetLogAllExceptions(bool state)
+{
+	logAllExceptions = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::GetBreakOnAllExceptions() const
+{
+	return breakOnAllExceptions;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SetBreakOnAllExceptions(bool state)
+{
+	breakOnAllExceptions = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::GetDisableAllExceptions() const
+{
+	return disableAllExceptions;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SetDisableAllExceptions(bool state)
+{
+	disableAllExceptions = state;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::GetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<ExceptionDebuggingEntry>>& marshaller) const
+{
+	marshaller.MarshalFrom(GetExceptionDebugEntries());
+}
+
+//----------------------------------------------------------------------------------------
+std::list<M68000::ExceptionDebuggingEntry> M68000::GetExceptionDebugEntries() const
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+	return exceptionList;
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectSource<std::list<ExceptionDebuggingEntry>>& marshaller)
+{
+	SetExceptionDebugEntries(marshaller.MarshalTo());
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::SetExceptionDebugEntries(const std::list<ExceptionDebuggingEntry>& state)
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+	exceptionList = state;
+	exceptionListEmpty = exceptionList.empty();
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int vectorNumber) const
+{
+	marshaller.MarshalFrom(GetExceptionName(vectorNumber));
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring M68000::GetExceptionName(unsigned int vectorNumber) const
+{
+	switch(vectorNumber)
+	{
+	case 0x00:
+		return L"Reset";
+	case 0x01:
+		return L"Invalid";
+	case 0x02:
+		return L"Bus Error";
+	case 0x03:
+		return L"Address Error";
+	case 0x04:
+		return L"Illegal Instruction";
+	case 0x05:
+		return L"Zero Divide";
+	case 0x06:
+		return L"CHK Instruction";
+	case 0x07:
+		return L"TRAPV Instruction";
+	case 0x08:
+		return L"Privilege Violation";
+	case 0x09:
+		return L"Trace";
+	case 0x0A:
+		return L"Line 1010 Emulator";
+	case 0x0B:
+		return L"Line 1111 Emulator";
+	case 0x0C:
+	case 0x0D:
+	case 0x0E:
+		return L"Reserved";
+	case 0x0F:
+		return L"Uninitialized Interrupt Vector";
+	case 0x10:
+	case 0x11:
+	case 0x12:
+	case 0x13:
+	case 0x14:
+	case 0x15:
+	case 0x16:
+	case 0x17:
+		return L"Reserved";
+	case 0x18:
+		return L"Spurious Interrupt";
+	case 0x19:
+		return L"L1 Interrupt Autovector";
+	case 0x1A:
+		return L"L2 Interrupt Autovector";
+	case 0x1B:
+		return L"L3 Interrupt Autovector";
+	case 0x1C:
+		return L"L4 Interrupt Autovector";
+	case 0x1D:
+		return L"L5 Interrupt Autovector";
+	case 0x1E:
+		return L"L6 Interrupt Autovector";
+	case 0x1F:
+		return L"L7 Interrupt Autovector";
+	case 0x20:
+		return L"Trap $0";
+	case 0x21:
+		return L"Trap $1";
+	case 0x22:
+		return L"Trap $2";
+	case 0x23:
+		return L"Trap $3";
+	case 0x24:
+		return L"Trap $4";
+	case 0x25:
+		return L"Trap $5";
+	case 0x26:
+		return L"Trap $6";
+	case 0x27:
+		return L"Trap $7";
+	case 0x28:
+		return L"Trap $8";
+	case 0x29:
+		return L"Trap $9";
+	case 0x2A:
+		return L"Trap $A";
+	case 0x2B:
+		return L"Trap $B";
+	case 0x2C:
+		return L"Trap $C";
+	case 0x2D:
+		return L"Trap $D";
+	case 0x2E:
+		return L"Trap $E";
+	case 0x2F:
+		return L"Trap $F";
+	case 0x30:
+	case 0x31:
+	case 0x32:
+	case 0x33:
+	case 0x34:
+	case 0x35:
+	case 0x36:
+	case 0x37:
+	case 0x38:
+	case 0x39:
+	case 0x3A:
+	case 0x3B:
+	case 0x3C:
+	case 0x3D:
+	case 0x3E:
+	case 0x3F:
+		return L"Reserved";
+	}
+	std::wstringstream nameStream;
+	nameStream << L"User Interrupt 0x" << std::hex << std::uppercase << vectorNumber;
+	return nameStream.str();
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::TriggerException(unsigned int vectorNumber)
+{
+	boost::mutex::scoped_lock lock(debugMutex);
+	debugExceptionTriggerVector = vectorNumber;
+	debugExceptionTriggerPending = true;
+}
+
+//----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
 void M68000::LoadState(IHierarchicalStorageNode& node)
@@ -2915,23 +3052,18 @@ void M68000::LoadDebuggerState(IHierarchicalStorageNode& node)
 		}
 		else if(keyName == L"ExceptionDebugList")
 		{
-			for(ExceptionList::const_iterator exceptionListIterator = exceptionList.begin(); exceptionListIterator != exceptionList.end(); ++exceptionListIterator)
-			{
-				delete *exceptionListIterator;
-			}
 			exceptionList.clear();
-
 			std::list<IHierarchicalStorageNode*> childList = (*i)->GetChildList();
 			for(std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
 			{
 				IHierarchicalStorageNode& childNode = *(*childNodeIterator);
 				if(childNode.GetName() == L"ExceptionDebugListEntry")
 				{
-					ExceptionDebuggingEntry* entry = new ExceptionDebuggingEntry();
-					childNode.ExtractAttribute(L"VectorNumber", entry->vectorNumber);
-					childNode.ExtractAttribute(L"EnableLogging", entry->enableLogging);
-					childNode.ExtractAttribute(L"EnableBreak", entry->enableBreak);
-					childNode.ExtractAttribute(L"Disable", entry->disable);
+					ExceptionDebuggingEntry entry;
+					childNode.ExtractAttribute(L"VectorNumber", entry.vectorNumber);
+					childNode.ExtractAttribute(L"EnableLogging", entry.enableLogging);
+					childNode.ExtractAttribute(L"EnableBreak", entry.enableBreak);
+					childNode.ExtractAttribute(L"Disable", entry.disable);
 					exceptionList.push_back(entry);
 				}
 			}
@@ -2949,19 +3081,202 @@ void M68000::SaveDebuggerState(IHierarchicalStorageNode& node) const
 
 	//Exception debugging
 	IHierarchicalStorageNode& exceptionListNode = node.CreateChild(L"ExceptionDebugList");
-	for(ExceptionList::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
+	for(std::list<ExceptionDebuggingEntry>::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
 	{
+		const ExceptionDebuggingEntry& entry = *i;
 		IHierarchicalStorageNode& exceptionListEntry = exceptionListNode.CreateChild(L"ExceptionDebugListEntry");
-		exceptionListEntry.CreateAttributeHex(L"VectorNumber", (*i)->vectorNumber, 8);
-		exceptionListEntry.CreateAttribute(L"EnableLogging", (*i)->enableLogging);
-		exceptionListEntry.CreateAttribute(L"EnableBreak", (*i)->enableBreak);
-		exceptionListEntry.CreateAttribute(L"Disable", (*i)->disable);
+		exceptionListEntry.CreateAttributeHex(L"VectorNumber", entry.vectorNumber, 8);
+		exceptionListEntry.CreateAttribute(L"EnableLogging", entry.enableLogging);
+		exceptionListEntry.CreateAttribute(L"EnableBreak", entry.enableBreak);
+		exceptionListEntry.CreateAttribute(L"Disable", entry.disable);
 	}
 	node.CreateChild(L"Register", logAllExceptions).CreateAttribute(L"name", L"LogAllExceptions");
 	node.CreateChild(L"Register", breakOnAllExceptions).CreateAttribute(L"name", L"BreakOnAllExceptions");
 	node.CreateChild(L"Register", disableAllExceptions).CreateAttribute(L"name", L"DisableAllExceptions");
 
 	Processor::SaveDebuggerState(node);
+}
+
+//----------------------------------------------------------------------------------------
+//Data read/write functions
+//----------------------------------------------------------------------------------------
+bool M68000::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
+{
+	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
+	switch(dataID)
+	{
+	case DATASOURCE_REGISTER_SRX:{
+		return dataValue.SetValue(GetX());}
+	case DATASOURCE_REGISTER_SRN:
+		return dataValue.SetValue(GetN());
+	case DATASOURCE_REGISTER_SRZ:
+		return dataValue.SetValue(GetZ());
+	case DATASOURCE_REGISTER_SRV:
+		return dataValue.SetValue(GetV());
+	case DATASOURCE_REGISTER_SRC:
+		return dataValue.SetValue(GetC());
+	case DATASOURCE_REGISTER_SRT:
+		return dataValue.SetValue(GetSR_T());
+	case DATASOURCE_REGISTER_SRS:
+		return dataValue.SetValue(GetSR_S());
+	case DATASOURCE_REGISTER_SRIPM:
+		return dataValue.SetValue(GetSR_IPM());
+	case DATASOURCE_REGISTER_PC:
+		return dataValue.SetValue(GetPC().GetData());
+	case DATASOURCE_REGISTER_SR:
+		return dataValue.SetValue(GetSR().GetData());
+	case DATASOURCE_REGISTER_CCR:
+		return dataValue.SetValue(GetCCR().GetData());
+	case DATASOURCE_REGISTER_SP:
+		return dataValue.SetValue(GetSP().GetData());
+	case DATASOURCE_REGISTER_SSP:
+		return dataValue.SetValue(GetSSP().GetData());
+	case DATASOURCE_REGISTER_USP:
+		return dataValue.SetValue(GetUSP().GetData());
+	case DATASOURCE_REGISTER_A:{
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		return dataValue.SetValue(GetA(registerDataContext.registerNo).GetData());}
+	case DATASOURCE_REGISTER_D:{
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		return dataValue.SetValue(GetD(registerDataContext.registerNo).GetData());}
+	case DATASOURCE_REGISTER_ORIGINALVALUE_CHANGECOUNTER:
+		return dataValue.SetValue(systemPausedToggleCounter);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SRX:
+		return dataValue.SetValue(regChangedX);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SRN:
+		return dataValue.SetValue(regChangedN);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SRZ:
+		return dataValue.SetValue(regChangedZ);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SRV:
+		return dataValue.SetValue(regChangedV);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SRC:
+		return dataValue.SetValue(regChangedC);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SRT:
+		return dataValue.SetValue(regChangedT);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SRS:
+		return dataValue.SetValue(regChangedS);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SRIPM:
+		return dataValue.SetValue(regChangedIPM);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_PC:
+		return dataValue.SetValue(regChangedPC);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SR:
+		return dataValue.SetValue(regChangedSR);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_CCR:
+		return dataValue.SetValue(regChangedCCR);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SP:
+		return dataValue.SetValue(regChangedSP);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SSP:
+		return dataValue.SetValue(regChangedSSP);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_USP:
+		return dataValue.SetValue(regChangedUSP);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_A:{
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		return dataValue.SetValue(regChangedA[registerDataContext.registerNo]);}
+	case DATASOURCE_REGISTER_ORIGINALVALUE_D:{
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		return dataValue.SetValue(regChangedD[registerDataContext.registerNo]);}
+	}
+	return Processor::ReadGenericData(dataID, dataContext, dataValue);
+}
+
+//----------------------------------------------------------------------------------------
+bool M68000::WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue)
+{
+	ApplyGenericDataValueLimitSettings(dataID, dataValue);
+	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
+	switch(dataID)
+	{
+	case DATASOURCE_REGISTER_SRX:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetX(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_SRN:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetN(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_SRZ:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetZ(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_SRV:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetV(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_SRC:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetC(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_SRT:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetSR_T(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_SRS:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetSR_S(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_SRIPM:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetSR_IPM(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_PC:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		pc = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REGISTER_SR:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		sr = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REGISTER_CCR:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		sr.SetLowerBits(5, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_SP:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetSP(M68000Long(dataValueAsUInt.GetValue()));
+		return true;}
+	case DATASOURCE_REGISTER_SSP:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		ssp = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REGISTER_USP:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		usp = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REGISTER_A:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		if(registerDataContext.registerNo == SP)
+		{
+			SetSP(M68000Long(dataValueAsUInt.GetValue()));
+		}
+		else
+		{
+			a[registerDataContext.registerNo] = dataValueAsUInt.GetValue();
+		}
+		return true;}
+	case DATASOURCE_REGISTER_D:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		d[registerDataContext.registerNo] = dataValueAsUInt.GetValue();
+		return true;}
+	}
+	return Processor::WriteGenericData(dataID, dataContext, dataValue);
 }
 
 } //Close namespace M68000

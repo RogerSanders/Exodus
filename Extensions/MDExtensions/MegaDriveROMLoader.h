@@ -1,6 +1,5 @@
 #ifndef __MEGADRIVEROMLOADER_H__
 #define __MEGADRIVEROMLOADER_H__
-#include "SystemInterface/SystemInterface.pkg"
 #include "Extension/Extension.pkg"
 
 class MegaDriveROMLoader :public Extension
@@ -15,7 +14,8 @@ public:
 	void UnloadROMFile();
 
 	//Window functions
-	virtual void AddFileOpenMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
+	virtual bool RegisterSystemMenuHandler();
+	virtual void AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& menuSegment);
 
 private:
 	//Structures

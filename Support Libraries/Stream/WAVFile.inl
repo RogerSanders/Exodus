@@ -40,9 +40,9 @@ bool WAVFile::GetDataFormat(unsigned int& channelCount, unsigned int& bitsPerSam
 	}
 
 	//Read the WAVEFORMATEX header structure
-	channelCount = (unsigned int)channelCount;
-	samplesPerSec = (unsigned int)samplesPerSec;
-	bitsPerSample = (unsigned int)bitsPerSample;
+	channelCount = (unsigned int)waveHeader.nChannels;
+	samplesPerSec = (unsigned int)waveHeader.nSamplesPerSec;
+	bitsPerSample = (unsigned int)waveHeader.wBitsPerSample;
 
 	return true;
 }
@@ -71,12 +71,6 @@ WAVFile::SizeType WAVFile::GetSavedSampleCount() const
 
 //----------------------------------------------------------------------------------------
 //File binding
-//----------------------------------------------------------------------------------------
-bool WAVFile::Open(const std::string& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize)
-{
-	return Open(ConvertStringToWString(filename), openMode, createMode, abufferSize);
-}
-
 //----------------------------------------------------------------------------------------
 bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize)
 {

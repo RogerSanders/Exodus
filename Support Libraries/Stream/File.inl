@@ -45,12 +45,6 @@ File::File(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, ByteOrd
 //----------------------------------------------------------------------------------------
 //File binding
 //----------------------------------------------------------------------------------------
-bool File::Open(const std::string& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize)
-{
-	return Open(ConvertStringToWString(filename), openMode, createMode, abufferSize);
-}
-
-//----------------------------------------------------------------------------------------
 bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize)
 {
 	//If a file handle is currently open, close it.
@@ -209,8 +203,7 @@ bool File::ReadBinary(void* rawData, SizeType bytesToRead)
 				//from.
 				LARGE_INTEGER relativeFilePointer;
 				relativeFilePointer.QuadPart = -((LONGLONG)bytesToReadFromBuffer);
-				BOOL setFilePointerExReturn = SetFilePointerEx(fileHandle, relativeFilePointer, NULL, FILE_CURRENT);
-				result &= (setFilePointerExReturn != 0);
+				SetFilePointerEx(fileHandle, relativeFilePointer, NULL, FILE_CURRENT);
 
 				//Since the read operation failed, set the result to false.
 				result = false;

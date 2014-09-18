@@ -9,13 +9,15 @@ public:
 	//Enumerations
 	enum PixelFormat
 	{
-		PIXELFORMAT_M,		//Monochrome
-		PIXELFORMAT_MA,		//Monochrome with alpha
-		PIXELFORMAT_RGB,	//Colour
-		PIXELFORMAT_RGBA,	//Colour with alpha
+		PIXELFORMAT_M,     //Monochrome
+		PIXELFORMAT_MA,    //Monochrome with alpha
+		PIXELFORMAT_RGB,   //Colour
+		PIXELFORMAT_RGBA,  //Colour with alpha
 	};
 	enum DataFormat
 	{
+		//##TODO## Name these better, perhaps like FLOAT32, INT8, etc.
+		//##TODO## Add support for more data formats
 		DATAFORMAT_FLOAT,
 		DATAFORMAT_8BIT
 	};

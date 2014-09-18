@@ -8,159 +8,18 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "afxres.h"
-#include "../../Libraries/Processor/Processor.rc"
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (Australia) resources
+// English (U.S.) resources
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 #endif //_WIN32
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE 
-BEGIN
-    "#include ""afxres.h""\r\n"
-    "#include ""../../Libraries/Processor/Processor.rc\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_M68000_EXCEPTIONS DIALOGEX 0, 0, 152, 215
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-EXSTYLE WS_EX_TOOLWINDOW
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    LISTBOX         IDC_M68000_EXCEPTIONS_LIST,7,7,138,72,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_M68000_EXCEPTIONS_VECTORNUMBER,17,135,49,12,ES_AUTOHSCROLL
-    LTEXT           "Vector Number",IDC_STATIC,18,126,48,8
-    EDITTEXT        IDC_M68000_EXCEPTIONS_VECTORADDRESS,86,135,49,12,ES_AUTOHSCROLL
-    LTEXT           "Vector Address",IDC_STATIC,87,126,50,8
-    CONTROL         "Log",IDC_M68000_EXCEPTIONS_LOG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,153,27,10
-    CONTROL         "Break",IDC_M68000_EXCEPTIONS_BREAK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,54,153,34,10
-    CONTROL         "Disable",IDC_M68000_EXCEPTIONS_DISABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,97,153,39,10
-    CONTROL         "Log All",IDC_M68000_EXCEPTIONS_LOGALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,194,37,10
-    CONTROL         "Break All",IDC_M68000_EXCEPTIONS_BREAKALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,194,43,10
-    CONTROL         "Disable All",IDC_M68000_EXCEPTIONS_DISABLEALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,96,194,48,10
-    PUSHBUTTON      "New",IDC_M68000_EXCEPTIONS_NEW,7,83,30,12
-    PUSHBUTTON      "Delete",IDC_M68000_EXCEPTIONS_DELETE,77,83,30,12
-    PUSHBUTTON      "Save",IDC_M68000_EXCEPTIONS_SAVE,42,83,30,12
-    PUSHBUTTON      "Delete All",IDC_M68000_EXCEPTIONS_DELETEALL,111,83,34,12
-    GROUPBOX        "Individual Exception Control",IDC_STATIC,7,100,138,81
-    GROUPBOX        "Global Exception Control",IDC_STATIC,7,182,138,26
-    PUSHBUTTON      "Trigger",IDC_M68000_EXCEPTIONS_TRIGGER,56,165,38,12
-    LTEXT           "Name",IDC_STATIC,15,113,23,8
-    EDITTEXT        IDC_M68000_EXCEPTIONS_VECTORNAME,35,111,103,12,ES_AUTOHSCROLL | WS_DISABLED
-END
-
-IDD_M68000_REGISTERS DIALOGEX 0, 0, 254, 150
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CLIPSIBLINGS | WS_CAPTION | WS_SYSMENU
-EXSTYLE WS_EX_TOOLWINDOW
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    RTEXT           "A0",IDC_STATIC,16,17,10,8
-    EDITTEXT        IDC_REG_A0,28,14,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "A1",IDC_STATIC,16,31,10,8
-    EDITTEXT        IDC_REG_A1,28,28,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "A2",IDC_STATIC,16,45,10,8
-    EDITTEXT        IDC_REG_A2,28,42,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "A3",IDC_STATIC,16,59,10,8
-    EDITTEXT        IDC_REG_A3,28,56,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "A4",IDC_STATIC,16,73,10,8
-    EDITTEXT        IDC_REG_A4,28,70,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "A5",IDC_STATIC,16,87,10,8
-    EDITTEXT        IDC_REG_A5,28,84,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "A6",IDC_STATIC,16,101,10,8
-    EDITTEXT        IDC_REG_A6,28,98,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "A7",IDC_STATIC,16,114,10,8
-    EDITTEXT        IDC_REG_A7,28,111,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "D0",IDC_STATIC,77,16,10,8
-    EDITTEXT        IDC_REG_D0,89,14,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "D1",IDC_STATIC,77,30,10,8
-    EDITTEXT        IDC_REG_D1,89,28,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "D2",IDC_STATIC,77,44,10,8
-    EDITTEXT        IDC_REG_D2,89,42,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "D3",IDC_STATIC,77,58,10,8
-    EDITTEXT        IDC_REG_D3,89,56,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "D4",IDC_STATIC,77,72,10,8
-    EDITTEXT        IDC_REG_D4,89,70,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "D5",IDC_STATIC,77,86,10,8
-    EDITTEXT        IDC_REG_D5,89,84,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "D6",IDC_STATIC,77,100,10,8
-    EDITTEXT        IDC_REG_D6,89,98,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "D7",IDC_STATIC,77,113,10,8
-    EDITTEXT        IDC_REG_D7,89,111,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "PC",IDC_STATIC,47,129,10,8
-    EDITTEXT        IDC_REG_PC,59,127,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "SR",IDC_STATIC,199,66,10,8
-    EDITTEXT        IDC_REG_SR,211,64,24,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    EDITTEXT        IDC_REG_X,145,31,14,12,ES_CENTER | ES_UPPERCASE | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_TABSTOP
-    RTEXT           "X",IDC_STATIC,134,33,8,8
-    EDITTEXT        IDC_REG_N,145,47,14,12,ES_CENTER | ES_UPPERCASE | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_TABSTOP
-    RTEXT           "N",IDC_STATIC,134,49,8,8
-    EDITTEXT        IDC_REG_Z,145,63,14,12,ES_CENTER | ES_UPPERCASE | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_TABSTOP
-    RTEXT           "Z",IDC_STATIC,134,65,8,8
-    EDITTEXT        IDC_REG_V,145,79,14,12,ES_CENTER | ES_UPPERCASE | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_TABSTOP
-    RTEXT           "V",IDC_STATIC,134,81,8,8
-    EDITTEXT        IDC_REG_C,145,95,14,12,ES_CENTER | ES_UPPERCASE | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_TABSTOP
-    RTEXT           "C",IDC_STATIC,134,97,8,8
-    EDITTEXT        IDC_REG_T,181,64,14,12,ES_CENTER | ES_UPPERCASE | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_TABSTOP
-    RTEXT           "T",IDC_STATIC,171,66,8,8
-    EDITTEXT        IDC_REG_S,181,48,14,12,ES_CENTER | ES_UPPERCASE | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_TABSTOP
-    RTEXT           "S",IDC_STATIC,171,50,8,8
-    EDITTEXT        IDC_REG_IPM,219,48,16,12,ES_CENTER | ES_UPPERCASE | ES_AUTOHSCROLL | ES_NUMBER | NOT WS_TABSTOP
-    RTEXT           "Int",IDC_STATIC,205,50,12,8
-    RTEXT           "SSP",IDC_STATIC,173,30,13,8
-    EDITTEXT        IDC_REG_SSP,189,28,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    RTEXT           "USP",IDC_STATIC,173,15,14,8
-    EDITTEXT        IDC_REG_USP,189,13,42,12,ES_UPPERCASE | ES_AUTOHSCROLL | NOT WS_TABSTOP
-    GROUPBOX        "Supervisor Registers",IDC_STATIC,168,3,78,80
-    GROUPBOX        "User Registers",IDC_STATIC,8,3,157,140
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
-BEGIN
-    IDD_M68000_EXCEPTIONS, DIALOG
-    BEGIN
-        BOTTOMMARGIN, 198
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -200,6 +59,42 @@ BEGIN
     END
 END
 
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Australia) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
 #endif    // English (Australia) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -210,8 +105,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
-
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

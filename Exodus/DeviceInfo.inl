@@ -1,4 +1,30 @@
 //----------------------------------------------------------------------------------------
+//Getters
+//----------------------------------------------------------------------------------------
+std::wstring DeviceInfo::GetDeviceClassName() const
+{
+	return className;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring DeviceInfo::GetDeviceImplementationName() const
+{
+	return implementationName;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring DeviceInfo::GetDeviceCopyright() const
+{
+	return copyright;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring DeviceInfo::GetDeviceComments() const
+{
+	return comments;
+}
+
+//----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
 void DeviceInfo::SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& adeviceClassName, const std::wstring& adeviceImplementationName, unsigned int adeviceVersionNo, const std::wstring& adeviceCopyright, const std::wstring& adeviceComments)

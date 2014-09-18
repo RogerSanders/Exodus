@@ -90,28 +90,6 @@ enum M68000::ClockID
 //----------------------------------------------------------------------------------------
 //Structures
 //----------------------------------------------------------------------------------------
-struct M68000::ExceptionDebuggingEntry
-{
-	ExceptionDebuggingEntry()
-	{
-		Initialize();
-	}
-
-	void Initialize()
-	{
-		vectorNumber = 0;
-		enableLogging = false;
-		enableBreak = false;
-		disable = false;
-	}
-
-	unsigned int vectorNumber;
-	bool enableLogging;
-	bool enableBreak;
-	bool disable;
-};
-
-//----------------------------------------------------------------------------------------
 struct M68000::LineAccess
 {
 	LineAccess(unsigned int alineLD, const Data& astate, double aaccessTime)

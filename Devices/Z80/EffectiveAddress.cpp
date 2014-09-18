@@ -13,7 +13,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 	switch(mode)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case MODE_A:
 		cpu->GetA(target);
@@ -99,7 +99,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			cpu->GetH(target);
@@ -116,7 +116,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			cpu->GetL(target);
@@ -133,7 +133,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			cpu->GetHL(target);
@@ -150,7 +150,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			cpu->GetHL2(target);
@@ -161,7 +161,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			additionalTime = cpu->ReadMemory(cpu->GetHL(), target, false);
@@ -182,7 +182,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			additionalTime = cpu->ReadMemory(cpu->GetHL(), target, false);
@@ -202,7 +202,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			additionalTime = cpu->ReadMemory(cpu->GetHL(), target, false);
@@ -231,7 +231,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 	switch(mode)
 	{
 	default:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 	case MODE_A:
 		cpu->SetA(Z80Byte(target));
@@ -310,14 +310,14 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		additionalTime = cpu->WriteMemory(address, target, false);
 		break;
 	case MODE_IMMEDIATE:
-		ReleaseAssert(false);
+		DebugAssert(false);
 		break;
 
 	case MODE_H:
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			cpu->SetH(Z80Byte(target));
@@ -334,7 +334,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			cpu->SetL(Z80Byte(target));
@@ -351,7 +351,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			cpu->SetHL(Z80Word(target));
@@ -368,7 +368,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			cpu->SetHL2(Z80Word(target));
@@ -379,7 +379,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			additionalTime = cpu->WriteMemory(cpu->GetHL(), target, false);
@@ -400,7 +400,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			additionalTime = cpu->WriteMemory(cpu->GetHL(), target, false);
@@ -424,7 +424,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		switch(indexState)
 		{
 		default:
-			ReleaseAssert(false);
+			DebugAssert(false);
 			break;
 		case INDEX_NONE:
 			additionalTime = cpu->WriteMemory(cpu->GetHL(), target, false);

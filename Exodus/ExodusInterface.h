@@ -38,41 +38,61 @@ the slots.
 #ifndef __EXODUSINTERFACE_H__
 #define __EXODUSINTERFACE_H__
 #include "WindowsSupport/WindowsSupport.pkg"
+#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
 #include "SystemInterface/SystemInterface.pkg"
-#include "ISystemExternal.h"
 #include "Image/Image.pkg"
 #include "ThreadLib/ThreadLib.pkg"
-#include "IViewModelManager.h"
-#include "ViewModelNotifier.h"
+#include "IViewManagerNotifierInterface.h"
+#include "ViewManager.h"
 #include <set>
 #include <map>
 #include <list>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include "MenuSubmenu.h"
+#include "DeviceInfo.h"
+#include "ExtensionInfo.h"
+#include "SystemInfo.h"
+class MenuHandler;
 
-class ExodusInterface :public IViewModelManager, public IGUIExtensionInterface
+class ExodusInterface :public IGUIExtensionInterface
 {
+public:
+	//Structures
+	struct PluginInfo;
+	struct RegisteredDeviceInfo;
+	struct RegisteredExtensionInfo;
+
 public:
 	//Constructors
 	//##TODO## Implement a destructor, which cleans up our views.
-	ExodusInterface(ISystemExternal& asystem);
+	ExodusInterface();
 	virtual ~ExodusInterface();
+
+	//System interface functions
+	void BindToSystem(ISystemGUIInterface* asystem);
+	void UnbindFromSystem();
+	ISystemGUIInterface* GetSystemInterface() const;
+
+	//Initialization functions
 	HWND CreateMainInterface(HINSTANCE hinstance);
 	bool InitializeSystem();
 
 	//Interface version functions
-	virtual unsigned int GetIViewModelLauncherVersion() const;
 	virtual unsigned int GetIGUIExtensionInterfaceVersion() const;
 
-	//Main window functions
+	//View manager functions
+	virtual IViewManager& GetViewManager() const;
+
+	//Window functions
+	AssemblyHandle GetAssemblyHandle() const;
 	virtual void* GetMainWindowHandle() const;
 
 	//Savestate functions
 	void LoadState(const std::wstring& folder, bool debuggerState);
-	void LoadStateFromFile(const std::wstring& filePath, ISystemExternal::FileType fileType, bool debuggerState);
+	void LoadStateFromFile(const std::wstring& filePath, ISystemGUIInterface::FileType fileType, bool debuggerState);
 	void SaveState(const std::wstring& folder, bool debuggerState);
-	void SaveStateToFile(const std::wstring& filePath, ISystemExternal::FileType fileType, bool debuggerState);
+	void SaveStateToFile(const std::wstring& filePath, ISystemGUIInterface::FileType fileType, bool debuggerState);
 
 	//Savestate quick-select popup functions
 	void QuickLoadState(bool debuggerState);
@@ -99,8 +119,7 @@ public:
 	//Global preference functions
 	bool LoadPrefs(const std::wstring& filePath);
 	void SavePrefs(const std::wstring& filePath);
-	void ResolvePrefs();
-	void ApplyPrefs();
+	inline std::wstring GetPreferenceDirectoryPath() const;
 	inline std::wstring GetGlobalPreferencePathModules() const;
 	inline std::wstring GetGlobalPreferencePathSavestates() const;
 	inline std::wstring GetGlobalPreferencePathPersistentState() const;
@@ -114,11 +133,25 @@ public:
 	virtual bool GetGlobalPreferenceEnablePersistentState() const;
 	virtual bool GetGlobalPreferenceLoadWorkspaceWithDebugState() const;
 	virtual bool GetGlobalPreferenceShowDebugConsole() const;
+	inline void SetGlobalPreferencePathModules(const std::wstring& state);
+	inline void SetGlobalPreferencePathSavestates(const std::wstring& state);
+	inline void SetGlobalPreferencePathPersistentState(const std::wstring& state);
+	inline void SetGlobalPreferencePathWorkspaces(const std::wstring& state);
+	inline void SetGlobalPreferencePathCaptures(const std::wstring& state);
+	inline void SetGlobalPreferencePathAssemblies(const std::wstring& state);
+	inline void SetGlobalPreferenceInitialSystem(const std::wstring& state);
+	inline void SetGlobalPreferenceInitialWorkspace(const std::wstring& state);
+	inline void SetGlobalPreferenceEnableThrottling(bool state);
+	inline void SetGlobalPreferenceRunWhenProgramModuleLoaded(bool state);
+	inline void SetGlobalPreferenceEnablePersistentState(bool state);
+	inline void SetGlobalPreferenceLoadWorkspaceWithDebugState(bool state);
+	inline void SetGlobalPreferenceShowDebugConsole(bool state);
 
 	//Assembly functions
 	bool LoadAssembliesFromFolder(const std::wstring& folder);
 	bool LoadAssembliesFromFolderSynchronous(const std::wstring& folder);
 	bool LoadAssembly(const std::wstring& filePath);
+	bool LoadAssemblyInfo(const std::wstring& filePath, PluginInfo& pluginInfo);
 
 	//File selection functions
 	virtual bool SelectExistingFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, bool scanIntoArchives, std::wstring& selectedFilePath) const;
@@ -127,15 +160,11 @@ public:
 	virtual Stream::IStream* OpenExistingFileForRead(const std::wstring& path) const;
 	virtual void DeleteFileStream(Stream::IStream* stream) const;
 
-	//View management functions
-	virtual bool OpenViewModel(IViewModel* aviewModel, bool waitToClose = true, bool openHidden = false);
-	virtual void CloseViewModel(IViewModel* aviewModel, bool waitToClose = true);
-	virtual void ShowViewModel(IViewModel* aviewModel);
-	virtual void HideViewModel(IViewModel* aviewModel);
-	virtual void ActivateViewModel(IViewModel* aviewModel);
-	virtual bool WaitUntilViewModelOpened(IViewModel* aviewModel);
-	virtual void WaitUntilViewModelClosed(IViewModel* aviewModel);
-	virtual void NotifyModelViewClosed(IViewModel* aviewModel);
+	//Device functions
+	std::list<RegisteredDeviceInfo> GetRegisteredDevices() const;
+
+	//Extension functions
+	std::list<RegisteredExtensionInfo> GetRegisteredExtensions() const;
 
 protected:
 	//Module functions
@@ -162,28 +191,17 @@ protected:
 	virtual Stream::IStream* OpenExistingFileForReadInternal(const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const;
 
 private:
-	//Enumerations
-	enum ViewOperationType;
-
 	//Structures
 	struct SystemPrefs
 	{
 		std::wstring pathModules;
-		std::wstring pathModulesRaw;
 		std::wstring pathSavestates;
-		std::wstring pathSavestatesRaw;
 		std::wstring pathPersistentState;
-		std::wstring pathPersistentStateRaw;
 		std::wstring pathWorkspaces;
-		std::wstring pathWorkspacesRaw;
 		std::wstring pathCaptures;
-		std::wstring pathCapturesRaw;
 		std::wstring pathAssemblies;
-		std::wstring pathAssembliesRaw;
 		std::wstring loadSystem;
-		std::wstring loadSystemRaw;
 		std::wstring loadWorkspace;
-		std::wstring loadWorkspaceRaw;
 		bool enableThrottling;
 		bool runWhenProgramModuleLoaded;
 		bool enablePersistentState;
@@ -191,60 +209,30 @@ private:
 		bool showDebugConsole;
 	};
 	struct NewMenuItem;
-	struct ViewInfo;
-	struct Region2D;
 	struct SavestateCellWindowState;
-	struct ViewOperation;
-	struct WorkspaceViewEntryDetails;
 	struct MapConnectorDialogParams;
 	struct SelectCompressedFileDialogParams;
 	struct SelectCompressedFileDialogParamsFileEntry;
-	struct RegisteredDeviceInfo;
-	struct RegisteredExtensionInfo;
 
 	//Typedefs
 	typedef std::map<unsigned int, NewMenuItem> NewMenuList;
 	typedef std::pair<unsigned int, NewMenuItem> NewMenuListEntry;
-	typedef std::map<IViewModel*, ViewInfo*> ViewInfoSet;
-	typedef std::pair<IViewModel*, ViewInfo*> ViewInfoSetEntry;
-	typedef std::map<IViewModel*, ViewInfo*> ViewModels;
-	typedef std::pair<IViewModel*, ViewInfo*> ViewModelsEntry;
-	typedef std::list<ViewOperation> ViewOperationQueue;
 
 private:
 	//Savestate functions
 	std::wstring GetSavestateAutoFileNamePrefix() const;
 
 	//Savestate quick-select popup functions
+	//##FIX## Replace this function with a loaded module callback notification, since
+	//requests to load modules may not come through the GUI.
 	void UpdateSaveSlots();
-
-	//Module functions
-	void UpdateModuleDisplayInfo() const;
 
 	//File selection functions
 	bool SelectExistingFileScanIntoArchive(const std::list<FileSelectionType>& selectionTypes, const std::wstring archivePath, std::wstring& selectedFilePath) const;
 
-	//View management functions
-	void FlagProcessPendingEvents();
-	void ProcessPendingEvents();
-	void ProcessOpenView(IViewModel* viewModel, ViewInfo* viewInfo);
-	void ProcessCloseView(IViewModel* viewModel, ViewInfo* viewInfo);
-	void ProcessDeleteView(IViewModel* viewModel, ViewInfo* viewInfo);
-	void ProcessActivateView(IViewModel* viewModel, ViewInfo* viewInfo);
-	void ProcessShowView(IViewModel* viewModel, ViewInfo* viewInfo);
-	void ProcessHideView(IViewModel* viewModel, ViewInfo* viewInfo);
-
-	//View closing helper functions
-	void CloseViewsForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName);
-	void CloseViewsForModule(unsigned int moduleID, bool closeDependentModuleViews);
-	void CloseViewsForSystem();
-	void CloseAllViews();
-
-	//Child window selection functions
-	void BuildActiveWindowList();
-
 	//Menu functions
-	bool BuildMenuRecursive(HWND parentWindow, HMENU parentMenu, IMenuItem& amenuItem, unsigned int& nextMenuID, int& insertPos);
+	bool BuildMenuRecursive(HMENU parentMenu, IMenuItem& amenuItem, unsigned int& nextMenuID, int& insertPos, bool& leadingMenuItemsPresent, bool& trailingSeparatorPresent, bool& insertLeadingSeparatorBeforeNextItem);
+	bool InsertMenuItemSeparator(HMENU parentMenu, int& insertPos);
 	bool BuildFileMenu();
 	bool BuildSystemMenu();
 	bool BuildSettingsMenu();
@@ -255,22 +243,11 @@ private:
 	void UnloadSystemThread();
 	void DestroySystemInterfaceThread();
 
-	//Window auto-position functions
-	void GetNewWindowPosition(int newWindowWidth, int newWindowHeight, int& newWindowPosX, int& newWindowPosY);
-	bool IntersectRegion(const Region2D& existingRegion, const Region2D& regionToIntersect, std::list<Region2D>& newRegionsToCreate) const;
-	bool PointWithinRegion(int posx, int posy, const Region2D& region) const;
-	bool RegionIntersectsHorizontalLine(int posx, int posy, int width, const Region2D& region) const;
-	bool RegionIntersectsVerticalLine(int posx, int posy, int height, const Region2D& region) const;
-
 	//Window callbacks
-	static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 	static INT_PTR CALLBACK MapConnectorProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK LoadPluginProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK LoadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK UnloadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
-	static INT_PTR CALLBACK ModuleManagerProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
-	static INT_PTR CALLBACK AboutProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
-	static INT_PTR CALLBACK SettingsProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK SelectCompressedFileProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WndSavestateCellProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -281,7 +258,7 @@ private:
 	void JoystickInputWorkerThread();
 
 private:
-	ISystemExternal& system;
+	ISystemGUIInterface* system;
 	HMENU fileMenu;
 	int fileMenuNonDynamicMenuItemCount;
 	HMENU systemMenu;
@@ -290,7 +267,6 @@ private:
 	int settingsMenuFirstItemIndex;
 	HMENU debugMenu;
 	int debugMenuFirstItemIndex;
-	HWND moduleManagerDialog;
 	MenuSubmenu* fileSubmenu;
 	MenuSubmenu* systemSubmenu;
 	MenuSubmenu* settingsSubmenu;
@@ -298,26 +274,29 @@ private:
 	NewMenuList newMenuList;
 	unsigned int nextFreeMenuID;
 	SystemPrefs prefs;
-	std::wstring originalWorkingDir;
+	std::wstring preferenceDirectoryPath;
 	volatile bool moduleCommandComplete;
 	bool systemLoaded;
 	bool systemDestructionInProgress;
-	bool viewEventProcessingPaused;
 	bool debugConsoleOpen;
+
 	mutable boost::mutex joystickWorkerThreadMutex;
 	volatile bool joystickWorkerThreadActive;
 	boost::condition joystickWorkerThreadStopped;
+	std::map<unsigned int, JOYCAPS> connectedJoystickInfo;
 
+	ViewManager* viewManager;
+
+	mutable boost::mutex registeredElementMutex;
 	std::list<RegisteredDeviceInfo> registeredDevices;
 	std::list<RegisteredExtensionInfo> registeredExtensions;
 
 	HWND mainWindowHandle;
+	HWND mainDockingWindowHandle;
+	HFONT hfont;
+	bool mainWindowPosCaptured;
 	int mainWindowPosX;
 	int mainWindowPosY;
-	unsigned int childWindowXPosDefault;
-	unsigned int childWindowYPosDefault;
-	static const unsigned int childWindowXPosIncrement = 18;
-	static const unsigned int childWindowYPosIncrement = 18;
 
 	static const unsigned int cellCount = 10;
 	std::vector<SavestateCellWindowState> cell;
@@ -330,13 +309,10 @@ private:
 	int savestateMonitorHeight;
 
 	HWND windowSelectHandle;
-	std::vector<IViewModel*> activeWindowList;
+	std::vector<HWND> topLevelWindowList;
 	unsigned int selectedWindow;
 	unsigned int windowSelectColumns;
 	unsigned int windowSelectEntriesPerColumn;
-
-	//About dialog state
-	HFONT aboutDialogHFont;
 
 	//Plugin load progress
 	mutable boost::mutex loadPluginsMutex;
@@ -346,13 +322,8 @@ private:
 	volatile bool loadPluginsAborted;
 	std::wstring loadPluginsCurrentPluginName;
 
-	mutable boost::mutex viewMutex;
-	bool viewOperationPending;
-	ViewOperationQueue viewOperationQueue;
-	//##TODO## Unify these two containers. Using a simple boolean flag to indicate whether
-	//the view is open would allow us to use a single container.
-	ViewInfoSet viewInfoSet;
-	ViewModels viewModels;
+	//Menu handling
+	MenuHandler* menuHandler;
 };
 
 #include "ExodusInterface.inl"

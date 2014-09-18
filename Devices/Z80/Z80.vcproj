@@ -975,6 +975,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{47967EF3-5853-4BC8-B863-E6674079871B}"
+			RelativePathToProject=".\Libraries\Processor\Processor.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -1356,46 +1360,30 @@
 				RelativePath=".\Z80.inl"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Resources"
+			>
+			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Z80.rc"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="IZ80"
+			>
 			<File
-				RelativePath=".\Z80_Wnd.cpp"
+				RelativePath=".\IZ80.h"
 				>
 			</File>
-			<Filter
-				Name="DebugMenuHandler"
+			<File
+				RelativePath=".\IZ80.inl"
 				>
-				<File
-					RelativePath=".\DebugMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DebugMenuHandler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="RegistersView"
-				>
-				<File
-					RelativePath=".\RegistersView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RegistersViewModel.h"
-					>
-				</File>
-			</Filter>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\interface.cpp"
@@ -1405,11 +1393,11 @@
 			RelativePath=".\interface.h"
 			>
 		</File>
-		<File
-			RelativePath=".\resource.h"
-			>
-		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

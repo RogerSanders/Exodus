@@ -1,4 +1,4 @@
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "A10000.h"
 #include "MDControl3.h"
 #include "MDControl6.h"
@@ -6,42 +6,42 @@
 
 IDevice* GetA10000(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new A10000(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new A10000(implementationName, instanceName, moduleID));
 }
 
 void DeleteA10000(IDevice* device)
 {
-	delete device;
+	delete static_cast<A10000*>(device);
 }
 
 IDevice* GetMDControl3(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new MDControl3(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new MDControl3(implementationName, instanceName, moduleID));
 }
 
 void DeleteMDControl3(IDevice* device)
 {
-	delete device;
+	delete static_cast<MDControl3*>(device);
 }
 
 IDevice* GetMDControl6(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new MDControl6(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new MDControl6(implementationName, instanceName, moduleID));
 }
 
 void DeleteMDControl6(IDevice* device)
 {
-	delete device;
+	delete static_cast<MDControl6*>(device);
 }
 
 IDevice* GetMDBusArbiter(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new MDBusArbiter(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new MDBusArbiter(implementationName, instanceName, moduleID));
 }
 
 void DeleteMDBusArbiter(IDevice* device)
 {
-	delete device;
+	delete static_cast<MDBusArbiter*>(device);
 }
 
 #ifdef EX_DLLINTERFACE

@@ -1,6 +1,6 @@
 #ifndef __MEMORY_INTERFACE_H__
 #define __MEMORY_INTERFACE_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 
 void GetROM8DeviceInfo(IDeviceInfo& deviceInfo);
 void GetROM16DeviceInfo(IDeviceInfo& deviceInfo);

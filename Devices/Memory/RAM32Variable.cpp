@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 RAM32Variable::RAM32Variable(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:RAM32(aimplementationName, ainstanceName, amoduleID)
+:RAMBase(aimplementationName, ainstanceName, amoduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -121,4 +121,18 @@ void RAM32Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 		memoryArray[location % memoryArraySize] = data.GetData();
 		break;
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int RAM32Variable::ReadMemoryEntry(unsigned int location) const
+{
+	return memoryArray[location % memoryArraySize];
+}
+
+//----------------------------------------------------------------------------------------
+void RAM32Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	memoryArray[location % memoryArraySize] = data;
 }

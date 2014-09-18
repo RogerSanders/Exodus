@@ -442,6 +442,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{1A40C5A2-95ED-4A3F-BE41-AD027D6E1C6C}"
+			RelativePathToProject=".\Libraries\ExodusExtensionInterface\ExodusExtensionInterface.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -466,5 +470,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

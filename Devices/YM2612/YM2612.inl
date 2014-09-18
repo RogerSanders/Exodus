@@ -1,26 +1,6 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum YM2612::Channels
-{
-	CHANNEL1 = 0,
-	CHANNEL2 = 1,
-	CHANNEL3 = 2,
-	CHANNEL4 = 3,
-	CHANNEL5 = 4,
-	CHANNEL6 = 5
-};
-
-//----------------------------------------------------------------------------------------
-enum YM2612::Operators
-{
-	OPERATOR1 = 0,
-	OPERATOR2 = 1,
-	OPERATOR3 = 2,
-	OPERATOR4 = 3
-};
-
-//----------------------------------------------------------------------------------------
 enum YM2612::LineID
 {
 	LINE_IRQ = 1,
@@ -40,365 +20,6 @@ enum YM2612::AccessContext
 };
 
 //----------------------------------------------------------------------------------------
-enum YM2612::TimerParam
-{
-	TIMERPARAMA_LOAD      = 0,
-	TIMERPARAMA_ENABLE    = 1,
-	TIMERPARAMA_OVERFLOW  = 2,
-	TIMERPARAMA_RATE      = 3,
-	TIMERPARAMA_COUNTER   = 4,
-	TIMERPARAMB_LOAD      = 5,
-	TIMERPARAMB_ENABLE    = 6,
-	TIMERPARAMB_OVERFLOW  = 7,
-	TIMERPARAMB_RATE      = 8,
-	TIMERPARAMB_COUNTER   = 9
-};
-
-//----------------------------------------------------------------------------------------
-enum YM2612::LockedRegisterKey
-{
-	LOCKEDREG_NONE,
-	LOCKEDREG_CH1_OP1_TL,
-	LOCKEDREG_CH1_OP2_TL,
-	LOCKEDREG_CH1_OP3_TL,
-	LOCKEDREG_CH1_OP4_TL,
-	LOCKEDREG_CH2_OP1_TL,
-	LOCKEDREG_CH2_OP2_TL,
-	LOCKEDREG_CH2_OP3_TL,
-	LOCKEDREG_CH2_OP4_TL,
-	LOCKEDREG_CH3_OP1_TL,
-	LOCKEDREG_CH3_OP2_TL,
-	LOCKEDREG_CH3_OP3_TL,
-	LOCKEDREG_CH3_OP4_TL,
-	LOCKEDREG_CH4_OP1_TL,
-	LOCKEDREG_CH4_OP2_TL,
-	LOCKEDREG_CH4_OP3_TL,
-	LOCKEDREG_CH4_OP4_TL,
-	LOCKEDREG_CH5_OP1_TL,
-	LOCKEDREG_CH5_OP2_TL,
-	LOCKEDREG_CH5_OP3_TL,
-	LOCKEDREG_CH5_OP4_TL,
-	LOCKEDREG_CH6_OP1_TL,
-	LOCKEDREG_CH6_OP2_TL,
-	LOCKEDREG_CH6_OP3_TL,
-	LOCKEDREG_CH6_OP4_TL,
-	LOCKEDREG_CH1_OP1_SL,
-	LOCKEDREG_CH1_OP2_SL,
-	LOCKEDREG_CH1_OP3_SL,
-	LOCKEDREG_CH1_OP4_SL,
-	LOCKEDREG_CH2_OP1_SL,
-	LOCKEDREG_CH2_OP2_SL,
-	LOCKEDREG_CH2_OP3_SL,
-	LOCKEDREG_CH2_OP4_SL,
-	LOCKEDREG_CH3_OP1_SL,
-	LOCKEDREG_CH3_OP2_SL,
-	LOCKEDREG_CH3_OP3_SL,
-	LOCKEDREG_CH3_OP4_SL,
-	LOCKEDREG_CH4_OP1_SL,
-	LOCKEDREG_CH4_OP2_SL,
-	LOCKEDREG_CH4_OP3_SL,
-	LOCKEDREG_CH4_OP4_SL,
-	LOCKEDREG_CH5_OP1_SL,
-	LOCKEDREG_CH5_OP2_SL,
-	LOCKEDREG_CH5_OP3_SL,
-	LOCKEDREG_CH5_OP4_SL,
-	LOCKEDREG_CH6_OP1_SL,
-	LOCKEDREG_CH6_OP2_SL,
-	LOCKEDREG_CH6_OP3_SL,
-	LOCKEDREG_CH6_OP4_SL,
-	LOCKEDREG_CH1_OP1_AR,
-	LOCKEDREG_CH1_OP2_AR,
-	LOCKEDREG_CH1_OP3_AR,
-	LOCKEDREG_CH1_OP4_AR,
-	LOCKEDREG_CH2_OP1_AR,
-	LOCKEDREG_CH2_OP2_AR,
-	LOCKEDREG_CH2_OP3_AR,
-	LOCKEDREG_CH2_OP4_AR,
-	LOCKEDREG_CH3_OP1_AR,
-	LOCKEDREG_CH3_OP2_AR,
-	LOCKEDREG_CH3_OP3_AR,
-	LOCKEDREG_CH3_OP4_AR,
-	LOCKEDREG_CH4_OP1_AR,
-	LOCKEDREG_CH4_OP2_AR,
-	LOCKEDREG_CH4_OP3_AR,
-	LOCKEDREG_CH4_OP4_AR,
-	LOCKEDREG_CH5_OP1_AR,
-	LOCKEDREG_CH5_OP2_AR,
-	LOCKEDREG_CH5_OP3_AR,
-	LOCKEDREG_CH5_OP4_AR,
-	LOCKEDREG_CH6_OP1_AR,
-	LOCKEDREG_CH6_OP2_AR,
-	LOCKEDREG_CH6_OP3_AR,
-	LOCKEDREG_CH6_OP4_AR,
-	LOCKEDREG_CH1_OP1_DR,
-	LOCKEDREG_CH1_OP2_DR,
-	LOCKEDREG_CH1_OP3_DR,
-	LOCKEDREG_CH1_OP4_DR,
-	LOCKEDREG_CH2_OP1_DR,
-	LOCKEDREG_CH2_OP2_DR,
-	LOCKEDREG_CH2_OP3_DR,
-	LOCKEDREG_CH2_OP4_DR,
-	LOCKEDREG_CH3_OP1_DR,
-	LOCKEDREG_CH3_OP2_DR,
-	LOCKEDREG_CH3_OP3_DR,
-	LOCKEDREG_CH3_OP4_DR,
-	LOCKEDREG_CH4_OP1_DR,
-	LOCKEDREG_CH4_OP2_DR,
-	LOCKEDREG_CH4_OP3_DR,
-	LOCKEDREG_CH4_OP4_DR,
-	LOCKEDREG_CH5_OP1_DR,
-	LOCKEDREG_CH5_OP2_DR,
-	LOCKEDREG_CH5_OP3_DR,
-	LOCKEDREG_CH5_OP4_DR,
-	LOCKEDREG_CH6_OP1_DR,
-	LOCKEDREG_CH6_OP2_DR,
-	LOCKEDREG_CH6_OP3_DR,
-	LOCKEDREG_CH6_OP4_DR,
-	LOCKEDREG_CH1_OP1_SR,
-	LOCKEDREG_CH1_OP2_SR,
-	LOCKEDREG_CH1_OP3_SR,
-	LOCKEDREG_CH1_OP4_SR,
-	LOCKEDREG_CH2_OP1_SR,
-	LOCKEDREG_CH2_OP2_SR,
-	LOCKEDREG_CH2_OP3_SR,
-	LOCKEDREG_CH2_OP4_SR,
-	LOCKEDREG_CH3_OP1_SR,
-	LOCKEDREG_CH3_OP2_SR,
-	LOCKEDREG_CH3_OP3_SR,
-	LOCKEDREG_CH3_OP4_SR,
-	LOCKEDREG_CH4_OP1_SR,
-	LOCKEDREG_CH4_OP2_SR,
-	LOCKEDREG_CH4_OP3_SR,
-	LOCKEDREG_CH4_OP4_SR,
-	LOCKEDREG_CH5_OP1_SR,
-	LOCKEDREG_CH5_OP2_SR,
-	LOCKEDREG_CH5_OP3_SR,
-	LOCKEDREG_CH5_OP4_SR,
-	LOCKEDREG_CH6_OP1_SR,
-	LOCKEDREG_CH6_OP2_SR,
-	LOCKEDREG_CH6_OP3_SR,
-	LOCKEDREG_CH6_OP4_SR,
-	LOCKEDREG_CH1_OP1_RR,
-	LOCKEDREG_CH1_OP2_RR,
-	LOCKEDREG_CH1_OP3_RR,
-	LOCKEDREG_CH1_OP4_RR,
-	LOCKEDREG_CH2_OP1_RR,
-	LOCKEDREG_CH2_OP2_RR,
-	LOCKEDREG_CH2_OP3_RR,
-	LOCKEDREG_CH2_OP4_RR,
-	LOCKEDREG_CH3_OP1_RR,
-	LOCKEDREG_CH3_OP2_RR,
-	LOCKEDREG_CH3_OP3_RR,
-	LOCKEDREG_CH3_OP4_RR,
-	LOCKEDREG_CH4_OP1_RR,
-	LOCKEDREG_CH4_OP2_RR,
-	LOCKEDREG_CH4_OP3_RR,
-	LOCKEDREG_CH4_OP4_RR,
-	LOCKEDREG_CH5_OP1_RR,
-	LOCKEDREG_CH5_OP2_RR,
-	LOCKEDREG_CH5_OP3_RR,
-	LOCKEDREG_CH5_OP4_RR,
-	LOCKEDREG_CH6_OP1_RR,
-	LOCKEDREG_CH6_OP2_RR,
-	LOCKEDREG_CH6_OP3_RR,
-	LOCKEDREG_CH6_OP4_RR,
-	LOCKEDREG_CH1_OP1_SSGEG,
-	LOCKEDREG_CH1_OP2_SSGEG,
-	LOCKEDREG_CH1_OP3_SSGEG,
-	LOCKEDREG_CH1_OP4_SSGEG,
-	LOCKEDREG_CH2_OP1_SSGEG,
-	LOCKEDREG_CH2_OP2_SSGEG,
-	LOCKEDREG_CH2_OP3_SSGEG,
-	LOCKEDREG_CH2_OP4_SSGEG,
-	LOCKEDREG_CH3_OP1_SSGEG,
-	LOCKEDREG_CH3_OP2_SSGEG,
-	LOCKEDREG_CH3_OP3_SSGEG,
-	LOCKEDREG_CH3_OP4_SSGEG,
-	LOCKEDREG_CH4_OP1_SSGEG,
-	LOCKEDREG_CH4_OP2_SSGEG,
-	LOCKEDREG_CH4_OP3_SSGEG,
-	LOCKEDREG_CH4_OP4_SSGEG,
-	LOCKEDREG_CH5_OP1_SSGEG,
-	LOCKEDREG_CH5_OP2_SSGEG,
-	LOCKEDREG_CH5_OP3_SSGEG,
-	LOCKEDREG_CH5_OP4_SSGEG,
-	LOCKEDREG_CH6_OP1_SSGEG,
-	LOCKEDREG_CH6_OP2_SSGEG,
-	LOCKEDREG_CH6_OP3_SSGEG,
-	LOCKEDREG_CH6_OP4_SSGEG,
-	LOCKEDREG_CH1_OP1_DT,
-	LOCKEDREG_CH1_OP2_DT,
-	LOCKEDREG_CH1_OP3_DT,
-	LOCKEDREG_CH1_OP4_DT,
-	LOCKEDREG_CH2_OP1_DT,
-	LOCKEDREG_CH2_OP2_DT,
-	LOCKEDREG_CH2_OP3_DT,
-	LOCKEDREG_CH2_OP4_DT,
-	LOCKEDREG_CH3_OP1_DT,
-	LOCKEDREG_CH3_OP2_DT,
-	LOCKEDREG_CH3_OP3_DT,
-	LOCKEDREG_CH3_OP4_DT,
-	LOCKEDREG_CH4_OP1_DT,
-	LOCKEDREG_CH4_OP2_DT,
-	LOCKEDREG_CH4_OP3_DT,
-	LOCKEDREG_CH4_OP4_DT,
-	LOCKEDREG_CH5_OP1_DT,
-	LOCKEDREG_CH5_OP2_DT,
-	LOCKEDREG_CH5_OP3_DT,
-	LOCKEDREG_CH5_OP4_DT,
-	LOCKEDREG_CH6_OP1_DT,
-	LOCKEDREG_CH6_OP2_DT,
-	LOCKEDREG_CH6_OP3_DT,
-	LOCKEDREG_CH6_OP4_DT,
-	LOCKEDREG_CH1_OP1_MUL,
-	LOCKEDREG_CH1_OP2_MUL,
-	LOCKEDREG_CH1_OP3_MUL,
-	LOCKEDREG_CH1_OP4_MUL,
-	LOCKEDREG_CH2_OP1_MUL,
-	LOCKEDREG_CH2_OP2_MUL,
-	LOCKEDREG_CH2_OP3_MUL,
-	LOCKEDREG_CH2_OP4_MUL,
-	LOCKEDREG_CH3_OP1_MUL,
-	LOCKEDREG_CH3_OP2_MUL,
-	LOCKEDREG_CH3_OP3_MUL,
-	LOCKEDREG_CH3_OP4_MUL,
-	LOCKEDREG_CH4_OP1_MUL,
-	LOCKEDREG_CH4_OP2_MUL,
-	LOCKEDREG_CH4_OP3_MUL,
-	LOCKEDREG_CH4_OP4_MUL,
-	LOCKEDREG_CH5_OP1_MUL,
-	LOCKEDREG_CH5_OP2_MUL,
-	LOCKEDREG_CH5_OP3_MUL,
-	LOCKEDREG_CH5_OP4_MUL,
-	LOCKEDREG_CH6_OP1_MUL,
-	LOCKEDREG_CH6_OP2_MUL,
-	LOCKEDREG_CH6_OP3_MUL,
-	LOCKEDREG_CH6_OP4_MUL,
-	LOCKEDREG_CH1_OP1_KS,
-	LOCKEDREG_CH1_OP2_KS,
-	LOCKEDREG_CH1_OP3_KS,
-	LOCKEDREG_CH1_OP4_KS,
-	LOCKEDREG_CH2_OP1_KS,
-	LOCKEDREG_CH2_OP2_KS,
-	LOCKEDREG_CH2_OP3_KS,
-	LOCKEDREG_CH2_OP4_KS,
-	LOCKEDREG_CH3_OP1_KS,
-	LOCKEDREG_CH3_OP2_KS,
-	LOCKEDREG_CH3_OP3_KS,
-	LOCKEDREG_CH3_OP4_KS,
-	LOCKEDREG_CH4_OP1_KS,
-	LOCKEDREG_CH4_OP2_KS,
-	LOCKEDREG_CH4_OP3_KS,
-	LOCKEDREG_CH4_OP4_KS,
-	LOCKEDREG_CH5_OP1_KS,
-	LOCKEDREG_CH5_OP2_KS,
-	LOCKEDREG_CH5_OP3_KS,
-	LOCKEDREG_CH5_OP4_KS,
-	LOCKEDREG_CH6_OP1_KS,
-	LOCKEDREG_CH6_OP2_KS,
-	LOCKEDREG_CH6_OP3_KS,
-	LOCKEDREG_CH6_OP4_KS,
-	LOCKEDREG_CH1_OP1_AM,
-	LOCKEDREG_CH1_OP2_AM,
-	LOCKEDREG_CH1_OP3_AM,
-	LOCKEDREG_CH1_OP4_AM,
-	LOCKEDREG_CH2_OP1_AM,
-	LOCKEDREG_CH2_OP2_AM,
-	LOCKEDREG_CH2_OP3_AM,
-	LOCKEDREG_CH2_OP4_AM,
-	LOCKEDREG_CH3_OP1_AM,
-	LOCKEDREG_CH3_OP2_AM,
-	LOCKEDREG_CH3_OP3_AM,
-	LOCKEDREG_CH3_OP4_AM,
-	LOCKEDREG_CH4_OP1_AM,
-	LOCKEDREG_CH4_OP2_AM,
-	LOCKEDREG_CH4_OP3_AM,
-	LOCKEDREG_CH4_OP4_AM,
-	LOCKEDREG_CH5_OP1_AM,
-	LOCKEDREG_CH5_OP2_AM,
-	LOCKEDREG_CH5_OP3_AM,
-	LOCKEDREG_CH5_OP4_AM,
-	LOCKEDREG_CH6_OP1_AM,
-	LOCKEDREG_CH6_OP2_AM,
-	LOCKEDREG_CH6_OP3_AM,
-	LOCKEDREG_CH6_OP4_AM,
-
-	LOCKEDREG_CH1_FNUM,
-	LOCKEDREG_CH2_FNUM,
-	LOCKEDREG_CH3_FNUM,
-	LOCKEDREG_CH4_FNUM,
-	LOCKEDREG_CH5_FNUM,
-	LOCKEDREG_CH6_FNUM,
-	LOCKEDREG_CH1_BLOCK,
-	LOCKEDREG_CH2_BLOCK,
-	LOCKEDREG_CH3_BLOCK,
-	LOCKEDREG_CH4_BLOCK,
-	LOCKEDREG_CH5_BLOCK,
-	LOCKEDREG_CH6_BLOCK,
-	LOCKEDREG_CH1_ALGORITHM,
-	LOCKEDREG_CH2_ALGORITHM,
-	LOCKEDREG_CH3_ALGORITHM,
-	LOCKEDREG_CH4_ALGORITHM,
-	LOCKEDREG_CH5_ALGORITHM,
-	LOCKEDREG_CH6_ALGORITHM,
-	LOCKEDREG_CH1_FEEDBACK,
-	LOCKEDREG_CH2_FEEDBACK,
-	LOCKEDREG_CH3_FEEDBACK,
-	LOCKEDREG_CH4_FEEDBACK,
-	LOCKEDREG_CH5_FEEDBACK,
-	LOCKEDREG_CH6_FEEDBACK,
-	LOCKEDREG_CH1_AMS,
-	LOCKEDREG_CH2_AMS,
-	LOCKEDREG_CH3_AMS,
-	LOCKEDREG_CH4_AMS,
-	LOCKEDREG_CH5_AMS,
-	LOCKEDREG_CH6_AMS,
-	LOCKEDREG_CH1_PMS,
-	LOCKEDREG_CH2_PMS,
-	LOCKEDREG_CH3_PMS,
-	LOCKEDREG_CH4_PMS,
-	LOCKEDREG_CH5_PMS,
-	LOCKEDREG_CH6_PMS,
-	LOCKEDREG_CH1_LEFT,
-	LOCKEDREG_CH2_LEFT,
-	LOCKEDREG_CH3_LEFT,
-	LOCKEDREG_CH4_LEFT,
-	LOCKEDREG_CH5_LEFT,
-	LOCKEDREG_CH6_LEFT,
-	LOCKEDREG_CH1_RIGHT,
-	LOCKEDREG_CH2_RIGHT,
-	LOCKEDREG_CH3_RIGHT,
-	LOCKEDREG_CH4_RIGHT,
-	LOCKEDREG_CH5_RIGHT,
-	LOCKEDREG_CH6_RIGHT,
-
-	LOCKEDREG_LFOENABLED,
-	LOCKEDREG_LFOFREQ,
-	LOCKEDREG_DACENABLED,
-	LOCKEDREG_DACDATA,
-	LOCKEDREG_CH3MODE,
-	LOCKEDREG_CH3FNUM_OP1,
-	LOCKEDREG_CH3FNUM_OP2,
-	LOCKEDREG_CH3FNUM_OP3,
-	LOCKEDREG_CH3FNUM_OP4,
-	LOCKEDREG_CH3BLOCK_OP1,
-	LOCKEDREG_CH3BLOCK_OP2,
-	LOCKEDREG_CH3BLOCK_OP3,
-	LOCKEDREG_CH3BLOCK_OP4,
-
-	LOCKEDREG_TIMERA_LOAD,
-	LOCKEDREG_TIMERA_ENABLE,
-	LOCKEDREG_TIMERA_OVERFLOW,
-	LOCKEDREG_TIMERA_RATE,
-	LOCKEDREG_TIMERA_COUNTER,
-	LOCKEDREG_TIMERB_LOAD,
-	LOCKEDREG_TIMERB_ENABLE,
-	LOCKEDREG_TIMERB_OVERFLOW,
-	LOCKEDREG_TIMERB_RATE,
-	LOCKEDREG_TIMERB_COUNTER
-};
-
-//----------------------------------------------------------------------------------------
 //Raw register functions
 //----------------------------------------------------------------------------------------
 Data YM2612::GetRegisterData(unsigned int location, const AccessTarget& accessTarget) const
@@ -413,105 +34,27 @@ void YM2612::SetRegisterData(unsigned int location, const Data& data, const Acce
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::AdjustAddressChannelBlock(unsigned int address, unsigned int channelNo) const
+unsigned int YM2612::GetChannelBlockAddressOffset(unsigned int channelNo) const
 {
-	unsigned int newAddress = address;
-
-	switch(channelNo)
-	{
-	case CHANNEL1:
-		newAddress = address + 0;
-		break;
-	case CHANNEL2:
-		newAddress = address + 1;
-		break;
-	case CHANNEL3:
-		newAddress = address + 2;
-		break;
-	case CHANNEL4:
-		newAddress = registerCountPerPart + address + 0;
-		break;
-	case CHANNEL5:
-		newAddress = registerCountPerPart + address + 1;
-		break;
-	case CHANNEL6:
-		newAddress = registerCountPerPart + address + 2;
-		break;
-	}
-
-	return newAddress;
+	return channelAddressOffsets[channelNo];
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::AdjustAddressOperatorBlock(unsigned int address, unsigned int channelNo, unsigned int operatorNo) const
+unsigned int YM2612::GetOperatorBlockAddressOffset(unsigned int channelNo, unsigned int operatorNo) const
 {
-	unsigned int newAddress = AdjustAddressChannelBlock(address, channelNo);
-
-	switch(operatorNo)
-	{
-	case OPERATOR1:
-		newAddress += 0x0;
-		break;
-	case OPERATOR2:
-		newAddress += 0x8;
-		break;
-	case OPERATOR3:
-		newAddress += 0x4;
-		break;
-	case OPERATOR4:
-		newAddress += 0xC;
-		break;
-	}
-
-	return newAddress;
+	return operatorAddressOffsets[channelNo][operatorNo];
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::GetAddressChannel3FrequencyBlock1(unsigned int operatorNo) const
 {
-	unsigned int newAddress = 0;
-
-	switch(operatorNo)
-	{
-	case OPERATOR1:
-		newAddress = 0xA9;
-		break;
-	case OPERATOR2:
-		newAddress = 0xAA;
-		break;
-	case OPERATOR3:
-		newAddress = 0xA8;
-		break;
-	case OPERATOR4:
-		newAddress = 0xA2;
-		break;
-	}
-
-	return newAddress;
+	return channel3OperatorFrequencyAddressOffsets[0][operatorNo];
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::GetAddressChannel3FrequencyBlock2(unsigned int operatorNo) const
 {
-	unsigned int newAddress = 0;
-
-	switch(operatorNo)
-	{
-	case OPERATOR1:
-		newAddress = 0xAD;
-		break;
-	case OPERATOR2:
-		newAddress = 0xAE;
-		break;
-	case OPERATOR3:
-		newAddress = 0xAC;
-		break;
-	case OPERATOR4:
-		newAddress = 0xA6;
-		break;
-	}
-
-	return newAddress;
+	return channel3OperatorFrequencyAddressOffsets[1][operatorNo];
 }
 
 //----------------------------------------------------------------------------------------
@@ -748,30 +291,30 @@ void YM2612::SetDACEnabled(bool data, const AccessTarget& accessTarget)
 //3FH   | / |  Detune   |   Multiple    |
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetDetuneData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetDetuneData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x30, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x30;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(4, 3);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetDetuneData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetDetuneData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x30, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x30;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(4, 3, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetMultipleData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetMultipleData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x30, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x30;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(0, 4);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetMultipleData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetMultipleData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x30, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x30;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(0, 4, data), accessTarget);
 }
 
@@ -782,16 +325,16 @@ void YM2612::SetMultipleData(unsigned int channelNo, unsigned int operatorNo, un
 //4FH   | / |        Total Level        |
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetTotalLevelData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetTotalLevelData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x40, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x40;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(0, 7);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetTotalLevelData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetTotalLevelData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x40, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x40;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(0, 7, data), accessTarget);
 }
 
@@ -802,30 +345,30 @@ void YM2612::SetTotalLevelData(unsigned int channelNo, unsigned int operatorNo, 
 //5FH   |  KS   | / |    Attack Rate    |
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetKeyScaleData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetKeyScaleData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x50, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x50;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(6, 2);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetKeyScaleData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetKeyScaleData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x50, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x50;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(6, 2, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetAttackRateData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetAttackRateData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x50, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x50;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(0, 5);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetAttackRateData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetAttackRateData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x50, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x50;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(0, 5, data), accessTarget);
 }
 
@@ -836,30 +379,30 @@ void YM2612::SetAttackRateData(unsigned int channelNo, unsigned int operatorNo, 
 //6FH   |AM | /   / |    Decay Rate     |
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-bool YM2612::GetAmplitudeModulationEnabled(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+bool YM2612::GetAmplitudeModulationEnabled(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x60, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x60;
 	return GetRegisterData(registerNo, accessTarget).GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetAmplitudeModulationEnabled(unsigned int channelNo, unsigned int operatorNo, bool data, const AccessTarget& accessTarget)
+void YM2612::SetAmplitudeModulationEnabled(unsigned int operatorAddressOffset, bool data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x60, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x60;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetBit(7, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetDecayRateData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetDecayRateData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x60, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x60;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(0, 5);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetDecayRateData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetDecayRateData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x60, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x60;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(0, 5, data), accessTarget);
 }
 
@@ -870,16 +413,16 @@ void YM2612::SetDecayRateData(unsigned int channelNo, unsigned int operatorNo, u
 //7FH   | /   /   / |   Sustain Rate    |
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetSustainRateData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetSustainRateData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x70, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x70;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(0, 5);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetSustainRateData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetSustainRateData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x70, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x70;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(0, 5, data), accessTarget);
 }
 
@@ -890,30 +433,30 @@ void YM2612::SetSustainRateData(unsigned int channelNo, unsigned int operatorNo,
 //8FH   | Sustain Level | Release Rate  |
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetSustainLevelData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetSustainLevelData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x80, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x80;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(4, 4);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetSustainLevelData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetSustainLevelData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x80, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x80;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(4, 4, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetReleaseRateData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetReleaseRateData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x80, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x80;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(0, 4);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetReleaseRateData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetReleaseRateData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x80, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x80;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(0, 4, data), accessTarget);
 }
 
@@ -926,72 +469,72 @@ void YM2612::SetReleaseRateData(unsigned int channelNo, unsigned int operatorNo,
 //      |               | E |ATT|ALT|HLD|
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetSSGData(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetSSGData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(0, 4);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetSSGData(unsigned int channelNo, unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetSSGData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(0, 4, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-bool YM2612::GetSSGEnabled(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+bool YM2612::GetSSGEnabled(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	return GetRegisterData(registerNo, accessTarget).GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetSSGEnabled(unsigned int channelNo, unsigned int operatorNo, bool data, const AccessTarget& accessTarget)
+void YM2612::SetSSGEnabled(unsigned int operatorAddressOffset, bool data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetBit(3, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-bool YM2612::GetSSGAttack(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+bool YM2612::GetSSGAttack(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	return GetRegisterData(registerNo, accessTarget).GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetSSGAttack(unsigned int channelNo, unsigned int operatorNo, bool data, const AccessTarget& accessTarget)
+void YM2612::SetSSGAttack(unsigned int operatorAddressOffset, bool data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetBit(2, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-bool YM2612::GetSSGAlternate(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+bool YM2612::GetSSGAlternate(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	return GetRegisterData(registerNo, accessTarget).GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetSSGAlternate(unsigned int channelNo, unsigned int operatorNo, bool data, const AccessTarget& accessTarget)
+void YM2612::SetSSGAlternate(unsigned int operatorAddressOffset, bool data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetBit(1, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-bool YM2612::GetSSGHold(unsigned int channelNo, unsigned int operatorNo, const AccessTarget& accessTarget) const
+bool YM2612::GetSSGHold(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	return GetRegisterData(registerNo, accessTarget).GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetSSGHold(unsigned int channelNo, unsigned int operatorNo, bool data, const AccessTarget& accessTarget)
+void YM2612::SetSSGHold(unsigned int operatorAddressOffset, bool data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressOperatorBlock(0x90, channelNo, operatorNo);
+	unsigned int registerNo = operatorAddressOffset + 0x90;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetBit(0, data), accessTarget);
 }
 
@@ -1008,10 +551,10 @@ void YM2612::SetSSGHold(unsigned int channelNo, unsigned int operatorNo, bool da
 //      |       | (octave)  |  MSB's    |
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetFrequencyData(unsigned int channel, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetFrequencyData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int register1 = AdjustAddressChannelBlock(0xA0, channel);
-	unsigned int register2 = AdjustAddressChannelBlock(0xA4, channel);
+	unsigned int register1 = channelAddressOffset + 0xA0;
+	unsigned int register2 = channelAddressOffset + 0xA4;
 
 	Data data(11);
 	data.SetLowerBits(8, GetRegisterData(register1, accessTarget).GetData());
@@ -1020,10 +563,10 @@ unsigned int YM2612::GetFrequencyData(unsigned int channel, const AccessTarget& 
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetFrequencyData(unsigned int channel, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetFrequencyData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int register1 = AdjustAddressChannelBlock(0xA0, channel);
-	unsigned int register2 = AdjustAddressChannelBlock(0xA4, channel);
+	unsigned int register1 = channelAddressOffset + 0xA0;
+	unsigned int register2 = channelAddressOffset + 0xA4;
 
 	Data temp(11, data);
 	SetRegisterData(register1, GetRegisterData(register1, accessTarget).SetData(temp.GetDataSegment(0, 8)), accessTarget);
@@ -1031,16 +574,16 @@ void YM2612::SetFrequencyData(unsigned int channel, unsigned int data, const Acc
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetBlockData(unsigned int channel, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetBlockData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xA4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xA4;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(3, 3);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetBlockData(unsigned int channel, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetBlockData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xA4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xA4;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(3, 3, data), accessTarget);
 }
 
@@ -1100,30 +643,30 @@ void YM2612::SetBlockDataChannel3(unsigned int operatorNo, unsigned int data, co
 //B3H   | /   / | Feedback  | Algorithm |
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetFeedbackData(unsigned int channel, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetFeedbackData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB0, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB0;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(3, 3);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetFeedbackData(unsigned int channel, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetFeedbackData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB0, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB0;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(3, 3, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetAlgorithmData(unsigned int channel, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetAlgorithmData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB0, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB0;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(0, 3);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetAlgorithmData(unsigned int channel, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetAlgorithmData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB0, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB0;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(0, 3, data), accessTarget);
 }
 
@@ -1134,61 +677,63 @@ void YM2612::SetAlgorithmData(unsigned int channel, unsigned int data, const Acc
 //B7H   | L | R |  AMS  | / |    PMS    |
 //      ---------------------------------
 //----------------------------------------------------------------------------------------
-bool YM2612::GetOutputLeft(unsigned int channel, const AccessTarget& accessTarget) const
+bool YM2612::GetOutputLeft(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB4;
 	return GetRegisterData(registerNo, accessTarget).GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetOutputLeft(unsigned int channel, bool data, const AccessTarget& accessTarget)
+void YM2612::SetOutputLeft(unsigned int channelAddressOffset, bool data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB4;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetBit(7, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-bool YM2612::GetOutputRight(unsigned int channel, const AccessTarget& accessTarget) const
+bool YM2612::GetOutputRight(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB4;
 	return GetRegisterData(registerNo, accessTarget).GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetOutputRight(unsigned int channel, bool data, const AccessTarget& accessTarget)
+void YM2612::SetOutputRight(unsigned int channelAddressOffset, bool data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB4;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetBit(6, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetAMSData(unsigned int channel, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetAMSData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB4;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(4, 2);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetAMSData(unsigned int channel, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetAMSData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB4;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(4, 2, data), accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetPMSData(unsigned int channel, const AccessTarget& accessTarget) const
+unsigned int YM2612::GetPMSData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB4;
 	return GetRegisterData(registerNo, accessTarget).GetDataSegment(0, 3);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetPMSData(unsigned int channel, unsigned int data, const AccessTarget& accessTarget)
+void YM2612::SetPMSData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget)
 {
-	unsigned int registerNo = AdjustAddressChannelBlock(0xB4, channel);
+	unsigned int registerNo = channelAddressOffset + 0xB4;
 	SetRegisterData(registerNo, GetRegisterData(registerNo, accessTarget).SetDataSegment(0, 3, data), accessTarget);
 }
 
+//----------------------------------------------------------------------------------------
+//Status register functions
 //----------------------------------------------------------------------------------------
 //      ------------------------------------
 //      | 7  | 6 | 5 | 4 | 3 | 2 | 1  | 0  |
@@ -1198,9 +743,15 @@ void YM2612::SetPMSData(unsigned int channel, unsigned int data, const AccessTar
 //      |    |                   | B  | A  |
 //      ------------------------------------
 //----------------------------------------------------------------------------------------
-Data YM2612::GetStatus() const
+Data YM2612::GetStatusRegister() const
 {
 	return status;
+}
+
+//----------------------------------------------------------------------------------------
+void YM2612::SetStatusRegister(unsigned int adata)
+{
+	status = adata;
 }
 
 //----------------------------------------------------------------------------------------

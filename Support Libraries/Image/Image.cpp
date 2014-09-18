@@ -1,4 +1,4 @@
-#include "Image/Image.h"
+#include "Image.h"
 #include "Stream/Stream.pkg"
 #include <climits>
 
@@ -434,14 +434,19 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	else if(paletteUsed)
 	{
 		//Parse the palette info in the file header
-		for(unsigned int entryNo = 0; entryNo < paletteEntries; ++entryNo)
-		{
-			for(unsigned int channelNo = 0; channelNo < paletteChannels; ++channelNo)
-			{
-				unsigned char entry = header.colorMap[(entryNo * paletteChannels) + channelNo];
-				palette[entryNo][channelNo] = entry;
-			}
-		}
+		//##FIX## This is totally wrong, and will result in an out of bounds memory read
+		//of the palette array in the header. We need better information on how this
+		//palette information is encoded. The following link has some information:
+		//https://www.daubnet.com/en/file-format-pcx
+		//It seems that the palette could be monochrome, CGA, or EGA.
+		//for(unsigned int entryNo = 0; entryNo < paletteEntries; ++entryNo)
+		//{
+		//	for(unsigned int channelNo = 0; channelNo < paletteChannels; ++channelNo)
+		//	{
+		//		unsigned char entry = header.colorMap[(entryNo * paletteChannels) + channelNo];
+		//		palette[entryNo][channelNo] = entry;
+		//	}
+		//}
 	}
 
 	//Set the image format

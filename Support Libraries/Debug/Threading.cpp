@@ -1,28 +1,12 @@
 #include "Threading.h"
+#include "DataConversion/DataConversion.pkg"
 #include "WindowsSupport/WindowsSupport.pkg"
-
-//----------------------------------------------------------------------------------------
-std::string ConvertWStringToString(const std::wstring& source)
-{
-	size_t stringLength = source.length();
-	std::string target;
-	int targetLength = WideCharToMultiByte(CP_THREAD_ACP, 0, &source[0], (int)stringLength, NULL, 0, NULL, NULL);
-	if(targetLength > 0)
-	{
-		target.resize(targetLength);
-		int wideCharToMultiByteReturn = WideCharToMultiByte(CP_THREAD_ACP, 0, &source[0], (int)stringLength, &target[0], targetLength, NULL, NULL);
-		if(wideCharToMultiByteReturn <= 0)
-		{
-			target.clear();
-		}
-	}
-	return target;
-}
 
 //----------------------------------------------------------------------------------------
 //The following code comes from Microsoft. It uses a special custom exception which is
 //recognized by Visual Studio and some other debuggers to set the thread name in the
-//debugger.
+//debugger. See the following MSDN article for further information:
+//http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 #pragma pack(push, 8)
@@ -45,7 +29,7 @@ void SetThreadName(DWORD dwThreadID, char* threadName)
 
 	__try
 	{
-		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
+		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info);
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
@@ -57,7 +41,7 @@ void SetThreadName(DWORD dwThreadID, char* threadName)
 //----------------------------------------------------------------------------------------
 void SetCallingThreadName(const std::wstring& threadName)
 {
-	std::string threadNameConverted = ConvertWStringToString(threadName);
+	std::string threadNameConverted = WStringToString(threadName);
 	if(!threadNameConverted.empty())
 	{
 		SetThreadName((DWORD)-1, &threadNameConverted[0]);

@@ -89,7 +89,7 @@ IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumbe
 			if(bufferEntry->written && bufferEntry->shared)
 			{
 				//If the value has been written to, and the address is shared, roll back
-				GetDeviceContext()->SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
+				GetSystemInterface().SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
 			}
 		}
 		data.SetByteFromTopDown(i, memory[(location + i) % memory.size()]);
@@ -129,7 +129,7 @@ IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumb
 				//If the address is shared, roll back
 				if(bufferEntry->shared)
 				{
-					GetDeviceContext()->SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
+					GetSystemInterface().SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
 				}
 			}
 			memory[bytePos] = data.GetByteFromTopDown(i);
@@ -157,6 +157,20 @@ void SharedRAM::TransparentWriteInterface(unsigned int interfaceNumber, unsigned
 	{
 		memory[(location + i) % memory.size()] = data.GetByteFromTopDown(i);
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int SharedRAM::ReadMemoryEntry(unsigned int location) const
+{
+	return memory[location % memory.size()];
+}
+
+//----------------------------------------------------------------------------------------
+void SharedRAM::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	memory[location % memory.size()] = (unsigned char)data;
 }
 
 //----------------------------------------------------------------------------------------

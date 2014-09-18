@@ -975,6 +975,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{36693E5E-1462-4CFC-A240-2CCAA6483833}"
+			RelativePathToProject=".\Libraries\Device\Device.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -988,42 +992,6 @@
 				RelativePath=".\MemoryRead.h"
 				>
 			</File>
-			<File
-				RelativePath=".\MemoryRead_Wnd.cpp"
-				>
-			</File>
-			<Filter
-				Name="DebugMenuHandler"
-				>
-				<File
-					RelativePath=".\DebugMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DebugMenuHandler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="MemoryEditorView"
-				>
-				<File
-					RelativePath=".\MemoryEditorView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MemoryEditorView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\MemoryEditorViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MemoryEditorViewModel.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="MemoryWrite"
@@ -1265,6 +1233,30 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="Resources"
+			>
+			<File
+				RelativePath=".\Memory.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="IMemory"
+			>
+			<File
+				RelativePath=".\IMemory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IMemory.inl"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\interface.cpp"
 			>
@@ -1273,15 +1265,11 @@
 			RelativePath=".\interface.h"
 			>
 		</File>
-		<File
-			RelativePath=".\Memory.rc"
-			>
-		</File>
-		<File
-			RelativePath=".\resource.h"
-			>
-		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

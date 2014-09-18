@@ -15,6 +15,14 @@
 #endif
 namespace InteropSupport {
 
+//##TODO## Add support for marshalled data items without a default constructor by
+//supporting a default object for array construction
+//##TODO## Consider renaming this entire library to MarshalSupport, and our classes to
+//IMarshalSource and the like. Since we now support any object, not just STL objects, it
+//doesn't make sense to keep STL in the object names.
+//##TODO## Implement wrapper templates such as In, Out, InOut, and Ret, which use the
+//model we've worked out for eliminating the need for inline wrapper methods and internal
+//functions on the interface.
 //----------------------------------------------------------------------------------------
 template<class ContainerType>
 class ISTLObjectSource

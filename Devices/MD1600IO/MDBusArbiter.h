@@ -1,6 +1,6 @@
 #ifndef __MDBUSARBITER_H__
 #define __MDBUSARBITER_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Device/Device.pkg"
 #include <boost/thread/mutex.hpp>
 

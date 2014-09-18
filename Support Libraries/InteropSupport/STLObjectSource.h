@@ -6,8 +6,17 @@
 #include "CreateSTLContainerKeyMarshallers.h"
 #include "DeleteSTLContainerKeyMarshallers.h"
 #include "CreateSTLContainerItemArray.h"
+#include "DeleteSTLContainerItemArray.h"
 #include "DecomposeSTLContainer.h"
 namespace InteropSupport {
+
+//Disable warning about using "this" pointer in initializer list. Our usage here is safe,
+//and guaranteed by the standard. See section 12.6.2 [class.base.init] paragraph 7 of the
+//standard for clarification.
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4355)
+#endif
 
 //----------------------------------------------------------------------------------------
 template<class ContainerType>
@@ -16,17 +25,11 @@ class STLObjectSource :public ISTLObjectSource<ContainerType>
 public:
 	//Constructors
 	STLObjectSource(const ContainerType& asourceObject)
-		:sourceObject(asourceObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
+	:selfReference(*this), sourceObject(asourceObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
 	{ }
 	virtual ~STLObjectSource()
 	{
-		delete[] itemArray;
-		delete[] elementSizeArray;
-		if(HasKeyMarshallers())
-		{
-			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (ContainerType*)0);
-			delete[] keyMarshallerArray;
-		}
+		selfReference.DestroyDataArrays();
 	}
 
 protected:
@@ -44,7 +47,7 @@ protected:
 		CalculateDecomposedSTLContainerSize(nestingDepth, 1, itemArraySize, elementSizeArraySize, sourceObject);
 
 		//Allocate our flat arrays to hold the decomposed object data
-		delete[] itemArray;
+		DeleteSTLContainerItemArray(itemArray, &sourceObject);
 		delete[] elementSizeArray;
 		itemArray = CreateSTLContainerItemArray(itemArraySize, &sourceObject);
 		elementSizeArray = new size_t[elementSizeArraySize];
@@ -77,6 +80,26 @@ protected:
 	}
 
 private:
+	//Disable copying and moving
+	STLObjectSource(const STLObjectSource& source);
+	STLObjectSource& operator=(const STLObjectSource& source);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+	STLObjectSource(STLObjectSource&& source);
+	STLObjectSource& operator=(STLObjectSource&& source);
+#endif
+
+	//Cleanup methods
+	virtual void DestroyDataArrays()
+	{
+		DeleteSTLContainerItemArray(itemArray, &sourceObject);
+		delete[] elementSizeArray;
+		if(HasKeyMarshallers())
+		{
+			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (ContainerType*)0);
+			delete[] keyMarshallerArray;
+		}
+	}
+
 	//Marshalling methods
 	INTEROPSUPPORT_CONSTEXPR bool HasKeyMarshallers() const
 	{
@@ -84,6 +107,7 @@ private:
 	}
 
 private:
+	STLObjectSource<ContainerType>& selfReference;
 	mutable void* itemArray;
 	mutable size_t* elementSizeArray;
 	mutable ISTLObjectKeyMarshallerBase** keyMarshallerArray;
@@ -97,17 +121,11 @@ class STLObjectSource<std::vector<ElementType>> :public ISTLObjectSource<std::ve
 public:
 	//Constructors
 	STLObjectSource(const std::vector<ElementType>& asourceObject)
-		:sourceObject(asourceObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
+	:selfReference(*this), sourceObject(asourceObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
 	{ }
 	virtual ~STLObjectSource()
 	{
-		delete[] itemArray;
-		delete[] elementSizeArray;
-		if(HasKeyMarshallers())
-		{
-			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (std::vector<ElementType>*)0);
-			delete[] keyMarshallerArray;
-		}
+		selfReference.DestroyDataArrays();
 	}
 
 protected:
@@ -130,7 +148,7 @@ protected:
 		CalculateDecomposedSTLContainerSize(nestingDepth, 1, itemArraySize, elementSizeArraySize, sourceObject);
 
 		//Allocate our flat arrays to hold the decomposed object data
-		delete[] itemArray;
+		DeleteSTLContainerItemArray(itemArray, &sourceObject);
 		delete[] elementSizeArray;
 		itemArray = CreateSTLContainerItemArray(itemArraySize, &sourceObject);
 		elementSizeArray = new size_t[elementSizeArraySize];
@@ -163,6 +181,26 @@ protected:
 	}
 
 private:
+	//Disable copying and moving
+	STLObjectSource(const STLObjectSource& source);
+	STLObjectSource& operator=(const STLObjectSource& source);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+	STLObjectSource(STLObjectSource&& source);
+	STLObjectSource& operator=(STLObjectSource&& source);
+#endif
+
+	//Cleanup methods
+	virtual void DestroyDataArrays()
+	{
+		DeleteSTLContainerItemArray(itemArray, &sourceObject);
+		delete[] elementSizeArray;
+		if(HasKeyMarshallers())
+		{
+			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (std::vector<ElementType>*)0);
+			delete[] keyMarshallerArray;
+		}
+	}
+
 	//Marshalling methods
 	INTEROPSUPPORT_CONSTEXPR bool HasKeyMarshallers() const
 	{
@@ -170,6 +208,7 @@ private:
 	}
 
 private:
+	STLObjectSource<std::vector<ElementType>>& selfReference;
 	mutable void* itemArray;
 	mutable size_t* elementSizeArray;
 	mutable ISTLObjectKeyMarshallerBase** keyMarshallerArray;
@@ -183,11 +222,11 @@ class STLObjectSource<std::vector<bool>> :public ISTLObjectSource<std::vector<bo
 public:
 	//Constructors
 	STLObjectSource(const std::vector<bool>& asourceObject)
-		:sourceObject(asourceObject), itemArray(0)
+	:selfReference(*this), sourceObject(asourceObject), itemArray(0)
 	{ }
 	virtual ~STLObjectSource()
 	{
-		delete[] itemArray;
+		selfReference.DestroyDataArrays();
 	}
 
 protected:
@@ -214,6 +253,22 @@ protected:
 	}
 
 private:
+	//Disable copying and moving
+	STLObjectSource(const STLObjectSource& source);
+	STLObjectSource& operator=(const STLObjectSource& source);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+	STLObjectSource(STLObjectSource&& source);
+	STLObjectSource& operator=(STLObjectSource&& source);
+#endif
+
+	//Cleanup methods
+	virtual void DestroyDataArrays()
+	{
+		delete[] itemArray;
+	}
+
+private:
+	STLObjectSource<std::vector<bool>>& selfReference;
 	mutable bool* itemArray;
 	const std::vector<bool>& sourceObject;
 };
@@ -226,17 +281,11 @@ class STLObjectSource<std::array<ElementType, ArraySize>> :public ISTLObjectSour
 public:
 	//Constructors
 	STLObjectSource(const std::array<ElementType, ArraySize>& asourceObject)
-		:sourceObject(asourceObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
+	:selfReference(*this), sourceObject(asourceObject), itemArray(0), elementSizeArray(0), keyMarshallerArray(0)
 	{ }
 	virtual ~STLObjectSource()
 	{
-		delete[] itemArray;
-		delete[] elementSizeArray;
-		if(HasKeyMarshallers())
-		{
-			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (std::array<ElementType, ArraySize>*)0);
-			delete[] keyMarshallerArray;
-		}
+		selfReference.DestroyDataArrays();
 	}
 
 protected:
@@ -258,7 +307,7 @@ protected:
 		CalculateDecomposedSTLContainerSize(nestingDepth, 1, itemArraySize, elementSizeArraySize, sourceObject);
 
 		//Allocate our flat arrays to hold the decomposed object data
-		delete[] itemArray;
+		DeleteSTLContainerItemArray(itemArray, &sourceObject);
 		delete[] elementSizeArray;
 		itemArray = CreateSTLContainerItemArray(itemArraySize, &sourceObject);
 		elementSizeArray = new size_t[elementSizeArraySize];
@@ -291,6 +340,24 @@ protected:
 	}
 
 private:
+	//Disable copying and moving
+	STLObjectSource(const STLObjectSource& source);
+	STLObjectSource& operator=(const STLObjectSource& source);
+	STLObjectSource(STLObjectSource&& source);
+	STLObjectSource& operator=(STLObjectSource&& source);
+
+	//Cleanup methods
+	virtual void DestroyDataArrays()
+	{
+		DeleteSTLContainerItemArray(itemArray, &sourceObject);
+		delete[] elementSizeArray;
+		if(HasKeyMarshallers())
+		{
+			DeleteSTLContainerKeyMarshallers(keyMarshallerArray, 0, (std::array<ElementType, ArraySize>*)0);
+			delete[] keyMarshallerArray;
+		}
+	}
+
 	//Marshalling methods
 	INTEROPSUPPORT_CONSTEXPR bool HasKeyMarshallers() const
 	{
@@ -298,6 +365,7 @@ private:
 	}
 
 private:
+	STLObjectSource<std::array<ElementType, ArraySize>>& selfReference;
 	mutable void* itemArray;
 	mutable size_t* elementSizeArray;
 	mutable ISTLObjectKeyMarshallerBase** keyMarshallerArray;
@@ -307,15 +375,23 @@ private:
 
 //----------------------------------------------------------------------------------------
 template<class ElementType>
-class STLObjectSource<std::basic_string<ElementType>> :public ISTLObjectSource<std::wstring>
+class STLObjectSource<std::basic_string<ElementType>> :public ISTLObjectSource<std::basic_string<ElementType>>
 {
 public:
 	//Constructors
 	STLObjectSource(const std::basic_string<ElementType>& asourceObject)
-		:sourceObject(asourceObject)
+	:sourceObject(asourceObject)
 	{}
 
 protected:
+	//Disable copying and moving
+	STLObjectSource(const STLObjectSource& source);
+	STLObjectSource& operator=(const STLObjectSource& source);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+	STLObjectSource(STLObjectSource&& source);
+	STLObjectSource& operator=(STLObjectSource&& source);
+#endif
+
 	//Marshalling methods
 	virtual void RetrieveData(const ElementType*& sourceData, size_t& sourceDataLength) const
 	{
@@ -326,6 +402,11 @@ protected:
 private:
 	const std::basic_string<ElementType>& sourceObject;
 };
+
+//Restore the disabled C4355 warning
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } //Close namespace InteropSupport
 #endif

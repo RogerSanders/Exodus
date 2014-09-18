@@ -1012,204 +1012,92 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{DB781392-9752-4607-B90C-614FA1670D47}"
+			RelativePathToProject=".\Libraries\ExodusDeviceInterface\ExodusDeviceInterface.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{5AC3CB2C-0A1A-4E29-8A07-2BDED302611B}"
+			RelativePathToProject=".\Support Libraries\WindowsSupport\WindowsSupport.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{ECC567B9-0DD5-4130-9685-CB9B5C6BD96E}"
+			RelativePathToProject=".\Support Libraries\HierarchicalStorage\HierarchicalStorage.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{7E84CDBB-E45F-4CCE-8AE9-3A74DEAA0881}"
+			RelativePathToProject=".\Support Libraries\Image\Image.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{1A40C5A2-95ED-4A3F-BE41-AD027D6E1C6C}"
+			RelativePathToProject=".\Libraries\ExodusExtensionInterface\ExodusExtensionInterface.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{952D92A9-1E79-420C-8A8A-C6F230E819B5}"
+			RelativePathToProject=".\Support Libraries\WindowsControls\WindowsControls.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{AA212D36-1347-47AB-B658-7CE6BA7FA425}"
+			RelativePathToProject=".\Support Libraries\ZIP\ZIP.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{2615B12B-BA5F-4C84-97EE-81761C51BE03}"
+			RelativePathToProject=".\Support Libraries\ThreadLib\ThreadLib.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{EF94FCA0-434C-4145-9ED7-E4DBEB168E16}"
+			RelativePathToProject=".\System\System.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
 			Name="Resources"
 			>
 			<File
-				RelativePath=".\Resources\folder.ico"
+				RelativePath="Resources\folder.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\Resources\program.ico"
+				RelativePath="Resources\program.ico"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="System"
+			Name="View System"
 			>
-			<File
-				RelativePath=".\System.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\System.h"
-				>
-			</File>
-			<File
-				RelativePath=".\System.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\System_Wnd.cpp"
-				>
-			</File>
 			<Filter
-				Name="DebugMenuHandler"
+				Name="ViewStateChangeNotifier"
 				>
 				<File
-					RelativePath=".\DebugMenuHandler.cpp"
+					RelativePath="ViewStateChangeNotifier.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\DebugMenuHandler.h"
+					RelativePath="ViewStateChangeNotifier.h"
 					>
 				</File>
 			</Filter>
 			<Filter
-				Name="LoggerView"
+				Name="IViewManagerNotifierInterface"
 				>
 				<File
-					RelativePath=".\LoggerView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\LoggerView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\LoggerViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\LoggerViewModel.h"
+					RelativePath="IViewManagerNotifierInterface.h"
 					>
 				</File>
 			</Filter>
 			<Filter
-				Name="LoggerDetailsView"
+				Name="ViewManager"
 				>
 				<File
-					RelativePath=".\LoggerDetailsView.cpp"
+					RelativePath="ViewManager.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\LoggerDetailsView.h"
+					RelativePath="ViewManager.h"
 					>
 				</File>
 				<File
-					RelativePath=".\LoggerDetailsViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\LoggerDetailsViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="DeviceControlView"
-				>
-				<File
-					RelativePath=".\DeviceControlView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DeviceControlView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\DeviceControlViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DeviceControlViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SystemMenuHandler"
-				>
-				<File
-					RelativePath=".\SystemMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SystemMenuHandler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="InputMappingView"
-				>
-				<File
-					RelativePath=".\InputMappingView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\InputMappingView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\InputMappingViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\InputMappingViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="InputMappingDetailsView"
-				>
-				<File
-					RelativePath=".\InputMappingDetailsView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\InputMappingDetailsView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\InputMappingDetailsViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\InputMappingDetailsViewModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SystemOptionMenuHandler"
-				>
-				<File
-					RelativePath=".\SystemOptionMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SystemOptionMenuHandler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SettingsMenuHandler"
-				>
-				<File
-					RelativePath=".\SettingsMenuHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SettingsMenuHandler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="EmbeddedROMView"
-				>
-				<File
-					RelativePath=".\EmbeddedROMView.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\EmbeddedROMView.h"
-					>
-				</File>
-				<File
-					RelativePath=".\EmbeddedROMViewModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\EmbeddedROMViewModel.h"
+					RelativePath="ViewManager.inl"
 					>
 				</File>
 			</Filter>
@@ -1218,17 +1106,89 @@
 			Name="ExodusInterface"
 			>
 			<File
-				RelativePath=".\ExodusInterface.cpp"
+				RelativePath="ExodusInterface.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ExodusInterface.h"
+				RelativePath="ExodusInterface.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ExodusInterface.inl"
+				RelativePath="ExodusInterface.inl"
 				>
 			</File>
+			<Filter
+				Name="AboutView"
+				>
+				<File
+					RelativePath=".\AboutView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\AboutView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\AboutViewPresenter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\AboutViewPresenter.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="SettingsView"
+				>
+				<File
+					RelativePath=".\SettingsView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SettingsView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\SettingsViewPresenter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SettingsViewPresenter.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="ModuleManagerView"
+				>
+				<File
+					RelativePath=".\ModuleManagerView.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ModuleManagerView.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ModuleManagerViewPresenter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ModuleManagerViewPresenter.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="MenuHandler"
+				>
+				<File
+					RelativePath=".\MenuHandler.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MenuHandler.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Menu System"
@@ -1237,11 +1197,11 @@
 				Name="MenuSegment"
 				>
 				<File
-					RelativePath=".\MenuSegment.cpp"
+					RelativePath="MenuSegment.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MenuSegment.h"
+					RelativePath="MenuSegment.h"
 					>
 				</File>
 			</Filter>
@@ -1249,23 +1209,11 @@
 				Name="MenuSelectableOption"
 				>
 				<File
-					RelativePath=".\MenuSelectableOption.cpp"
+					RelativePath="MenuSelectableOption.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MenuSelectableOption.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="MenuSeparator"
-				>
-				<File
-					RelativePath=".\MenuSeparator.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\MenuSeparator.h"
+					RelativePath="MenuSelectableOption.h"
 					>
 				</File>
 			</Filter>
@@ -1273,217 +1221,81 @@
 				Name="MenuSubmenu"
 				>
 				<File
-					RelativePath=".\MenuSubmenu.cpp"
+					RelativePath="MenuSubmenu.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\MenuSubmenu.h"
+					RelativePath="MenuSubmenu.h"
 					>
 				</File>
 			</Filter>
 		</Filter>
 		<Filter
-			Name="Device System"
-			>
-			<Filter
-				Name="BusInterface"
-				>
-				<File
-					RelativePath=".\BusInterface.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\BusInterface.h"
-					>
-				</File>
-				<File
-					RelativePath=".\BusInterface.inl"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="DeviceContext"
-				>
-				<File
-					RelativePath=".\DeviceContext.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DeviceContext.h"
-					>
-				</File>
-				<File
-					RelativePath=".\DeviceContext.inl"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="DeviceInfo"
-				>
-				<File
-					RelativePath=".\DeviceInfo.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DeviceInfo.h"
-					>
-				</File>
-				<File
-					RelativePath=".\DeviceInfo.inl"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="DataRemapTable"
-				>
-				<File
-					RelativePath=".\DataRemapTable.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DataRemapTable.h"
-					>
-				</File>
-				<File
-					RelativePath=".\DataRemapTable.inl"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ClockSource"
-				>
-				<File
-					RelativePath=".\ClockSource.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ClockSource.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ClockSource.inl"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ISystemInternal"
-				>
-				<File
-					RelativePath=".\ISystemInternal.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ISystemExternal"
-				>
-				<File
-					RelativePath=".\ISystemExternal.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ISystemExternal.inl"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ExecutionManager"
-				>
-				<File
-					RelativePath=".\ExecutionManager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ExecutionManager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ExecutionManager.inl"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="IExecutionSuspendManager"
-				>
-				<File
-					RelativePath=".\IExecutionSuspendManager.h"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="View System"
-			>
-			<Filter
-				Name="ViewModelNotifier"
-				>
-				<File
-					RelativePath=".\ViewModelNotifier.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ViewModelNotifier.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="IViewModelManager"
-				>
-				<File
-					RelativePath=".\IViewModelManager.h"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="ModuleManager"
+			Name="DeviceInfo"
 			>
 			<File
-				RelativePath=".\ModuleManager.cpp"
+				RelativePath="DeviceInfo.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ModuleManager.h"
+				RelativePath="DeviceInfo.h"
+				>
+			</File>
+			<File
+				RelativePath="DeviceInfo.inl"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="Extension System"
+			Name="ExtensionInfo"
 			>
-			<Filter
-				Name="ExtensionInfo"
+			<File
+				RelativePath="ExtensionInfo.cpp"
 				>
-				<File
-					RelativePath=".\ExtensionInfo.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ExtensionInfo.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ExtensionInfo.inl"
-					>
-				</File>
-			</Filter>
+			</File>
+			<File
+				RelativePath="ExtensionInfo.h"
+				>
+			</File>
+			<File
+				RelativePath="ExtensionInfo.inl"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="SystemInfo"
+			>
+			<File
+				RelativePath=".\SystemInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SystemInfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SystemInfo.inl"
+				>
+			</File>
 		</Filter>
 		<File
-			RelativePath=".\Exodus.rc"
+			RelativePath="Exodus.rc"
 			>
 		</File>
 		<File
-			RelativePath=".\main.cpp"
+			RelativePath="main.cpp"
 			>
 		</File>
 		<File
-			RelativePath=".\manifest.xml"
+			RelativePath="manifest.xml"
 			>
 		</File>
 		<File
-			RelativePath=".\manifestx64.xml"
+			RelativePath="manifestx64.xml"
 			>
 		</File>
 		<File
-			RelativePath=".\resource.h"
+			RelativePath="resource.h"
 			>
 		</File>
 	</Files>

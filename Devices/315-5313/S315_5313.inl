@@ -383,68 +383,12 @@ struct S315_5313::HVCounterAdvanceSession
 };
 
 //----------------------------------------------------------------------------------------
-struct S315_5313::PortMonitorEntry
-{
-	PortMonitorEntry(const std::wstring& atarget, const std::wstring& asource, unsigned int adata, double aaccessTime, unsigned int ahcounterPos, unsigned int avcounterPos)
-	:target(atarget), source(asource), data(adata), accessTime(aaccessTime), hcounterPos(ahcounterPos), vcounterPos(avcounterPos)
-	{}
-
-	std::wstring source;
-	std::wstring target;
-	unsigned int data;
-	double accessTime;
-	unsigned int hcounterPos;
-	unsigned int vcounterPos;
-};
-
-//----------------------------------------------------------------------------------------
-struct S315_5313::SpriteMappingTableEntry
-{
-	SpriteMappingTableEntry()
-	:rawDataWord0(16), rawDataWord1(16), rawDataWord2(16), rawDataWord3(16)
-	{}
-
-	Data rawDataWord0;
-	Data rawDataWord1;
-	Data rawDataWord2;
-	Data rawDataWord3;
-
-	unsigned int blockNumber;
-	unsigned int paletteLine;
-	unsigned int xpos;
-	unsigned int ypos;
-	unsigned int width;
-	unsigned int height;
-	unsigned int link;
-	bool priority;
-	bool vflip;
-	bool hflip;
-};
-
-//----------------------------------------------------------------------------------------
 struct S315_5313::ImageBufferColorEntry
 {
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
 	unsigned char a;
-};
-
-//----------------------------------------------------------------------------------------
-struct S315_5313::SpriteBoundaryLineEntry
-{
-	int linePosXStart;
-	int linePosXEnd;
-	int linePosYStart;
-	int linePosYEnd;
-};
-
-//----------------------------------------------------------------------------------------
-struct S315_5313::DecodedPaletteColorEntry
-{
-	unsigned int r;
-	unsigned int g;
-	unsigned int b;
 };
 
 //----------------------------------------------------------------------------------------

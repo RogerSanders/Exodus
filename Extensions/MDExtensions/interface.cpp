@@ -1,14 +1,14 @@
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "MegaDriveROMLoader.h"
 
 IExtension* GetMegaDriveROMLoader(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new MegaDriveROMLoader(implementationName, instanceName, moduleID);
+	return static_cast<IExtension*>(new MegaDriveROMLoader(implementationName, instanceName, moduleID));
 }
 
 void DeleteMegaDriveROMLoader(IExtension* extension)
 {
-	delete extension;
+	delete static_cast<MegaDriveROMLoader*>(extension);
 }
 
 #ifdef EX_DLLINTERFACE

@@ -1,7 +1,8 @@
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "Debug/Debug.pkg"
 #include "ExodusInterface.h"
-#include "System.h"
+#include "SystemInterface/SystemInterface.pkg"
+#include "SystemInfo.h"
 #include "resource.h"
 #include <stdlib.h>
 #include <time.h>
@@ -39,40 +40,60 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//Seed the "rand()" random number generator using the current system time
 	srand((unsigned int)time(NULL));
 
-	//Construct the system object
-	System systemObject((void*)GetModuleHandle(NULL));
-
 	//If we're statically linking to any devices, bind them to the system here.
 #ifndef EX_DLLINTERFACE
-	systemObject.RegisterDevice(GetA04000Library(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetA06000Library(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetA11100Library(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetA10000Library(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetM68000Library(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetRAMLibrary(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetSharedRAMLibrary(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetTimedRAMLibrary(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetROMLibrary(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetSN76489Library(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetVDPLibrary(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetYM2612Library(), (Device::AssemblyHandle)GetModuleHandle(NULL));
-	systemObject.RegisterDevice(GetZ80Library(), (Device::AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetA04000Library(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetA06000Library(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetA11100Library(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetA10000Library(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetM68000Library(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetRAMLibrary(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetSharedRAMLibrary(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetTimedRAMLibrary(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetROMLibrary(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetSN76489Library(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetVDPLibrary(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetYM2612Library(), (AssemblyHandle)GetModuleHandle(NULL));
+	systemObject.RegisterDevice(GetZ80Library(), (AssemblyHandle)GetModuleHandle(NULL));
 #endif
 
+	//Create the main interface object
+	ExodusInterface exodusInterface;
+
+	//Load the system assembly
+	ExodusInterface::PluginInfo systemPluginInfo;
+	if(!exodusInterface.LoadAssemblyInfo(L"System.dll", systemPluginInfo) || (systemPluginInfo.GetSystemEntry == 0))
+	{
+		return 1;
+	}
+
+	//Retrieve information on the system plugin from the system assembly
+	SystemInfo systemInfo;
+	if(!systemPluginInfo.GetSystemEntry(0, systemInfo))
+	{
+		return 2;
+	}
+
+	//Construct the system object
+	ISystemInfo::AllocatorPointer systemAllocator = systemInfo.GetAllocator();
+	ISystemInfo::DestructorPointer systemDestructor = systemInfo.GetDestructor();
+	ISystemGUIInterface* systemObject = systemAllocator(exodusInterface);
+
+	//Bind the main interface to the system
+	exodusInterface.BindToSystem(systemObject);
+
 	//Create the main interface window
-	ExodusInterface exodusInterface(systemObject);
-	systemObject.BindToGUIExtensionInterface(&exodusInterface);
 	HWND hwnd = exodusInterface.CreateMainInterface(hInstance);
 	if(hwnd == NULL)
 	{
-		return 1;
+		return 3;
 	}
 
 	//Load the keyboard accelerator table
 	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATORS));
 	if(acceleratorTable == NULL)
 	{
-		return 2;
+		return 4;
 	}
 
 	//Begin the message loop
@@ -97,6 +118,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//Destroy the keyboard accelerator table
 	DestroyAcceleratorTable(acceleratorTable);
+
+	//Unbind the system object from the interface
+	exodusInterface.UnbindFromSystem();
+
+	//Destroy the system object
+	systemDestructor(systemObject);
 
 	return 0;
 }

@@ -1,6 +1,5 @@
 /*--------------------------------------------------------------------------------------*\
 Things to do:
--Make a pure virtual interface for this object, held in a separate project.
 -Write routines to convert from other colour spaces like CMYK
 -Implement TIFF file save support
 -Implement our own libjpeg error handler
@@ -19,11 +18,30 @@ for basic PNG images as quickly as possible.
 function.
 -Add support for the netpbm image formats (inline text format images for embedding in
 code)
--Add PCX file support (supports alpha, looks fun to code)
+-Add support for the XPM icon file format. This format is very useful for embedding
+icon and cursor resources directly in sourcecode, and we should be able to do a one-step
+conversion from XPM (or other icon formats) into something ready to create a win32 icon or
+cursor from.
+-Note that win32 icons have separate AND and XOR bit masks, which allows it to have not
+only transparent pixels, but invert pixels, which invert the screen pixels under the
+image. This invert mask can be treated just like another layer, but we'll need to
+introduce new pixel formats in order to support invert layers.
+-Add support for color index images with a palette. The color index data can just appear
+in a layer, but we'll need a new set of functions to define the palette, as well as a new
+PaletteFormat enumeration defining supported palette colour encodings for automatic
+conversion to other formats. We'll also need to introduce pixel formats for color indexed
+images.
 -Add CUR/ICO file support
+-Note that in order to support the "hotspot" concept of cursor files, we should introduce
+"image origin" data fields, which will indicate the anchor point of the image. This will
+be used for cursor files to set and retrieve the cursor hotspot.
 -Consider adding a higher level "wrapper" of sorts, to support multiple paged (animated)
 image formats. IE, consider adding animated support for gif and mng. Also consider adding
-support for dcx (pcx image archive) format.
+support for dcx (pcx image archive) format, and ani files for animated cursors. We'll also
+need multi page support for even normal cur and ico files, since they can contain a
+variety of images with different sizes and colour depths. Note that with gif files,
+there's a duration value per image too which specifies how long it should be displayed
+for, which should be supported.
 \*--------------------------------------------------------------------------------------*/
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
@@ -37,6 +55,9 @@ support for dcx (pcx image archive) format.
 #include <tiffio.h>
 #include "StreamInterface/StreamInterface.pkg"
 
+//##FIX## Right now the static support libraries we link to for various formats increase
+//the size of any module using this library by around 1MB. We need to eliminate that
+//overhead for uses which don't require this additional format support.
 class Image :public IImage
 {
 public:

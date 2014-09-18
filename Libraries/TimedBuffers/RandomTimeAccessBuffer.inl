@@ -1,5 +1,4 @@
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "Stream/Stream.pkg"
 #include "Debug/Debug.pkg"
 
 //----------------------------------------------------------------------------------------
@@ -130,7 +129,7 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<Da
 	case accessTarget.TARGET_TIME:
 		return Read(address, accessTarget.time);
 	}
-	ReleaseAssert(false);
+	DebugAssert(false);
 	return DataType(defaultValue);
 }
 
@@ -149,7 +148,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 		Write(address, accessTarget.time, data);
 		return;
 	}
-	ReleaseAssert(false);
+	DebugAssert(false);
 }
 
 //----------------------------------------------------------------------------------------
@@ -166,7 +165,7 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<Da
 	case accessTarget.TARGET_TIME:
 		return Read(address, accessTarget.time);
 	}
-	ReleaseAssert(false);
+	DebugAssert(false);
 	return DataType(defaultValue);
 }
 
@@ -185,7 +184,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 		Write(address, accessTarget.time, data);
 		return;
 	}
-	ReleaseAssert(false);
+	DebugAssert(false);
 }
 
 //----------------------------------------------------------------------------------------
@@ -662,108 +661,117 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataTy
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceBySession(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice)
 {
-	//Check if we're going to reach a write in this step. We perform this conditional test
-	//here before the inner loop so that we can avoid any locks for updates where we don't
-	//reach a write.
+	//Note that we split the internals of this method outside this inline wrapper function
+	//for performance. If we fold all the logic into one method, we can't effectively
+	//inline it, and we get a big performance penalty in the case that this test fails,
+	//which we expect it will almost all the time, due to a lack of inlining and needing
+	//to prepare the stack and registers for inner variables that never get used. This has
+	//been verified through profiling as a performance bottleneck.
 	if(currentProgress >= advanceSession.nextWriteTime)
 	{
-		//Since a write needs to be processed, obtain a lock, and loop around until there
-		//are no writes left within the update step.
-		boost::mutex::scoped_lock lock(accessLock);
-		advanceSession.writeInfo.exists = false;
-		bool done = false;
-		while(!done && (currentProgress >= advanceSession.nextWriteTime))
+		AdvanceBySessionInternal(currentProgress, advanceSession, targetTimeslice);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceBySessionInternal(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice)
+{
+	//Since a write needs to be processed, obtain a lock, and loop around until there
+	//are no writes left within the update step.
+	boost::mutex::scoped_lock lock(accessLock);
+	advanceSession.writeInfo.exists = false;
+	bool done = false;
+	while(!done && (currentProgress >= advanceSession.nextWriteTime))
+	{
+		TimesliceType step = (((currentProgress + advanceSession.initialTimeOffset) - advanceSession.timeRemovedDuringSession) - currentTimeOffset);
+		TimesliceType currentTimeBase = 0;
+
+		//Commit buffered writes which we have passed in this step
+		std::list<TimesliceEntry>::iterator currentTimeslice = timesliceList.begin();
+		std::list<WriteEntry>::iterator i = writeList.begin();
+		bool foundNextWrite = false;
+		bool reachedEndOfTargetTimeslice = false;
+		while((i != writeList.end()) && !foundNextWrite && !reachedEndOfTargetTimeslice)
 		{
-			TimesliceType step = (((currentProgress + advanceSession.initialTimeOffset) - advanceSession.timeRemovedDuringSession) - currentTimeOffset);
-			TimesliceType currentTimeBase = 0;
-
-			//Commit buffered writes which we have passed in this step
-			std::list<TimesliceEntry>::iterator currentTimeslice = timesliceList.begin();
-			std::list<WriteEntry>::iterator i = writeList.begin();
-			bool foundNextWrite = false;
-			bool reachedEndOfTargetTimeslice = false;
-			while((i != writeList.end()) && !foundNextWrite && !reachedEndOfTargetTimeslice)
-			{
-				//Advance through the timeslice list until we find the timeslice matching
-				//the next buffered write, or we pass the end of this time step.
-				while((currentTimeslice != i->currentTimeslice)
-					&& (currentTimeslice != targetTimeslice)
-					&& (((currentTimeBase + currentTimeslice->timesliceLength) - currentTimeOffset) <= step))
-				{
-					currentTimeBase += currentTimeslice->timesliceLength;
-					++currentTimeslice;
-				}
-				//If the next buffered write is outside the time step, terminate
-				//processing of buffered writes.
-				if((currentTimeslice != i->currentTimeslice))
-				{
-					reachedEndOfTargetTimeslice = true;
-					continue;
-				}
-				if(((currentTimeBase + i->writeTime) - currentTimeOffset) > step)
-				{
-					//We capture the next write time here, so we have it to perform the
-					//next step in this session.
-					advanceSession.nextWriteTime = (advanceSession.timeRemovedDuringSession + currentTimeBase + i->writeTime) - advanceSession.initialTimeOffset;
-					foundNextWrite = true;
-
-					//If the caller has requested full write info to be retrieved for the
-					//next write, populate the writeInfo structure.
-					if(advanceSession.retrieveWriteInfo)
-					{
-						//Note that we construct a new WriteInfo structure to overwrite
-						//the old one to ensure that the newValue member is correctly
-						//constructed. We can't guarantee the caller correctly constructed
-						//this member using the same default value as was passed to this
-						//container. We construct it again here to take the burden off the
-						//caller.
-						advanceSession.writeInfo = WriteInfo(true, i->writeAddress, advanceSession.nextWriteTime, i->newValue);
-					}
-					continue;
-				}
-				//If the next buffered write has been passed during this update, commit
-				//it, and advance to the next write.
-				memory[i->writeAddress] = i->newValue;
-				++i;
-			}
-			//Check for any remaining timeslices which have expired
-			while((currentTimeslice != targetTimeslice)
+			//Advance through the timeslice list until we find the timeslice matching
+			//the next buffered write, or we pass the end of this time step.
+			while((currentTimeslice != i->currentTimeslice)
+				&& (currentTimeslice != targetTimeslice)
 				&& (((currentTimeBase + currentTimeslice->timesliceLength) - currentTimeOffset) <= step))
 			{
 				currentTimeBase += currentTimeslice->timesliceLength;
 				++currentTimeslice;
 			}
-			//Set the amount of the current timeslice which has been stepped through as
-			//the time offset for the next step operation.
-			currentTimeOffset = (currentTimeOffset + step) - currentTimeBase;
-
-			//If we didn't find the next write after the current step, set the next write
-			//time to be the end of the target timeslice, and explicitly break out of the
-			//advance loop.
-			if(!foundNextWrite)
+			//If the next buffered write is outside the time step, terminate
+			//processing of buffered writes.
+			if((currentTimeslice != i->currentTimeslice))
 			{
-				TimesliceType timeTillEndOfTargetTimeslice = 0;
-				std::list<TimesliceEntry>::iterator tempTimeslice = currentTimeslice;
-				while(tempTimeslice != targetTimeslice)
-				{
-					timeTillEndOfTargetTimeslice += tempTimeslice->timesliceLength;
-					++tempTimeslice;
-				}
-				timeTillEndOfTargetTimeslice += tempTimeslice->timesliceLength;
-				advanceSession.nextWriteTime = (advanceSession.timeRemovedDuringSession + currentTimeBase + timeTillEndOfTargetTimeslice) - advanceSession.initialTimeOffset;
-				done = true;
+				reachedEndOfTargetTimeslice = true;
+				continue;
 			}
+			if(((currentTimeBase + i->writeTime) - currentTimeOffset) > step)
+			{
+				//We capture the next write time here, so we have it to perform the
+				//next step in this session.
+				advanceSession.nextWriteTime = (advanceSession.timeRemovedDuringSession + currentTimeBase + i->writeTime) - advanceSession.initialTimeOffset;
+				foundNextWrite = true;
 
-			//Erase buffered writes which have been committed, and timeslices which have
-			//expired.
-			writeList.erase(writeList.begin(), i);
-			timesliceList.erase(timesliceList.begin(), currentTimeslice);
-
-			//If we've just removed some timeslices as a result of this step, advance the
-			//base address of the session.
-			advanceSession.timeRemovedDuringSession += (currentTimeBase - advanceSession.initialTimeOffset);
-			advanceSession.initialTimeOffset = 0;
+				//If the caller has requested full write info to be retrieved for the
+				//next write, populate the writeInfo structure.
+				if(advanceSession.retrieveWriteInfo)
+				{
+					//Note that we construct a new WriteInfo structure to overwrite
+					//the old one to ensure that the newValue member is correctly
+					//constructed. We can't guarantee the caller correctly constructed
+					//this member using the same default value as was passed to this
+					//container. We construct it again here to take the burden off the
+					//caller.
+					advanceSession.writeInfo = WriteInfo(true, i->writeAddress, advanceSession.nextWriteTime, i->newValue);
+				}
+				continue;
+			}
+			//If the next buffered write has been passed during this update, commit
+			//it, and advance to the next write.
+			memory[i->writeAddress] = i->newValue;
+			++i;
 		}
+		//Check for any remaining timeslices which have expired
+		while((currentTimeslice != targetTimeslice)
+			&& (((currentTimeBase + currentTimeslice->timesliceLength) - currentTimeOffset) <= step))
+		{
+			currentTimeBase += currentTimeslice->timesliceLength;
+			++currentTimeslice;
+		}
+		//Set the amount of the current timeslice which has been stepped through as
+		//the time offset for the next step operation.
+		currentTimeOffset = (currentTimeOffset + step) - currentTimeBase;
+
+		//If we didn't find the next write after the current step, set the next write
+		//time to be the end of the target timeslice, and explicitly break out of the
+		//advance loop.
+		if(!foundNextWrite)
+		{
+			TimesliceType timeTillEndOfTargetTimeslice = 0;
+			std::list<TimesliceEntry>::iterator tempTimeslice = currentTimeslice;
+			while(tempTimeslice != targetTimeslice)
+			{
+				timeTillEndOfTargetTimeslice += tempTimeslice->timesliceLength;
+				++tempTimeslice;
+			}
+			timeTillEndOfTargetTimeslice += tempTimeslice->timesliceLength;
+			advanceSession.nextWriteTime = (advanceSession.timeRemovedDuringSession + currentTimeBase + timeTillEndOfTargetTimeslice) - advanceSession.initialTimeOffset;
+			done = true;
+		}
+
+		//Erase buffered writes which have been committed, and timeslices which have
+		//expired.
+		writeList.erase(writeList.begin(), i);
+		timesliceList.erase(timesliceList.begin(), currentTimeslice);
+
+		//If we've just removed some timeslices as a result of this step, advance the
+		//base address of the session.
+		advanceSession.timeRemovedDuringSession += (currentTimeBase - advanceSession.initialTimeOffset);
+		advanceSession.initialTimeOffset = 0;
 	}
 }
 

@@ -6,7 +6,6 @@
 	>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalDependencies="$(OutDir)\$(ProjectName) - Debug.exe"
 		OutputFile="$(OutDir)\$(ProjectName) - Debug.exe"
 	/>
 </VisualStudioPropertySheet>

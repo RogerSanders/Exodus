@@ -1,22 +1,18 @@
 #include "MemoryRead.h"
-#include "DebugMenuHandler.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
 MemoryRead::MemoryRead(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(aimplementationName, ainstanceName, amoduleID), menuHandler(0), memoryEntryCount(0)
+:Device(aimplementationName, ainstanceName, amoduleID), memoryEntryCount(0)
 {}
 
 //----------------------------------------------------------------------------------------
-MemoryRead::~MemoryRead()
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int MemoryRead::GetIMemoryVersion() const
 {
-	//Delete the menu handler
-	if(menuHandler != 0)
-	{
-		menuHandler->ClearMenuItems();
-		delete menuHandler;
-	}
+	return ThisIMemoryVersion();
 }
 
 //----------------------------------------------------------------------------------------

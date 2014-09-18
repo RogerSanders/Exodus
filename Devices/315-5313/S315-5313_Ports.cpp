@@ -117,7 +117,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		//Trigger a system rollback if the device has been accessed out of order
 		if(lastAccessTime > accessTime)
 		{
-			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		lastAccessTime = accessTime;
 
@@ -677,7 +677,7 @@ void S315_5313::SetClockSourceRate(unsigned int clockInput, double clockRate, ID
 
 	//Since a clock rate change will affect our timing point calculations, trigger a
 	//rollback.
-	GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1010,7 +1010,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		//Trigger a system rollback if the device has been accessed out of order
 		if(lastAccessTime > accessTime)
 		{
-			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		lastAccessTime = accessTime;
 
@@ -1073,7 +1073,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		//Port monitor logging
 		if(logDataPortRead)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"DP Read", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"DP Read", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
 		}
 		break;
 	case 1: //001 - Control Port
@@ -1107,7 +1107,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		//Port monitor logging
 		if(logStatusRegisterRead)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"SR Read", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"SR Read", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
 		}
 		break;
 	case 2: //01* - HV Counter
@@ -1117,7 +1117,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		//Port monitor logging
 		if(logHVCounterRead)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"HV Read", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"HV Read", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
 		}
 		break;
 	case 4: //10* - SN76489 PSG
@@ -1197,7 +1197,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		}
 
 		//##DEBUG##
-		if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+		if(commandCode.GetBit(5) != GetStatusFlagDMA())
 		{
 			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 			std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
@@ -1266,7 +1266,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//Trigger a system rollback if the device has been accessed out of order
 		if(lastAccessTime > accessTime)
 		{
-			GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		lastAccessTime = accessTime;
 
@@ -1281,7 +1281,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//Port monitor logging
 		if(logDataPortWrite)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"DP Write", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"DP Write", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
 		}
 
 		//If the VDP was prepared to latch the next write to the control port as the
@@ -1356,7 +1356,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//Port monitor logging
 		if(logControlPortWrite)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"CP Write", caller->GetTargetDevice()->GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"CP Write", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
 		}
 
 		//It is almost certain that control port writes are not processed until the FIFO
@@ -1456,12 +1456,19 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 
 				//If the target register is accessible in this video mode and isn't
 				//currently locked, perform the register write.
-				if((registerNo < accessibleRegisterCount) && !registerLocked[registerNo])
+				if((registerNo < accessibleRegisterCount) && !rawRegisterLocking[registerNo])
 				{
 					RegisterSpecialUpdateFunction(accessMclkCycle + accessMclkCycleDelay, accessTime, accessResult.executionTime, caller, accessContext, registerNo, registerData);
 					AccessTarget accessTarget;
 					accessTarget.AccessTime(accessMclkCycle + accessMclkCycleDelay);
 					SetRegisterData(registerNo, accessTarget, registerData);
+
+					//Fix any locked registers at their set value
+					boost::mutex::scoped_lock lock2(registerLockMutex);
+					for(std::map<unsigned int, std::wstring>::const_iterator i = lockedRegisterState.begin(); i != lockedRegisterState.end(); ++i)
+					{
+						WriteGenericData(i->first, 0, i->second);
+					}
 				}
 
 				//Since the command word has just been latched as a register write, the

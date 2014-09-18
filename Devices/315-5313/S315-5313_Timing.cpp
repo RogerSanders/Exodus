@@ -779,7 +779,7 @@ unsigned int S315_5313::GetPixelClockStepsBetweenHVCounterValues(bool advanceIfV
 	//counter values.
 	if(advanceIfValuesMatch && (hcounterCurrent == hcounterTarget) && (vcounterCurrent == vcounterTarget))
 	{
-		AdvanceHVCounters(hscanSettings, hcounterCurrent, vscanSettings, interlaceIsEnabled, oddFlagSet, vcounterCurrent, 1);
+		AdvanceHVCountersOneStep(hscanSettings, hcounterCurrent, vscanSettings, interlaceIsEnabled, oddFlagSet, vcounterCurrent);
 		totalPixelClockSteps = GetPixelClockStepsBetweenHVCounterValues(false, hscanSettings, hcounterCurrent, hcounterTarget, vscanSettings, interlaceIsEnabled, oddFlagSet, vcounterCurrent, vcounterTarget);
 		++totalPixelClockSteps;
 		return totalPixelClockSteps;
@@ -823,7 +823,7 @@ unsigned int S315_5313::GetPixelClockStepsBetweenHCounterValues(const HScanSetti
 
 	//Calculate the number of pixel clock steps required to advance the current hcounter
 	//to the target value.
-	return ((hcounterTarget + hscanSettings.hcounterStepsPerIteration) - hcounterCurrent) % hscanSettings.hcounterStepsPerIteration;
+	return (hcounterTarget >= hcounterCurrent)? hcounterTarget - hcounterCurrent: (hscanSettings.hcounterStepsPerIteration - hcounterCurrent) + hcounterTarget;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1047,6 +1047,18 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 	hcounterCurrent = HCounterValueFromVDPInternalToLinear(hscanSettings, hcounterCurrent);
 	vcounterCurrent = VCounterValueFromVDPInternalToLinear(vscanSettings, vcounterCurrent, oddFlagSet);
 
+	//Calculate the number of times the hcounter needs to be incremented in order to reach
+	//the odd flag toggle point.
+	unsigned int hcounterIncrementStepsUntilOddFlagToggle;
+	if(hcounterCurrent < hscanSettings.oddFlagTogglePoint)
+	{
+		hcounterIncrementStepsUntilOddFlagToggle = hscanSettings.oddFlagTogglePoint - hcounterCurrent;
+	}
+	else
+	{
+		hcounterIncrementStepsUntilOddFlagToggle = (hscanSettings.hcounterStepsPerIteration - hcounterCurrent) + hscanSettings.oddFlagTogglePoint;
+	}
+
 	//Calculate the number of times the vcounter needs to be incremented in order to reach
 	//the odd flag toggle point.
 	unsigned int vcounterStepsPerIteration = oddFlagSet? vscanSettings.vcounterStepsPerIterationOddFlag: vscanSettings.vcounterStepsPerIteration;
@@ -1060,18 +1072,6 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 		vcounterIncrementStepsUntilOddFlagToggle = (vcounterStepsPerIteration - vcounterCurrent) + vscanSettings.vblankSetPoint;
 	}
 
-	//Calculate the number of times the hcounter needs to be incremented in order to reach
-	//the odd flag toggle point.
-	unsigned int hcounterIncrementStepsUntilOddFlagToggle;
-	if(hcounterCurrent < hscanSettings.oddFlagTogglePoint)
-	{
-		hcounterIncrementStepsUntilOddFlagToggle = hscanSettings.oddFlagTogglePoint - hcounterCurrent;
-	}
-	else
-	{
-		hcounterIncrementStepsUntilOddFlagToggle = (hscanSettings.hcounterStepsPerIteration - hcounterCurrent) + hscanSettings.oddFlagTogglePoint;
-	}
-
 	//Calculate the actual number of manual vcounter increment steps that need to be made
 	//in order to advance to the odd flag toggle point. If we're going to pass the
 	//vcounter increment point when advancing the hcounter to the odd flag toggle point,
@@ -1082,7 +1082,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 	unsigned int vcounterManualIncrementStepsUntilOddFlagToggle = vcounterIncrementStepsUntilOddFlagToggle;
 	if((hcounterCurrent >= hscanSettings.oddFlagTogglePoint) && (hcounterCurrent < hscanSettings.vcounterIncrementPoint))
 	{
-		vcounterManualIncrementStepsUntilOddFlagToggle = ((vcounterIncrementStepsUntilOddFlagToggle + vcounterStepsPerIteration) - 1) % vcounterStepsPerIteration;
+		vcounterManualIncrementStepsUntilOddFlagToggle = (vcounterIncrementStepsUntilOddFlagToggle > 0)? vcounterIncrementStepsUntilOddFlagToggle - 1: vcounterStepsPerIteration - 1;
 	}
 
 	//Calculate the number of pixel clock steps until the odd flag needs to be toggled
@@ -1093,8 +1093,10 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 	while(pixelClockStepsUntilOddFlagToggle <= pixelClockSteps)
 	{
 		//Advance the hcounter and vcounter to the odd flag toggle point
-		hcounterCurrent = (hcounterCurrent + hcounterIncrementStepsUntilOddFlagToggle) % hscanSettings.hcounterStepsPerIteration;
-		vcounterCurrent = (vcounterCurrent + vcounterIncrementStepsUntilOddFlagToggle) % vcounterStepsPerIteration;
+		hcounterCurrent += hcounterIncrementStepsUntilOddFlagToggle;
+		hcounterCurrent -= (hcounterCurrent < hscanSettings.hcounterStepsPerIteration)? 0: hscanSettings.hcounterStepsPerIteration;
+		vcounterCurrent += vcounterIncrementStepsUntilOddFlagToggle;
+		vcounterCurrent -= (vcounterCurrent < vcounterStepsPerIteration)? 0: vcounterStepsPerIteration;
 
 		//Update the odd flag, now that we've reached the toggle point.
 		oddFlagSet = interlaceIsEnabled & !oddFlagSet;
@@ -1122,23 +1124,63 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 		hcounterIncrementStepsUntilVCounterIncrement = (hscanSettings.hcounterStepsPerIteration - hcounterCurrent) + hscanSettings.vcounterIncrementPoint;
 	}
 
-	//Calculate the number of times the hcounter and vcounter each need to be incremented
-	//to reach their final positions.
-	unsigned int hcounterIncrementSteps = pixelClockSteps;
-	unsigned int vcounterIncrementSteps = 0;
+	//Advance the hcounter to its final position
+	hcounterCurrent = (hcounterCurrent + pixelClockSteps) % hscanSettings.hcounterStepsPerIteration;
+
+	//Advance the vcounter to its final position. Note that since we repeatedly advance up
+	//to the odd flag toggle point above, the vcounter can at most be incremented once
+	//more in order to reach the target. We assume this fact here to avoid an expensive
+	//division operation.
 	if(hcounterIncrementStepsUntilVCounterIncrement <= pixelClockSteps)
 	{
-		vcounterIncrementSteps = ((pixelClockSteps - hcounterIncrementStepsUntilVCounterIncrement) + hscanSettings.hcounterStepsPerIteration) / hscanSettings.hcounterStepsPerIteration;
+		vcounterCurrent = ((vcounterCurrent + 1) < vcounterStepsPerIteration)? vcounterCurrent + 1: 0;
 	}
-
-	//Advance hcounter and vcounter to their final positions
-	unsigned int hcounterFinal = (hcounterCurrent + hcounterIncrementSteps) % hscanSettings.hcounterStepsPerIteration;
-	unsigned int vcounterFinal = (vcounterCurrent + vcounterIncrementSteps) % vcounterStepsPerIteration;
 
 	//Convert the final hcounter and vcounter values from linear values back to internal
 	//values, and return them to the caller.
-	hcounterCurrent = HCounterValueFromLinearToVDPInternal(hscanSettings, hcounterFinal);
-	vcounterCurrent = VCounterValueFromLinearToVDPInternal(vscanSettings, vcounterFinal, oddFlagSet);
+	hcounterCurrent = HCounterValueFromLinearToVDPInternal(hscanSettings, hcounterCurrent);
+	vcounterCurrent = VCounterValueFromLinearToVDPInternal(vscanSettings, vcounterCurrent, oddFlagSet);
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, unsigned int& hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool& oddFlagSet, unsigned int& vcounterCurrent)
+{
+	//Advance the hcounter by one step
+	if(hcounterCurrent == hscanSettings.hcounterActiveScanMaxValue)
+	{
+		hcounterCurrent = hscanSettings.hcounterBlankingInitialValue;
+	}
+	else if(hcounterCurrent == hscanSettings.hcounterMaxValue)
+	{
+		hcounterCurrent = 0;
+	}
+	else
+	{
+		++hcounterCurrent;
+	}
+
+	//Perform any adjustments required based on the new hcounter position
+	if(hcounterCurrent == hscanSettings.vcounterIncrementPoint)
+	{
+		//Advance the vcounter by one step
+		if(vcounterCurrent == vscanSettings.vcounterActiveScanMaxValue)
+		{
+			vcounterCurrent = oddFlagSet? vscanSettings.vcounterBlankingInitialValueOddFlag: vscanSettings.vcounterBlankingInitialValue;
+		}
+		else if(vcounterCurrent == vscanSettings.vcounterMaxValue)
+		{
+			vcounterCurrent = 0;
+		}
+		else
+		{
+			++vcounterCurrent;
+		}
+	}
+	else if((vcounterCurrent == vscanSettings.vblankSetPoint) && (hcounterCurrent == hscanSettings.oddFlagTogglePoint))
+	{
+		//Update the odd flag, now that we've reached the toggle point.
+		oddFlagSet = interlaceIsEnabled & !oddFlagSet;
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -1206,7 +1248,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 //		//| 32 |  B  |  16  | 0x3E|  0x0FB |
 //		//----------------------------------
 //		vsramLastReadVCounter = vcounterFinal;
-//		const unsigned int vsramFirstReadHCounterOnLine = 0x003;
+//		static const unsigned int vsramFirstReadHCounterOnLine = 0x003;
 //		if((vcounterFinal > vscanSettings.activeDisplayVCounterLastValue) //VCounter is past the end of the active scan region
 //		|| (vcounterFinal < vscanSettings.activeDisplayVCounterFirstValue) //VCounter is before the start of the active scan region
 //		|| ((vcounterFinal == vscanSettings.activeDisplayVCounterFirstValue) && ((hcounterFinal < vsramFirstReadHCounterOnLine) || (hcounterFinal >= hscanSettings.vcounterIncrementPoint)))) //VCounter is on the same line as the start of the active scan region, but hasn't reached the first VSRAM read position yet
@@ -1607,7 +1649,7 @@ unsigned int S315_5313::GetPixelClockTicksForMclkTicks(const HScanSettings& hsca
 {
 	//Calculate the total number of pixel clock ticks which will execute after the given
 	//number of mclk ticks, based on the current screen mode.
-	const unsigned int pixelClockDivider = 2;
+	static const unsigned int pixelClockDivider = 2;
 	unsigned int pixelClockTicks;
 	if(!screenModeRS0Active)
 	{
@@ -1734,7 +1776,7 @@ unsigned int S315_5313::GetPixelClockTicksForMclkTicks(const HScanSettings& hsca
 			//Calculate the number of complete hcounter lines which were advanced over the
 			//time period, and the number of pixel clock ticks used to advance that number
 			//of lines.
-			const unsigned int mclkTicksPerLine = 2795;
+			static const unsigned int mclkTicksPerLine = 2795;
 			unsigned int completeLinesAdvanced = mclkTicks / mclkTicksPerLine;
 			unsigned int mclkTicksUsed = (completeLinesAdvanced * mclkTicksPerLine);
 			unsigned int mclkTicksRemaining = mclkTicks - mclkTicksUsed;
@@ -1928,7 +1970,7 @@ unsigned int S315_5313::GetPixelClockTicksForMclkTicks(const HScanSettings& hsca
 			//Calculate the number of complete hcounter lines which were advanced over the
 			//time period, and the number of pixel clock ticks used to advance that number
 			//of lines.
-			const unsigned int mclkTicksPerLine = 3420;
+			static const unsigned int mclkTicksPerLine = 3420;
 			unsigned int completeLinesAdvanced = mclkTicks / mclkTicksPerLine;
 			unsigned int mclkTicksUsed = (completeLinesAdvanced * mclkTicksPerLine);
 			unsigned int mclkTicksRemaining = mclkTicks - mclkTicksUsed;
@@ -2076,7 +2118,7 @@ unsigned int S315_5313::GetMclkTicksForPixelClockTicks(const HScanSettings& hsca
 	//Calculate the total number of mclk ticks which will be consumed in order to advance
 	//the given number of pixel clock ticks, based on the given position in the current
 	//scanline, and the current screen mode settings.
-	const unsigned int pixelClockDivider = 2;
+	static const unsigned int pixelClockDivider = 2;
 	unsigned int mclkTicks;
 	if(!screenModeRS0Active)
 	{
@@ -2202,7 +2244,7 @@ unsigned int S315_5313::GetMclkTicksForPixelClockTicks(const HScanSettings& hsca
 			//Calculate the number of complete hcounter lines which were advanced over the
 			//time period, and the number of mclk ticks used to advance that number of
 			//lines.
-			const unsigned int mclkTicksPerLine = 2795;
+			static const unsigned int mclkTicksPerLine = 2795;
 			unsigned int completeLinesAdvanced = pixelClockTicks / hscanSettings.hcounterStepsPerIteration;
 			unsigned int pixelClockTicksUsed = (completeLinesAdvanced * hscanSettings.hcounterStepsPerIteration);
 			unsigned int pixelClockTicksRemaining = pixelClockTicks - pixelClockTicksUsed;
@@ -2386,7 +2428,7 @@ unsigned int S315_5313::GetMclkTicksForPixelClockTicks(const HScanSettings& hsca
 			//Calculate the number of complete hcounter lines which were advanced over the
 			//time period, and the number of mclk ticks used to advance that number of
 			//lines.
-			const unsigned int mclkTicksPerLine = 3420;
+			static const unsigned int mclkTicksPerLine = 3420;
 			unsigned int completeLinesAdvanced = pixelClockTicks / hscanSettings.hcounterStepsPerIteration;
 			unsigned int pixelClockTicksUsed = (completeLinesAdvanced * hscanSettings.hcounterStepsPerIteration);
 			unsigned int pixelClockTicksRemaining = pixelClockTicks - pixelClockTicksUsed;
@@ -2515,6 +2557,89 @@ unsigned int S315_5313::GetMclkTicksForPixelClockTicks(const HScanSettings& hsca
 		}
 	}
 	return mclkTicks;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::GetMclkTicksForOnePixelClockTick(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active)
+{
+	//This highly optimized method is provided for the benefit of the render process,
+	//which only advances one pixel clock step at a time.
+	static const unsigned int mclkTicksForHCounterH32EDClkArray[] = {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x000-0x00F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x010-0x01F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x020-0x02F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x030-0x03F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x040-0x04F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x050-0x05F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x060-0x06F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x070-0x07F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x080-0x08F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x090-0x09F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0A0-0x0AF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0B0-0x0BF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0C0-0x0CF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0D0-0x0DF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0E0-0x0EF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0F0-0x0FF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x100-0x10F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x110-0x11F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x120-0x12F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x130-0x13F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x140-0x14F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x150-0x15F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x160-0x16F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x170-0x17F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x180-0x18F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x190-0x19F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x1A0-0x1AF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x1B0-0x1BF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x1C0-0x1CF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8,10,10,10,10,10,10,10, //0x1D0-0x1DF
+	                                                                 9, 9,10,10,10,10,10,10,10, 8,10,10,10,10,10,10, //0x1E0-0x1EF
+	                                                                10, 9, 9,10,10,10,10,10,10,10, 8, 8, 8, 8, 8, 8};//0x1F0-0x1FF
+	static const unsigned int mclkTicksForHCounterH40EDClkArray[] = {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x000-0x00F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x010-0x01F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x020-0x02F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x030-0x03F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x040-0x04F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x050-0x05F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x060-0x06F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x070-0x07F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x080-0x08F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x090-0x09F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0A0-0x0AF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0B0-0x0BF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0C0-0x0CF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0D0-0x0DF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0E0-0x0EF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x0F0-0x0FF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x100-0x10F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x110-0x11F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x120-0x12F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x130-0x13F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x140-0x14F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x150-0x15F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x160-0x16F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x170-0x17F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x180-0x18F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x190-0x19F
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x1A0-0x1AF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, //0x1B0-0x1BF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,10,10,10, //0x1C0-0x1CF
+	                                                                10,10,10,10, 9, 9,10,10,10,10,10,10,10, 8,10,10, //0x1D0-0x1DF
+	                                                                10,10,10,10,10, 9, 9,10,10,10,10,10,10,10, 8, 8, //0x1E0-0x1EF
+	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};//0x1F0-0x1FF
+	if(!screenModeRS0Active)
+	{
+		return (!screenModeRS1Active)? 10: 8;
+	}
+	else if(!screenModeRS1Active)
+	{
+		return mclkTicksForHCounterH32EDClkArray[hcounterCurrent];
+	}
+	else
+	{
+		return mclkTicksForHCounterH40EDClkArray[hcounterCurrent];
+	}
 }
 
 //----------------------------------------------------------------------------------------

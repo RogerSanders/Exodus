@@ -47,23 +47,30 @@ References:
 -315-5313 Information (vdppin.txt), Charles MacDonald, 2008
 -TMS9918A/TMS9928A/TMS9929A Video Display Processors, Texas Instruments, 1982
 \*--------------------------------------------------------------------------------------*/
+#include "IS315_5313.h"
 #ifndef __S315_5313_H__
 #define __S315_5313_H__
+#include "Device/Device.pkg"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
 #include <list>
+#include <map>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include "Device/Device.pkg"
 
-class S315_5313 :public Device
+class S315_5313 :public Device, public GenericAccessBase<IS315_5313>
 {
 public:
 	//Constructors
 	S315_5313(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
-	virtual ~S315_5313();
+
+	//Interface version functions
+	virtual unsigned int GetIS315_5313Version() const;
+
+	//Device access functions
+	virtual IDevice* GetDevice();
 
 	//Line functions
 	virtual unsigned int GetLineID(const std::wstring& lineName) const;
@@ -136,13 +143,15 @@ public:
 	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
-protected:
-	//Window functions
-	void CreateMenuHandlers();
-	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
+	//Data read/write functions
+	using IGenericAccess::ReadGenericData;
+	using IGenericAccess::WriteGenericData;
+	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
+	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
+
+	//Data locking functions
+	virtual bool GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const;
+	virtual bool SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state);
 
 private:
 	//Enumerations
@@ -163,26 +172,12 @@ private:
 	struct InternalRenderOp;
 	struct FIFOBufferEntry;
 	struct HVCounterAdvanceSession;
-	struct PortMonitorEntry;
-	struct SpriteMappingTableEntry;
 	struct ImageBufferColorEntry;
-	struct SpriteBoundaryLineEntry;
-	struct DecodedPaletteColorEntry;
 
 	//Typedefs
 	typedef RandomTimeAccessBuffer<Data, unsigned int> RegBuffer;
 	typedef RegBuffer::AccessTarget AccessTarget;
 	typedef ITimedBufferInt::AccessTarget RAMAccessTarget;
-
-	//Constants
-	static const unsigned int registerCount = 24;
-	static const unsigned int registerCountM4 = 11;
-	static const unsigned int vramSize = 0x10000;
-	static const unsigned int cramSize = 0x80;
-	static const unsigned int vsramSize = 0x50;
-	static const unsigned int spriteCacheSize = 0x140; //4 bytes cached per sprite, with 80 sprites max in H40 mode.
-	static const unsigned int fifoBufferSize = 4;
-	static const unsigned int statusRegisterMask = 0x03FF;
 
 	//Render constants
 	static const unsigned int renderDigitalBlockPixelSizeY = 8;
@@ -215,63 +210,32 @@ private:
 	static const VScanSettings v30NtscNoIntScanSettingsStatic;
 	static const VScanSettings v30NtscIntEnScanSettingsStatic;
 
-	//View and menu classes
-	class SettingsMenuHandler;
-	class DebugMenuHandler;
-	class VRAMViewModel;
-	class PaletteViewModel;
-	class ImageViewModel;
-	class RegistersViewModel;
-	class LayerRemovalViewModel;
-	class DebugSettingsViewModel;
-	class SettingsViewModel;
-	class SpriteListViewModel;
-	class SpriteListDetailsViewModel;
-	class PortMonitorViewModel;
-	class PortMonitorDetailsViewModel;
-	class PlaneViewModel;
-	class VRAMView;
-	class PaletteView;
-	class ImageView;
-	class RegistersView;
-	class LayerRemovalView;
-	class DebugSettingsView;
-	class SettingsView;
-	class SpriteListView;
-	class SpriteListDetailsView;
-	class PortMonitorView;
-	class PortMonitorDetailsView;
-	class PlaneView;
-	friend class VRAMViewModel;
-	friend class PaletteViewModel;
-	friend class ImageViewModel;
-	friend class RegistersViewModel;
-	friend class LayerRemovalViewModel;
-	friend class DebugSettingsViewModel;
-	friend class SettingsViewModel;
-	friend class SpriteListViewModel;
-	friend class SpriteListDetailsViewModel;
-	friend class PortMonitorViewModel;
-	friend class PortMonitorDetailsViewModel;
-	friend class PlaneViewModel;
-	friend class VRAMView;
-	friend class PaletteView;
-	friend class ImageView;
-	friend class RegistersView;
-	friend class LayerRemovalView;
-	friend class DebugSettingsView;
-	friend class SettingsView;
-	friend class SpriteListView;
-	friend class SpriteListDetailsView;
-	friend class PortMonitorView;
-	friend class PortMonitorDetailsView;
-	friend class PlaneView;
-
 private:
 	//Line functions
 	unsigned int GetNewIPLLineState();
 	void UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 	void UpdateLineStateChangePrediction(unsigned int lineNo, unsigned int lineStateChangeData, bool& lineStateChangePending, unsigned int& lineStateChangeMCLKCountdown, double& lineStateChangeTime, bool lineStateChangePendingNew, unsigned int lineStateChangeMCLKCountdownNew, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
+
+	//External buffer functions
+	virtual void LockExternalBuffers();
+	virtual void UnlockExternalBuffers();
+	virtual ITimedBufferInt* GetVRAMBuffer() const;
+	virtual ITimedBufferInt* GetCRAMBuffer() const;
+	virtual ITimedBufferInt* GetVSRAMBuffer() const;
+	virtual ITimedBufferInt* GetSpriteCacheBuffer() const;
+
+	//Image buffer functions
+	virtual unsigned int GetImageLastRenderedFrameToken() const;
+	virtual unsigned int GetImageCompletedBufferPlaneNo() const;
+	virtual unsigned int GetImageDrawingBufferPlaneNo() const;
+	virtual void LockImageBufferData(unsigned int planeNo);
+	virtual void UnlockImageBufferData(unsigned int planeNo);
+	virtual const unsigned char* GetImageBufferData(unsigned int planeNo) const;
+	virtual bool GetImageBufferOddInterlaceFrame(unsigned int planeNo) const;
+	virtual unsigned int GetImageBufferLineCount(unsigned int planeNo) const;
+	virtual unsigned int GetImageBufferLineWidth(unsigned int planeNo, unsigned int lineNo) const;
+	virtual void GetImageBufferActiveScanPosX(unsigned int planeNo, unsigned int lineNo, unsigned int& startPosX, unsigned int& endPosX) const;
+	virtual void GetImageBufferActiveScanPosY(unsigned int planeNo, unsigned int& startPosY, unsigned int& endPosY) const;
 
 	//DMA functions
 	void DMAWorkerThread();
@@ -283,17 +247,24 @@ private:
 	void PerformInternalRenderOperation(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, const InternalRenderOp& nextOperation, int renderDigitalCurrentRow);
 	void PerformVRAMRenderOperation(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, const VRAMRenderOp& nextOperation, int renderDigitalCurrentRow);
 	void UpdateAnalogRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
-	void DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const;
-	void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, unsigned int layerNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerVscrollPatternDisplacement, unsigned int& layerVscrollMappingDisplacement, Data& vsramReadCache) const;
+	virtual void DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const;
+	virtual void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, unsigned int layerNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerVscrollPatternDisplacement, unsigned int& layerVscrollMappingDisplacement, Data& vsramReadCache) const;
 	void DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const;
-	static unsigned int DigitalRenderCalculatePatternDataRowAddress(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData);
 	void DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const;
 	void DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool interlaceMode2Active, bool screenModeRS1Active, unsigned int& nextTableEntryToRead, bool& spriteSearchComplete, bool& spriteOverflow, unsigned int& spriteDisplayCacheEntryCount, std::vector<SpriteDisplayCacheEntry>& spriteDisplayCache) const;
 	void DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const;
 	unsigned int DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const;
 	void CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shadow, bool& highlight, bool shadowHighlightEnabled, bool spriteIsShadowOperator, bool spriteIsHighlightOperator, bool foundSpritePixel, bool foundLayerAPixel, bool foundLayerBPixel, bool prioritySprite, bool priorityLayerA, bool priorityLayerB) const;
-	static void CalculateEffectiveCellScrollSize(unsigned int hszState, unsigned int vszState, unsigned int& effectiveScrollWidth, unsigned int& effectiveScrollHeight);
-	DecodedPaletteColorEntry ReadDecodedPaletteColor(unsigned int paletteRow, unsigned int paletteIndex) const;
+	virtual unsigned int CalculatePatternDataRowAddress(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData) const;
+	virtual void CalculateEffectiveCellScrollSize(unsigned int hszState, unsigned int vszState, unsigned int& effectiveScrollWidth, unsigned int& effectiveScrollHeight) const;
+	virtual DecodedPaletteColorEntry ReadDecodedPaletteColor(unsigned int paletteRow, unsigned int paletteIndex) const;
+	virtual unsigned char ColorValueTo8BitValue(unsigned int colorValue, bool shadow, bool highlight) const;
+	std::list<SpriteBoundaryLineEntry> GetSpriteBoundaryLines(unsigned int planeNo) const;
+	virtual void GetSpriteBoundaryLinesInternal(unsigned int planeNo, const InteropSupport::ISTLObjectTarget<std::list<SpriteBoundaryLineEntry>>& marshaller) const;
+
+	//Sprite list debugging functions
+	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int entryNo) const;
+	virtual void SetSpriteMappingTableEntry(unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData);
 
 	//Memory interface functions
 	Data GetHVCounter() const;
@@ -305,10 +276,6 @@ private:
 	//Port monitor functions
 	void RecordPortMonitorEntry(const PortMonitorEntry& entry);
 	void ClearPortMonitorList();
-
-	//Sprite list debugging functions
-	SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int entryNo) const;
-	void SetSpriteMappingTableEntry(unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData);
 
 	//HV counter internal/linear conversion
 	static unsigned int HCounterValueFromVDPInternalToLinear(const HScanSettings& hscanSettings, unsigned int hcounterCurrent);
@@ -333,6 +300,7 @@ private:
 	static unsigned int AddStepsToHCounter(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, unsigned int hcounterStepsToAdd);
 	static unsigned int AddStepsToVCounter(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool oddFlagSet, unsigned int vcounterCurrent, unsigned int vcounterStepsToAdd);
 	static void AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned int& hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool& oddFlagSet, unsigned int& vcounterCurrent, unsigned int pixelClockSteps);
+	static void AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, unsigned int& hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool& oddFlagSet, unsigned int& vcounterCurrent);
 
 	//Pixel clock functions
 	//##TODO## Move these functions somewhere more appropriate
@@ -340,6 +308,7 @@ private:
 	static unsigned int GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, bool displayEnabled, unsigned int vcounterCurrent);
 	static unsigned int GetPixelClockTicksForMclkTicks(const HScanSettings& hscanSettings, unsigned int mclkTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active, unsigned int& mclkTicksUnused);
 	static unsigned int GetMclkTicksForPixelClockTicks(const HScanSettings& hscanSettings, unsigned int pixelClockTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active);
+	static unsigned int GetMclkTicksForOnePixelClockTick(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active);
 
 	//Access time functions
 	unsigned int ConvertAccessTimeToMclkCount(double accessTime) const;
@@ -556,10 +525,6 @@ private:
 	inline bool RegGetDMD0(const AccessTarget& accessTarget) const;
 	inline void RegSetDMD0(const AccessTarget& accessTarget, bool data);
 
-	//Window functions
-	void OpenSpriteListDetailsView(unsigned int aspriteIndex);
-	void OpenPortMonitorDetailsView(const PortMonitorEntry& aentry);
-
 private:
 	//Debug output
 	bool outputPortAccessDebugMessages;
@@ -578,10 +543,6 @@ private:
 	bool videoShowBoundaryActiveImage;
 	bool videoShowBoundaryActionSafe;
 	bool videoShowBoundaryTitleSafe;
-
-	//Menu handling
-	SettingsMenuHandler* settingsMenuHandler;
-	DebugMenuHandler* debugMenuHandler;
 
 	//Bus interface
 	IBusInterface* memoryBus;
@@ -632,11 +593,11 @@ private:
 	mutable boost::mutex externalReferenceMutex;
 	double lastAccessTime;
 	RegBuffer reg;
-	bool registerLocked[registerCount];
 	ITimedBufferInt* vram;
 	ITimedBufferInt* cram;
 	ITimedBufferInt* vsram;
 	ITimedBufferInt* spriteCache;
+	ReadWriteLock externalReferenceLock;
 	Data status;
 	Data bstatus;
 	Data hcounter;
@@ -655,6 +616,11 @@ private:
 	bool bhintPending;
 	bool exintPending;
 	bool bexintPending;
+
+	//Register locking
+	mutable boost::mutex registerLockMutex;
+	bool rawRegisterLocking[registerCount];
+	std::map<unsigned int, std::wstring> lockedRegisterState;
 
 	//Active register settings
 	bool interlaceEnabled;
@@ -858,7 +824,6 @@ private:
 	//##TODO## Separate the analog and digital renderers into their own classes. Our
 	//single VDP superclass is getting too large to be manageable.
 	static const unsigned int cellBlockSizeH = 8;
-	static const unsigned int cellsPerColumn = 2;
 	static const unsigned int maxCellsPerRow = 42;
 	static const unsigned int maxSpriteDisplayCacheSize = 20;
 	static const unsigned int maxSpriteDisplayCellCacheSize = 40;
@@ -912,11 +877,9 @@ private:
 
 	//Analog render data buffers
 	mutable boost::mutex imageBufferMutex;
-	static const unsigned int imageBufferWidth = 512;
-	static const unsigned int imageBufferHeight = 512;
-	static const unsigned int imageBufferPlanes = 3;
 	unsigned int drawingImageBufferPlane;
-	volatile unsigned int wholeFramesRenderedToImageBufferSinceLastRefresh;
+	volatile unsigned int lastRenderedFrameToken;
+	mutable ReadWriteLock imageBufferLock[imageBufferPlanes];
 	unsigned char imageBuffer[imageBufferPlanes][imageBufferHeight * imageBufferWidth * 4];
 	bool imageBufferOddInterlaceFrame[imageBufferPlanes];
 	unsigned int imageBufferLineCount[imageBufferPlanes];
@@ -926,7 +889,7 @@ private:
 	unsigned int imageBufferActiveScanPosYStart[imageBufferPlanes];
 	unsigned int imageBufferActiveScanPosYEnd[imageBufferPlanes];
 	mutable boost::mutex spriteBoundaryMutex[imageBufferPlanes];
-	mutable std::vector<SpriteBoundaryLineEntry> imageBufferSpriteBoundaryLines[imageBufferPlanes];
+	mutable std::list<SpriteBoundaryLineEntry> imageBufferSpriteBoundaryLines[imageBufferPlanes];
 
 	//DMA worker thread properties
 	mutable boost::mutex workerThreadMutex; //Top-level, required in order to interact with state affecting DMA worker thread.

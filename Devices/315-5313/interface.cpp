@@ -1,14 +1,14 @@
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "S315_5313.h"
 
 IDevice* GetS315_5313(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
-	return new S315_5313(implementationName, instanceName, moduleID);
+	return static_cast<IDevice*>(new S315_5313(implementationName, instanceName, moduleID));
 }
 
 void DeleteS315_5313(IDevice* device)
 {
-	delete device;
+	delete static_cast<S315_5313*>(device);
 }
 
 #ifdef EX_DLLINTERFACE

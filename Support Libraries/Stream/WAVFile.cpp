@@ -403,22 +403,4 @@ bool WAVFile::WriteBinaryNativeByteOrder(const long double* data, SizeType lengt
 	return WriteBinary((const void*)data, (length * sizeof(*data)));
 }
 
-//----------------------------------------------------------------------------------------
-//String conversion functions
-//----------------------------------------------------------------------------------------
-std::wstring WAVFile::ConvertStringToWString(const std::string& source)
-{
-	size_t stringLength = source.length();
-	std::wstring target;
-	if(stringLength > 0)
-	{
-		target.resize(stringLength);
-		for(unsigned int i = 0; i < stringLength; ++i)
-		{
-			mbtowc(&target[i], &source[i], 1);
-		}
-	}
-	return target;
-}
-
 } //Close namespace Stream

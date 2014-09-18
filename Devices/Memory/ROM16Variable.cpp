@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ROM16Variable::ROM16Variable(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:ROM16(aimplementationName, ainstanceName, amoduleID)
+:ROMBase(aimplementationName, ainstanceName, amoduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -97,4 +97,18 @@ void ROM16Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 		memoryArray[(baseLocation + 1) % memoryArraySize] = (unsigned short)data.GetDataSegment((((interfaceNumber / arrayEntryByteSize) - 1) - 1) * Data::bitsPerByte, arrayEntryByteSize * Data::bitsPerByte);
 		break;}
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int ROM16Variable::ReadMemoryEntry(unsigned int location) const
+{
+	return memoryArray[location % memoryArraySize];
+}
+
+//----------------------------------------------------------------------------------------
+void ROM16Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	memoryArray[location % memoryArraySize] = (unsigned short)data;
 }

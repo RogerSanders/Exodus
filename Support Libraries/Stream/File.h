@@ -1,9 +1,3 @@
-/*
-Things to do:
--Implement buffering over the top of the raw file object, so we don't perform too many
-file access operations when data is being read or written in small batches. This will give
-a dramatic performance increase.
-*/
 #include "Stream.h"
 #ifndef __FILE_H__
 #define __FILE_H__
@@ -30,7 +24,6 @@ public:
 	virtual ~File();
 
 	//File binding
-	inline bool Open(const std::string& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize = 8192);
 	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize = 8192);
 	inline void Close();
 	inline bool IsOpen() const;
@@ -115,9 +108,6 @@ protected:
 	virtual bool WriteBinaryNativeByteOrder(const long double* data, SizeType length);
 
 private:
-	//String conversion functions
-	static std::wstring ConvertStringToWString(const std::string& source);
-
 	//Internal read/write functions
 	inline bool ReadBinary(void* rawData, SizeType bytesToRead);
 	inline bool WriteBinary(const void* rawData, SizeType bytesToWrite);

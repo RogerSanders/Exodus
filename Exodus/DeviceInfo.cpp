@@ -23,15 +23,15 @@ DeviceInfo::DestructorPointer DeviceInfo::GetDestructor() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring DeviceInfo::GetDeviceClassName() const
+void DeviceInfo::GetDeviceClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return className;
+	marshaller.MarshalFrom(GetDeviceClassName());
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring DeviceInfo::GetDeviceImplementationName() const
+void DeviceInfo::GetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return implementationName;
+	marshaller.MarshalFrom(GetDeviceImplementationName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -41,15 +41,15 @@ unsigned int DeviceInfo::GetDeviceVersionNo() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring DeviceInfo::GetDeviceCopyright() const
+void DeviceInfo::GetDeviceCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return copyright;
+	marshaller.MarshalFrom(GetDeviceCopyright());
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring DeviceInfo::GetDeviceComments() const
+void DeviceInfo::GetDeviceCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	return comments;
+	marshaller.MarshalFrom(GetDeviceComments());
 }
 
 //----------------------------------------------------------------------------------------

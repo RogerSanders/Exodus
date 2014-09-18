@@ -10,6 +10,9 @@
 #include <uxtheme.h>
 #include <string>
 #include <list>
+#include <vector>
+#include <map>
+#include "StreamInterface/StreamInterface.pkg"
 
 //Ugly workarounds for a silly 64-bit portability warning problem in winuser.h. Issue
 //acknowledged by Microsoft. Waiting for SDK update to fix problem as of September 2008.
@@ -83,6 +86,12 @@ void ReleaseCreateWindowThreadParams(CreateWindowThreadParams* object);
 DWORD WINAPI CreateWindowThreadFunction(LPVOID aparams);
 void WindowsMessageLoop(HWND hwnd);
 
+//Parent and owner window functions
+void SetWindowParent(HWND targetWindow, HWND newParent);
+HWND GetFirstOwnerWindow(HWND targetWindow);
+HWND GetFirstOwnerWindowOrTopLevelParent(HWND targetWindow);
+void SetOwnerWindow(HWND targetWindow, HWND newOwnerWindow);
+
 //Control text helper functions
 void UpdateDlgItemBin(HWND hwnd, int controlID, unsigned int data);
 unsigned int GetDlgItemBin(HWND hwnd, int controlID);
@@ -112,7 +121,7 @@ HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int 
 BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int targetControlID, const std::wstring& text, bool createAnchor = false, const std::wstring& anchorLink = L"");
 
 //Child window message bounce back
-#define WM_BOUNCE	WM_APP + 0x800
+#define WM_BOUNCE WM_APP + 0x800
 struct BounceMessage
 {
 	BounceMessage(HWND ahwnd, UINT auMsg, WPARAM awParam, LPARAM alParam)
@@ -134,8 +143,15 @@ struct BounceMessage
 };
 LRESULT CALLBACK BounceBackSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
+//Static control extensions
+LRESULT CALLBACK ResizableStaticControlSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+
 //Highlight extensions
 void PaintCheckboxHighlight(HWND hwnd);
+
+//Icon helper functions
+unsigned int GetIconFileEntryCount(Stream::IStream& iconFileStream);
+bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStream& iconDirectoryData, const std::map<int, Stream::IStream*>& iconResourceData);
 
 //WinColor struct
 struct WinColor

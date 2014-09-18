@@ -1,28 +1,18 @@
 #include "Device.h"
-#include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 //##DEBUG##
 #include <iostream>
 #include <iomanip>
 
 //----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
-Device::~Device()
-{
-	delete deviceContext;
-}
-
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
-unsigned int Device::GetIDeviceVersion() const
-{
-	return ThisIDeviceVersion();
-}
-
-//----------------------------------------------------------------------------------------
 //Initialization functions
+//----------------------------------------------------------------------------------------
+bool Device::BindToSystemInterface(ISystemDeviceInterface* asystemInterface)
+{
+	systemInterface = asystemInterface;
+	return true;
+}
+
 //----------------------------------------------------------------------------------------
 bool Device::BindToDeviceContext(IDeviceContext* adeviceContext)
 {
@@ -124,26 +114,6 @@ bool Device::RemoveReference(IBusInterface* target)
 bool Device::RemoveReference(IClockSource* target)
 {
 	return false;
-}
-
-//----------------------------------------------------------------------------------------
-//Device context functions
-//----------------------------------------------------------------------------------------
-IDeviceContext* Device::GetDeviceContext() const
-{
-	return deviceContext;
-}
-
-//----------------------------------------------------------------------------------------
-double Device::GetCurrentTimesliceProgress() const
-{
-	return deviceContext->GetCurrentTimesliceProgress();
-}
-
-//----------------------------------------------------------------------------------------
-void Device::SetCurrentTimesliceProgress(double executionProgress)
-{
-	deviceContext->SetCurrentTimesliceProgress(executionProgress);
 }
 
 //----------------------------------------------------------------------------------------
@@ -281,9 +251,9 @@ void Device::NotifyAfterExecuteStepFinishedTimeslice()
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-void Device::GetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+void Device::GetDeviceClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
 {
-	marshaller.MarshalFrom(GetDeviceImplementationName());
+	marshaller.MarshalFrom(GetDeviceClassName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -574,45 +544,3 @@ void Device::HandleInputKeyDown(unsigned int keyCodeID)
 //----------------------------------------------------------------------------------------
 void Device::HandleInputKeyUp(unsigned int keyCodeID)
 {}
-
-//----------------------------------------------------------------------------------------
-//Window functions
-//----------------------------------------------------------------------------------------
-void Device::SetAssemblyHandle(AssemblyHandle aassemblyHandle)
-{
-	assemblyHandle = aassemblyHandle;
-}
-
-//----------------------------------------------------------------------------------------
-Device::AssemblyHandle Device::GetAssemblyHandle() const
-{
-	return assemblyHandle;
-}
-
-//----------------------------------------------------------------------------------------
-void Device::AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
-{}
-
-//----------------------------------------------------------------------------------------
-void Device::AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher)
-{}
-
-//----------------------------------------------------------------------------------------
-void Device::RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
-{}
-
-//----------------------------------------------------------------------------------------
-void Device::OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher)
-{}
-
-//----------------------------------------------------------------------------------------
-void Device::RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher)
-{
-	RestoreViewModelState(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), node, xpos, ypos, width, height, viewModelLauncher);
-}
-
-//----------------------------------------------------------------------------------------
-void Device::OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher)
-{
-	OpenViewModel(viewModelGroupNameMarshaller.MarshalTo(), viewModelNameMarshaller.MarshalTo(), viewModelLauncher);
-}

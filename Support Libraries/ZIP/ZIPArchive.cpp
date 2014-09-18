@@ -83,7 +83,7 @@ bool ZIPArchive::SaveToStream(Stream::IStream& target)
 
 	//Fill out the end of central directory header
 	endOfCentralDirectoryHeader.centralDirectoryEntriesOnDisk = (unsigned short)fileList.size();
-	endOfCentralDirectoryHeader.centralDirectoryEntries	 = (unsigned short)fileList.size();
+	endOfCentralDirectoryHeader.centralDirectoryEntries = (unsigned short)fileList.size();
 	endOfCentralDirectoryHeader.centralDirectoryOffset = (unsigned int)target.GetStreamPos();
 
 	//Save the central directory to the stream

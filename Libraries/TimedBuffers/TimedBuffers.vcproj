@@ -442,6 +442,14 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{5AC3CB2C-0A1A-4E29-8A07-2BDED302611B}"
+			RelativePathToProject=".\Support Libraries\WindowsSupport\WindowsSupport.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{1EBAFC85-6457-4DE8-AF7F-9605FEA6E11D}"
+			RelativePathToProject=".\Support Libraries\Debug\Debug.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -550,5 +558,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="DevPartner_IsInstrumented"
+			Value="0"
+		/>
 	</Globals>
 </VisualStudioProject>

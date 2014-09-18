@@ -1,7 +1,10 @@
 #include "ISTLObjectKeyMarshaller.h"
+#include "IMarshallingObject.h"
+#include "MarshalObject.h"
 #ifdef INTEROPSUPPORT_CPP11SUPPORTED
 #include <type_traits>
 #include <memory.h>
+#include <utility>
 #endif
 namespace InteropSupport {
 
@@ -102,7 +105,11 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 	{
 		ElementType containerEntry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, containerEntry);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+		element.insert(std::move(containerEntry));
+#else
 		element.insert(containerEntry);
+#endif
 	}
 }
 
@@ -115,7 +122,11 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 	{
 		ElementType containerEntry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, containerEntry);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+		element.insert(std::move(containerEntry));
+#else
 		element.insert(containerEntry);
+#endif
 	}
 }
 
@@ -129,7 +140,7 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 	{
 		ElementType containerEntry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, containerEntry);
-		element.insert(containerEntry);
+		element.insert(std::move(containerEntry));
 	}
 }
 
@@ -142,7 +153,7 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 	{
 		ElementType containerEntry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, containerEntry);
-		element.insert(containerEntry);
+		element.insert(std::move(containerEntry));
 	}
 }
 #endif
@@ -157,7 +168,11 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 		ElementType containerEntry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, containerEntry);
 		ISTLObjectKeyMarshaller<KeyType>* keyWrapper = (ISTLObjectKeyMarshaller<KeyType>*)keyMarshallerArray[keyMarshallerArrayIndex];
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+		element.insert(std::pair<KeyType, ElementType>(keyWrapper->RemoveKey(), std::move(containerEntry)));
+#else
 		element.insert(std::pair<KeyType, ElementType>(keyWrapper->RemoveKey(), containerEntry));
+#endif
 	}
 }
 
@@ -171,7 +186,11 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 		ElementType containerEntry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, containerEntry);
 		ISTLObjectKeyMarshaller<KeyType>* keyWrapper = (ISTLObjectKeyMarshaller<KeyType>*)keyMarshallerArray[keyMarshallerArrayIndex];
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+		element.insert(std::pair<KeyType, ElementType>(keyWrapper->RemoveKey(), std::move(containerEntry)));
+#else
 		element.insert(std::pair<KeyType, ElementType>(keyWrapper->RemoveKey(), containerEntry));
+#endif
 	}
 }
 
@@ -186,7 +205,7 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 		ElementType containerEntry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, containerEntry);
 		ISTLObjectKeyMarshaller<KeyType>* keyWrapper = (ISTLObjectKeyMarshaller<KeyType>*)keyMarshallerArray[keyMarshallerArrayIndex];
-		element.insert(std::pair<KeyType, ElementType>(keyWrapper->RemoveKey(), containerEntry));
+		element.insert(std::pair<KeyType, ElementType>(keyWrapper->RemoveKey(), std::move(containerEntry)));
 	}
 }
 
@@ -200,7 +219,7 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 		ElementType containerEntry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, containerEntry);
 		ISTLObjectKeyMarshaller<KeyType>* keyWrapper = (ISTLObjectKeyMarshaller<KeyType>*)keyMarshallerArray[keyMarshallerArrayIndex];
-		element.insert(std::pair<KeyType, ElementType>(keyWrapper->RemoveKey(), containerEntry));
+		element.insert(std::pair<KeyType, ElementType>(keyWrapper->RemoveKey(), std::move(containerEntry)));
 	}
 }
 #endif
@@ -214,7 +233,11 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 	{
 		ElementType entry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, entry);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+		element.push(std::move(entry));
+#else
 		element.push(entry);
+#endif
 	}
 }
 
@@ -227,7 +250,11 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 	{
 		ElementType entry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, entry);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+		element.push(std::move(entry));
+#else
 		element.push(entry);
+#endif
 	}
 }
 
@@ -240,7 +267,11 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 	{
 		ElementType entry;
 		RecomposeSTLContainer(itemArray, elementSizeArray, keyMarshallerArray, elementArrayIndex, elementSizeArrayIndex, keyMarshallerArrayIndex+1, entry);
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+		element.push(std::move(entry));
+#else
 		element.push(entry);
+#endif
 	}
 }
 
@@ -259,7 +290,15 @@ template<class ElementType>
 void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[], ISTLObjectKeyMarshallerBase* const keyMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t keyMarshallerArrayIndex, ElementType& element)
 {
 	const ElementType* itemArrayWithType = (const ElementType*)itemArray;
-	element = itemArrayWithType[elementArrayIndex++];
+	const ElementType& arrayElement = itemArrayWithType[elementArrayIndex++];
+	if(!MarshalObject<INTEROPSUPPORT_ISBASEOF(IMarshallingObject, ElementType)>(&arrayElement, &element))
+	{
+#ifdef INTEROPSUPPORT_CPP11SUPPORTED
+		element = std::move(arrayElement);
+#else
+		element = arrayElement;
+#endif
+	}
 }
 
 } //Close namespace InteropSupport

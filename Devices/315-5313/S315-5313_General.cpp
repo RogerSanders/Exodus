@@ -1,6 +1,4 @@
 #include "S315_5313.h"
-#include "SettingsMenuHandler.h"
-#include "DebugMenuHandler.h"
 #include "Image/Image.pkg"
 
 //----------------------------------------------------------------------------------------
@@ -8,8 +6,6 @@
 //----------------------------------------------------------------------------------------
 S315_5313::S315_5313(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
 :Device(aimplementationName, ainstanceName, amoduleID),
-settingsMenuHandler(0),
-debugMenuHandler(0),
 reg(registerCount, false, Data(8)),
 status(10),
 bstatus(10),
@@ -66,7 +62,7 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	//Initialize the locked register state
 	for(unsigned int i = 0; i < registerCount; ++i)
 	{
-		registerLocked[i] = false;
+		rawRegisterLocking[i] = false;
 	}
 
 	//Initialize our CE line state
@@ -92,7 +88,7 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	renderThreadActive = false;
 	renderTimeslicePending = false;
 	drawingImageBufferPlane = 0;
-	wholeFramesRenderedToImageBufferSinceLastRefresh = 0;
+	lastRenderedFrameToken = 0;
 	for(unsigned int bufferPlaneNo = 0; bufferPlaneNo < imageBufferPlanes; ++bufferPlaneNo)
 	{
 		imageBufferLineCount[bufferPlaneNo] = 0;
@@ -148,19 +144,19 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 }
 
 //----------------------------------------------------------------------------------------
-S315_5313::~S315_5313()
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::GetIS315_5313Version() const
 {
-	//Delete the menu handlers
-	if(settingsMenuHandler != 0)
-	{
-		settingsMenuHandler->ClearMenuItems();
-		delete settingsMenuHandler;
-	}
-	if(debugMenuHandler != 0)
-	{
-		debugMenuHandler->ClearMenuItems();
-		delete debugMenuHandler;
-	}
+	return ThisIS315_5313Version();
+}
+
+//----------------------------------------------------------------------------------------
+//Device access functions
+//----------------------------------------------------------------------------------------
+IDevice* S315_5313::GetDevice()
+{
+	return static_cast<IDevice*>(this);
 }
 
 //----------------------------------------------------------------------------------------
@@ -215,8 +211,8 @@ void S315_5313::Initialize()
 
 	//Initialize the default external clock divider settings
 	//##TODO## Make the clock dividers configurable through the VDP debugger
-	const unsigned int initialClockDividerCLK0 = 15;
-	const unsigned int initialClockDividerCLK1 = 7;
+	static const unsigned int initialClockDividerCLK0 = 15;
+	static const unsigned int initialClockDividerCLK1 = 7;
 	if(clockSourceCLK0 != 0)
 	{
 		clockSourceCLK0->TransparentSetClockDivider((double)initialClockDividerCLK0);
@@ -490,7 +486,8 @@ void S315_5313::SuspendExecution()
 //----------------------------------------------------------------------------------------
 bool S315_5313::AddReference(const std::wstring& referenceName, IDevice* target)
 {
-	boost::mutex::scoped_lock lock(externalReferenceMutex);
+	bool result = true;
+	externalReferenceLock.ObtainWriteLock();
 	if(referenceName == L"VRAM")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
@@ -529,31 +526,34 @@ bool S315_5313::AddReference(const std::wstring& referenceName, IDevice* target)
 	}
 	else
 	{
-		return false;
+		result = false;
 	}
-	return true;
+	externalReferenceLock.ReleaseWriteLock();
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::AddReference(const std::wstring& referenceName, IBusInterface* target)
 {
-	boost::mutex::scoped_lock lock(externalReferenceMutex);
+	bool result = true;
+	externalReferenceLock.ObtainWriteLock();
 	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
 	}
 	else
 	{
-		return false;
+		result = false;
 	}
-	return true;
+	externalReferenceLock.ReleaseWriteLock();
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::AddReference(const std::wstring& referenceName, IClockSource* target)
 {
-	boost::mutex::scoped_lock lock(externalReferenceMutex);
 	bool result = false;
+	externalReferenceLock.ObtainWriteLock();
 	if(referenceName == L"CLK0")
 	{
 		if(target->GetClockType() == IClockSource::CLOCKTYPE_DIVIDER)
@@ -570,13 +570,15 @@ bool S315_5313::AddReference(const std::wstring& referenceName, IClockSource* ta
 			result = true;
 		}
 	}
+	externalReferenceLock.ReleaseWriteLock();
 	return result;
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::RemoveReference(IDevice* target)
 {
-	boost::mutex::scoped_lock lock(externalReferenceMutex);
+	bool result = true;
+	externalReferenceLock.ObtainWriteLock();
 	ITimedBufferIntDevice* targetAsTimedBufferDevice = dynamic_cast<ITimedBufferIntDevice*>(target);
 	if(targetAsTimedBufferDevice != 0)
 	{
@@ -604,30 +606,34 @@ bool S315_5313::RemoveReference(IDevice* target)
 	}
 	else
 	{
-		return false;
+		result = false;
 	}
-	return true;
+	externalReferenceLock.ReleaseWriteLock();
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::RemoveReference(IBusInterface* target)
 {
-	boost::mutex::scoped_lock lock(externalReferenceMutex);
+	bool result = true;
+	externalReferenceLock.ObtainWriteLock();
 	if(memoryBus == target)
 	{
 		memoryBus = 0;
 	}
 	else
 	{
-		return false;
+		result = false;
 	}
-	return true;
+	externalReferenceLock.ReleaseWriteLock();
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::RemoveReference(IClockSource* target)
 {
-	boost::mutex::scoped_lock lock(externalReferenceMutex);
+	bool result = true;
+	externalReferenceLock.ObtainWriteLock();
 	if(clockSourceCLK0 == target)
 	{
 		clockSourceCLK0 = 0;
@@ -638,9 +644,10 @@ bool S315_5313::RemoveReference(IClockSource* target)
 	}
 	else
 	{
-		return false;
+		result = false;
 	}
-	return true;
+	externalReferenceLock.ReleaseWriteLock();
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1440,7 +1447,7 @@ void S315_5313::DMAWorkerThread()
 		else
 		{
 			//##DEBUG##
-			if((commandCode.GetBit(5) != GetStatusFlagDMA()) && (commandCode.GetBit(5) != GetStatusFlagDMA()))
+			if(commandCode.GetBit(5) != GetStatusFlagDMA())
 			{
 				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 				std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
@@ -3121,10 +3128,11 @@ void S315_5313::M5WriteVSRAM(const Data& address, const Data& data, const RAMAcc
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetScreenshot(IImage& targetImage) const
 {
-	boost::mutex::scoped_lock lock(imageBufferMutex);
-
 	//Determine the index of the current image plane that is being used for display
-	unsigned int displayingImageBufferPlane = videoSingleBuffering? drawingImageBufferPlane: ((drawingImageBufferPlane + imageBufferPlanes) - 1) % imageBufferPlanes;
+	unsigned int displayingImageBufferPlane = GetImageCompletedBufferPlaneNo();
+
+	//Obtain a read lock on the image buffer
+	imageBufferLock[displayingImageBufferPlane].ObtainReadLock();
 
 	//Calculate the width and height of the output image. We take the line width of the
 	//first line as the width of the output image, but it should be noted that the width
@@ -3179,6 +3187,9 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 			}
 		}
 	}
+
+	//Release the read lock on the image buffer
+	imageBufferLock[displayingImageBufferPlane].ReleaseReadLock();
 
 	return true;
 }
@@ -3708,4 +3719,1207 @@ void S315_5313::SaveDebuggerState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", enableSpriteLow).CreateAttribute(L"name", L"EnableSpriteLow");
 
 	Device::SaveDebuggerState(node);
+}
+
+//----------------------------------------------------------------------------------------
+//Data read/write functions
+//----------------------------------------------------------------------------------------
+bool S315_5313::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
+{
+	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
+	AccessTarget accessTarget = AccessTarget().AccessLatest();
+	switch(dataID)
+	{
+	case DATASOURCE_RAWREGISTER:{
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		Data registerData = GetRegisterData(registerDataContext.registerNo, accessTarget);
+		return dataValue.SetValue(registerData.GetData());}
+	case DATASOURCE_REG_STATUS:
+		return dataValue.SetValue(status.GetData());
+	case DATASOURCE_FLAG_FIFOEMPTY:
+		return dataValue.SetValue(GetStatusFlagFIFOEmpty());
+	case DATASOURCE_FLAG_FIFOFULL:
+		return dataValue.SetValue(GetStatusFlagFIFOFull());
+	case DATASOURCE_FLAG_F:
+		return dataValue.SetValue(GetStatusFlagF());
+	case DATASOURCE_FLAG_SPRITEOVERFLOW:
+		return dataValue.SetValue(GetStatusFlagSpriteOverflow());
+	case DATASOURCE_FLAG_SPRITECOLLISION:
+		return dataValue.SetValue(GetStatusFlagSpriteCollision());
+	case DATASOURCE_FLAG_ODDINTERLACEFRAME:
+		return dataValue.SetValue(GetStatusFlagOddInterlaceFrame());
+	case DATASOURCE_FLAG_VBLANK:
+		return dataValue.SetValue(GetStatusFlagVBlank());
+	case DATASOURCE_FLAG_HBLANK:
+		return dataValue.SetValue(GetStatusFlagHBlank());
+	case DATASOURCE_FLAG_DMA:
+		return dataValue.SetValue(GetStatusFlagDMA());
+	case DATASOURCE_FLAG_PAL:
+		return dataValue.SetValue(GetStatusFlagPAL());
+	case DATASOURCE_REG_VSI:
+		return dataValue.SetValue(RegGetVSI(accessTarget));
+	case DATASOURCE_REG_HSI:
+		return dataValue.SetValue(RegGetHSI(accessTarget));
+	case DATASOURCE_REG_LCB:
+		return dataValue.SetValue(RegGetLCB(accessTarget));
+	case DATASOURCE_REG_IE1:
+		return dataValue.SetValue(RegGetIE1(accessTarget));
+	case DATASOURCE_REG_SS:
+		return dataValue.SetValue(RegGetSS(accessTarget));
+	case DATASOURCE_REG_PS:
+		return dataValue.SetValue(RegGetPS(accessTarget));
+	case DATASOURCE_REG_M2:
+		return dataValue.SetValue(RegGetM2(accessTarget));
+	case DATASOURCE_REG_ES:
+		return dataValue.SetValue(RegGetES(accessTarget));
+	case DATASOURCE_REG_EVRAM:
+		return dataValue.SetValue(RegGetEVRAM(accessTarget));
+	case DATASOURCE_REG_DISPLAYENABLED:
+		return dataValue.SetValue(RegGetDisplayEnabled(accessTarget));
+	case DATASOURCE_REG_IE0:
+		return dataValue.SetValue(RegGetIE0(accessTarget));
+	case DATASOURCE_REG_DMAENABLED:
+		return dataValue.SetValue(RegGetDMAEnabled(accessTarget));
+	case DATASOURCE_REG_M3:
+		return dataValue.SetValue(RegGetM3(accessTarget));
+	case DATASOURCE_REG_MODE5:
+		return dataValue.SetValue(RegGetMode5(accessTarget));
+	case DATASOURCE_REG_SZ:
+		return dataValue.SetValue(RegGetSZ(accessTarget));
+	case DATASOURCE_REG_MAG:
+		return dataValue.SetValue(RegGetMAG(accessTarget));
+	case DATASOURCE_REG_NAMETABLEBASEA:
+		return dataValue.SetValue(RegGetNameTableBaseScrollA(accessTarget, !RegGetMode5(accessTarget), RegGetEVRAM(accessTarget)));
+	case DATASOURCE_REG_NAMETABLEBASEWINDOW:
+		return dataValue.SetValue(RegGetNameTableBaseWindow(accessTarget, RegGetRS1(accessTarget), RegGetEVRAM(accessTarget)));
+	case DATASOURCE_REG_NAMETABLEBASEB:
+		return dataValue.SetValue(RegGetNameTableBaseScrollB(accessTarget, RegGetEVRAM(accessTarget)));
+	case DATASOURCE_REG_NAMETABLEBASESPRITE:
+		return dataValue.SetValue(RegGetNameTableBaseSprite(accessTarget, !RegGetMode5(accessTarget), RegGetRS1(accessTarget), RegGetEVRAM(accessTarget)));
+	case DATASOURCE_REG_PATTERNBASESPRITE:
+		return dataValue.SetValue(RegGetPatternBaseSprite(accessTarget, !RegGetMode5(accessTarget), RegGetEVRAM(accessTarget)));
+	case DATASOURCE_REG_077:
+		return dataValue.SetValue(RegGet077(accessTarget));
+	case DATASOURCE_REG_076:
+		return dataValue.SetValue(RegGet076(accessTarget));
+	case DATASOURCE_REG_BACKGROUNDPALETTEROW:
+		return dataValue.SetValue(RegGetBackgroundPaletteRow(accessTarget));
+	case DATASOURCE_REG_BACKGROUNDPALETTECOLUMN:
+		return dataValue.SetValue(RegGetBackgroundPaletteColumn(accessTarget));
+	case DATASOURCE_REG_BACKGROUNDSCROLLX:
+		return dataValue.SetValue(RegGetBackgroundScrollX(accessTarget));
+	case DATASOURCE_REG_BACKGROUNDSCROLLY:
+		return dataValue.SetValue(RegGetBackgroundScrollY(accessTarget));
+	case DATASOURCE_REG_HINTDATA:
+		return dataValue.SetValue(RegGetHInterruptData(accessTarget));
+	case DATASOURCE_REG_0B7:
+		return dataValue.SetValue(RegGet0B7(accessTarget));
+	case DATASOURCE_REG_0B6:
+		return dataValue.SetValue(RegGet0B6(accessTarget));
+	case DATASOURCE_REG_0B5:
+		return dataValue.SetValue(RegGet0B5(accessTarget));
+	case DATASOURCE_REG_0B4:
+		return dataValue.SetValue(RegGet0B4(accessTarget));
+	case DATASOURCE_REG_IE2:
+		return dataValue.SetValue(RegGetIE2(accessTarget));
+	case DATASOURCE_REG_VSCR:
+		return dataValue.SetValue(RegGetVSCR(accessTarget));
+	case DATASOURCE_REG_HSCR:
+		return dataValue.SetValue(RegGetHSCR(accessTarget));
+	case DATASOURCE_REG_LSCR:
+		return dataValue.SetValue(RegGetLSCR(accessTarget));
+	case DATASOURCE_REG_RS0:
+		return dataValue.SetValue(RegGetRS0(accessTarget));
+	case DATASOURCE_REG_U1:
+		return dataValue.SetValue(RegGetU1(accessTarget));
+	case DATASOURCE_REG_U2:
+		return dataValue.SetValue(RegGetU2(accessTarget));
+	case DATASOURCE_REG_U3:
+		return dataValue.SetValue(RegGetU3(accessTarget));
+	case DATASOURCE_REG_STE:
+		return dataValue.SetValue(RegGetSTE(accessTarget));
+	case DATASOURCE_REG_LSM1:
+		return dataValue.SetValue(RegGetLSM1(accessTarget));
+	case DATASOURCE_REG_LSM0:
+		return dataValue.SetValue(RegGetLSM0(accessTarget));
+	case DATASOURCE_REG_RS1:
+		return dataValue.SetValue(RegGetRS1(accessTarget));
+	case DATASOURCE_REG_HSCROLLDATABASE:
+		return dataValue.SetValue(RegGetHScrollDataBase(accessTarget, RegGetEVRAM(accessTarget)));
+	case DATASOURCE_REG_0E57:
+		return dataValue.SetValue(RegGet0E57(accessTarget));
+	case DATASOURCE_REG_PATTERNBASEA:
+		return dataValue.SetValue(RegGetPatternBaseScrollA(accessTarget, RegGetEVRAM(accessTarget)));
+	case DATASOURCE_REG_0E13:
+		return dataValue.SetValue(RegGet0E13(accessTarget));
+	case DATASOURCE_REG_PATTERNBASEB:
+		return dataValue.SetValue(RegGetPatternBaseScrollB(accessTarget, RegGetEVRAM(accessTarget)));
+	case DATASOURCE_REG_AUTOINCREMENTDATA:
+		return dataValue.SetValue(RegGetAutoIncrementData(accessTarget));
+	case DATASOURCE_REG_1067:
+		return dataValue.SetValue(RegGet1067(accessTarget));
+	case DATASOURCE_REG_VSZ:
+		return dataValue.SetValue(RegGetVSZ(accessTarget));
+	case DATASOURCE_REG_VSZ1:
+		return dataValue.SetValue(RegGetVSZ1(accessTarget));
+	case DATASOURCE_REG_VSZ0:
+		return dataValue.SetValue(RegGetVSZ0(accessTarget));
+	case DATASOURCE_REG_1023:
+		return dataValue.SetValue(RegGet1023(accessTarget));
+	case DATASOURCE_REG_HSZ:
+		return dataValue.SetValue(RegGetHSZ(accessTarget));
+	case DATASOURCE_REG_HSZ1:
+		return dataValue.SetValue(RegGetHSZ1(accessTarget));
+	case DATASOURCE_REG_HSZ0:
+		return dataValue.SetValue(RegGetHSZ0(accessTarget));
+	case DATASOURCE_REG_1156:
+		return dataValue.SetValue(RegGet1156(accessTarget));
+	case DATASOURCE_REG_WINDOWRIGHT:
+		return dataValue.SetValue(RegGetWindowRightAligned(accessTarget));
+	case DATASOURCE_REG_WINDOWBASEX:
+		return dataValue.SetValue(RegGetWindowBasePointX(accessTarget));
+	case DATASOURCE_REG_1256:
+		return dataValue.SetValue(RegGet1256(accessTarget));
+	case DATASOURCE_REG_WINDOWBOTTOM:
+		return dataValue.SetValue(RegGetWindowBottomAligned(accessTarget));
+	case DATASOURCE_REG_WINDOWBASEY:
+		return dataValue.SetValue(RegGetWindowBasePointY(accessTarget));
+	case DATASOURCE_REG_DMALENGTH:
+		return dataValue.SetValue(RegGetDMALengthCounter(accessTarget));
+	case DATASOURCE_REG_DMASOURCE:
+		return dataValue.SetValue(RegGetDMASourceAddress(accessTarget));
+	case DATASOURCE_REG_DMASOURCEDATA1:
+		return dataValue.SetValue(RegGetDMASourceAddressByte1(accessTarget));
+	case DATASOURCE_REG_DMASOURCEDATA2:
+		return dataValue.SetValue(RegGetDMASourceAddressByte2(accessTarget));
+	case DATASOURCE_REG_DMASOURCEDATA3:
+		return dataValue.SetValue(RegGetDMASourceAddressByte3(accessTarget));
+	case DATASOURCE_REG_DMD1:
+		return dataValue.SetValue(RegGetDMD1(accessTarget));
+	case DATASOURCE_REG_DMD0:
+		return dataValue.SetValue(RegGetDMD0(accessTarget));
+	case DATASOURCE_REG_CODE:
+		return dataValue.SetValue(commandCode.GetData());
+	case DATASOURCE_REG_ADDRESS:
+		return dataValue.SetValue(commandAddress.GetData());
+	case DATASOURCE_REG_PORTWRITEPENDING:
+		return dataValue.SetValue(commandWritePending);
+	case DATASOURCE_REG_READBUFFER:
+		return dataValue.SetValue(readBuffer.GetData());
+	case DATASOURCE_REG_READHALFCACHED:
+		return dataValue.SetValue(readDataHalfCached);
+	case DATASOURCE_REG_READFULLYCACHED:
+		return dataValue.SetValue(readDataAvailable);
+	case DATASOURCE_REG_VINTPENDING:
+		return dataValue.SetValue(vintPending);
+	case DATASOURCE_REG_HINTPENDING:
+		return dataValue.SetValue(hintPending);
+	case DATASOURCE_REG_EXINTPENDING:
+		return dataValue.SetValue(exintPending);
+	case DATASOURCE_REG_HVCOUNTEREXTERNAL:
+		return dataValue.SetValue(GetHVCounter().GetData());
+	case DATASOURCE_REG_HCOUNTERINTERNAL:
+		return dataValue.SetValue(hcounter.GetData());
+	case DATASOURCE_REG_VCOUNTERINTERNAL:
+		return dataValue.SetValue(vcounter.GetData());
+	case DATASOURCE_REG_HCOUNTERLATCHED:
+		return dataValue.SetValue(hcounterLatchedData.GetData());
+	case DATASOURCE_REG_VCOUNTERLATCHED:
+		return dataValue.SetValue(vcounterLatchedData.GetData());
+	case DATASOURCE_REG_FIFO_CODE:{
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		return dataValue.SetValue(fifoBuffer[fifoEntryDataContext.entryNo].codeRegData.GetData());}
+	case DATASOURCE_REG_FIFO_ADDRESS:{
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		return dataValue.SetValue(fifoBuffer[fifoEntryDataContext.entryNo].addressRegData.GetData());}
+	case DATASOURCE_REG_FIFO_DATA:{
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		return dataValue.SetValue(fifoBuffer[fifoEntryDataContext.entryNo].dataPortWriteData.GetData());}
+	case DATASOURCE_REG_FIFO_WRITEPENDING:{
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		return dataValue.SetValue(fifoBuffer[fifoEntryDataContext.entryNo].pendingDataWrite);}
+	case DATASOURCE_REG_FIFO_WRITEHALFWRITTEN:{
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		return dataValue.SetValue(fifoBuffer[fifoEntryDataContext.entryNo].dataWriteHalfWritten);}
+	case DATASOURCE_REG_NEXTFIFOREADENTRY:
+		return dataValue.SetValue(fifoNextReadEntry);
+	case DATASOURCE_REG_NEXTFIFOWRITEENTRY:
+		return dataValue.SetValue(fifoNextWriteEntry);
+	case DATASOURCE_SETTINGS_OUTPUTPORTACCESSDEBUGMESSAGES:
+		return dataValue.SetValue(outputPortAccessDebugMessages);
+	case DATASOURCE_SETTINGS_OUTPUTTIMINGDEBUGMESSAGES:
+		return dataValue.SetValue(outputTimingDebugMessages);
+	case DATASOURCE_SETTINGS_OUTPUTRENDERSYNCMESSAGES:
+		return dataValue.SetValue(outputRenderSyncMessages);
+	case DATASOURCE_SETTINGS_OUTPUTINTERRUPTDEBUGMESSAGES:
+		return dataValue.SetValue(outputInterruptDebugMessages);
+	case DATASOURCE_SETTINGS_VIDEODISABLERENDEROUTPUT:
+		return dataValue.SetValue(videoDisableRenderOutput);
+	case DATASOURCE_SETTINGS_VIDEOENABLESPRITEBOXING:
+		return dataValue.SetValue(videoEnableSpriteBoxing);
+	case DATASOURCE_SETTINGS_VIDEOHIGHLIGHTRENDERPOS:
+		return dataValue.SetValue(videoHighlightRenderPos);
+	case DATASOURCE_SETTINGS_VIDEOSINGLEBUFFERING:
+		return dataValue.SetValue(videoSingleBuffering);
+	case DATASOURCE_SETTINGS_VIDEOFIXEDASPECTRATIO:
+		return dataValue.SetValue(videoFixedAspectRatio);
+	case DATASOURCE_SETTINGS_VIDEOSHOWSTATUSBAR:
+		return dataValue.SetValue(videoShowStatusBar);
+	case DATASOURCE_SETTINGS_CURRENTRENDERPOSONSCREEN:
+		return dataValue.SetValue(currentRenderPosOnScreen);
+	case DATASOURCE_SETTINGS_CURRENTRENDERPOSSCREENX:
+		return dataValue.SetValue(currentRenderPosScreenX);
+	case DATASOURCE_SETTINGS_CURRENTRENDERPOSSCREENY:
+		return dataValue.SetValue(currentRenderPosScreenY);
+	case DATASOURCE_SETTINGS_VIDEOSHOWBOUNDARYACTIVEIMAGE:
+		return dataValue.SetValue(videoShowBoundaryActiveImage);
+	case DATASOURCE_SETTINGS_VIDEOSHOWBOUNDARYACTIONSAFE:
+		return dataValue.SetValue(videoShowBoundaryActionSafe);
+	case DATASOURCE_SETTINGS_VIDEOSHOWBOUNDARYTITLESAFE:
+		return dataValue.SetValue(videoShowBoundaryTitleSafe);
+	case DATASOURCE_SETTINGS_VIDEOENABLELAYERAHIGH:
+		return dataValue.SetValue(enableLayerAHigh);
+	case DATASOURCE_SETTINGS_VIDEOENABLELAYERALOW:
+		return dataValue.SetValue(enableLayerALow);
+	case DATASOURCE_SETTINGS_VIDEOENABLELAYERBHIGH:
+		return dataValue.SetValue(enableLayerBHigh);
+	case DATASOURCE_SETTINGS_VIDEOENABLELAYERBLOW:
+		return dataValue.SetValue(enableLayerBLow);
+	case DATASOURCE_SETTINGS_VIDEOENABLEWINDOWHIGH:
+		return dataValue.SetValue(enableWindowHigh);
+	case DATASOURCE_SETTINGS_VIDEOENABLEWINDOWLOW:
+		return dataValue.SetValue(enableWindowLow);
+	case DATASOURCE_SETTINGS_VIDEOENABLESPRITEHIGH:
+		return dataValue.SetValue(enableSpriteHigh);
+	case DATASOURCE_SETTINGS_VIDEOENABLESPRITELOW:
+		return dataValue.SetValue(enableSpriteLow);
+	}
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue)
+{
+	ApplyGenericDataValueLimitSettings(dataID, dataValue);
+	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
+	AccessTarget accessTarget = AccessTarget().AccessLatest();
+	switch(dataID)
+	{
+	case DATASOURCE_RAWREGISTER:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		Data registerData(8, dataValueAsUInt.GetValue());
+		boost::mutex::scoped_lock lock(accessMutex);
+		TransparentRegisterSpecialUpdateFunction(registerDataContext.registerNo, registerData);
+		SetRegisterData(registerDataContext.registerNo, accessTarget, registerData);
+		return true;}
+	case DATASOURCE_REG_STATUS:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		status = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_FLAG_FIFOEMPTY:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagFIFOEmpty(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_FLAG_FIFOFULL:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagFIFOEmpty(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_FLAG_F:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagF(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_FLAG_SPRITEOVERFLOW:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagSpriteOverflow(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_FLAG_SPRITECOLLISION:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagSpriteCollision(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_FLAG_ODDINTERLACEFRAME:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagOddInterlaceFrame(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_FLAG_VBLANK:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagVBlank(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_FLAG_HBLANK:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagHBlank(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_FLAG_DMA:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagDMA(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_FLAG_PAL:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetStatusFlagPAL(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_VSI:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetVSI(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_HSI:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetHSI(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_LCB:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetLCB(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_IE1:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetIE1(accessTarget, dataValueAsBool.GetValue());
+		hintEnabled = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_SS:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetSS(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_PS:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetPS(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_M2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetM2(accessTarget, dataValueAsBool.GetValue());
+		hvCounterLatchEnabled = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_ES:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetES(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_EVRAM:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetEVRAM(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_DISPLAYENABLED:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetDisplayEnabled(accessTarget, dataValueAsBool.GetValue());
+		displayEnabledCached = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_IE0:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetIE0(accessTarget, dataValueAsBool.GetValue());
+		vintEnabled = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_DMAENABLED:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetDMAEnabled(accessTarget, dataValueAsBool.GetValue());
+		dmaEnabled = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_M3:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetM3(accessTarget, dataValueAsBool.GetValue());
+		screenModeV30Cached  = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_MODE5:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetMode5(accessTarget, dataValueAsBool.GetValue());
+		screenModeM5Cached = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_SZ:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetSZ(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_MAG:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetMAG(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_NAMETABLEBASEA:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetNameTableBaseScrollA(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_NAMETABLEBASEWINDOW:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetNameTableBaseWindow(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_NAMETABLEBASEB:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetNameTableBaseScrollB(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_NAMETABLEBASESPRITE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetNameTableBaseSprite(accessTarget, dataValueAsUInt.GetValue(), !RegGetMode5(accessTarget));
+		spriteAttributeTableBaseAddressDecoded = (dataValueAsUInt.GetValue() << 9);
+		return true;}
+	case DATASOURCE_REG_PATTERNBASESPRITE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetPatternBaseSprite(accessTarget, dataValueAsUInt.GetValue(), !RegGetMode5(accessTarget));
+		return true;}
+	case DATASOURCE_REG_077:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSet077(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_076:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSet076(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_BACKGROUNDPALETTEROW:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetBackgroundPaletteRow(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_BACKGROUNDPALETTECOLUMN:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetBackgroundPaletteColumn(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_BACKGROUNDSCROLLX:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetBackgroundScrollX(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_BACKGROUNDSCROLLY:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetBackgroundScrollY(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_HINTDATA:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetHInterruptData(accessTarget, dataValueAsUInt.GetValue());
+		hintCounterReloadValue = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_0B7:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSet0B7(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_0B6:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSet0B6(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_0B5:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSet0B5(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_0B4:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSet0B4(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_IE2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetIE2(accessTarget, dataValueAsBool.GetValue());
+		exintEnabled = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_VSCR:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetVSCR(accessTarget, dataValueAsBool.GetValue());
+		verticalScrollModeCached = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_HSCR:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetHSCR(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_LSCR:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetLSCR(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_RS0:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetRS0(accessTarget, dataValueAsBool.GetValue());
+		screenModeRS0Cached = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_U1:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetU1(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_U2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetU2(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_U3:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetU3(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_STE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetSTE(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_LSM1:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetLSM1(accessTarget, dataValueAsBool.GetValue());
+		interlaceDoubleCached = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_LSM0:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetLSM0(accessTarget, dataValueAsBool.GetValue());
+		interlaceEnabledCached = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_RS1:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetRS1(accessTarget, dataValueAsBool.GetValue());
+		screenModeRS1Cached = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_HSCROLLDATABASE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetHScrollDataBase(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_0E57:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSet0E57(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_PATTERNBASEA:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetPatternBaseScrollA(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_0E13:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSet0E13(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_PATTERNBASEB:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetPatternBaseScrollB(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_AUTOINCREMENTDATA:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetAutoIncrementData(accessTarget, dataValueAsUInt.GetValue());
+		autoIncrementData = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_1067:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSet1067(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_VSZ:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetVSZ(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_VSZ1:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetVSZ1(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_VSZ0:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetVSZ0(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_1023:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSet1023(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_HSZ:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetHSZ(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_HSZ1:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetHSZ1(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_HSZ0:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetHSZ0(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_1156:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSet1156(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_WINDOWRIGHT:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetWindowRightAligned(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_WINDOWBASEX:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetWindowBasePointX(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_1256:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSet1256(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_WINDOWBOTTOM:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		RegSetWindowBottomAligned(accessTarget, dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REG_WINDOWBASEY:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		RegSetWindowBasePointY(accessTarget, dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REG_DMALENGTH:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetDMALengthCounter(accessTarget, dataValueAsUInt.GetValue());
+		dmaLengthCounter = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_DMASOURCE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetDMASourceAddress(accessTarget, dataValueAsUInt.GetValue());
+		dmaSourceAddressByte1 = dataValueAsUInt.GetValue() & 0xFF;
+		dmaSourceAddressByte2 = (dataValueAsUInt.GetValue() >> 8) & 0xFF;
+		dmaSourceAddressByte3 = (dataValueAsUInt.GetValue() >> 16) & 0x7F;
+		return true;}
+	case DATASOURCE_REG_DMASOURCEDATA1:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetDMASourceAddressByte1(accessTarget, dataValueAsUInt.GetValue());
+		dmaSourceAddressByte1 = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_DMASOURCEDATA2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetDMASourceAddressByte2(accessTarget, dataValueAsUInt.GetValue());
+		dmaSourceAddressByte2 = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_DMASOURCEDATA3:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetDMASourceAddressByte3(accessTarget, dataValueAsUInt.GetValue());
+		dmaSourceAddressByte3 = dataValueAsUInt.GetValue() & 0x7F;
+		return true;}
+	case DATASOURCE_REG_DMD1:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetDMD1(accessTarget, dataValueAsBool.GetValue());
+		dmd1 = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_DMD0:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		RegSetDMD0(accessTarget, dataValueAsBool.GetValue());
+		dmd0 = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_CODE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		commandCode = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_ADDRESS:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		commandAddress = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_PORTWRITEPENDING:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		commandWritePending = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_READBUFFER:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		readBuffer = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_READHALFCACHED:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		readDataHalfCached = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_READFULLYCACHED:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		readDataAvailable = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_VINTPENDING:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		vintPending = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_HINTPENDING:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		hintPending = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_EXINTPENDING:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		exintPending = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_HCOUNTERINTERNAL:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		hcounter = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_VCOUNTERINTERNAL:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		vcounter = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_HCOUNTERLATCHED:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		hcounterLatchedData = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_VCOUNTERLATCHED:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		vcounterLatchedData = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_FIFO_CODE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		boost::mutex::scoped_lock lock(accessMutex);
+		fifoBuffer[fifoEntryDataContext.entryNo].codeRegData = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_FIFO_ADDRESS:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		boost::mutex::scoped_lock lock(accessMutex);
+		fifoBuffer[fifoEntryDataContext.entryNo].addressRegData = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_FIFO_DATA:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		boost::mutex::scoped_lock lock(accessMutex);
+		fifoBuffer[fifoEntryDataContext.entryNo].dataPortWriteData = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_FIFO_WRITEPENDING:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		boost::mutex::scoped_lock lock(accessMutex);
+		fifoBuffer[fifoEntryDataContext.entryNo].pendingDataWrite = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_FIFO_WRITEHALFWRITTEN:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		boost::mutex::scoped_lock lock(accessMutex);
+		fifoBuffer[fifoEntryDataContext.entryNo].dataWriteHalfWritten = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_REG_NEXTFIFOREADENTRY:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		fifoNextReadEntry = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_REG_NEXTFIFOWRITEENTRY:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		boost::mutex::scoped_lock lock(accessMutex);
+		fifoNextWriteEntry = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_OUTPUTPORTACCESSDEBUGMESSAGES:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		outputPortAccessDebugMessages = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_OUTPUTTIMINGDEBUGMESSAGES:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		outputTimingDebugMessages = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_OUTPUTRENDERSYNCMESSAGES:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		outputRenderSyncMessages = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_OUTPUTINTERRUPTDEBUGMESSAGES:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		outputInterruptDebugMessages = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEODISABLERENDEROUTPUT:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoDisableRenderOutput = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOENABLESPRITEBOXING:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoEnableSpriteBoxing = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOHIGHLIGHTRENDERPOS:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoHighlightRenderPos = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOSINGLEBUFFERING:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoSingleBuffering = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOFIXEDASPECTRATIO:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoFixedAspectRatio = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOSHOWSTATUSBAR:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoShowStatusBar = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_CURRENTRENDERPOSONSCREEN:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		currentRenderPosOnScreen = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_CURRENTRENDERPOSSCREENX:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		currentRenderPosScreenX = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_CURRENTRENDERPOSSCREENY:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		currentRenderPosScreenY = dataValueAsUInt.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOSHOWBOUNDARYACTIVEIMAGE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoShowBoundaryActiveImage = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOSHOWBOUNDARYACTIONSAFE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoShowBoundaryActionSafe = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOSHOWBOUNDARYTITLESAFE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoShowBoundaryTitleSafe = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOENABLELAYERAHIGH:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableLayerAHigh = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOENABLELAYERALOW:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableLayerALow = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOENABLELAYERBHIGH:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableLayerBHigh = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOENABLELAYERBLOW:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableLayerBLow = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOENABLEWINDOWHIGH:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableWindowHigh = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOENABLEWINDOWLOW:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableWindowLow = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOENABLESPRITEHIGH:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableSpriteHigh = dataValueAsBool.GetValue();
+		return true;}
+	case DATASOURCE_SETTINGS_VIDEOENABLESPRITELOW:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableSpriteLow = dataValueAsBool.GetValue();
+		return true;}
+	}
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+//Data locking functions
+//----------------------------------------------------------------------------------------
+bool S315_5313::GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const
+{
+	boost::mutex::scoped_lock lock(registerLockMutex);
+	switch(dataID)
+	{
+	case DATASOURCE_RAWREGISTER:{
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		return rawRegisterLocking[registerDataContext.registerNo];}
+	case DATASOURCE_FLAG_FIFOEMPTY:
+	case DATASOURCE_FLAG_FIFOFULL:
+	case DATASOURCE_FLAG_F:
+	case DATASOURCE_FLAG_SPRITEOVERFLOW:
+	case DATASOURCE_FLAG_SPRITECOLLISION:
+	case DATASOURCE_FLAG_ODDINTERLACEFRAME:
+	case DATASOURCE_FLAG_VBLANK:
+	case DATASOURCE_FLAG_HBLANK:
+	case DATASOURCE_FLAG_DMA:
+	case DATASOURCE_FLAG_PAL:
+	case DATASOURCE_REG_VSI:
+	case DATASOURCE_REG_HSI:
+	case DATASOURCE_REG_LCB:
+	case DATASOURCE_REG_IE1:
+	case DATASOURCE_REG_SS:
+	case DATASOURCE_REG_PS:
+	case DATASOURCE_REG_M2:
+	case DATASOURCE_REG_ES:
+	case DATASOURCE_REG_EVRAM:
+	case DATASOURCE_REG_DISPLAYENABLED:
+	case DATASOURCE_REG_IE0:
+	case DATASOURCE_REG_DMAENABLED:
+	case DATASOURCE_REG_M3:
+	case DATASOURCE_REG_MODE5:
+	case DATASOURCE_REG_SZ:
+	case DATASOURCE_REG_MAG:
+	case DATASOURCE_REG_NAMETABLEBASEA:
+	case DATASOURCE_REG_NAMETABLEBASEWINDOW:
+	case DATASOURCE_REG_NAMETABLEBASEB:
+	case DATASOURCE_REG_NAMETABLEBASESPRITE:
+	case DATASOURCE_REG_PATTERNBASESPRITE:
+	case DATASOURCE_REG_077:
+	case DATASOURCE_REG_076:
+	case DATASOURCE_REG_BACKGROUNDPALETTEROW:
+	case DATASOURCE_REG_BACKGROUNDPALETTECOLUMN:
+	case DATASOURCE_REG_BACKGROUNDSCROLLX:
+	case DATASOURCE_REG_BACKGROUNDSCROLLY:
+	case DATASOURCE_REG_HINTDATA:
+	case DATASOURCE_REG_0B7:
+	case DATASOURCE_REG_0B6:
+	case DATASOURCE_REG_0B5:
+	case DATASOURCE_REG_0B4:
+	case DATASOURCE_REG_IE2:
+	case DATASOURCE_REG_VSCR:
+	case DATASOURCE_REG_HSCR:
+	case DATASOURCE_REG_LSCR:
+	case DATASOURCE_REG_RS0:
+	case DATASOURCE_REG_U1:
+	case DATASOURCE_REG_U2:
+	case DATASOURCE_REG_U3:
+	case DATASOURCE_REG_STE:
+	case DATASOURCE_REG_LSM1:
+	case DATASOURCE_REG_LSM0:
+	case DATASOURCE_REG_RS1:
+	case DATASOURCE_REG_HSCROLLDATABASE:
+	case DATASOURCE_REG_0E57:
+	case DATASOURCE_REG_PATTERNBASEA:
+	case DATASOURCE_REG_0E13:
+	case DATASOURCE_REG_PATTERNBASEB:
+	case DATASOURCE_REG_AUTOINCREMENTDATA:
+	case DATASOURCE_REG_1067:
+	case DATASOURCE_REG_VSZ:
+	case DATASOURCE_REG_VSZ1:
+	case DATASOURCE_REG_VSZ0:
+	case DATASOURCE_REG_1023:
+	case DATASOURCE_REG_HSZ:
+	case DATASOURCE_REG_HSZ1:
+	case DATASOURCE_REG_HSZ0:
+	case DATASOURCE_REG_1156:
+	case DATASOURCE_REG_WINDOWRIGHT:
+	case DATASOURCE_REG_WINDOWBASEX:
+	case DATASOURCE_REG_1256:
+	case DATASOURCE_REG_WINDOWBOTTOM:
+	case DATASOURCE_REG_WINDOWBASEY:
+	case DATASOURCE_REG_DMALENGTH:
+	case DATASOURCE_REG_DMASOURCE:
+	case DATASOURCE_REG_DMASOURCEDATA1:
+	case DATASOURCE_REG_DMASOURCEDATA2:
+	case DATASOURCE_REG_DMASOURCEDATA3:
+	case DATASOURCE_REG_DMD1:
+	case DATASOURCE_REG_DMD0:
+		return (lockedRegisterState.find(dataID) != lockedRegisterState.end());
+	}
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state)
+{
+	switch(dataID)
+	{
+	case DATASOURCE_RAWREGISTER:{
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		rawRegisterLocking[registerDataContext.registerNo] = state;
+		return true;}
+	case DATASOURCE_FLAG_FIFOEMPTY:
+	case DATASOURCE_FLAG_FIFOFULL:
+	case DATASOURCE_FLAG_F:
+	case DATASOURCE_FLAG_SPRITEOVERFLOW:
+	case DATASOURCE_FLAG_SPRITECOLLISION:
+	case DATASOURCE_FLAG_ODDINTERLACEFRAME:
+	case DATASOURCE_FLAG_VBLANK:
+	case DATASOURCE_FLAG_HBLANK:
+	case DATASOURCE_FLAG_DMA:
+	case DATASOURCE_FLAG_PAL:
+	case DATASOURCE_REG_VSI:
+	case DATASOURCE_REG_HSI:
+	case DATASOURCE_REG_LCB:
+	case DATASOURCE_REG_IE1:
+	case DATASOURCE_REG_SS:
+	case DATASOURCE_REG_PS:
+	case DATASOURCE_REG_M2:
+	case DATASOURCE_REG_ES:
+	case DATASOURCE_REG_EVRAM:
+	case DATASOURCE_REG_DISPLAYENABLED:
+	case DATASOURCE_REG_IE0:
+	case DATASOURCE_REG_DMAENABLED:
+	case DATASOURCE_REG_M3:
+	case DATASOURCE_REG_MODE5:
+	case DATASOURCE_REG_SZ:
+	case DATASOURCE_REG_MAG:
+	case DATASOURCE_REG_NAMETABLEBASEA:
+	case DATASOURCE_REG_NAMETABLEBASEWINDOW:
+	case DATASOURCE_REG_NAMETABLEBASEB:
+	case DATASOURCE_REG_NAMETABLEBASESPRITE:
+	case DATASOURCE_REG_PATTERNBASESPRITE:
+	case DATASOURCE_REG_077:
+	case DATASOURCE_REG_076:
+	case DATASOURCE_REG_BACKGROUNDPALETTEROW:
+	case DATASOURCE_REG_BACKGROUNDPALETTECOLUMN:
+	case DATASOURCE_REG_BACKGROUNDSCROLLX:
+	case DATASOURCE_REG_BACKGROUNDSCROLLY:
+	case DATASOURCE_REG_HINTDATA:
+	case DATASOURCE_REG_0B7:
+	case DATASOURCE_REG_0B6:
+	case DATASOURCE_REG_0B5:
+	case DATASOURCE_REG_0B4:
+	case DATASOURCE_REG_IE2:
+	case DATASOURCE_REG_VSCR:
+	case DATASOURCE_REG_HSCR:
+	case DATASOURCE_REG_LSCR:
+	case DATASOURCE_REG_RS0:
+	case DATASOURCE_REG_U1:
+	case DATASOURCE_REG_U2:
+	case DATASOURCE_REG_U3:
+	case DATASOURCE_REG_STE:
+	case DATASOURCE_REG_LSM1:
+	case DATASOURCE_REG_LSM0:
+	case DATASOURCE_REG_RS1:
+	case DATASOURCE_REG_HSCROLLDATABASE:
+	case DATASOURCE_REG_0E57:
+	case DATASOURCE_REG_PATTERNBASEA:
+	case DATASOURCE_REG_0E13:
+	case DATASOURCE_REG_PATTERNBASEB:
+	case DATASOURCE_REG_AUTOINCREMENTDATA:
+	case DATASOURCE_REG_1067:
+	case DATASOURCE_REG_VSZ:
+	case DATASOURCE_REG_VSZ1:
+	case DATASOURCE_REG_VSZ0:
+	case DATASOURCE_REG_1023:
+	case DATASOURCE_REG_HSZ:
+	case DATASOURCE_REG_HSZ1:
+	case DATASOURCE_REG_HSZ0:
+	case DATASOURCE_REG_1156:
+	case DATASOURCE_REG_WINDOWRIGHT:
+	case DATASOURCE_REG_WINDOWBASEX:
+	case DATASOURCE_REG_1256:
+	case DATASOURCE_REG_WINDOWBOTTOM:
+	case DATASOURCE_REG_WINDOWBASEY:
+	case DATASOURCE_REG_DMALENGTH:
+	case DATASOURCE_REG_DMASOURCE:
+	case DATASOURCE_REG_DMASOURCEDATA1:
+	case DATASOURCE_REG_DMASOURCEDATA2:
+	case DATASOURCE_REG_DMASOURCEDATA3:
+	case DATASOURCE_REG_DMD1:
+	case DATASOURCE_REG_DMD0:{
+		boost::mutex::scoped_lock lock(registerLockMutex);
+		if(!state)
+		{
+			lockedRegisterState.erase(dataID);
+		}
+		else if(lockedRegisterState.find(dataID) == lockedRegisterState.end())
+		{
+			std::wstring lockedDataValue;
+			if(!ReadGenericData(dataID, dataContext, lockedDataValue))
+			{
+				return false;
+			}
+			lockedRegisterState[dataID] = lockedDataValue;
+		}
+		return true;}
+	}
+	return false;
 }

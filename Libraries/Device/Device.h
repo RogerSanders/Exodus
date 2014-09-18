@@ -1,18 +1,15 @@
 #ifndef __DEVICE_H__
 #define __DEVICE_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "DeviceInternal.h"
 
-class Device :public IDevice
+class Device :public DeviceInternal
 {
 public:
 	//Constructors
 	inline Device(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
-	virtual ~Device();
-
-	//Interface version functions
-	virtual unsigned int GetIDeviceVersion() const;
 
 	//Initialization functions
+	virtual bool BindToSystemInterface(ISystemDeviceInterface* asystemInterface);
 	virtual bool BindToDeviceContext(IDeviceContext* adeviceContext);
 	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildDevice();
@@ -30,10 +27,13 @@ public:
 	virtual bool RemoveReference(IBusInterface* target);
 	virtual bool RemoveReference(IClockSource* target);
 
+	//Interface functions
+	inline ISystemDeviceInterface& GetSystemInterface() const;
+
 	//Device context functions
-	virtual IDeviceContext* GetDeviceContext() const;
-	virtual double GetCurrentTimesliceProgress() const;
-	void SetCurrentTimesliceProgress(double executionProgress);
+	inline IDeviceContext* GetDeviceContext() const;
+	inline double GetCurrentTimesliceProgress() const;
+	inline void SetCurrentTimesliceProgress(double executionProgress);
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const;
@@ -58,7 +58,7 @@ public:
 	virtual void NotifyAfterExecuteStepFinishedTimeslice();
 
 	//Name functions
-	inline std::wstring GetDeviceImplementationName() const;
+	inline std::wstring GetDeviceClassName() const;
 	inline std::wstring GetDeviceInstanceName() const;
 	inline std::wstring GetFullyQualifiedDeviceInstanceName() const;
 	inline std::wstring GetModuleDisplayName() const;
@@ -120,14 +120,6 @@ public:
 	virtual void HandleInputKeyDown(unsigned int keyCodeID);
 	virtual void HandleInputKeyUp(unsigned int keyCodeID);
 
-	//Window functions
-	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle);
-	virtual AssemblyHandle GetAssemblyHandle() const;
-	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
-
 protected:
 	//Reference functions
 	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IDevice* target);
@@ -136,7 +128,7 @@ protected:
 	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IClockSource* target);
 
 	//Name functions
-	virtual void GetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
+	virtual void GetDeviceClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 	virtual void GetDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 	virtual void GetFullyQualifiedDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 	virtual void GetModuleDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
@@ -157,16 +149,12 @@ protected:
 	virtual unsigned int GetKeyCodeIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& keyCodeNameMarshaller) const;
 	virtual void GetKeyCodeNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int keyCodeID) const;
 
-	//Window functions
-	virtual void RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher);
-
 private:
 	std::wstring implementationName;
 	std::wstring instanceName;
 	unsigned int moduleID;
+	ISystemDeviceInterface* systemInterface;
 	IDeviceContext* deviceContext;
-	AssemblyHandle assemblyHandle;
 };
 
 #include "Device.inl"

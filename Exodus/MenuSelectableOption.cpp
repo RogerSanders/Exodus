@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MenuSelectableOption::MenuSelectableOption(IMenuHandler& amenuHandler, int amenuItemID, const std::wstring& aname)
-:menuHandler(amenuHandler), menuItemID(amenuItemID), name(aname), physicalMenuHandle(0), physicalMenuItemID(0), checkedState(false)
+MenuSelectableOption::MenuSelectableOption(IMenuHandler& amenuHandler, int amenuItemID, const std::wstring& atitle)
+:menuHandler(amenuHandler), menuItemID(amenuItemID), title(atitle), physicalMenuHandle(0), physicalMenuItemID(0), checkedState(false)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -22,19 +22,29 @@ unsigned int MenuSelectableOption::GetIMenuSelectableOptionVersion() const
 }
 
 //----------------------------------------------------------------------------------------
+//Type functions
+//----------------------------------------------------------------------------------------
+MenuSelectableOption::Type MenuSelectableOption::GetType() const
+{
+	return TYPE_SELECTABLEOPTION;
+}
+
+//----------------------------------------------------------------------------------------
+//Menu title functions
+//----------------------------------------------------------------------------------------
+std::wstring MenuSelectableOption::GetMenuTitle() const
+{
+	return title;
+}
+
+//----------------------------------------------------------------------------------------
+void MenuSelectableOption::GetMenuTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+{
+	marshaller.MarshalFrom(GetMenuTitle());
+}
+
+//----------------------------------------------------------------------------------------
 //Menu handler functions
-//----------------------------------------------------------------------------------------
-std::wstring MenuSelectableOption::GetName() const
-{
-	return name;
-}
-
-//----------------------------------------------------------------------------------------
-void MenuSelectableOption::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetName());
-}
-
 //----------------------------------------------------------------------------------------
 IMenuHandler& MenuSelectableOption::GetMenuHandler() const
 {
@@ -45,14 +55,6 @@ IMenuHandler& MenuSelectableOption::GetMenuHandler() const
 int MenuSelectableOption::GetMenuItemID() const
 {
 	return menuItemID;
-}
-
-//----------------------------------------------------------------------------------------
-//Type functions
-//----------------------------------------------------------------------------------------
-IMenuSelectableOption::Type MenuSelectableOption::GetType() const
-{
-	return TYPE_SELECTABLEOPTION;
 }
 
 //----------------------------------------------------------------------------------------

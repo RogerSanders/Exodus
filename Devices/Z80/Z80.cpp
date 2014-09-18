@@ -1,13 +1,12 @@
 #include "Z80.h"
 #include "Z80Opcodes.pkg"
-#include "DebugMenuHandler.h"
 //##DEBUG##
 #include <iostream>
 namespace Z80{
 
 //----------------------------------------------------------------------------------------
 Z80::Z80(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Processor(aimplementationName, ainstanceName, amoduleID), menuHandler(0), opcodeTable(8), opcodeTableCB(8), opcodeTableED(8), opcodeBuffer(0), memoryBus(0)
+:Processor(aimplementationName, ainstanceName, amoduleID), opcodeTable(8), opcodeTableCB(8), opcodeTableED(8), opcodeBuffer(0), memoryBus(0)
 {
 	//Set the default state for our device preferences
 	suspendWhenBusReleased = false;
@@ -18,6 +17,9 @@ Z80::Z80(const std::wstring& aimplementationName, const std::wstring& ainstanceN
 
 	//Initialize our changed register state
 	systemPausedToggleCounter = 0;
+
+	//Ensure we don't think a reset was triggered on the last processor step
+	resetLastStep = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -39,15 +41,18 @@ Z80::~Z80()
 	{
 		delete *i;
 	}
-
-	//Delete the menu handler
-	if(menuHandler != 0)
-	{
-		menuHandler->ClearMenuItems();
-		delete menuHandler;
-	}
 }
 
+//----------------------------------------------------------------------------------------
+//Interface version functions
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetIZ80Version() const
+{
+	return ThisIZ80Version();
+}
+
+//----------------------------------------------------------------------------------------
+//Initialization functions
 //----------------------------------------------------------------------------------------
 bool Z80::Construct(IHierarchicalStorageNode& node)
 {
@@ -61,11 +66,9 @@ bool Z80::Construct(IHierarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-//Initialization functions
-//----------------------------------------------------------------------------------------
 bool Z80::BuildDevice()
 {
-	bool result = true;
+	bool result = Processor::BuildDevice();
 
 	//Initialize our opcode tables
 	opcodeTable.InitializeOpcodeTable();
@@ -256,6 +259,97 @@ bool Z80::BuildDevice()
 	//largest opcode object.
 	opcodeBuffer = (void*)new unsigned char[largestObjectSize];
 
+	//Register each data source with the generic data access base class
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_A, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_F, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_B, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_C, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_D, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_E, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_H, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_L, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_AF, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_BC, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_DE, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_HL, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_A2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_F2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_B2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_C2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_D2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_E2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_H2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_L2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_AF2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_BC2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_DE2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_HL2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IXHIGH, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IXLOW, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IYHIGH, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IYLOW, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_I, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_R, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IX, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IY, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SP, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_PC, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IM, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(2));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IFF1, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IFF2, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_S, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_Z, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_Y, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_H, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_X, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_PV, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_N, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_C, IGenericAccessDataValue::DATATYPE_BOOL)));
+
+	//Register page layouts for generic access to this device
+	GenericAccessPage* registersPage = new GenericAccessPage(L"Generic - Registers");
+	registersPage->AddEntry((new GenericAccessGroup(L"Raw Registers"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_AF, L"AF"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_BC, L"BC"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_DE, L"DE"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_HL, L"HL"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_AF2, L"AF'"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_BC2, L"BC'"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_DE2, L"DE'"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_HL2, L"HL'"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_IX, L"IX"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_IY, L"IY"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_PC, L"PC"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SP, L"SP"))
+	             ->AddEntry((new GenericAccessGroup(L"Virtual Registers"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_A, L"A"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_F, L"F"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_B, L"B"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_C, L"C"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_D, L"D"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_E, L"E"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_H, L"H"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_L, L"L"))
+	                 ->AddEntry((new GenericAccessGroup(L"Flags"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_S, L"S"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_Z, L"Z"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_Y, L"Y"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_H, L"H"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_X, L"X"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_PV, L"PV"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_N, L"N"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_C, L"C"))))
+	             ->AddEntry((new GenericAccessGroup(L"Private Registers"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_IFF1, L"IFF1"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_IFF2, L"IFF2"))
+	                 ->AddEntry((new GenericAccessGroupSingleSelectionList(DATASOURCE_REGISTER_IM, L"IM"))->SetAllowNewItemEntry(true)
+	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"0 (Instruction on Bus)"), new GenericAccessDataValueUInt(0))
+	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"1 (Call 38h)"), new GenericAccessDataValueUInt(1))
+	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"2 (Vector on Bus)"), new GenericAccessDataValueUInt(2)))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_I, L"I"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_R, L"R"))));
+	result &= AddGenericAccessPage(registersPage);
+
 	return result;
 }
 
@@ -387,10 +481,22 @@ void Z80::BeginExecution()
 	regChangedE = GetE().GetData();
 	regChangedH = GetH().GetData();
 	regChangedL = GetL().GetData();
+	regChangedA2 = GetA2().GetData();
+	regChangedF2 = GetF2().GetData();
+	regChangedB2 = GetB2().GetData();
+	regChangedC2 = GetC2().GetData();
+	regChangedD2 = GetD2().GetData();
+	regChangedE2 = GetE2().GetData();
+	regChangedH2 = GetH2().GetData();
+	regChangedL2 = GetL2().GetData();
 	regChangedI = GetI().GetData();
 	regChangedR = GetR().GetData();
 	regChangedIX = GetIX().GetData();
 	regChangedIY = GetIY().GetData();
+	regChangedIXHigh = GetIXHigh().GetData();
+	regChangedIXLow = GetIXLow().GetData();
+	regChangedIYHigh = GetIYHigh().GetData();
+	regChangedIYLow = GetIYLow().GetData();
 	regChangedSP = GetSP().GetData();
 	regChangedPC = GetPC().GetData();
 	regChangedIM = GetInterruptMode();
@@ -456,401 +562,6 @@ bool Z80::UsesExecuteSuspend() const
 
 //----------------------------------------------------------------------------------------
 //Execute functions
-//----------------------------------------------------------------------------------------
-void Z80::ExecuteRollback()
-{
-	afreg = bafreg;	af2reg = baf2reg;
-	bcreg = bbcreg;	bc2reg = bbc2reg;
-	dereg = bdereg;	de2reg = bde2reg;
-	hlreg = bhlreg;	hl2reg = bhl2reg;
-	ireg = bireg;
-	rreg = brreg;
-	ixreg = bixreg;
-	iyreg = biyreg;
-	spreg = bspreg;
-	pcreg = bpcreg;
-	interruptMode = binterruptMode;
-	iff1 = biff1;
-	iff2 = biff2;
-	maskInterruptsNextOpcode = bmaskInterruptsNextOpcode;
-	processorStopped = bprocessorStopped;
-
-	lastTimesliceLength = blastTimesliceLength;
-	lineAccessBuffer = blineAccessBuffer;
-	lineAccessPending = !lineAccessBuffer.empty();
-
-	suspendUntilLineStateChangeReceived = bsuspendUntilLineStateChangeReceived;
-	resetLineState = bresetLineState;
-	busreqLineState = bbusreqLineState;
-	busackLineState = bbusackLineState;
-	intLineState = bintLineState;
-	nmiLineState = bnmiLineState;
-
-	Processor::ExecuteRollback();
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::ExecuteCommit()
-{
-	bafreg = afreg;	baf2reg = af2reg;
-	bbcreg = bcreg;	bbc2reg = bc2reg;
-	bdereg = dereg;	bde2reg = de2reg;
-	bhlreg = hlreg;	bhl2reg = hl2reg;
-	bireg = ireg;
-	brreg = rreg;
-	bixreg = ixreg;
-	biyreg = iyreg;
-	bspreg = spreg;
-	bpcreg = pcreg;
-	binterruptMode = interruptMode;
-	biff1 = iff1;
-	biff2 = iff2;
-	bmaskInterruptsNextOpcode = maskInterruptsNextOpcode;
-	bprocessorStopped = processorStopped;
-
-	blastTimesliceLength = lastTimesliceLength;
-	if(lineAccessPending)
-	{
-		blineAccessBuffer = lineAccessBuffer;
-	}
-	else
-	{
-		blineAccessBuffer.clear();
-	}
-
-	bsuspendUntilLineStateChangeReceived = suspendUntilLineStateChangeReceived;
-	bresetLineState = resetLineState;
-	bbusreqLineState = busreqLineState;
-	bbusackLineState = busackLineState;
-	bintLineState = intLineState;
-	bnmiLineState = nmiLineState;
-
-	Processor::ExecuteCommit();
-}
-
-//----------------------------------------------------------------------------------------
-bool Z80::SendNotifyUpcomingTimeslice() const
-{
-	return true;
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::NotifyUpcomingTimeslice(double nanoseconds)
-{
-	//Reset lastLineCheckTime for the beginning of the new timeslice, and force any
-	//remaining line state changes to be evaluated at the start of the new timeslice.
-	lastLineCheckTime = 0;
-	for(std::list<LineAccess>::iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
-	{
-		//We rebase accessTime here to the start of the new time block, in order to allow
-		//line state changes to be flagged ahead of the time they actually take effect.
-		//This rebasing allows changes flagged ahead of time to safely cross timeslice
-		//boundaries.
-		i->accessTime -= lastTimesliceLength;
-	}
-	lastTimesliceLength = nanoseconds;
-}
-
-//----------------------------------------------------------------------------------------
-//Line functions
-//----------------------------------------------------------------------------------------
-unsigned int Z80::GetLineID(const std::wstring& lineName) const
-{
-	if(lineName == L"RESET")
-	{
-		return LINE_RESET;
-	}
-	else if(lineName == L"BUSREQ")
-	{
-		return LINE_BUSREQ;
-	}
-	else if(lineName == L"BUSACK")
-	{
-		return LINE_BUSACK;
-	}
-	else if(lineName == L"INT")
-	{
-		return LINE_INT;
-	}
-	else if(lineName == L"NMI")
-	{
-		return LINE_NMI;
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring Z80::GetLineName(unsigned int lineID) const
-{
-	switch(lineID)
-	{
-	case LINE_RESET:
-		return L"RESET";
-	case LINE_BUSREQ:
-		return L"BUSREQ";
-	case LINE_BUSACK:
-		return L"BUSACK";
-	case LINE_INT:
-		return L"INT";
-	case LINE_NMI:
-		return L"NMI";
-	}
-	return L"";
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Z80::GetLineWidth(unsigned int lineID) const
-{
-	switch(lineID)
-	{
-	case LINE_RESET:
-		return 1;
-	case LINE_BUSREQ:
-		return 1;
-	case LINE_BUSACK:
-		return 1;
-	case LINE_INT:
-		return 1;
-	case LINE_NMI:
-		return 1;
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
-{
-	boost::mutex::scoped_lock lock(lineMutex);
-
-	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
-	//locking operation in the active thread for this device when no line changes are
-	//pending. Note that we set this flag before we've actually written the entry into
-	//the buffer, as we want to force the active thread to lock on the beginning of the
-	//next cycle while this function is executing, so that the current timeslice progress
-	//of the device doesn't change after we've read it.
-	lineAccessPending = true;
-
-	//Read the time at which this access is being made, and trigger a rollback if we've
-	//already passed that time.
-	if(lastLineCheckTime > accessTime)
-	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
-	}
-
-	//Insert the line access into the buffer. Note that entries in the buffer are sorted
-	//by access time from lowest to highest.
-	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
-	while((i != lineAccessBuffer.rend()) && (i->accessTime > accessTime))
-	{
-		++i;
-	}
-	lineAccessBuffer.insert(i.base(), LineAccess(targetLine, lineData, accessTime));
-
-	//Resume the main execution thread if it is currently suspended waiting for a line
-	//state change to be received.
-	if(suspendUntilLineStateChangeReceived)
-	{
-		GetDeviceContext()->ResumeTimesliceExecution();
-	}
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
-{
-	SetLineState(targetLine, lineData, 0, lastTimesliceLength, 0);
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
-{
-	boost::mutex::scoped_lock lock(lineMutex);
-
-	//Read the time at which this access is being made, and trigger a rollback if we've
-	//already passed that time.
-	if(lastLineCheckTime > accessTime)
-	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
-	}
-
-	//Find the matching line state change entry in the line access buffer
-	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
-	bool foundTargetEntry = false;
-	while(!foundTargetEntry && (i != lineAccessBuffer.rend()))
-	{
-		if((i->lineID == targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
-		{
-			foundTargetEntry = true;
-			continue;
-		}
-		++i;
-	}
-
-	//Erase the target line state change entry from the line access buffer
-	if(foundTargetEntry)
-	{
-		lineAccessBuffer.erase((++i).base());
-	}
-	else
-	{
-		//##DEBUG##
-		std::wcout << "Failed to find matching line state change in RevokeSetLineState! " << GetLineName(targetLine) << '\t' << lineData.GetData() << '\t' << std::setprecision(24) << reportedTime << '\t' << std::setprecision(24) << accessTime << '\n';
-	}
-
-	//Update the lineAccessPending flag
-	lineAccessPending = !lineAccessBuffer.empty();
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::AssertCurrentOutputLineState() const
-{
-	if(memoryBus != 0)
-	{
-		if(busackLineState) memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	}
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::NegateCurrentOutputLineState() const
-{
-	if(memoryBus != 0)
-	{
-		if(busackLineState) memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	}
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock)
-{
-	//##DEBUG##
-//	std::wstringstream message;
-//	message << "Z80 line state change applied\t" << targetLine << '\t' << lineData.GetData() << "\n";
-//	std::wcout << message.str();
-
-	switch(targetLine)
-	{
-	case LINE_RESET:
-		resetLineState = lineData.NonZero();
-		break;
-	case LINE_BUSREQ:{
-		bool newState = lineData.NonZero();
-		if(busreqLineState != newState)
-		{
-			busreqLineState = newState;
-
-			//Release our lock on lineMutex. This is critical in order to avoid
-			//deadlocks between devices if another device attempts to update the line
-			//state for this device while we are updating the line state for that same
-			//device, either directly or indirectly. There must never be a blocking
-			//mutex held which would prevent a call to SetLineState on this device
-			//succeeding when we are in tern calling SetLineState.
-			lock.unlock();
-
-			//If we're processing a change to the BUSREQ line, we need to now change the
-			//state of the BUSACK line to match.
-			busackLineState = busreqLineState;
-			memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), (unsigned int)busackLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-
-			//Re-acquire the lock now that we've completed our external call
-			lock.lock();
-		}
-		break;}
-	case LINE_INT:
-		intLineState = lineData.NonZero();
-		break;
-	case LINE_NMI:
-		nmiLineState = lineData.NonZero();
-		break;
-	}
-
-	//Flag whether we want to suspend until another line state change is received, or we
-	//reach the end of the current timeslice. We do this so that the Z80 doesn't advance
-	//past the state of other devices in response to, for example, bus requests, when we
-	//expect those events often to be brief. If the Z80 advances too far ahead, when the
-	//bus is released for example, a rollback would need to be generated. This is an
-	//optimization to try and avoid excessive rollbacks.
-	suspendUntilLineStateChangeReceived = suspendWhenBusReleased && (resetLineState || busreqLineState);
-}
-
-//----------------------------------------------------------------------------------------
-//Clock source functions
-//----------------------------------------------------------------------------------------
-unsigned int Z80::GetClockSourceID(const std::wstring& clockSourceName) const
-{
-	if(clockSourceName == L"CLK")
-	{
-		return CLOCK_CLK;
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring Z80::GetClockSourceName(unsigned int clockSourceID) const
-{
-	switch(clockSourceID)
-	{
-	case CLOCK_CLK:
-		return L"CLK";
-	}
-	return L"";
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
-{
-	//We push clock rate changes through the normal line state change tracking system
-	//here, since line state changes and clock changes are basically the same problem.
-	boost::mutex::scoped_lock lock(lineMutex);
-
-	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
-	//locking operation in the active thread for this device when no line changes are
-	//pending. Note that we set this flag before we've actually written the entry into
-	//the buffer, as we want to force the active thread to lock on the beginning of the
-	//next cycle while this function is executing, so that the current timeslice progress
-	//of the device doesn't change after we've read it.
-	lineAccessPending = true;
-
-	//Read the time at which this access is being made, and trigger a rollback if we've
-	//already passed that time.
-	if(lastLineCheckTime > accessTime)
-	{
-		GetDeviceContext()->SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
-	}
-
-	//Insert the line access into the buffer. Note that entries in the buffer are sorted
-	//by access time from lowest to highest.
-	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
-	while((i != lineAccessBuffer.rend()) && (i->accessTime > accessTime))
-	{
-		++i;
-	}
-	lineAccessBuffer.insert(i.base(), LineAccess(clockInput, clockRate, accessTime));
-
-	//Resume the main execution thread if it is currently suspended waiting for a line
-	//state change to be received.
-	if(suspendUntilLineStateChangeReceived)
-	{
-		GetDeviceContext()->ResumeTimesliceExecution();
-	}
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
-{
-	ApplyClockStateChange(clockInput, clockRate);
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::ApplyClockStateChange(unsigned int targetClock, double clockRate)
-{
-	//Apply the input clock rate change
-	if(targetClock == CLOCK_CLK)
-	{
-		SetClockSpeed(clockRate);
-	}
-}
-
-//----------------------------------------------------------------------------------------
-//Instruction functions
 //----------------------------------------------------------------------------------------
 double Z80::ExecuteStep()
 {
@@ -934,12 +645,18 @@ double Z80::ExecuteStep()
 	bool processorNotExecuting = resetLineState || busreqLineState || !GetDeviceContext()->DeviceEnabled();
 	if(processorNotExecuting)
 	{
-		if(resetLineState)
+		if(resetLineState && !resetLastStep)
 		{
+			//Note that we remember when we reset on the last step as an optimization.
+			//Since we execute a step every cycle when the reset line is held asserted,
+			//we don't want to perform the reset steps every single step repeatedly when
+			//no processor state has changed.
 			Reset();
+			resetLastStep = true;
 		}
 		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 	}
+	resetLastStep = false;
 
 	//If interrupts are not being suppressed for this opcode, and we've received either
 	//a non-maskable interrupt, or a normal interrupt while interrupts are not being
@@ -1172,10 +889,461 @@ double Z80::ExecuteStep()
 }
 
 //----------------------------------------------------------------------------------------
-Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location) const
+void Z80::ExecuteRollback()
 {
-	OpcodeInfo opcodeInfo;
-	opcodeInfo.valid = false;
+	afreg = bafreg;	af2reg = baf2reg;
+	bcreg = bbcreg;	bc2reg = bbc2reg;
+	dereg = bdereg;	de2reg = bde2reg;
+	hlreg = bhlreg;	hl2reg = bhl2reg;
+	ireg = bireg;
+	rreg = brreg;
+	ixreg = bixreg;
+	iyreg = biyreg;
+	spreg = bspreg;
+	pcreg = bpcreg;
+	interruptMode = binterruptMode;
+	iff1 = biff1;
+	iff2 = biff2;
+	maskInterruptsNextOpcode = bmaskInterruptsNextOpcode;
+	processorStopped = bprocessorStopped;
+
+	lastTimesliceLength = blastTimesliceLength;
+	lineAccessBuffer = blineAccessBuffer;
+	lineAccessPending = !lineAccessBuffer.empty();
+
+	suspendUntilLineStateChangeReceived = bsuspendUntilLineStateChangeReceived;
+	resetLineState = bresetLineState;
+	busreqLineState = bbusreqLineState;
+	busackLineState = bbusackLineState;
+	intLineState = bintLineState;
+	nmiLineState = bnmiLineState;
+
+	Processor::ExecuteRollback();
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::ExecuteCommit()
+{
+	bafreg = afreg;	baf2reg = af2reg;
+	bbcreg = bcreg;	bbc2reg = bc2reg;
+	bdereg = dereg;	bde2reg = de2reg;
+	bhlreg = hlreg;	bhl2reg = hl2reg;
+	bireg = ireg;
+	brreg = rreg;
+	bixreg = ixreg;
+	biyreg = iyreg;
+	bspreg = spreg;
+	bpcreg = pcreg;
+	binterruptMode = interruptMode;
+	biff1 = iff1;
+	biff2 = iff2;
+	bmaskInterruptsNextOpcode = maskInterruptsNextOpcode;
+	bprocessorStopped = processorStopped;
+
+	blastTimesliceLength = lastTimesliceLength;
+	if(lineAccessPending)
+	{
+		blineAccessBuffer = lineAccessBuffer;
+	}
+	else
+	{
+		blineAccessBuffer.clear();
+	}
+
+	bsuspendUntilLineStateChangeReceived = suspendUntilLineStateChangeReceived;
+	bresetLineState = resetLineState;
+	bbusreqLineState = busreqLineState;
+	bbusackLineState = busackLineState;
+	bintLineState = intLineState;
+	bnmiLineState = nmiLineState;
+
+	Processor::ExecuteCommit();
+}
+
+//----------------------------------------------------------------------------------------
+bool Z80::SendNotifyUpcomingTimeslice() const
+{
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::NotifyUpcomingTimeslice(double nanoseconds)
+{
+	//Reset lastLineCheckTime for the beginning of the new timeslice, and force any
+	//remaining line state changes to be evaluated at the start of the new timeslice.
+	lastLineCheckTime = 0;
+	for(std::list<LineAccess>::iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
+	{
+		//We rebase accessTime here to the start of the new time block, in order to allow
+		//line state changes to be flagged ahead of the time they actually take effect.
+		//This rebasing allows changes flagged ahead of time to safely cross timeslice
+		//boundaries.
+		i->accessTime -= lastTimesliceLength;
+	}
+	lastTimesliceLength = nanoseconds;
+}
+
+//----------------------------------------------------------------------------------------
+//Line functions
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetLineID(const std::wstring& lineName) const
+{
+	if(lineName == L"RESET")
+	{
+		return LINE_RESET;
+	}
+	else if(lineName == L"BUSREQ")
+	{
+		return LINE_BUSREQ;
+	}
+	else if(lineName == L"BUSACK")
+	{
+		return LINE_BUSACK;
+	}
+	else if(lineName == L"INT")
+	{
+		return LINE_INT;
+	}
+	else if(lineName == L"NMI")
+	{
+		return LINE_NMI;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring Z80::GetLineName(unsigned int lineID) const
+{
+	switch(lineID)
+	{
+	case LINE_RESET:
+		return L"RESET";
+	case LINE_BUSREQ:
+		return L"BUSREQ";
+	case LINE_BUSACK:
+		return L"BUSACK";
+	case LINE_INT:
+		return L"INT";
+	case LINE_NMI:
+		return L"NMI";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetLineWidth(unsigned int lineID) const
+{
+	switch(lineID)
+	{
+	case LINE_RESET:
+		return 1;
+	case LINE_BUSREQ:
+		return 1;
+	case LINE_BUSACK:
+		return 1;
+	case LINE_INT:
+		return 1;
+	case LINE_NMI:
+		return 1;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	boost::mutex::scoped_lock lock(lineMutex);
+
+	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
+	//locking operation in the active thread for this device when no line changes are
+	//pending. Note that we set this flag before we've actually written the entry into
+	//the buffer, as we want to force the active thread to lock on the beginning of the
+	//next cycle while this function is executing, so that the current timeslice progress
+	//of the device doesn't change after we've read it.
+	lineAccessPending = true;
+
+	//Read the time at which this access is being made, and trigger a rollback if we've
+	//already passed that time.
+	if(lastLineCheckTime > accessTime)
+	{
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	}
+
+	//Insert the line access into the buffer. Note that entries in the buffer are sorted
+	//by access time from lowest to highest.
+	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
+	while((i != lineAccessBuffer.rend()) && (i->accessTime > accessTime))
+	{
+		++i;
+	}
+	lineAccessBuffer.insert(i.base(), LineAccess(targetLine, lineData, accessTime));
+
+	//Resume the main execution thread if it is currently suspended waiting for a line
+	//state change to be received.
+	if(suspendUntilLineStateChangeReceived)
+	{
+		GetDeviceContext()->ResumeTimesliceExecution();
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
+{
+	SetLineState(targetLine, lineData, 0, lastTimesliceLength, 0);
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	boost::mutex::scoped_lock lock(lineMutex);
+
+	//Read the time at which this access is being made, and trigger a rollback if we've
+	//already passed that time.
+	if(lastLineCheckTime > accessTime)
+	{
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	}
+
+	//Find the matching line state change entry in the line access buffer
+	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
+	bool foundTargetEntry = false;
+	while(!foundTargetEntry && (i != lineAccessBuffer.rend()))
+	{
+		if((i->lineID == targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
+		{
+			foundTargetEntry = true;
+			continue;
+		}
+		++i;
+	}
+
+	//Erase the target line state change entry from the line access buffer
+	if(foundTargetEntry)
+	{
+		lineAccessBuffer.erase((++i).base());
+	}
+	else
+	{
+		//##DEBUG##
+		std::wcout << "Failed to find matching line state change in RevokeSetLineState! " << GetLineName(targetLine) << '\t' << lineData.GetData() << '\t' << std::setprecision(24) << reportedTime << '\t' << std::setprecision(24) << accessTime << '\n';
+	}
+
+	//Update the lineAccessPending flag
+	lineAccessPending = !lineAccessBuffer.empty();
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::AssertCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(busackLineState) memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::NegateCurrentOutputLineState() const
+{
+	if(memoryBus != 0)
+	{
+		if(busackLineState) memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock)
+{
+	//##DEBUG##
+//	std::wstringstream message;
+//	message << "Z80 line state change applied\t" << targetLine << '\t' << lineData.GetData() << "\n";
+//	std::wcout << message.str();
+
+	switch(targetLine)
+	{
+	case LINE_RESET:
+		resetLineState = lineData.NonZero();
+		break;
+	case LINE_BUSREQ:{
+		bool newState = lineData.NonZero();
+		if(busreqLineState != newState)
+		{
+			busreqLineState = newState;
+
+			//Release our lock on lineMutex. This is critical in order to avoid
+			//deadlocks between devices if another device attempts to update the line
+			//state for this device while we are updating the line state for that same
+			//device, either directly or indirectly. There must never be a blocking
+			//mutex held which would prevent a call to SetLineState on this device
+			//succeeding when we are in tern calling SetLineState.
+			lock.unlock();
+
+			//If we're processing a change to the BUSREQ line, we need to now change the
+			//state of the BUSACK line to match.
+			busackLineState = busreqLineState;
+			memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), (unsigned int)busackLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+
+			//Re-acquire the lock now that we've completed our external call
+			lock.lock();
+		}
+		break;}
+	case LINE_INT:
+		intLineState = lineData.NonZero();
+		break;
+	case LINE_NMI:
+		nmiLineState = lineData.NonZero();
+		break;
+	}
+
+	//Flag whether we want to suspend until another line state change is received, or we
+	//reach the end of the current timeslice. We do this so that the Z80 doesn't advance
+	//past the state of other devices in response to, for example, bus requests, when we
+	//expect those events often to be brief. If the Z80 advances too far ahead, when the
+	//bus is released for example, a rollback would need to be generated. This is an
+	//optimization to try and avoid excessive rollbacks.
+	suspendUntilLineStateChangeReceived = suspendWhenBusReleased && (resetLineState || busreqLineState);
+}
+
+//----------------------------------------------------------------------------------------
+//Clock source functions
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetClockSourceID(const std::wstring& clockSourceName) const
+{
+	if(clockSourceName == L"CLK")
+	{
+		return CLOCK_CLK;
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring Z80::GetClockSourceName(unsigned int clockSourceID) const
+{
+	switch(clockSourceID)
+	{
+	case CLOCK_CLK:
+		return L"CLK";
+	}
+	return L"";
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+{
+	//We push clock rate changes through the normal line state change tracking system
+	//here, since line state changes and clock changes are basically the same problem.
+	boost::mutex::scoped_lock lock(lineMutex);
+
+	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
+	//locking operation in the active thread for this device when no line changes are
+	//pending. Note that we set this flag before we've actually written the entry into
+	//the buffer, as we want to force the active thread to lock on the beginning of the
+	//next cycle while this function is executing, so that the current timeslice progress
+	//of the device doesn't change after we've read it.
+	lineAccessPending = true;
+
+	//Read the time at which this access is being made, and trigger a rollback if we've
+	//already passed that time.
+	if(lastLineCheckTime > accessTime)
+	{
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	}
+
+	//Insert the line access into the buffer. Note that entries in the buffer are sorted
+	//by access time from lowest to highest.
+	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
+	while((i != lineAccessBuffer.rend()) && (i->accessTime > accessTime))
+	{
+		++i;
+	}
+	lineAccessBuffer.insert(i.base(), LineAccess(clockInput, clockRate, accessTime));
+
+	//Resume the main execution thread if it is currently suspended waiting for a line
+	//state change to be received.
+	if(suspendUntilLineStateChangeReceived)
+	{
+		GetDeviceContext()->ResumeTimesliceExecution();
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
+{
+	ApplyClockStateChange(clockInput, clockRate);
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::ApplyClockStateChange(unsigned int targetClock, double clockRate)
+{
+	//Apply the input clock rate change
+	if(targetClock == CLOCK_CLK)
+	{
+		SetClockSpeed(clockRate);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+//Instruction functions
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetByteBitCount() const
+{
+	return 8;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetCurrentPC() const
+{
+	return GetPC().GetData();
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetPCWidth() const
+{
+	return 16;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetAddressBusWidth() const
+{
+	return 16;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetDataBusWidth() const
+{
+	return 8;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetMinimumOpcodeByteSize() const
+{
+	return 1;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetMinimumDataByteSize() const
+{
+	return 1;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int Z80::GetMemorySpaceByte(unsigned int location) const
+{
+	Z80Byte data;
+	ReadMemory(location, data, true);
+	return data.GetData();
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::SetMemorySpaceByte(unsigned int location, unsigned int data)
+{
+	Z80Byte byte(data);
+	WriteMemory(location, byte, true);
+}
+
+//----------------------------------------------------------------------------------------
+bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
+{
+	opcodeInfo.SetIsValidOpcode(false);
 
 	Z80Word instructionLocation = location;
 	Z80Word readLocation = location;
@@ -1259,60 +1427,16 @@ Z80::OpcodeInfo Z80::GetOpcodeInfo(unsigned int location) const
 		labelSettings.enableSubstitution = false;
 		Z80Instruction::Disassembly disassembly = nextOpcode->Z80Disassemble(labelSettings);
 
-		opcodeInfo.valid = true;
-		opcodeInfo.opcodeSize = nextOpcode->GetInstructionSize();
-		opcodeInfo.disassemblyOpcode = disassembly.disassemblyOpcode;
-		opcodeInfo.disassemblyArguments = disassembly.disassemblyArguments;
-		opcodeInfo.disassemblyComment = disassembly.disassemblyComment;
+		opcodeInfo.SetIsValidOpcode(true);
+		opcodeInfo.SetOpcodeSize(nextOpcode->GetInstructionSize());
+		opcodeInfo.SetOpcodeNameDisassembly(disassembly.disassemblyOpcode);
+		opcodeInfo.SetOpcodeArgumentsDisassembly(disassembly.disassemblyArguments);
+		opcodeInfo.SetDisassemblyComment(disassembly.disassemblyComment);
 
 		delete nextOpcode;
 	}
 
-	return opcodeInfo;
-}
-
-//----------------------------------------------------------------------------------------
-Data Z80::GetRawData(unsigned int location) const
-{
-	Z80Byte data;
-	ReadMemory(location, data, true);
-	return data;
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Z80::GetCurrentPC() const
-{
-	return GetPC().GetData();
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Z80::GetPCWidth() const
-{
-	return 16;
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Z80::GetAddressBusWidth() const
-{
-	return 16;
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Z80::GetDataBusWidth() const
-{
-	return 8;
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Z80::GetMinimumOpcodeByteSize() const
-{
-	return 1;
-}
-
-//----------------------------------------------------------------------------------------
-unsigned int Z80::GetMinimumDataByteSize() const
-{
-	return 1;
+	return true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1578,6 +1702,13 @@ void Z80::LoadState(IHierarchicalStorageNode& node)
 		}
 	}
 
+	//Clear the flag indicating we performed a reset on the last step. This flag is only
+	//here for performance purposes. We want to reset it now so that if we loaded a
+	//savestate which changed the Z80 state while a reset was being asserted, and the
+	//reset line state didn't change after loading the state, but the register contents
+	//did, the register contents will be correctly reset on the next cycle.
+	resetLastStep = false;
+
 	Processor::LoadState(node);
 }
 
@@ -1637,6 +1768,420 @@ void Z80::SaveState(IHierarchicalStorageNode& node) const
 	}
 
 	Processor::SaveState(node);
+}
+
+//----------------------------------------------------------------------------------------
+//Data read/write functions
+//----------------------------------------------------------------------------------------
+bool Z80::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
+{
+	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
+	switch(dataID)
+	{
+	case DATASOURCE_REGISTER_A:
+		return dataValue.SetValue(GetA().GetData());
+	case DATASOURCE_REGISTER_F:
+		return dataValue.SetValue(GetF().GetData());
+	case DATASOURCE_REGISTER_B:
+		return dataValue.SetValue(GetB().GetData());
+	case DATASOURCE_REGISTER_C:
+		return dataValue.SetValue(GetC().GetData());
+	case DATASOURCE_REGISTER_D:
+		return dataValue.SetValue(GetD().GetData());
+	case DATASOURCE_REGISTER_E:
+		return dataValue.SetValue(GetE().GetData());
+	case DATASOURCE_REGISTER_H:
+		return dataValue.SetValue(GetH().GetData());
+	case DATASOURCE_REGISTER_L:
+		return dataValue.SetValue(GetL().GetData());
+	case DATASOURCE_REGISTER_AF:
+		return dataValue.SetValue(GetAF().GetData());
+	case DATASOURCE_REGISTER_BC:
+		return dataValue.SetValue(GetBC().GetData());
+	case DATASOURCE_REGISTER_DE:
+		return dataValue.SetValue(GetDE().GetData());
+	case DATASOURCE_REGISTER_HL:
+		return dataValue.SetValue(GetHL().GetData());
+	case DATASOURCE_REGISTER_A2:
+		return dataValue.SetValue(GetA2().GetData());
+	case DATASOURCE_REGISTER_F2:
+		return dataValue.SetValue(GetF2().GetData());
+	case DATASOURCE_REGISTER_B2:
+		return dataValue.SetValue(GetB2().GetData());
+	case DATASOURCE_REGISTER_C2:
+		return dataValue.SetValue(GetC2().GetData());
+	case DATASOURCE_REGISTER_D2:
+		return dataValue.SetValue(GetD2().GetData());
+	case DATASOURCE_REGISTER_E2:
+		return dataValue.SetValue(GetE2().GetData());
+	case DATASOURCE_REGISTER_H2:
+		return dataValue.SetValue(GetH2().GetData());
+	case DATASOURCE_REGISTER_L2:
+		return dataValue.SetValue(GetL2().GetData());
+	case DATASOURCE_REGISTER_AF2:
+		return dataValue.SetValue(GetAF2().GetData());
+	case DATASOURCE_REGISTER_BC2:
+		return dataValue.SetValue(GetBC2().GetData());
+	case DATASOURCE_REGISTER_DE2:
+		return dataValue.SetValue(GetDE2().GetData());
+	case DATASOURCE_REGISTER_HL2:
+		return dataValue.SetValue(GetHL2().GetData());
+	case DATASOURCE_REGISTER_IXHIGH:
+		return dataValue.SetValue(GetIXHigh().GetData());
+	case DATASOURCE_REGISTER_IXLOW:
+		return dataValue.SetValue(GetIXLow().GetData());
+	case DATASOURCE_REGISTER_IYHIGH:
+		return dataValue.SetValue(GetIYHigh().GetData());
+	case DATASOURCE_REGISTER_IYLOW:
+		return dataValue.SetValue(GetIYLow().GetData());
+	case DATASOURCE_REGISTER_I:
+		return dataValue.SetValue(GetI().GetData());
+	case DATASOURCE_REGISTER_R:
+		return dataValue.SetValue(GetR().GetData());
+	case DATASOURCE_REGISTER_IX:
+		return dataValue.SetValue(GetIX().GetData());
+	case DATASOURCE_REGISTER_IY:
+		return dataValue.SetValue(GetIY().GetData());
+	case DATASOURCE_REGISTER_SP:
+		return dataValue.SetValue(GetSP().GetData());
+	case DATASOURCE_REGISTER_PC:
+		return dataValue.SetValue(GetPC().GetData());
+	case DATASOURCE_REGISTER_IM:
+		return dataValue.SetValue(GetInterruptMode());
+	case DATASOURCE_REGISTER_IFF1:
+		return dataValue.SetValue(GetIFF1());
+	case DATASOURCE_REGISTER_IFF2:
+		return dataValue.SetValue(GetIFF2());
+	case DATASOURCE_REGISTER_FLAG_S:
+		return dataValue.SetValue(GetFlagS());
+	case DATASOURCE_REGISTER_FLAG_Z:
+		return dataValue.SetValue(GetFlagZ());
+	case DATASOURCE_REGISTER_FLAG_Y:
+		return dataValue.SetValue(GetFlagY());
+	case DATASOURCE_REGISTER_FLAG_H:
+		return dataValue.SetValue(GetFlagH());
+	case DATASOURCE_REGISTER_FLAG_X:
+		return dataValue.SetValue(GetFlagX());
+	case DATASOURCE_REGISTER_FLAG_PV:
+		return dataValue.SetValue(GetFlagPV());
+	case DATASOURCE_REGISTER_FLAG_N:
+		return dataValue.SetValue(GetFlagN());
+	case DATASOURCE_REGISTER_FLAG_C:
+		return dataValue.SetValue(GetFlagC());
+	case DATASOURCE_REGISTER_ORIGINALVALUE_CHANGECOUNTER:
+		return dataValue.SetValue(systemPausedToggleCounter);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_A:
+		return dataValue.SetValue(regChangedA);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_F:
+		return dataValue.SetValue(regChangedF);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_B:
+		return dataValue.SetValue(regChangedB);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_C:
+		return dataValue.SetValue(regChangedC);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_D:
+		return dataValue.SetValue(regChangedD);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_E:
+		return dataValue.SetValue(regChangedE);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_H:
+		return dataValue.SetValue(regChangedH);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_L:
+		return dataValue.SetValue(regChangedL);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_AF:
+		return dataValue.SetValue(regChangedAF);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_BC:
+		return dataValue.SetValue(regChangedBC);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_DE:
+		return dataValue.SetValue(regChangedDE);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_HL:
+		return dataValue.SetValue(regChangedHL);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_AF2:
+		return dataValue.SetValue(regChangedAF2);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_BC2:
+		return dataValue.SetValue(regChangedBC2);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_DE2:
+		return dataValue.SetValue(regChangedDE2);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_HL2:
+		return dataValue.SetValue(regChangedHL2);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_IXHIGH:
+		return dataValue.SetValue(regChangedIX);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_IXLOW:
+		return dataValue.SetValue(regChangedIXLow);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_IYHIGH:
+		return dataValue.SetValue(regChangedIYHigh);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_IYLOW:
+		return dataValue.SetValue(regChangedIYLow);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_I:
+		return dataValue.SetValue(regChangedI);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_R:
+		return dataValue.SetValue(regChangedR);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_IX:
+		return dataValue.SetValue(regChangedIX);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_IY:
+		return dataValue.SetValue(regChangedIY);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_SP:
+		return dataValue.SetValue(regChangedSP);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_PC:
+		return dataValue.SetValue(regChangedPC);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_IM:
+		return dataValue.SetValue(regChangedIM);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_IFF1:
+		return dataValue.SetValue(regChangedIFF1);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_IFF2:
+		return dataValue.SetValue(regChangedIFF2);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_S:
+		return dataValue.SetValue(regChangedFlagS);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_Z:
+		return dataValue.SetValue(regChangedFlagZ);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_Y:
+		return dataValue.SetValue(regChangedFlagY);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_H:
+		return dataValue.SetValue(regChangedFlagH);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_X:
+		return dataValue.SetValue(regChangedFlagX);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_PV:
+		return dataValue.SetValue(regChangedFlagPV);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_N:
+		return dataValue.SetValue(regChangedFlagN);
+	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_C:
+		return dataValue.SetValue(regChangedFlagC);
+	}
+	return Processor::ReadGenericData(dataID, dataContext, dataValue);
+}
+
+//----------------------------------------------------------------------------------------
+bool Z80::WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue)
+{
+	ApplyGenericDataValueLimitSettings(dataID, dataValue);
+	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
+	switch(dataID)
+	{
+	case DATASOURCE_REGISTER_A:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetA(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_F:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetF(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_B:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetB(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_C:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetC(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_D:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetD(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_E:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetE(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_H:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetH(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_L:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetL(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_AF:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetAF(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_BC:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetBC(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_DE:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetDE(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_HL:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetHL(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_A2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetA2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_F2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetF2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_B2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetB2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_C2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetC2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_D2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetD2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_E2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetE2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_H2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetH2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_L2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetL2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_AF2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetAF2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_BC2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetBC2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_DE2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetDE2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_HL2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetHL2(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_IXHIGH:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetIXHigh(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_IXLOW:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetIXLow(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_IYHIGH:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetIYHigh(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_IYLOW:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetIYLow(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_I:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetI(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_R:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetR(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_IX:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetIX(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_IY:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetIY(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_SP:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetSP(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_PC:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetPC(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_IM:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
+		SetInterruptMode(dataValueAsUInt.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_IFF1:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetIFF1(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_IFF2:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetIFF2(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_FLAG_S:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetFlagS(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_FLAG_Z:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetFlagZ(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_FLAG_Y:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetFlagY(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_FLAG_H:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetFlagH(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_FLAG_X:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetFlagX(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_FLAG_PV:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetFlagPV(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_FLAG_N:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetFlagN(dataValueAsBool.GetValue());
+		return true;}
+	case DATASOURCE_REGISTER_FLAG_C:{
+		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		SetFlagC(dataValueAsBool.GetValue());
+		return true;}
+	}
+	return Processor::WriteGenericData(dataID, dataContext, dataValue);
 }
 
 } //Close namespace Z80

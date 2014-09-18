@@ -1,6 +1,6 @@
 #ifndef __EXTENSION_H__
 #define __EXTENSION_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
 
 class Extension :public IExtension
 {
@@ -31,8 +31,9 @@ public:
 	virtual bool RemoveReference(IClockSource* target);
 
 	//Interface functions
-	virtual ISystemExtensionInterface* GetSystemInterface() const;
-	virtual IGUIExtensionInterface* GetGUIInterface() const;
+	inline ISystemExtensionInterface& GetSystemInterface() const;
+	inline IGUIExtensionInterface& GetGUIInterface() const;
+	inline IViewManager& GetViewManager() const;
 
 	//Name functions
 	inline std::wstring GetExtensionClassName() const;
@@ -46,13 +47,28 @@ public:
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
 	//Window functions
-	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle);
 	virtual AssemblyHandle GetAssemblyHandle() const;
-	virtual void AddFileOpenMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void AddSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void AddGlobalSettingsMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
+	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle);
+	virtual bool RegisterSystemMenuHandler();
+	virtual void UnregisterSystemMenuHandler();
+	virtual bool RegisterModuleMenuHandler(unsigned int moduleID);
+	virtual void UnregisterModuleMenuHandler(unsigned int moduleID);
+	virtual bool RegisterDeviceMenuHandler(IDevice* targetDevice);
+	virtual void UnregisterDeviceMenuHandler(IDevice* targetDevice);
+	virtual bool RegisterExtensionMenuHandler(IExtension* targetExtension);
+	virtual void UnregisterExtensionMenuHandler(IExtension* targetExtension);
+	virtual void AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& menuSegment);
+	virtual void AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& menuSegment, unsigned int moduleID);
+	virtual void AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice);
+	virtual void AddExtensionMenuItems(ExtensionMenu extensionMenu, IMenuSegment& menuSegment, IExtension* targetExtension);
+	virtual bool RestoreSystemViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState);
+	virtual bool RestoreModuleViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID);
+	virtual bool RestoreDeviceViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IDevice* targetDevice);
+	virtual bool RestoreExtensionViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IExtension* targetExtension);
+	virtual bool OpenSystemView(const std::wstring& viewGroupName, const std::wstring& viewName);
+	virtual bool OpenModuleView(const std::wstring& viewGroupName, const std::wstring& viewName, unsigned int moduleID);
+	virtual bool OpenDeviceView(const std::wstring& viewGroupName, const std::wstring& viewName, IDevice* targetDevice);
+	virtual bool OpenExtensionView(const std::wstring& viewGroupName, const std::wstring& viewName, IExtension* targetExtension);
 
 protected:
 	//Reference functions
@@ -66,8 +82,14 @@ protected:
 	virtual void GetExtensionInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 	//Window functions
-	virtual void RestoreViewModelStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModelInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewModelGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewModelNameMarshaller, IViewModelLauncher& viewModelLauncher);
+	virtual bool RestoreSystemViewStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IHierarchicalStorageNode& viewState);
+	virtual bool RestoreModuleViewStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IHierarchicalStorageNode& viewState, unsigned int moduleID);
+	virtual bool RestoreDeviceViewStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IHierarchicalStorageNode& viewState, IDevice* targetDevice);
+	virtual bool RestoreExtensionViewStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IHierarchicalStorageNode& viewState, IExtension* targetExtension);
+	virtual bool OpenSystemViewInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller);
+	virtual bool OpenModuleViewInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, unsigned int moduleID);
+	virtual bool OpenDeviceViewInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IDevice* targetDevice);
+	virtual bool OpenExtensionViewInternal(const InteropSupport::ISTLObjectSource<std::wstring>& viewGroupNameMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& viewNameMarshaller, IExtension* targetExtension);
 
 private:
 	std::wstring className;
@@ -76,6 +98,7 @@ private:
 	AssemblyHandle assemblyHandle;
 	ISystemExtensionInterface* systemInterface;
 	IGUIExtensionInterface* guiInterface;
+	IViewManager* viewManager;
 };
 
 #include "Extension.inl"

@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MegaDriveROMLoader::FileOpenMenuHandler::FileOpenMenuHandler(MegaDriveROMLoader* adevice)
-:MenuHandlerBase(L"MegaDriveROMLoaderFileOpenMenu"), device(adevice)
+MegaDriveROMLoader::FileOpenMenuHandler::FileOpenMenuHandler(MegaDriveROMLoader& aextension)
+:MenuHandlerBase(L"MegaDriveROMLoaderFileOpenMenu", aextension.GetViewManager()), extension(aextension)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -17,27 +17,27 @@ void MegaDriveROMLoader::FileOpenMenuHandler::GetMenuItems(std::list<MenuItemDef
 }
 
 //----------------------------------------------------------------------------------------
-IViewModel* MegaDriveROMLoader::FileOpenMenuHandler::CreateViewModelForItem(int menuItemID, const std::wstring& viewModelName)
+IViewPresenter* MegaDriveROMLoader::FileOpenMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-void MegaDriveROMLoader::FileOpenMenuHandler::DeleteViewModelForItem(int menuItemID, IViewModel* viewModel)
+void MegaDriveROMLoader::FileOpenMenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter)
 {
-	delete viewModel;
+	delete viewPresenter;
 }
 
 //----------------------------------------------------------------------------------------
-void MegaDriveROMLoader::FileOpenMenuHandler::HandleMenuItemSelectNonViewModel(int menuItemID, IViewModelLauncher& aviewModelLauncher)
+void MegaDriveROMLoader::FileOpenMenuHandler::HandleMenuItemSelectNonView(int menuItemID, IViewManager& aviewManager)
 {
 	switch(menuItemID)
 	{
 	case MENUITEM_OPENMEGADRIVEROM:
-		device->LoadROMFile();
+		extension.LoadROMFile();
 		break;
 	case MENUITEM_CLOSEMEGADRIVEROM:
-		device->UnloadROMFile();
+		extension.UnloadROMFile();
 		break;
 	}
 }

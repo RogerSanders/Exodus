@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ROM32Variable::ROM32Variable(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:ROM32(aimplementationName, ainstanceName, amoduleID)
+:ROMBase(aimplementationName, ainstanceName, amoduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -90,4 +90,18 @@ void ROM32Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 		memoryArray[location % memoryArraySize] = (unsigned int)data.GetData();
 		break;
 	}
+}
+
+//----------------------------------------------------------------------------------------
+//Debug memory access functions
+//----------------------------------------------------------------------------------------
+unsigned int ROM32Variable::ReadMemoryEntry(unsigned int location) const
+{
+	return memoryArray[location % memoryArraySize];
+}
+
+//----------------------------------------------------------------------------------------
+void ROM32Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
+{
+	memoryArray[location % memoryArraySize] = data;
 }

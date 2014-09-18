@@ -57,9 +57,10 @@ References:
 -68000 Undocumented Behavior Notes, Bart Trzynadlowski, Fourth Edition 2003
 -MC680x0 Reference (M68000 Programmer's Reference Manual HTML Transcription), Flint/DARKNESS, v1.1 1995
 \*--------------------------------------------------------------------------------------*/
+#include "IM68000.h"
 #ifndef __M68000_M68000_H__
 #define __M68000_M68000_H__
-#include "SystemInterface/SystemInterface.pkg"
+#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 #include "ThreadLib/ThreadLib.pkg"
 #include "Data.h"
@@ -70,7 +71,7 @@ References:
 namespace M68000 {
 class M68000Instruction;
 
-class M68000 :public Processor
+class M68000 :public Processor, public IM68000
 {
 public:
 	//Enumerations
@@ -78,17 +79,16 @@ public:
 	enum FunctionCode;
 	enum State;
 
-	//Constants
-	static const int addressRegCount = 8;
-	static const int dataRegCount = 8;
-	static const unsigned int SP = 7;
-
+public:
 	//Constructors
 	M68000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
 	~M68000();
-	virtual bool Construct(IHierarchicalStorageNode& node);
+
+	//Interface version functions
+	virtual unsigned int GetIM68000Version() const;
 
 	//Initialization functions
+	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
 	virtual void Initialize();
@@ -106,11 +106,9 @@ public:
 	double PushStackFrame(const M68000Long& apc, const M68000Word& asr, const M68000Word& ainstructionRegister, const M68000Long& aaccessAddress, bool aread, bool aprocessingInstruction, FunctionCode afunctionCode);
 	ExecuteTime ProcessException(unsigned int vector);
 	ExecuteTime GetExceptionProcessingTime(unsigned int vector) const;
-	std::wstring GetExceptionName(unsigned int vector) const;
 	bool ExceptionDisabled(unsigned int vector);
 	void ExceptionLogIfRequested(unsigned int vector);
 	void ExceptionBreakIfRequested(unsigned int vector);
-	void TriggerExceptionFromDebugger(unsigned int vector);
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const;
@@ -122,14 +120,18 @@ public:
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
 	virtual void NotifyAfterExecuteStepFinishedTimeslice();
-	virtual OpcodeInfo GetOpcodeInfo(unsigned int location) const;
-	virtual Data GetRawData(unsigned int location) const;
+
+	//Instruction functions
+	virtual unsigned int GetByteBitCount() const;
 	virtual unsigned int GetCurrentPC() const;
 	virtual unsigned int GetPCWidth() const;
 	virtual unsigned int GetAddressBusWidth() const;
 	virtual unsigned int GetDataBusWidth() const;
 	virtual unsigned int GetMinimumOpcodeByteSize() const;
 	virtual unsigned int GetMinimumDataByteSize() const;
+	virtual unsigned int GetMemorySpaceByte(unsigned int location) const;
+	virtual void SetMemorySpaceByte(unsigned int location, unsigned int data);
+	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const;
 
 	//Line functions
 	virtual unsigned int GetLineID(const std::wstring& lineName) const;
@@ -192,7 +194,6 @@ public:
 	inline M68000Byte GetCCR() const;
 	inline void GetCCR(Data& data) const;
 	inline void SetCCR(const M68000Byte& data);
-
 	inline M68000Long GetSP() const;
 	inline void GetSP(Data& data) const;
 	inline void SetSP(const M68000Long& data);
@@ -202,7 +203,6 @@ public:
 	inline M68000Long GetUSP() const;
 	inline void GetUSP(Data& data) const;
 	inline void SetUSP(const M68000Long& data);
-
 	inline M68000Long GetA(unsigned int index) const;
 	inline void GetA(unsigned int index, Data& data) const;
 	inline void SetA(unsigned int index, const M68000Long& data);
@@ -233,6 +233,8 @@ public:
 
 	//Active disassembly functions
 	virtual bool ActiveDisassemblySupported() const;
+
+	//Active disassembly formatting functions
 	virtual bool GetLeadingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
 	virtual bool GetTrailingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
 	virtual bool FormatOpcodeForDisassembly(unsigned int opcodeAddress, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& opcodeArguments, std::wstring& opcodeComments) const;
@@ -242,17 +244,35 @@ public:
 	virtual bool FormatLabelPlacementForDisassembly(const std::wstring& rawLabel, std::wstring& formattedLabel) const;
 	virtual bool FormatLabelUsageForDisassembly(const std::wstring& rawLabel, int labelOffset, std::wstring& formattedLabel) const;
 
+	//Exception debugging functions
+	virtual bool GetLogAllExceptions() const;
+	virtual void SetLogAllExceptions(bool state);
+	virtual bool GetBreakOnAllExceptions() const;
+	virtual void SetBreakOnAllExceptions(bool state);
+	virtual bool GetDisableAllExceptions() const;
+	virtual void SetDisableAllExceptions(bool state);
+	std::list<ExceptionDebuggingEntry> GetExceptionDebugEntries() const;
+	void SetExceptionDebugEntries(const std::list<ExceptionDebuggingEntry>& state);
+	std::wstring GetExceptionName(unsigned int vectorNumber) const;
+	virtual void TriggerException(unsigned int vectorNumber);
+
 	//Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
-	//Window functions
-	void CreateMenuHandlers();
-	virtual void AddDebugMenuItems(IMenuSegment& menuSegment, IViewModelLauncher& viewModelLauncher);
-	virtual void RestoreViewModelState(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IHierarchicalStorageNode& node, int xpos, int ypos, int width, int height, IViewModelLauncher& viewModelLauncher);
-	virtual void OpenViewModel(const std::wstring& viewModelGroupName, const std::wstring& viewModelName, IViewModelLauncher& viewModelLauncher);
+	//Data read/write functions
+	using IGenericAccess::ReadGenericData;
+	using IGenericAccess::WriteGenericData;
+	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
+	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
+
+protected:
+	//Exception debugging functions
+	virtual void GetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<ExceptionDebuggingEntry>>& marshaller) const;
+	virtual void SetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectSource<std::list<ExceptionDebuggingEntry>>& marshaller);
+	virtual void GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int vectorNumber) const;
 
 private:
 	//Enumerations
@@ -261,7 +281,6 @@ private:
 	enum ClockID;
 
 	//Structures
-	struct ExceptionDebuggingEntry;
 	struct LineAccess;
 	struct CalculateCELineStateContext;
 	struct RegisterDisassemblyInfo
@@ -277,21 +296,7 @@ private:
 		unsigned int dataSize;
 	};
 
-	//View and menu classes
-	class DebugMenuHandler;
-	class RegistersViewModel;
-	class ExceptionsViewModel;
-	class RegistersView;
-	class ExceptionsView;
-	friend class RegistersViewModel;
-	friend class ExceptionsViewModel;
-	friend class RegistersView;
-	friend class ExceptionsView;
-
 private:
-	//Menu handling
-	DebugMenuHandler* menuHandler;
-
 	//Bus interface
 	IBusInterface* memoryBus;
 
@@ -358,31 +363,32 @@ private:
 
 	//Exception debugging
 	mutable boost::mutex debugMutex;
-	typedef std::list<ExceptionDebuggingEntry*> ExceptionList;
-	ExceptionList exceptionList;
+	std::list<ExceptionDebuggingEntry> exceptionList;
 	volatile bool exceptionListEmpty;
 	volatile bool logAllExceptions;
 	volatile bool breakOnAllExceptions;
 	volatile bool disableAllExceptions;
 	volatile bool debugExceptionTriggerPending;
-	volatile unsigned int debugExceptionTriggerVector;
+	unsigned int debugExceptionTriggerVector;
 
 	//Changed register state
-	volatile unsigned int systemPausedToggleCounter;
-	volatile unsigned int regChangedA[addressRegCount];
-	volatile unsigned int regChangedD[dataRegCount];
-	volatile unsigned int regChangedSSP;
-	volatile unsigned int regChangedUSP;
-	volatile unsigned int regChangedPC;
-	volatile unsigned int regChangedSR;
-	volatile bool regChangedX;
-	volatile bool regChangedN;
-	volatile bool regChangedZ;
-	volatile bool regChangedV;
-	volatile bool regChangedC;
-	volatile bool regChangedS;
-	volatile bool regChangedT;
-	volatile unsigned int regChangedIPM;
+	unsigned int systemPausedToggleCounter;
+	unsigned int regChangedA[addressRegCount];
+	unsigned int regChangedD[dataRegCount];
+	unsigned int regChangedSP;
+	unsigned int regChangedSSP;
+	unsigned int regChangedUSP;
+	unsigned int regChangedPC;
+	unsigned int regChangedSR;
+	unsigned int regChangedCCR;
+	bool regChangedX;
+	bool regChangedN;
+	bool regChangedZ;
+	bool regChangedV;
+	bool regChangedC;
+	bool regChangedS;
+	bool regChangedT;
+	unsigned int regChangedIPM;
 
 	//CE line masks
 	unsigned int ceLineMaskLowerDataStrobe;
