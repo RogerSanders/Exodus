@@ -1,58 +1,58 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum S315_5313::CELineID
+enum class S315_5313::CELineID
 {
-	CELINE_LDS = 1,
-	CELINE_UDS,
-	CELINE_RW,
-	CELINE_AS,
-	CELINE_RMWCYCLEINPROGRESS,
-	CELINE_RMWCYCLEFIRSTOPERATION,
-	CELINE_LWR,
-	CELINE_UWR,
-	CELINE_CAS0,
-	CELINE_RAS0,
-	CELINE_OE0
+	LDS = 1,
+	UDS,
+	RW,
+	AS,
+	RMWCycleInProgress,
+	RMWCycleFirstOperation,
+	LWR,
+	UWR,
+	CAS0,
+	RAS0,
+	OE0
 };
 
 //----------------------------------------------------------------------------------------
-enum S315_5313::LineID
+enum class S315_5313::LineID
 {
-	LINE_IPL = 1,
-	LINE_INT,
-	LINE_INTAK,
-	LINE_BR,
-	LINE_BG,
-	LINE_PAL,
-	LINE_RESET
+	IPL = 1,
+	INT,
+	INTAK,
+	BR,
+	BG,
+	PAL,
+	Reset
 	//##TODO## Add the HL line
 };
 
 //----------------------------------------------------------------------------------------
-enum S315_5313::ClockID
+enum class S315_5313::ClockID
 {
-	CLOCK_MCLK = 1
+	MCLK = 1
 };
 
 //----------------------------------------------------------------------------------------
-enum S315_5313::Layer
+enum S315_5313::LayerIndex :unsigned int
 {
-	LAYER_SPRITE = 0,
-	LAYER_LAYERA = 1,
-	LAYER_LAYERB = 2,
-	LAYER_BACKGROUND = 3
+	LAYERINDEX_SPRITE = 0,
+	LAYERINDEX_LAYERA = 1,
+	LAYERINDEX_LAYERB = 2,
+	LAYERINDEX_BACKGROUND = 3
 };
 
 //----------------------------------------------------------------------------------------
-enum S315_5313::AccessContext
+enum class S315_5313::AccessContext
 {
-	ACCESSCONTEXT_INTLINECHANGE,
-	ACCESSCONTEXT_BR_ASSERT,
-	ACCESSCONTEXT_BR_RELEASE,
-	ACCESSCONTEXT_DMAREAD,
-	ACCESSCONTEXT_TIMINGPOINT,
-	ACCESSCONTEXT_DEBUG
+	INTLineChange,
+	BRAssert,
+	BRRelease,
+	DMARead,
+	TimingPoint,
+	Debug
 };
 
 //----------------------------------------------------------------------------------------

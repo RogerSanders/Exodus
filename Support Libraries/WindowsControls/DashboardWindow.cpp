@@ -370,7 +370,7 @@ void DashboardWindow::InsertRegion(ContentRegion& existingRegion, InsertDirectio
 
 	//Create a new divider, and add it to the list of dividers.
 	Divider* newDivider = new Divider();
-	if((insertDirection == INSERTDIRECTON_TOP) || (insertDirection == INSERTDIRECTON_BOTTOM))
+	if((insertDirection == InsertDirection::Top) || (insertDirection == InsertDirection::Bottom))
 	{
 		newDivider->vertical = false;
 		newDivider->startAnchorDivider = existingRegion.leftDivider;
@@ -387,7 +387,7 @@ void DashboardWindow::InsertRegion(ContentRegion& existingRegion, InsertDirectio
 	//Build a list of all divider content lists that need to have the new divider added to
 	//them
 	std::list<std::list<DividerContentEntry>*> listOfDividerLists;
-	if((insertDirection == INSERTDIRECTON_TOP) || (insertDirection == INSERTDIRECTON_BOTTOM))
+	if((insertDirection == InsertDirection::Top) || (insertDirection == InsertDirection::Bottom))
 	{
 		listOfDividerLists.push_back((existingRegion.leftDivider != 0)? &existingRegion.leftDivider->followingContent: &topLevelDividersFromLeft);
 		if(existingRegion.rightDivider != 0)
@@ -422,7 +422,7 @@ void DashboardWindow::InsertRegion(ContentRegion& existingRegion, InsertDirectio
 
 			//If our new content region is being added after the existing content region,
 			//advance past the existing content region in the divider content list.
-			if((insertDirection == INSERTDIRECTON_RIGHT) || (insertDirection == INSERTDIRECTON_BOTTOM))
+			if((insertDirection == InsertDirection::Right) || (insertDirection == InsertDirection::Bottom))
 			{
 				++dividerIterator;
 			}
@@ -435,7 +435,7 @@ void DashboardWindow::InsertRegion(ContentRegion& existingRegion, InsertDirectio
 	}
 
 	//Calculate the width and height of the new and existing content regions
-	if((insertDirection == INSERTDIRECTON_TOP) || (insertDirection == INSERTDIRECTON_BOTTOM))
+	if((insertDirection == InsertDirection::Top) || (insertDirection == InsertDirection::Bottom))
 	{
 		newRegion.height = (existingRegion.height - dividerSize) / 2;
 		existingRegion.height -= (newRegion.height + dividerSize);

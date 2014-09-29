@@ -36,7 +36,7 @@ References:
 #include "ThreadLib/ThreadLib.pkg"
 #include "Data.h"
 #include "ExecuteTime.h"
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 #include <list>
 //View and menu classes
 class RegistersViewPresenter;
@@ -87,7 +87,7 @@ public:
 	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
-	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock);
+	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, std::unique_lock<std::mutex>& lock);
 
 	//Clock source functions
 	virtual unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
@@ -272,9 +272,9 @@ public:
 
 private:
 	//Enumerations
-	enum CELineID;
-	enum LineID;
-	enum ClockID;
+	enum class CELineID;
+	enum class LineID;
+	enum class ClockID;
 
 	//Structures
 	struct LineAccess;
@@ -390,7 +390,7 @@ private:
 	volatile bool regChangedFlagC;
 
 	//Line access
-	boost::mutex lineMutex;
+	std::mutex lineMutex;
 	mutable double lastLineCheckTime;
 	volatile bool lineAccessPending;
 	double lastTimesliceLength;

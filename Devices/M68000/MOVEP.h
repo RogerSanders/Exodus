@@ -110,7 +110,7 @@ public:
 				M68000Byte byte;
 
 				//Record active disassembly info for this register move
-				cpu->AddDisassemblyAddressInfoData(address.GetData(), byte.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER);
+				cpu->AddDisassemblyAddressInfoData(address.GetData(), byte.GetByteSize(), M68000::DisassemblyDataType::Integer);
 
 				additionalTime += cpu->ReadMemory(address, byte, cpu->GetFunctionCode(false), location + 2, true, GetInstructionRegister(), false, false);
 				address += 2;

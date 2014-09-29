@@ -47,8 +47,8 @@ the slots.
 #include <set>
 #include <map>
 #include <list>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 #include "MenuSubmenu.h"
 #include "DeviceInfo.h"
 #include "ExtensionInfo.h"
@@ -280,14 +280,14 @@ private:
 	bool systemDestructionInProgress;
 	bool debugConsoleOpen;
 
-	mutable boost::mutex joystickWorkerThreadMutex;
+	mutable std::mutex joystickWorkerThreadMutex;
 	volatile bool joystickWorkerThreadActive;
-	boost::condition joystickWorkerThreadStopped;
+	std::condition_variable joystickWorkerThreadStopped;
 	std::map<unsigned int, JOYCAPS> connectedJoystickInfo;
 
 	ViewManager* viewManager;
 
-	mutable boost::mutex registeredElementMutex;
+	mutable std::mutex registeredElementMutex;
 	std::list<RegisteredDeviceInfo> registeredDevices;
 	std::list<RegisteredExtensionInfo> registeredExtensions;
 
@@ -315,7 +315,7 @@ private:
 	unsigned int windowSelectEntriesPerColumn;
 
 	//Plugin load progress
-	mutable boost::mutex loadPluginsMutex;
+	mutable std::mutex loadPluginsMutex;
 	volatile float loadPluginsProgress;
 	volatile bool loadPluginsComplete;
 	volatile bool loadPluginsResult;

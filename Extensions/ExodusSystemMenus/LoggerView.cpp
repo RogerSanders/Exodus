@@ -171,11 +171,11 @@ void LoggerView::RefreshLogEntryList(HWND hwnd)
 	{
 		//Add log entries which are not currently filtered
 		const ISystemGUIInterface::SystemLogEntry& logEntry = eventLog[currentItemLogIndex];
-		if((loggerLevel1Enabled && (logEntry.eventLevel == ILogEntry::EVENTLEVEL_INFO))
-			|| (loggerLevel2Enabled && (logEntry.eventLevel == ILogEntry::EVENTLEVEL_DEBUG))
-			|| (loggerLevel3Enabled && (logEntry.eventLevel == ILogEntry::EVENTLEVEL_WARNING))
-			|| (loggerLevel4Enabled && (logEntry.eventLevel == ILogEntry::EVENTLEVEL_ERROR))
-			|| (loggerLevel5Enabled && (logEntry.eventLevel == ILogEntry::EVENTLEVEL_CRITICAL)))
+		if((loggerLevel1Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Info))
+			|| (loggerLevel2Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Debug))
+			|| (loggerLevel3Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Warning))
+			|| (loggerLevel4Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Error))
+			|| (loggerLevel5Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Critical)))
 		{
 			std::wstringstream text;
 			text << logEntry.eventTimeString << '\t' << logEntry.eventLevelString << '\t' << logEntry.source << L'\t' << logEntry.text;

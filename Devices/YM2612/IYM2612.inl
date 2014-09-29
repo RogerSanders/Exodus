@@ -1,78 +1,78 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IYM2612::IYM2612DataSource
+enum class IYM2612::IYM2612DataSource
 {
-	DATASOURCE_RAWREGISTER = 1,
+	RawRegister = 1,
 
-	DATASOURCE_TESTDATA,
-	DATASOURCE_LFOENABLED,
-	DATASOURCE_LFODATA,
-	DATASOURCE_TIMERADATA,
-	DATASOURCE_TIMERBDATA,
-	DATASOURCE_CH3MODE,
-	DATASOURCE_TIMERBRESET,
-	DATASOURCE_TIMERARESET,
-	DATASOURCE_TIMERBENABLE,
-	DATASOURCE_TIMERAENABLE,
-	DATASOURCE_TIMERBLOAD,
-	DATASOURCE_TIMERALOAD,
-	DATASOURCE_DACDATA,
-	DATASOURCE_DACENABLED,
-	DATASOURCE_DETUNEDATA,
-	DATASOURCE_MULTIPLEDATA,
-	DATASOURCE_TOTALLEVELDATA,
-	DATASOURCE_KEYSCALEDATA,
-	DATASOURCE_ATTACKRATEDATA,
-	DATASOURCE_AMPLITUDEMODULATIONENABLED,
-	DATASOURCE_DECAYRATEDATA,
-	DATASOURCE_SUSTAINRATEDATA,
-	DATASOURCE_SUSTAINLEVELDATA,
-	DATASOURCE_RELEASERATEDATA,
-	DATASOURCE_SSGDATA,
-	DATASOURCE_SSGENABLED,
-	DATASOURCE_SSGATTACK,
-	DATASOURCE_SSGALTERNATE,
-	DATASOURCE_SSGHOLD,
+	TestData,
+	LFOEnabled,
+	LFOData,
+	TimerAData,
+	TimerBData,
+	CH3Mode,
+	TimerBReset,
+	TimerAReset,
+	TimerBEnable,
+	TimerAEnable,
+	TimerBLoad,
+	TimerALoad,
+	DACData,
+	DACEnabled,
+	DetuneData,
+	MultipleData,
+	TotalLevelData,
+	KeyScaleData,
+	AttackRateData,
+	AmplitudeModulationEnabled,
+	DecayRateData,
+	SustainRateData,
+	SustainLevelData,
+	ReleaseRateData,
+	SSGData,
+	SSGEnabled,
+	SSGAttack,
+	SSGAlternate,
+	SSGHold,
 
-	DATASOURCE_FREQUENCYDATA,
-	DATASOURCE_BLOCKDATA,
-	DATASOURCE_FREQUENCYDATACHANNEL3,
-	DATASOURCE_BLOCKDATACHANNEL3,
-	DATASOURCE_FEEDBACKDATA,
-	DATASOURCE_ALGORITHMDATA,
-	DATASOURCE_OUTPUTLEFT,
-	DATASOURCE_OUTPUTRIGHT,
-	DATASOURCE_AMSDATA,
-	DATASOURCE_PMSDATA,
+	FrequencyData,
+	BlockData,
+	FrequencyDataChannel3,
+	BlockDataChannel3,
+	FeedbackData,
+	AlgorithmData,
+	OutputLeft,
+	OutputRight,
+	AMSData,
+	PMSData,
 
-	DATASOURCE_KEYSTATE,
+	KeyState,
 
-	DATASOURCE_STATUSREGISTER,
-	DATASOURCE_BUSYFLAG,
-	DATASOURCE_TIMERBOVERFLOW,
-	DATASOURCE_TIMERAOVERFLOW,
+	StatusRegister,
+	BusyFlag,
+	TimerBOverflow,
+	TimerAOverflow,
 
-	DATASOURCE_TIMERACURRENTCOUNTER,
-	DATASOURCE_TIMERBCURRENTCOUNTER,
+	TimerACurrentCounter,
+	TimerBCurrentCounter,
 
-	DATASOURCE_EXTERNALCLOCKRATE,
-	DATASOURCE_FMCLOCKDIVIDER,
-	DATASOURCE_EGCLOCKDIVIDER,
-	DATASOURCE_OUTPUTCLOCKDIVIDER,
-	DATASOURCE_TIMERACLOCKDIVIDER,
-	DATASOURCE_TIMERBCLOCKDIVIDER,
+	ExternalClockRate,
+	FMClockDivider,
+	EGClockDivider,
+	OutputClockDivider,
+	TimerAClockDivider,
+	TimerBClockDivider,
 
-	DATASOURCE_AUDIOLOGGINGENABLED,
-	DATASOURCE_AUDIOLOGGINGPATH,
-	DATASOURCE_CHANNELAUDIOLOGGINGENABLED,
-	DATASOURCE_CHANNELAUDIOLOGGINGPATH,
-	DATASOURCE_OPERATORAUDIOLOGGINGENABLED,
-	DATASOURCE_OPERATORAUDIOLOGGINGPATH
+	AudioLoggingEnabled,
+	AudioLoggingPath,
+	ChannelAudioLoggingEnabled,
+	ChannelAudioLoggingPath,
+	OperatorAudioLoggingEnabled,
+	OperatorAudioLoggingPath
 };
 
 //----------------------------------------------------------------------------------------
-enum IYM2612::Channels
+enum IYM2612::Channels :unsigned int
 {
 	CHANNEL1 = 0,
 	CHANNEL2 = 1,
@@ -83,7 +83,7 @@ enum IYM2612::Channels
 };
 
 //----------------------------------------------------------------------------------------
-enum IYM2612::Operators
+enum IYM2612::Operators:unsigned int
 {
 	OPERATOR1 = 0,
 	OPERATOR2 = 1,
@@ -138,7 +138,7 @@ unsigned int IYM2612::ThisIYM2612Version()
 double IYM2612::GetExternalClockRate() const
 {
 	GenericAccessDataValueDouble data;
-	ReadGenericData((unsigned int)DATASOURCE_EXTERNALCLOCKRATE, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::ExternalClockRate, 0, data);
 	return data.GetValue();
 }
 
@@ -146,14 +146,14 @@ double IYM2612::GetExternalClockRate() const
 void IYM2612::SetExternalClockRate(double adata)
 {
 	GenericAccessDataValueDouble data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_EXTERNALCLOCKRATE, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::ExternalClockRate, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetFMClockDivider() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_FMCLOCKDIVIDER, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::FMClockDivider, 0, data);
 	return data.GetValue();
 }
 
@@ -161,14 +161,14 @@ unsigned int IYM2612::GetFMClockDivider() const
 void IYM2612::SetFMClockDivider(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_FMCLOCKDIVIDER, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::FMClockDivider, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetEGClockDivider() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_EGCLOCKDIVIDER, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::EGClockDivider, 0, data);
 	return data.GetValue();
 }
 
@@ -176,14 +176,14 @@ unsigned int IYM2612::GetEGClockDivider() const
 void IYM2612::SetEGClockDivider(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_EGCLOCKDIVIDER, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::EGClockDivider, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetOutputClockDivider() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_OUTPUTCLOCKDIVIDER, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::OutputClockDivider, 0, data);
 	return data.GetValue();
 }
 
@@ -191,14 +191,14 @@ unsigned int IYM2612::GetOutputClockDivider() const
 void IYM2612::SetOutputClockDivider(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_OUTPUTCLOCKDIVIDER, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::OutputClockDivider, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetTimerAClockDivider() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERACLOCKDIVIDER, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerAClockDivider, 0, data);
 	return data.GetValue();
 }
 
@@ -206,14 +206,14 @@ unsigned int IYM2612::GetTimerAClockDivider() const
 void IYM2612::SetTimerAClockDivider(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERACLOCKDIVIDER, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerAClockDivider, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetTimerBClockDivider() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERBCLOCKDIVIDER, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerBClockDivider, 0, data);
 	return data.GetValue();
 }
 
@@ -221,7 +221,7 @@ unsigned int IYM2612::GetTimerBClockDivider() const
 void IYM2612::SetTimerBClockDivider(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERBCLOCKDIVIDER, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerBClockDivider, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ unsigned int IYM2612::GetRegisterData(unsigned int registerNo) const
 {
 	GenericAccessDataValueUInt data;
 	RegisterDataContext dataContext(registerNo);
-	ReadGenericData((unsigned int)DATASOURCE_RAWREGISTER, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::RawRegister, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -240,7 +240,7 @@ void IYM2612::SetRegisterData(unsigned int registerNo, unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
 	RegisterDataContext dataContext(registerNo);
-	WriteGenericData((unsigned int)DATASOURCE_RAWREGISTER, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::RawRegister, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ void IYM2612::SetRegisterData(unsigned int registerNo, unsigned int adata)
 unsigned int IYM2612::GetTestData() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_TESTDATA, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TestData, 0, data);
 	return data.GetValue();
 }
 
@@ -257,14 +257,14 @@ unsigned int IYM2612::GetTestData() const
 void IYM2612::SetTestData(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TESTDATA, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TestData, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetLFOEnabled() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_LFOENABLED, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::LFOEnabled, 0, data);
 	return data.GetValue();
 }
 
@@ -272,14 +272,14 @@ bool IYM2612::GetLFOEnabled() const
 void IYM2612::SetLFOEnabled(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_LFOENABLED, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::LFOEnabled, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetLFOData() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_LFODATA, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::LFOData, 0, data);
 	return data.GetValue();
 }
 
@@ -287,14 +287,14 @@ unsigned int IYM2612::GetLFOData() const
 void IYM2612::SetLFOData(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_LFODATA, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::LFOData, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetTimerAData() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERADATA, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerAData, 0, data);
 	return data.GetValue();
 }
 
@@ -302,14 +302,14 @@ unsigned int IYM2612::GetTimerAData() const
 void IYM2612::SetTimerAData(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERADATA, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerAData, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetTimerBData() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERBDATA, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerBData, 0, data);
 	return data.GetValue();
 }
 
@@ -317,14 +317,14 @@ unsigned int IYM2612::GetTimerBData() const
 void IYM2612::SetTimerBData(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERBDATA, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerBData, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetCH3Mode() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_CH3MODE, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::CH3Mode, 0, data);
 	return data.GetValue();
 }
 
@@ -332,14 +332,14 @@ unsigned int IYM2612::GetCH3Mode() const
 void IYM2612::SetCH3Mode(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_CH3MODE, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::CH3Mode, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetTimerBReset() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERBRESET, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerBReset, 0, data);
 	return data.GetValue();
 }
 
@@ -347,14 +347,14 @@ bool IYM2612::GetTimerBReset() const
 void IYM2612::SetTimerBReset(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERBRESET, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerBReset, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetTimerAReset() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERARESET, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerAReset, 0, data);
 	return data.GetValue();
 }
 
@@ -362,14 +362,14 @@ bool IYM2612::GetTimerAReset() const
 void IYM2612::SetTimerAReset(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERARESET, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerAReset, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetTimerBEnable() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERBENABLE, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerBEnable, 0, data);
 	return data.GetValue();
 }
 
@@ -377,14 +377,14 @@ bool IYM2612::GetTimerBEnable() const
 void IYM2612::SetTimerBEnable(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERBENABLE, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerBEnable, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetTimerAEnable() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERAENABLE, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerAEnable, 0, data);
 	return data.GetValue();
 }
 
@@ -392,14 +392,14 @@ bool IYM2612::GetTimerAEnable() const
 void IYM2612::SetTimerAEnable(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERAENABLE, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerAEnable, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetTimerBLoad() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERBLOAD, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerBLoad, 0, data);
 	return data.GetValue();
 }
 
@@ -407,14 +407,14 @@ bool IYM2612::GetTimerBLoad() const
 void IYM2612::SetTimerBLoad(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERBLOAD, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerBLoad, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetTimerALoad() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERALOAD, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerALoad, 0, data);
 	return data.GetValue();
 }
 
@@ -422,14 +422,14 @@ bool IYM2612::GetTimerALoad() const
 void IYM2612::SetTimerALoad(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERALOAD, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerALoad, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetDACData() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_DACDATA, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::DACData, 0, data);
 	return data.GetValue();
 }
 
@@ -437,14 +437,14 @@ unsigned int IYM2612::GetDACData() const
 void IYM2612::SetDACData(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_DACDATA, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::DACData, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetDACEnabled() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_DACENABLED, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::DACEnabled, 0, data);
 	return data.GetValue();
 }
 
@@ -452,7 +452,7 @@ bool IYM2612::GetDACEnabled() const
 void IYM2612::SetDACEnabled(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_DACENABLED, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::DACEnabled, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -460,7 +460,7 @@ unsigned int IYM2612::GetDetuneData(unsigned int channelNo, unsigned int operato
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_DETUNEDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::DetuneData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -469,7 +469,7 @@ void IYM2612::SetDetuneData(unsigned int channelNo, unsigned int operatorNo, uns
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_DETUNEDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::DetuneData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -477,7 +477,7 @@ unsigned int IYM2612::GetMultipleData(unsigned int channelNo, unsigned int opera
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_MULTIPLEDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::MultipleData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -486,7 +486,7 @@ void IYM2612::SetMultipleData(unsigned int channelNo, unsigned int operatorNo, u
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_MULTIPLEDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::MultipleData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -494,7 +494,7 @@ unsigned int IYM2612::GetTotalLevelData(unsigned int channelNo, unsigned int ope
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_TOTALLEVELDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TotalLevelData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -503,7 +503,7 @@ void IYM2612::SetTotalLevelData(unsigned int channelNo, unsigned int operatorNo,
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_TOTALLEVELDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TotalLevelData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -511,7 +511,7 @@ unsigned int IYM2612::GetKeyScaleData(unsigned int channelNo, unsigned int opera
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_KEYSCALEDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::KeyScaleData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -520,7 +520,7 @@ void IYM2612::SetKeyScaleData(unsigned int channelNo, unsigned int operatorNo, u
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_KEYSCALEDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::KeyScaleData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -528,7 +528,7 @@ unsigned int IYM2612::GetAttackRateData(unsigned int channelNo, unsigned int ope
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_ATTACKRATEDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::AttackRateData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -537,7 +537,7 @@ void IYM2612::SetAttackRateData(unsigned int channelNo, unsigned int operatorNo,
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_ATTACKRATEDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::AttackRateData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -545,7 +545,7 @@ bool IYM2612::GetAmplitudeModulationEnabled(unsigned int channelNo, unsigned int
 {
 	GenericAccessDataValueBool data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_AMPLITUDEMODULATIONENABLED, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::AmplitudeModulationEnabled, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -554,7 +554,7 @@ void IYM2612::SetAmplitudeModulationEnabled(unsigned int channelNo, unsigned int
 {
 	GenericAccessDataValueBool data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_AMPLITUDEMODULATIONENABLED, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::AmplitudeModulationEnabled, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -562,7 +562,7 @@ unsigned int IYM2612::GetDecayRateData(unsigned int channelNo, unsigned int oper
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_DECAYRATEDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::DecayRateData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -571,7 +571,7 @@ void IYM2612::SetDecayRateData(unsigned int channelNo, unsigned int operatorNo, 
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_DECAYRATEDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::DecayRateData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -579,7 +579,7 @@ unsigned int IYM2612::GetSustainRateData(unsigned int channelNo, unsigned int op
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_SUSTAINRATEDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::SustainRateData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -588,7 +588,7 @@ void IYM2612::SetSustainRateData(unsigned int channelNo, unsigned int operatorNo
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_SUSTAINRATEDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::SustainRateData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -596,7 +596,7 @@ unsigned int IYM2612::GetSustainLevelData(unsigned int channelNo, unsigned int o
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_SUSTAINLEVELDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::SustainLevelData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -605,7 +605,7 @@ void IYM2612::SetSustainLevelData(unsigned int channelNo, unsigned int operatorN
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_SUSTAINLEVELDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::SustainLevelData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -613,7 +613,7 @@ unsigned int IYM2612::GetReleaseRateData(unsigned int channelNo, unsigned int op
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_RELEASERATEDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::ReleaseRateData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -622,7 +622,7 @@ void IYM2612::SetReleaseRateData(unsigned int channelNo, unsigned int operatorNo
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_RELEASERATEDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::ReleaseRateData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -630,7 +630,7 @@ unsigned int IYM2612::GetSSGData(unsigned int channelNo, unsigned int operatorNo
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_SSGDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::SSGData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -639,7 +639,7 @@ void IYM2612::SetSSGData(unsigned int channelNo, unsigned int operatorNo, unsign
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_SSGDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::SSGData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -647,7 +647,7 @@ bool IYM2612::GetSSGEnabled(unsigned int channelNo, unsigned int operatorNo) con
 {
 	GenericAccessDataValueBool data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_SSGENABLED, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::SSGEnabled, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -656,7 +656,7 @@ void IYM2612::SetSSGEnabled(unsigned int channelNo, unsigned int operatorNo, boo
 {
 	GenericAccessDataValueBool data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_SSGENABLED, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::SSGEnabled, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -664,7 +664,7 @@ bool IYM2612::GetSSGAttack(unsigned int channelNo, unsigned int operatorNo) cons
 {
 	GenericAccessDataValueBool data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_SSGATTACK, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::SSGAttack, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -673,7 +673,7 @@ void IYM2612::SetSSGAttack(unsigned int channelNo, unsigned int operatorNo, bool
 {
 	GenericAccessDataValueBool data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_SSGATTACK, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::SSGAttack, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -681,7 +681,7 @@ bool IYM2612::GetSSGAlternate(unsigned int channelNo, unsigned int operatorNo) c
 {
 	GenericAccessDataValueBool data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_SSGALTERNATE, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::SSGAlternate, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -690,7 +690,7 @@ void IYM2612::SetSSGAlternate(unsigned int channelNo, unsigned int operatorNo, b
 {
 	GenericAccessDataValueBool data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_SSGALTERNATE, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::SSGAlternate, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -698,7 +698,7 @@ bool IYM2612::GetSSGHold(unsigned int channelNo, unsigned int operatorNo) const
 {
 	GenericAccessDataValueBool data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_SSGHOLD, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::SSGHold, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -707,7 +707,7 @@ void IYM2612::SetSSGHold(unsigned int channelNo, unsigned int operatorNo, bool a
 {
 	GenericAccessDataValueBool data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_SSGHOLD, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::SSGHold, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -715,7 +715,7 @@ unsigned int IYM2612::GetFrequencyData(unsigned int channelNo) const
 {
 	GenericAccessDataValueUInt data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_FREQUENCYDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::FrequencyData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -724,7 +724,7 @@ void IYM2612::SetFrequencyData(unsigned int channelNo, unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_FREQUENCYDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::FrequencyData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -732,7 +732,7 @@ unsigned int IYM2612::GetBlockData(unsigned int channelNo) const
 {
 	GenericAccessDataValueUInt data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_BLOCKDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::BlockData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -741,7 +741,7 @@ void IYM2612::SetBlockData(unsigned int channelNo, unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_BLOCKDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::BlockData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -749,7 +749,7 @@ unsigned int IYM2612::GetFrequencyDataChannel3(unsigned int operatorNo) const
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(CHANNEL3, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_FREQUENCYDATACHANNEL3, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::FrequencyDataChannel3, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -758,7 +758,7 @@ void IYM2612::SetFrequencyDataChannel3(unsigned int operatorNo, unsigned int ada
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(CHANNEL3, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_FREQUENCYDATACHANNEL3, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::FrequencyDataChannel3, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -766,7 +766,7 @@ unsigned int IYM2612::GetBlockDataChannel3(unsigned int operatorNo) const
 {
 	GenericAccessDataValueUInt data;
 	OperatorDataContext dataContext(CHANNEL3, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_BLOCKDATACHANNEL3, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::BlockDataChannel3, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -775,7 +775,7 @@ void IYM2612::SetBlockDataChannel3(unsigned int operatorNo, unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
 	OperatorDataContext dataContext(CHANNEL3, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_BLOCKDATACHANNEL3, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::BlockDataChannel3, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -783,7 +783,7 @@ unsigned int IYM2612::GetFeedbackData(unsigned int channelNo) const
 {
 	GenericAccessDataValueUInt data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_FEEDBACKDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::FeedbackData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -792,7 +792,7 @@ void IYM2612::SetFeedbackData(unsigned int channelNo, unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_FEEDBACKDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::FeedbackData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -800,7 +800,7 @@ unsigned int IYM2612::GetAlgorithmData(unsigned int channelNo) const
 {
 	GenericAccessDataValueUInt data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_ALGORITHMDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::AlgorithmData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -809,7 +809,7 @@ void IYM2612::SetAlgorithmData(unsigned int channelNo, unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_ALGORITHMDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::AlgorithmData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -817,7 +817,7 @@ bool IYM2612::GetOutputLeft(unsigned int channelNo) const
 {
 	GenericAccessDataValueBool data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_OUTPUTLEFT, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::OutputLeft, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -826,7 +826,7 @@ void IYM2612::SetOutputLeft(unsigned int channelNo, bool adata)
 {
 	GenericAccessDataValueBool data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_OUTPUTLEFT, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::OutputLeft, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -834,7 +834,7 @@ bool IYM2612::GetOutputRight(unsigned int channelNo) const
 {
 	GenericAccessDataValueBool data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_OUTPUTRIGHT, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::OutputRight, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -843,7 +843,7 @@ void IYM2612::SetOutputRight(unsigned int channelNo, bool adata)
 {
 	GenericAccessDataValueBool data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_OUTPUTRIGHT, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::OutputRight, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -851,7 +851,7 @@ unsigned int IYM2612::GetAMSData(unsigned int channelNo) const
 {
 	GenericAccessDataValueUInt data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_AMSDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::AMSData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -860,7 +860,7 @@ void IYM2612::SetAMSData(unsigned int channelNo, unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_AMSDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::AMSData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -868,7 +868,7 @@ unsigned int IYM2612::GetPMSData(unsigned int channelNo) const
 {
 	GenericAccessDataValueUInt data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_PMSDATA, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::PMSData, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -877,7 +877,7 @@ void IYM2612::SetPMSData(unsigned int channelNo, unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_PMSDATA, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::PMSData, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -887,7 +887,7 @@ bool IYM2612::GetKeyState(unsigned int channelNo, unsigned int operatorNo) const
 {
 	GenericAccessDataValueBool data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_KEYSTATE, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::KeyState, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -896,7 +896,7 @@ void IYM2612::SetKeyState(unsigned int channelNo, unsigned int operatorNo, bool 
 {
 	GenericAccessDataValueBool data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_KEYSTATE, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::KeyState, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -905,7 +905,7 @@ void IYM2612::SetKeyState(unsigned int channelNo, unsigned int operatorNo, bool 
 unsigned int IYM2612::GetStatusRegister() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_STATUSREGISTER, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::StatusRegister, 0, data);
 	return data.GetValue();
 }
 
@@ -913,14 +913,14 @@ unsigned int IYM2612::GetStatusRegister() const
 void IYM2612::SetStatusRegister(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_STATUSREGISTER, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::StatusRegister, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetBusyFlag() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_BUSYFLAG, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::BusyFlag, 0, data);
 	return data.GetValue();
 }
 
@@ -928,14 +928,14 @@ bool IYM2612::GetBusyFlag() const
 void IYM2612::SetBusyFlag(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_BUSYFLAG, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::BusyFlag, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetTimerBOverflow() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERBOVERFLOW, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerBOverflow, 0, data);
 	return data.GetValue();
 }
 
@@ -943,14 +943,14 @@ bool IYM2612::GetTimerBOverflow() const
 void IYM2612::SetTimerBOverflow(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERBOVERFLOW, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerBOverflow, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool IYM2612::GetTimerAOverflow() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERAOVERFLOW, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerAOverflow, 0, data);
 	return data.GetValue();
 }
 
@@ -958,7 +958,7 @@ bool IYM2612::GetTimerAOverflow() const
 void IYM2612::SetTimerAOverflow(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERAOVERFLOW, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerAOverflow, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -967,7 +967,7 @@ void IYM2612::SetTimerAOverflow(bool adata)
 unsigned int IYM2612::GetTimerACurrentCounter() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERACURRENTCOUNTER, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerACurrentCounter, 0, data);
 	return data.GetValue();
 }
 
@@ -975,14 +975,14 @@ unsigned int IYM2612::GetTimerACurrentCounter() const
 void IYM2612::SetTimerACurrentCounter(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERACURRENTCOUNTER, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerACurrentCounter, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IYM2612::GetTimerBCurrentCounter() const
 {
 	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)DATASOURCE_TIMERBCURRENTCOUNTER, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::TimerBCurrentCounter, 0, data);
 	return data.GetValue();
 }
 
@@ -990,7 +990,7 @@ unsigned int IYM2612::GetTimerBCurrentCounter() const
 void IYM2612::SetTimerBCurrentCounter(unsigned int adata)
 {
 	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_TIMERBCURRENTCOUNTER, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::TimerBCurrentCounter, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -999,7 +999,7 @@ void IYM2612::SetTimerBCurrentCounter(unsigned int adata)
 bool IYM2612::IsAudioLoggingEnabled() const
 {
 	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)DATASOURCE_AUDIOLOGGINGENABLED, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::AudioLoggingEnabled, 0, data);
 	return data.GetValue();
 }
 
@@ -1007,7 +1007,7 @@ bool IYM2612::IsAudioLoggingEnabled() const
 void IYM2612::SetAudioLoggingEnabled(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_AUDIOLOGGINGENABLED, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::AudioLoggingEnabled, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1015,7 +1015,7 @@ bool IYM2612::IsChannelAudioLoggingEnabled(unsigned int channelNo) const
 {
 	GenericAccessDataValueBool data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_CHANNELAUDIOLOGGINGENABLED, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::ChannelAudioLoggingEnabled, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -1024,7 +1024,7 @@ void IYM2612::SetChannelAudioLoggingEnabled(unsigned int channelNo, bool adata)
 {
 	GenericAccessDataValueBool data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_CHANNELAUDIOLOGGINGENABLED, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::ChannelAudioLoggingEnabled, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1032,7 +1032,7 @@ bool IYM2612::IsOperatorAudioLoggingEnabled(unsigned int channelNo, unsigned int
 {
 	GenericAccessDataValueBool data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_OPERATORAUDIOLOGGINGENABLED, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::OperatorAudioLoggingEnabled, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -1041,14 +1041,14 @@ void IYM2612::SetOperatorAudioLoggingEnabled(unsigned int channelNo, unsigned in
 {
 	GenericAccessDataValueBool data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_OPERATORAUDIOLOGGINGENABLED, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::OperatorAudioLoggingEnabled, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring IYM2612::GetAudioLoggingOutputPath() const
 {
 	GenericAccessDataValueFilePath data;
-	ReadGenericData((unsigned int)DATASOURCE_AUDIOLOGGINGPATH, 0, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::AudioLoggingPath, 0, data);
 	return data.GetValue();
 }
 
@@ -1056,7 +1056,7 @@ std::wstring IYM2612::GetAudioLoggingOutputPath() const
 void IYM2612::SetAudioLoggingOutputPath(const std::wstring& adata)
 {
 	GenericAccessDataValueFilePath data(adata);
-	WriteGenericData((unsigned int)DATASOURCE_AUDIOLOGGINGPATH, 0, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::AudioLoggingPath, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1064,7 +1064,7 @@ std::wstring IYM2612::GetChannelAudioLoggingOutputPath(unsigned int channelNo) c
 {
 	GenericAccessDataValueFilePath data;
 	ChannelDataContext dataContext(channelNo);
-	ReadGenericData((unsigned int)DATASOURCE_CHANNELAUDIOLOGGINGPATH, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::ChannelAudioLoggingPath, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -1073,7 +1073,7 @@ void IYM2612::SetChannelAudioLoggingOutputPath(unsigned int channelNo, const std
 {
 	GenericAccessDataValueFilePath data(adata);
 	ChannelDataContext dataContext(channelNo);
-	WriteGenericData((unsigned int)DATASOURCE_CHANNELAUDIOLOGGINGPATH, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::ChannelAudioLoggingPath, &dataContext, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1081,7 +1081,7 @@ std::wstring IYM2612::GetOperatorAudioLoggingOutputPath(unsigned int channelNo, 
 {
 	GenericAccessDataValueFilePath data;
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	ReadGenericData((unsigned int)DATASOURCE_OPERATORAUDIOLOGGINGPATH, &dataContext, data);
+	ReadGenericData((unsigned int)IYM2612DataSource::OperatorAudioLoggingPath, &dataContext, data);
 	return data.GetValue();
 }
 
@@ -1090,5 +1090,5 @@ void IYM2612::SetOperatorAudioLoggingOutputPath(unsigned int channelNo, unsigned
 {
 	GenericAccessDataValueFilePath data(adata);
 	OperatorDataContext dataContext(channelNo, operatorNo);
-	WriteGenericData((unsigned int)DATASOURCE_OPERATORAUDIOLOGGINGPATH, &dataContext, data);
+	WriteGenericData((unsigned int)IYM2612DataSource::OperatorAudioLoggingPath, &dataContext, data);
 }

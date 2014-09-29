@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="GenericAccessMenus">
+      <UniqueIdentifier>{7cd1525d-8f91-4e9e-a49c-77a8bb0b2bc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GenericAccessMenus\DebugMenuHandler">
+      <UniqueIdentifier>{d1d90c82-c3c3-450c-a02a-9c5fd6edd1f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GenericAccessMenus\GenericAccessView">
+      <UniqueIdentifier>{d9de471d-854c-4a12-a811-9e5e7a7452b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{331791c5-72d8-46ff-9c04-9bd0c5a2586f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GenericAccessMenus.cpp">
+      <Filter>GenericAccessMenus</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMenuHandler.cpp">
+      <Filter>GenericAccessMenus\DebugMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="GenericDataView.cpp">
+      <Filter>GenericAccessMenus\GenericAccessView</Filter>
+    </ClCompile>
+    <ClCompile Include="GenericDataViewPresenter.cpp">
+      <Filter>GenericAccessMenus\GenericAccessView</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GenericAccessMenus.h">
+      <Filter>GenericAccessMenus</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMenuHandler.h">
+      <Filter>GenericAccessMenus\DebugMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="GenericDataView.h">
+      <Filter>GenericAccessMenus\GenericAccessView</Filter>
+    </ClInclude>
+    <ClInclude Include="GenericDataViewPresenter.h">
+      <Filter>GenericAccessMenus\GenericAccessView</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="folder.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GenericAccessMenus.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

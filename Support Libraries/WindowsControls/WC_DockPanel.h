@@ -10,8 +10,8 @@ public:
 	static const wchar_t* windowClassName;
 
 	//Enumerations
-	enum DockLocation;
-	enum WindowMessages;
+	enum class DockLocation;
+	enum class WindowMessages;
 
 	//Structures
 	struct CalculateNewDockedWindowRectParams;

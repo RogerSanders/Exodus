@@ -29,7 +29,7 @@ public:
 	{
 		source.SetIndexState(GetIndexState(), GetIndexOffset());
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetMode(EffectiveAddress::MODE_HL);
+		target.SetMode(EffectiveAddress::Mode::HL);
 
 		//SBC HL,ss		11101101 01ss0010
 		source.Decode16BitRegister(data.GetDataSegment(4, 2));

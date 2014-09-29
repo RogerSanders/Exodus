@@ -9,8 +9,8 @@
 #include <map>
 #include <list>
 #include <string>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 
 //##TODO## Add support for views which can be open multiple times
 //##TODO## Add support for menu items which are not just selectable items, IE, submenus or
@@ -69,8 +69,8 @@ private:
 	MenuItems menuItems;
 	std::list<int> menuItemOrder;
 	IViewManager& viewManager;
-	mutable boost::mutex deleteThreadMutex;
-	boost::condition allDeleteThreadsTerminated;
+	mutable std::mutex deleteThreadMutex;
+	std::condition_variable allDeleteThreadsTerminated;
 	unsigned int deleteThreadCount;
 };
 

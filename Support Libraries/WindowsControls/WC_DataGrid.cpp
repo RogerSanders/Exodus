@@ -352,37 +352,37 @@ LRESULT WC_DataGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CTLCOLORSTATIC:
 		return msgWM_CTLCOLORSTATIC(wParam, lParam);
 
-	case GRID_SETMANUALSCROLLING:
+	case WindowMessages::SetManualScrolling:
 		return msgGRID_SETMANUALSCROLLING(wParam, lParam);
-	case GRID_SETDATAAREAFONT:
+	case WindowMessages::SetDataAreaFont:
 		return msgGRID_SETDATAAREAFONT(wParam, lParam);
-	case GRID_INSERTCOLUMN:
+	case WindowMessages::InsertColumn:
 		return msgGRID_INSERTCOLUMN(wParam, lParam);
-	case GRID_DELETECOLUMN:
+	case WindowMessages::DeleteColumn:
 		return msgGRID_DELETECOLUMN(wParam, lParam);
-	case GRID_INSERTROWS:
+	case WindowMessages::InsertRows:
 		return msgGRID_INSERTROWS(wParam, lParam);
-	case GRID_DELETEROWS:
+	case WindowMessages::DeleteRows:
 		return msgGRID_DELETEROWS(wParam, lParam);
-	case GRID_SETCOLUMNINFO:
+	case WindowMessages::SetColumnInfo:
 		return msgGRID_SETCOLUMNINFO(wParam, lParam);
-	case GRID_GETCOLUMNINFO:
+	case WindowMessages::GetColumnInfo:
 		return msgGRID_GETCOLUMNINFO(wParam, lParam);
-	case GRID_SETCELLINFO:
+	case WindowMessages::SetCellInfo:
 		return msgGRID_SETCELLINFO(wParam, lParam);
-	case GRID_UPDATECELLTEXT:
+	case WindowMessages::UpdateCellText:
 		return msgGRID_UPDATECELLTEXT(wParam, lParam);
-	case GRID_UPDATECOLUMNTEXT:
+	case WindowMessages::UpdateColumnText:
 		return msgGRID_UPDATECOLUMNTEXT(wParam, lParam);
-	case GRID_SETCONTROLCOLOR:
+	case WindowMessages::SetControlColor:
 		return msgGRID_SETCONTROLCOLOR(wParam, lParam);
-	case GRID_SETROWCOLOR:
+	case WindowMessages::SetRowColor:
 		return msgGRID_SETROWCOLOR(wParam, lParam);
-	case GRID_SETCELLCOLOR:
+	case WindowMessages::SetCellColor:
 		return msgGRID_SETCELLCOLOR(wParam, lParam);
-	case GRID_GETROWCOUNT:
+	case WindowMessages::GetRowCount:
 		return msgGRID_GETROWCOUNT(wParam, lParam);
-	case GRID_SETVSCROLLINFO:
+	case WindowMessages::SetVScrollInfo:
 		return msgGRID_SETVSCROLLINFO(wParam, lParam);
 	}
 
@@ -480,7 +480,7 @@ LRESULT WC_DataGrid::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 					//Since the user has manually sized this column, force the column into
 					//absolute sizing mode, and set the absolute width of the column to
 					//the new width of the column header.
-					column.sizeMode = COLUMNSIZEMODE_ABSOLUTE;
+					column.sizeMode = ColumnSizeMode::Absolute;
 					column.absoluteWidth = nmHeader->pitem->cxy;
 					column.actualWidth = column.absoluteWidth;
 
@@ -682,13 +682,13 @@ void WC_DataGrid::UpdateChildControls()
 				int newControlPosY = columnStartPosY + 1;
 				int newControlWidth = (columnEndPosX - newControlPosX) - 1;
 				int newControlHeight = columnEndPosY - newControlPosY;
-				if(cellControlInfo.controlType == CELLCONTROLTYPE_COMBOBOX)
+				if(cellControlInfo.controlType == CellControlType::ComboBox)
 				{
 					int desiredControlWidth = newControlHeight;
 					newControlPosX = (((newControlPosX + newControlWidth) - desiredControlWidth) < newControlPosX)? newControlPosX: ((newControlPosX + newControlWidth) - desiredControlWidth);
 					newControlWidth = (((columnEndPosX - newControlPosX) - 1) < desiredControlWidth)? ((columnEndPosX - newControlPosX) - 1): desiredControlWidth;
 				}
-				else if(cellControlInfo.controlType == CELLCONTROLTYPE_TREEENTRY)
+				else if(cellControlInfo.controlType == CellControlType::TreeEntry)
 				{
 					if(cellControlInfo.treeEntryIndentLevel > 0)
 					{
@@ -701,7 +701,7 @@ void WC_DataGrid::UpdateChildControls()
 						newControlWidth = 0;
 					}
 				}
-				else if(cellControlInfo.controlType == CELLCONTROLTYPE_TEXTBOXWITHBUTTON)
+				else if(cellControlInfo.controlType == CellControlType::TextBoxWithButton)
 				{
 					HDC hdc = GetDC(hwnd);
 					HFONT hfontOld = (HFONT)SelectObject(hdc, dataAreaFont);
@@ -721,13 +721,13 @@ void WC_DataGrid::UpdateChildControls()
 				//Create or reposition the child control for this cell as required
 				if(cellControlInfo.hwnd == NULL)
 				{
-					if((cellControlInfo.controlType == CELLCONTROLTYPE_CHECKBOX)
-					|| (cellControlInfo.controlType == CELLCONTROLTYPE_COMBOBOX)
-					|| (cellControlInfo.controlType == CELLCONTROLTYPE_BUTTON)
-					|| (cellControlInfo.controlType == CELLCONTROLTYPE_TEXTBOXWITHBUTTON))
+					if((cellControlInfo.controlType == CellControlType::CheckBox)
+					|| (cellControlInfo.controlType == CellControlType::ComboBox)
+					|| (cellControlInfo.controlType == CellControlType::Button)
+					|| (cellControlInfo.controlType == CellControlType::TextBoxWithButton))
 					{
-						const wchar_t* buttonText = (cellControlInfo.controlType == CELLCONTROLTYPE_TEXTBOXWITHBUTTON)? cellControlInfo.customButtonText.c_str(): (cellControlInfo.controlType == CELLCONTROLTYPE_COMBOBOX)? L"\u25BC": L"";
-						int windowStyle = (cellControlInfo.controlType == CELLCONTROLTYPE_CHECKBOX)? WS_CHILD | WS_VISIBLE | BS_CHECKBOX: WS_CHILD | WS_VISIBLE;
+						const wchar_t* buttonText = (cellControlInfo.controlType == CellControlType::TextBoxWithButton)? cellControlInfo.customButtonText.c_str(): (cellControlInfo.controlType == CellControlType::ComboBox)? L"\u25BC": L"";
+						int windowStyle = (cellControlInfo.controlType == CellControlType::CheckBox)? WS_CHILD | WS_VISIBLE | BS_CHECKBOX: WS_CHILD | WS_VISIBLE;
 						cellControlInfo.hwnd = CreateWindow(WC_BUTTON, buttonText, windowStyle, newControlPosX, newControlPosY, newControlWidth, newControlHeight, hwnd, NULL, moduleHandle, NULL);
 						if(cellControlInfo.hwnd != NULL)
 						{
@@ -953,12 +953,12 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 
 				//Adjust the text position in this cell to take into account the control
 				//type used in this cell
-				if((cellControlInfo.controlType == CELLCONTROLTYPE_TREEENTRY) && (cellControlInfo.treeEntryIndentLevel > 0))
+				if((cellControlInfo.controlType == CellControlType::TreeEntry) && (cellControlInfo.treeEntryIndentLevel > 0))
 				{
 					textStartPosX += cellControlInfo.controlPosX + cellControlInfo.controlWidth + (int)marginSize;
 					textStartPosX = (textStartPosX > textEndPosX)? textEndPosX: textStartPosX;
 				}
-				else if((cellControlInfo.controlType == CELLCONTROLTYPE_COMBOBOX) || (cellControlInfo.controlType == CELLCONTROLTYPE_TEXTBOXWITHBUTTON))
+				else if((cellControlInfo.controlType == CellControlType::ComboBox) || (cellControlInfo.controlType == CellControlType::TextBoxWithButton))
 				{
 					textEndPosX -= (cellControlInfo.controlWidth + (int)marginSize);
 					textEndPosX = (textEndPosX < textStartPosX)? textStartPosX: textEndPosX;
@@ -1112,22 +1112,22 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				}
 
 				//Update the content of this cell
-				if(cellControlInfo.controlType == CELLCONTROLTYPE_CHECKBOX)
+				if(cellControlInfo.controlType == CellControlType::CheckBox)
 				{
 					//Update the checked state for this checkbox cell
 					bool checkedState = false;
 					StringToBool(cellDataRaw, checkedState);
 					SendMessage(cellControlInfo.hwnd, BM_SETCHECK, (checkedState)? BST_CHECKED: BST_UNCHECKED, 0);
 				}
-				else if(cellControlInfo.controlType == CELLCONTROLTYPE_BUTTON)
+				else if(cellControlInfo.controlType == CellControlType::Button)
 				{
 					SendMessage(cellControlInfo.hwnd, WM_SETTEXT, 0, (LPARAM)cellDataRaw);
 				}
-				else if((cellControlInfo.controlType == CELLCONTROLTYPE_TEXTBOX) || (cellControlInfo.controlType == CELLCONTROLTYPE_COMBOBOX) || (cellControlInfo.controlType == CELLCONTROLTYPE_TREEENTRY) || (cellControlInfo.controlType == CELLCONTROLTYPE_TEXTBOXWITHBUTTON))
+				else if((cellControlInfo.controlType == CellControlType::TextBox) || (cellControlInfo.controlType == CellControlType::ComboBox) || (cellControlInfo.controlType == CellControlType::TreeEntry) || (cellControlInfo.controlType == CellControlType::TextBoxWithButton))
 				{
 					//If this is a tree entry cell and an expand icon needs to be drawn
 					//for it, draw it now.
-					if((cellControlInfo.controlType == CELLCONTROLTYPE_TREEENTRY) && cellControlInfo.showExpandIcon && (cellControlInfo.treeEntryIndentLevel > 0))
+					if((cellControlInfo.controlType == CellControlType::TreeEntry) && cellControlInfo.showExpandIcon && (cellControlInfo.treeEntryIndentLevel > 0))
 					{
 						//Calculate the position of the expand icon
 						RECT expandIconRect;
@@ -1172,10 +1172,10 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 						UINT ellipsisMode = 0;
 						switch(cellControlInfo.ellipsisMode)
 						{
-						case TEXTELLIPSISMODE_TEXT:
+						case TextEllipsisMode::Text:
 							ellipsisMode = DT_WORD_ELLIPSIS;
 							break;
-						case TEXTELLIPSISMODE_PATH:
+						case TextEllipsisMode::Path:
 							ellipsisMode = DT_PATH_ELLIPSIS;
 							break;
 						}
@@ -1322,7 +1322,7 @@ LRESULT WC_DataGrid::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 					ColumnData& columnData = *columnIDIndex[columnID];
 					if(columnData.editingAllowed)
 					{
-						if(cellControlInfo.createdControlType == CELLCONTROLTYPE_CHECKBOX)
+						if(cellControlInfo.createdControlType == CellControlType::CheckBox)
 						{
 							std::wstring dataAsString = columnData.dataBuffer[rowNo];
 							bool checkedState = false;
@@ -1334,16 +1334,16 @@ LRESULT WC_DataGrid::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 							info.targetRowNo = rowNo;
 							info.targetColumnID = columnID;
 							info.newData = dataAsString;
-							SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_CELLEDIT), (LPARAM)&info);
+							SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
 						}
-						else if((cellControlInfo.createdControlType == CELLCONTROLTYPE_BUTTON) || (cellControlInfo.createdControlType == CELLCONTROLTYPE_TEXTBOXWITHBUTTON))
+						else if((cellControlInfo.createdControlType == CellControlType::Button) || (cellControlInfo.createdControlType == CellControlType::TextBoxWithButton))
 						{
 							Grid_CellButtonClickEvent info;
 							info.targetRowNo = rowNo;
 							info.targetColumnID = columnID;
-							SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_CELLBUTTONCLICK), (LPARAM)&info);
+							SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::CellButtonClick), (LPARAM)&info);
 						}
-						else if(cellControlInfo.createdControlType == CELLCONTROLTYPE_COMBOBOX)
+						else if(cellControlInfo.createdControlType == CellControlType::ComboBox)
 						{
 							ShowCellSelectionList(columnID, rowNo, cellControlInfo);
 						}
@@ -1364,16 +1364,16 @@ LRESULT WC_DataGrid::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 			if(selectedItem != LB_ERR)
 			{
 				const std::vector<CellControlInfo>& cellInfoForColumn = customControlForCell[openComboBoxColumnID];
-				if(openComboBoxRowNo < cellInfoForColumn.size())
+				if(openComboBoxRowNo < (int)cellInfoForColumn.size())
 				{
 					const CellControlInfo& cellControlInfo = cellInfoForColumn[openComboBoxRowNo];
-					if(selectedItem < cellControlInfo.selectionList.size())
+					if(selectedItem < (int)cellControlInfo.selectionList.size())
 					{
 						Grid_CellEditEvent info;
 						info.targetRowNo = openComboBoxRowNo;
 						info.targetColumnID = openComboBoxColumnID;
 						info.newData = cellControlInfo.selectionList[selectedItem];
-						SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_CELLEDIT), (LPARAM)&info);
+						SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
 					}
 				}
 				DestroyWindow(hwndComboBoxList);
@@ -1575,7 +1575,7 @@ void WC_DataGrid::UpdateWindowSize()
 		//to notify it about the change in visible rows.
 		Grid_NewRowCount newRowCountState;
 		newRowCountState.visibleRows = newVisibleRows;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWROWCOUNT), (LPARAM)&newRowCountState);
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::NewRowCount), (LPARAM)&newRowCountState);
 	}
 
 	//If automatic scroll management is enabled, recalculate the new scroll settings based
@@ -1724,7 +1724,7 @@ void WC_DataGrid::RecalculateColumnWidths()
 		//If this is a proportional column, add it to the proportional column set, and
 		//advance to the next column.
 		ColumnData& column = *i;
-		if(column.sizeMode == COLUMNSIZEMODE_PROPORTIONAL)
+		if(column.sizeMode == ColumnSizeMode::Proportional)
 		{
 			proportionalColumnWidthWeightingSum += column.proportionalWidth;
 			proportionalColumnSet.push_back(&column);
@@ -1733,11 +1733,11 @@ void WC_DataGrid::RecalculateColumnWidths()
 
 		//Calculate the desired size of this column
 		unsigned int newColumnWidth = 0;
-		if(column.sizeMode == COLUMNSIZEMODE_ABSOLUTE)
+		if(column.sizeMode == ColumnSizeMode::Absolute)
 		{
 			newColumnWidth = column.absoluteWidth;
 		}
-		else if(column.sizeMode == COLUMNSIZEMODE_SIZETOCONTENT)
+		else if(column.sizeMode == ColumnSizeMode::SizeToContent)
 		{
 			//Create a device content to perform text size calculations
 			HDC hdc = GetDC(hwnd);
@@ -1761,10 +1761,10 @@ void WC_DataGrid::RecalculateColumnWidths()
 					CellControlInfo& cellControlInfo = controlListForColumn[columnDataIndex];
 					switch(cellControlInfo.controlType)
 					{
-					case CELLCONTROLTYPE_COMBOBOX:
+					case CellControlType::ComboBox:
 						totalCellContentWidth += (fontHeight + (marginSize * 2)) + marginSize;
 						break;
-					case CELLCONTROLTYPE_TEXTBOXWITHBUTTON:{
+					case CellControlType::TextBoxWithButton:{
 						SIZE buttonTextSize;
 						BOOL getTextExtentPoint32Return = GetTextExtentPoint32(hdc, cellControlInfo.customButtonText.c_str(), (int)cellControlInfo.customButtonText.size(), &buttonTextSize);
 						if(getTextExtentPoint32Return != 0)
@@ -1772,7 +1772,7 @@ void WC_DataGrid::RecalculateColumnWidths()
 							totalCellContentWidth += ((unsigned int)buttonTextSize.cx + (marginSize * 2)) + marginSize;
 						}
 						break;}
-					case CELLCONTROLTYPE_TREEENTRY:
+					case CellControlType::TreeEntry:
 						if(cellControlInfo.treeEntryIndentLevel > 0)
 						{
 							totalCellContentWidth += (cellControlInfo.treeEntryIndentLevel * fontHeight) + marginSize;
@@ -1966,7 +1966,7 @@ void WC_DataGrid::CompleteCellEditing()
 	info.targetRowNo = selectedRowNo;
 	info.targetColumnID = selectedColumnID;
 	info.newData = editBuffer;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_CELLEDIT), (LPARAM)&info);
+	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
 
 	//Hide the caret now that we're exiting edit mode
 	if(!editModeShowCaretPending)
@@ -2130,7 +2130,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = (unsigned int)scrollInfo.nTrackPos;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;}
 	case SB_TOP:
@@ -2142,7 +2142,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = vscrollMin;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;
 	case SB_BOTTOM:
@@ -2154,7 +2154,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = vscrollMax;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;
 	case SB_PAGEUP:
@@ -2166,7 +2166,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = fullyVisibleRows;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		break;
 	case SB_LINEUP:
@@ -2178,7 +2178,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = 1;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		break;
 	case SB_PAGEDOWN:
@@ -2190,7 +2190,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = fullyVisibleRows;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 		break;
 	case SB_LINEDOWN:
@@ -2202,7 +2202,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = 1;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 		break;
 	}
@@ -2390,7 +2390,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = 1;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		break;
 	case VK_DOWN:
@@ -2402,7 +2402,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = 1;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 		break;
 	case VK_PRIOR:
@@ -2414,7 +2414,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = fullyVisibleRows;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		break;
 	case VK_NEXT:
@@ -2426,7 +2426,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = fullyVisibleRows;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 		break;
 	case VK_HOME:
@@ -2451,7 +2451,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = 0;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;
 	case VK_END:
@@ -2476,7 +2476,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = (vscrollMax > 0)? (unsigned int)vscrollMax - 1: 0;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_NEWSCROLLPOSITION), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;
 	}
@@ -2705,7 +2705,7 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 		if(newSelectedRowNo < (unsigned int)cellInfoArray.size())
 		{
 			CellControlInfo& cellInfoInternal = cellInfoArray[newSelectedRowNo];
-			if((cellInfoInternal.controlType == CELLCONTROLTYPE_TREEENTRY) && cellInfoInternal.showExpandIcon)
+			if((cellInfoInternal.controlType == CellControlType::TreeEntry) && cellInfoInternal.showExpandIcon)
 			{
 				//If the user just clicked on the control region of a tree entry cell that
 				//has an expand icon, process this click as a trigger on the expand state
@@ -2719,11 +2719,11 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 					expandEvent.expand = !cellInfoInternal.expandIconIsExpanded;
 					expandEvent.targetRowNo = newSelectedRowNo;
 					expandEvent.targetColumnID = newSelectedColumnID;
-					SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_TREEENTRYEXPANDEVENT), (LPARAM)&expandEvent);
+					SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::TreeEntryExpandEvent), (LPARAM)&expandEvent);
 					return 0;
 				}
 			}
-			else if((cellInfoInternal.controlType == CELLCONTROLTYPE_COMBOBOX) && cellInfoInternal.pickFromSelectionListOnly)
+			else if((cellInfoInternal.controlType == CellControlType::ComboBox) && cellInfoInternal.pickFromSelectionListOnly)
 			{
 				//If the user selected the text region of a combobox cell that doesn't
 				//allow manual entries, expand the selection list for the cell.
@@ -2747,7 +2747,7 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	info.keyPressedCtrl = (wParam & MK_CONTROL) != 0;
 	info.keyPressedShift = (wParam & MK_SHIFT) != 0;
 	info.ignoreSelectionEvent = false;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SELECTIONEVENT), (LPARAM)&info);
+	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
 
 	//If we were instructed to ignore this click event, abort any further processing.
 	if(info.ignoreSelectionEvent)
@@ -2862,13 +2862,13 @@ LRESULT WC_DataGrid::msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = (unsigned int)(-scrollUnits);
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSUP), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		else
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = (unsigned int)scrollUnits;
-			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SHIFTROWSDOWN), (LPARAM)&info);
+			SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 	}
 
@@ -2917,7 +2917,7 @@ LRESULT WC_DataGrid::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 		info.keyPressedCtrl = (bounceMessage->wParam & MK_CONTROL) != 0;
 		info.keyPressedShift = (bounceMessage->wParam & MK_SHIFT) != 0;
 		info.ignoreSelectionEvent = false;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), GRID_SELECTIONEVENT), (LPARAM)&info);
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
 
 		//If we were instructed to ignore this click event, abort any further processing.
 		if(info.ignoreSelectionEvent)

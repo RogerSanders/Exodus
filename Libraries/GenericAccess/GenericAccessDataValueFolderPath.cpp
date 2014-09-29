@@ -23,7 +23,7 @@ unsigned int GenericAccessDataValueFolderPath::GetIGenericAccessDataValueFolderP
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueFolderPath::DataType GenericAccessDataValueFolderPath::GetType() const
 {
-	return DATATYPE_FOLDERPATH;
+	return DataType::FolderPath;
 }
 
 //----------------------------------------------------------------------------------------

@@ -49,8 +49,8 @@ References:
 #include "Device/Device.pkg"
 #include "AudioStream/AudioStream.pkg"
 #include "Stream/Stream.pkg"
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 
 class SN76489 :public Device, public GenericAccessBase<ISN76489>
 {
@@ -101,8 +101,7 @@ public:
 
 private:
 	//Enumerations
-	enum ClockID;
-	enum DebugWindow;
+	enum class ClockID;
 
 	//Structures
 	struct ChannelRenderData
@@ -132,7 +131,7 @@ private:
 
 private:
 	//Registers
-	mutable boost::mutex accessMutex;
+	mutable std::mutex accessMutex;
 	double lastAccessTime;
 	RandomTimeAccessBuffer<Data, double> reg;
 	unsigned int latchedChannel;
@@ -141,14 +140,14 @@ private:
 	bool blatchedVolume;
 
 	//Render thread properties
-	mutable boost::mutex renderThreadMutex;
-	mutable boost::mutex timesliceMutex;
-	boost::condition renderThreadUpdate;
-	boost::condition renderThreadStopped;
+	mutable std::mutex renderThreadMutex;
+	mutable std::mutex timesliceMutex;
+	std::condition_variable renderThreadUpdate;
+	std::condition_variable renderThreadStopped;
 	bool renderThreadActive;
 	static const unsigned int maxPendingRenderOperationCount = 4;
 	bool renderThreadLagging;
-	boost::condition renderThreadLaggingStateChange;
+	std::condition_variable renderThreadLaggingStateChange;
 	unsigned int pendingRenderOperationCount;
 	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceList;
 	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceListUncommitted;
@@ -176,7 +175,7 @@ private:
 	bool channelDataRegisterLocked[channelCount];
 
 	//Wave logging
-	mutable boost::mutex waveLoggingMutex;
+	mutable std::mutex waveLoggingMutex;
 	bool wavLoggingEnabled;
 	bool wavLoggingChannelEnabled[channelCount];
 	std::wstring wavLoggingPath;

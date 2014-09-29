@@ -3,24 +3,24 @@ namespace M68000 {
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum M68000Instruction::ConditionCode
+enum class M68000Instruction::ConditionCode
 {
-	CONDITIONCODE_T  = 0x0, //True             1
-	CONDITIONCODE_F  = 0x1, //False            0
-	CONDITIONCODE_HI = 0x2, //HIgh             C + Z = 0
-	CONDITIONCODE_LS = 0x3, //Low or Same      C + Z = 1
-	CONDITIONCODE_CC = 0x4, //Carry Clear      C = 0
-	CONDITIONCODE_CS = 0x5, //Carry Set        C = 1
-	CONDITIONCODE_NE = 0x6, //Not Equal        Z = 0
-	CONDITIONCODE_EQ = 0x7, //EQual            Z = 1
-	CONDITIONCODE_VC = 0x8, //oVerflow Clear   V = 0
-	CONDITIONCODE_VS = 0x9, //oVerflow Set     V = 1
-	CONDITIONCODE_PL = 0xA, //PLus             N = 0
-	CONDITIONCODE_MI = 0xB, //MInus            N = 1
-	CONDITIONCODE_GE = 0xC, //Greater or Equal N = V
-	CONDITIONCODE_LT = 0xD, //Less Than        N != V
-	CONDITIONCODE_GT = 0xE, //Greater Than     !Z & (N = V)
-	CONDITIONCODE_LE = 0xF  //Less or Equal    Z | (N != V)
+	T  = 0x0, //True             1
+	F  = 0x1, //False            0
+	HI = 0x2, //HIgh             C + Z = 0
+	LS = 0x3, //Low or Same      C + Z = 1
+	CC = 0x4, //Carry Clear      C = 0
+	CS = 0x5, //Carry Set        C = 1
+	NE = 0x6, //Not Equal        Z = 0
+	EQ = 0x7, //EQual            Z = 1
+	VC = 0x8, //oVerflow Clear   V = 0
+	VS = 0x9, //oVerflow Set     V = 1
+	PL = 0xA, //PLus             N = 0
+	MI = 0xB, //MInus            N = 1
+	GE = 0xC, //Greater or Equal N = V
+	LT = 0xD, //Less Than        N != V
+	GT = 0xE, //Greater Than     !Z & (N = V)
+	LE = 0xF  //Less or Equal    Z | (N != V)
 };
 
 //----------------------------------------------------------------------------------------

@@ -30,8 +30,8 @@ conditional, which unlocks the calling thread.
 #include "ThreadLib/ThreadLib.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 #include "IExecutionSuspendManager.h"
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 #include <string>
 #include <vector>
 
@@ -57,7 +57,7 @@ public:
 	inline double ExecuteStep();
 	inline double ExecuteStep(unsigned int accessContext);
 	inline void WaitForCompletion();
-	inline void WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, boost::mutex& commandMutex, IExecutionSuspendManager* asuspendManager);
+	inline void WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, std::mutex& commandMutex, IExecutionSuspendManager* asuspendManager);
 	inline void Commit();
 	inline void Rollback();
 	inline void Initialize();
@@ -75,7 +75,7 @@ public:
 	virtual void SetDeviceEnabled(bool state);
 
 	//Worker thread control
-	void BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
+	void BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
 
 	//Device interface
 	virtual IDevice& GetTargetDevice() const;
@@ -125,9 +125,9 @@ private:
 	void SuspendExecution();
 
 	//Command worker thread control
-	void StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
+	void StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
 	void StopCommandWorkerThread();
-	void CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
+	void CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
 	void ProcessCommand(size_t deviceIndex, const DeviceContextCommand& command, volatile ReferenceCounterType& remainingThreadCount);
 
 	//Execute worker thread control
@@ -155,17 +155,17 @@ private:
 
 	//Command worker thread data
 	bool commandWorkerThreadActive;
-	boost::condition commandThreadReady;
+	std::condition_variable commandThreadReady;
 
 	//Execute worker thread data
 	bool executeWorkerThreadActive;
-	mutable boost::mutex executeThreadMutex;
-	boost::condition executeTaskSent;
-	mutable boost::condition executeCompletionStateChanged;
+	mutable std::mutex executeThreadMutex;
+	std::condition_variable executeTaskSent;
+	mutable std::condition_variable executeCompletionStateChanged;
 	bool executeThreadRunningState;
-	boost::condition executeThreadReady;
-	boost::condition executeThreadStopped;
-	boost::mutex* commandMutexPointer;
+	std::condition_variable executeThreadReady;
+	std::condition_variable executeThreadStopped;
+	std::mutex* commandMutexPointer;
 	volatile ReferenceCounterType* suspendedThreadCountPointer;
 	volatile ReferenceCounterType* remainingThreadCountPointer;
 	volatile bool executingWaitForCompletionCommand;
@@ -190,9 +190,9 @@ private:
 	bool sharedExecuteThreadSpinoffStopRequested;
 	bool sharedExecuteThreadSpinoffRunning;
 	bool sharedExecuteThreadSpinoffTimesliceAvailable;
-	boost::condition sharedExecuteThreadSpinoffStateChangeRequested;
-	boost::condition sharedExecuteThreadSpinoffStoppedOrPaused;
-	boost::condition sharedExecuteThreadSpinoffTimesliceProcessingBegun;
+	std::condition_variable sharedExecuteThreadSpinoffStateChangeRequested;
+	std::condition_variable sharedExecuteThreadSpinoffStoppedOrPaused;
+	std::condition_variable sharedExecuteThreadSpinoffTimesliceProcessingBegun;
 
 	//Callback parameters
 	ISystemGUIInterface& systemObject;

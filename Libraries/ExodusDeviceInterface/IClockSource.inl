@@ -1,11 +1,11 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IClockSource::ClockType
+enum class IClockSource::ClockType
 {
-	CLOCKTYPE_DIRECT,
-	CLOCKTYPE_DIVIDER,
-	CLOCKTYPE_MULTIPLIER
+	Direct,
+	Divider,
+	Multiplier
 };
 
 //----------------------------------------------------------------------------------------

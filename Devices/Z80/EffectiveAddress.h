@@ -7,8 +7,8 @@ class EffectiveAddress
 {
 public:
 	//Enumerations
-	enum IndexState;
-	enum Mode;
+	enum class IndexState;
+	enum class Mode;
 
 	//Constructors
 	inline EffectiveAddress();

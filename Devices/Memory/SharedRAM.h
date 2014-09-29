@@ -1,7 +1,7 @@
 #ifndef __SHAREDRAM_H__
 #define __SHAREDRAM_H__
 #include "MemoryWrite.h"
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 #include <map>
 #include <vector>
 
@@ -61,7 +61,7 @@ private:
 	typedef std::map<unsigned int, MemoryWriteStatus> MemoryAccessBuffer;
 	typedef std::pair<unsigned int, MemoryWriteStatus> MemoryAccessBufferEntry;
 
-	boost::mutex accessLock;
+	std::mutex accessLock;
 	MemoryAccessBuffer buffer;
 	std::vector<unsigned char> memory;
 	std::vector<bool> memoryLocked;

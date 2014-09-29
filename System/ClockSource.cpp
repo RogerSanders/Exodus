@@ -8,7 +8,7 @@ ClockSource::ClockSource()
 	inputClockSource = 0;
 
 	//Initialize the default clock settings
-	clockType = CLOCKTYPE_DIRECT;
+	clockType = ClockType::Direct;
 	clockFrequency = 0.0;
 	clockDivider = 0.0;
 	clockMultiplier = 0.0;
@@ -28,19 +28,19 @@ bool ClockSource::Construct(const ClockSourceParams& params)
 	clockType = params.clockType;
 	switch(clockType)
 	{
-	case CLOCKTYPE_DIRECT:
+	case ClockType::Direct:
 		if(params.initialValueDefined)
 		{
 			clockFrequency = params.initialValue;
 		}
 		break;
-	case CLOCKTYPE_DIVIDER:
+	case ClockType::Divider:
 		if(params.initialValueDefined)
 		{
 			clockDivider = params.initialValue;
 		}
 		break;
-	case CLOCKTYPE_MULTIPLIER:
+	case ClockType::Multiplier:
 		if(params.initialValueDefined)
 		{
 			clockMultiplier = params.initialValue;
@@ -87,15 +87,15 @@ bool ClockSource::DecodeClockTypeString(const std::wstring& clockTypeString, Clo
 {
 	if(clockTypeString == L"Direct")
 	{
-		aclockType = CLOCKTYPE_DIRECT;
+		aclockType = ClockType::Direct;
 	}
 	else if(clockTypeString == L"Multiplier")
 	{
-		aclockType = CLOCKTYPE_MULTIPLIER;
+		aclockType = ClockType::Multiplier;
 	}
 	else if(clockTypeString == L"Divider")
 	{
-		aclockType = CLOCKTYPE_DIVIDER;
+		aclockType = ClockType::Divider;
 	}
 	else
 	{
@@ -165,16 +165,16 @@ double ClockSource::GetEffectiveClockFrequency() const
 	double effectiveClockFrequency = 0.0;
 	switch(clockType)
 	{
-	case CLOCKTYPE_DIRECT:
+	case ClockType::Direct:
 		effectiveClockFrequency = clockFrequency;
 		break;
-	case CLOCKTYPE_DIVIDER:
+	case ClockType::Divider:
 		if(clockDivider != 0.0)
 		{
 			effectiveClockFrequency = inputClockRate / clockDivider;
 		}
 		break;
-	case CLOCKTYPE_MULTIPLIER:
+	case ClockType::Multiplier:
 		effectiveClockFrequency = inputClockRate * clockMultiplier;
 		break;
 	}
@@ -185,7 +185,7 @@ double ClockSource::GetEffectiveClockFrequency() const
 bool ClockSource::SetClockFrequency(double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != CLOCKTYPE_DIRECT)
+	if(clockType != ClockType::Direct)
 	{
 		return false;
 	}
@@ -203,7 +203,7 @@ bool ClockSource::SetClockFrequency(double clockRate, IDeviceContext* caller, do
 bool ClockSource::SetClockDivider(double divider, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != CLOCKTYPE_DIVIDER)
+	if(clockType != ClockType::Divider)
 	{
 		return false;
 	}
@@ -221,7 +221,7 @@ bool ClockSource::SetClockDivider(double divider, IDeviceContext* caller, double
 bool ClockSource::SetClockMultiplier(double multiplier, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != CLOCKTYPE_MULTIPLIER)
+	if(clockType != ClockType::Multiplier)
 	{
 		return false;
 	}
@@ -239,7 +239,7 @@ bool ClockSource::SetClockMultiplier(double multiplier, IDeviceContext* caller, 
 bool ClockSource::TransparentSetClockFrequency(double clockRate)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != CLOCKTYPE_DIRECT)
+	if(clockType != ClockType::Direct)
 	{
 		return false;
 	}
@@ -257,7 +257,7 @@ bool ClockSource::TransparentSetClockFrequency(double clockRate)
 bool ClockSource::TransparentSetClockDivider(double divider)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != CLOCKTYPE_DIVIDER)
+	if(clockType != ClockType::Divider)
 	{
 		return false;
 	}
@@ -275,7 +275,7 @@ bool ClockSource::TransparentSetClockDivider(double divider)
 bool ClockSource::TransparentSetClockMultiplier(double multiplier)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != CLOCKTYPE_MULTIPLIER)
+	if(clockType != ClockType::Multiplier)
 	{
 		return false;
 	}

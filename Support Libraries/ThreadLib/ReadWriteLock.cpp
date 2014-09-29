@@ -16,7 +16,7 @@ void ReadWriteLock::ObtainReadLock()
 	DWORD currentThreadID = GetCurrentThreadId();
 
 	//Wait until no write lock is present or pending from another thread
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	while((writeLocked && (writeLockThreadID != currentThreadID)) || !writeLockPendingThreadIDs.empty())
 	{
 		writeLockReleased.wait(lock);
@@ -33,7 +33,7 @@ bool ReadWriteLock::TryObtainReadLock()
 	DWORD currentThreadID = GetCurrentThreadId();
 
 	//If a write lock is present or pending from another thread, return false.
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	if((writeLocked && (writeLockThreadID != currentThreadID)) || !writeLockPendingThreadIDs.empty())
 	{
 		return false;
@@ -51,7 +51,7 @@ void ReadWriteLock::ReleaseReadLock()
 	DWORD currentThreadID = GetCurrentThreadId();
 
 	//Decrement the read lock count
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	int newReadLockCount = --readLockCount[currentThreadID];
 
 	//If we've just released the last read lock for this thread, remove this thread from
@@ -78,7 +78,7 @@ void ReadWriteLock::ObtainWriteLock()
 
 	//If the calling thread already has a write lock, increment the write lock count and
 	//abort any further processing.
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	if(writeLocked && (writeLockThreadID == currentThreadID))
 	{
 		++writeLockCount;
@@ -117,7 +117,7 @@ bool ReadWriteLock::TryObtainWriteLock()
 
 	//If the calling thread already has a write lock, increment the write lock count and
 	//abort any further processing.
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	if(writeLocked && (writeLockThreadID == currentThreadID))
 	{
 		++writeLockCount;
@@ -165,7 +165,7 @@ bool ReadWriteLock::IsNewWriteLockAvailableForThread(DWORD threadID)
 void ReadWriteLock::ReleaseWriteLock()
 {
 	//Decrement the write lock count
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	--writeLockCount;
 
 	//If the write lock count has reached zero, release the write lock.

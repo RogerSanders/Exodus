@@ -118,32 +118,32 @@ bool Processor::BuildDevice()
 
 	//##TODO## Register a generic access page for modifying breakpoints and watchpoints
 	bool result = true;
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_NAME, IGenericAccessDataValue::DATATYPE_STRING)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_ENABLE, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_LOG, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_BREAK, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_NOTCONDITION, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_CONDITION, IGenericAccessDataValue::DATATYPE_UINT)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_LOCATION1, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(addressBusMask)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_LOCATION2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(addressBusMask)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_LOCATIONMASK, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(addressBusMask)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_HITCOUNTER, IGenericAccessDataValue::DATATYPE_UINT))->SetReadOnly(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_ENABLEBREAKINTERVAL, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IPROCESSORDATASOURCE_BREAKPOINT_BREAKINTERVAL, IGenericAccessDataValue::DATATYPE_UINT)));
-	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IPROCESSORCOMMAND_BREAKPOINT_RESETHITCOUNTER));
-	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IPROCESSORCOMMAND_BREAKPOINT_DELETE));
-	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IPROCESSORCOMMAND_BREAKPOINT_NEW));
-	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IPROCESSORCOMMAND_BREAKPOINT_ENABLEALL));
-	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IPROCESSORCOMMAND_BREAKPOINT_DISABLEALL));
-	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IPROCESSORCOMMAND_BREAKPOINT_DELETEALL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointName, IGenericAccessDataValue::DataType::String)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointEnable, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointLog, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointBreak, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointNotCondition, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointCondition, IGenericAccessDataValue::DataType::UInt)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointLocation1, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(addressBusMask)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointLocation2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(addressBusMask)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointLocationMask, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(addressBusMask)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointHitCounter, IGenericAccessDataValue::DataType::UInt))->SetReadOnly(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointEnableBreakInterval, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IProcessorDataSource::BreakpointBreakInterval, IGenericAccessDataValue::DataType::UInt)));
+	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IProcessorCommand::BreakpointResetHitCounter));
+	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IProcessorCommand::BreakpointDelete));
+	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IProcessorCommand::BreakpointNew));
+	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IProcessorCommand::BreakpointEnableAll));
+	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IProcessorCommand::BreakpointDisableAll));
+	result &= AddGenericCommandInfo(new GenericAccessCommandInfo(IProcessorCommand::BreakpointDeleteAll));
 
 	//##TODO## Maintain this group
-	breakpointCollection = (new GenericAccessGroupCollectionEntry(L"Breakpoint List", IGenericAccessDataValue::DATATYPE_UINT))->SetOpenByDefault(true);
+	breakpointCollection = (new GenericAccessGroupCollectionEntry(L"Breakpoint List", IGenericAccessDataValue::DataType::UInt))->SetOpenByDefault(true);
 	GenericAccessPage* breakpointsPage = new GenericAccessPage(L"Generic - Breakpoints");
-	breakpointsPage->AddEntry(new GenericAccessGroupCommandEntry(IPROCESSORCOMMAND_BREAKPOINT_NEW, L"New"))
-	               ->AddEntry(new GenericAccessGroupCommandEntry(IPROCESSORCOMMAND_BREAKPOINT_ENABLEALL, L"Enable All"))
-	               ->AddEntry(new GenericAccessGroupCommandEntry(IPROCESSORCOMMAND_BREAKPOINT_DISABLEALL, L"Disable All"))
-	               ->AddEntry(new GenericAccessGroupCommandEntry(IPROCESSORCOMMAND_BREAKPOINT_DELETEALL, L"Delete All"))
+	breakpointsPage->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointNew, L"New"))
+	               ->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointEnableAll, L"Enable All"))
+	               ->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointDisableAll, L"Disable All"))
+	               ->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointDeleteAll, L"Delete All"))
 	               ->AddEntry(breakpointCollection);
 	result &= AddGenericAccessPage(breakpointsPage);
 
@@ -155,7 +155,7 @@ bool Processor::BuildDevice()
 //----------------------------------------------------------------------------------------
 void Processor::ExecuteRollback()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	//Clock speed
 	clockSpeed = bclockSpeed;
@@ -194,7 +194,7 @@ void Processor::ExecuteRollback()
 //----------------------------------------------------------------------------------------
 void Processor::ExecuteCommit()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	//Clock speed
 	bclockSpeed = clockSpeed;
@@ -229,7 +229,7 @@ void Processor::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 Processor::UpdateMethod Processor::GetUpdateMethod() const
 {
-	return UPDATEMETHOD_STEP;
+	return UpdateMethod::Step;
 }
 
 //----------------------------------------------------------------------------------------
@@ -241,7 +241,7 @@ void Processor::BreakOnCurrentOpcode() const
 //----------------------------------------------------------------------------------------
 void Processor::BreakOnStepOverCurrentOpcode()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	stepOver = true;
 	stepOut = false;
 	breakOnNextOpcode = false;
@@ -251,7 +251,7 @@ void Processor::BreakOnStepOverCurrentOpcode()
 //----------------------------------------------------------------------------------------
 void Processor::BreakOnStepOutCurrentOpcode()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	stepOut = true;
 	stepOver = false;
 	breakOnNextOpcode = false;
@@ -364,33 +364,33 @@ IBreakpoint* Processor::CreateBreakpoint()
 	//Create a new breakpoint, add it to the list of breakpoints, and return it to the
 	//caller. Note that the breakpoint is disabled by default, so it will not trigger
 	//until it is modified.
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	Breakpoint* breakpoint = new Breakpoint(GetAddressBusWidth(), GetDataBusWidth(), GetAddressBusCharWidth());
 	breakpoints.push_back(breakpoint);
 	breakpointExists = true;
 
 	//##TODO## Add this new breakpoint to our list of breakpoints
 	GenericAccessGroup* breakpointEntry = (new GenericAccessGroup(L"Breakpoint"))->SetOpenByDefault(false)->SetDataContext(new BreakpointDataContext(breakpoint));
-	breakpointEntry->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_NAME, L"Name"))
-	               ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_ENABLE, L"Enable"))
-	               ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_LOG, L"Log"))
-	               ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_BREAK, L"Break"))
+	breakpointEntry->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointName, L"Name"))
+	               ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointEnable, L"Enable"))
+	               ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointLog, L"Log"))
+	               ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointBreak, L"Break"))
 	               ->AddEntry((new GenericAccessGroup(L"Location"))
-	                   ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_NOTCONDITION, L"Not Condition"))
-	                   ->AddEntry((new GenericAccessGroupSingleSelectionList(IPROCESSORDATASOURCE_BREAKPOINT_CONDITION, L"Condition"))
-	                       ->AddSelectionListEntry(new GenericAccessDataValueString(L"Equal"), new GenericAccessDataValueUInt((unsigned int)IBreakpoint::CONDITION_EQUAL))
-	                       ->AddSelectionListEntry(new GenericAccessDataValueString(L"Greater"), new GenericAccessDataValueUInt((unsigned int)IBreakpoint::CONDITION_GREATER))
-	                       ->AddSelectionListEntry(new GenericAccessDataValueString(L"Less"), new GenericAccessDataValueUInt((unsigned int)IBreakpoint::CONDITION_LESS))
-	                       ->AddSelectionListEntry(new GenericAccessDataValueString(L"Greater and Less"), new GenericAccessDataValueUInt((unsigned int)IBreakpoint::CONDITION_GREATER_AND_LESS)))
-	                   ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_LOCATION1, L"Location 1"))
-	                   ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_LOCATION2, L"Location 2"))
-	                   ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_LOCATIONMASK, L"Location Mask")))
+	                   ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointNotCondition, L"Not Condition"))
+	                   ->AddEntry((new GenericAccessGroupSingleSelectionList(IProcessorDataSource::BreakpointCondition, L"Condition"))
+	                       ->AddSelectionListEntry(new GenericAccessDataValueString(L"Equal"), new GenericAccessDataValueUInt((unsigned int)IBreakpoint::Condition::Equal))
+	                       ->AddSelectionListEntry(new GenericAccessDataValueString(L"Greater"), new GenericAccessDataValueUInt((unsigned int)IBreakpoint::Condition::Greater))
+	                       ->AddSelectionListEntry(new GenericAccessDataValueString(L"Less"), new GenericAccessDataValueUInt((unsigned int)IBreakpoint::Condition::Less))
+	                       ->AddSelectionListEntry(new GenericAccessDataValueString(L"Greater and Less"), new GenericAccessDataValueUInt((unsigned int)IBreakpoint::Condition::GreaterAndLess)))
+	                   ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointLocation1, L"Location 1"))
+	                   ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointLocation2, L"Location 2"))
+	                   ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointLocationMask, L"Location Mask")))
 	               ->AddEntry((new GenericAccessGroup(L"Hit Counter"))
-	                   ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_HITCOUNTER, L"Hit Counter"))
-	                   ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_ENABLEBREAKINTERVAL, L"Enable Break Interval"))
-	                   ->AddEntry(new GenericAccessGroupDataEntry(IPROCESSORDATASOURCE_BREAKPOINT_BREAKINTERVAL, L"Break Interval"))
-	                   ->AddEntry(new GenericAccessGroupCommandEntry(IPROCESSORCOMMAND_BREAKPOINT_RESETHITCOUNTER, L"Reset Hit Counter")))
-	               ->AddEntry(new GenericAccessGroupCommandEntry(IPROCESSORCOMMAND_BREAKPOINT_DELETE, L"Delete"));
+	                   ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointHitCounter, L"Hit Counter"))
+	                   ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointEnableBreakInterval, L"Enable Break Interval"))
+	                   ->AddEntry(new GenericAccessGroupDataEntry(IProcessorDataSource::BreakpointBreakInterval, L"Break Interval"))
+	                   ->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointResetHitCounter, L"Reset Hit Counter")))
+	               ->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointDelete, L"Delete"));
 	breakpointCollection->ObtainWriteLock();
 	breakpointCollection->AddCollectionEntry(new GenericAccessDataValueUInt(breakpointCollection->GetEntryCount()), breakpointEntry);
 	breakpointCollection->ReleaseWriteLock();
@@ -402,7 +402,7 @@ IBreakpoint* Processor::CreateBreakpoint()
 bool Processor::LockBreakpoint(IBreakpoint* breakpoint) const
 {
 	//Attempt to locate the target breakpoint in the list of breakpoints
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	bool foundTargetBreakpoint = false;
 	size_t breakpointNo = 0;
 	while(!foundTargetBreakpoint && (breakpointNo < breakpoints.size()))
@@ -442,7 +442,7 @@ void Processor::UnlockBreakpoint(IBreakpoint* breakpoint) const
 void Processor::DeleteBreakpoint(IBreakpoint* breakpoint)
 {
 	//Attempt to locate the target breakpoint in the list of breakpoints
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	bool foundTargetBreakpoint = false;
 	size_t breakpointNo = 0;
 	while(!foundTargetBreakpoint && (breakpointNo < breakpoints.size()))
@@ -490,7 +490,7 @@ void Processor::DeleteBreakpoint(IBreakpoint* breakpoint)
 //----------------------------------------------------------------------------------------
 void Processor::CheckExecutionInternal(unsigned int location) const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	bool breakOnInstruction = breakOnNextOpcode;
 	breakOnNextOpcode = false;
@@ -507,7 +507,7 @@ void Processor::CheckExecutionInternal(unsigned int location) const
 				if(breakpoint->GetLogEvent())
 				{
 					//Log the event
-					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_DEBUG, breakpoint->GetLogString()));
+					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Debug, breakpoint->GetLogString()));
 				}
 				if(breakpoint->GetBreakEvent())
 				{
@@ -539,9 +539,9 @@ void Processor::TriggerBreakpoint(Breakpoint* breakpoint) const
 	//##TODO## Clean up this old code
 //	if(!breakpointTriggered)
 //	{
-	//boost::function<void()> function = boost::bind(&Processor::BreakpointCallback, this, breakpoint);
+	//std::function<void()> function = std::bind(&Processor::BreakpointCallback, this, breakpoint);
 	//GetDeviceContext()->SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), &function);
-	//boost::function<void()> function = boost::bind(&Processor::BreakpointCallback, this, breakpoint);
+	//std::function<void()> function = std::bind(&Processor::BreakpointCallback, this, breakpoint);
 	BreakpointCallbackParams* params = new BreakpointCallbackParams();
 	params->object = (Processor*)this;
 	params->breakpoint = breakpoint;
@@ -592,7 +592,7 @@ IWatchpoint* Processor::CreateWatchpoint()
 	//Create a new watchpoint, add it to the list of watchpoints, and return it to the
 	//caller. Note that the watchpoint is disabled by default, so it will not trigger
 	//until it is modified.
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	Watchpoint* watchpoint = new Watchpoint(GetAddressBusWidth(), GetDataBusWidth(), GetAddressBusCharWidth());
 	watchpoints.push_back(watchpoint);
 	watchpointExists = true;
@@ -603,7 +603,7 @@ IWatchpoint* Processor::CreateWatchpoint()
 bool Processor::LockWatchpoint(IWatchpoint* watchpoint) const
 {
 	//Attempt to locate the target watchpoint in the list of watchpoint
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	bool foundTargetWatchpoint = false;
 	size_t watchpointNo = 0;
 	while(!foundTargetWatchpoint && (watchpointNo < watchpoints.size()))
@@ -643,7 +643,7 @@ void Processor::UnlockWatchpoint(IWatchpoint* watchpoint) const
 void Processor::DeleteWatchpoint(IWatchpoint* watchpoint)
 {
 	//Attempt to locate the target watchpoint in the list of watchpoints
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	bool foundTargetWatchpoint = false;
 	size_t watchpointNo = 0;
 	while(!foundTargetWatchpoint && (watchpointNo < watchpoints.size()))
@@ -675,7 +675,7 @@ void Processor::DeleteWatchpoint(IWatchpoint* watchpoint)
 //----------------------------------------------------------------------------------------
 void Processor::CheckMemoryReadInternal(unsigned int location, unsigned int data) const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	bool breakOnInstruction = false;
 	Watchpoint* triggerWatchpoint = 0;
@@ -691,7 +691,7 @@ void Processor::CheckMemoryReadInternal(unsigned int location, unsigned int data
 				if(watchpoint->GetLogEvent())
 				{
 					//Log the event
-					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_DEBUG, watchpoint->GetLogString()));
+					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Debug, watchpoint->GetLogString()));
 				}
 				if(watchpoint->GetBreakEvent())
 				{
@@ -711,7 +711,7 @@ void Processor::CheckMemoryReadInternal(unsigned int location, unsigned int data
 //----------------------------------------------------------------------------------------
 void Processor::CheckMemoryWriteInternal(unsigned int location, unsigned int data) const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	bool breakOnInstruction = false;
 	Watchpoint* triggerWatchpoint = 0;
@@ -726,7 +726,7 @@ void Processor::CheckMemoryWriteInternal(unsigned int location, unsigned int dat
 				if(watchpoint->GetLogEvent())
 				{
 					//Log the event
-					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_DEBUG, watchpoint->GetLogString()));
+					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Debug, watchpoint->GetLogString()));
 				}
 				if(watchpoint->GetBreakEvent())
 				{
@@ -793,7 +793,7 @@ void Processor::GetCallStackInternal(const InteropSupport::ISTLObjectTarget<std:
 //----------------------------------------------------------------------------------------
 void Processor::PushCallStack(unsigned int sourceAddress, unsigned int targetAddress, unsigned int returnAddress, const std::wstring& entry, bool fixedDisassembly)
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	if(stepOut || stepOver)
 	{
 		++stackLevel;
@@ -824,7 +824,7 @@ void Processor::PushCallStack(unsigned int sourceAddress, unsigned int targetAdd
 //----------------------------------------------------------------------------------------
 void Processor::PopCallStack(unsigned int returnAddress)
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	//This call stack has a form of self-healing built in, to deal with direct stack
 	//manipulation of return addresses. When a pop is triggered, we pop the stack back to
@@ -863,7 +863,7 @@ void Processor::PopCallStack(unsigned int returnAddress)
 //----------------------------------------------------------------------------------------
 void Processor::ClearCallStack()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	callStack.clear();
 }
 
@@ -872,7 +872,7 @@ void Processor::ClearCallStack()
 //----------------------------------------------------------------------------------------
 void Processor::RecordTraceInternal(unsigned int pc)
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	TraceLogEntry traceEntry(pc);
 	if(traceLogDisassemble)
@@ -937,7 +937,7 @@ void Processor::GetTraceLogInternal(const InteropSupport::ISTLObjectTarget<std::
 //----------------------------------------------------------------------------------------
 void Processor::ClearTraceLog()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	traceLog.clear();
 }
 
@@ -964,7 +964,7 @@ unsigned int Processor::GetActiveDisassemblyStartLocation() const
 //----------------------------------------------------------------------------------------
 void Processor::SetActiveDisassemblyStartLocation(unsigned int state)
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	activeDisassemblyUncommittedStartLocation = state;
 	if(activeDisassemblyEnabled)
 	{
@@ -982,7 +982,7 @@ unsigned int Processor::GetActiveDisassemblyEndLocation() const
 //----------------------------------------------------------------------------------------
 void Processor::SetActiveDisassemblyEndLocation(unsigned int state)
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	activeDisassemblyUncommittedEndLocation = state;
 	if(activeDisassemblyEnabled)
 	{
@@ -1222,63 +1222,63 @@ void Processor::SetActiveDisassemblyJumpTableDistanceTolerance(unsigned int stat
 //----------------------------------------------------------------------------------------
 unsigned int Processor::GetActiveDisassemblyRecordedItemCount() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return (unsigned int)activeDisassemblyAddressInfoSet.size();
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Processor::GetActiveDisassemblyAnalysisCodeEntryCount() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return (unsigned int)activeDisassemblyAnalysis->disassemblyCodeSorted.size();
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Processor::GetActiveDisassemblyAnalysisOffsetEntryCount() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return (unsigned int)activeDisassemblyAnalysis->disassemblyOffsetSorted.size();
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Processor::GetActiveDisassemblyAnalysisDataEntryCount() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return (unsigned int)activeDisassemblyAnalysis->disassemblyDataSorted.size();
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Processor::GetActiveDisassemblyAnalysisLabelEntryCount() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return activeDisassemblyAnalysis->labelSettings.observedLabelCount;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Processor::GetActiveDisassemblyAnalysisPredictedCodeEntryCount() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return (unsigned int)activeDisassemblyAnalysis->predictedCodeEntries.size();
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Processor::GetActiveDisassemblyAnalysisPredictedOffsetEntryCount() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return (unsigned int)activeDisassemblyAnalysis->predictedOffsetEntries.size();
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Processor::GetActiveDisassemblyAnalysisPredictedDataEntryCount() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return (unsigned int)activeDisassemblyAnalysis->predictedDataEntries.size();
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Processor::GetActiveDisassemblyAnalysisPredictedLabelEntryCount() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return activeDisassemblyAnalysis->labelSettings.detectedLabelCount;
 }
 
@@ -1287,7 +1287,7 @@ unsigned int Processor::GetActiveDisassemblyAnalysisPredictedLabelEntryCount() c
 //----------------------------------------------------------------------------------------
 void Processor::EnableActiveDisassembly()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	EnableActiveDisassembly(activeDisassemblyUncommittedStartLocation, activeDisassemblyUncommittedEndLocation);
 }
 
@@ -1398,7 +1398,7 @@ void Processor::EnableActiveDisassembly(unsigned int startLocation, unsigned int
 //----------------------------------------------------------------------------------------
 void Processor::DisableActiveDisassembly()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	DisableActiveDisassemblyInternal();
 }
 
@@ -1412,7 +1412,7 @@ void Processor::DisableActiveDisassemblyInternal()
 //----------------------------------------------------------------------------------------
 void Processor::ClearActiveDisassembly()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	ClearActiveDisassemblyInternal();
 }
 
@@ -1450,7 +1450,7 @@ unsigned int Processor::MakeDataArrayAtLocation(unsigned int location, unsigned 
 	}
 
 	//Verify that this address falls within the target area
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	if((location < activeDisassemblyStartLocation) || (location >= activeDisassemblyEndLocation))
 	{
 		return 0;
@@ -1462,7 +1462,7 @@ unsigned int Processor::MakeDataArrayAtLocation(unsigned int location, unsigned 
 	for(std::list<DisassemblyAddressInfo*>::const_iterator i = addressList.begin(); i != addressList.end(); ++i)
 	{
 		DisassemblyAddressInfo* entry = *i;
-		if((entry->entryType == DISASSEMBLYENTRYTYPE_DATA) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize) && (entry->dataType == dataType) && entry->arrayStartingHereDefined)
+		if((entry->entryType == DisassemblyEntryType::Data) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize) && (entry->dataType == dataType) && entry->arrayStartingHereDefined)
 		{
 			return entry->arrayIDStartingHere;
 		}
@@ -1491,7 +1491,7 @@ void Processor::AddDisassemblyAddressInfoCode(unsigned int location, unsigned in
 	}
 
 	//Verify that this address falls within the target area
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	if((location < activeDisassemblyStartLocation) || (location >= activeDisassemblyEndLocation))
 	{
 		return;
@@ -1506,17 +1506,17 @@ void Processor::AddDisassemblyAddressInfoCode(unsigned int location, unsigned in
 		if((entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize))
 		{
 			//Check if this entry refers to an opcode
-			if(entry->entryType == DISASSEMBLYENTRYTYPE_CODE)
+			if(entry->entryType == DisassemblyEntryType::Code)
 			{
 				//Flag if we've found an existing reference to an opcode at this location
 				foundExistingCodeReference = true;
 			}
-			else if(entry->entryType == DISASSEMBLYENTRYTYPE_CODE_AUTODETECT)
+			else if(entry->entryType == DisassemblyEntryType::CodeAutoDetect)
 			{
 				//If we've found a reference to an auto-detected opcode at this location,
 				//change it to a confirmed opcode, and flag that we've found an existing
 				//opcode reference here.
-				entry->entryType = DISASSEMBLYENTRYTYPE_CODE;
+				entry->entryType = DisassemblyEntryType::Code;
 				foundExistingCodeReference = true;
 			}
 		}
@@ -1532,7 +1532,7 @@ void Processor::AddDisassemblyAddressInfoCode(unsigned int location, unsigned in
 	//Create a new DisassemblyAddressInfo object to describe the entry, and insert it into
 	//the set of DisassemblyAddressInfo objects.
 	DisassemblyAddressInfo* newEntry = new DisassemblyAddressInfo();
-	newEntry->entryType = DISASSEMBLYENTRYTYPE_CODE;
+	newEntry->entryType = DisassemblyEntryType::Code;
 	newEntry->baseMemoryAddress = location;
 	newEntry->memoryBlockSize = dataSize;
 	newEntry->comment = comment;
@@ -1554,7 +1554,7 @@ void Processor::AddDisassemblyAddressInfoData(unsigned int location, unsigned in
 	}
 
 	//Verify that this address falls within the target area
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	if((location < activeDisassemblyStartLocation) || (location >= activeDisassemblyEndLocation))
 	{
 		return;
@@ -1568,7 +1568,7 @@ void Processor::AddDisassemblyAddressInfoData(unsigned int location, unsigned in
 	while(!foundExistingDataReference && (addressListIterator != addressList.end()))
 	{
 		DisassemblyAddressInfo* entry = *addressListIterator;
-		if((entry->entryType == DISASSEMBLYENTRYTYPE_DATA) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize) && (entry->dataType == dataType))
+		if((entry->entryType == DisassemblyEntryType::Data) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize) && (entry->dataType == dataType))
 		{
 			foundExistingDataReference = true;
 			targetEntry = entry;
@@ -1584,7 +1584,7 @@ void Processor::AddDisassemblyAddressInfoData(unsigned int location, unsigned in
 		//Create a new DisassemblyAddressInfo object to describe the entry, and insert it
 		//into the set of DisassemblyAddressInfo objects.
 		targetEntry = new DisassemblyAddressInfo();
-		targetEntry->entryType = DISASSEMBLYENTRYTYPE_DATA;
+		targetEntry->entryType = DisassemblyEntryType::Data;
 		targetEntry->baseMemoryAddress = location;
 		targetEntry->memoryBlockSize = dataSize;
 		targetEntry->dataType = dataType;
@@ -1635,14 +1635,14 @@ void Processor::AddDisassemblyAddressInfoOffset(unsigned int location, unsigned 
 	}
 
 	//Verify that this address falls within the target area
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	if((location < activeDisassemblyStartLocation) || (location >= activeDisassemblyEndLocation))
 	{
 		return;
 	}
 
 	//Determine the type of offset being added
-	DisassemblyEntryType entryType = offsetToCode? DISASSEMBLYENTRYTYPE_OFFSETCODE: DISASSEMBLYENTRYTYPE_OFFSETDATA;
+	DisassemblyEntryType entryType = offsetToCode? DisassemblyEntryType::OffsetCode: DisassemblyEntryType::OffsetData;
 
 	//Try and find identical existing references at the same address
 	bool foundExistingDataReference = false;
@@ -1689,7 +1689,7 @@ void Processor::AddDisassemblyPossibleBranchTable(unsigned int baseAddress, unsi
 	}
 
 	//Verify that this address falls within the target area
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	if((baseAddress < activeDisassemblyStartLocation) || (baseAddress >= activeDisassemblyEndLocation))
 	{
 		return;
@@ -1739,11 +1739,11 @@ void Processor::AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* ne
 		{
 			DisassemblyAddressInfo* entry = *i;
 
-			if(newEntry->entryType == DISASSEMBLYENTRYTYPE_CODE)
+			if(newEntry->entryType == DisassemblyEntryType::Code)
 			{
 				//If we've found an existing entry which appears to overlap with the new
 				//code entry at this address, mark the existing entry as conflicted.
-				if(entry->entryType != DISASSEMBLYENTRYTYPE_CODE)
+				if(entry->entryType != DisassemblyEntryType::Code)
 				{
 					entry->conflictsWithKnownCode = true;
 
@@ -1760,7 +1760,7 @@ void Processor::AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* ne
 
 				//If we have an actual known code entry which seems to overlap, mark both
 				//code entries as conflicted.
-				if((entry->entryType == DISASSEMBLYENTRYTYPE_CODE) && ((entry->baseMemoryAddress != newEntry->baseMemoryAddress) || (entry->memoryBlockSize != newEntry->memoryBlockSize)))
+				if((entry->entryType == DisassemblyEntryType::Code) && ((entry->baseMemoryAddress != newEntry->baseMemoryAddress) || (entry->memoryBlockSize != newEntry->memoryBlockSize)))
 				{
 					entry->conflictsWithKnownCode = true;
 					newEntry->conflictsWithKnownCode = true;
@@ -1770,7 +1770,7 @@ void Processor::AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* ne
 			{
 				//If we've found a code entry which overlaps with our new data entry, mark
 				//the data entry as conflicted.
-				if((entry->entryType == DISASSEMBLYENTRYTYPE_CODE))
+				if((entry->entryType == DisassemblyEntryType::Code))
 				{
 					newEntry->conflictsWithKnownCode = true;
 				}
@@ -1787,7 +1787,7 @@ void Processor::AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* ne
 //----------------------------------------------------------------------------------------
 bool Processor::PerformActiveDisassemblyAnalysis()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	activeDisassemblyAnalysis->Initialize();
 	return PerformActiveDisassemblyAnalysis(activeDisassemblyAnalysisStartLocation, activeDisassemblyAnalysisEndLocation, *activeDisassemblyAnalysis);
 }
@@ -1857,26 +1857,26 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 		//Add this entry to the appropriate analysis structure
 		switch(entry->entryType)
 		{
-		case DISASSEMBLYENTRYTYPE_CODE:
+		case DisassemblyEntryType::Code:
 			if(activeDisassemblyAnalyzeCode)
 			{
 				DisassemblyAddressInfo* copiedEntry = new DisassemblyAddressInfo(*entry);
 				analysis.disassemblyCodeSorted.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(copiedEntry->baseMemoryAddress, copiedEntry));
 			}
 			break;
-		case DISASSEMBLYENTRYTYPE_DATA:
+		case DisassemblyEntryType::Data:
 			if(activeDisassemblyAnalyzeData && entry->entryDefinedOutsideArray)
 			{
 				disassemblyDataSortedRaw.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(entry->baseMemoryAddress, entry));
 			}
 			break;
-		case DISASSEMBLYENTRYTYPE_OFFSETCODE:
+		case DisassemblyEntryType::OffsetCode:
 			if(activeDisassemblyAnalyzeCodeOffsets)
 			{
 				disassemblyOffsetSortedRaw.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(entry->baseMemoryAddress, entry));
 			}
 			break;
-		case DISASSEMBLYENTRYTYPE_OFFSETDATA:
+		case DisassemblyEntryType::OffsetData:
 			if(activeDisassemblyAnalyzeDataOffsets)
 			{
 				disassemblyOffsetSortedRaw.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(entry->baseMemoryAddress, entry));
@@ -2034,7 +2034,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 			if((analysis.disassemblyCodeSorted.find(targetAddress) == analysis.disassemblyCodeSorted.end()) && (analysis.predictedCodeEntries.find(targetAddress) == analysis.predictedCodeEntries.end()))
 			{
 				DisassemblyAddressInfo* newCodeEntry = new DisassemblyAddressInfo();
-				newCodeEntry->entryType = DISASSEMBLYENTRYTYPE_CODE_AUTODETECT;
+				newCodeEntry->entryType = DisassemblyEntryType::CodeAutoDetect;
 				newCodeEntry->baseMemoryAddress = targetAddress;
 				newCodeEntry->memoryBlockSize = opcodeInfo.GetOpcodeSize();
 				newCodeEntry->comment = L"Predicted (Code-scan)";
@@ -2283,7 +2283,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 			//Check the basic array type and size information first to see if this could
 			//possibly be a character array, and skip it if it could not.
 			DisassemblyArrayInfo& arrayinfo = i->second;
-			if((arrayinfo.dataType != DISASSEMBLYDATATYPE_INTEGER) || (arrayinfo.arrayEntrySize != 1))
+			if((arrayinfo.dataType != DisassemblyDataType::Integer) || (arrayinfo.arrayEntrySize != 1))
 			{
 				continue;
 			}
@@ -2310,7 +2310,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 			//datatype to a character array.
 			if(ActiveDisassemblyArraySeemsToBeCharArray(arrayinfo.dataType, arrayinfo.arrayEntrySize, dataElements))
 			{
-				arrayinfo.dataType = DISASSEMBLYDATATYPE_CHARACTER;
+				arrayinfo.dataType = DisassemblyDataType::Character;
 			}
 		}
 	}
@@ -2321,7 +2321,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 //----------------------------------------------------------------------------------------
 void Processor::ClearActiveDisassemblyAnalysis()
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	activeDisassemblyAnalysis->Initialize();
 }
 
@@ -2362,7 +2362,7 @@ bool Processor::ActiveDisassemblyEntrySeemsToBePartOfArray(ActiveDisassemblyAnal
 		unsigned int entryByteLocation = lastKnownEntryLocation + memoryBaseOffset;
 		for(std::list<DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyAddressInfo[entryByteLocation - analysis.minAddress].begin(); i != analysis.disassemblyAddressInfo[entryByteLocation - analysis.minAddress].end(); ++i)
 		{
-			if((*i)->entryType == DISASSEMBLYENTRYTYPE_CODE)
+			if((*i)->entryType == DisassemblyEntryType::Code)
 			{
 				foundOverlappingOpcode = true;
 			}
@@ -2714,7 +2714,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 		//If this predicted entry is an offset to code, insert a predicted code entry at
 		//the target address.
-		if(newEntry->entryType == DISASSEMBLYENTRYTYPE_OFFSETCODE)
+		if(newEntry->entryType == DisassemblyEntryType::OffsetCode)
 		{
 			//Read in the offset data
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
@@ -2835,7 +2835,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 				if((targetAddress >= analysis.minAddress) && ((targetAddress + opcodeInfo.GetOpcodeSize()) <= analysis.maxAddress))
 				{
 					DisassemblyAddressInfo* newCodeEntry = new DisassemblyAddressInfo();
-					newCodeEntry->entryType = DISASSEMBLYENTRYTYPE_CODE;
+					newCodeEntry->entryType = DisassemblyEntryType::Code;
 					newCodeEntry->baseMemoryAddress = targetAddress;
 					newCodeEntry->memoryBlockSize = opcodeInfo.GetOpcodeSize();
 					newCodeEntry->comment = L"Predicted (Offset array entry)";
@@ -3101,7 +3101,7 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 			if((entryLocation >= analysis.minAddress) && ((entryLocation + jumpTableInfo.entrySize) <= analysis.maxAddress))
 			{
 				DisassemblyAddressInfo* newCodeEntry = new DisassemblyAddressInfo();
-				newCodeEntry->entryType = DISASSEMBLYENTRYTYPE_CODE;
+				newCodeEntry->entryType = DisassemblyEntryType::Code;
 				newCodeEntry->baseMemoryAddress = entryLocation;
 				newCodeEntry->memoryBlockSize = jumpTableInfo.entrySize;
 				newCodeEntry->comment = L"Predicted (Jump Table Entry)";
@@ -3187,7 +3187,7 @@ void Processor::ActiveDisassemblyAddLabelForTarget(ActiveDisassemblyAnalysisData
 		//in which case, we want to fall back to a numeric reference.
 		if(locationOffset == 0)
 		{
-			GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Failed to generate usage label for label with name \"" + adjustedAddressLabel + L"\" when performing active disassembly!"));
+			GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to generate usage label for label with name \"" + adjustedAddressLabel + L"\" when performing active disassembly!"));
 		}
 		return;
 	}
@@ -3213,7 +3213,7 @@ bool Processor::ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dat
 {
 	//If the datatype and entry size for this array don't match the required parameters,
 	//reject this array as a character array.
-	if((dataType != DISASSEMBLYDATATYPE_INTEGER) || (dataElementByteSize != 1))
+	if((dataType != DisassemblyDataType::Integer) || (dataElementByteSize != 1))
 	{
 		return false;
 	}
@@ -3292,7 +3292,7 @@ bool Processor::ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dat
 //----------------------------------------------------------------------------------------
 bool Processor::ActiveDisassemblyDecodeIDADataString(unsigned int byteSize, DisassemblyDataType dataType, std::wstring& outputString)
 {
-	if(dataType == DISASSEMBLYDATATYPE_INTEGER)
+	if(dataType == DisassemblyDataType::Integer)
 	{
 		switch(byteSize)
 		{
@@ -3310,7 +3310,7 @@ bool Processor::ActiveDisassemblyDecodeIDADataString(unsigned int byteSize, Disa
 			return true;
 		}
 	}
-	else if(dataType == DISASSEMBLYDATATYPE_FLOAT)
+	else if(dataType == DisassemblyDataType::Float)
 	{
 		switch(byteSize)
 		{
@@ -3322,7 +3322,7 @@ bool Processor::ActiveDisassemblyDecodeIDADataString(unsigned int byteSize, Disa
 			return true;
 		}
 	}
-	else if(dataType == DISASSEMBLYDATATYPE_CHARACTER)
+	else if(dataType == DisassemblyDataType::Character)
 	{
 		switch(byteSize)
 		{
@@ -3397,11 +3397,11 @@ std::wstring Processor::ActiveDisassemblyGenerateTextLabelForDataType(Disassembl
 {
 	switch(dataType)
 	{
-	case DISASSEMBLYDATATYPE_INTEGER:
+	case DisassemblyDataType::Integer:
 		return L"Int";
-	case DISASSEMBLYDATATYPE_FLOAT:
+	case DisassemblyDataType::Float:
 		return L"Float";
-	case DISASSEMBLYDATATYPE_CHARACTER:
+	case DisassemblyDataType::Character:
 		return L"Char";
 	}
 	return L"Unknown";
@@ -3424,9 +3424,9 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 {
 	//Create the output file
 	Stream::File asmFile;
-	if(!asmFile.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	if(!asmFile.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
-		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Failed to create output file \"" + filePath + L"\"!"));
+		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to create output file \"" + filePath + L"\"!"));
 		return false;
 	}
 	Stream::ViewText asmFileView(asmFile);
@@ -3450,7 +3450,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		std::wstring formattedCommentLine;
 		if(!FormatCommentForDisassembly(*i, formattedCommentLine))
 		{
-			GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Format failed for comment \"" + *i + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
+			GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Format failed for comment \"" + *i + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 			return false;
 		}
 		asmFileView << formattedCommentLine << L'\n';
@@ -3461,7 +3461,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 	std::list<std::wstring> requiredLeadinglines;
 	if(!GetLeadingLinesForASMFile(analysis.minAddress, analysis.maxAddress, requiredLeadinglines))
 	{
-		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Failed to get leading lines when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
+		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to get leading lines when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 		return false;
 	}
 	if(!requiredLeadinglines.empty())
@@ -3480,7 +3480,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 	unsigned int dataElementByteSize = GetMinimumDataByteSize();
 	unsigned int currentDataArrayStartLocation = analysis.minAddress;
 	unsigned int currentDataArrayEndLocation = analysis.maxAddress;
-	DisassemblyDataType currentDataArrayDataType = DISASSEMBLYDATATYPE_INTEGER;
+	DisassemblyDataType currentDataArrayDataType = DisassemblyDataType::Integer;
 	while(location < analysis.maxAddress)
 	{
 		unsigned int nextLocation = location;
@@ -3500,7 +3500,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 				std::wstring labelString;
 				if(!FormatLabelPlacementForDisassembly(rawLabelString, labelString))
 				{
-					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Placement format failed for label \"" + rawLabelString + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
+					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Placement format failed for label \"" + rawLabelString + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 					return false;
 				}
 				lineLabel = labelString;
@@ -3527,7 +3527,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 			std::wstring opcodeComments;
 			if(!FormatOpcodeForDisassembly(codeEntry->baseMemoryAddress, analysis.labelSettings, opcodePrefix, opcodeArguments, opcodeComments))
 			{
-				LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR);
+				LogEntry logEntry(LogEntry::EventLevel::Error);
 				logEntry << L"Format failed for opcode with address \"0x" << std::hex << std::uppercase << codeEntry->baseMemoryAddress << L"\" when attempting to export active disassembly analysis to file with path \"" << filePath << L"\"!";
 				GetDeviceContext()->WriteLogEvent(logEntry);
 				return false;
@@ -3577,7 +3577,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 			std::wstring opcodeString;
 			if(!FormatOffsetForDisassembly(entryData, offsetEntry->relativeOffset, offsetEntry->relativeOffsetBaseAddress, analysis.labelSettings, opcodeStringPrefix, opcodeString))
 			{
-				LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR);
+				LogEntry logEntry(LogEntry::EventLevel::Error);
 				logEntry << L"Format failed for offset with address \"0x" << std::hex << std::uppercase << offsetEntry->baseMemoryAddress << L"\" when attempting to export active disassembly analysis to file with path \"" << filePath << L"\"!";
 				GetDeviceContext()->WriteLogEvent(logEntry);
 				return false;
@@ -3628,7 +3628,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 			dataEntryInArray.push_back(entryData);
 			if(!FormatDataForDisassembly(dataEntryInArray, entryData.GetByteSize(), dataEntry->dataType, analysis.labelSettings, dataStringPrefix, dataString))
 			{
-				LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR);
+				LogEntry logEntry(LogEntry::EventLevel::Error);
 				logEntry << L"Format failed for data with address \"0x" << std::hex << std::uppercase << entryData.GetData() << L"\" when attempting to export active disassembly analysis to file with path \"" << filePath << L"\"!";
 				GetDeviceContext()->WriteLogEvent(logEntry);
 				return false;
@@ -3700,7 +3700,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		else if(reachedEndOfArray)
 		{
 			currentDataArrayIsFormallyDefined = false;
-			currentDataArrayDataType = DISASSEMBLYDATATYPE_INTEGER;
+			currentDataArrayDataType = DisassemblyDataType::Integer;
 			dataElementByteSize = GetMinimumDataByteSize();
 			currentDataArrayEndLocation = analysis.maxAddress;
 		}
@@ -3720,7 +3720,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 				std::wstring formattedComment;
 				if(!FormatCommentForDisassembly(lineComment, formattedComment))
 				{
-					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Format failed for comment \"" + lineComment + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
+					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Format failed for comment \"" + lineComment + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 					return false;
 				}
 				asmFileView << L"\t" << formattedComment;
@@ -3766,7 +3766,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 	std::list<std::wstring> requiredTrailinglines;
 	if(!GetTrailingLinesForASMFile(analysis.minAddress, analysis.maxAddress, requiredTrailinglines))
 	{
-		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Failed to get trailing lines when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
+		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to get trailing lines when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 		return false;
 	}
 	if(!requiredTrailinglines.empty())
@@ -3791,7 +3791,7 @@ bool Processor::ActiveDisassemblyWriteDataArrayToASMFile(Stream::ViewText& asmFi
 	//that it could be a character array, change the data type to a character array.
 	if(activeDisassemblyDetectTextData && unknownData && ActiveDisassemblyArraySeemsToBeCharArray(dataType, dataElementByteSize, dataElements))
 	{
-		dataType = DISASSEMBLYDATATYPE_CHARACTER;
+		dataType = DisassemblyDataType::Character;
 	}
 
 	//Write all data elements in the array to the file
@@ -3814,7 +3814,7 @@ bool Processor::ActiveDisassemblyWriteDataArrayToASMFile(Stream::ViewText& asmFi
 		std::wstring dataString;
 		if(!FormatDataForDisassembly(dataElementsForLine, dataElementByteSize, dataType, labelSettings, dataStringPrefix, dataString))
 		{
-			LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR);
+			LogEntry logEntry(LogEntry::EventLevel::Error);
 			logEntry << L"Format failed for data with address \"0x" << std::hex << std::uppercase << dataElements.begin()->GetData() << L"\" when attempting to export active disassembly analysis to file with path \"" << filePath << L"\"!";
 			GetDeviceContext()->WriteLogEvent(logEntry);
 			return false;
@@ -3825,7 +3825,7 @@ bool Processor::ActiveDisassemblyWriteDataArrayToASMFile(Stream::ViewText& asmFi
 		std::wstring dataStringComment = ActiveDisassemblyGenerateCommentForDataArrayLine(arrayEntriesWritten, arrayStartLocation, arrayEndLocation, unknownData, GetPCCharWidth());
 		if(!FormatCommentForDisassembly(dataStringComment, formattedComment))
 		{
-			GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Format failed for comment \"" + dataStringComment + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
+			GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Format failed for comment \"" + dataStringComment + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 			return false;
 		}
 
@@ -3856,9 +3856,9 @@ bool Processor::ActiveDisassemblyExportAnalysisToTextFile(const ActiveDisassembl
 {
 	//Create the output file
 	Stream::File logFile;
-	if(!logFile.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	if(!logFile.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
-		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Failed to create output file \"" + filePath + L"\"!"));
+		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to create output file \"" + filePath + L"\"!"));
 		return false;
 	}
 
@@ -3930,9 +3930,9 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 {
 	//Create the output file
 	Stream::File idcFile;
-	if(!idcFile.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	if(!idcFile.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
-		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Failed to create output file \"" + filePath + L"\"!"));
+		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to create output file \"" + filePath + L"\"!"));
 		return false;
 	}
 
@@ -3972,7 +3972,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyOffsetSorted.begin(); i != analysis.disassemblyOffsetSorted.end(); ++i)
 	{
 		std::wstring dataString;
-		if(ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DISASSEMBLYDATATYPE_INTEGER, dataString))
+		if(ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DisassemblyDataType::Integer, dataString))
 		{
 			//Read in the next possible array entry
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
@@ -4027,7 +4027,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedOffsetEntries.begin(); i != analysis.predictedOffsetEntries.end(); ++i)
 	{
 		std::wstring dataString;
-		if(ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DISASSEMBLYDATATYPE_INTEGER, dataString))
+		if(ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DisassemblyDataType::Integer, dataString))
 		{
 			//Read in the next possible array entry
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
@@ -4187,7 +4187,7 @@ void Processor::SaveState(IHierarchicalStorageNode& node) const
 //----------------------------------------------------------------------------------------
 void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	bool activeDisassemblyDataLoaded = false;
 	bool activeDisassemblyStateChanged = false;
@@ -4309,7 +4309,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 
 			//Obtain and configure the data stream for the saved data
 			Stream::IStream& stream = (*i)->GetBinaryDataBufferStream();
-			stream.SetByteOrder(Stream::IStream::BYTEORDER_LITTLEENDIAN);
+			stream.SetByteOrder(Stream::IStream::ByteOrder::LittleEndian);
 			stream.SetStreamPos(0);
 
 			//Read the version number of the data format
@@ -4443,7 +4443,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	//Device enable
 	node.CreateChild(L"Register", GetDeviceContext()->DeviceEnabled()).CreateAttribute(L"name", L"DeviceEnabled");
@@ -4511,7 +4511,7 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 
 		//Obtain and configure the data stream for the saved data
 		Stream::IStream& stream = childNode.GetBinaryDataBufferStream();
-		stream.SetByteOrder(Stream::IStream::BYTEORDER_LITTLEENDIAN);
+		stream.SetByteOrder(Stream::IStream::ByteOrder::LittleEndian);
 
 		//Write the version number of the data format
 		stream.WriteData((unsigned int)1);
@@ -4521,10 +4521,10 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 		for(std::set<DisassemblyAddressInfo*>::const_iterator i = activeDisassemblyAddressInfoSet.begin(); i != activeDisassemblyAddressInfoSet.end(); ++i)
 		{
 			const DisassemblyAddressInfo* entry = *i;
-			stream.WriteData(entry->entryType);
+			stream.WriteData((unsigned int)entry->entryType);
 			stream.WriteData(entry->baseMemoryAddress);
 			stream.WriteData(entry->memoryBlockSize);
-			stream.WriteData(entry->dataType);
+			stream.WriteData((unsigned int)entry->dataType);
 			stream.WriteData(entry->conflictsWithKnownCode);
 			stream.WriteData(entry->relativeOffset);
 			stream.WriteData(entry->relativeOffsetBaseAddress);
@@ -4566,7 +4566,7 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 			stream.WriteData(entry.baseMemoryAddress);
 			stream.WriteData(entry.arrayEntrySize);
 			stream.WriteData(entry.arrayEntryCount);
-			stream.WriteData(entry.dataType);
+			stream.WriteData((unsigned int)entry.dataType);
 			stream.WriteData(entry.conflictsWithKnownCode);
 		}
 	}
@@ -4615,7 +4615,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
 	switch(dataID)
 	{
-	case IPROCESSORDATASOURCE_BREAKPOINT_NAME:{
+	case IProcessorDataSource::BreakpointName:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4624,7 +4624,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_ENABLE:{
+	case IProcessorDataSource::BreakpointEnable:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4633,7 +4633,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_LOG:{
+	case IProcessorDataSource::BreakpointLog:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4642,7 +4642,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_BREAK:{
+	case IProcessorDataSource::BreakpointBreak:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4651,7 +4651,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_NOTCONDITION:{
+	case IProcessorDataSource::BreakpointNotCondition:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4660,7 +4660,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_CONDITION:{
+	case IProcessorDataSource::BreakpointCondition:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4669,7 +4669,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_LOCATION1:{
+	case IProcessorDataSource::BreakpointLocation1:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4678,7 +4678,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_LOCATION2:{
+	case IProcessorDataSource::BreakpointLocation2:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4687,7 +4687,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_LOCATIONMASK:{
+	case IProcessorDataSource::BreakpointLocationMask:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4696,7 +4696,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_HITCOUNTER:{
+	case IProcessorDataSource::BreakpointHitCounter:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4705,7 +4705,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_ENABLEBREAKINTERVAL:{
+	case IProcessorDataSource::BreakpointEnableBreakInterval:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4714,7 +4714,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_BREAKINTERVAL:{
+	case IProcessorDataSource::BreakpointBreakInterval:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4734,8 +4734,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
 	switch(dataID)
 	{
-	case IPROCESSORDATASOURCE_BREAKPOINT_NAME:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_STRING) return false;
+	case IProcessorDataSource::BreakpointName:{
+		if(dataType != IGenericAccessDataValue::DataType::String) return false;
 		IGenericAccessDataValueString& dataValueAsString = (IGenericAccessDataValueString&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4746,8 +4746,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_ENABLE:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IProcessorDataSource::BreakpointEnable:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4758,8 +4758,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_LOG:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IProcessorDataSource::BreakpointLog:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4770,8 +4770,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_BREAK:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IProcessorDataSource::BreakpointBreak:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4782,8 +4782,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_NOTCONDITION:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IProcessorDataSource::BreakpointNotCondition:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4794,8 +4794,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_CONDITION:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IProcessorDataSource::BreakpointCondition:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4806,8 +4806,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_LOCATION1:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IProcessorDataSource::BreakpointLocation1:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4818,8 +4818,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_LOCATION2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IProcessorDataSource::BreakpointLocation2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4830,8 +4830,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_LOCATIONMASK:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IProcessorDataSource::BreakpointLocationMask:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4842,8 +4842,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_HITCOUNTER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IProcessorDataSource::BreakpointHitCounter:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4854,8 +4854,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_ENABLEBREAKINTERVAL:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IProcessorDataSource::BreakpointEnableBreakInterval:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4866,8 +4866,8 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORDATASOURCE_BREAKPOINT_BREAKINTERVAL:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IProcessorDataSource::BreakpointBreakInterval:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
@@ -4889,7 +4889,7 @@ bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext*
 {
 	switch(commandID)
 	{
-	case IPROCESSORCOMMAND_BREAKPOINT_RESETHITCOUNTER:{
+	case IProcessorCommand::BreakpointResetHitCounter:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
@@ -4899,14 +4899,14 @@ bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext*
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}
-	case IPROCESSORCOMMAND_BREAKPOINT_DELETE:{
+	case IProcessorCommand::BreakpointDelete:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		DeleteBreakpoint(breakpointDataContext.breakpoint);
 		return true;}
-	case IPROCESSORCOMMAND_BREAKPOINT_NEW:
+	case IProcessorCommand::BreakpointNew:
 		CreateBreakpoint();
 		return true;
-	case IPROCESSORCOMMAND_BREAKPOINT_ENABLEALL:{
+	case IProcessorCommand::BreakpointEnableAll:{
 		std::list<IBreakpoint*> cachedBreakpointList = GetBreakpointList();
 		for(std::list<IBreakpoint*>::const_iterator i = cachedBreakpointList.begin(); i != cachedBreakpointList.end(); ++i)
 		{
@@ -4918,7 +4918,7 @@ bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext*
 			}
 		}
 		return true;}
-	case IPROCESSORCOMMAND_BREAKPOINT_DISABLEALL:{
+	case IProcessorCommand::BreakpointDisableAll:{
 		std::list<IBreakpoint*> cachedBreakpointList = GetBreakpointList();
 		for(std::list<IBreakpoint*>::const_iterator i = cachedBreakpointList.begin(); i != cachedBreakpointList.end(); ++i)
 		{
@@ -4930,7 +4930,7 @@ bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext*
 			}
 		}
 		return true;}
-	case IPROCESSORCOMMAND_BREAKPOINT_DELETEALL:{
+	case IProcessorCommand::BreakpointDeleteAll:{
 		std::list<IBreakpoint*> cachedBreakpointList = GetBreakpointList();
 		for(std::list<IBreakpoint*>::const_iterator i = cachedBreakpointList.begin(); i != cachedBreakpointList.end(); ++i)
 		{

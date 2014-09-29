@@ -1,0 +1,229 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="315-5313Menus">
+      <UniqueIdentifier>{222fd8fd-5c81-45dd-bbe9-f719f436bcae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\VRAMView">
+      <UniqueIdentifier>{c28919e7-6896-423a-87c9-e6d3bb20d330}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\DebugMenuHandler">
+      <UniqueIdentifier>{49fcb80f-37de-41ed-8d83-dd8f2344f738}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\DebugSettingsView">
+      <UniqueIdentifier>{1d671f99-9902-40b2-9d02-54a1ba92a8d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\ImageView">
+      <UniqueIdentifier>{4ae880a5-db6d-49e5-aed6-74e94d26a92a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\LayerRemovalView">
+      <UniqueIdentifier>{4af49614-cf88-44b3-94b7-ca6dcfebf672}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\PaletteView">
+      <UniqueIdentifier>{a6cdbb70-9898-4e70-910b-bfab81426fb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\PlaneView">
+      <UniqueIdentifier>{5ef98eea-d45d-4a48-ab98-d741a876d7b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\PortMonitorDetailsView">
+      <UniqueIdentifier>{5bb0446e-fd10-4b38-a996-839d9017abca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\PortMonitorView">
+      <UniqueIdentifier>{56c43930-ea24-47c8-926b-be2c898eee60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\RegistersView">
+      <UniqueIdentifier>{a273f491-0213-484d-bfff-8349272b8252}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\SettingsMenuHandler">
+      <UniqueIdentifier>{99308a5e-bb8d-45ba-8d13-c80d7ee6fe79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\SettingsView">
+      <UniqueIdentifier>{534bc3c4-adfa-42e9-b4ec-088601c4f4df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\SpriteListDetailsView">
+      <UniqueIdentifier>{5bd2a0e5-6bff-4411-81de-7eddd5f2217d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="315-5313Menus\SpriteListView">
+      <UniqueIdentifier>{7f92a944-6558-4e3a-8522-5521e9831810}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{d7f79725-b9ce-4584-815d-aa3aeffb3056}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="S315_5313Menus.cpp">
+      <Filter>315-5313Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="VRAMView.cpp">
+      <Filter>315-5313Menus\VRAMView</Filter>
+    </ClCompile>
+    <ClCompile Include="VRAMViewPresenter.cpp">
+      <Filter>315-5313Menus\VRAMView</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMenuHandler.cpp">
+      <Filter>315-5313Menus\DebugMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugSettingsView.cpp">
+      <Filter>315-5313Menus\DebugSettingsView</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugSettingsViewPresenter.cpp">
+      <Filter>315-5313Menus\DebugSettingsView</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageView.cpp">
+      <Filter>315-5313Menus\ImageView</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageViewPresenter.cpp">
+      <Filter>315-5313Menus\ImageView</Filter>
+    </ClCompile>
+    <ClCompile Include="LayerRemovalView.cpp">
+      <Filter>315-5313Menus\LayerRemovalView</Filter>
+    </ClCompile>
+    <ClCompile Include="LayerRemovalViewPresenter.cpp">
+      <Filter>315-5313Menus\LayerRemovalView</Filter>
+    </ClCompile>
+    <ClCompile Include="PaletteView.cpp">
+      <Filter>315-5313Menus\PaletteView</Filter>
+    </ClCompile>
+    <ClCompile Include="PaletteViewPresenter.cpp">
+      <Filter>315-5313Menus\PaletteView</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaneView.cpp">
+      <Filter>315-5313Menus\PlaneView</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaneViewPresenter.cpp">
+      <Filter>315-5313Menus\PlaneView</Filter>
+    </ClCompile>
+    <ClCompile Include="PortMonitorDetailsView.cpp">
+      <Filter>315-5313Menus\PortMonitorDetailsView</Filter>
+    </ClCompile>
+    <ClCompile Include="PortMonitorDetailsViewPresenter.cpp">
+      <Filter>315-5313Menus\PortMonitorDetailsView</Filter>
+    </ClCompile>
+    <ClCompile Include="PortMonitorView.cpp">
+      <Filter>315-5313Menus\PortMonitorView</Filter>
+    </ClCompile>
+    <ClCompile Include="PortMonitorViewPresenter.cpp">
+      <Filter>315-5313Menus\PortMonitorView</Filter>
+    </ClCompile>
+    <ClCompile Include="RegistersView.cpp">
+      <Filter>315-5313Menus\RegistersView</Filter>
+    </ClCompile>
+    <ClCompile Include="RegistersViewPresenter.cpp">
+      <Filter>315-5313Menus\RegistersView</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsMenuHandler.cpp">
+      <Filter>315-5313Menus\SettingsMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsView.cpp">
+      <Filter>315-5313Menus\SettingsView</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsViewPresenter.cpp">
+      <Filter>315-5313Menus\SettingsView</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteListDetailsView.cpp">
+      <Filter>315-5313Menus\SpriteListDetailsView</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteListDetailsViewPresenter.cpp">
+      <Filter>315-5313Menus\SpriteListDetailsView</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteListView.cpp">
+      <Filter>315-5313Menus\SpriteListView</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteListViewPresenter.cpp">
+      <Filter>315-5313Menus\SpriteListView</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="S315_5313Menus.h">
+      <Filter>315-5313Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="VRAMView.h">
+      <Filter>315-5313Menus\VRAMView</Filter>
+    </ClInclude>
+    <ClInclude Include="VRAMViewPresenter.h">
+      <Filter>315-5313Menus\VRAMView</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMenuHandler.h">
+      <Filter>315-5313Menus\DebugMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugSettingsView.h">
+      <Filter>315-5313Menus\DebugSettingsView</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugSettingsViewPresenter.h">
+      <Filter>315-5313Menus\DebugSettingsView</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageView.h">
+      <Filter>315-5313Menus\ImageView</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageViewPresenter.h">
+      <Filter>315-5313Menus\ImageView</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerRemovalView.h">
+      <Filter>315-5313Menus\LayerRemovalView</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerRemovalViewPresenter.h">
+      <Filter>315-5313Menus\LayerRemovalView</Filter>
+    </ClInclude>
+    <ClInclude Include="PaletteView.h">
+      <Filter>315-5313Menus\PaletteView</Filter>
+    </ClInclude>
+    <ClInclude Include="PaletteViewPresenter.h">
+      <Filter>315-5313Menus\PaletteView</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneView.h">
+      <Filter>315-5313Menus\PlaneView</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneViewPresenter.h">
+      <Filter>315-5313Menus\PlaneView</Filter>
+    </ClInclude>
+    <ClInclude Include="PortMonitorDetailsView.h">
+      <Filter>315-5313Menus\PortMonitorDetailsView</Filter>
+    </ClInclude>
+    <ClInclude Include="PortMonitorDetailsViewPresenter.h">
+      <Filter>315-5313Menus\PortMonitorDetailsView</Filter>
+    </ClInclude>
+    <ClInclude Include="PortMonitorView.h">
+      <Filter>315-5313Menus\PortMonitorView</Filter>
+    </ClInclude>
+    <ClInclude Include="PortMonitorViewPresenter.h">
+      <Filter>315-5313Menus\PortMonitorView</Filter>
+    </ClInclude>
+    <ClInclude Include="RegistersView.h">
+      <Filter>315-5313Menus\RegistersView</Filter>
+    </ClInclude>
+    <ClInclude Include="RegistersViewPresenter.h">
+      <Filter>315-5313Menus\RegistersView</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsMenuHandler.h">
+      <Filter>315-5313Menus\SettingsMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsView.h">
+      <Filter>315-5313Menus\SettingsView</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsViewPresenter.h">
+      <Filter>315-5313Menus\SettingsView</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteListDetailsView.h">
+      <Filter>315-5313Menus\SpriteListDetailsView</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteListDetailsViewPresenter.h">
+      <Filter>315-5313Menus\SpriteListDetailsView</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteListView.h">
+      <Filter>315-5313Menus\SpriteListView</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteListViewPresenter.h">
+      <Filter>315-5313Menus\SpriteListView</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="315-5313Menus.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

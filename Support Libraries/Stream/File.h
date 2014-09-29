@@ -10,8 +10,8 @@ class File :public Stream<IStream>
 {
 public:
 	//Enumerations
-	enum OpenMode;
-	enum CreateMode;
+	enum class OpenMode;
+	enum class CreateMode;
 
 	//Make sure the File object is non-copyable
 	protected: File(const File& object) {} public:

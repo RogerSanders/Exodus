@@ -6,9 +6,9 @@ ObserverSubscription::ObserverSubscription()
 {}
 
 //----------------------------------------------------------------------------------------
-ObserverSubscription::ObserverSubscription(const boost::function<void()>& acallback)
+ObserverSubscription::ObserverSubscription(const std::function<void()>& acallback)
 {
-	callback = new boost::function<void()>(acallback);
+	callback = new std::function<void()>(acallback);
 }
 
 //----------------------------------------------------------------------------------------
@@ -21,10 +21,10 @@ ObserverSubscription::~ObserverSubscription()
 //----------------------------------------------------------------------------------------
 //Callback binding functions
 //----------------------------------------------------------------------------------------
-void ObserverSubscription::SetBoundCallback(const boost::function<void()>& acallback)
+void ObserverSubscription::SetBoundCallback(const std::function<void()>& acallback)
 {
 	delete callback;
-	callback = new boost::function<void()>(acallback);
+	callback = new std::function<void()>(acallback);
 }
 
 //----------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ void ObserverSubscription::Unsubscribe(IObserverCollection& targetCollection)
 //----------------------------------------------------------------------------------------
 void ObserverSubscription::UnsubscribeAll()
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	while(!linkedCollections.empty())
 	{
 		IObserverCollection& targetCollection = *(*linkedCollections.begin());
@@ -75,13 +75,13 @@ void ObserverSubscription::Notify() const
 //----------------------------------------------------------------------------------------
 void ObserverSubscription::NotifyLinkedToCollection(IObserverCollection& targetCollection)
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	linkedCollections.insert(&targetCollection);
 }
 
 //----------------------------------------------------------------------------------------
 void ObserverSubscription::NotifyUnlinkedFromCollection(IObserverCollection& targetCollection)
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	linkedCollections.erase(&targetCollection);
 }

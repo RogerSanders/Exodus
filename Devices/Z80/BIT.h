@@ -40,14 +40,14 @@ public:
 			//BIT b,(HL)		11001011 01bbb110
 			//BIT b,(IX+d)		11011101 11001011 dddddddd 01bbb110
 			//BIT b,(IY+d)		11111101 11001011 dddddddd 01bbb110
-			target.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
+			target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			AddExecuteCycleCount(8);
 
-			if(GetIndexState() != EffectiveAddress::INDEX_NONE)
+			if(GetIndexState() != EffectiveAddress::IndexState::None)
 			{
 				doubleOutput = true;
 				targetHL.SetIndexState(GetIndexState(), GetIndexOffset());
-				targetHL.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
+				targetHL.SetMode(EffectiveAddress::Mode::HLIndirect);
 				AddExecuteCycleCount(4);
 			}
 		}

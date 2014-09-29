@@ -40,14 +40,14 @@ public:
 			//RES b,(HL)		11001011 10bbb110
 			//RES b,(IX+d)		11011101 11001011 dddddddd 10bbb110
 			//RES b,(IY+d)		11111101 11001011 dddddddd 10bbb110
-			target.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
+			target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			AddExecuteCycleCount(7);
 
-			if(GetIndexState() != EffectiveAddress::INDEX_NONE)
+			if(GetIndexState() != EffectiveAddress::IndexState::None)
 			{
 				doubleOutput = true;
 				targetHL.SetIndexState(GetIndexState(), GetIndexOffset());
-				targetHL.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
+				targetHL.SetMode(EffectiveAddress::Mode::HLIndirect);
 				AddExecuteCycleCount(8);
 			}
 		}

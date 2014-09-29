@@ -119,7 +119,7 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 
 		//Create the zip file
 		Stream::File target;
-		if(!target.Open(minidumpZipFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+		if(!target.Open(minidumpZipFilePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
 			CloseHandle(fileHandle);
 			return false;

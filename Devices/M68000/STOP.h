@@ -55,7 +55,7 @@ public:
 		//##TODO## We had some code here to generate a privilege violation if the new
 		//value for SR didn't have the supervisor bit set. Do some more research, and see
 		//if we can find some supporting evidence for this behaviour.
-		cpu->SetProcessorState(M68000::STATE_STOPPED);
+		cpu->SetProcessorState(M68000::State::Stopped);
 
 		//Return the execution time
 		cpu->SetPC(location + GetInstructionSize());

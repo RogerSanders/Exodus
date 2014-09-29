@@ -1,0 +1,505 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug - Static|Win32">
+      <Configuration>Debug - Static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug - Static|x64">
+      <Configuration>Debug - Static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOInstrument|Win32">
+      <Configuration>Release - PGOInstrument</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOInstrument|x64">
+      <Configuration>Release - PGOInstrument</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOOptimize|Win32">
+      <Configuration>Release - PGOOptimize</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOOptimize|x64">
+      <Configuration>Release - PGOOptimize</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGORebuildOptimized|Win32">
+      <Configuration>Release - PGORebuildOptimized</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGORebuildOptimized|x64">
+      <Configuration>Release - PGORebuildOptimized</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOUpdate|Win32">
+      <Configuration>Release - PGOUpdate</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOUpdate|x64">
+      <Configuration>Release - PGOUpdate</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - Static|Win32">
+      <Configuration>Release - Static</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - Static|x64">
+      <Configuration>Release - Static</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6082AC4E-8B0E-4CB6-8FD1-7B20C39FE7FE}</ProjectGuid>
+    <RootNamespace>Exodus</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOUpdate|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>PGUpdate</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOOptimize|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>PGOptimize</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>PGInstrument</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Static|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Static|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOUpdate|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>PGUpdate</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOOptimize|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>PGOptimize</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>PGInstrument</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Static|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Static|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\PGORebuildOptimized.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx86.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx86.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOUpdate|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\PGOUpdate.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx86.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx86.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOOptimize|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\PGOOptimize.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx86.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx86.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\PGOInstrument.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx86.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx86.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - Static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\IntermediateDirectory.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx86.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx86.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeRelease.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Static|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\DebugOptimization.props" />
+    <Import Project="..\Build\PropertySheets\IntermediateDirectory.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx86.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx86.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeDebug.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\IntermediateDirectory.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx86.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx86.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\DebugOptimization.props" />
+    <Import Project="..\Build\PropertySheets\IntermediateDirectory.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx86.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx86.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeDebugDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\PGORebuildOptimized.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx64.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx64.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOUpdate|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\PGOUpdate.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx64.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx64.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOOptimize|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\PGOOptimize.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx64.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx64.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\PGOInstrument.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx64.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx64.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - Static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\IntermediateDirectory.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx64.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx64.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeRelease.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Static|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\DebugOptimization.props" />
+    <Import Project="..\Build\PropertySheets\IntermediateDirectory.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx64.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx64.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeDebug.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\ReleaseOptimization.props" />
+    <Import Project="..\Build\PropertySheets\IntermediateDirectory.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx64.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx64.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Build\PropertySheets\IncludeReference.props" />
+    <Import Project="..\Build\PropertySheets\CompileWarningLevel.props" />
+    <Import Project="..\Build\PropertySheets\SymbolGeneration.props" />
+    <Import Project="..\Build\PropertySheets\DebugOptimization.props" />
+    <Import Project="..\Build\PropertySheets\IntermediateDirectory.props" />
+    <Import Project="..\Build\PropertySheets\OutputDirectoryExodus.props" />
+    <Import Project="..\Build\PropertySheets\ThirdDirectoryPathsx64.props" />
+    <Import Project="..\Build\PropertySheets\ExodusManifestx64.props" />
+    <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
+    <Import Project="..\Build\PropertySheets\RuntimeDebugDLL.props" />
+    <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries\ExodusDeviceInterface\ExodusDeviceInterface.vcxproj">
+      <Project>{db781392-9752-4607-b90c-614fa1670d47}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Libraries\ExodusExtensionInterface\ExodusExtensionInterface.vcxproj">
+      <Project>{1a40c5a2-95ed-4a3f-be41-ad027d6e1c6c}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Support Libraries\HierarchicalStorage\HierarchicalStorage.vcxproj">
+      <Project>{ecc567b9-0dd5-4130-9685-cb9b5c6bd96e}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Support Libraries\Image\Image.vcxproj">
+      <Project>{7e84cdbb-e45f-4cce-8ae9-3a74deaa0881}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Support Libraries\ThreadLib\ThreadLib.vcxproj">
+      <Project>{2615b12b-ba5f-4c84-97ee-81761c51be03}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Support Libraries\WindowsControls\WindowsControls.vcxproj">
+      <Project>{952d92a9-1e79-420c-8a8a-c6f230e819b5}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Support Libraries\WindowsSupport\WindowsSupport.vcxproj">
+      <Project>{5ac3cb2c-0a1a-4e29-8a07-2bded302611b}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\Support Libraries\ZIP\ZIP.vcxproj">
+      <Project>{aa212d36-1347-47ab-b658-7ce6ba7fa425}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\System\System.vcxproj">
+      <Project>{ef94fca0-434c-4145-9ed7-e4dbeb168e16}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\folder.ico" />
+    <Image Include="Resources\program.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AboutView.cpp" />
+    <ClCompile Include="AboutViewPresenter.cpp" />
+    <ClCompile Include="DeviceInfo.cpp" />
+    <ClCompile Include="ExodusInterface.cpp" />
+    <ClCompile Include="ExtensionInfo.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuHandler.cpp" />
+    <ClCompile Include="MenuSegment.cpp" />
+    <ClCompile Include="MenuSelectableOption.cpp" />
+    <ClCompile Include="MenuSubmenu.cpp" />
+    <ClCompile Include="ModuleManagerView.cpp" />
+    <ClCompile Include="ModuleManagerViewPresenter.cpp" />
+    <ClCompile Include="SettingsView.cpp" />
+    <ClCompile Include="SettingsViewPresenter.cpp" />
+    <ClCompile Include="SystemInfo.cpp" />
+    <ClCompile Include="ViewManager.cpp" />
+    <ClCompile Include="ViewStateChangeNotifier.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AboutView.h" />
+    <ClInclude Include="AboutViewPresenter.h" />
+    <ClInclude Include="DeviceInfo.h" />
+    <ClInclude Include="ExodusInterface.h" />
+    <ClInclude Include="ExtensionInfo.h" />
+    <ClInclude Include="IViewManagerNotifierInterface.h" />
+    <ClInclude Include="MenuHandler.h" />
+    <ClInclude Include="MenuSegment.h" />
+    <ClInclude Include="MenuSelectableOption.h" />
+    <ClInclude Include="MenuSubmenu.h" />
+    <ClInclude Include="ModuleManagerView.h" />
+    <ClInclude Include="ModuleManagerViewPresenter.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SettingsView.h" />
+    <ClInclude Include="SettingsViewPresenter.h" />
+    <ClInclude Include="SystemInfo.h" />
+    <ClInclude Include="ViewManager.h" />
+    <ClInclude Include="ViewStateChangeNotifier.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DeviceInfo.inl" />
+    <None Include="ExodusInterface.inl" />
+    <None Include="ExtensionInfo.inl" />
+    <None Include="SystemInfo.inl" />
+    <None Include="ViewManager.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Exodus.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="manifest.xml" />
+    <Xml Include="manifestx64.xml" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
+  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets" />
+</Project>

@@ -23,7 +23,7 @@ unsigned int GenericAccessDataValueFilePath::GetIGenericAccessDataValueFilePathV
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueFilePath::DataType GenericAccessDataValueFilePath::GetType() const
 {
-	return DATATYPE_FILEPATH;
+	return DataType::FilePath;
 }
 
 //----------------------------------------------------------------------------------------

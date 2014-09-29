@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="IStream">
+      <UniqueIdentifier>{d575d2b2-a679-4851-b05d-60407f3068e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewBinary">
+      <UniqueIdentifier>{be180a29-79e8-4b55-9bba-414e87063b68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewText">
+      <UniqueIdentifier>{bc5d2cc5-9140-42b2-b444-0fa8c8db69e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IStreamNonSeekable">
+      <UniqueIdentifier>{b882e982-97ee-410e-83a6-56eef9c7c403}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ViewManipulators">
+      <UniqueIdentifier>{cfbd7e31-fad5-4b36-931c-abc4b177abc5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IStream.h">
+      <Filter>IStream</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewBinary.h">
+      <Filter>ViewBinary</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewText.h">
+      <Filter>ViewText</Filter>
+    </ClInclude>
+    <ClInclude Include="IStreamNonSeekable.h">
+      <Filter>IStreamNonSeekable</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewManipulatorByteOrder.h">
+      <Filter>ViewManipulators</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewManipulatorHex.h">
+      <Filter>ViewManipulators</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ViewBinary.inl">
+      <Filter>ViewBinary</Filter>
+    </None>
+    <None Include="ViewText.inl">
+      <Filter>ViewText</Filter>
+    </None>
+    <None Include="IStreamNonSeekable.inl">
+      <Filter>IStreamNonSeekable</Filter>
+    </None>
+    <None Include="ViewManipulatorByteOrder.inl">
+      <Filter>ViewManipulators</Filter>
+    </None>
+    <None Include="ViewManipulatorHex.inl">
+      <Filter>ViewManipulators</Filter>
+    </None>
+    <None Include="StreamInterface.pkg" />
+  </ItemGroup>
+</Project>

@@ -9,7 +9,7 @@ class IGenericAccessGroupEntry
 {
 public:
 	//Enumerations
-	enum GroupEntryType;
+	enum class GroupEntryType;
 
 public:
 	//Constructors

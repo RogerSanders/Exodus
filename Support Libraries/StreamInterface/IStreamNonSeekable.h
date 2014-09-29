@@ -8,9 +8,9 @@ class IStreamNonSeekable
 {
 public:
 	//Enumerations
-	enum ByteOrder;
-	enum TextEncoding;
-	enum NewLineEncoding;
+	enum class ByteOrder;
+	enum class TextEncoding;
+	enum class NewLineEncoding;
 
 	//Structures
 	struct UnicodeCodePoint;

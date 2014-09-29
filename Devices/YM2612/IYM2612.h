@@ -14,9 +14,9 @@ public:
 	static const unsigned int registerCountTotal = registerCountPerPart * partCount;
 
 	//Enumerations
-	enum IYM2612DataSource;
-	enum Channels;
-	enum Operators;
+	enum class IYM2612DataSource;
+	enum Channels :unsigned int;
+	enum Operators :unsigned int;
 
 	//Structures
 	struct RegisterDataContext;

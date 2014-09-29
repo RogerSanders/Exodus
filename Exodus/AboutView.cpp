@@ -10,7 +10,7 @@ AboutView::AboutView(IUIManager& auiManager, AboutViewPresenter& apresenter, Exo
 {
 	fontHandle = NULL;
 	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_ABOUT));
-	SetDialogViewType(DIALOGMODE_MODAL, false, INITIALDIALOGPOS_CENTER);
+	SetDialogViewType(DialogMode::Modal, false, DialogPos::Center);
 }
 
 //----------------------------------------------------------------------------------------
@@ -97,8 +97,8 @@ INT_PTR AboutView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Set the default font for the child controls
 	SendMessage(hwndDeviceList, WM_SETFONT, (WPARAM)fontHandle, (LPARAM)TRUE);
 	SendMessage(hwndExtensionList, WM_SETFONT, (WPARAM)fontHandle, (LPARAM)TRUE);
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_SETDATAAREAFONT, (WPARAM)fontHandle, (LPARAM)TRUE);
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_SETDATAAREAFONT, (WPARAM)fontHandle, (LPARAM)TRUE);
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)fontHandle, (LPARAM)TRUE);
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)fontHandle, (LPARAM)TRUE);
 
 	//Read all the device data to be shown in the grid control
 	std::list<ExodusInterface::RegisteredDeviceInfo> registeredDevices = model.GetRegisteredDevices();
@@ -125,18 +125,18 @@ INT_PTR AboutView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 
 	//Insert our columns into the device DataGrid control
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Name", 1));
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Assembly", 2));
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Copyright", 3));
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Class Name", 4));
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Version", 5));
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Comments", 6));
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 1, (LPARAM)&deviceColumnDataName);
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 2, (LPARAM)&deviceColumnDataAssembly);
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 3, (LPARAM)&deviceColumnDataCopyright);
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 4, (LPARAM)&deviceColumnDataClassName);
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 5, (LPARAM)&deviceColumnDataVersion);
-	SendMessage(hwndDeviceList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 6, (LPARAM)&deviceColumnDataComments);
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Name", 1));
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Assembly", 2));
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Copyright", 3));
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Class Name", 4));
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Version", 5));
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Comments", 6));
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 1, (LPARAM)&deviceColumnDataName);
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 2, (LPARAM)&deviceColumnDataAssembly);
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 3, (LPARAM)&deviceColumnDataCopyright);
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 4, (LPARAM)&deviceColumnDataClassName);
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 5, (LPARAM)&deviceColumnDataVersion);
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 6, (LPARAM)&deviceColumnDataComments);
 
 	//Read all the extension data to be shown in the grid control
 	std::list<ExodusInterface::RegisteredExtensionInfo> registeredExtensions = model.GetRegisteredExtensions();
@@ -163,22 +163,21 @@ INT_PTR AboutView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 
 	//Insert our columns into the device DataGrid control
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Name", 1));
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Assembly", 2));
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Copyright", 3));
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Class Name", 4));
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Version", 5));
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Comments", 6));
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 1, (LPARAM)&extensionColumnDataName);
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 2, (LPARAM)&extensionColumnDataAssembly);
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 3, (LPARAM)&extensionColumnDataCopyright);
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 4, (LPARAM)&extensionColumnDataClassName);
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 5, (LPARAM)&extensionColumnDataVersion);
-	SendMessage(hwndExtensionList, WC_DataGrid::GRID_UPDATECOLUMNTEXT, 6, (LPARAM)&extensionColumnDataComments);
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Name", 1));
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Assembly", 2));
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Copyright", 3));
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Class Name", 4));
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Version", 5));
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Comments", 6));
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 1, (LPARAM)&extensionColumnDataName);
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 2, (LPARAM)&extensionColumnDataAssembly);
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 3, (LPARAM)&extensionColumnDataCopyright);
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 4, (LPARAM)&extensionColumnDataClassName);
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 5, (LPARAM)&extensionColumnDataVersion);
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 6, (LPARAM)&extensionColumnDataComments);
 
 	//Build the list of third party libraries
 	std::list<std::wstring> thirdPartyLibraryList;
-	thirdPartyLibraryList.push_back(L"boost");
 	thirdPartyLibraryList.push_back(L"expat");
 	thirdPartyLibraryList.push_back(L"zlib");
 	thirdPartyLibraryList.push_back(L"libpng");

@@ -1,6 +1,7 @@
 #include "YM2612.h"
 #include "DataConversion/DataConversion.pkg"
-#include <boost/bind.hpp>
+#include <functional>
+#include <thread>
 //##DEBUG##
 //#include <iostream>
 
@@ -276,83 +277,83 @@ bool YM2612::BuildDevice()
 	std::wstring audioLogExtensionFilter = L"Wave file|wav";
 	std::wstring audioLogDefaultExtension = L"wav";
 	bool result = true;
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_RAWREGISTER, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TESTDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_LFOENABLED, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_LFODATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERADATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x3FF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERBDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CH3MODE, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERBRESET, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERARESET, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERBENABLE, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERAENABLE, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERBLOAD, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERALOAD, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_DACDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_DACENABLED, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_DETUNEDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_MULTIPLEDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x0F)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TOTALLEVELDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x7F)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_KEYSCALEDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_ATTACKRATEDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x1F)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_AMPLITUDEMODULATIONENABLED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_DECAYRATEDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x1F)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_SUSTAINRATEDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x1F)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_SUSTAINLEVELDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x0F)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_RELEASERATEDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x0F)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_SSGDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x0F)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_SSGENABLED, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_SSGATTACK, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_SSGALTERNATE, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_SSGHOLD, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_FREQUENCYDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x7FF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_BLOCKDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_FREQUENCYDATACHANNEL3, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x7FF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_BLOCKDATACHANNEL3, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_FEEDBACKDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_ALGORITHMDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_OUTPUTLEFT, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_OUTPUTRIGHT, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_AMSDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_PMSDATA, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_KEYSTATE, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_STATUSREGISTER, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_BUSYFLAG, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERBOVERFLOW, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERAOVERFLOW, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERACURRENTCOUNTER, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0x3FF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERBCURRENTCOUNTER, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_EXTERNALCLOCKRATE, IGenericAccessDataValue::DATATYPE_DOUBLE)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_FMCLOCKDIVIDER, IGenericAccessDataValue::DATATYPE_UINT)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_EGCLOCKDIVIDER, IGenericAccessDataValue::DATATYPE_UINT)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_OUTPUTCLOCKDIVIDER, IGenericAccessDataValue::DATATYPE_UINT)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERACLOCKDIVIDER, IGenericAccessDataValue::DATATYPE_UINT)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_TIMERBCLOCKDIVIDER, IGenericAccessDataValue::DATATYPE_UINT)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_AUDIOLOGGINGENABLED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_AUDIOLOGGINGPATH, IGenericAccessDataValue::DATATYPE_FILEPATH))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNELAUDIOLOGGINGENABLED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNELAUDIOLOGGINGPATH, IGenericAccessDataValue::DATATYPE_FILEPATH))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_OPERATORAUDIOLOGGINGENABLED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_OPERATORAUDIOLOGGINGPATH, IGenericAccessDataValue::DATATYPE_FILEPATH))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::RawRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TestData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::LFOEnabled, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::LFOData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerAData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x3FF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerBData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::CH3Mode, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerBReset, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerAReset, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerBEnable, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerAEnable, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerBLoad, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerALoad, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::DACData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::DACEnabled, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::DetuneData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::MultipleData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x0F)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TotalLevelData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x7F)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::KeyScaleData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::AttackRateData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x1F)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::AmplitudeModulationEnabled, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::DecayRateData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x1F)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::SustainRateData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x1F)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::SustainLevelData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x0F)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::ReleaseRateData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x0F)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::SSGData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x0F)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::SSGEnabled, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::SSGAttack, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::SSGAlternate, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::SSGHold, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::FrequencyData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x7FF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::BlockData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::FrequencyDataChannel3, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x7FF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::BlockDataChannel3, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::FeedbackData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::AlgorithmData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::OutputLeft, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::OutputRight, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::AMSData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x03)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::PMSData, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x07)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::KeyState, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::StatusRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::BusyFlag, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerBOverflow, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerAOverflow, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerACurrentCounter, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0x3FF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerBCurrentCounter, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::ExternalClockRate, IGenericAccessDataValue::DataType::Double)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::FMClockDivider, IGenericAccessDataValue::DataType::UInt)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::EGClockDivider, IGenericAccessDataValue::DataType::UInt)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::OutputClockDivider, IGenericAccessDataValue::DataType::UInt)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerAClockDivider, IGenericAccessDataValue::DataType::UInt)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::TimerBClockDivider, IGenericAccessDataValue::DataType::UInt)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::AudioLoggingEnabled, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::AudioLoggingPath, IGenericAccessDataValue::DataType::FilePath))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::ChannelAudioLoggingEnabled, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::ChannelAudioLoggingPath, IGenericAccessDataValue::DataType::FilePath))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::OperatorAudioLoggingEnabled, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::OperatorAudioLoggingPath, IGenericAccessDataValue::DataType::FilePath))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
 
 	//Register page layouts for generic access to this device
 	GenericAccessPage* audioLoggingPage = new GenericAccessPage(L"Generic - Audio Logging");
 	audioLoggingPage->AddEntry((new GenericAccessGroup(L"Combined Output"))
-	                    ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_AUDIOLOGGINGENABLED, L"Log Enabled"))
-	                    ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_AUDIOLOGGINGPATH, L"Log Path")));
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IYM2612DataSource::AudioLoggingEnabled, L"Log Enabled"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IYM2612DataSource::AudioLoggingPath, L"Log Path")));
 	GenericAccessGroup* channelGroup = new GenericAccessGroup(L"Channel Output");
 	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
 	{
 		std::wstring channelNoAsString;
 		IntToString(channelNo + 1, channelNoAsString);
-		channelGroup->AddEntry((new GenericAccessGroupDataEntry(DATASOURCE_CHANNELAUDIOLOGGINGENABLED, L"Channel " + channelNoAsString + L" Log Enabled"))->SetDataContext(new ChannelDataContext(channelNo)));
+		channelGroup->AddEntry((new GenericAccessGroupDataEntry(IYM2612DataSource::ChannelAudioLoggingEnabled, L"Channel " + channelNoAsString + L" Log Enabled"))->SetDataContext(new ChannelDataContext(channelNo)));
 	}
 	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
 	{
 		std::wstring channelNoAsString;
 		IntToString(channelNo + 1, channelNoAsString);
-		channelGroup->AddEntry((new GenericAccessGroupDataEntry(DATASOURCE_CHANNELAUDIOLOGGINGPATH, L"Channel " + channelNoAsString + L" Log Path"))->SetDataContext(new ChannelDataContext(channelNo)));
+		channelGroup->AddEntry((new GenericAccessGroupDataEntry(IYM2612DataSource::ChannelAudioLoggingPath, L"Channel " + channelNoAsString + L" Log Path"))->SetDataContext(new ChannelDataContext(channelNo)));
 	}
 	audioLoggingPage->AddEntry(channelGroup);
 	GenericAccessGroup* operatorGroup = new GenericAccessGroup(L"Operator Output");
@@ -365,13 +366,13 @@ bool YM2612::BuildDevice()
 		{
 			std::wstring operatorNoAsString;
 			IntToString(operatorNo + 1, operatorNoAsString);
-			channelGroupForOperators->AddEntry((new GenericAccessGroupDataEntry(DATASOURCE_OPERATORAUDIOLOGGINGENABLED, L"Operator " + operatorNoAsString + L" Log Enabled"))->SetDataContext(new OperatorDataContext(channelNo, operatorNo)));
+			channelGroupForOperators->AddEntry((new GenericAccessGroupDataEntry(IYM2612DataSource::OperatorAudioLoggingEnabled, L"Operator " + operatorNoAsString + L" Log Enabled"))->SetDataContext(new OperatorDataContext(channelNo, operatorNo)));
 		}
 		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
 		{
 			std::wstring operatorNoAsString;
 			IntToString(operatorNo + 1, operatorNoAsString);
-			channelGroupForOperators->AddEntry((new GenericAccessGroupDataEntry(DATASOURCE_OPERATORAUDIOLOGGINGPATH, L"Operator " + operatorNoAsString + L" Log Path"))->SetDataContext(new OperatorDataContext(channelNo, operatorNo)));
+			channelGroupForOperators->AddEntry((new GenericAccessGroupDataEntry(IYM2612DataSource::OperatorAudioLoggingPath, L"Operator " + operatorNoAsString + L" Log Path"))->SetDataContext(new OperatorDataContext(channelNo, operatorNo)));
 		}
 		operatorGroup->AddEntry(channelGroupForOperators);
 	}
@@ -467,7 +468,7 @@ void YM2612::Initialize()
 	}
 
 	//Fix any locked registers at their set value
-	boost::mutex::scoped_lock lock2(registerLockMutex);
+	std::unique_lock<std::mutex> lock2(registerLockMutex);
 	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.begin(); lockedRegisterStateIterator != lockedRegisterState.end(); ++lockedRegisterStateIterator)
 	{
 		for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
@@ -481,7 +482,7 @@ void YM2612::Initialize()
 void YM2612::Reset(double accessTime)
 {
 	//Initialize all our internal registers to 0
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	AccessTarget accessTarget;
 	if(reg.DoesLatestTimesliceExist())
 	{
@@ -508,7 +509,7 @@ void YM2612::Reset(double accessTime)
 	}
 
 	//Fix any locked registers at their set value
-	boost::mutex::scoped_lock lock2(registerLockMutex);
+	std::unique_lock<std::mutex> lock2(registerLockMutex);
 	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.begin(); lockedRegisterStateIterator != lockedRegisterState.end(); ++lockedRegisterStateIterator)
 	{
 		for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
@@ -555,11 +556,11 @@ unsigned int YM2612::GetLineID(const std::wstring& lineName) const
 {
 	if(lineName == L"IRQ")     //O
 	{
-		return LINE_IRQ;
+		return (unsigned int)LineID::IRQ;
 	}
 	else if(lineName == L"IC") //I
 	{
-		return LINE_IC;
+		return (unsigned int)LineID::IC;
 	}
 	return 0;
 }
@@ -567,11 +568,11 @@ unsigned int YM2612::GetLineID(const std::wstring& lineName) const
 //----------------------------------------------------------------------------------------
 std::wstring YM2612::GetLineName(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_IRQ:
+	case LineID::IRQ:
 		return L"IRQ";
-	case LINE_IC:
+	case LineID::IC:
 		return L"IC";
 	}
 	return L"";
@@ -580,11 +581,11 @@ std::wstring YM2612::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::GetLineWidth(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_IRQ:
+	case LineID::IRQ:
 		return 1;
-	case LINE_IC:
+	case LineID::IC:
 		return 1;
 	}
 	return 0;
@@ -593,12 +594,12 @@ unsigned int YM2612::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void YM2612::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//Process the line state change
-	switch(targetLine)
+	switch((LineID)targetLine)
 	{
-	case LINE_IC:{
+	case LineID::IC:{
 		bool icLineStateNew = lineData.LSB();
 		if(icLineStateNew != icLineState)
 		{
@@ -614,7 +615,7 @@ void YM2612::AssertCurrentOutputLineState() const
 {
 	if(memoryBus != 0)
 	{
-		if(irqLineState) memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(irqLineState) memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -623,7 +624,7 @@ void YM2612::NegateCurrentOutputLineState() const
 {
 	if(memoryBus != 0)
 	{
-		if(irqLineState) memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(irqLineState) memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -634,7 +635,7 @@ unsigned int YM2612::GetClockSourceID(const std::wstring& clockSourceName) const
 {
 	if(clockSourceName == L"0M")
 	{
-		return CLOCK_0M;
+		return (unsigned int)ClockID::C0M;
 	}
 	return 0;
 }
@@ -642,9 +643,9 @@ unsigned int YM2612::GetClockSourceID(const std::wstring& clockSourceName) const
 //----------------------------------------------------------------------------------------
 std::wstring YM2612::GetClockSourceName(unsigned int clockSourceID) const
 {
-	switch(clockSourceID)
+	switch((ClockID)clockSourceID)
 	{
-	case CLOCK_0M:
+	case ClockID::C0M:
 		return L"0M";
 	}
 	return L"";
@@ -654,7 +655,7 @@ std::wstring YM2612::GetClockSourceName(unsigned int clockSourceID) const
 void YM2612::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Apply the input clock rate change
-	if(clockInput == CLOCK_0M)
+	if((ClockID)clockInput == ClockID::C0M)
 	{
 		externalClockRate = clockRate;
 	}
@@ -668,7 +669,7 @@ void YM2612::SetClockSourceRate(unsigned int clockInput, double clockRate, IDevi
 void YM2612::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
 {
 	//Apply the input clock rate change
-	if(clockInput == CLOCK_0M)
+	if((ClockID)clockInput == ClockID::C0M)
 	{
 		externalClockRate = clockRate;
 	}
@@ -687,13 +688,14 @@ void YM2612::BeginExecution()
 
 	//Start the render worker thread
 	renderThreadActive = true;
-	boost::thread workerThread(boost::bind(boost::mem_fn(&YM2612::RenderThread), this));
+	std::thread workerThread(std::bind(std::mem_fn(&YM2612::RenderThread), this));
+	workerThread.detach();
 }
 
 //----------------------------------------------------------------------------------------
 void YM2612::SuspendExecution()
 {
-	boost::mutex::scoped_lock lock(renderThreadMutex);
+	std::unique_lock<std::mutex> lock(renderThreadMutex);
 
 	//Suspend the render worker thread
 	if(renderThreadActive)
@@ -707,7 +709,7 @@ void YM2612::SuspendExecution()
 //----------------------------------------------------------------------------------------
 YM2612::UpdateMethod YM2612::GetUpdateMethod() const
 {
-	return UPDATEMETHOD_TIMESLICE;
+	return UpdateMethod::Timeslice;
 }
 
 //----------------------------------------------------------------------------------------
@@ -726,7 +728,7 @@ void YM2612::NotifyUpcomingTimeslice(double nanoseconds)
 	//timeslice and reset the access time.
 	if(lastTimesliceLength > 0)
 	{
-		boost::mutex::scoped_lock lock(accessMutex);
+		std::unique_lock<std::mutex> lock(accessMutex);
 		UpdateTimers(lastTimesliceLength);
 	}
 	timersLastUpdateTime = 0;
@@ -752,7 +754,7 @@ void YM2612::ExecuteTimeslice(double nanoseconds)
 	//able to complete.
 	if(renderThreadLagging)
 	{
-		boost::mutex::scoped_lock lock(timesliceMutex);
+		std::unique_lock<std::mutex> lock(timesliceMutex);
 		while(renderThreadLagging)
 		{
 			renderThreadLaggingStateChange.wait(lock);
@@ -858,7 +860,7 @@ void YM2612::ExecuteCommit()
 	{
 		//Obtain a timeslice lock so we can update the data we feed to the render
 		//thread
-		boost::mutex::scoped_lock lock(timesliceMutex);
+		std::unique_lock<std::mutex> lock(timesliceMutex);
 
 		//Add the number of timeslices we are about to commit to the count of pending
 		//render operations. This is used to track if the render thread is lagging.
@@ -878,7 +880,7 @@ void YM2612::ExecuteCommit()
 //##TODO## Refactor this function to break it down into a set of smaller functions
 void YM2612::RenderThread()
 {
-	boost::mutex::scoped_lock lock(renderThreadMutex);
+	std::unique_lock<std::mutex> lock(renderThreadMutex);
 
 	//Start the render loop
 	bool done = false;
@@ -889,7 +891,7 @@ void YM2612::RenderThread()
 		RandomTimeAccessValue<bool, double>::Timeslice timerATimesliceCopy;
 		bool renderTimesliceObtained = false;
 		{
-			boost::mutex::scoped_lock timesliceLock(timesliceMutex);
+			std::unique_lock<std::mutex> timesliceLock(timesliceMutex);
 
 			//If there is at least one render timeslice pending, grab it from the queue.
 			if(!regTimesliceList.empty() && !timerATimesliceList.empty())
@@ -1131,7 +1133,7 @@ void YM2612::RenderThread()
 							//Write to the wav log
 							if(wavLoggingOperatorEnabled[channelNo][operatorNo])
 							{
-								boost::mutex::scoped_lock lock(waveLoggingMutex);
+								std::unique_lock<std::mutex> lock(waveLoggingMutex);
 								short outputSample;
 								float operatorOutputNormalized = (float)operatorOutput[channelNo][operatorNo] / ((1 << (operatorOutputBitCount - 1)) - 1);
 								//We halve the amplitude of the operator output just to
@@ -1270,7 +1272,7 @@ void YM2612::RenderThread()
 						//Write to the wave log
 						if(wavLoggingChannelEnabled[channelNo])
 						{
-							boost::mutex::scoped_lock lock(waveLoggingMutex);
+							std::unique_lock<std::mutex> lock(waveLoggingMutex);
 							short outputSampleLeft;
 							short outputSampleRight;
 							float channelOutputLeftNormalized = (float)channelOutput[channelNo][0] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
@@ -1331,7 +1333,7 @@ void YM2612::RenderThread()
 					//Write to the wave log
 					if(wavLoggingEnabled)
 					{
-						boost::mutex::scoped_lock lock(waveLoggingMutex);
+						std::unique_lock<std::mutex> lock(waveLoggingMutex);
 						Stream::ViewBinary wavlogStream(wavLog);
 						wavlogStream << outputSampleLeft;
 						wavlogStream << outputSampleRight;
@@ -1350,7 +1352,7 @@ void YM2612::RenderThread()
 					//	Write to the wave log
 					//	if(wavLoggingEnabled)
 					//	{
-					//		boost::mutex::scoped_lock lock(waveLoggingMutex);
+					//		std::unique_lock<std::mutex> lock(waveLoggingMutex);
 					//		wavLog.WriteData(outputSampleLeft);
 					//		wavLog.WriteData(outputSampleRight);
 					//	}
@@ -1383,7 +1385,7 @@ void YM2612::RenderThread()
 						bool op2KeyState = writeInfo.newValue.GetBit(5);
 						bool op1KeyState = writeInfo.newValue.GetBit(4);
 						bool validChannelSelected = true;
-						unsigned int channelNo;
+						Channels channelNo;
 						switch(writeInfo.newValue.GetDataSegment(0, 3))
 						{
 						case 0:  //000 - Channel 1
@@ -1483,7 +1485,7 @@ void YM2612::RenderThread()
 
 		//Advance past the timeslice we've just rendered from
 		{
-			boost::mutex::scoped_lock lock(timesliceMutex);
+			std::unique_lock<std::mutex> lock(timesliceMutex);
 			reg.AdvancePastTimeslice(regTimesliceCopy);
 			timerAOverflowTimes.AdvancePastTimeslice(timerATimesliceCopy);
 		}
@@ -2300,7 +2302,7 @@ int YM2612::CalculateOperator(unsigned int phase, int phaseModulation, unsigned 
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult YM2612::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 
 	//Trigger a system rollback if the device has been accessed out of order. This is
 	//required in order to ensure that the address register is correct when each write
@@ -2320,7 +2322,7 @@ IBusInterface::AccessResult YM2612::ReadInterface(unsigned int interfaceNumber, 
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult YM2612::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	AccessTarget accessTarget;
 	accessTarget.AccessTime(accessTime);
 
@@ -2358,7 +2360,7 @@ IBusInterface::AccessResult YM2612::WriteInterface(unsigned int interfaceNumber,
 			SetRegisterData(currentReg, data, accessTarget);
 
 			//Fix any locked registers at their set value
-			boost::mutex::scoped_lock lock2(registerLockMutex);
+			std::unique_lock<std::mutex> lock2(registerLockMutex);
 			for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.begin(); lockedRegisterStateIterator != lockedRegisterState.end(); ++lockedRegisterStateIterator)
 			{
 				for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
@@ -2485,7 +2487,7 @@ void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& da
 			if(memoryBus != 0)
 			{
 				irqLineState = false;
-				memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), (unsigned int)irqLineState), GetDeviceContext(), caller, accessTime, accessContext);
+				memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), (unsigned int)irqLineState), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 		break;
@@ -2664,7 +2666,7 @@ void YM2612::UpdateTimers(double timesliceProgress)
 					if(memoryBus != 0)
 					{
 						irqLineState = true;
-						memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), (unsigned int)irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
+						memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), (unsigned int)irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, (unsigned int)AccessContext::IRQ);
 					}
 				}
 				//Update the overflow flag
@@ -2703,7 +2705,7 @@ void YM2612::UpdateTimers(double timesliceProgress)
 					if(memoryBus != 0)
 					{
 						irqLineState = true;
-						memoryBus->SetLineState(LINE_IRQ, Data(GetLineWidth(LINE_IRQ), (unsigned int)irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, ACCESSCONTEXT_IRQ);
+						memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), (unsigned int)irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, (unsigned int)AccessContext::IRQ);
 					}
 				}
 				//Update the overflow flag
@@ -2894,7 +2896,7 @@ void YM2612::LoadState(IHierarchicalStorageNode& node)
 	}
 
 	//Fix any locked registers at their set value
-	boost::mutex::scoped_lock lock2(registerLockMutex);
+	std::unique_lock<std::mutex> lock2(registerLockMutex);
 	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.begin(); lockedRegisterStateIterator != lockedRegisterState.end(); ++lockedRegisterStateIterator)
 	{
 		for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
@@ -3006,7 +3008,7 @@ void YM2612::SaveState(IHierarchicalStorageNode& node) const
 void YM2612::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	//Initialize the register locking state
-	boost::mutex::scoped_lock lock2(registerLockMutex);
+	std::unique_lock<std::mutex> lock2(registerLockMutex);
 	lockedRegisterState.clear();
 	for(unsigned int i = 0; i < registerCountTotal; ++i)
 	{
@@ -3223,177 +3225,177 @@ bool YM2612::ReadGenericData(unsigned int dataID, const DataContext* dataContext
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
 	switch(dataID)
 	{
-	case DATASOURCE_RAWREGISTER:{
+	case IYM2612DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		Data registerData = GetRegisterData(registerDataContext.registerNo, AccessTarget().AccessLatest());
 		return dataValue.SetValue(registerData.GetData());}
-	case DATASOURCE_TESTDATA:
+	case IYM2612DataSource::TestData:
 		return dataValue.SetValue(GetTestData(AccessTarget().AccessLatest()));
-	case DATASOURCE_LFOENABLED:
+	case IYM2612DataSource::LFOEnabled:
 		return dataValue.SetValue(GetLFOEnabled(AccessTarget().AccessLatest()));
-	case DATASOURCE_LFODATA:
+	case IYM2612DataSource::LFOData:
 		return dataValue.SetValue(GetLFOData(AccessTarget().AccessLatest()));
-	case DATASOURCE_TIMERADATA:
+	case IYM2612DataSource::TimerAData:
 		return dataValue.SetValue(GetTimerAData(AccessTarget().AccessLatest()));
-	case DATASOURCE_TIMERBDATA:
+	case IYM2612DataSource::TimerBData:
 		return dataValue.SetValue(GetTimerBData(AccessTarget().AccessLatest()));
-	case DATASOURCE_CH3MODE:
+	case IYM2612DataSource::CH3Mode:
 		return dataValue.SetValue(GetCH3Mode(AccessTarget().AccessLatest()));
-	case DATASOURCE_TIMERBRESET:
+	case IYM2612DataSource::TimerBReset:
 		return dataValue.SetValue(GetTimerBReset(AccessTarget().AccessLatest()));
-	case DATASOURCE_TIMERARESET:
+	case IYM2612DataSource::TimerAReset:
 		return dataValue.SetValue(GetTimerAReset(AccessTarget().AccessLatest()));
-	case DATASOURCE_TIMERBENABLE:
+	case IYM2612DataSource::TimerBEnable:
 		return dataValue.SetValue(timerBEnable);
-	case DATASOURCE_TIMERAENABLE:
+	case IYM2612DataSource::TimerAEnable:
 		return dataValue.SetValue(timerAEnable);
-	case DATASOURCE_TIMERBLOAD:
+	case IYM2612DataSource::TimerBLoad:
 		return dataValue.SetValue(timerBLoad);
-	case DATASOURCE_TIMERALOAD:
+	case IYM2612DataSource::TimerALoad:
 		return dataValue.SetValue(timerALoad);
-	case DATASOURCE_DACDATA:
+	case IYM2612DataSource::DACData:
 		return dataValue.SetValue(GetDACData(AccessTarget().AccessLatest()));
-	case DATASOURCE_DACENABLED:
+	case IYM2612DataSource::DACEnabled:
 		return dataValue.SetValue(GetDACEnabled(AccessTarget().AccessLatest()));
-	case DATASOURCE_DETUNEDATA:{
+	case IYM2612DataSource::DetuneData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetDetuneData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_MULTIPLEDATA:{
+	case IYM2612DataSource::MultipleData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetMultipleData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_TOTALLEVELDATA:{
+	case IYM2612DataSource::TotalLevelData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetTotalLevelData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_KEYSCALEDATA:{
+	case IYM2612DataSource::KeyScaleData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetKeyScaleData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_ATTACKRATEDATA:{
+	case IYM2612DataSource::AttackRateData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetAttackRateData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_AMPLITUDEMODULATIONENABLED:{
+	case IYM2612DataSource::AmplitudeModulationEnabled:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetAmplitudeModulationEnabled(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_DECAYRATEDATA:{
+	case IYM2612DataSource::DecayRateData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetDecayRateData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_SUSTAINRATEDATA:{
+	case IYM2612DataSource::SustainRateData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSustainRateData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_SUSTAINLEVELDATA:{
+	case IYM2612DataSource::SustainLevelData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSustainLevelData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_RELEASERATEDATA:{
+	case IYM2612DataSource::ReleaseRateData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetReleaseRateData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_SSGDATA:{
+	case IYM2612DataSource::SSGData:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGData(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_SSGENABLED:{
+	case IYM2612DataSource::SSGEnabled:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGEnabled(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_SSGATTACK:{
+	case IYM2612DataSource::SSGAttack:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGAttack(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_SSGALTERNATE:{
+	case IYM2612DataSource::SSGAlternate:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGAlternate(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_SSGHOLD:{
+	case IYM2612DataSource::SSGHold:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGHold(operatorAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_FREQUENCYDATA:{
+	case IYM2612DataSource::FrequencyData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetFrequencyData(channelAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_BLOCKDATA:{
+	case IYM2612DataSource::BlockData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetBlockData(channelAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_FREQUENCYDATACHANNEL3:{
+	case IYM2612DataSource::FrequencyDataChannel3:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		return dataValue.SetValue(GetFrequencyDataChannel3(operatorDataContext.operatorNo, AccessTarget().AccessLatest()));}
-	case DATASOURCE_BLOCKDATACHANNEL3:{
+	case IYM2612DataSource::BlockDataChannel3:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		return dataValue.SetValue(GetBlockDataChannel3(operatorDataContext.operatorNo, AccessTarget().AccessLatest()));}
-	case DATASOURCE_FEEDBACKDATA:{
+	case IYM2612DataSource::FeedbackData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetFeedbackData(channelAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_ALGORITHMDATA:{
+	case IYM2612DataSource::AlgorithmData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetAlgorithmData(channelAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_OUTPUTLEFT:{
+	case IYM2612DataSource::OutputLeft:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetOutputLeft(channelAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_OUTPUTRIGHT:{
+	case IYM2612DataSource::OutputRight:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetOutputRight(channelAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_AMSDATA:{
+	case IYM2612DataSource::AMSData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetAMSData(channelAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_PMSDATA:{
+	case IYM2612DataSource::PMSData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetPMSData(channelAddressOffset, AccessTarget().AccessLatest()));}
-	case DATASOURCE_KEYSTATE:{
+	case IYM2612DataSource::KeyState:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		return dataValue.SetValue(operatorData[operatorDataContext.channelNo][operatorDataContext.operatorNo].keyon);}
-	case DATASOURCE_STATUSREGISTER:
+	case IYM2612DataSource::StatusRegister:
 		return dataValue.SetValue(status.GetData());
-	case DATASOURCE_BUSYFLAG:
+	case IYM2612DataSource::BusyFlag:
 		return dataValue.SetValue(GetBusyFlag());
-	case DATASOURCE_TIMERBOVERFLOW:
+	case IYM2612DataSource::TimerBOverflow:
 		return dataValue.SetValue(GetTimerBOverflow());
-	case DATASOURCE_TIMERAOVERFLOW:
+	case IYM2612DataSource::TimerAOverflow:
 		return dataValue.SetValue(GetTimerAOverflow());
-	case DATASOURCE_TIMERACURRENTCOUNTER:
+	case IYM2612DataSource::TimerACurrentCounter:
 		return dataValue.SetValue(timerACounter);
-	case DATASOURCE_TIMERBCURRENTCOUNTER:
+	case IYM2612DataSource::TimerBCurrentCounter:
 		return dataValue.SetValue(timerBCounter);
-	case DATASOURCE_EXTERNALCLOCKRATE:
+	case IYM2612DataSource::ExternalClockRate:
 		return dataValue.SetValue(externalClockRate);
-	case DATASOURCE_FMCLOCKDIVIDER:
+	case IYM2612DataSource::FMClockDivider:
 		return dataValue.SetValue(fmClockDivider);
-	case DATASOURCE_EGCLOCKDIVIDER:
+	case IYM2612DataSource::EGClockDivider:
 		return dataValue.SetValue(egClockDivider);
-	case DATASOURCE_OUTPUTCLOCKDIVIDER:
+	case IYM2612DataSource::OutputClockDivider:
 		return dataValue.SetValue(outputClockDivider);
-	case DATASOURCE_TIMERACLOCKDIVIDER:
+	case IYM2612DataSource::TimerAClockDivider:
 		return dataValue.SetValue(timerAClockDivider);
-	case DATASOURCE_TIMERBCLOCKDIVIDER:
+	case IYM2612DataSource::TimerBClockDivider:
 		return dataValue.SetValue(timerBClockDivider);
-	case DATASOURCE_AUDIOLOGGINGENABLED:
+	case IYM2612DataSource::AudioLoggingEnabled:
 		return dataValue.SetValue(wavLoggingEnabled);
-	case DATASOURCE_CHANNELAUDIOLOGGINGENABLED:{
+	case IYM2612DataSource::ChannelAudioLoggingEnabled:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		return dataValue.SetValue(wavLoggingChannelEnabled[channelDataContext.channelNo]);}
-	case DATASOURCE_OPERATORAUDIOLOGGINGENABLED:{
+	case IYM2612DataSource::OperatorAudioLoggingEnabled:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		return dataValue.SetValue(wavLoggingOperatorEnabled[operatorDataContext.channelNo][operatorDataContext.operatorNo]);}
-	case DATASOURCE_AUDIOLOGGINGPATH:
+	case IYM2612DataSource::AudioLoggingPath:
 		return dataValue.SetValue(wavLoggingPath);
-	case DATASOURCE_CHANNELAUDIOLOGGINGPATH:{
+	case IYM2612DataSource::ChannelAudioLoggingPath:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		return dataValue.SetValue(wavLoggingChannelPath[channelDataContext.channelNo]);}
-	case DATASOURCE_OPERATORAUDIOLOGGINGPATH:{
+	case IYM2612DataSource::OperatorAudioLoggingPath:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		return dataValue.SetValue(wavLoggingOperatorPath[operatorDataContext.channelNo][operatorDataContext.operatorNo]);}
 	}
@@ -3407,360 +3409,360 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
 	switch(dataID)
 	{
-	case DATASOURCE_RAWREGISTER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::RawRegister:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		Data registerData(8, dataValueAsUInt.GetValue());
-		boost::mutex::scoped_lock lock(accessMutex);
+		std::unique_lock<std::mutex> lock(accessMutex);
 		RegisterSpecialUpdateFunction(registerDataContext.registerNo, registerData, timersLastUpdateTime, GetDeviceContext(), 0);
 		SetRegisterData(registerDataContext.registerNo, registerData, AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_TESTDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::TestData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetTestData(dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_LFOENABLED:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::LFOEnabled:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetLFOEnabled(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_LFODATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::LFOData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetLFOData(dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_TIMERADATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::TimerAData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetTimerAData(dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		timerAInitialCounter = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_TIMERBDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::TimerBData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetTimerBData(dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		timerBInitialCounter = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_CH3MODE:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::CH3Mode:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetCH3Mode(dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_TIMERBRESET:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::TimerBReset:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerBReset(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_TIMERARESET:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::TimerAReset:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerAReset(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_TIMERBENABLE:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::TimerBEnable:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerBEnable(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		timerBEnable = dataValueAsBool.GetValue();
 		return true;}
-	case DATASOURCE_TIMERAENABLE:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::TimerAEnable:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerAEnable(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		timerAEnable = dataValueAsBool.GetValue();
 		return true;}
-	case DATASOURCE_TIMERBLOAD:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::TimerBLoad:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerBLoad(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		timerBLoad = dataValueAsBool.GetValue();
 		return true;}
-	case DATASOURCE_TIMERALOAD:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::TimerALoad:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerALoad(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		timerALoad = dataValueAsBool.GetValue();
 		return true;}
-	case DATASOURCE_DACDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::DACData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetDACData(dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_DACENABLED:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::DACEnabled:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetDACEnabled(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_DETUNEDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::DetuneData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetDetuneData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_MULTIPLEDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::MultipleData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetMultipleData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_TOTALLEVELDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::TotalLevelData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetTotalLevelData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_KEYSCALEDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::KeyScaleData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetKeyScaleData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_ATTACKRATEDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::AttackRateData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetAttackRateData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_AMPLITUDEMODULATIONENABLED:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::AmplitudeModulationEnabled:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetAmplitudeModulationEnabled(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_DECAYRATEDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::DecayRateData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetDecayRateData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_SUSTAINRATEDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::SustainRateData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSustainRateData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_SUSTAINLEVELDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::SustainLevelData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSustainLevelData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_RELEASERATEDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::ReleaseRateData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetReleaseRateData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_SSGDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::SSGData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_SSGENABLED:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::SSGEnabled:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGEnabled(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_SSGATTACK:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::SSGAttack:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGAttack(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_SSGALTERNATE:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::SSGAlternate:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGAlternate(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_SSGHOLD:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::SSGHold:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGHold(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_FREQUENCYDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::FrequencyData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(operatorDataContext.channelNo);
 		SetFrequencyData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_BLOCKDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::BlockData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(operatorDataContext.channelNo);
 		SetBlockData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_FREQUENCYDATACHANNEL3:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::FrequencyDataChannel3:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		SetFrequencyDataChannel3(operatorDataContext.operatorNo, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_BLOCKDATACHANNEL3:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::BlockDataChannel3:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		SetBlockDataChannel3(operatorDataContext.operatorNo, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_FEEDBACKDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::FeedbackData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetFeedbackData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_ALGORITHMDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::AlgorithmData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetAlgorithmData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_OUTPUTLEFT:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::OutputLeft:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetOutputLeft(channelAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_OUTPUTRIGHT:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::OutputRight:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetOutputRight(channelAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_AMSDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::AMSData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetAMSData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_PMSDATA:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::PMSData:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetPMSData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
-	case DATASOURCE_KEYSTATE:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::KeyState:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		operatorData[operatorDataContext.channelNo][operatorDataContext.operatorNo].keyon = dataValueAsBool.GetValue();
 		return true;}
-	case DATASOURCE_STATUSREGISTER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::StatusRegister:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		status = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_BUSYFLAG:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::BusyFlag:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetBusyFlag(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_TIMERBOVERFLOW:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::TimerBOverflow:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerBOverflow(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_TIMERAOVERFLOW:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::TimerAOverflow:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerAOverflow(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_TIMERACURRENTCOUNTER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::TimerACurrentCounter:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		timerACounter = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_TIMERBCURRENTCOUNTER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::TimerBCurrentCounter:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		timerBCounter = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_EXTERNALCLOCKRATE:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_DOUBLE) return false;
+	case IYM2612DataSource::ExternalClockRate:{
+		if(dataType != IGenericAccessDataValue::DataType::Double) return false;
 		IGenericAccessDataValueDouble& dataValueAsDouble = (IGenericAccessDataValueDouble&)dataValue;
 		externalClockRate = dataValueAsDouble.GetValue();
 		return true;}
-	case DATASOURCE_FMCLOCKDIVIDER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::FMClockDivider:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		fmClockDivider = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_EGCLOCKDIVIDER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::EGClockDivider:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		egClockDivider = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_OUTPUTCLOCKDIVIDER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::OutputClockDivider:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		outputClockDivider = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_TIMERACLOCKDIVIDER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::TimerAClockDivider:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		timerAClockDivider = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_TIMERBCLOCKDIVIDER:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IYM2612DataSource::TimerBClockDivider:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		timerBClockDivider = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_AUDIOLOGGINGENABLED:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::AudioLoggingEnabled:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetAudioLoggingEnabled(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_CHANNELAUDIOLOGGINGENABLED:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::ChannelAudioLoggingEnabled:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		SetChannelAudioLoggingEnabled(channelDataContext.channelNo, dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_OPERATORAUDIOLOGGINGENABLED:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IYM2612DataSource::OperatorAudioLoggingEnabled:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		SetOperatorAudioLoggingEnabled(operatorDataContext.channelNo, operatorDataContext.operatorNo, dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_AUDIOLOGGINGPATH:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_FILEPATH) return false;
+	case IYM2612DataSource::AudioLoggingPath:{
+		if(dataType != IGenericAccessDataValue::DataType::FilePath) return false;
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
 		wavLoggingPath = dataValueAsFilePath.GetValue();
 		return true;}
-	case DATASOURCE_CHANNELAUDIOLOGGINGPATH:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_FILEPATH) return false;
+	case IYM2612DataSource::ChannelAudioLoggingPath:{
+		if(dataType != IGenericAccessDataValue::DataType::FilePath) return false;
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		wavLoggingChannelPath[channelDataContext.channelNo] = dataValueAsFilePath.GetValue();
 		return true;}
-	case DATASOURCE_OPERATORAUDIOLOGGINGPATH:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_FILEPATH) return false;
+	case IYM2612DataSource::OperatorAudioLoggingPath:{
+		if(dataType != IGenericAccessDataValue::DataType::FilePath) return false;
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		wavLoggingOperatorPath[operatorDataContext.channelNo][operatorDataContext.operatorNo] = dataValueAsFilePath.GetValue();
@@ -3774,55 +3776,55 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 //----------------------------------------------------------------------------------------
 bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const
 {
-	boost::mutex::scoped_lock lock2(registerLockMutex);
+	std::unique_lock<std::mutex> lock2(registerLockMutex);
 	switch(dataID)
 	{
-	case DATASOURCE_RAWREGISTER:{
+	case IYM2612DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		return rawRegisterLocking[registerDataContext.registerNo];}
-	case DATASOURCE_KEYSTATE:{
+	case IYM2612DataSource::KeyState:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		return keyStateLocking[operatorDataContext.channelNo][operatorDataContext.operatorNo];}
-	case DATASOURCE_TESTDATA:
-	case DATASOURCE_LFOENABLED:
-	case DATASOURCE_LFODATA:
-	case DATASOURCE_CH3MODE:
-	case DATASOURCE_DACDATA:
-	case DATASOURCE_DACENABLED:
-	case DATASOURCE_TIMERBRESET:
-	case DATASOURCE_TIMERARESET:{
+	case IYM2612DataSource::TestData:
+	case IYM2612DataSource::LFOEnabled:
+	case IYM2612DataSource::LFOData:
+	case IYM2612DataSource::CH3Mode:
+	case IYM2612DataSource::DACData:
+	case IYM2612DataSource::DACEnabled:
+	case IYM2612DataSource::TimerBReset:
+	case IYM2612DataSource::TimerAReset:{
 		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.find(dataID);
 		if(lockedRegisterStateIterator != lockedRegisterState.end())
 		{
 			return true;
 		}
 		break;}
-	case DATASOURCE_TIMERBENABLE:
+	case IYM2612DataSource::TimerBEnable:
 		return timerBStateLocking.enable;
-	case DATASOURCE_TIMERAENABLE:
+	case IYM2612DataSource::TimerAEnable:
 		return timerAStateLocking.enable;
-	case DATASOURCE_TIMERBLOAD:
+	case IYM2612DataSource::TimerBLoad:
 		return timerBStateLocking.load;
-	case DATASOURCE_TIMERALOAD:
+	case IYM2612DataSource::TimerALoad:
 		return timerAStateLocking.load;
-	case DATASOURCE_TIMERBDATA:
+	case IYM2612DataSource::TimerBData:
 		return timerBStateLocking.rate;
-	case DATASOURCE_TIMERADATA:
+	case IYM2612DataSource::TimerAData:
 		return timerAStateLocking.rate;
-	case DATASOURCE_TIMERBCURRENTCOUNTER:
+	case IYM2612DataSource::TimerBCurrentCounter:
 		return timerBStateLocking.counter;
-	case DATASOURCE_TIMERACURRENTCOUNTER:
+	case IYM2612DataSource::TimerACurrentCounter:
 		return timerAStateLocking.counter;
-	case DATASOURCE_TIMERBOVERFLOW:
+	case IYM2612DataSource::TimerBOverflow:
 		return timerBStateLocking.overflow;
-	case DATASOURCE_TIMERAOVERFLOW:
+	case IYM2612DataSource::TimerAOverflow:
 		return timerAStateLocking.overflow;
-	case DATASOURCE_FEEDBACKDATA:
-	case DATASOURCE_ALGORITHMDATA:
-	case DATASOURCE_OUTPUTLEFT:
-	case DATASOURCE_OUTPUTRIGHT:
-	case DATASOURCE_AMSDATA:
-	case DATASOURCE_PMSDATA:{
+	case IYM2612DataSource::FeedbackData:
+	case IYM2612DataSource::AlgorithmData:
+	case IYM2612DataSource::OutputLeft:
+	case IYM2612DataSource::OutputRight:
+	case IYM2612DataSource::AMSData:
+	case IYM2612DataSource::PMSData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.find(dataID);
 		if(lockedRegisterStateIterator != lockedRegisterState.end())
@@ -3836,25 +3838,25 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 			}
 		}
 		break;}
-	case DATASOURCE_DETUNEDATA:
-	case DATASOURCE_MULTIPLEDATA:
-	case DATASOURCE_TOTALLEVELDATA:
-	case DATASOURCE_KEYSCALEDATA:
-	case DATASOURCE_ATTACKRATEDATA:
-	case DATASOURCE_AMPLITUDEMODULATIONENABLED:
-	case DATASOURCE_DECAYRATEDATA:
-	case DATASOURCE_SUSTAINRATEDATA:
-	case DATASOURCE_SUSTAINLEVELDATA:
-	case DATASOURCE_RELEASERATEDATA:
-	case DATASOURCE_SSGDATA:
-	case DATASOURCE_SSGENABLED:
-	case DATASOURCE_SSGATTACK:
-	case DATASOURCE_SSGALTERNATE:
-	case DATASOURCE_SSGHOLD:
-	case DATASOURCE_FREQUENCYDATA:
-	case DATASOURCE_BLOCKDATA:
-	case DATASOURCE_FREQUENCYDATACHANNEL3:
-	case DATASOURCE_BLOCKDATACHANNEL3:{
+	case IYM2612DataSource::DetuneData:
+	case IYM2612DataSource::MultipleData:
+	case IYM2612DataSource::TotalLevelData:
+	case IYM2612DataSource::KeyScaleData:
+	case IYM2612DataSource::AttackRateData:
+	case IYM2612DataSource::AmplitudeModulationEnabled:
+	case IYM2612DataSource::DecayRateData:
+	case IYM2612DataSource::SustainRateData:
+	case IYM2612DataSource::SustainLevelData:
+	case IYM2612DataSource::ReleaseRateData:
+	case IYM2612DataSource::SSGData:
+	case IYM2612DataSource::SSGEnabled:
+	case IYM2612DataSource::SSGAttack:
+	case IYM2612DataSource::SSGAlternate:
+	case IYM2612DataSource::SSGHold:
+	case IYM2612DataSource::FrequencyData:
+	case IYM2612DataSource::BlockData:
+	case IYM2612DataSource::FrequencyDataChannel3:
+	case IYM2612DataSource::BlockDataChannel3:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.find(dataID);
 		if(lockedRegisterStateIterator != lockedRegisterState.end())
@@ -3875,25 +3877,25 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 //----------------------------------------------------------------------------------------
 bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state)
 {
-	boost::mutex::scoped_lock lock2(registerLockMutex);
+	std::unique_lock<std::mutex> lock2(registerLockMutex);
 	switch(dataID)
 	{
-	case DATASOURCE_RAWREGISTER:{
+	case IYM2612DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		rawRegisterLocking[registerDataContext.registerNo] = state;
 		return true;}
-	case DATASOURCE_KEYSTATE:{
+	case IYM2612DataSource::KeyState:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		keyStateLocking[operatorDataContext.channelNo][operatorDataContext.operatorNo] = state;
 		return true;}
-	case DATASOURCE_TESTDATA:
-	case DATASOURCE_LFOENABLED:
-	case DATASOURCE_LFODATA:
-	case DATASOURCE_CH3MODE:
-	case DATASOURCE_TIMERBRESET:
-	case DATASOURCE_TIMERARESET:
-	case DATASOURCE_DACDATA:
-	case DATASOURCE_DACENABLED:{
+	case IYM2612DataSource::TestData:
+	case IYM2612DataSource::LFOEnabled:
+	case IYM2612DataSource::LFOData:
+	case IYM2612DataSource::CH3Mode:
+	case IYM2612DataSource::TimerBReset:
+	case IYM2612DataSource::TimerAReset:
+	case IYM2612DataSource::DACData:
+	case IYM2612DataSource::DACEnabled:{
 		if(!state)
 		{
 			lockedRegisterState.erase(dataID);
@@ -3908,42 +3910,42 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 			lockedRegisterState[dataID].push_back(RegisterLocking(dataID, lockedDataValue));
 		}
 		return true;}
-	case DATASOURCE_TIMERBENABLE:
+	case IYM2612DataSource::TimerBEnable:
 		timerBStateLocking.enable = state;
 		return true;
-	case DATASOURCE_TIMERAENABLE:
+	case IYM2612DataSource::TimerAEnable:
 		timerAStateLocking.enable = state;
 		return true;
-	case DATASOURCE_TIMERBLOAD:
+	case IYM2612DataSource::TimerBLoad:
 		timerBStateLocking.load = state;
 		return true;
-	case DATASOURCE_TIMERALOAD:
+	case IYM2612DataSource::TimerALoad:
 		timerAStateLocking.load = state;
 		return true;
-	case DATASOURCE_TIMERBDATA:
+	case IYM2612DataSource::TimerBData:
 		timerBStateLocking.rate = state;
 		return true;
-	case DATASOURCE_TIMERADATA:
+	case IYM2612DataSource::TimerAData:
 		timerAStateLocking.rate = state;
 		return true;
-	case DATASOURCE_TIMERBCURRENTCOUNTER:
+	case IYM2612DataSource::TimerBCurrentCounter:
 		timerBStateLocking.counter = state;
 		return true;
-	case DATASOURCE_TIMERACURRENTCOUNTER:
+	case IYM2612DataSource::TimerACurrentCounter:
 		timerAStateLocking.counter = state;
 		return true;
-	case DATASOURCE_TIMERBOVERFLOW:
+	case IYM2612DataSource::TimerBOverflow:
 		timerBStateLocking.overflow = state;
 		return true;
-	case DATASOURCE_TIMERAOVERFLOW:
+	case IYM2612DataSource::TimerAOverflow:
 		timerAStateLocking.overflow = state;
 		return true;
-	case DATASOURCE_FEEDBACKDATA:
-	case DATASOURCE_ALGORITHMDATA:
-	case DATASOURCE_OUTPUTLEFT:
-	case DATASOURCE_OUTPUTRIGHT:
-	case DATASOURCE_AMSDATA:
-	case DATASOURCE_PMSDATA:{
+	case IYM2612DataSource::FeedbackData:
+	case IYM2612DataSource::AlgorithmData:
+	case IYM2612DataSource::OutputLeft:
+	case IYM2612DataSource::OutputRight:
+	case IYM2612DataSource::AMSData:
+	case IYM2612DataSource::PMSData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
 		std::list<RegisterLocking>& lockedRegisterList = lockedRegisterState[dataID];
 		std::list<RegisterLocking>::iterator lockedRegisterListIterator = lockedRegisterList.begin();
@@ -3970,25 +3972,25 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 			lockedRegisterState[dataID].push_back(RegisterLocking(dataID, channelDataContext, lockedDataValue));
 		}
 		return true;}
-	case DATASOURCE_DETUNEDATA:
-	case DATASOURCE_MULTIPLEDATA:
-	case DATASOURCE_TOTALLEVELDATA:
-	case DATASOURCE_KEYSCALEDATA:
-	case DATASOURCE_ATTACKRATEDATA:
-	case DATASOURCE_AMPLITUDEMODULATIONENABLED:
-	case DATASOURCE_DECAYRATEDATA:
-	case DATASOURCE_SUSTAINRATEDATA:
-	case DATASOURCE_SUSTAINLEVELDATA:
-	case DATASOURCE_RELEASERATEDATA:
-	case DATASOURCE_SSGDATA:
-	case DATASOURCE_SSGENABLED:
-	case DATASOURCE_SSGATTACK:
-	case DATASOURCE_SSGALTERNATE:
-	case DATASOURCE_SSGHOLD:
-	case DATASOURCE_FREQUENCYDATA:
-	case DATASOURCE_BLOCKDATA:
-	case DATASOURCE_FREQUENCYDATACHANNEL3:
-	case DATASOURCE_BLOCKDATACHANNEL3:{
+	case IYM2612DataSource::DetuneData:
+	case IYM2612DataSource::MultipleData:
+	case IYM2612DataSource::TotalLevelData:
+	case IYM2612DataSource::KeyScaleData:
+	case IYM2612DataSource::AttackRateData:
+	case IYM2612DataSource::AmplitudeModulationEnabled:
+	case IYM2612DataSource::DecayRateData:
+	case IYM2612DataSource::SustainRateData:
+	case IYM2612DataSource::SustainLevelData:
+	case IYM2612DataSource::ReleaseRateData:
+	case IYM2612DataSource::SSGData:
+	case IYM2612DataSource::SSGEnabled:
+	case IYM2612DataSource::SSGAttack:
+	case IYM2612DataSource::SSGAlternate:
+	case IYM2612DataSource::SSGHold:
+	case IYM2612DataSource::FrequencyData:
+	case IYM2612DataSource::BlockData:
+	case IYM2612DataSource::FrequencyDataChannel3:
+	case IYM2612DataSource::BlockDataChannel3:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
 		std::list<RegisterLocking>& lockedRegisterList = lockedRegisterState[dataID];
 		std::list<RegisterLocking>::iterator lockedRegisterListIterator = lockedRegisterList.begin();
@@ -4050,7 +4052,7 @@ bool YM2612::ToggleLoggingEnabledState(Stream::WAVFile& wavFile, const std::wstr
 		if(newState)
 		{
 			wavFile.SetDataFormat(channelCount, bitsPerSample, samplesPerSec);
-			wavFile.Open(fileName, Stream::WAVFile::OPENMODE_WRITEONLY, Stream::WAVFile::CREATEMODE_CREATE);
+			wavFile.Open(fileName, Stream::WAVFile::OpenMode::WriteOnly, Stream::WAVFile::CreateMode::Create);
 		}
 		else
 		{

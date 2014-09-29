@@ -14,7 +14,7 @@ public:
 	static const unsigned int noiseRegisterBitCount = 3;
 
 	//Enumerations
-	enum ISN76489DataSource;
+	enum class ISN76489DataSource;
 
 public:
 	//Interface version functions

@@ -7,31 +7,31 @@ unsigned int S315_5313::GetLineID(const std::wstring& lineName) const
 {
 	if(lineName == L"IPL")        //O
 	{
-		return LINE_IPL;
+		return (unsigned int)LineID::IPL;
 	}
 	else if(lineName == L"INT")   //O
 	{
-		return LINE_INT;
+		return (unsigned int)LineID::INT;
 	}
 	else if(lineName == L"INTAK") //I
 	{
-		return LINE_INTAK;
+		return (unsigned int)LineID::INTAK;
 	}
 	else if(lineName == L"BR")    //O
 	{
-		return LINE_BR;
+		return (unsigned int)LineID::BR;
 	}
 	else if(lineName == L"BG")    //I
 	{
-		return LINE_BG;
+		return (unsigned int)LineID::BG;
 	}
 	else if(lineName == L"PAL")   //I
 	{
-		return LINE_PAL;
+		return (unsigned int)LineID::PAL;
 	}
 	else if(lineName == L"RESET") //I
 	{
-		return LINE_RESET;
+		return (unsigned int)LineID::Reset;
 	}
 	return 0;
 }
@@ -39,21 +39,21 @@ unsigned int S315_5313::GetLineID(const std::wstring& lineName) const
 //----------------------------------------------------------------------------------------
 std::wstring S315_5313::GetLineName(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_IPL:
+	case LineID::IPL:
 		return L"IPL";
-	case LINE_INT:
+	case LineID::INT:
 		return L"INT";
-	case LINE_INTAK:
+	case LineID::INTAK:
 		return L"INTAK";
-	case LINE_BR:
+	case LineID::BR:
 		return L"BR";
-	case LINE_BG:
+	case LineID::BG:
 		return L"BG";
-	case LINE_PAL:
+	case LineID::PAL:
 		return L"PAL";
-	case LINE_RESET:
+	case LineID::Reset:
 		return L"RESET";
 	}
 	return L"";
@@ -62,21 +62,21 @@ std::wstring S315_5313::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::GetLineWidth(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_IPL:
+	case LineID::IPL:
 		return 3;
-	case LINE_INT:
+	case LineID::INT:
 		return 1;
-	case LINE_INTAK:
+	case LineID::INTAK:
 		return 1;
-	case LINE_BR:
+	case LineID::BR:
 		return 1;
-	case LINE_BG:
+	case LineID::BG:
 		return 1;
-	case LINE_PAL:
+	case LineID::PAL:
 		return 1;
-	case LINE_RESET:
+	case LineID::Reset:
 		return 1;
 	}
 	return 0;
@@ -85,12 +85,12 @@ unsigned int S315_5313::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//Process the line state change
-	switch(targetLine)
+	switch((LineID)targetLine)
 	{
-	case LINE_INTAK:{
+	case LineID::INTAK:{
 		//##DEBUG##
 		//std::wcout << "SetLineState - VDP_LINE_INTAK:\t" << lineData.LSB() << '\n';
 
@@ -103,7 +103,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		//Note that we take a lock on accessMutex here, to synchronize INTAK
 		//acknowledgments with the memory interface for the VDP. These interfaces need to
 		//be synchronized in order to correctly predict changes to the IPL line state.
-		boost::mutex::scoped_lock lock(accessMutex);
+		std::unique_lock<std::mutex> lock(accessMutex);
 
 		//Convert the access time into a cycle count relative to MCLK, rounding up the
 		//result to the nearest MCLK cycle.
@@ -161,7 +161,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 				std::wcout << "VDP - INTAK IPL line state change: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << originalLineStateIPL << '\t' << newLineStateIPL << '\n';
 			}
 
-			memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), newLineStateIPL), GetDeviceContext(), caller, accessTime, accessContext);
+			memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), newLineStateIPL), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 
 		//Predict the time at which the next IPL line state change will occur, and
@@ -169,7 +169,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		UpdatePredictedLineStateChanges(caller, accessTime, accessContext);
 
 		break;}
-	case LINE_BG:{
+	case LineID::BG:{
 		//##DEBUG##
 		//		std::wcout << "SetLineState - VDP_LINE_BG:\t" << lineData.LSB() << '\n';
 
@@ -185,7 +185,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		//Obtain a lock on workerThreadMutex so we can safely work with DMA state data,
 		//and notify the DMA worker thread of the BG line state change, if this line state
 		//change is of interest to us.
-		boost::mutex::scoped_lock workerThreadLock(workerThreadMutex);
+		std::unique_lock<std::mutex> workerThreadLock(workerThreadMutex);
 		if(dmaTransferActive || busGranted)
 		{
 			busGranted = lineData.LSB();
@@ -219,13 +219,13 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 			workerThreadUpdate.notify_all();
 		}
 		break;}
-	case LINE_PAL:{
+	case LineID::PAL:{
 		//##DEBUG##
 		//std::wcout << "SetLineState - VDP_LINE_PAL:\t" << lineData.LSB() << '\n';
 
 		palModeLineState = lineData.LSB();
 		break;}
-	case LINE_RESET:{
+	case LineID::Reset:{
 		bool resetLineStateNew = lineData.LSB();
 		if(resetLineStateNew != resetLineState)
 		{
@@ -245,10 +245,10 @@ void S315_5313::TransparentSetLineState(unsigned int targetLine, const Data& lin
 //----------------------------------------------------------------------------------------
 bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	switch(targetLine)
+	switch((LineID)targetLine)
 	{
-	case LINE_BR:{
-		boost::mutex::scoped_lock workerLock(workerThreadMutex);
+	case LineID::BR:{
+		std::unique_lock<std::mutex> workerLock(workerThreadMutex);
 		bool targetLineState = lineData.GetBit(0);
 		bool busRequested = dmaTransferActive;
 		if(busRequested == targetLineState)
@@ -262,7 +262,7 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 			//If we've requested the bus, but the M68000 hasn't granted it yet, request
 			//the M68000 to advance until the bus is granted.
 			workerLock.unlock();
-			if(!memoryBus->AdvanceToLineState(LINE_BG, Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext))
+			if(!memoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext))
 			{
 				//##DEBUG##
 				std::wcout << "VDP failed to advance M68000 to BG line state 1 for target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
@@ -300,7 +300,7 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 			//If we've released our request on the bus, request the M68000 to advance
 			//until the bus is reclaimed.
 			workerLock.unlock();
-			if(!memoryBus->AdvanceToLineState(LINE_BG, Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext))
+			if(!memoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext))
 			{
 				//##DEBUG##
 				std::wcout << "VDP failed to advance M68000 to BG line state 0 for target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
@@ -322,7 +322,7 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 			std::wcout << "VDP couldn't advance to target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
 		}
 		break;}
-	case LINE_INT:
+	case LineID::INT:
 		//##TODO## We don't require this for the Mega Drive, but implement it anyway.
 		break;
 	}
@@ -338,41 +338,41 @@ void S315_5313::AssertCurrentOutputLineState() const
 	}
 
 	//Assert the current line output state for the output lines
-	if(busRequestLineState) memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(lineStateIPL != 0)   memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), lineStateIPL), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+	if(busRequestLineState) memoryBus->SetLineState((unsigned int)LineID::BR, Data(GetLineWidth((unsigned int)LineID::BR), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::BRAssert);
+	if(lineStateIPL != 0)   memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), lineStateIPL), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 
 	//Re-assert any pending IPL line state changes
 	if(lineStateChangePendingVINT)
 	{
-		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
-		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeVINTTime, ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), vintIPLLineState), lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeVINTTime, (unsigned int)AccessContext::INTLineChange);
 	}
 	if(lineStateChangePendingHINT)
 	{
-		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
-		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeHINTTime, ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), hintIPLLineState), lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeHINTTime, (unsigned int)AccessContext::INTLineChange);
 	}
 	if(lineStateChangePendingEXINT)
 	{
-		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
-		memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeEXINTTime, ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), exintIPLLineState), lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), exintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeEXINTTime, (unsigned int)AccessContext::INTLineChange);
 	}
 
 	//Re-assert any pending INT line state changes, and re-assert the INT line if it's
 	//currently asserted.
 	if(lineStateChangePendingINTAsserted)
 	{
-		memoryBus->RevokeSetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
-		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), lineStateChangeINTAssertedTime, ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), GetDeviceContext(), GetDeviceContext(), lineStateChangeINTAssertedTime, (unsigned int)AccessContext::INTLineChange);
 	}
 	else if(lineStateChangePendingINTNegated)
 	{
-		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
 	if(lineStateChangePendingINTNegated)
 	{
-		memoryBus->RevokeSetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
-		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), lineStateChangeINTNegatedTime, ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), GetDeviceContext(), GetDeviceContext(), lineStateChangeINTNegatedTime, (unsigned int)AccessContext::INTLineChange);
 	}
 }
 
@@ -385,36 +385,36 @@ void S315_5313::NegateCurrentOutputLineState() const
 	}
 
 	//Negate the current line output state for the output lines
-	if(busRequestLineState) memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(lineStateIPL != 0)   memoryBus->SetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+	if(busRequestLineState) memoryBus->SetLineState((unsigned int)LineID::BR, Data(GetLineWidth((unsigned int)LineID::BR), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::BRRelease);
+	if(lineStateIPL != 0)   memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 
 	//Revoke any pending IPL line state changes
 	if(lineStateChangePendingVINT)
 	{
-		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), vintIPLLineState), lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), vintIPLLineState), lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
 	if(lineStateChangePendingHINT)
 	{
-		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), hintIPLLineState), lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), hintIPLLineState), lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
 	if(lineStateChangePendingEXINT)
 	{
-		memoryBus->RevokeSetLineState(LINE_IPL, Data(GetLineWidth(LINE_IPL), exintIPLLineState), lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), exintIPLLineState), lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
 
 	//Revoke any pending INT line state changes, and negate the INT line if it's currently
 	//asserted.
 	if(lineStateChangePendingINTAsserted)
 	{
-		memoryBus->RevokeSetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 1), lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
 	else if(lineStateChangePendingINTNegated)
 	{
-		memoryBus->SetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
 	if(lineStateChangePendingINTNegated)
 	{
-		memoryBus->RevokeSetLineState(LINE_INT, Data(GetLineWidth(LINE_INT), 0), lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
 }
 
@@ -474,8 +474,8 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	unsigned int mclkTicksBeforeTriggerTimeINTNegated = advanceSessionINTNegated.mclkTicksAdvanced;
 
 	//Conditionally assert and negate the INT line
-	UpdateLineStateChangePrediction(LINE_INT, 1, lineStateChangePendingINTAsserted, lineStateChangeINTAssertedMClkCountFromCurrent, lineStateChangeINTAssertedTime, true, mclkTicksBeforeTriggerTimeINTAsserted, callingDevice, accessTime, accessContext);
-	UpdateLineStateChangePrediction(LINE_INT, 0, lineStateChangePendingINTNegated, lineStateChangeINTNegatedMClkCountFromCurrent, lineStateChangeINTNegatedTime, true, mclkTicksBeforeTriggerTimeINTNegated, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::INT, 1, lineStateChangePendingINTAsserted, lineStateChangeINTAssertedMClkCountFromCurrent, lineStateChangeINTAssertedTime, true, mclkTicksBeforeTriggerTimeINTAsserted, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::INT, 0, lineStateChangePendingINTNegated, lineStateChangeINTNegatedMClkCountFromCurrent, lineStateChangeINTNegatedTime, true, mclkTicksBeforeTriggerTimeINTNegated, callingDevice, accessTime, accessContext);
 
 	//Predict when the next vertical interrupt is going to occur
 	bool foundTriggerTimeVInt = false;
@@ -591,9 +591,9 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	//acknowledged. In this case, a higher priority interrupt may need to override that
 	//interrupt later on, so we may need to assert more than one pending line state change
 	//for the IPL lines.
-	UpdateLineStateChangePrediction(LINE_IPL, vintIPLLineState, lineStateChangePendingVINT, lineStateChangeVINTMClkCountFromCurrent, lineStateChangeVINTTime, foundTriggerTimeVInt, mclkTicksBeforeTriggerTimeVInt, callingDevice, accessTime, accessContext);
-	UpdateLineStateChangePrediction(LINE_IPL, hintIPLLineState, lineStateChangePendingHINT, lineStateChangeHINTMClkCountFromCurrent, lineStateChangeHINTTime, foundTriggerTimeHInt, mclkTicksBeforeTriggerTimeHInt, callingDevice, accessTime, accessContext);
-	UpdateLineStateChangePrediction(LINE_IPL, exintIPLLineState, lineStateChangePendingEXINT, lineStateChangeEXINTMClkCountFromCurrent, lineStateChangeEXINTTime, foundTriggerTimeEXInt, mclkTicksBeforeTriggerTimeEXInt, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::IPL, vintIPLLineState, lineStateChangePendingVINT, lineStateChangeVINTMClkCountFromCurrent, lineStateChangeVINTTime, foundTriggerTimeVInt, mclkTicksBeforeTriggerTimeVInt, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::IPL, hintIPLLineState, lineStateChangePendingHINT, lineStateChangeHINTMClkCountFromCurrent, lineStateChangeHINTTime, foundTriggerTimeHInt, mclkTicksBeforeTriggerTimeHInt, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::IPL, exintIPLLineState, lineStateChangePendingEXINT, lineStateChangeEXINTMClkCountFromCurrent, lineStateChangeEXINTTime, foundTriggerTimeEXInt, mclkTicksBeforeTriggerTimeEXInt, callingDevice, accessTime, accessContext);
 }
 
 //----------------------------------------------------------------------------------------
@@ -633,7 +633,7 @@ void S315_5313::UpdateLineStateChangePrediction(unsigned int lineNo, unsigned in
 		lineStateChangeMCLKCountdown = lineStateChangeMCLKCountdownNew;
 		unsigned int lineStateChangeInMclkCycleTime = GetProcessorStateMclkCurrent() + lineStateChangeMCLKCountdownNew;
 		lineStateChangeTime = ConvertMclkCountToAccessTime(lineStateChangeInMclkCycleTime);
-		memoryBus->SetLineState(lineNo, Data(GetLineWidth(lineNo), lineStateChangeData), GetDeviceContext(), GetDeviceContext(), lineStateChangeTime, ACCESSCONTEXT_INTLINECHANGE);
+		memoryBus->SetLineState(lineNo, Data(GetLineWidth(lineNo), lineStateChangeData), GetDeviceContext(), GetDeviceContext(), lineStateChangeTime, (unsigned int)AccessContext::INTLineChange);
 
 		//##DEBUG##
 		if(outputInterruptDebugMessages)
@@ -650,7 +650,7 @@ unsigned int S315_5313::GetClockSourceID(const std::wstring& clockSourceName) co
 {
 	if(clockSourceName == L"MCLK")
 	{
-		return CLOCK_MCLK;
+		return (unsigned int)ClockID::MCLK;
 	}
 	return 0;
 }
@@ -658,9 +658,9 @@ unsigned int S315_5313::GetClockSourceID(const std::wstring& clockSourceName) co
 //----------------------------------------------------------------------------------------
 std::wstring S315_5313::GetClockSourceName(unsigned int clockSourceID) const
 {
-	switch(clockSourceID)
+	switch((ClockID)clockSourceID)
 	{
-	case CLOCK_MCLK:
+	case ClockID::MCLK:
 		return L"MCLK";
 	}
 	return L"";
@@ -670,7 +670,7 @@ std::wstring S315_5313::GetClockSourceName(unsigned int clockSourceID) const
 void S315_5313::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Apply the input clock rate change
-	if(clockInput == CLOCK_MCLK)
+	if((ClockID)clockInput == ClockID::MCLK)
 	{
 		clockMclkCurrent = clockRate;
 	}
@@ -684,7 +684,7 @@ void S315_5313::SetClockSourceRate(unsigned int clockInput, double clockRate, ID
 void S315_5313::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
 {
 	//Apply the input clock rate change
-	if(clockInput == CLOCK_MCLK)
+	if((ClockID)clockInput == ClockID::MCLK)
 	{
 		clockMclkCurrent = clockRate;
 	}
@@ -697,47 +697,47 @@ unsigned int S315_5313::GetCELineID(const std::wstring& lineName, bool inputLine
 {
 	if(lineName == L"LDS")
 	{
-		return CELINE_LDS;
+		return (unsigned int)CELineID::LDS;
 	}
 	else if(lineName == L"UDS")
 	{
-		return CELINE_UDS;
+		return (unsigned int)CELineID::UDS;
 	}
 	else if(lineName == L"R/W")
 	{
-		return CELINE_RW;
+		return (unsigned int)CELineID::RW;
 	}
 	else if(lineName == L"AS")
 	{
-		return CELINE_AS;
+		return (unsigned int)CELineID::AS;
 	}
 	else if(lineName == L"RMWCycleInProgress")
 	{
-		return CELINE_RMWCYCLEINPROGRESS;
+		return (unsigned int)CELineID::RMWCycleInProgress;
 	}
 	else if(lineName == L"RMWCycleFirstOperation")
 	{
-		return CELINE_RMWCYCLEFIRSTOPERATION;
+		return (unsigned int)CELineID::RMWCycleFirstOperation;
 	}
 	else if(lineName == L"LWR")
 	{
-		return CELINE_LWR;
+		return (unsigned int)CELineID::LWR;
 	}
 	else if(lineName == L"UWR")
 	{
-		return CELINE_UWR;
+		return (unsigned int)CELineID::UWR;
 	}
 	else if(lineName == L"CAS0")
 	{
-		return CELINE_CAS0;
+		return (unsigned int)CELineID::CAS0;
 	}
 	else if(lineName == L"RAS0")
 	{
-		return CELINE_RAS0;
+		return (unsigned int)CELineID::RAS0;
 	}
 	else if(lineName == L"OE0")
 	{
-		return CELINE_OE0;
+		return (unsigned int)CELineID::OE0;
 	}
 	return 0;
 }
@@ -745,24 +745,24 @@ unsigned int S315_5313::GetCELineID(const std::wstring& lineName, bool inputLine
 //----------------------------------------------------------------------------------------
 void S315_5313::SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber)
 {
-	switch(lineID)
+	switch((CELineID)lineID)
 	{
-	case CELINE_LDS:
+	case CELineID::LDS:
 		ceLineMaskLowerDataStrobeInput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_UDS:
+	case CELineID::UDS:
 		ceLineMaskUpperDataStrobeInput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_RW:
+	case CELineID::RW:
 		ceLineMaskReadHighWriteLowInput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_AS:
+	case CELineID::AS:
 		ceLineMaskAddressStrobeInput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_RMWCYCLEINPROGRESS:
+	case CELineID::RMWCycleInProgress:
 		ceLineMaskRMWCycleInProgress = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_RMWCYCLEFIRSTOPERATION:
+	case CELineID::RMWCycleFirstOperation:
 		ceLineMaskRMWCycleFirstOperation = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	}
@@ -771,33 +771,33 @@ void S315_5313::SetCELineInput(unsigned int lineID, bool lineMapped, unsigned in
 //----------------------------------------------------------------------------------------
 void S315_5313::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber)
 {
-	switch(lineID)
+	switch((CELineID)lineID)
 	{
-	case CELINE_LDS:
+	case CELineID::LDS:
 		ceLineMaskLowerDataStrobeOutput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_UDS:
+	case CELineID::UDS:
 		ceLineMaskUpperDataStrobeOutput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_RW:
+	case CELineID::RW:
 		ceLineMaskReadHighWriteLowOutput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_AS:
+	case CELineID::AS:
 		ceLineMaskAddressStrobeOutput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_LWR:
+	case CELineID::LWR:
 		ceLineMaskLWR = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_UWR:
+	case CELineID::UWR:
 		ceLineMaskUWR = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_CAS0:
+	case CELineID::CAS0:
 		ceLineMaskCAS0 = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_RAS0:
+	case CELineID::RAS0:
 		ceLineMaskRAS0 = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_OE0:
+	case CELineID::OE0:
 		ceLineMaskOE0 = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	}
@@ -942,7 +942,7 @@ unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource
 IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	IBusInterface::AccessResult accessResult(true);
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 
 	//Convert the access time into a cycle count relative to MCLK, rounding up the result
 	//to the nearest MCLK cycle.
@@ -1151,7 +1151,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	IBusInterface::AccessResult accessResult(true);
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 
 	//Convert the access time into a cycle count relative to MCLK, rounding up the result
 	//to the nearest MCLK cycle.
@@ -1464,7 +1464,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 					SetRegisterData(registerNo, accessTarget, registerData);
 
 					//Fix any locked registers at their set value
-					boost::mutex::scoped_lock lock2(registerLockMutex);
+					std::unique_lock<std::mutex> lock2(registerLockMutex);
 					for(std::map<unsigned int, std::wstring>::const_iterator i = lockedRegisterState.begin(); i != lockedRegisterState.end(); ++i)
 					{
 						WriteGenericData(i->first, 0, i->second);
@@ -1490,7 +1490,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				assertBRLine = true;
 
 				//Set the initial DMA transfer register settings
-				boost::mutex::scoped_lock lock(workerThreadMutex);
+				std::unique_lock<std::mutex> lock(workerThreadMutex);
 				dmaTransferActive = true;
 				dmaTransferReadDataCached = false;
 				//Note that we technically don't need to set these here, as they are only
@@ -1548,7 +1548,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 			//the BR line, so that the M68000 never grants the bus, and see how the VDP
 			//responds if we continue to access it.
 			busRequestLineState = true;
-			memoryBus->SetLineState(LINE_BR, Data(GetLineWidth(LINE_BR), (unsigned int)busRequestLineState), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime, ACCESSCONTEXT_BR_ASSERT);
+			memoryBus->SetLineState((unsigned int)LineID::BR, Data(GetLineWidth((unsigned int)LineID::BR), (unsigned int)busRequestLineState), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime, (unsigned int)AccessContext::BRAssert);
 		}
 		break;}
 	case 2: //01* - HV Counter
@@ -1899,7 +1899,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 //----------------------------------------------------------------------------------------
 void S315_5313::RecordPortMonitorEntry(const PortMonitorEntry& entry)
 {
-	boost::mutex::scoped_lock lock(portMonitorMutex);
+	std::unique_lock<std::mutex> lock(portMonitorMutex);
 	portMonitorList.push_front(entry);
 	while(portMonitorList.size() > portMonitorListSize)
 	{
@@ -1910,6 +1910,6 @@ void S315_5313::RecordPortMonitorEntry(const PortMonitorEntry& entry)
 //----------------------------------------------------------------------------------------
 void S315_5313::ClearPortMonitorList()
 {
-	boost::mutex::scoped_lock lock(portMonitorMutex);
+	std::unique_lock<std::mutex> lock(portMonitorMutex);
 	portMonitorList.clear();
 }

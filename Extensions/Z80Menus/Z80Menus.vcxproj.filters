@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Z80Menus">
+      <UniqueIdentifier>{d32aee32-c42b-4256-b21b-5c1208e2fd93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Z80Menus\DebugMenuHandler">
+      <UniqueIdentifier>{c9a8f7a7-fcd7-4d2b-8e8b-2da43a3c2aa6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Z80Menus\RegistersView">
+      <UniqueIdentifier>{e8496867-7264-4b44-8eb2-d8a4c75373cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{d26e557a-f5f1-4ee8-b37c-3685ac133571}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Z80Menus.cpp">
+      <Filter>Z80Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMenuHandler.cpp">
+      <Filter>Z80Menus\DebugMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="RegistersView.cpp">
+      <Filter>Z80Menus\RegistersView</Filter>
+    </ClCompile>
+    <ClCompile Include="RegistersViewPresenter.cpp">
+      <Filter>Z80Menus\RegistersView</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Z80Menus.h">
+      <Filter>Z80Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMenuHandler.h">
+      <Filter>Z80Menus\DebugMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="RegistersView.h">
+      <Filter>Z80Menus\RegistersView</Filter>
+    </ClInclude>
+    <ClInclude Include="RegistersViewPresenter.h">
+      <Filter>Z80Menus\RegistersView</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Z80Menus.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -81,13 +81,13 @@ void ExodusSystemMenus::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& 
 {
 	switch(systemMenu)
 	{
-	case IExtension::SYSTEMMENU_DEBUG:
+	case IExtension::SystemMenu::Debug:
 		debugMenuHandler->AddMenuItems(menuSegment);
 		break;
-	case IExtension::SYSTEMMENU_SETTINGS:
+	case IExtension::SystemMenu::Settings:
 		settingsMenuHandler->AddMenuItems(menuSegment);
 		break;
-	case IExtension::SYSTEMMENU_SYSTEM:
+	case IExtension::SystemMenu::System:
 		systemMenuHandler->AddMenuItems(menuSegment);
 		break;
 	}
@@ -96,7 +96,7 @@ void ExodusSystemMenus::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& 
 //----------------------------------------------------------------------------------------
 void ExodusSystemMenus::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& menuSegment, unsigned int moduleID)
 {
-	if(moduleMenu == IExtension::MODULEMENU_SETTINGS)
+	if(moduleMenu == IExtension::ModuleMenu::Settings)
 	{
 		ModuleOptionMenuHandler& menuHandler = *moduleOptionMenuHandlers[moduleID];
 		menuHandler.AddMenuItems(menuSegment);

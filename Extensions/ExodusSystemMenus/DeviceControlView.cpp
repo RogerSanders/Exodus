@@ -82,7 +82,7 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		for(std::list<IDevice*>::const_iterator i = deviceList.begin(); i != deviceList.end(); ++i)
 		{
 			IDevice* device = *i;
-			if(device->GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+			if(device->GetUpdateMethod() == IDevice::UpdateMethod::Step)
 			{
 				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_ADDSTRING, 0, (LPARAM)device->GetDeviceInstanceName().c_str());
 				SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)device);

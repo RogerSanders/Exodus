@@ -32,7 +32,7 @@ bool MegaDriveROMLoader::RegisterSystemMenuHandler()
 //----------------------------------------------------------------------------------------
 void MegaDriveROMLoader::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& menuSegment)
 {
-	if(systemMenu == SYSTEMMENU_FILE)
+	if(systemMenu == SystemMenu::File)
 	{
 		IMenuSegment& isolatedMenuSegment = menuSegment.AddMenuItemSegment();
 		menuHandler->AddMenuItems(isolatedMenuSegment);
@@ -330,8 +330,8 @@ bool MegaDriveROMLoader::SaveOutputROMModule(IHierarchicalStorageTree& tree, con
 	}
 
 	//Create the output module file
-	Stream::File moduleFile(Stream::IStream::TEXTENCODING_UTF8);
-	if(!moduleFile.Open(filePath, Stream::File::OPENMODE_WRITEONLY, Stream::File::CREATEMODE_CREATE))
+	Stream::File moduleFile(Stream::IStream::TextEncoding::UTF8);
+	if(!moduleFile.Open(filePath, Stream::File::OpenMode::WriteOnly, Stream::File::CreateMode::Create))
 	{
 		std::wstring text = L"Could not create the output module definition file.";
 		std::wstring title = L"Error loading ROM!";

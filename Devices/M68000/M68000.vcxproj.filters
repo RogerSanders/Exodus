@@ -1,0 +1,372 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Data">
+      <UniqueIdentifier>{2c10ba3d-ae1b-4a80-8044-884e41db4c8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EffectiveAddress">
+      <UniqueIdentifier>{8dc45edb-f6c0-4893-8e77-684451a3be5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExecuteTime">
+      <UniqueIdentifier>{5a398667-1507-4e83-afab-06b2b708f386}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions">
+      <UniqueIdentifier>{26ae7870-7102-4d32-bda5-18c50dc3e29d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Arithmetic">
+      <UniqueIdentifier>{aec349b0-c8d3-40cc-8875-177eeb3693f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\BCD">
+      <UniqueIdentifier>{171bb710-c145-450c-9578-0e1b422ef0dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Bit Manipulation">
+      <UniqueIdentifier>{8431ce00-e530-4a8c-bef8-6e55571943ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\CCR Related">
+      <UniqueIdentifier>{19c2db2f-2b5d-4e4f-a553-8a12a4cf06cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Data Transfer">
+      <UniqueIdentifier>{10d67f08-4cab-4d77-a8e2-d7a2e35a74ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Exceptions">
+      <UniqueIdentifier>{3179178a-2fb8-409c-8755-495e4def23ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Flow Control">
+      <UniqueIdentifier>{a71317b0-8316-44c8-95f2-0fff6d846751}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Logic">
+      <UniqueIdentifier>{7eea920e-cb83-4d01-adcb-d6a3aa847eed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Privileged">
+      <UniqueIdentifier>{2530bedf-b7bf-486b-b43d-d4047e91e029}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Shift and Rotate">
+      <UniqueIdentifier>{5a9387f7-2996-4da7-8f20-dfc96261924f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Multiprocessor">
+      <UniqueIdentifier>{5d4cb533-ce8e-481d-9ffc-6c041779d2eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M68000">
+      <UniqueIdentifier>{da14948d-adf8-4126-8ef8-53b52f03d35c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{948dd9bb-91ed-40ac-b618-ec423eadea06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IM68000">
+      <UniqueIdentifier>{c88ffd05-57c4-4c76-ab03-3c6ddf6025cb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Data.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectiveAddress.h">
+      <Filter>EffectiveAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="ExecuteTime.h">
+      <Filter>ExecuteTime</Filter>
+    </ClInclude>
+    <ClInclude Include="M68000Instruction.h">
+      <Filter>Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="ADD.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="ADDA.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="ADDI.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="ADDQ.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="ADDX.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="CLR.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="CMP.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="CMPA.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="CMPI.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="CMPM.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="DIVS.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="DIVU.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="EXT.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="MULS.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="MULU.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="NEG.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="NEGX.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="NOP.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="SUB.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="SUBA.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="SUBI.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="SUBQ.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="SUBX.h">
+      <Filter>Instructions\Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="ABCD.h">
+      <Filter>Instructions\BCD</Filter>
+    </ClInclude>
+    <ClInclude Include="NBCD.h">
+      <Filter>Instructions\BCD</Filter>
+    </ClInclude>
+    <ClInclude Include="SBCD.h">
+      <Filter>Instructions\BCD</Filter>
+    </ClInclude>
+    <ClInclude Include="BCHG.h">
+      <Filter>Instructions\Bit Manipulation</Filter>
+    </ClInclude>
+    <ClInclude Include="BCLR.h">
+      <Filter>Instructions\Bit Manipulation</Filter>
+    </ClInclude>
+    <ClInclude Include="BSET.h">
+      <Filter>Instructions\Bit Manipulation</Filter>
+    </ClInclude>
+    <ClInclude Include="BTST.h">
+      <Filter>Instructions\Bit Manipulation</Filter>
+    </ClInclude>
+    <ClInclude Include="ANDI to CCR.h">
+      <Filter>Instructions\CCR Related</Filter>
+    </ClInclude>
+    <ClInclude Include="EORI to CCR.h">
+      <Filter>Instructions\CCR Related</Filter>
+    </ClInclude>
+    <ClInclude Include="MOVE to CCR.h">
+      <Filter>Instructions\CCR Related</Filter>
+    </ClInclude>
+    <ClInclude Include="ORI to CCR.h">
+      <Filter>Instructions\CCR Related</Filter>
+    </ClInclude>
+    <ClInclude Include="EXG.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="LEA.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="LINK.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="MOVE.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="MOVEA.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="MOVEM.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="MOVEP.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="MOVEQ.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="PEA.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="UNLK.h">
+      <Filter>Instructions\Data Transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="CHK.h">
+      <Filter>Instructions\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="ILLEGAL.h">
+      <Filter>Instructions\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="TRAP.h">
+      <Filter>Instructions\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="TRAPV.h">
+      <Filter>Instructions\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="Bcc.h">
+      <Filter>Instructions\Flow Control</Filter>
+    </ClInclude>
+    <ClInclude Include="BRA.h">
+      <Filter>Instructions\Flow Control</Filter>
+    </ClInclude>
+    <ClInclude Include="BSR.h">
+      <Filter>Instructions\Flow Control</Filter>
+    </ClInclude>
+    <ClInclude Include="DBcc.h">
+      <Filter>Instructions\Flow Control</Filter>
+    </ClInclude>
+    <ClInclude Include="JMP.h">
+      <Filter>Instructions\Flow Control</Filter>
+    </ClInclude>
+    <ClInclude Include="JSR.h">
+      <Filter>Instructions\Flow Control</Filter>
+    </ClInclude>
+    <ClInclude Include="RTR.h">
+      <Filter>Instructions\Flow Control</Filter>
+    </ClInclude>
+    <ClInclude Include="RTS.h">
+      <Filter>Instructions\Flow Control</Filter>
+    </ClInclude>
+    <ClInclude Include="AND.h">
+      <Filter>Instructions\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="ANDI.h">
+      <Filter>Instructions\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="EOR.h">
+      <Filter>Instructions\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="EORI.h">
+      <Filter>Instructions\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="NOT.h">
+      <Filter>Instructions\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="OR.h">
+      <Filter>Instructions\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="ORI.h">
+      <Filter>Instructions\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="Scc.h">
+      <Filter>Instructions\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="TST.h">
+      <Filter>Instructions\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="ANDI to SR.h">
+      <Filter>Instructions\Privileged</Filter>
+    </ClInclude>
+    <ClInclude Include="EORI to SR.h">
+      <Filter>Instructions\Privileged</Filter>
+    </ClInclude>
+    <ClInclude Include="MOVE from SR.h">
+      <Filter>Instructions\Privileged</Filter>
+    </ClInclude>
+    <ClInclude Include="MOVE to SR.h">
+      <Filter>Instructions\Privileged</Filter>
+    </ClInclude>
+    <ClInclude Include="MOVE USP.h">
+      <Filter>Instructions\Privileged</Filter>
+    </ClInclude>
+    <ClInclude Include="ORI to SR.h">
+      <Filter>Instructions\Privileged</Filter>
+    </ClInclude>
+    <ClInclude Include="RESET.h">
+      <Filter>Instructions\Privileged</Filter>
+    </ClInclude>
+    <ClInclude Include="RTE.h">
+      <Filter>Instructions\Privileged</Filter>
+    </ClInclude>
+    <ClInclude Include="STOP.h">
+      <Filter>Instructions\Privileged</Filter>
+    </ClInclude>
+    <ClInclude Include="ASL.h">
+      <Filter>Instructions\Shift and Rotate</Filter>
+    </ClInclude>
+    <ClInclude Include="ASR.h">
+      <Filter>Instructions\Shift and Rotate</Filter>
+    </ClInclude>
+    <ClInclude Include="LSL.h">
+      <Filter>Instructions\Shift and Rotate</Filter>
+    </ClInclude>
+    <ClInclude Include="LSR.h">
+      <Filter>Instructions\Shift and Rotate</Filter>
+    </ClInclude>
+    <ClInclude Include="ROL.h">
+      <Filter>Instructions\Shift and Rotate</Filter>
+    </ClInclude>
+    <ClInclude Include="ROR.h">
+      <Filter>Instructions\Shift and Rotate</Filter>
+    </ClInclude>
+    <ClInclude Include="ROXL.h">
+      <Filter>Instructions\Shift and Rotate</Filter>
+    </ClInclude>
+    <ClInclude Include="ROXR.h">
+      <Filter>Instructions\Shift and Rotate</Filter>
+    </ClInclude>
+    <ClInclude Include="SWAP.h">
+      <Filter>Instructions\Shift and Rotate</Filter>
+    </ClInclude>
+    <ClInclude Include="TAS.h">
+      <Filter>Instructions\Multiprocessor</Filter>
+    </ClInclude>
+    <ClInclude Include="M68000.h">
+      <Filter>M68000</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="IM68000.h">
+      <Filter>IM68000</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="EffectiveAddress.cpp">
+      <Filter>EffectiveAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="M68000Instruction.cpp">
+      <Filter>Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="M68000.cpp">
+      <Filter>M68000</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="EffectiveAddress.inl">
+      <Filter>EffectiveAddress</Filter>
+    </None>
+    <None Include="ExecuteTime.inl">
+      <Filter>ExecuteTime</Filter>
+    </None>
+    <None Include="M68000Instruction.inl">
+      <Filter>Instructions</Filter>
+    </None>
+    <None Include="M68000Opcodes.pkg">
+      <Filter>Instructions</Filter>
+    </None>
+    <None Include="M68000.inl">
+      <Filter>M68000</Filter>
+    </None>
+    <None Include="IM68000.inl">
+      <Filter>IM68000</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="M68000.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

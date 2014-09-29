@@ -24,7 +24,7 @@ public:
 	static const unsigned int imageBufferPlanes = 3;
 
 	//Enumerations
-	enum IS315_5313DataSource;
+	enum class IS315_5313DataSource;
 
 	//Structures
 	struct RegisterDataContext;

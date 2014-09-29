@@ -1,6 +1,7 @@
 #include "DeviceContext.h"
 #include "ThreadLib/ThreadLib.pkg"
 #include "Debug/Debug.pkg"
+#include <thread>
 
 //----------------------------------------------------------------------------------------
 //Interface version functions
@@ -131,7 +132,7 @@ bool DeviceContext::TimesliceExecutionSuspended() const
 //----------------------------------------------------------------------------------------
 void DeviceContext::SuspendTimesliceExecution()
 {
-	boost::mutex::scoped_lock executeLock(executeThreadMutex);
+	std::unique_lock<std::mutex> executeLock(executeThreadMutex);
 
 	//Ensure that the device calling the suspend function has indicated that it uses the
 	//suspend feature. Failure to do this may cause deadlocks.
@@ -142,7 +143,7 @@ void DeviceContext::SuspendTimesliceExecution()
 		if((commandMutexPointer != 0) && (suspendedThreadCountPointer != 0))
 		{
 			executeLock.unlock();
-			boost::mutex::scoped_lock commandLock(*commandMutexPointer);
+			std::unique_lock<std::mutex> commandLock(*commandMutexPointer);
 			executeLock.lock();
 
 			if(!timesliceSuspended)
@@ -167,7 +168,7 @@ void DeviceContext::SuspendTimesliceExecution()
 //----------------------------------------------------------------------------------------
 void DeviceContext::WaitForTimesliceExecutionResume() const
 {
-	boost::mutex::scoped_lock lock(executeThreadMutex);
+	std::unique_lock<std::mutex> lock(executeThreadMutex);
 
 	//Wait for the timeslice to resume execution, or for timeslice suspension to be
 	//disabled.
@@ -180,13 +181,13 @@ void DeviceContext::WaitForTimesliceExecutionResume() const
 //----------------------------------------------------------------------------------------
 void DeviceContext::ResumeTimesliceExecution()
 {
-	boost::mutex::scoped_lock executeLock(executeThreadMutex);
+	std::unique_lock<std::mutex> executeLock(executeThreadMutex);
 	if(timesliceSuspended)
 	{
 		if((commandMutexPointer != 0) && (suspendedThreadCountPointer != 0))
 		{
 			executeLock.unlock();
-			boost::mutex::scoped_lock commandLock(*commandMutexPointer);
+			std::unique_lock<std::mutex> commandLock(*commandMutexPointer);
 			executeLock.lock();
 
 			if(timesliceSuspended)
@@ -232,7 +233,7 @@ void DeviceContext::SetTransientExecutionActive(bool state)
 	{
 		//Obtain a lock on the shared command mutex. We need to do this so that we can
 		//safely work with the result of the suspendedThreadCount variable.
-		boost::mutex::scoped_lock commandLock(*commandMutexPointer);
+		std::unique_lock<std::mutex> commandLock(*commandMutexPointer);
 
 		//Only perform any checks if we're currently executing a wait for completion
 		//command. If we're not executing this command, the remaining thread count value
@@ -273,7 +274,7 @@ void DeviceContext::DisableTimesliceExecutionSuspend()
 	//condition variable is not corrupted due to concurrent access. We need a lock here to
 	//ensure any other threads which wait on this condition are not actively working with
 	//it at the time we try and trigger it.
-	//##TODO## Looking at the internal implementation of the boost::condition class, it
+	//##TODO## Looking at the internal implementation of the std::condition_variable class, it
 	//appears that the class has its own internal locks, and based on the design, it
 	//appears that we should be able to safely execute this code without a lock, and
 	//without causing any internal inconsistencies in the condition variable. This means
@@ -286,7 +287,7 @@ void DeviceContext::DisableTimesliceExecutionSuspend()
 	//wait state indefinitely when timesliceSuspensionDisable is set. This means we
 	//absolutely need a lock here.
 
-	boost::mutex::scoped_lock lock(executeThreadMutex);
+	std::unique_lock<std::mutex> lock(executeThreadMutex);
 	timesliceSuspensionDisable = true;
 	executeCompletionStateChanged.notify_all();
 }
@@ -295,7 +296,7 @@ void DeviceContext::DisableTimesliceExecutionSuspend()
 void DeviceContext::EnableTimesliceExecutionSuspend()
 {
 	//##FIX## We've disabled this temporarily to try and debug a mysterious deadlock
-//	boost::mutex::scoped_lock lock(executeThreadMutex);
+//	std::unique_lock<std::mutex> lock(executeThreadMutex);
 	timesliceSuspensionDisable = false;
 	executeCompletionStateChanged.notify_all();
 }
@@ -340,7 +341,7 @@ void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool
 			//thread will halt after the end of the next device step, so we can safely
 			//continue execution here without waiting for the rejoin request to be
 			//processed.
-			boost::mutex::scoped_lock lock(primaryDevice->executeThreadMutex);
+			std::unique_lock<std::mutex> lock(primaryDevice->executeThreadMutex);
 			if(primaryDevice->sharedExecuteThreadSpinoffActive)
 			{
 				primaryDevice->sharedExecuteThreadSpinoffRejoinRequested = true;
@@ -354,7 +355,7 @@ void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool
 			//requested the spinoff thread to rejoin, but the device dependency state was
 			//changed again before the spinoff thread processed the request. This is the
 			//only case that could have arisen if the spinoff thread is still active here.
-			boost::mutex::scoped_lock lock(primaryDevice->executeThreadMutex);
+			std::unique_lock<std::mutex> lock(primaryDevice->executeThreadMutex);
 			while(primaryDevice->sharedExecuteThreadSpinoffActive)
 			{
 				primaryDevice->sharedExecuteThreadSpinoffStoppedOrPaused.wait(lock);
@@ -373,13 +374,14 @@ void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool
 //----------------------------------------------------------------------------------------
 //Command worker thread control
 //----------------------------------------------------------------------------------------
-void DeviceContext::StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command)
+void DeviceContext::StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command)
 {
-	boost::mutex::scoped_lock lock(commandMutex);
+	std::unique_lock<std::mutex> lock(commandMutex);
 	if(!commandWorkerThreadActive)
 	{
 		commandWorkerThreadActive = true;
-		boost::thread workerThread(boost::bind(boost::mem_fn(&DeviceContext::CommandWorkerThread), this, deviceIndex, boost::ref(remainingThreadCount), boost::ref(suspendedThreadCount), boost::ref(commandMutex), boost::ref(commandSent), boost::ref(commandProcessed), asuspendManager, boost::ref(command)));
+		std::thread workerThread(std::bind(std::mem_fn(&DeviceContext::CommandWorkerThread), this, deviceIndex, std::ref(remainingThreadCount), std::ref(suspendedThreadCount), std::ref(commandMutex), std::ref(commandSent), std::ref(commandProcessed), asuspendManager, std::ref(command)));
+		workerThread.detach();
 		commandThreadReady.wait(lock);
 	}
 }
@@ -391,7 +393,7 @@ void DeviceContext::StopCommandWorkerThread()
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceContext::CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command)
+void DeviceContext::CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command)
 {
 	//Set the name of this thread for the debugger
 	std::wstring debuggerThreadName = L"DCCommand - " + device.GetDeviceInstanceName();
@@ -418,7 +420,7 @@ void DeviceContext::CommandWorkerThread(size_t deviceIndex, volatile ReferenceCo
 		//Wait for a new command to be received
 		{
 			//Obtain a lock on the shared command mutex
-			boost::mutex::scoped_lock lock(commandMutex);
+			std::unique_lock<std::mutex> lock(commandMutex);
 
 			//Notify the execution manager when all worker threads have processed the
 			//message. Note that to achieve thread safety, we have to perform this
@@ -468,7 +470,7 @@ void DeviceContext::CommandWorkerThread(size_t deviceIndex, volatile ReferenceCo
 	//since a command to terminate the worker thread will cause us to leave the main
 	//command loop immediately.
 	{
-		boost::mutex::scoped_lock lock(commandMutex);
+		std::unique_lock<std::mutex> lock(commandMutex);
 
 		//Notify the execution manager that all worker threads have started and are ready
 		//to accept commands
@@ -525,7 +527,7 @@ void DeviceContext::ProcessCommand(size_t deviceIndex, const DeviceContextComman
 //----------------------------------------------------------------------------------------
 //Worker thread control
 //----------------------------------------------------------------------------------------
-void DeviceContext::BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, boost::mutex& commandMutex, boost::condition& commandSent, boost::condition& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command)
+void DeviceContext::BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command)
 {
 	//Start the command worker thread
 	StartCommandWorkerThread(deviceIndex, remainingThreadCount, suspendedThreadCount, commandMutex, commandSent, commandProcessed, asuspendManager, command);
@@ -552,7 +554,7 @@ void DeviceContext::SuspendExecution()
 //----------------------------------------------------------------------------------------
 void DeviceContext::StartExecuteWorkerThread()
 {
-	boost::mutex::scoped_lock lock(executeThreadMutex);
+	std::unique_lock<std::mutex> lock(executeThreadMutex);
 	if(!executeWorkerThreadActive && ActiveDevice())
 	{
 		//Notify the device that execution is about to begin
@@ -570,12 +572,12 @@ void DeviceContext::StartExecuteWorkerThread()
 		bool ourDeviceIsPrimaryInterlockedDevice = false;
 		bool interlockedDeviceDependenciesCurrentlyDisabled = false;
 		DeviceContext* interlockedDevice = 0;
-		if(device.GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+		if(device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 		{
 			for(unsigned int deviceDependencyIndex = 0; deviceDependencyIndex < (unsigned int)deviceDependencies.size(); ++deviceDependencyIndex)
 			{
 				DeviceContext* targetDevice = deviceDependencies[deviceDependencyIndex].device;
-				if(targetDevice->device.GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+				if(targetDevice->device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 				{
 					for(unsigned int targetDeviceDependencyIndex = 0; targetDeviceDependencyIndex < (unsigned int)targetDevice->deviceDependencies.size(); ++targetDeviceDependencyIndex)
 					{
@@ -601,7 +603,8 @@ void DeviceContext::StartExecuteWorkerThread()
 		executeWorkerThreadActive = true;
 		if(!foundInterlockedDevice)
 		{
-			boost::thread workerThread(boost::bind(boost::mem_fn(&DeviceContext::ExecuteWorkerThread), this));
+			std::thread workerThread(std::bind(std::mem_fn(&DeviceContext::ExecuteWorkerThread), this));
+			workerThread.detach();
 		}
 		else if(ourDeviceIsPrimaryInterlockedDevice)
 		{
@@ -611,7 +614,8 @@ void DeviceContext::StartExecuteWorkerThread()
 			sharedExecuteThreadSpinoffActive = interlockedDeviceDependenciesCurrentlyDisabled;
 
 			//Start the primary execute thread
-			boost::thread workerThread(boost::bind(&DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies, this, interlockedDevice));
+			std::thread workerThread(std::bind(&DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies, this, interlockedDevice));
+			workerThread.detach();
 		}
 
 		//Wait for confirmation that the execute worker thread is ready to receive
@@ -626,7 +630,7 @@ void DeviceContext::StartExecuteWorkerThread()
 //----------------------------------------------------------------------------------------
 void DeviceContext::StopExecuteWorkerThread()
 {
-	boost::mutex::scoped_lock lock(executeThreadMutex);
+	std::unique_lock<std::mutex> lock(executeThreadMutex);
 	if(executeWorkerThreadActive)
 	{
 		//Instruct the execution thread to terminate, and wait for confirmation that it
@@ -650,7 +654,7 @@ void DeviceContext::ExecuteWorkerThread()
 	std::wstring debuggerThreadName = L"DCExecute - " + device.GetDeviceInstanceName();
 	SetCallingThreadName(debuggerThreadName);
 
-	if(device.GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+	if(device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
 		if(deviceDependencies.empty())
 		{
@@ -661,7 +665,7 @@ void DeviceContext::ExecuteWorkerThread()
 			ExecuteWorkerThreadStepWithDependencies();
 		}
 	}
-	else if(device.GetUpdateMethod() == IDevice::UPDATEMETHOD_TIMESLICE)
+	else if(device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
 	{
 		if(deviceDependencies.empty())
 		{
@@ -677,7 +681,7 @@ void DeviceContext::ExecuteWorkerThread()
 //----------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadStep()
 {
-	boost::mutex::scoped_lock lock(executeThreadMutex);
+	std::unique_lock<std::mutex> lock(executeThreadMutex);
 	executeThreadRunningState = true;
 	executeThreadReady.notify_all();
 	executeTaskSent.wait(lock);
@@ -711,7 +715,7 @@ void DeviceContext::ExecuteWorkerThreadStep()
 //----------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 {
-	boost::mutex::scoped_lock lock(executeThreadMutex);
+	std::unique_lock<std::mutex> lock(executeThreadMutex);
 	executeThreadRunningState = true;
 	executeThreadReady.notify_all();
 	executeTaskSent.wait(lock);
@@ -765,8 +769,8 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 	//here on executeThreadMutex here, so the command threads will not actually be
 	//unblocked until we wait on a message from the command thread again and release the
 	//lock.
-	boost::mutex::scoped_lock lock1(device1->executeThreadMutex);
-	boost::mutex::scoped_lock lock2(device2->executeThreadMutex);
+	std::unique_lock<std::mutex> lock1(device1->executeThreadMutex);
+	std::unique_lock<std::mutex> lock2(device2->executeThreadMutex);
 	device1->executeThreadRunningState = true;
 	device2->executeThreadRunningState = true;
 	device1->executeThreadReady.notify_all();
@@ -783,7 +787,8 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 	device1->sharedExecuteThreadSpinoffStopRequested = false;
 	device1->sharedExecuteThreadSpinoffTimesliceAvailable = false;
 	device1->sharedExecuteThreadSpinoffRejoinRequested = false;
-	boost::thread workerThread(boost::bind(boost::mem_fn(&DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff), device1));
+	std::thread workerThread(std::bind(std::mem_fn(&DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff), device1));
+	workerThread.detach();
 
 	//Wait for a new execute task to be sent from the command thread to both our target
 	//devices
@@ -965,7 +970,7 @@ void DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff()
 	while(!primaryDevice->sharedExecuteThreadSpinoffStopRequested)
 	{
 		//Wait for a new command to be received from the primary execution thread
-		boost::mutex::scoped_lock primaryDeviceLock(primaryDevice->executeThreadMutex);
+		std::unique_lock<std::mutex> primaryDeviceLock(primaryDevice->executeThreadMutex);
 		while(!primaryDevice->sharedExecuteThreadSpinoffStopRequested && (!primaryDevice->sharedExecuteThreadSpinoffActive || (primaryDevice->sharedExecuteThreadSpinoffActive && (!primaryDevice->sharedExecuteThreadSpinoffTimesliceAvailable || primaryDevice->sharedExecuteThreadSpinoffRejoinRequested))))
 		{
 			//If our spinoff thread has been requested to rejoin the main execution
@@ -1044,7 +1049,7 @@ void DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff()
 	}
 
 	//Notify the main thread that this spinoff execution thread has terminated
-	boost::mutex::scoped_lock primaryDeviceLock(primaryDevice->executeThreadMutex);
+	std::unique_lock<std::mutex> primaryDeviceLock(primaryDevice->executeThreadMutex);
 	primaryDevice->sharedExecuteThreadSpinoffRunning = false;
 	primaryDevice->sharedExecuteThreadSpinoffStoppedOrPaused.notify_all();
 }
@@ -1052,7 +1057,7 @@ void DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff()
 //----------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadTimeslice()
 {
-	boost::mutex::scoped_lock lock(executeThreadMutex);
+	std::unique_lock<std::mutex> lock(executeThreadMutex);
 	executeThreadRunningState = true;
 	executeThreadReady.notify_all();
 	executeTaskSent.wait(lock);
@@ -1077,7 +1082,7 @@ void DeviceContext::ExecuteWorkerThreadTimeslice()
 //----------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadTimesliceWithDependencies()
 {
-	boost::mutex::scoped_lock lock(executeThreadMutex);
+	std::unique_lock<std::mutex> lock(executeThreadMutex);
 	executeThreadRunningState = true;
 	executeThreadReady.notify_all();
 	executeTaskSent.wait(lock);

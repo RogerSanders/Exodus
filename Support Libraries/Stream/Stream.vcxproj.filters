@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Buffer">
+      <UniqueIdentifier>{ad9a4729-5872-4e94-bb5a-b4487eeec568}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File">
+      <UniqueIdentifier>{9d8d3eaa-19b1-4224-be3c-cff7de670ff2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Stream">
+      <UniqueIdentifier>{a41f8819-ba7b-4193-ad9a-f9a3ef60c255}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WAVFile">
+      <UniqueIdentifier>{bd730836-8b99-4aa2-ab81-6ea240854b8d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="Stream.cpp">
+      <Filter>Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="WAVFile.cpp">
+      <Filter>WAVFile</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Buffer.h">
+      <Filter>Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="Stream.h">
+      <Filter>Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="WAVFile.h">
+      <Filter>WAVFile</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Buffer.inl">
+      <Filter>Buffer</Filter>
+    </None>
+    <None Include="File.inl">
+      <Filter>File</Filter>
+    </None>
+    <None Include="Stream.inl">
+      <Filter>Stream</Filter>
+    </None>
+    <None Include="WAVFile.inl">
+      <Filter>WAVFile</Filter>
+    </None>
+    <None Include="Stream.pkg" />
+  </ItemGroup>
+</Project>

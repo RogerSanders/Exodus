@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="System">
+      <UniqueIdentifier>{edb10cac-9c15-42ea-b139-64c63946d878}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModuleManager">
+      <UniqueIdentifier>{d5f5a8ba-2edb-403f-879b-242db9e25676}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IExecutionSuspendManager">
+      <UniqueIdentifier>{90ca967a-2010-4818-b8fe-2e1eed4b0064}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BusInterface">
+      <UniqueIdentifier>{2f13dd7d-3f2d-4fc5-a976-1d3252e0488a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClockSource">
+      <UniqueIdentifier>{3b232b46-d40a-4c5e-819c-2280de1d821a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataRemapTable">
+      <UniqueIdentifier>{ac5a0ee8-e6a9-49de-bb75-4143fc950582}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DeviceContext">
+      <UniqueIdentifier>{7de86e31-3c53-4054-989b-fb96abe69c17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExecutionManager">
+      <UniqueIdentifier>{18b1e0c6-0857-40d0-8b32-232d109d8345}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="System.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="System_Wnd.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleManager.cpp">
+      <Filter>ModuleManager</Filter>
+    </ClCompile>
+    <ClCompile Include="BusInterface.cpp">
+      <Filter>BusInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="ClockSource.cpp">
+      <Filter>ClockSource</Filter>
+    </ClCompile>
+    <ClCompile Include="DataRemapTable.cpp">
+      <Filter>DataRemapTable</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceContext.cpp">
+      <Filter>DeviceContext</Filter>
+    </ClCompile>
+    <ClCompile Include="ExecutionManager.cpp">
+      <Filter>ExecutionManager</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="System.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleManager.h">
+      <Filter>ModuleManager</Filter>
+    </ClInclude>
+    <ClInclude Include="IExecutionSuspendManager.h">
+      <Filter>IExecutionSuspendManager</Filter>
+    </ClInclude>
+    <ClInclude Include="BusInterface.h">
+      <Filter>BusInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="ClockSource.h">
+      <Filter>ClockSource</Filter>
+    </ClInclude>
+    <ClInclude Include="DataRemapTable.h">
+      <Filter>DataRemapTable</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceContext.h">
+      <Filter>DeviceContext</Filter>
+    </ClInclude>
+    <ClInclude Include="ExecutionManager.h">
+      <Filter>ExecutionManager</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="System.inl">
+      <Filter>System</Filter>
+    </None>
+    <None Include="BusInterface.inl">
+      <Filter>BusInterface</Filter>
+    </None>
+    <None Include="ClockSource.inl">
+      <Filter>ClockSource</Filter>
+    </None>
+    <None Include="DataRemapTable.inl">
+      <Filter>DataRemapTable</Filter>
+    </None>
+    <None Include="DeviceContext.inl">
+      <Filter>DeviceContext</Filter>
+    </None>
+    <None Include="ExecutionManager.inl">
+      <Filter>ExecutionManager</Filter>
+    </None>
+  </ItemGroup>
+</Project>

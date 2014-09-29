@@ -1,36 +1,48 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum DockingWindow::WindowMessages
+enum class DockingWindow::WindowMessages
 {
-	DOCKWIN_WMBASE = WM_USER + 0x100,
-	DOCKWIN_ADDCONTENTWINDOW,
-	DOCKWIN_REMOVECONTENTWINDOW,
-	DOCKWIN_MODIFYCONTENTWINDOW,
-	DOCKWIN_ADDDOCKEDWINDOW,
-	DOCKWIN_REMOVEDOCKEDWINDOW,
-	DOCKWIN_GETCONTENTWINDOWINDEXFROMHANDLE,
-	DOCKWIN_GETDOCKEDWINDOWINDEXFROMHANDLE,
-	DOCKWIN_GETCONTENTWINDOWCOUNT,
-	DOCKWIN_GETCONTENTWINDOWINFO,
-	DOCKWIN_GETDOCKEDWINDOWCOUNT,
-	DOCKWIN_GETDOCKEDWINDOWINFO,
-	DOCKWIN_GETACTIVECONTENTWINDOW,
-	DOCKWIN_SETACTIVECONTENTWINDOW
+	WMBase = WM_USER + 0x100,
+	AddContentWindow,
+	RemoveContentWindow,
+	ModifyContentWindow,
+	AddDockedWindow,
+	RemoveDockedWindow,
+	GetContentWindowIndexFromHandle,
+	GetDockedWindowIndexFromHandle,
+	GetContentWindowCount,
+	GetContentWindowInfo,
+	GetDockedWindowCount,
+	GetDockedWindowInfo,
+	GetActiveContentWindow,
+	SetActiveContentWindow
 };
 
 //----------------------------------------------------------------------------------------
-enum DockingWindow::ContentWindowInfo
+enum class DockingWindow::ContentWindowInfo :unsigned int
 {
-	CONTENTWINDOWINFO_HANDLE = 0x00000001,
-	CONTENTWINDOWINFO_TITLE  = 0x00000002
+	Handle = 0x00000001,
+	Title  = 0x00000002
 };
+inline DockingWindow::ContentWindowInfo operator&(DockingWindow::ContentWindowInfo a, DockingWindow::ContentWindowInfo b) { return (DockingWindow::ContentWindowInfo)((unsigned int)a & (unsigned int)b); }
+inline DockingWindow::ContentWindowInfo operator|(DockingWindow::ContentWindowInfo a, DockingWindow::ContentWindowInfo b) { return (DockingWindow::ContentWindowInfo)((unsigned int)a | (unsigned int)b); }
+inline bool operator!=(DockingWindow::ContentWindowInfo a, unsigned int b) { return (unsigned int)a != b; }
+inline bool operator!=(unsigned int a, DockingWindow::ContentWindowInfo b) { return (unsigned int)a != b; }
+inline bool operator==(DockingWindow::ContentWindowInfo a, unsigned int b) { return (unsigned int)a == b; }
+inline bool operator==(unsigned int a, DockingWindow::ContentWindowInfo b) { return (unsigned int)a == b; }
 
 //----------------------------------------------------------------------------------------
-enum DockingWindow::DockedWindowInfo
+enum class DockingWindow::DockedWindowInfo :unsigned int
 {
-	DOCKEDWINDOWINFO_HANDLE = 0x00000001
+	Handle = 0x00000001
 };
+inline DockingWindow::DockedWindowInfo operator&(DockingWindow::DockedWindowInfo a, DockingWindow::DockedWindowInfo b) { return (DockingWindow::DockedWindowInfo)((unsigned int)a & (unsigned int)b); }
+inline DockingWindow::DockedWindowInfo operator|(DockingWindow::DockedWindowInfo a, DockingWindow::DockedWindowInfo b) { return (DockingWindow::DockedWindowInfo)((unsigned int)a | (unsigned int)b); }
+inline bool operator!=(DockingWindow::DockedWindowInfo a, unsigned int b) { return (unsigned int)a != b; }
+inline bool operator!=(unsigned int a, DockingWindow::DockedWindowInfo b) { return (unsigned int)a != b; }
+inline bool operator==(DockingWindow::DockedWindowInfo a, unsigned int b) { return (unsigned int)a == b; }
+inline bool operator==(unsigned int a, DockingWindow::DockedWindowInfo b) { return (unsigned int)a == b; }
 
 //----------------------------------------------------------------------------------------
 //Structures
@@ -53,7 +65,7 @@ struct DockingWindow::ModifyContentWindowParams
 struct DockingWindow::AddDockedWindowParams
 {
 	AddDockedWindowParams()
-	:hwnd(NULL), dockLocation(WC_DockPanel::DOCKLOCATION_LEFT), forceToTopOfDockingOrder(false), autoHide(false)
+	:hwnd(NULL), dockLocation(WC_DockPanel::DockLocation::Left), forceToTopOfDockingOrder(false), autoHide(false)
 	{}
 
 	HWND hwnd;

@@ -25,7 +25,7 @@ anyway.
 #define __RANDOMTIMEACCESSBUFFER_H__
 #include <list>
 #include <vector>
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "TimedBufferWriteInfo.h"
 #include "TimedBufferAccessTarget.h"
@@ -129,7 +129,7 @@ private:
 	bool LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
 
 private:
-	mutable boost::mutex accessLock;
+	mutable std::mutex accessLock;
 	std::list<TimesliceEntry> timesliceList;
 	Timeslice latestTimeslice;
 	std::list<WriteEntry> writeList;

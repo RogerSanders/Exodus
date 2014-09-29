@@ -7,7 +7,7 @@ class GenericAccessDataInfo :public IGenericAccessDataInfo
 {
 public:
 	//Constructors
-	inline GenericAccessDataInfo(unsigned int aid, IGenericAccessDataValue::DataType atype);
+	template<class T> inline GenericAccessDataInfo(T aid, IGenericAccessDataValue::DataType atype);
 
 	//Interface version functions
 	virtual unsigned int GetIGenericAccessDataInfoVersion() const;

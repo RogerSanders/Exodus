@@ -7,7 +7,7 @@ class ILogEntry
 {
 public:
 	//Enumerations
-	enum EventLevel;
+	enum class EventLevel;
 
 public:
 	//Constructors

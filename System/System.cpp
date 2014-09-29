@@ -5,7 +5,8 @@
 #include "ThreadLib/ThreadLib.pkg"
 #include "Image/Image.pkg"
 #include <time.h>
-#include <boost/bind.hpp>
+#include <functional>
+#include <thread>
 #include <sstream>
 #include <algorithm>
 //##DEBUG##
@@ -45,7 +46,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 	FileStreamReference sourceStreamReference(guiExtensionInterface);
 	if(!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the file could not be opened!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the file could not be opened!"));
 		if(running)
 		{
 			RunSystem();
@@ -55,13 +56,13 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 	Stream::IStream& source = *sourceStreamReference;
 
 	HierarchicalStorageTree tree;
-	if(fileType == FILETYPE_ZIP)
+	if(fileType == FileType::ZIP)
 	{
 		//Load the ZIP header structure
 		ZIPArchive archive;
 		if(!archive.LoadFromStream(source))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the zip file structure could not be decoded!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the zip file structure could not be decoded!"));
 			if(running)
 			{
 				RunSystem();
@@ -73,7 +74,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 		ZIPFileEntry* entry = archive.GetFileEntry(L"save.xml");
 		if(entry == 0)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the save.xml file could not be found within the zip archive!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the save.xml file could not be found within the zip archive!"));
 			if(running)
 			{
 				RunSystem();
@@ -83,7 +84,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 		Stream::Buffer buffer(0);
 		if(!entry->Decompress(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because there was an error decompressing the save.xml file from the zip archive!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because there was an error decompressing the save.xml file from the zip archive!"));
 			if(running)
 			{
 				RunSystem();
@@ -91,11 +92,11 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 			return false;
 		}
 		buffer.SetStreamPos(0);
-		buffer.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+		buffer.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		buffer.ProcessByteOrderMark();
 		if(!tree.LoadTree(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
 			if(running)
 			{
 				RunSystem();
@@ -112,7 +113,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 			ZIPFileEntry* entry = archive.GetFileEntry(binaryFileName);
 			if(entry == 0)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
 				if(running)
 				{
 					RunSystem();
@@ -123,7 +124,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 			binaryData.SetStreamPos(0);
 			if(!entry->Decompress(binaryData))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
 				if(running)
 				{
 					RunSystem();
@@ -132,16 +133,16 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 			}
 		}
 	}
-	else if(fileType == FILETYPE_XML)
+	else if(fileType == FileType::XML)
 	{
 		//Determine the text format for the target file
-		source.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+		source.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		source.ProcessByteOrderMark();
 
 		//Attempt to load the XML tree from the file
 		if(!tree.LoadTree(source))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
 			if(running)
 			{
 				RunSystem();
@@ -169,7 +170,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 			FileStreamReference binaryFileStreamReference(guiExtensionInterface);
 			if(!binaryFileStreamReference.OpenExistingFileForRead(binaryFilePath))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -186,7 +187,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 			if(!binaryFile.ReadData(buffer, bufferSize))
 			{
 				delete[] buffer;
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -196,7 +197,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 			if(!binaryData.WriteData(buffer, bufferSize))
 			{
 				delete[] buffer;
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -211,7 +212,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if(rootNode.GetName() != L"State")
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the root node in the XML tree wasn't of type \"State\"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the root node in the XML tree wasn't of type \"State\"!"));
 		if(running)
 		{
 			RunSystem();
@@ -276,7 +277,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 				//If a matching loaded device couldn't be located, log an error.
 				if(!foundDevice)
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"While loading state data from file " + filePath + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"While loading state data from file " + filePath + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
 				}
 			}
 		}
@@ -285,7 +286,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 		{
 			if(!LoadModuleRelationshipsNode(*(*i), relationshipMap))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load state from file " + filePath + L" because the ModuleRelationships node could not be loaded!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the ModuleRelationships node could not be loaded!"));
 				if(running)
 				{
 					RunSystem();
@@ -296,12 +297,12 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading state from file " + filePath + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized element: " + elementName + L" when loading state from file " + filePath + L"."));
 		}
 	}
 
 	//Log the event
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Loaded state from file " + filePath));
+	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Loaded state from file " + filePath));
 
 	//Restore running state
 	if(running)
@@ -369,14 +370,14 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 		}
 	}
 
-	if(fileType == FILETYPE_ZIP)
+	if(fileType == FileType::ZIP)
 	{
 		//Save the XML tree to a unicode buffer
-		Stream::Buffer buffer(Stream::IStream::TEXTENCODING_UTF8, 0);
+		Stream::Buffer buffer(Stream::IStream::TextEncoding::UTF8, 0);
 		buffer.InsertByteOrderMark();
 		if(!tree.SaveTree(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 			if(running)
 			{
 				RunSystem();
@@ -390,7 +391,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 		buffer.SetStreamPos(0);
 		if(!entry.Compress(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the save.xml file!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the save.xml file!"));
 			if(running)
 			{
 				RunSystem();
@@ -411,7 +412,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 			binaryData.SetStreamPos(0);
 			if(!entry.Compress(binaryData))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the " + binaryFileName + L" file!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the " + binaryFileName + L" file!"));
 				if(running)
 				{
 					RunSystem();
@@ -429,7 +430,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 			Stream::Buffer screenshotFile(0);
 			if(!screenshot.SavePNGImage(screenshotFile))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the screenshot file with a file name of " + screenshotFilename + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the screenshot file with a file name of " + screenshotFilename + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -439,7 +440,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 			screenshotFile.SetStreamPos(0);
 			if(!entry.Compress(screenshotFile))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the " + screenshotFilename + L" file!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the " + screenshotFilename + L" file!"));
 				if(running)
 				{
 					RunSystem();
@@ -451,9 +452,9 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 
 		//Create the target file
 		Stream::File target;
-		if(!target.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+		if(!target.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 			if(running)
 			{
 				RunSystem();
@@ -462,7 +463,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 		}
 		if(!archive.SaveToStream(target))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the zip structure to the file!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the zip structure to the file!"));
 			if(running)
 			{
 				RunSystem();
@@ -470,13 +471,13 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 			return false;
 		}
 	}
-	else if(fileType == FILETYPE_XML)
+	else if(fileType == FileType::XML)
 	{
 		//Save XML tree to the target file
-		Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
-		if(!file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+		Stream::File file(Stream::IStream::TextEncoding::UTF8);
+		if(!file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 			if(running)
 			{
 				RunSystem();
@@ -486,7 +487,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 		file.InsertByteOrderMark();
 		if(!tree.SaveTree(file))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 			if(running)
 			{
 				RunSystem();
@@ -504,9 +505,9 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 			std::wstring binaryFileName = fileName + L" - " + (*i)->GetBinaryDataBufferName() + L".bin";
 			std::wstring binaryFilePath = PathCombinePaths(fileDir, binaryFileName);
 			Stream::File binaryFile;
-			if(!binaryFile.Open(binaryFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+			if(!binaryFile.Open(binaryFilePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the binary data file " + binaryFileName + L" at the full path of " + binaryFilePath + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the binary data file " + binaryFileName + L" at the full path of " + binaryFilePath + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -521,7 +522,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 				unsigned char temp;
 				if(!binaryData.ReadData(temp))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error reading the source data from memory to save to the binary data file " + binaryFileName + L"!"));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error reading the source data from memory to save to the binary data file " + binaryFileName + L"!"));
 					if(running)
 					{
 						RunSystem();
@@ -530,7 +531,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 				}
 				if(!binaryFile.WriteData(temp))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error writing to the binary data file " + binaryFileName + L"!"));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error writing to the binary data file " + binaryFileName + L"!"));
 					if(running)
 					{
 						RunSystem();
@@ -546,9 +547,9 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 			std::wstring screenshotFilenameFull = fileName + L" - " + screenshotFilename;
 			std::wstring screenshotFilePath = PathCombinePaths(fileDir, screenshotFilenameFull);
 			Stream::File screenshotFile;
-			if(!screenshotFile.Open(screenshotFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+			if(!screenshotFile.Open(screenshotFilePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the screenshot file with a file name of " + screenshotFilenameFull + L" with a full path of " + screenshotFilePath + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error creating the screenshot file with a file name of " + screenshotFilenameFull + L" with a full path of " + screenshotFilePath + L"!"));
 				if(running)
 				{
 					RunSystem();
@@ -557,7 +558,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 			}
 			if(!screenshot.SavePNGImage(screenshotFile))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the screenshot to the " + screenshotFilenameFull + L" file!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error saving the screenshot to the " + screenshotFilenameFull + L" file!"));
 				if(running)
 				{
 					RunSystem();
@@ -568,7 +569,7 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 	}
 
 	//Log the event
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Saved state to file " + filePath));
+	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Saved state to file " + filePath));
 
 	//Restore running state
 	if(running)
@@ -597,20 +598,20 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 		}
 		else
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the file could not be opened!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the file could not be opened!"));
 			return false;
 		}
 	}
 	Stream::IStream& source = *sourceStreamReference;
 
 	HierarchicalStorageTree tree;
-	if(fileType == FILETYPE_ZIP)
+	if(fileType == FileType::ZIP)
 	{
 		//Load the ZIP header structure
 		ZIPArchive archive;
 		if(!archive.LoadFromStream(source))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the zip file structure could not be decoded!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the zip file structure could not be decoded!"));
 			return false;
 		}
 
@@ -618,21 +619,21 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 		ZIPFileEntry* entry = archive.GetFileEntry(L"save.xml");
 		if(entry == 0)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the save.xml file could not be found within the zip archive!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the save.xml file could not be found within the zip archive!"));
 			return false;
 		}
 		Stream::Buffer buffer(0);
 		if(!entry->Decompress(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error decompressing the save.xml file from the zip archive!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error decompressing the save.xml file from the zip archive!"));
 			return false;
 		}
 		buffer.SetStreamPos(0);
-		buffer.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+		buffer.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		buffer.ProcessByteOrderMark();
 		if(!tree.LoadTree(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
 			return false;
 		}
 
@@ -645,28 +646,28 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 			ZIPFileEntry* entry = archive.GetFileEntry(binaryFileName);
 			if(entry == 0)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
 				return false;
 			}
 			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 			binaryData.SetStreamPos(0);
 			if(!entry->Decompress(binaryData))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
 				return false;
 			}
 		}
 	}
-	else if(fileType == FILETYPE_XML)
+	else if(fileType == FileType::XML)
 	{
 		//Determine the text format for the target file
-		source.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+		source.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		source.ProcessByteOrderMark();
 
 		//Attempt to load the XML tree from the file
 		if(!tree.LoadTree(source))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
 			return false;
 		}
 
@@ -690,7 +691,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 			FileStreamReference binaryFileStreamReference(guiExtensionInterface);
 			if(!binaryFileStreamReference.OpenExistingFileForRead(binaryFilePath))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found in the target path " + fileDir + L"!"));
 				return false;
 			}
 			Stream::IStream& binaryFile = *binaryFileStreamReference;
@@ -703,13 +704,13 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 			if(!binaryFile.ReadData(buffer, bufferSize))
 			{
 				delete[] buffer;
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error reading binary data from file " + binaryFileName + L"!"));
 				return false;
 			}
 			if(!binaryData.WriteData(buffer, bufferSize))
 			{
 				delete[] buffer;
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error saving binary data read from file " + binaryFileName + L"!"));
 				return false;
 			}
 			delete[] buffer;
@@ -720,7 +721,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if(rootNode.GetName() != L"PersistentState")
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load persistent state from file " + filePath + L" because the root node in the XML tree wasn't of type \"PersistentState\"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the root node in the XML tree wasn't of type \"PersistentState\"!"));
 		return false;
 	}
 
@@ -762,19 +763,19 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 				//If a matching loaded device couldn't be located, log an error.
 				if(!foundDevice)
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"While loading persistent state data from file " + filePath + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"While loading persistent state data from file " + filePath + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
 				}
 			}
 		}
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading persistent state from file " + filePath + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized element: " + elementName + L" when loading persistent state from file " + filePath + L"."));
 		}
 	}
 
 	//Log the event
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Loaded persistent state from file " + filePath));
+	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Loaded persistent state from file " + filePath));
 
 	return true;
 }
@@ -815,14 +816,14 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
 	stateInfo.CreateAttribute(L"CreationTime", timestamp.GetTime());
 
-	if(fileType == FILETYPE_ZIP)
+	if(fileType == FileType::ZIP)
 	{
 		//Save the XML tree to a unicode buffer
-		Stream::Buffer buffer(Stream::IStream::TEXTENCODING_UTF8, 0);
+		Stream::Buffer buffer(Stream::IStream::TextEncoding::UTF8, 0);
 		buffer.InsertByteOrderMark();
 		if(!tree.SaveTree(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 			return false;
 		}
 
@@ -832,7 +833,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 		buffer.SetStreamPos(0);
 		if(!entry.Compress(buffer))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error compressing the save.xml file!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error compressing the save.xml file!"));
 			return false;
 		}
 		archive.AddFileEntry(entry);
@@ -849,7 +850,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 			binaryData.SetStreamPos(0);
 			if(!entry.Compress(binaryData))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error compressing the " + binaryFileName + L" file!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error compressing the " + binaryFileName + L" file!"));
 				return false;
 			}
 			archive.AddFileEntry(entry);
@@ -857,30 +858,30 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 
 		//Create the target file
 		Stream::File target;
-		if(!target.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+		if(!target.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 			return false;
 		}
 		if(!archive.SaveToStream(target))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error saving the zip structure to the file!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error saving the zip structure to the file!"));
 			return false;
 		}
 	}
-	else if(fileType == FILETYPE_XML)
+	else if(fileType == FileType::XML)
 	{
 		//Save XML tree to the target file
-		Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
-		if(!file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+		Stream::File file(Stream::IStream::TextEncoding::UTF8);
+		if(!file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 			return false;
 		}
 		file.InsertByteOrderMark();
 		if(!tree.SaveTree(file))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 			return false;
 		}
 
@@ -894,9 +895,9 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 			std::wstring binaryFileName = fileName + L" - " + (*i)->GetBinaryDataBufferName() + L".bin";
 			std::wstring binaryFilePath = PathCombinePaths(fileDir, binaryFileName);
 			Stream::File binaryFile;
-			if(!binaryFile.Open(binaryFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+			if(!binaryFile.Open(binaryFilePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error creating the binary data file " + binaryFileName + L" at the full path of " + binaryFilePath + L"!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error creating the binary data file " + binaryFileName + L" at the full path of " + binaryFilePath + L"!"));
 				return false;
 			}
 
@@ -907,12 +908,12 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 				unsigned char temp;
 				if(!binaryData.ReadData(temp))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error reading the source data from memory to save to the binary data file " + binaryFileName + L"!"));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error reading the source data from memory to save to the binary data file " + binaryFileName + L"!"));
 					return false;
 				}
 				if(!binaryFile.WriteData(temp))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error writing to the binary data file " + binaryFileName + L"!"));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error writing to the binary data file " + binaryFileName + L"!"));
 					return false;
 				}
 			}
@@ -920,7 +921,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 	}
 
 	//Log the event
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Saved persistent state to file " + filePath));
+	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Saved persistent state to file " + filePath));
 
 	return true;
 }
@@ -940,7 +941,7 @@ System::StateInfo System::GetStateInfo(const std::wstring& filePath, FileType fi
 	Stream::IStream& source = *sourceStreamReference;
 
 	HierarchicalStorageTree tree;
-	if(fileType == FILETYPE_ZIP)
+	if(fileType == FileType::ZIP)
 	{
 		//Load the ZIP header structure
 		ZIPArchive archive;
@@ -961,16 +962,16 @@ System::StateInfo System::GetStateInfo(const std::wstring& filePath, FileType fi
 			return stateInfo;
 		}
 		buffer.SetStreamPos(0);
-		buffer.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+		buffer.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		buffer.ProcessByteOrderMark();
 		if(!tree.LoadTree(buffer))
 		{
 			return stateInfo;
 		}
 	}
-	else if(fileType == FILETYPE_XML)
+	else if(fileType == FileType::XML)
 	{
-		source.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+		source.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		source.ProcessByteOrderMark();
 		if(!tree.LoadTree(source))
 		{
@@ -1313,7 +1314,7 @@ bool System::DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedR
 //----------------------------------------------------------------------------------------
 void System::WriteLogEvent(const ILogEntry& entry) const
 {
-	boost::mutex::scoped_lock lock(eventLogMutex);
+	std::unique_lock<std::mutex> lock(eventLogMutex);
 	SystemLogEntry logEntryInternal;
 	logEntryInternal.text = entry.GetText();
 	logEntryInternal.source = entry.GetSource();
@@ -1331,7 +1332,7 @@ void System::WriteLogEvent(const ILogEntry& entry) const
 //----------------------------------------------------------------------------------------
 std::vector<System::SystemLogEntry> System::GetEventLog() const
 {
-	boost::mutex::scoped_lock lock(eventLogMutex);
+	std::unique_lock<std::mutex> lock(eventLogMutex);
 	std::vector<SystemLogEntry> eventLogCopy(log.size());
 	unsigned int eventLogCopyIndex = 0;
 	for(std::list<SystemLogEntry>::const_iterator i = log.begin(); i != log.end(); ++i)
@@ -1350,14 +1351,14 @@ void System::GetEventLogInternal(const InteropSupport::ISTLObjectTarget<std::vec
 //----------------------------------------------------------------------------------------
 unsigned int System::GetEventLogLastModifiedToken() const
 {
-	boost::mutex::scoped_lock lock(eventLogMutex);
+	std::unique_lock<std::mutex> lock(eventLogMutex);
 	return eventLogLastModifiedToken;
 }
 
 //----------------------------------------------------------------------------------------
 void System::ClearEventLog()
 {
-	boost::mutex::scoped_lock lock(eventLogMutex);
+	std::unique_lock<std::mutex> lock(eventLogMutex);
 	log.clear();
 	++eventLogLastModifiedToken;
 }
@@ -1365,14 +1366,14 @@ void System::ClearEventLog()
 //----------------------------------------------------------------------------------------
 unsigned int System::GetEventLogSize() const
 {
-	boost::mutex::scoped_lock lock(eventLogMutex);
+	std::unique_lock<std::mutex> lock(eventLogMutex);
 	return eventLogSize;
 }
 
 //----------------------------------------------------------------------------------------
 void System::SetEventLogSize(unsigned int alogSize)
 {
-	boost::mutex::scoped_lock lock(eventLogMutex);
+	std::unique_lock<std::mutex> lock(eventLogMutex);
 	eventLogSize = alogSize;
 	while(log.size() > eventLogSize)
 	{
@@ -1386,7 +1387,7 @@ void System::SetEventLogSize(unsigned int alogSize)
 //----------------------------------------------------------------------------------------
 std::list<unsigned int> System::GetEmbeddedROMIDs() const
 {
-	boost::mutex::scoped_lock lock(embeddedROMMutex);
+	std::unique_lock<std::mutex> lock(embeddedROMMutex);
 	std::list<unsigned int> embeddedROMIDList;
 	for(std::map<unsigned int, EmbeddedROMInfoInternal>::const_iterator i = embeddedROMInfoSet.begin(); i != embeddedROMInfoSet.end(); ++i)
 	{
@@ -1404,7 +1405,7 @@ void System::GetEmbeddedROMIDsInternal(const InteropSupport::ISTLObjectTarget<st
 //----------------------------------------------------------------------------------------
 unsigned int System::GetEmbeddedROMInfoLastModifiedToken() const
 {
-	boost::mutex::scoped_lock lock(embeddedROMMutex);
+	std::unique_lock<std::mutex> lock(embeddedROMMutex);
 	return embeddedROMInfoLastModifiedToken;
 }
 
@@ -1412,7 +1413,7 @@ unsigned int System::GetEmbeddedROMInfoLastModifiedToken() const
 bool System::GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& embeddedROMInfo) const
 {
 	//Attempt to locate the target embedded ROM entry
-	boost::mutex::scoped_lock lock(embeddedROMMutex);
+	std::unique_lock<std::mutex> lock(embeddedROMMutex);
 	std::map<unsigned int, EmbeddedROMInfoInternal>::const_iterator embeddedROMInfoIterator = embeddedROMInfoSet.find(embeddedROMID);
 	if(embeddedROMInfoIterator == embeddedROMInfoSet.end())
 	{
@@ -1437,7 +1438,7 @@ bool System::GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& em
 bool System::SetEmbeddedROMPath(unsigned int embeddedROMID, const std::wstring& filePath)
 {
 	//Attempt to locate the target embedded ROM entry
-	boost::mutex::scoped_lock lock(embeddedROMMutex);
+	std::unique_lock<std::mutex> lock(embeddedROMMutex);
 	std::map<unsigned int, EmbeddedROMInfoInternal>::iterator embeddedROMInfoIterator = embeddedROMInfoSet.find(embeddedROMID);
 	if(embeddedROMInfoIterator == embeddedROMInfoSet.end())
 	{
@@ -1466,7 +1467,7 @@ bool System::SetEmbeddedROMPathInternal(unsigned int embeddedROMID, const Intero
 bool System::ReloadEmbeddedROMData(unsigned int embeddedROMID)
 {
 	//Attempt to locate the target embedded ROM entry
-	boost::mutex::scoped_lock lock(embeddedROMMutex);
+	std::unique_lock<std::mutex> lock(embeddedROMMutex);
 	std::map<unsigned int, EmbeddedROMInfoInternal>::const_iterator embeddedROMInfoIterator = embeddedROMInfoSet.find(embeddedROMID);
 	if(embeddedROMInfoIterator == embeddedROMInfoSet.end())
 	{
@@ -1488,7 +1489,7 @@ bool System::ReloadEmbeddedROMData(const EmbeddedROMInfoInternal& targetEmbedded
 
 	//Attempt to load this ROM data into the target device
 	Stream::File file;
-	bool result = file.Open(targetEmbeddedROMInfo.filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN);
+	bool result = file.Open(targetEmbeddedROMInfo.filePath, Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open);
 	if(result)
 	{
 		Data romDataEntry(targetEmbeddedROMInfo.romEntryBitCount);
@@ -1516,7 +1517,7 @@ bool System::ReloadEmbeddedROMData(const EmbeddedROMInfoInternal& targetEmbedded
 //----------------------------------------------------------------------------------------
 std::list<unsigned int> System::GetModuleSettingIDs(unsigned int moduleID) const
 {
-	boost::mutex::scoped_lock lock(moduleSettingMutex);
+	std::unique_lock<std::mutex> lock(moduleSettingMutex);
 	std::list<unsigned int> moduleSettingIDList;
 	ModuleSystemSettingMap::const_iterator moduleSettingsIterator = moduleSettings.find(moduleID);
 	if(moduleSettingsIterator != moduleSettings.end())
@@ -1536,7 +1537,7 @@ void System::GetModuleSettingIDsInternal(unsigned int moduleID, const InteropSup
 bool System::GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSettingID, IModuleSettingInfo& moduleSettingInfo) const
 {
 	//Locate the target module setting
-	boost::mutex::scoped_lock lock(moduleSettingMutex);
+	std::unique_lock<std::mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::const_iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1563,7 +1564,7 @@ bool System::GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSett
 bool System::GetModuleSettingOptionInfo(unsigned int moduleID, unsigned int moduleSettingID, unsigned int moduleSettingOptionIndex, IModuleSettingOptionInfo& moduleSettingOptionInfo) const
 {
 	//Locate the target module setting
-	boost::mutex::scoped_lock lock(moduleSettingMutex);
+	std::unique_lock<std::mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::const_iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1592,7 +1593,7 @@ bool System::GetModuleSettingOptionInfo(unsigned int moduleID, unsigned int modu
 bool System::GetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned int moduleSettingID, unsigned int& activeModuleOptionIndex) const
 {
 	//Locate the target module setting
-	boost::mutex::scoped_lock lock(moduleSettingMutex);
+	std::unique_lock<std::mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::const_iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1613,7 +1614,7 @@ bool System::GetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned i
 bool System::SetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned int moduleSettingID, unsigned int activeOptionIndex)
 {
 	//Locate the target module setting
-	boost::mutex::scoped_lock lock(moduleSettingMutex);
+	std::unique_lock<std::mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1718,7 +1719,7 @@ bool System::SetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned i
 void System::ModuleSettingActiveOptionChangeNotifyRegister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer)
 {
 	//Locate the target module setting
-	boost::mutex::scoped_lock lock(moduleSettingMutex);
+	std::unique_lock<std::mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1738,7 +1739,7 @@ void System::ModuleSettingActiveOptionChangeNotifyRegister(unsigned int moduleID
 void System::ModuleSettingActiveOptionChangeNotifyDeregister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer)
 {
 	//Locate the target module setting
-	boost::mutex::scoped_lock lock(moduleSettingMutex);
+	std::unique_lock<std::mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1928,7 +1929,7 @@ bool System::ValidateSystem()
 			std::wstring message = L"ValidateDevice failed for ";
 			message += i->name;
 			message += L"!";
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", message));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", message));
 			result = false;
 		}
 	}
@@ -1982,9 +1983,9 @@ void System::InitializeInternal()
 			const LoadedModuleInfoInternal& moduleInfo = i->second;
 			std::wstring persistentModuleFileName = moduleInfo.className + L".zip";
 			std::wstring persistentModuleFilePath = PathCombinePaths(guiExtensionInterface.GetGlobalPreferencePathPersistentState(), persistentModuleFileName);
-			if(!LoadPersistentStateForModule(persistentModuleFilePath, moduleInfo.moduleID, FILETYPE_ZIP, true))
+			if(!LoadPersistentStateForModule(persistentModuleFilePath, moduleInfo.moduleID, FileType::ZIP, true))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to load persistent state from file \"" + persistentModuleFilePath + L"\" when initializing module with name " + moduleInfo.displayName + L"."));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to load persistent state from file \"" + persistentModuleFilePath + L"\" when initializing module with name " + moduleInfo.displayName + L"."));
 			}
 		}
 	}
@@ -2088,18 +2089,19 @@ void System::RunSystem()
 	if(!SystemRunning())
 	{
 		//Log the event
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"System entered the running state"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"System entered the running state"));
 
 		stopSystem = false;
 		systemStopped = false;
-		boost::thread workerThread(boost::bind(boost::mem_fn(&System::ExecuteThread), this));
+		std::thread workerThread(std::bind(std::mem_fn(&System::ExecuteThread), this));
+		workerThread.detach();
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void System::StopSystem()
 {
-	boost::mutex::scoped_lock lock(systemStateMutex);
+	std::unique_lock<std::mutex> lock(systemStateMutex);
 	if(!systemStopped)
 	{
 		stopSystem = true;
@@ -2107,7 +2109,7 @@ void System::StopSystem()
 		stopSystem = false;
 
 		//Log the event
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"System halted"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"System halted"));
 	}
 }
 
@@ -2419,7 +2421,7 @@ void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* a
 	message << std::setprecision(16) << timeslice << '\n';
 	std::wcout << message.str();
 
-	boost::mutex::scoped_lock lock(systemRollbackMutex);
+	std::unique_lock<std::mutex> lock(systemRollbackMutex);
 	if(!rollback || (timeslice < rollbackTimeslice))
 	{
 		rollback = true;
@@ -2435,7 +2437,7 @@ void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* a
 		//operation itself, which will then create a rollback target that we can't
 		//actually advance up to without triggering the rollback again. See EX-62 for more
 		//info.
-		if((arollbackDevice != 0) && (arollbackDevice->GetTargetDevice().GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP))
+		if((arollbackDevice != 0) && (arollbackDevice->GetTargetDevice().GetUpdateMethod() == IDevice::UpdateMethod::Step))
 		{
 			rollbackTimeslice = arollbackDevice->GetCurrentTimesliceProgress();
 		}
@@ -2493,7 +2495,7 @@ void System::SetEnablePersistentState(bool state)
 //----------------------------------------------------------------------------------------
 void System::SignalSystemStopped()
 {
-	boost::mutex::scoped_lock lock(systemStateMutex);
+	std::unique_lock<std::mutex> lock(systemStateMutex);
 	systemStopped = true;
 	notifySystemStopped.notify_all();
 }
@@ -2506,28 +2508,28 @@ bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHan
 	//Make sure a valid device class name has been supplied
 	if(entry.GetDeviceClassName().empty())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device. No device class name was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device. No device class name was supplied."));
 		return false;
 	}
 
 	//Make sure a valid device implementation name has been supplied
 	if(entry.GetDeviceImplementationName().empty())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device. No device implementation name was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device. No device implementation name was supplied."));
 		return false;
 	}
 
 	//Make sure an allocator function has been supplied
 	if(entry.GetAllocator() == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device " + entry.GetDeviceImplementationName() + L". No allocator function was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device " + entry.GetDeviceImplementationName() + L". No allocator function was supplied."));
 		return false;
 	}
 
 	//Make sure a destructor function has been supplied
 	if(entry.GetDestructor() == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering device " + entry.GetDeviceImplementationName() + L". No destructor function was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device " + entry.GetDeviceImplementationName() + L". No destructor function was supplied."));
 		return false;
 	}
 
@@ -2541,7 +2543,7 @@ bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHan
 			//return true.
 			std::wstringstream message;
 			message << L"Ignored device " << entry.GetDeviceImplementationName() << L" with version number " << entry.GetDeviceVersionNo() << L" because another version of this device has already been registered with a version number of " << existingEntry->second.versionNo << L".";
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", message.str()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", message.str()));
 			return true;
 		}
 		else
@@ -2549,7 +2551,7 @@ bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHan
 			//Log the fact we just overrode an existing device registration
 			std::wstringstream message;
 			message << L"Device " << entry.GetDeviceImplementationName() << L" with version number " << entry.GetDeviceVersionNo() << L" overrode the existing registration for this device with version number " << existingEntry->second.versionNo << L".";
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", message.str()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", message.str()));
 
 			//If the existing device registration is for an older version, remove the old
 			//device registration. This new registration with a higher version number
@@ -2571,7 +2573,7 @@ bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHan
 	deviceLibrary.insert(DeviceLibraryListEntry(entry.GetDeviceImplementationName(), listEntry));
 
 	//Log the device registration
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Successfully registered device " + entry.GetDeviceImplementationName() + L"."));
+	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Successfully registered device " + entry.GetDeviceImplementationName() + L"."));
 
 	return true;
 }
@@ -2600,28 +2602,28 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 	//Make sure a valid extension class name has been supplied
 	if(entry.GetExtensionClassName().empty())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension. No extension class name was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension. No extension class name was supplied."));
 		return false;
 	}
 
 	//Make sure a valid extension implementation name has been supplied
 	if(entry.GetExtensionImplementationName().empty())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension. No extension implementation name was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension. No extension implementation name was supplied."));
 		return false;
 	}
 
 	//Make sure an allocator function has been supplied
 	if(entry.GetAllocator() == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension " + entry.GetExtensionImplementationName() + L". No allocator function was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension " + entry.GetExtensionImplementationName() + L". No allocator function was supplied."));
 		return false;
 	}
 
 	//Make sure a destructor function has been supplied
 	if(entry.GetDestructor() == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error registering extension " + entry.GetExtensionImplementationName() + L". No destructor function was supplied."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension " + entry.GetExtensionImplementationName() + L". No destructor function was supplied."));
 		return false;
 	}
 
@@ -2635,7 +2637,7 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 			//event, and return true.
 			std::wstringstream message;
 			message << L"Ignored extension " << entry.GetExtensionImplementationName() << L" with version number " << entry.GetExtensionVersionNo() << L" because another version of this extension has already been registered with a version number of " << existingEntry->second.versionNo << L".";
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", message.str()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", message.str()));
 			return true;
 		}
 		else
@@ -2643,7 +2645,7 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 			//Log the fact we just overrode an existing extension registration
 			std::wstringstream message;
 			message << L"Extension " << entry.GetExtensionImplementationName() << L" with version number " << entry.GetExtensionVersionNo() << L" overrode the existing registration for this extension with version number " << existingEntry->second.versionNo << L".";
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", message.str()));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", message.str()));
 
 			//If the existing extension registration is for an older version, remove the
 			//old extension registration. This new registration with a higher version
@@ -2665,7 +2667,7 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 	extensionLibrary.insert(ExtensionLibraryListEntry(entry.GetExtensionImplementationName(), listEntry));
 
 	//Log the extension registration
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Successfully registered extension " + entry.GetExtensionImplementationName() + L"."));
+	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Successfully registered extension " + entry.GetExtensionImplementationName() + L"."));
 
 	return true;
 }
@@ -2718,7 +2720,7 @@ void System::UnloadDevice(IDevice* adevice)
 	UnmapAllKeyCodeMappingsForDevice(adevice);
 
 	//Remove all registered input targets for this device from our input registration list
-	boost::mutex::scoped_lock inputLock(inputMutex);
+	std::unique_lock<std::mutex> inputLock(inputMutex);
 	InputRegistrationList::iterator inputRegistrationListIterator = inputRegistrationList.begin();
 	while(inputRegistrationListIterator != inputRegistrationList.end())
 	{
@@ -2940,7 +2942,8 @@ void System::LoadModuleSynchronous(const std::wstring& filePath, const Connector
 	loadSystemComplete = false;
 	loadSystemProgress = 0;
 	loadSystemAbort = false;
-	boost::thread workerThread(boost::bind(boost::mem_fn(&System::LoadModule), this, filePath, connectorMappings));
+	std::thread workerThread(std::bind(std::mem_fn(&System::LoadModule), this, filePath, connectorMappings));
+	workerThread.detach();
 }
 
 //----------------------------------------------------------------------------------------
@@ -2982,7 +2985,7 @@ bool System::LoadModuleSynchronousAborted() const
 //----------------------------------------------------------------------------------------
 bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList& connectorMappings)
 {
-	boost::mutex::scoped_lock lock(moduleLoadMutex);
+	std::unique_lock<std::mutex> lock(moduleLoadMutex);
 
 	//Initialize the system load status
 	loadSystemAbort = false;
@@ -3000,14 +3003,14 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 	if(!LoadModuleInternal(filePath, connectorMappings, viewOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModuleIDs))
 	{
 		//If there's an error loading the module, log the failure, and return false.
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + filePath + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load module from file " + filePath + L"!"));
 		for(std::list<unsigned int>::const_iterator addedModuleIterator = addedModuleIDs.begin(); addedModuleIterator != addedModuleIDs.end(); ++addedModuleIterator)
 		{
 			UnloadModuleInternal(*addedModuleIterator);
 		}
 		if(!ValidateSystem())
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Error restoring system after loading of module " + filePath + L" failed."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Error restoring system after loading of module " + filePath + L" failed."));
 		}
 		loadSystemComplete = true;
 		loadSystemResult = false;
@@ -3029,14 +3032,14 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 		{
 			//If there's an error binding the ce line mappings, log the failure, and
 			//return false.
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindCELineMappings failed for BusInterface " + i->name + L" when loading module from file " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindCELineMappings failed for BusInterface " + i->name + L" when loading module from file " + filePath + L"!"));
 			for(std::list<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 			{
 				UnloadModuleInternal(*addedModuleIDsIterator);
 			}
 			if(!ValidateSystem())
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Error restoring system after loading of module " + filePath + L" failed."));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Error restoring system after loading of module " + filePath + L" failed."));
 			}
 			loadSystemComplete = true;
 			loadSystemResult = false;
@@ -3063,14 +3066,14 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 	if(!ValidateSystem())
 	{
 		//If there's an error building the system, log the failure, and return false.
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"System validation failed after loading module from file " + filePath + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"System validation failed after loading module from file " + filePath + L"!"));
 		for(std::list<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 		{
 			UnloadModuleInternal(*addedModuleIDsIterator);
 		}
 		if(!ValidateSystem())
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Error restoring system after loading of module " + filePath + L" failed."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Error restoring system after loading of module " + filePath + L" failed."));
 		}
 		loadSystemComplete = true;
 		loadSystemResult = false;
@@ -3127,7 +3130,7 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 	//for any system settings in the set of loaded modules.
 	for(std::list<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 	{
-		boost::mutex::scoped_lock moduleSettingsLock(moduleSettingMutex);
+		std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
 		ModuleSystemSettingMap::const_iterator moduleSettingsIterator = moduleSettings.find(*addedModuleIDsIterator);
 		if(moduleSettingsIterator != moduleSettings.end())
 		{
@@ -3154,7 +3157,7 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 						//Apply this system state change
 						if(!ApplySystemStateChange(*i))
 						{
-							WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to apply system setting change for element with name \"" + i->targetElementName + L"\" in system option \"" + settingOption.name + L"\" on system setting \"" + systemSettingInfo.name + L"\" when loading module from file " + filePath + L"!"));
+							WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to apply system setting change for element with name \"" + i->targetElementName + L"\" in system option \"" + settingOption.name + L"\" on system setting \"" + systemSettingInfo.name + L"\" when loading module from file " + filePath + L"!"));
 						}
 					}
 				}
@@ -3168,7 +3171,7 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 		//Apply this system state change
 		if(!ApplySystemStateChange(*i))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to apply system setting change operating on element with name \"" + i->targetElementName + L"\" when loading module from file " + filePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to apply system setting change operating on element with name \"" + i->targetElementName + L"\" when loading module from file " + filePath + L"!"));
 		}
 	}
 
@@ -3193,7 +3196,7 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 			{
 				if(!SetDeviceKeyCodeMapping(defaultInputRegistration.targetDevice, defaultInputRegistration.deviceKeyCode, defaultInputRegistration.systemKeyCode))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"SetDeviceKeyCodeMapping failed on default input registration for " + defaultInputRegistration.targetDevice->GetDeviceInstanceName() + L" with device key code " + defaultInputRegistration.targetDevice->GetKeyCodeName(defaultInputRegistration.deviceKeyCode) + L" and system key code " + GetKeyCodeName(defaultInputRegistration.systemKeyCode) + L"!"));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"SetDeviceKeyCodeMapping failed on default input registration for " + defaultInputRegistration.targetDevice->GetDeviceInstanceName() + L" with device key code " + defaultInputRegistration.targetDevice->GetKeyCodeName(defaultInputRegistration.deviceKeyCode) + L" and system key code " + GetKeyCodeName(defaultInputRegistration.systemKeyCode) + L"!"));
 				}
 			}
 		}
@@ -3265,7 +3268,7 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 
 	//Save all input registration requests from the list of loaded modules into the list
 	//of active input registrations.
-	boost::mutex::scoped_lock inputLock(inputMutex);
+	std::unique_lock<std::mutex> inputLock(inputMutex);
 	inputRegistrationList.splice(inputRegistrationList.end(), inputRegistrationRequests);
 
 	//Update the last modified token for the input device list
@@ -3275,7 +3278,7 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 	inputLock.unlock();
 
 	//Log the event
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Loaded module from file " + filePath + L"."));
+	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Loaded module from file " + filePath + L"."));
 
 	//Process any view open requests we encountered during the system load
 	LoadModule_ProcessViewQueue(viewOpenRequests);
@@ -3316,21 +3319,21 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	FileStreamReference sourceStreamReference(guiExtensionInterface);
 	if(!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not open module file " + filePath + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not open module file " + filePath + L"!"));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
 	Stream::IStream& source = *sourceStreamReference;
 
 	//Determine the text format for the file, and strip any present byte order mark.
-	source.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+	source.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 	source.ProcessByteOrderMark();
 
 	//Load the XML structure from the file
 	HierarchicalStorageTree tree;
 	if(!tree.LoadTree(source))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error loading XML structure from module file " + filePath + L"! The xml error string is as follows: " + tree.GetErrorString()));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error loading XML structure from module file " + filePath + L"! The xml error string is as follows: " + tree.GetErrorString()));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
@@ -3356,7 +3359,7 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		FileStreamReference binaryFileStreamReference(guiExtensionInterface);
 		if(!binaryFileStreamReference.OpenExistingFileForRead(binaryFilePath))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + filePath + L" because a binary data file could not be found in the target path " + binaryFilePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load module from file " + filePath + L" because a binary data file could not be found in the target path " + binaryFilePath + L"!"));
 			PopLoadModuleCurrentModuleName();
 			return false;
 		}
@@ -3372,14 +3375,14 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		if(!dataStream.ReadData(buffer, bufferSize))
 		{
 			delete[] buffer;
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + filePath + L" because there was an error reading binary data from file " + binaryFilePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load module from file " + filePath + L" because there was an error reading binary data from file " + binaryFilePath + L"!"));
 			PopLoadModuleCurrentModuleName();
 			return false;
 		}
 		if(!binaryData.WriteData(buffer, bufferSize))
 		{
 			delete[] buffer;
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load module from file " + filePath + L" because there was an error saving binary data read from file " + binaryFilePath + L"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load module from file " + filePath + L" because there was an error saving binary data read from file " + binaryFilePath + L"!"));
 			PopLoadModuleCurrentModuleName();
 			return false;
 		}
@@ -3397,7 +3400,7 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	else if(rootNode.GetName() != L"Module")
 	{
 		//Neither a system nor a module root node was found. Abort any further processing.
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error loading module file " + filePath + L"! The root node was not of type System or Module!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error loading module file " + filePath + L"! The root node was not of type System or Module!"));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
@@ -3413,7 +3416,7 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	IHierarchicalStorageAttribute* moduleInstanceNameAttribute = rootNode.GetAttribute(L"ModuleInstanceName");
 	if((systemClassNameAttribute == 0) || (moduleClassNameAttribute == 0) || (moduleInstanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SystemClassName, ModuleClassName, or ModuleInstanceName attribute on root node!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing SystemClassName, ModuleClassName, or ModuleInstanceName attribute on root node!"));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
@@ -3748,7 +3751,7 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading module file " + filePath + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized element: " + elementName + L" when loading module file " + filePath + L"."));
 		}
 	}
 
@@ -3759,7 +3762,7 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	//If the system load was aborted, log the event and return false.
 	if(loadSystemAbort)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading module from file " + filePath + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"The user aborted loading module from file " + filePath + L"."));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
@@ -3768,7 +3771,7 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	//false.
 	if(!loadedWithoutErrors)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Errors occurred while loading module from file " + filePath + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Errors occurred while loading module from file " + filePath + L"."));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
@@ -3787,7 +3790,7 @@ bool System::LoadSystem_Device_Settings(IHierarchicalStorageNode& node, std::map
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if((moduleIDAttribute == 0) || (deviceInstanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID or DeviceInstanceName attribute for Device.Settings!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ModuleID or DeviceInstanceName attribute for Device.Settings!"));
 		return false;
 	}
 	unsigned int moduleIDExternal = moduleIDAttribute->ExtractValue<unsigned int>();
@@ -3797,7 +3800,7 @@ bool System::LoadSystem_Device_Settings(IHierarchicalStorageNode& node, std::map
 	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
 	if(loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate imported module with ID " << moduleIDExternal << L" for Device.Settings!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -3808,7 +3811,7 @@ bool System::LoadSystem_Device_Settings(IHierarchicalStorageNode& node, std::map
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate target device with name " + deviceName + L" for Device.Settings!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate target device with name " + deviceName + L" for Device.Settings!"));
 		return false;
 	}
 
@@ -3828,7 +3831,7 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 	IHierarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
 	if((moduleIDAttribute == 0) || (deviceInstanceNameAttribute == 0) || (systemKeyCodeAttribute == 0) || (deviceKeyCodeAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID, DeviceInstanceName, SystemKeyCode or DeviceKeyCode attribute for Device.MapInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ModuleID, DeviceInstanceName, SystemKeyCode or DeviceKeyCode attribute for Device.MapInput!"));
 		return false;
 	}
 	unsigned int moduleIDExternal = moduleIDAttribute->ExtractValue<unsigned int>();
@@ -3840,7 +3843,7 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
 	if(loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate imported module with ID " << moduleIDExternal << L" for Device.MapInput!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -3851,7 +3854,7 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate target device with name " + deviceName + L" for Device.MapInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate target device with name " + deviceName + L" for Device.MapInput!"));
 		return false;
 	}
 
@@ -3859,22 +3862,22 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 	unsigned int deviceKeyCode = device->GetKeyCodeID(deviceKeyCodeString);
 	if(deviceKeyCode == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device key code with name " + deviceKeyCodeString + L" on device " + deviceName + L" for Device.MapInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device key code with name " + deviceKeyCodeString + L" on device " + deviceName + L" for Device.MapInput!"));
 		return false;
 	}
 
 	//Translate the system key code
 	KeyCode systemKeyCode = GetKeyCodeID(systemKeyCodeString);
-	if(systemKeyCode == ISystemDeviceInterface::KEYCODE_NONE)
+	if(systemKeyCode == ISystemDeviceInterface::KeyCode::None)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate system key code with name " + systemKeyCodeString + L" for Device.MapInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate system key code with name " + systemKeyCodeString + L" for Device.MapInput!"));
 		return false;
 	}
 
 	//Add the key code mapping to the system
 	if(!SetDeviceKeyCodeMapping(device, deviceKeyCode, systemKeyCode))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"SetDeviceKeyCodeMapping failed on Device.MapInput key for " + deviceName + L" with device key code " + deviceKeyCodeString + L" and system key code " + systemKeyCodeString + L" for Device.MapInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"SetDeviceKeyCodeMapping failed on Device.MapInput key for " + deviceName + L" with device key code " + deviceKeyCodeString + L" and system key code " + systemKeyCodeString + L" for Device.MapInput!"));
 	}
 
 	return true;
@@ -3889,7 +3892,7 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	IHierarchicalStorageAttribute* filePathAttribute = node.GetAttribute(L"FilePath");
 	if((moduleIDAttribute == 0) || (embeddedROMNameAttribute == 0) || (filePathAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID, EmbeddedROMName or FilePath attribute for System.LoadEmbeddedROMData!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ModuleID, EmbeddedROMName or FilePath attribute for System.LoadEmbeddedROMData!"));
 		return false;
 	}
 	unsigned int moduleIDExternal = moduleIDAttribute->ExtractValue<unsigned int>();
@@ -3900,7 +3903,7 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
 	if(loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate imported module with ID " << moduleIDExternal << L" for System.LoadEmbeddedROMData!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -3908,7 +3911,7 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	unsigned int moduleID = loadedModuleIDIterator->second;
 
 	//Locate the defined ROM info for this embedded ROM
-	boost::mutex::scoped_lock embeddedROMLock(embeddedROMMutex);
+	std::unique_lock<std::mutex> embeddedROMLock(embeddedROMMutex);
 	EmbeddedROMInfoInternal* embeddedROMInfoEntry = 0;
 	std::map<unsigned int, EmbeddedROMInfoInternal>::iterator embeddedROMInfoIterator = embeddedROMInfoSet.begin();
 	while((embeddedROMInfoEntry == 0) && (embeddedROMInfoIterator != embeddedROMInfoSet.end()))
@@ -3923,7 +3926,7 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	}
 	if(embeddedROMInfoEntry == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate matching embedded ROM definition for embedded ROM with name \"" << embeddedROMName << L"\" in module with ID \"" << moduleID << L"\" for System.LoadEmbeddedROMData!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -3943,7 +3946,7 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	FileStreamReference fileStreamReference(guiExtensionInterface);
 	if(!fileStreamReference.OpenExistingFileForRead(filePath))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to open target file with path \"" + filePath + L"\" when attempting to load data for embedded ROM with name \"" + embeddedROMName + L"\" for System.LoadEmbeddedROMData!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to open target file with path \"" + filePath + L"\" when attempting to load data for embedded ROM with name \"" + embeddedROMName + L"\" for System.LoadEmbeddedROMData!"));
 		return false;
 	}
 	Stream::IStream& file = *fileStreamReference;
@@ -3973,7 +3976,7 @@ bool System::LoadSystem_System_SelectSettingOption(IHierarchicalStorageNode& nod
 	IHierarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
 	if(moduleIDAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ModuleID attribute for System.SelectSettingOption!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ModuleID attribute for System.SelectSettingOption!"));
 		return false;
 	}
 	unsigned int moduleIDExternal = moduleIDAttribute->ExtractValue<unsigned int>();
@@ -3982,7 +3985,7 @@ bool System::LoadSystem_System_SelectSettingOption(IHierarchicalStorageNode& nod
 	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
 	if(loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate imported module with ID " << moduleIDExternal << L" for System.SelectSettingOption!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -4012,7 +4015,7 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 	//Validate that we managed to retrieve the module relationships data from the file
 	if(!moduleRelationshipsLoaded)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load system from file " + filePath + L" because the ModuleRelationships node could not be loaded!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load system from file " + filePath + L" because the ModuleRelationships node could not be loaded!"));
 		return false;
 	}
 
@@ -4092,7 +4095,7 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 	//If the system load was aborted, log the event and return false.
 	if(loadSystemAbort)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading system from file " + filePath + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"The user aborted loading system from file " + filePath + L"."));
 		return false;
 	}
 
@@ -4100,7 +4103,7 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 	//false.
 	if(!modulesLoadedWithoutErrors)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"One or more modules failed to load successfully when loading system from file " + filePath + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"One or more modules failed to load successfully when loading system from file " + filePath + L"."));
 		return false;
 	}
 
@@ -4148,14 +4151,14 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized element: " + elementName + L" when loading system file " + filePath + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized element: " + elementName + L" when loading system file " + filePath + L"."));
 		}
 	}
 
 	//If the system load was aborted, log the event, and flag the module to unload.
 	if(loadSystemAbort)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"The user aborted loading system from file " + filePath + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"The user aborted loading system from file " + filePath + L"."));
 		return false;
 	}
 
@@ -4163,7 +4166,7 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 	//module to unload.
 	if(!loadedWithoutErrors)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Errors occurred while loading system from file " + filePath + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Errors occurred while loading system from file " + filePath + L"."));
 		return false;
 	}
 
@@ -4202,7 +4205,7 @@ bool System::SaveSystem(const std::wstring& filePath)
 	}
 
 	//Save mapped key inputs to the system file
-	boost::mutex::scoped_lock inputLock(inputMutex);
+	std::unique_lock<std::mutex> inputLock(inputMutex);
 	for(InputKeyMap::const_iterator i = inputKeyMap.begin(); i != inputKeyMap.end(); ++i)
 	{
 		const InputMapEntry& inputMapEntry = i->second;
@@ -4236,7 +4239,7 @@ bool System::SaveSystem(const std::wstring& filePath)
 	inputLock.unlock();
 
 	//Save current system setting selections to the system file
-	boost::mutex::scoped_lock moduleSettingsLock(moduleSettingMutex);
+	std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
 	for(SystemSettingsMap::const_iterator i = systemSettings.begin(); i != systemSettings.end(); ++i)
 	{
 		const SystemSettingInfo& systemSettingInfo = *(i->second);
@@ -4252,7 +4255,7 @@ bool System::SaveSystem(const std::wstring& filePath)
 	moduleSettingsLock.unlock();
 
 	//Save embedded ROM file selections to the system file
-	boost::mutex::scoped_lock embeddedROMLock(embeddedROMMutex);
+	std::unique_lock<std::mutex> embeddedROMLock(embeddedROMMutex);
 	for(std::map<unsigned int, EmbeddedROMInfoInternal>::const_iterator i = embeddedROMInfoSet.begin(); i != embeddedROMInfoSet.end(); ++i)
 	{
 		//If no file path has been specified for this embedded ROM, skip it.
@@ -4285,10 +4288,10 @@ bool System::SaveSystem(const std::wstring& filePath)
 	embeddedROMLock.unlock();
 
 	//Save XML tree to the target file
-	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
-	if(!file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	Stream::File file(Stream::IStream::TextEncoding::UTF8);
+	if(!file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save system to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save system to file " + filePath + L" because there was an error creating the file at the full path of " + filePath + L"!"));
 		if(running)
 		{
 			RunSystem();
@@ -4298,7 +4301,7 @@ bool System::SaveSystem(const std::wstring& filePath)
 	file.InsertByteOrderMark();
 	if(!tree.SaveTree(file))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to save system to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save system to file " + filePath + L" because there was an error saving the xml tree. The xml error string is as follows: " + tree.GetErrorString()));
 		if(running)
 		{
 			RunSystem();
@@ -4307,7 +4310,7 @@ bool System::SaveSystem(const std::wstring& filePath)
 	}
 
 	//Log the event
-	WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_INFO, L"System", L"Saved system to file " + filePath));
+	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Saved system to file " + filePath));
 
 	//Restore running state
 	if(running)
@@ -4326,7 +4329,7 @@ bool System::SaveSystemInternal(const InteropSupport::ISTLObjectSource<std::wstr
 //----------------------------------------------------------------------------------------
 bool System::UnloadModule(unsigned int moduleID)
 {
-	boost::mutex::scoped_lock lock(moduleLoadMutex);
+	std::unique_lock<std::mutex> lock(moduleLoadMutex);
 
 	//Save running state and pause system
 	bool running = SystemRunning();
@@ -4397,9 +4400,9 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		{
 			std::wstring persistentModuleFileName = moduleInfo.className + L".zip";
 			std::wstring persistentModuleFilePath = PathCombinePaths(guiExtensionInterface.GetGlobalPreferencePathPersistentState(), persistentModuleFileName);
-			if(!SavePersistentStateForModule(persistentModuleFilePath, moduleID, FILETYPE_ZIP, true))
+			if(!SavePersistentStateForModule(persistentModuleFilePath, moduleID, FileType::ZIP, true))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to save persistent state data for module with name " + moduleInfo.displayName + L" to file \"" + persistentModuleFilePath + L"\"."));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to save persistent state data for module with name " + moduleInfo.displayName + L" to file \"" + persistentModuleFilePath + L"\"."));
 			}
 		}
 
@@ -4674,7 +4677,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 	}
 
 	//Remove any system settings defined by this module
-	boost::mutex::scoped_lock moduleSettingsLock(moduleSettingMutex);
+	std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
 	ModuleSystemSettingMap::iterator moduleSettingsEntry = moduleSettings.find(moduleID);
 	if(moduleSettingsEntry != moduleSettings.end())
 	{
@@ -4690,7 +4693,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 	moduleSettingsLock.unlock();
 
 	//Remove any embedded ROM entries defined by this module
-	boost::mutex::scoped_lock embeddedROMLock(embeddedROMMutex);
+	std::unique_lock<std::mutex> embeddedROMLock(embeddedROMMutex);
 	std::map<unsigned int, EmbeddedROMInfoInternal>::iterator nextEmbeddedROMInfoEntry = embeddedROMInfoSet.begin();
 	while(nextEmbeddedROMInfoEntry != embeddedROMInfoSet.end())
 	{
@@ -4863,7 +4866,7 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 	IHierarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
 	if((deviceNameAttribute == 0) || (instanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceName or InstanceName attribute for Device entry!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceName or InstanceName attribute for Device entry!"));
 		return false;
 	}
 	std::wstring deviceName = deviceNameAttribute->GetValue();
@@ -4881,14 +4884,14 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 	IDevice* device = CreateDevice(deviceName, instanceName, moduleID);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"CreateDevice failed for " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"CreateDevice failed for " + instanceName + L"!"));
 		return false;
 	}
 
 	//Bind to the system interface
 	if(!device->BindToSystemInterface(this))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindToSystemInterface failed for  " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToSystemInterface failed for  " + instanceName + L"!"));
 		DestroyDevice(deviceName, device);
 		return false;
 	}
@@ -4903,7 +4906,7 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 	//Bind our device to the device context object
 	if(!device->BindToDeviceContext(deviceContext))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindToDeviceContext failed for  " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToDeviceContext failed for  " + instanceName + L"!"));
 		DestroyDevice(deviceName, device);
 		return false;
 	}
@@ -4911,7 +4914,7 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 	//Construct the device object
 	if(!device->Construct(node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Construct failed for " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Construct failed for " + instanceName + L"!"));
 		DestroyDevice(deviceName, device);
 		return false;
 	}
@@ -4920,13 +4923,13 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 	//device
 	if(!device->BuildDevice())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BuildDevice failed for " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BuildDevice failed for " + instanceName + L"!"));
 		DestroyDevice(deviceName, device);
 		return false;
 	}
 
 	//Add the device object to the system
-	boost::mutex::scoped_lock loadedElementLock(loadedElementMutex);
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
 	LoadedDeviceInfo deviceInfo;
 	deviceInfo.moduleID = moduleID;
 	deviceInfo.device = device;
@@ -4949,7 +4952,7 @@ bool System::LoadModule_Device_SetDependentDevice(IHierarchicalStorageNode& node
 	IHierarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
 	if((deviceInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or TargetInstanceName attribute for Device.SetDependentDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName or TargetInstanceName attribute for Device.SetDependentDevice!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -4960,7 +4963,7 @@ bool System::LoadModule_Device_SetDependentDevice(IHierarchicalStorageNode& node
 	IDevice* target = GetDevice(moduleID, targetName);
 	if((device == 0) || (target == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate source device with name " + deviceName + L" or target device with name " + targetName + L" for Device.SetDependentDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate source device with name " + deviceName + L" or target device with name " + targetName + L" for Device.SetDependentDevice!"));
 		return false;
 	}
 
@@ -4980,7 +4983,7 @@ bool System::LoadModule_Device_ReferenceDevice(IHierarchicalStorageNode& node, u
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName, TargetInstanceName, or ReferenceName attribute for Device.ReferenceDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName, TargetInstanceName, or ReferenceName attribute for Device.ReferenceDevice!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -4992,14 +4995,14 @@ bool System::LoadModule_Device_ReferenceDevice(IHierarchicalStorageNode& node, u
 	IDevice* target = GetDevice(moduleID, targetName);
 	if((device == 0) || (target == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate source device with name " + deviceName + L" or target device with name " + targetName + L" for Device.ReferenceDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate source device with name " + deviceName + L" or target device with name " + targetName + L" for Device.ReferenceDevice!"));
 		return false;
 	}
 
 	//Add the specified device reference to the device
 	if(!device->AddReference(referenceName, target))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceDevice failed for reference from " + deviceName + L" to " + targetName + L" using reference name " + referenceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Device.ReferenceDevice failed for reference from " + deviceName + L" to " + targetName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -5014,12 +5017,12 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 	IHierarchicalStorageAttribute* globalExtensionNameAttribute = node.GetAttribute(L"GlobalExtensionName");
 	if((extensionInstanceNameAttribute == 0) && (globalExtensionNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Either the ExtensionInstanceName or the GlobalExtensionName attribute must be specified for Device.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Either the ExtensionInstanceName or the GlobalExtensionName attribute must be specified for Device.ReferenceExtension!"));
 		return false;
 	}
 	else if((extensionInstanceNameAttribute != 0) && (globalExtensionNameAttribute != 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The ExtensionInstanceName and GlobalExtensionName attributes cannot be used together for Device.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"The ExtensionInstanceName and GlobalExtensionName attributes cannot be used together for Device.ReferenceExtension!"));
 		return false;
 	}
 
@@ -5044,7 +5047,7 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 		extension = GetGlobalExtension(extensionName);
 		if(extension == 0)
 		{
-			LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+			LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 			logEntry << L"Could not locate global extension with name " << extensionName << L" for Device.ReferenceExtension!";
 			WriteLogEvent(logEntry);
 			return false;
@@ -5055,7 +5058,7 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 		extension = GetExtension(moduleID, extensionName);
 		if(extension == 0)
 		{
-			LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+			LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 			logEntry << L"Could not locate extension with name " << extensionName << L" in module " << moduleID << L" for Device.ReferenceExtension!";
 			WriteLogEvent(logEntry);
 			return false;
@@ -5067,7 +5070,7 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or ReferenceName attribute for Device.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName or ReferenceName attribute for Device.ReferenceExtension!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -5077,14 +5080,14 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for Device.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for Device.ReferenceExtension!"));
 		return false;
 	}
 
 	//Add the specified extension reference to the device
 	if(!device->AddReference(referenceName, extension))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceExtension failed for reference from " + deviceName + L" to extension " + extensionName + L" using reference name " + referenceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Device.ReferenceExtension failed for reference from " + deviceName + L" to extension " + extensionName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -5098,7 +5101,7 @@ bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsi
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for Device.ReferenceBus!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for Device.ReferenceBus!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -5107,7 +5110,7 @@ bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsi
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << moduleID << L" for Device.ReferenceBus!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5118,7 +5121,7 @@ bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsi
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or ReferenceName attribute for Device.ReferenceBus!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName or ReferenceName attribute for Device.ReferenceBus!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -5128,14 +5131,14 @@ bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsi
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for Device.ReferenceBus!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for Device.ReferenceBus!"));
 		return false;
 	}
 
 	//Add the specified bus reference to the device
 	if(!device->AddReference(referenceName, busInterface))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceBus failed for reference from " + deviceName + L" to bus " + busInterfaceName + L" using reference name " + referenceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Device.ReferenceBus failed for reference from " + deviceName + L" to bus " + busInterfaceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -5151,7 +5154,7 @@ bool System::LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& no
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((deviceInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName, ClockSourceName, or ReferenceName attribute for Device.ReferenceClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName, ClockSourceName, or ReferenceName attribute for Device.ReferenceClockSource!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -5162,7 +5165,7 @@ bool System::LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& no
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for Device.ReferenceClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for Device.ReferenceClockSource!"));
 		return false;
 	}
 
@@ -5170,14 +5173,14 @@ bool System::LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& no
 	IClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
 	if(clockSource == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate clock source with name " + clockSourceName + L" for Device.ReferenceClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate clock source with name " + clockSourceName + L" for Device.ReferenceClockSource!"));
 		return false;
 	}
 
 	//Add the specified clock source reference to the device
 	if(!device->AddReference(referenceName, clockSource))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Device.ReferenceClockSource failed for reference from " + deviceName + L" to " + clockSourceName + L" using reference name " + referenceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Device.ReferenceClockSource failed for reference from " + deviceName + L" to " + clockSourceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -5192,7 +5195,7 @@ bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, uns
 	IHierarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
 	if((deviceInstanceNameAttribute == 0) || (deviceKeyCodeAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName or DeviceKeyCode attribute for Device.RegisterInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName or DeviceKeyCode attribute for Device.RegisterInput!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -5202,7 +5205,7 @@ bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, uns
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate target device with name " + deviceName + L" for Device.RegisterInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate target device with name " + deviceName + L" for Device.RegisterInput!"));
 		return false;
 	}
 
@@ -5210,13 +5213,13 @@ bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, uns
 	unsigned int deviceKeyCode = device->GetKeyCodeID(deviceKeyCodeString);
 	if(deviceKeyCode == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device key code with name " + deviceKeyCodeString + L" on device " + deviceName + L" for Device.RegisterInput!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device key code with name " + deviceKeyCodeString + L" on device " + deviceName + L" for Device.RegisterInput!"));
 		return false;
 	}
 
 	//Retrieve the preferred system key code attribute if one has been specified
 	bool preferredSystemKeyCodeSpecified = false;
-	KeyCode systemKeyCode = ISystemDeviceInterface::KEYCODE_NONE;
+	KeyCode systemKeyCode = ISystemDeviceInterface::KeyCode::None;
 	IHierarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"PreferredSystemKeyCode");
 	if(systemKeyCodeAttribute != 0)
 	{
@@ -5225,9 +5228,9 @@ bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, uns
 
 		//Translate the system key code
 		systemKeyCode = GetKeyCodeID(systemKeyCodeString);
-		if(systemKeyCode == ISystemDeviceInterface::KEYCODE_NONE)
+		if(systemKeyCode == ISystemDeviceInterface::KeyCode::None)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate system key code with name " + systemKeyCodeString + L" for Device.RegisterInput!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate system key code with name " + systemKeyCodeString + L" for Device.RegisterInput!"));
 			return false;
 		}
 
@@ -5254,7 +5257,7 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 	IHierarchicalStorageAttribute* extensionNameAttribute = node.GetAttribute(L"ExtensionName");
 	if(extensionNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionName attribute for GlobalExtension entry!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ExtensionName attribute for GlobalExtension entry!"));
 		return false;
 	}
 	std::wstring extensionName = extensionNameAttribute->GetValue();
@@ -5272,14 +5275,14 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 	IExtension* extension = CreateGlobalExtension(extensionName);
 	if(extension == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"CreateGlobalExtension failed for " + extensionName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"CreateGlobalExtension failed for " + extensionName + L"!"));
 		return false;
 	}
 
 	//Bind to the system interface
 	if(!extension->BindToSystemInterface(this))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindToSystemInterface failed for  " + extensionName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToSystemInterface failed for  " + extensionName + L"!"));
 		DestroyExtension(extensionName, extension);
 		return false;
 	}
@@ -5287,7 +5290,7 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 	//Bind to the GUI interface
 	if(!extension->BindToGUIInterface(&guiExtensionInterface))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindToGUIInterface failed for  " + extensionName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToGUIInterface failed for  " + extensionName + L"!"));
 		DestroyExtension(extensionName, extension);
 		return false;
 	}
@@ -5295,7 +5298,7 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 	//Construct the extension object
 	if(!extension->Construct(node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Construct failed for " + extensionName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Construct failed for " + extensionName + L"!"));
 		DestroyExtension(extensionName, extension);
 		return false;
 	}
@@ -5304,14 +5307,14 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 	//for the extension.
 	if(!extension->BuildExtension())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BuildExtension failed for " + extensionName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BuildExtension failed for " + extensionName + L"!"));
 		DestroyExtension(extensionName, extension);
 		return false;
 	}
 
 	//Record information on the loaded global extension, and add the specified module as a
 	//referencing module.
-	boost::mutex::scoped_lock loadedElementLock(loadedElementMutex);
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
 	LoadedGlobalExtensionInfo extensionInfo;
 	extensionInfo.extension = extension;
 	extensionInfo.name = extensionName;
@@ -5329,7 +5332,7 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 	IHierarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
 	if((extensionNameAttribute == 0) || (instanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionName or InstanceName attribute for Extension entry!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ExtensionName or InstanceName attribute for Extension entry!"));
 		return false;
 	}
 	std::wstring extensionName = extensionNameAttribute->GetValue();
@@ -5339,14 +5342,14 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 	IExtension* extension = CreateExtension(extensionName, instanceName, moduleID);
 	if(extension == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"CreateExtension failed for " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"CreateExtension failed for " + instanceName + L"!"));
 		return false;
 	}
 
 	//Bind to the system interface
 	if(!extension->BindToSystemInterface(this))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindToSystemInterface failed for  " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToSystemInterface failed for  " + instanceName + L"!"));
 		DestroyExtension(extensionName, extension);
 		return false;
 	}
@@ -5354,7 +5357,7 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 	//Bind to the GUI interface
 	if(!extension->BindToGUIInterface(&guiExtensionInterface))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BindToGUIInterface failed for  " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToGUIInterface failed for  " + instanceName + L"!"));
 		DestroyExtension(extensionName, extension);
 		return false;
 	}
@@ -5362,7 +5365,7 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 	//Construct the extension object
 	if(!extension->Construct(node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Construct failed for " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Construct failed for " + instanceName + L"!"));
 		DestroyExtension(extensionName, extension);
 		return false;
 	}
@@ -5371,13 +5374,13 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 	//the extension.
 	if(!extension->BuildExtension())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BuildExtension failed for " + instanceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BuildExtension failed for " + instanceName + L"!"));
 		DestroyExtension(extensionName, extension);
 		return false;
 	}
 
 	//Save information on this loaded extension
-	boost::mutex::scoped_lock loadedElementLock(loadedElementMutex);
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
 	LoadedExtensionInfo extensionInfo;
 	extensionInfo.moduleID = moduleID;
 	extensionInfo.extension = extension;
@@ -5394,7 +5397,7 @@ bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for Extension.ReferenceDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName attribute for Extension.ReferenceDevice!"));
 		return false;
 	}
 	std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
@@ -5403,7 +5406,7 @@ bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node
 	IDevice* device = GetDevice(moduleID, deviceInstanceName);
 	if(device == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate device with name " << deviceInstanceName << L" in module " << moduleID << L" for Extension.ReferenceDevice!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5414,7 +5417,7 @@ bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceDevice!"));
 		return false;
 	}
 	std::wstring extensionName = extensionInstanceNameAttribute->GetValue();
@@ -5424,14 +5427,14 @@ bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node
 	IExtension* extension = GetExtension(moduleID, extensionName);
 	if(extension == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate extension with name " + extensionName + L" for Extension.ReferenceDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate extension with name " + extensionName + L" for Extension.ReferenceDevice!"));
 		return false;
 	}
 
 	//Add the specified device reference to the extension
 	if(!extension->AddReference(referenceName, device))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceDevice failed for reference from " + extensionName + L" to device " + deviceInstanceName + L" using reference name " + referenceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Extension.ReferenceDevice failed for reference from " + extensionName + L" to device " + deviceInstanceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -5446,12 +5449,12 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 	IHierarchicalStorageAttribute* targetGlobalExtensionNameAttribute = node.GetAttribute(L"TargetGlobalExtensionName");
 	if((targetInstanceNameAttribute == 0) && (targetGlobalExtensionNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Either the TargetInstanceName or the TargetGlobalExtensionName attribute must be specified for Extension.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Either the TargetInstanceName or the TargetGlobalExtensionName attribute must be specified for Extension.ReferenceExtension!"));
 		return false;
 	}
 	else if((targetInstanceNameAttribute != 0) && (targetGlobalExtensionNameAttribute != 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The TargetInstanceName and TargetGlobalExtensionName attributes cannot be used together for Extension.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"The TargetInstanceName and TargetGlobalExtensionName attributes cannot be used together for Extension.ReferenceExtension!"));
 		return false;
 	}
 
@@ -5476,7 +5479,7 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 		target = GetGlobalExtension(targetExtensionName);
 		if(target == 0)
 		{
-			LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+			LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 			logEntry << L"Could not locate target global extension with name " << targetExtensionName << L" for Extension.ReferenceExtension!";
 			WriteLogEvent(logEntry);
 			return false;
@@ -5487,7 +5490,7 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 		target = GetExtension(moduleID, targetExtensionName);
 		if(target == 0)
 		{
-			LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+			LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 			logEntry << L"Could not locate target extension with name " << targetExtensionName << L" in module " << moduleID << L" for Extension.ReferenceExtension!";
 			WriteLogEvent(logEntry);
 			return false;
@@ -5499,7 +5502,7 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceExtension!"));
 		return false;
 	}
 	std::wstring extensionName = extensionInstanceNameAttribute->GetValue();
@@ -5509,14 +5512,14 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 	IExtension* extension = GetExtension(moduleID, extensionName);
 	if(extension == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate source extension with name " + extensionName + L" for Extension.ReferenceExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate source extension with name " + extensionName + L" for Extension.ReferenceExtension!"));
 		return false;
 	}
 
 	//Add the specified extension reference to the extension
 	if(!extension->AddReference(referenceName, target))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceExtension failed for reference from " + extensionName + L" to " + targetExtensionName + L" using reference name " + referenceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Extension.ReferenceExtension failed for reference from " + extensionName + L" to " + targetExtensionName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -5530,7 +5533,7 @@ bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, u
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for Extension.ReferenceBus!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for Extension.ReferenceBus!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -5539,7 +5542,7 @@ bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, u
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << moduleID << L" for Extension.ReferenceBus!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5550,7 +5553,7 @@ bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, u
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceBus!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ExtensionInstanceName or ReferenceName attribute for Extension.ReferenceBus!"));
 		return false;
 	}
 	std::wstring extensionName = extensionInstanceNameAttribute->GetValue();
@@ -5560,14 +5563,14 @@ bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, u
 	IExtension* extension = GetExtension(moduleID, extensionName);
 	if(extension == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate extension with name " + extensionName + L" for Extension.ReferenceBus!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate extension with name " + extensionName + L" for Extension.ReferenceBus!"));
 		return false;
 	}
 
 	//Add the specified bus reference to the device
 	if(!extension->AddReference(referenceName, busInterface))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceBus failed for reference from " + extensionName + L" to bus " + busInterfaceName + L" using reference name " + referenceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Extension.ReferenceBus failed for reference from " + extensionName + L" to bus " + busInterfaceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -5583,7 +5586,7 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode&
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if((extensionInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (referenceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName, ClockSourceName, or ReferenceName attribute for Extension.ReferenceClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ExtensionInstanceName, ClockSourceName, or ReferenceName attribute for Extension.ReferenceClockSource!"));
 		return false;
 	}
 	std::wstring extensionName = extensionInstanceNameAttribute->GetValue();
@@ -5594,7 +5597,7 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode&
 	IExtension* extension = GetExtension(moduleID, extensionName);
 	if(extension == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate extension with name " + extensionName + L" for Extension.ReferenceClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate extension with name " + extensionName + L" for Extension.ReferenceClockSource!"));
 		return false;
 	}
 
@@ -5602,14 +5605,14 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode&
 	IClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
 	if(clockSource == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate clock source with name " + clockSourceName + L" for Extension.ReferenceClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate clock source with name " + clockSourceName + L" for Extension.ReferenceClockSource!"));
 		return false;
 	}
 
 	//Add the specified clock source reference to the device
 	if(!extension->AddReference(referenceName, clockSource))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Extension.ReferenceClockSource failed for reference from " + extensionName + L" to " + clockSourceName + L" using reference name " + referenceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Extension.ReferenceClockSource failed for reference from " + extensionName + L" to " + clockSourceName + L" using reference name " + referenceName + L"!"));
 		return false;
 	}
 
@@ -5623,7 +5626,7 @@ bool System::LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned in
 	IHierarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
 	if(nameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for BusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing Name attribute for BusInterface!"));
 		return false;
 	}
 	std::wstring busInterfaceName = nameAttribute->GetValue();
@@ -5634,7 +5637,7 @@ bool System::LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned in
 		const LoadedBusInfo& busInfo = *i;
 		if((busInfo.moduleID == moduleID) && (busInfo.name == busInterfaceName))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface with name of " + busInterfaceName + L" already exists!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface with name of " + busInterfaceName + L" already exists!"));
 			return false;
 		}
 	}
@@ -5643,13 +5646,13 @@ bool System::LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned in
 	BusInterface* busInterface = new BusInterface();
 	if(!busInterface->Construct(node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Construct failed for BusInterface " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Construct failed for BusInterface " + busInterfaceName + L"!"));
 		delete busInterface;
 		return false;
 	}
 
 	//Add the bus interface object to the system
-	boost::mutex::scoped_lock loadedElementLock(loadedElementMutex);
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
 	LoadedBusInfo busInfo;
 	busInfo.busInterface = busInterface;
 	busInfo.moduleID = moduleID;
@@ -5674,7 +5677,7 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHierarchicalStorageNode& n
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.DefineLineGroup!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for BusInterface.DefineLineGroup!"));
 		return false;
 	}
 
@@ -5682,7 +5685,7 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHierarchicalStorageNode& n
 	IHierarchicalStorageAttribute* lineGroupNameAttribute = node.GetAttribute(L"LineGroupName");
 	if(lineGroupNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing LineGroupName attribute for BusInterface.DefineLineGroup!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing LineGroupName attribute for BusInterface.DefineLineGroup!"));
 		return false;
 	}
 	std::wstring lineGroupName = lineGroupNameAttribute->GetValue();
@@ -5691,7 +5694,7 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHierarchicalStorageNode& n
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << busInterfaceModuleID << L" for BusInterface.DefineLineGroup!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5725,7 +5728,7 @@ bool System::LoadModule_BusInterface_DefineCELineMemory(IHierarchicalStorageNode
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.DefineCELineMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for BusInterface.DefineCELineMemory!"));
 		return false;
 	}
 
@@ -5733,7 +5736,7 @@ bool System::LoadModule_BusInterface_DefineCELineMemory(IHierarchicalStorageNode
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << busInterfaceModuleID << L" for BusInterface.DefineCELineMemory!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5742,7 +5745,7 @@ bool System::LoadModule_BusInterface_DefineCELineMemory(IHierarchicalStorageNode
 	//Define the CE line in the referenced bus interface
 	if(!busInterface->DefineCELineMemory(node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.DefineCELineMemory failed on bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.DefineCELineMemory failed on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
@@ -5764,7 +5767,7 @@ bool System::LoadModule_BusInterface_DefineCELinePort(IHierarchicalStorageNode& 
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.DefineCELinePort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for BusInterface.DefineCELinePort!"));
 		return false;
 	}
 
@@ -5772,7 +5775,7 @@ bool System::LoadModule_BusInterface_DefineCELinePort(IHierarchicalStorageNode& 
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << busInterfaceModuleID << L" for BusInterface.DefineCELinePort!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5781,7 +5784,7 @@ bool System::LoadModule_BusInterface_DefineCELinePort(IHierarchicalStorageNode& 
 	//Define the CE line in the referenced bus interface
 	if(!busInterface->DefineCELinePort(node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.DefineCELinePort failed on bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.DefineCELinePort failed on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
@@ -5803,7 +5806,7 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNo
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineInputMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineInputMemory!"));
 		return false;
 	}
 
@@ -5811,7 +5814,7 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNo
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << busInterfaceModuleID << L" for BusInterface.MapCELineInputMemory!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5821,7 +5824,7 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNo
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineInputMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineInputMemory!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -5830,14 +5833,14 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNo
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapCELineInputMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapCELineInputMemory!"));
 		return false;
 	}
 
 	//Define the CE line in the referenced bus interface
 	if(!busInterface->MapCELineInputMemory(device, node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapCELineInputMemory failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapCELineInputMemory failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
@@ -5859,7 +5862,7 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineInputPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineInputPort!"));
 		return false;
 	}
 
@@ -5867,7 +5870,7 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << busInterfaceModuleID << L" for BusInterface.MapCELineInputPort!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5877,7 +5880,7 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineInputPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineInputPort!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -5886,14 +5889,14 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapCELineInputPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapCELineInputPort!"));
 		return false;
 	}
 
 	//Define the CE line in the referenced bus interface
 	if(!busInterface->MapCELineInputPort(device, node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapCELineInputPort failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapCELineInputPort failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
@@ -5915,7 +5918,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageN
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineOutputMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineOutputMemory!"));
 		return false;
 	}
 
@@ -5923,7 +5926,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageN
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << busInterfaceModuleID << L" for BusInterface.MapCELineOutputMemory!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5933,7 +5936,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageN
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineOutputMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineOutputMemory!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -5942,14 +5945,14 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageN
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapCELineOutputMemory!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapCELineOutputMemory!"));
 		return false;
 	}
 
 	//Define the CE line in the referenced bus interface
 	if(!busInterface->MapCELineOutputMemory(device, node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapCELineOutputMemory failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapCELineOutputMemory failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
@@ -5971,7 +5974,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNod
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineOutputPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapCELineOutputPort!"));
 		return false;
 	}
 
@@ -5979,7 +5982,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNod
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << busInterfaceModuleID << L" for BusInterface.MapCELineOutputPort!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -5989,7 +5992,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNod
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineOutputPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapCELineOutputPort!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -5998,14 +6001,14 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNod
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapCELineOutputPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapCELineOutputPort!"));
 		return false;
 	}
 
 	//Define the CE line in the referenced bus interface
 	if(!busInterface->MapCELineOutputPort(device, node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapCELineOutputPort failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapCELineOutputPort failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
@@ -6019,7 +6022,7 @@ bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, u
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName for BusInterface.MapDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName for BusInterface.MapDevice!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -6028,7 +6031,7 @@ bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, u
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << moduleID << L" for BusInterface.MapDevice!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6038,7 +6041,7 @@ bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, u
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapDevice!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -6047,14 +6050,14 @@ bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, u
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapDevice!"));
 		return false;
 	}
 
 	//Add the bus interface mapping
 	if(!busInterface->MapDevice(device, node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapDevice failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapDevice failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
@@ -6068,7 +6071,7 @@ bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, uns
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapPort!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -6077,7 +6080,7 @@ bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, uns
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << moduleID << L" for BusInterface.MapPort!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6087,7 +6090,7 @@ bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, uns
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapPort!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -6096,14 +6099,14 @@ bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, uns
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapPort!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapPort!"));
 		return false;
 	}
 
 	//Add the bus interface mapping
 	if(!busInterface->MapPort(device, node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapPort failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapPort failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
@@ -6133,14 +6136,14 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		IDevice* targetDevice = GetDevice(moduleID, targetDeviceName);
 		if((busInterface == 0) || (sourceDevice == 0) || (targetDevice == 0))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate source device with name \"" + sourceDeviceName + L"\" or target device with name \"" + targetDeviceName + L"\" or bus interface with name \"" + busInterfaceName + L"\" for BusInterface.MapLine!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate source device with name \"" + sourceDeviceName + L"\" or target device with name \"" + targetDeviceName + L"\" or bus interface with name \"" + busInterfaceName + L"\" for BusInterface.MapLine!"));
 			return false;
 		}
 
 		//Add the bus interface mapping
 		if(!busInterface->MapLine(sourceDevice, targetDevice, node))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapLine failed for mapping from \"" + sourceDeviceName + L"\" to \"" + targetDeviceName + L"\" on bus \"" + busInterfaceName + L"\"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapLine failed for mapping from \"" + sourceDeviceName + L"\" to \"" + targetDeviceName + L"\" on bus \"" + busInterfaceName + L"\"!"));
 			return false;
 		}
 	}
@@ -6154,7 +6157,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		IDevice* sourceDevice = GetDevice(moduleID, sourceDeviceName);
 		if(sourceDevice == 0)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate source device with name \"" + sourceDeviceName + L"\" for BusInterface.MapLine!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate source device with name \"" + sourceDeviceName + L"\" for BusInterface.MapLine!"));
 			return false;
 		}
 
@@ -6162,7 +6165,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		NameToIDMap::const_iterator lineGroupNameToIDMapIterator = lineGroupNameToIDMap.find(targetLineGroupName);
 		if(lineGroupNameToIDMapIterator == lineGroupNameToIDMap.end())
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate line group with name \"" + targetLineGroupName + L"\" for BusInterface.MapLine!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate line group with name \"" + targetLineGroupName + L"\" for BusInterface.MapLine!"));
 			return false;
 		}
 		unsigned int lineGroupID = lineGroupNameToIDMapIterator->second;
@@ -6171,7 +6174,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		LineGroupDetailsMap::const_iterator lineGroupDetailsMapIterator = lineGroupDetailsMap.find(lineGroupID);
 		if(lineGroupDetailsMapIterator == lineGroupDetailsMap.end())
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not retrieve line group details for line group with name \"" + targetLineGroupName + L"\" in BusInterface.MapLine!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not retrieve line group details for line group with name \"" + targetLineGroupName + L"\" in BusInterface.MapLine!"));
 			return false;
 		}
 		const LineGroupDetails& lineGroupDetails = lineGroupDetailsMapIterator->second;
@@ -6182,7 +6185,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		//Add the bus interface mapping
 		if(!busInterface->MapLine(sourceDevice, lineGroupID, node))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapLine failed for mapping from device \"" + sourceDeviceName + L"\" to line group \"" + targetLineGroupName + L"\"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapLine failed for mapping from device \"" + sourceDeviceName + L"\" to line group \"" + targetLineGroupName + L"\"!"));
 			return false;
 		}
 	}
@@ -6196,7 +6199,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		IDevice* targetDevice = GetDevice(moduleID, targetDeviceName);
 		if(targetDevice == 0)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate target device with name \"" + targetDeviceName + L"\" for BusInterface.MapLine!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate target device with name \"" + targetDeviceName + L"\" for BusInterface.MapLine!"));
 			return false;
 		}
 
@@ -6204,7 +6207,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		NameToIDMap::const_iterator lineGroupNameToIDMapIterator = lineGroupNameToIDMap.find(sourceLineGroupName);
 		if(lineGroupNameToIDMapIterator == lineGroupNameToIDMap.end())
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate line group with name \"" + sourceLineGroupName + L"\" for BusInterface.MapLine!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate line group with name \"" + sourceLineGroupName + L"\" for BusInterface.MapLine!"));
 			return false;
 		}
 		unsigned int lineGroupID = lineGroupNameToIDMapIterator->second;
@@ -6213,7 +6216,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		LineGroupDetailsMap::const_iterator lineGroupDetailsMapIterator = lineGroupDetailsMap.find(lineGroupID);
 		if(lineGroupDetailsMapIterator == lineGroupDetailsMap.end())
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not retrieve line group details for line group with name \"" + sourceLineGroupName + L"\" in BusInterface.MapLine!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not retrieve line group details for line group with name \"" + sourceLineGroupName + L"\" in BusInterface.MapLine!"));
 			return false;
 		}
 		const LineGroupDetails& lineGroupDetails = lineGroupDetailsMapIterator->second;
@@ -6224,13 +6227,13 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		//Add the bus interface mapping
 		if(!busInterface->MapLine(lineGroupID, targetDevice, node))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapLine failed for mapping from line group \"" + sourceLineGroupName + L"\" to device \"" + targetDeviceName + L"\"!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapLine failed for mapping from line group \"" + sourceLineGroupName + L"\" to device \"" + targetDeviceName + L"\"!"));
 			return false;
 		}
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No valid combination of source and target mappings exists for BusInterface.MapLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"No valid combination of source and target mappings exists for BusInterface.MapLine!"));
 		return false;
 	}
 
@@ -6244,7 +6247,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if(busInterfaceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing BusInterfaceName attribute for BusInterface.MapClockSource!"));
 		return false;
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
@@ -6253,7 +6256,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name " << busInterfaceName << L" in module " << moduleID << L" for BusInterface.MapClockSource!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6263,7 +6266,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
 	if(clockSourceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ClockSourceName attribute for BusInterface.MapClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ClockSourceName attribute for BusInterface.MapClockSource!"));
 		return false;
 	}
 	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
@@ -6272,7 +6275,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 	ClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
 	if(clockSource == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate clock source with name " << clockSourceName << L" in module " << moduleID << L" for BusInterface.MapClockSource!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6282,7 +6285,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if(deviceInstanceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName attribute for BusInterface.MapClockSource!"));
 		return false;
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
@@ -6291,14 +6294,14 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + deviceName + L" for BusInterface.MapClockSource!"));
 		return false;
 	}
 
 	//Add the bus interface mapping
 	if(!busInterface->MapClockSource(clockSource, device, node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"BusInterface.MapClockSource failed when mapping clock source with name " + clockSourceName + L" to device with name " + deviceName + L" on bus " + busInterfaceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapClockSource failed when mapping clock source with name " + clockSourceName + L" to device with name " + deviceName + L" on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
@@ -6317,7 +6320,7 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode&
 	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if((deviceNameAttribute == 0) || (targetLineAttribute == 0) || (valueAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName, TargetLine, or Value attribute for BusInterface.UnmappedLineState!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName, TargetLine, or Value attribute for BusInterface.UnmappedLineState!"));
 		return false;
 	}
 
@@ -6329,7 +6332,7 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode&
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if(device == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name \"" + deviceName + L"\" for BusInterface.UnmappedLineState!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name \"" + deviceName + L"\" for BusInterface.UnmappedLineState!"));
 		return false;
 	}
 
@@ -6337,7 +6340,7 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode&
 	unsigned int targetLineID = device->GetLineID(targetLineName);
 	if(targetLineID == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate line with name \"" + targetLineName + L"\" on device with name \"" + deviceName + L"\" for BusInterface.UnmappedLineState!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate line with name \"" + targetLineName + L"\" on device with name \"" + deviceName + L"\" for BusInterface.UnmappedLineState!"));
 		return false;
 	}
 
@@ -6345,7 +6348,7 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode&
 	unsigned int lineBitCount = device->GetLineWidth(targetLineID);
 	if(lineBitCount == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Target line with name \"" + targetLineName + L"\" on device with name \"" + deviceName + L"\" returned a bit count of 0 for BusInterface.UnmappedLineState!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Target line with name \"" + targetLineName + L"\" on device with name \"" + deviceName + L"\" returned a bit count of 0 for BusInterface.UnmappedLineState!"));
 		return false;
 	}
 
@@ -6366,7 +6369,7 @@ bool System::LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int
 	IHierarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
 	if(nameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for ClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing Name attribute for ClockSource!"));
 		return false;
 	}
 	std::wstring clockSourceName = nameAttribute->GetValue();
@@ -6378,7 +6381,7 @@ bool System::LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int
 		const LoadedClockSourceInfo& clockSourceInfo = *i;
 		if((clockSourceInfo.moduleID == moduleID) && (clockSourceInfo.name == clockSourceName))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"ClockSource with name of " + clockSourceName + L" already exists!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"ClockSource with name of " + clockSourceName + L" already exists!"));
 			return false;
 		}
 	}
@@ -6387,13 +6390,13 @@ bool System::LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int
 	ClockSource* clockSource = new ClockSource();
 	if(!clockSource->Construct(node))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Construct failed for ClockSource " + clockSourceName + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Construct failed for ClockSource " + clockSourceName + L"!"));
 		delete clockSource;
 		return false;
 	}
 
 	//Add the clock source object to the system
-	boost::mutex::scoped_lock loadedElementLock(loadedElementMutex);
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
 	LoadedClockSourceInfo clockSourceInfo;
 	clockSourceInfo.clockSource = clockSource;
 	clockSourceInfo.moduleID = moduleID;
@@ -6410,7 +6413,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode
 	IHierarchicalStorageAttribute* inputClockSourceNameAttribute = node.GetAttribute(L"InputClockSourceName");
 	if(inputClockSourceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing InputClockSourceName attribute for ClockSource.SetInputClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing InputClockSourceName attribute for ClockSource.SetInputClockSource!"));
 		return false;
 	}
 	std::wstring inputClockSourceName = inputClockSourceNameAttribute->GetValue();
@@ -6419,7 +6422,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode
 	IHierarchicalStorageAttribute* targetClockSourceNameAttribute = node.GetAttribute(L"TargetClockSourceName");
 	if(targetClockSourceNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing TargetClockSourceName attribute for ClockSource.SetInputClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing TargetClockSourceName attribute for ClockSource.SetInputClockSource!"));
 		return false;
 	}
 	std::wstring targetClockSourceName = targetClockSourceNameAttribute->GetValue();
@@ -6428,7 +6431,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode
 	ClockSource* inputClockSource = GetClockSource(moduleID, inputClockSourceName);
 	if(inputClockSource == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate clock source with name " << inputClockSourceName << L" in module " << moduleID << L" for ClockSource.SetInputClockSource!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6438,7 +6441,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode
 	ClockSource* targetClockSource = GetClockSource(moduleID, targetClockSourceName);
 	if(targetClockSource == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate clock source with name " << targetClockSourceName << L" in module " << moduleID << L" for ClockSource.SetInputClockSource!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6457,7 +6460,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 	IHierarchicalStorageAttribute* viewNameAttribute = node.GetAttribute(L"ViewName");
 	if((targetAttribute == 0) || (viewGroupAttribute == 0) || (viewNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Owner, ViewGroupName, or ViewName attribute for System.OpenView!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing Owner, ViewGroupName, or ViewName attribute for System.OpenView!"));
 		return false;
 	}
 	std::wstring target = targetAttribute->GetValue();
@@ -6468,7 +6471,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 	{
 		//Add the open request to the queue
 		ViewOpenRequest openRequest;
-		openRequest.viewTarget = IViewPresenter::VIEWTARGET_SYSTEM;
+		openRequest.viewTarget = IViewPresenter::ViewTarget::System;
 		openRequest.viewGroupName = viewGroupName;
 		openRequest.viewName = viewName;
 		viewOpenRequests.push_back(openRequest);
@@ -6477,7 +6480,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 	{
 		//Add the open request to the queue
 		ViewOpenRequest openRequest;
-		openRequest.viewTarget = IViewPresenter::VIEWTARGET_MODULE;
+		openRequest.viewTarget = IViewPresenter::ViewTarget::Module;
 		openRequest.moduleID = moduleID;
 		openRequest.viewGroupName = viewGroupName;
 		openRequest.viewName = viewName;
@@ -6489,14 +6492,14 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 		IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 		if(deviceInstanceNameAttribute == 0)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing DeviceInstanceName attribute for System.OpenView!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing DeviceInstanceName attribute for System.OpenView!"));
 			return false;
 		}
 		std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
 
 		//Add the open request to the queue
 		ViewOpenRequest openRequest;
-		openRequest.viewTarget = IViewPresenter::VIEWTARGET_DEVICE;
+		openRequest.viewTarget = IViewPresenter::ViewTarget::Device;
 		openRequest.moduleID = moduleID;
 		openRequest.viewGroupName = viewGroupName;
 		openRequest.viewName = viewName;
@@ -6509,7 +6512,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 		IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
 		if(extensionInstanceNameAttribute == 0)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ExtensionInstanceName attribute for System.OpenView!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ExtensionInstanceName attribute for System.OpenView!"));
 			return false;
 		}
 		std::wstring extensionInstanceName = extensionInstanceNameAttribute->GetValue();
@@ -6524,7 +6527,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 
 		//Add the open request to the queue
 		ViewOpenRequest openRequest;
-		openRequest.viewTarget = IViewPresenter::VIEWTARGET_DEVICE;
+		openRequest.viewTarget = IViewPresenter::ViewTarget::Device;
 		openRequest.moduleID = moduleID;
 		openRequest.viewGroupName = viewGroupName;
 		openRequest.viewName = viewName;
@@ -6534,7 +6537,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 	}
 	else
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Invalid view target attribute of \"" + target + L"\" was specified for System.OpenView!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Invalid view target attribute of \"" + target + L"\" was specified for System.OpenView!"));
 		return false;
 	}
 
@@ -6549,14 +6552,14 @@ bool System::LoadModule_System_ExportConnector(IHierarchicalStorageNode& node, u
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	if((connectorClassNameAttribute == 0) || (connectorInstanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorClassName or ConnectorInstanceName attribute for System.ExportConnector!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorClassName or ConnectorInstanceName attribute for System.ExportConnector!"));
 		return false;
 	}
 	std::wstring connectorClassName = connectorClassNameAttribute->GetValue();
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
 
 	//Add details of this connector to the list of connectors which have been defined
-	boost::mutex::scoped_lock loadedElementLock(loadedElementMutex);
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
 	ConnectorInfoInternal connectorDetails;
 	connectorDetails.connectorID = GenerateFreeConnectorID();
 	connectorDetails.connectorClassName = connectorClassName;
@@ -6579,7 +6582,7 @@ bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsi
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (deviceInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ExportDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ExportDevice!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -6590,7 +6593,7 @@ bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsi
 	IDevice* device = GetDevice(moduleID, deviceInstanceName);
 	if(device == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate device with name " << deviceInstanceName << L" in module " << moduleID << L" for System.ExportDevice!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6600,7 +6603,7 @@ bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsi
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportDevice!"));
 		return false;
 	}
 
@@ -6608,7 +6611,7 @@ bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsi
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportDevice!"));
 		return false;
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -6635,7 +6638,7 @@ bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, u
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (extensionInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ExportExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ExportExtension!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -6646,7 +6649,7 @@ bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, u
 	IExtension* extension = GetExtension(moduleID, extensionInstanceName);
 	if(extension == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate extension with name " << extensionInstanceName << L" in module " << moduleID << L" for System.ExportExtension!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6656,7 +6659,7 @@ bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, u
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportExtension!"));
 		return false;
 	}
 
@@ -6664,7 +6667,7 @@ bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, u
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportExtension!"));
 		return false;
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -6688,7 +6691,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (busInterfaceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ExportBusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ExportBusInterface!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -6699,7 +6702,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if(busInterface == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate bus interface with name \"" << busInterfaceName << L"\" in module " << moduleID << L" for System.ExportBusInterface!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6709,7 +6712,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name \"" + connectorInstanceName + L"\" for System.ExportBusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name \"" + connectorInstanceName + L"\" for System.ExportBusInterface!"));
 		return false;
 	}
 
@@ -6717,7 +6720,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name \"" + connectorInstanceName + L"\" for System.ExportBusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name \"" + connectorInstanceName + L"\" for System.ExportBusInterface!"));
 		return false;
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -6741,7 +6744,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 			IHierarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
 			if((childLineGroupNameAttribute == 0) || (childImportNameAttribute == 0))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing LineGroupName or ImportName attribute for ExportLineGroup on System.ExportBusInterface!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing LineGroupName or ImportName attribute for ExportLineGroup on System.ExportBusInterface!"));
 				return false;
 			}
 			std::wstring lineGroupName = childLineGroupNameAttribute->GetValue();
@@ -6751,7 +6754,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 			NameToIDMap::const_iterator lineGroupNameToIDMapIterator = lineGroupNameToIDMap.find(lineGroupName);
 			if(lineGroupNameToIDMapIterator == lineGroupNameToIDMap.end())
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate line group with name \"" + lineGroupName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate line group with name \"" + lineGroupName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
 				return false;
 			}
 			unsigned int lineGroupID = lineGroupNameToIDMapIterator->second;
@@ -6760,7 +6763,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 			LineGroupDetailsMap::const_iterator lineGroupDetailsMapIterator = lineGroupDetailsMap.find(lineGroupID);
 			if(lineGroupDetailsMapIterator == lineGroupDetailsMap.end())
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not retrieve line group details for line group with name \"" + lineGroupName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not retrieve line group details for line group with name \"" + lineGroupName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
 				return false;
 			}
 			const LineGroupDetails& lineGroupDetails = lineGroupDetailsMapIterator->second;
@@ -6769,7 +6772,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 			//being exported.
 			if(lineGroupDetails.busInterface != busInterface)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The specified line group with name \"" + lineGroupName + L"\" does not belong to the specified bus interface with name \"" + busInterfaceName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"The specified line group with name \"" + lineGroupName + L"\" does not belong to the specified bus interface with name \"" + busInterfaceName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
 				return false;
 			}
 
@@ -6785,7 +6788,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 		{
 			//If we've encountered an unrecognized child element, log an error, and return
 			//false.
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Unrecognized child element: \"" + elementName + L"\" encountered when processing System.ExportBusInterface!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Unrecognized child element: \"" + elementName + L"\" encountered when processing System.ExportBusInterface!"));
 			return false;
 		}
 	}
@@ -6805,7 +6808,7 @@ bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node,
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ExportClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ExportClockSource!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -6816,7 +6819,7 @@ bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node,
 	ClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
 	if(clockSource == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate clock source with name " << clockSourceName << L" in module " << moduleID << L" for System.ExportClockSource!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6826,7 +6829,7 @@ bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node,
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportClockSource!"));
 		return false;
 	}
 
@@ -6834,7 +6837,7 @@ bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node,
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportClockSource!"));
 		return false;
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -6858,7 +6861,7 @@ bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, 
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemLineNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ExportSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ExportSystemLine!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -6869,7 +6872,7 @@ bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, 
 	unsigned int systemLineID = GetSystemLineID(moduleID, systemLineName);
 	if(systemLineID == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate system line with name " << systemLineName << L" in module " << moduleID << L" for System.ExportSystemLine!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6879,7 +6882,7 @@ bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, 
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportSystemLine!"));
 		return false;
 	}
 
@@ -6887,7 +6890,7 @@ bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, 
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportSystemLine!"));
 		return false;
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -6911,7 +6914,7 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemSettingNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ExportSystemSetting!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ExportSystemSetting!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -6919,11 +6922,11 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 	std::wstring importName = importNameAttribute->GetValue();
 
 	//Retrieve the ID number for the referenced system setting
-	boost::mutex::scoped_lock moduleSettingsLock(moduleSettingMutex);
+	std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
 	unsigned int systemSettingID = GetSystemSettingID(moduleID, systemSettingName);
 	if(systemSettingID == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate system setting with name " << systemSettingName << L" in module " << moduleID << L" for System.ExportSystemSetting!";
 		WriteLogEvent(logEntry);
 		return false;
@@ -6934,7 +6937,7 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportSystemSetting!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ExportSystemSetting!"));
 		return false;
 	}
 
@@ -6942,7 +6945,7 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportSystemSetting!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ExportSystemSetting!"));
 		return false;
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -6965,7 +6968,7 @@ bool System::LoadModule_System_ImportConnector(IHierarchicalStorageNode& node, u
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	if((connectorClassNameAttribute == 0) || (connectorInstanceNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorClassName or ConnectorInstanceName attribute for System.ImportConnector!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorClassName or ConnectorInstanceName attribute for System.ImportConnector!"));
 		return false;
 	}
 	std::wstring connectorClassName = connectorClassNameAttribute->GetValue();
@@ -6990,11 +6993,11 @@ bool System::LoadModule_System_ImportConnector(IHierarchicalStorageNode& node, u
 				ConnectorInfoInternal& connectorDetails = connectorDetailsMapIterator->second;
 				if((connectorDetails.systemClassName != systemClassName) || (connectorDetails.connectorClassName != connectorClassName))
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"A connector mapping was specified for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\", however the connector class name or system class name didn't match, while processing System.ImportConnector!"));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"A connector mapping was specified for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\", however the connector class name or system class name didn't match, while processing System.ImportConnector!"));
 				}
 				else if(connectorDetails.connectorUsed)
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"A connector mapping was specified for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\", however the connector was already in use, while processing System.ImportConnector!"));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"A connector mapping was specified for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\", however the connector was already in use, while processing System.ImportConnector!"));
 				}
 				else
 				{
@@ -7012,11 +7015,11 @@ bool System::LoadModule_System_ImportConnector(IHierarchicalStorageNode& node, u
 	//Report any errors while importing the connector
 	if(!foundConnectorMapping)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"No connector mapping was specified for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\" while processing System.ImportConnector!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"No connector mapping was specified for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\" while processing System.ImportConnector!"));
 	}
 	if(foundConnectorMapping && !connectorImportSucceeded)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"A connector import mapping was found for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\", however the target connector was already in use when processing System.ImportConnector!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"A connector import mapping was found for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\", however the target connector was already in use when processing System.ImportConnector!"));
 	}
 
 	//Return the result of the connector import operation
@@ -7032,7 +7035,7 @@ bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsi
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (deviceInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ImportDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, DeviceInstanceName, or ImportName attribute for System.ImportDevice!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -7043,7 +7046,7 @@ bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsi
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportDevice!"));
 		return false;
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
@@ -7052,7 +7055,7 @@ bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsi
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorID);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportDevice!"));
 		return false;
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -7061,7 +7064,7 @@ bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsi
 	std::map<std::wstring, ExportedDeviceInfo>::const_iterator exportedDeviceInfoIterator = connectorDetails.exportedDeviceInfo.find(importName);
 	if(exportedDeviceInfoIterator == connectorDetails.exportedDeviceInfo.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find exported device with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportDevice!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find exported device with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportDevice!"));
 		return false;
 	}
 	const ExportedDeviceInfo& exportedDeviceInfo = exportedDeviceInfoIterator->second;
@@ -7089,7 +7092,7 @@ bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, u
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (extensionInstanceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ImportExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, ExtensionInstanceName, or ImportName attribute for System.ImportExtension!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -7100,7 +7103,7 @@ bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, u
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportExtension!"));
 		return false;
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
@@ -7109,7 +7112,7 @@ bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, u
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorID);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportExtension!"));
 		return false;
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -7118,7 +7121,7 @@ bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, u
 	std::map<std::wstring, ExportedExtensionInfo>::const_iterator exportedExtensionInfoIterator = connectorDetails.exportedExtensionInfo.find(importName);
 	if(exportedExtensionInfoIterator == connectorDetails.exportedExtensionInfo.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find exported extension with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportExtension!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find exported extension with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportExtension!"));
 		return false;
 	}
 	const ExportedExtensionInfo& exportedExtensionInfo = exportedExtensionInfoIterator->second;
@@ -7145,7 +7148,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (busInterfaceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ImportBusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, BusInterfaceName, or ImportName attribute for System.ImportBusInterface!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -7156,7 +7159,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportBusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportBusInterface!"));
 		return false;
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
@@ -7165,7 +7168,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorID);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportBusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportBusInterface!"));
 		return false;
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -7174,7 +7177,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 	std::map<std::wstring, ExportedBusInfo>::const_iterator exportedBusInfoIterator = connectorDetails.exportedBusInfo.find(importName);
 	if(exportedBusInfoIterator == connectorDetails.exportedBusInfo.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find exported bus interface with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportBusInterface!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find exported bus interface with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportBusInterface!"));
 		return false;
 	}
 	const ExportedBusInfo& exportedBusInfo = exportedBusInfoIterator->second;
@@ -7201,7 +7204,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 			IHierarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
 			if((childLineGroupNameAttribute == 0) || (childImportNameAttribute == 0))
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing LineGroupName or ImportName attribute for ImportLineGroup on System.ImportBusInterface!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing LineGroupName or ImportName attribute for ImportLineGroup on System.ImportBusInterface!"));
 				return false;
 			}
 			std::wstring lineGroupName = childLineGroupNameAttribute->GetValue();
@@ -7227,7 +7230,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 			//false.
 			if(!foundReferencedLineGroup)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate exported line group with name " + lineGroupName + L" on exported bus interface with name " + busInterfaceName + L" for ImportLineGroup on System.ImportBusInterface!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate exported line group with name " + lineGroupName + L" on exported bus interface with name " + busInterfaceName + L" for ImportLineGroup on System.ImportBusInterface!"));
 				return false;
 			}
 
@@ -7246,7 +7249,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 		{
 			//If we've encountered an unrecognized child element, log an error, and return
 			//false.
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Unrecognized child element: " + elementName + L" encountered when processing System.ImportBusInterface!"));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Unrecognized child element: " + elementName + L" encountered when processing System.ImportBusInterface!"));
 			return false;
 		}
 	}
@@ -7266,7 +7269,7 @@ bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node,
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (clockSourceNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ImportClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, ClockSourceName, or ImportName attribute for System.ImportClockSource!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -7277,7 +7280,7 @@ bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node,
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportClockSource!"));
 		return false;
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
@@ -7286,7 +7289,7 @@ bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node,
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorID);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportClockSource!"));
 		return false;
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -7295,7 +7298,7 @@ bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node,
 	std::map<std::wstring, ExportedClockSourceInfo>::const_iterator exportedClockSourceInfoIterator = connectorDetails.exportedClockSourceInfo.find(importName);
 	if(exportedClockSourceInfoIterator == connectorDetails.exportedClockSourceInfo.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find exported clock source with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportClockSource!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find exported clock source with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportClockSource!"));
 		return false;
 	}
 	const ExportedClockSourceInfo& exportedClockSourceInfo = exportedClockSourceInfoIterator->second;
@@ -7322,7 +7325,7 @@ bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, 
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemLineNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ImportSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, SystemLineName, or ImportName attribute for System.ImportSystemLine!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -7333,7 +7336,7 @@ bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, 
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportSystemLine!"));
 		return false;
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
@@ -7342,7 +7345,7 @@ bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, 
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorID);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportSystemLine!"));
 		return false;
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -7351,7 +7354,7 @@ bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, 
 	std::map<std::wstring, ExportedSystemLineInfo>::const_iterator exportedSystemLineInfoIterator = connectorDetails.exportedSystemLineInfo.find(importName);
 	if(exportedSystemLineInfoIterator == connectorDetails.exportedSystemLineInfo.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find exported system line with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find exported system line with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportSystemLine!"));
 		return false;
 	}
 	const ExportedSystemLineInfo& exportedSystemLineInfo = exportedSystemLineInfoIterator->second;
@@ -7378,7 +7381,7 @@ bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& nod
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
 	if((connectorInstanceNameAttribute == 0) || (systemSettingNameAttribute == 0) || (importNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ImportSystemSetting!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing ConnectorInstanceName, SystemSettingName, or ImportName attribute for System.ImportSystemSetting!"));
 		return false;
 	}
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
@@ -7389,7 +7392,7 @@ bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& nod
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if(connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportSystemSetting!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find referenced connector with name " + connectorInstanceName + L" for System.ImportSystemSetting!"));
 		return false;
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
@@ -7398,7 +7401,7 @@ bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& nod
 	ConnectorDetailsMap::iterator connectorDetailsIterator = connectorDetailsMap.find(connectorID);
 	if(connectorDetailsIterator == connectorDetailsMap.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportSystemSetting!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error retrieving connector details for connector with name " + connectorInstanceName + L" for System.ImportSystemSetting!"));
 		return false;
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
@@ -7407,7 +7410,7 @@ bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& nod
 	std::map<std::wstring, ExportedSystemSettingInfo>::const_iterator exportedSystemSettingInfoIterator = connectorDetails.exportedSystemSettingInfo.find(importName);
 	if(exportedSystemSettingInfoIterator == connectorDetails.exportedSystemSettingInfo.end())
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not find exported system setting with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportSystemSetting!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not find exported system setting with import name " + importName + L" on connector with name " + connectorInstanceName + L" for System.ImportSystemSetting!"));
 		return false;
 	}
 	const ExportedSystemSettingInfo& exportedSystemSettingInfo = exportedSystemSettingInfoIterator->second;
@@ -7436,7 +7439,7 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHierarchicalStorageNode& node,
 	IHierarchicalStorageAttribute* romEntryBitCountAttribute = node.GetAttribute(L"ROMEntryBitCount");
 	if((embeddedROMNameAttribute == 0) || (deviceInstanceNameAttribute == 0) || (interfaceNumberAttribute == 0) || (romRegionSizeAttribute == 0) || (romEntryBitCountAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing EmbeddedROMName, TargetDeviceInstanceName, InterfaceNumber, ROMRegionSize, or ROMEntryBitCount attribute for System.DefineEmbeddedROM!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing EmbeddedROMName, TargetDeviceInstanceName, InterfaceNumber, ROMRegionSize, or ROMEntryBitCount attribute for System.DefineEmbeddedROM!"));
 		return false;
 	}
 	std::wstring embeddedROMName = embeddedROMNameAttribute->GetValue();
@@ -7457,14 +7460,14 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHierarchicalStorageNode& node,
 	IDevice* device = GetDevice(moduleID, deviceInstanceName);
 	if(device == 0)
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
 		logEntry << L"Could not locate device with name " << deviceInstanceName << L" in module " << moduleID << L" for System.DefineEmbeddedROM!";
 		WriteLogEvent(logEntry);
 		return false;
 	}
 
 	//Generate an ID number for this embedded ROM
-	boost::mutex::scoped_lock embeddedROMLock(embeddedROMMutex);
+	std::unique_lock<std::mutex> embeddedROMLock(embeddedROMMutex);
 	unsigned int embeddedROMID = GenerateFreeEmbeddedROMID();
 
 	//Record details of this embedded ROM
@@ -7492,7 +7495,7 @@ bool System::LoadModule_System_DefineSystemLine(IHierarchicalStorageNode& node, 
 	IHierarchicalStorageAttribute* widthAttribute = node.GetAttribute(L"Width");
 	if((nameAttribute == 0) || (widthAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name or Width attribute for System.DefineSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing Name or Width attribute for System.DefineSystemLine!"));
 		return false;
 	}
 	std::wstring lineName = nameAttribute->GetValue();
@@ -7501,7 +7504,7 @@ bool System::LoadModule_System_DefineSystemLine(IHierarchicalStorageNode& node, 
 	//Validate the supplied line width
 	if(lineWidth == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The system line with name \"" + lineName + L"\" was declared with a specified width of 0 for System.DefineSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"The system line with name \"" + lineName + L"\" was declared with a specified width of 0 for System.DefineSystemLine!"));
 		return false;
 	}
 
@@ -7526,7 +7529,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 	IHierarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
 	if((sourceSystemLineNameAttribute == 0) || (targetDeviceInstanceNameAttribute == 0) || (targetLineAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SourceSystemLineName, TargetDeviceInstanceName, or TargetLine attribute for System.MapSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing SourceSystemLineName, TargetDeviceInstanceName, or TargetLine attribute for System.MapSystemLine!"));
 		return false;
 	}
 	std::wstring systemLineName = sourceSystemLineNameAttribute->GetValue();
@@ -7547,7 +7550,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 	IDevice* targetDevice = GetDevice(moduleID, targetDeviceName);
 	if(targetDevice == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate target device with name \"" + targetDeviceName + L"\" for System.MapSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate target device with name \"" + targetDeviceName + L"\" for System.MapSystemLine!"));
 		return false;
 	}
 
@@ -7555,7 +7558,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 	unsigned int systemLineID = GetSystemLineID(moduleID, systemLineName);
 	if(systemLineID == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to locate system line with name \"" + systemLineName + L"\" for System.MapSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to locate system line with name \"" + systemLineName + L"\" for System.MapSystemLine!"));
 		return false;
 	}
 
@@ -7563,7 +7566,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 	unsigned int systemLineWidth = GetSystemLineWidth(systemLineID);
 	if(systemLineWidth == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The system line with name \"" + systemLineName + L"\" returned a line width of 0 for System.MapSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"The system line with name \"" + systemLineName + L"\" returned a line width of 0 for System.MapSystemLine!"));
 		return false;
 	}
 
@@ -7571,7 +7574,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 	unsigned int targetLineID = targetDevice->GetLineID(targetLineName);
 	if(targetLineID == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to locate line with name \"" + targetLineName + L"\" on device with name \"" + targetDeviceName + L"\" for System.MapSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to locate line with name \"" + targetLineName + L"\" on device with name \"" + targetDeviceName + L"\" for System.MapSystemLine!"));
 		return false;
 	}
 
@@ -7579,7 +7582,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 	unsigned int targetLineWidth = targetDevice->GetLineWidth(targetLineID);
 	if(targetLineWidth == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"The line with name \"" + targetLineName + L"\" on device with name \"" + targetDeviceName + L"\" returned a line width of 0 for System.MapSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"The line with name \"" + targetLineName + L"\" on device with name \"" + targetDeviceName + L"\" returned a line width of 0 for System.MapSystemLine!"));
 		return false;
 	}
 
@@ -7627,7 +7630,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 		//If we fail to successfully construct the line remap table, remove this system
 		//line from the list of system lines, log an error, and return false.
 		systemLineMappings.pop_back();
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to load the system line with name \"" + systemLineName + L"\" because an error occurred attempting to construct a DataRemapTable from the LineMapping attribute for System.MapSystemLine!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load the system line with name \"" + systemLineName + L"\" because an error occurred attempting to construct a DataRemapTable from the LineMapping attribute for System.MapSystemLine!"));
 		return false;
 	}
 
@@ -7641,7 +7644,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	IHierarchicalStorageAttribute* settingNameAttribute = node.GetAttribute(L"Name");
 	if(settingNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for System.Setting!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing Name attribute for System.Setting!"));
 		return false;
 	}
 	std::wstring settingName = settingNameAttribute->GetValue();
@@ -7664,7 +7667,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	if(((settingChangeLeadInTimeAttribute != 0) && ((settingChangeLeadInRandomTimeRangeBeginAttribute != 0) || (settingChangeLeadInRandomTimeRangeEndAttribute != 0)))
 	|| ((settingChangeLeadInRandomTimeRangeBeginAttribute != 0) != (settingChangeLeadInRandomTimeRangeEndAttribute != 0)))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"An invalid combination of lead in time attributes were specified for setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"An invalid combination of lead in time attributes were specified for setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
 		return false;
 	}
 	if(settingChangeLeadInTimeAttribute != 0)
@@ -7679,7 +7682,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		settingChangeLeadInTimeEnd = settingChangeLeadInRandomTimeRangeEndAttribute->ExtractValue<double>();
 		if(settingChangeLeadInTimeEnd < settingChangeLeadInTime)
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"The start lead in time was greater than the end lead in time for setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"The start lead in time was greater than the end lead in time for setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
 			return false;
 		}
 	}
@@ -7709,7 +7712,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		|| ((toggleSettingAutoRevertTimeAttribute != 0) && ((toggleSettingAutoRevertRandomTimeRangeBeginAttribute != 0) || (toggleSettingAutoRevertRandomTimeRangeEndAttribute != 0)))
 		|| ((toggleSettingAutoRevertRandomTimeRangeBeginAttribute != 0) != (toggleSettingAutoRevertRandomTimeRangeEndAttribute != 0))))
 		{
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"An invalid combination of toggle setting auto revert attributes were specified for setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"An invalid combination of toggle setting auto revert attributes were specified for setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
 			return false;
 		}
 		if(toggleSettingAutoRevertAttribute != 0)
@@ -7727,7 +7730,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 				toggleSettingAutoRevertTimeEnd = toggleSettingAutoRevertRandomTimeRangeEndAttribute->ExtractValue<double>();
 				if(toggleSettingAutoRevertTimeEnd < toggleSettingAutoRevertTime)
 				{
-					WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"The start auto revert time was greater than the end auto revert time for setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
+					WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"The start auto revert time was greater than the end auto revert time for setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
 					return false;
 				}
 			}
@@ -7754,7 +7757,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting node under module file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting node under module file " + fileName + L"."));
 			continue;
 		}
 
@@ -7783,7 +7786,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		else
 		{
 			//Log an error if we failed to load an element correctly, and return false.
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting node under module file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting node under module file " + fileName + L"."));
 			return false;
 		}
 	}
@@ -7793,7 +7796,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	unsigned int optionCount = (unsigned int)options.size();
 	if(toggleSetting && (optionCount != 2))
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
 		logEntry << L"A total of " << optionCount << L" options were found for a toggle setting when loading System.Setting node under module file " << fileName << L". Only 2 options can be defined for a toggle setting.";
 		WriteLogEvent(logEntry);
 		return false;
@@ -7803,7 +7806,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	//the toggle setting, log an error, and return false.
 	if(toggleSetting && !toggleSettingOnOptionIndexDefined)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"No options set the ToggleSettingOnOption attribute for toggle setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"No options set the ToggleSettingOnOption attribute for toggle setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
 		return false;
 	}
 
@@ -7818,7 +7821,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	}
 
 	//Generate an ID number for this system setting
-	boost::mutex::scoped_lock moduleSettingsLock(moduleSettingMutex);
+	std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
 	unsigned int systemSettingID = GenerateFreeSystemSettingID();
 
 	//Populate the system setting object with this setting info
@@ -7855,7 +7858,7 @@ bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, un
 	IHierarchicalStorageAttribute* optionNameAttribute = node.GetAttribute(L"Name");
 	if(optionNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing Name attribute for System.Setting.Option!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing Name attribute for System.Setting.Option!"));
 		return false;
 	}
 	std::wstring optionName = optionNameAttribute->GetValue();
@@ -7906,7 +7909,7 @@ bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, un
 		else
 		{
 			//Log a warning for an unrecognized element
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting.Option node under module file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting.Option node under module file " + fileName + L"."));
 			continue;
 		}
 
@@ -7920,7 +7923,7 @@ bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, un
 		else
 		{
 			//Log an error if we failed to load an element correctly, and return false.
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting.Option node under module file " + fileName + L"."));
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting.Option node under module file " + fileName + L"."));
 			return false;
 		}
 	}
@@ -7936,7 +7939,7 @@ bool System::LoadModule_System_SelectSettingOption(IHierarchicalStorageNode& nod
 	IHierarchicalStorageAttribute* optionNameAttribute = node.GetAttribute(L"OptionName");
 	if((settingNameAttribute == 0) || (optionNameAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SettingName or OptionName attribute for System.SelectSettingOption!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing SettingName or OptionName attribute for System.SelectSettingOption!"));
 		return false;
 	}
 	std::wstring settingName = settingNameAttribute->GetValue();
@@ -7944,7 +7947,7 @@ bool System::LoadModule_System_SelectSettingOption(IHierarchicalStorageNode& nod
 
 	//Populate the system state change object with this state change info
 	stateChange.moduleID = moduleID;
-	stateChange.type = SYSTEMSTATECHANGETYPE_SETSYSTEMOPTION;
+	stateChange.type = SystemStateChangeType::SetSystemOption;
 	stateChange.targetElementName = settingName;
 	stateChange.setSystemOptionValue = optionName;
 
@@ -7960,7 +7963,7 @@ bool System::LoadModule_System_SetClockFrequency(IHierarchicalStorageNode& node,
 	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if((targetClockNameAttribute == 0) || (clockTypeAttribute == 0) || (valueAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing TargetClockName, ClockType, or Value attribute for System.SetClockFrequency!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing TargetClockName, ClockType, or Value attribute for System.SetClockFrequency!"));
 		return false;
 	}
 	std::wstring targetClockName = targetClockNameAttribute->GetValue();
@@ -7971,13 +7974,13 @@ bool System::LoadModule_System_SetClockFrequency(IHierarchicalStorageNode& node,
 	ClockSource::ClockType clockType;
 	if(!ClockSource::DecodeClockTypeString(clockTypeString, clockType))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Failed to decode the clock type string \"" + clockTypeString + L"\" for the target clock with name \"" + targetClockName + L"\" for System.SetClockFrequency!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to decode the clock type string \"" + clockTypeString + L"\" for the target clock with name \"" + targetClockName + L"\" for System.SetClockFrequency!"));
 		return false;
 	}
 
 	//Populate the system state change object with this state change info
 	stateChange.moduleID = moduleID;
-	stateChange.type = SYSTEMSTATECHANGETYPE_SETCLOCKFREQUENCY;
+	stateChange.type = SystemStateChangeType::SetClockFrequency;
 	stateChange.targetElementName = targetClockName;
 	stateChange.setClockRateClockType = clockType;
 	stateChange.setClockRateValue = clockRate;
@@ -7993,7 +7996,7 @@ bool System::LoadModule_System_SetLineState(IHierarchicalStorageNode& node, unsi
 	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if((systemLineNameAttribute == 0) || (valueAttribute == 0))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SystemLineName or Value attribute for System.SetClockFrequency!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing SystemLineName or Value attribute for System.SetClockFrequency!"));
 		return false;
 	}
 	std::wstring systemLineName = systemLineNameAttribute->GetValue();
@@ -8001,7 +8004,7 @@ bool System::LoadModule_System_SetLineState(IHierarchicalStorageNode& node, unsi
 
 	//Populate the system state change object with this state change info
 	stateChange.moduleID = moduleID;
-	stateChange.type = SYSTEMSTATECHANGETYPE_SETSYSTEMLINESTATE;
+	stateChange.type = SystemStateChangeType::SetSystemLineState;
 	stateChange.targetElementName = systemLineName;
 	stateChange.setLineStateValue = lineValue;
 
@@ -8017,7 +8020,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 	{
 		bool requestResult = false;
 		const ViewOpenRequest& request = *i;
-		if(request.viewTarget == IViewPresenter::VIEWTARGET_SYSTEM)
+		if(request.viewTarget == IViewPresenter::ViewTarget::System)
 		{
 			//Open the view
 			for(std::set<IExtension*>::const_iterator menuHandlerIterator = systemMenuHandlers.begin(); menuHandlerIterator != systemMenuHandlers.end(); ++menuHandlerIterator)
@@ -8025,7 +8028,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 				requestResult |= (*menuHandlerIterator)->OpenSystemView(request.viewGroupName, request.viewName);
 			}
 		}
-		else if(request.viewTarget == IViewPresenter::VIEWTARGET_MODULE)
+		else if(request.viewTarget == IViewPresenter::ViewTarget::Module)
 		{
 			//Retrieve info on the target module
 			LoadedModuleInfoMap::const_iterator loadedModuleInfoIterator = loadedModuleInfoMap.find(request.moduleID);
@@ -8033,7 +8036,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 			{
 				std::wstringstream message;
 				message << L"Could not locate module with ID " << request.moduleID << L" for System.OpenView!";
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", message.str()));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", message.str()));
 				result = false;
 				continue;
 			}
@@ -8045,13 +8048,13 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 				requestResult |= (*menuHandlerIterator)->OpenModuleView(request.viewGroupName, request.viewName, request.moduleID);
 			}
 		}
-		else if(request.viewTarget == IViewPresenter::VIEWTARGET_DEVICE)
+		else if(request.viewTarget == IViewPresenter::ViewTarget::Device)
 		{
 			//Retrieve the device object from the system
 			IDevice* device = GetDevice(request.moduleID, request.deviceInstanceName);
 			if(device == 0)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate device with name " + request.deviceInstanceName + L" for System.OpenView!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate device with name " + request.deviceInstanceName + L" for System.OpenView!"));
 				result = false;
 				continue;
 			}
@@ -8068,13 +8071,13 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 				}
 			}
 		}
-		else if((request.viewTarget == IViewPresenter::VIEWTARGET_EXTENSION) && !request.globalExtension)
+		else if((request.viewTarget == IViewPresenter::ViewTarget::Extension) && !request.globalExtension)
 		{
 			//Retrieve the extension object from the system
 			IExtension* extension = GetExtension(request.moduleID, request.extensionInstanceName);
 			if(extension == 0)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate extension with name " + request.extensionInstanceName + L" for System.OpenView!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate extension with name " + request.extensionInstanceName + L" for System.OpenView!"));
 				result = false;
 				continue;
 			}
@@ -8091,13 +8094,13 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 				}
 			}
 		}
-		else if((request.viewTarget == IViewPresenter::VIEWTARGET_EXTENSION) && request.globalExtension)
+		else if((request.viewTarget == IViewPresenter::ViewTarget::Extension) && request.globalExtension)
 		{
 			//Retrieve the extension object from the system
 			IExtension* extension = GetGlobalExtension(request.extensionInstanceName);
 			if(extension == 0)
 			{
-				WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not locate global extension with name " + request.extensionInstanceName + L" for System.OpenView!"));
+				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate global extension with name " + request.extensionInstanceName + L" for System.OpenView!"));
 				result = false;
 				continue;
 			}
@@ -8118,8 +8121,8 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 		else
 		{
 			std::wstringstream message;
-			message << L"An invalid view target of " << request.viewTarget << L" was specified for System.OpenView!";
-			WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", message.str()));
+			message << L"An invalid view target of " << (unsigned int)request.viewTarget << L" was specified for System.OpenView!";
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", message.str()));
 			result = false;
 			continue;
 		}
@@ -8132,7 +8135,8 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 void System::UnloadAllModulesSynchronous()
 {
 	clearSystemComplete = false;
-	boost::thread workerThread(boost::bind(boost::mem_fn(&System::UnloadAllModules), this));
+	std::thread workerThread(std::bind(std::mem_fn(&System::UnloadAllModules), this));
+	workerThread.detach();
 }
 
 //----------------------------------------------------------------------------------------
@@ -8144,7 +8148,7 @@ bool System::UnloadAllModulesSynchronousComplete() const
 //----------------------------------------------------------------------------------------
 void System::UnloadAllModules()
 {
-	boost::mutex::scoped_lock lock(moduleLoadMutex);
+	std::unique_lock<std::mutex> lock(moduleLoadMutex);
 
 	//Stop the system if it is currently running
 	StopSystem();
@@ -8171,20 +8175,20 @@ bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring&
 	FileStreamReference streamReference(guiExtensionInterface);
 	if(!streamReference.OpenExistingFileForRead(filePath))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Could not open module file " + filePath + L"!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not open module file " + filePath + L"!"));
 		return false;
 	}
 	Stream::IStream& source = *streamReference;
 
 	//Determine the text format for the file, and strip any present byte order mark.
-	source.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+	source.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 	source.ProcessByteOrderMark();
 
 	//Load the XML structure from the file
 	HierarchicalStorageTree tree;
 	if(!tree.LoadTree(source))
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Error loading XML structure from module file " + filePath + L"! The xml error string is as follows: " + tree.GetErrorString()));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error loading XML structure from module file " + filePath + L"! The xml error string is as follows: " + tree.GetErrorString()));
 		return false;
 	}
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
@@ -8200,7 +8204,7 @@ bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring&
 	IHierarchicalStorageAttribute* systemClassNameAttribute = rootNode.GetAttribute(L"SystemClassName");
 	if(systemClassNameAttribute == 0)
 	{
-		WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"System", L"Missing SystemClassName on root node!"));
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Missing SystemClassName on root node!"));
 		return false;
 	}
 	systemClassName = systemClassNameAttribute->GetValue();
@@ -8259,7 +8263,7 @@ bool System::ReadModuleConnectorInfoInternal(const InteropSupport::ISTLObjectSou
 //----------------------------------------------------------------------------------------
 std::wstring System::LoadModuleSynchronousCurrentModuleName() const
 {
-	boost::mutex::scoped_lock lock(moduleNameMutex);
+	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	std::wstring moduleName;
 	if(!loadSystemCurrentModuleNameStack.empty())
 	{
@@ -8279,21 +8283,21 @@ void System::LoadModuleSynchronousCurrentModuleNameInternal(const InteropSupport
 //----------------------------------------------------------------------------------------
 void System::PushLoadModuleCurrentModuleName(const std::wstring& moduleName)
 {
-	boost::mutex::scoped_lock lock(moduleNameMutex);
+	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	loadSystemCurrentModuleNameStack.push_back(moduleName);
 }
 
 //----------------------------------------------------------------------------------------
 void System::PopLoadModuleCurrentModuleName()
 {
-	boost::mutex::scoped_lock lock(moduleNameMutex);
+	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	loadSystemCurrentModuleNameStack.pop_back();
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring System::UnloadModuleSynchronousCurrentModuleName() const
 {
-	boost::mutex::scoped_lock lock(moduleNameMutex);
+	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	std::wstring moduleName;
 	if(!unloadSystemCurrentModuleNameStack.empty())
 	{
@@ -8313,14 +8317,14 @@ void System::UnloadModuleSynchronousCurrentModuleNameInternal(const InteropSuppo
 //----------------------------------------------------------------------------------------
 void System::PushUnloadModuleCurrentModuleName(const std::wstring& moduleName)
 {
-	boost::mutex::scoped_lock lock(moduleNameMutex);
+	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	unloadSystemCurrentModuleNameStack.push_back(moduleName);
 }
 
 //----------------------------------------------------------------------------------------
 void System::PopUnloadModuleCurrentModuleName()
 {
-	boost::mutex::scoped_lock lock(moduleNameMutex);
+	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	unloadSystemCurrentModuleNameStack.pop_back();
 }
 
@@ -8408,7 +8412,7 @@ std::list<IDevice*> System::GetLoadedDevices() const
 {
 	//##TODO## Consider thread safety for all functions exposed over the system extension
 	//interface
-	boost::mutex::scoped_lock loadedElementLock(loadedElementMutex);
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
 	std::list<IDevice*> deviceList;
 	for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 	{
@@ -8427,7 +8431,7 @@ void System::GetLoadedDevicesInternal(const InteropSupport::ISTLObjectTarget<std
 bool System::GetDeviceDisplayName(IDevice* device, std::wstring& deviceDisplayName) const
 {
 	//Ensure the specified target device is one of the currently loaded devices
-	boost::mutex::scoped_lock loadedElementLock(loadedElementMutex);
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
 	bool foundTargetDevice = false;
 	LoadedDeviceInfoList::const_iterator loadedDeviceInfoListIterator = loadedDeviceInfoList.begin();
 	while(!foundTargetDevice && (loadedDeviceInfoListIterator != loadedDeviceInfoList.end()))
@@ -8498,7 +8502,7 @@ bool System::GetDeviceInstanceNameInternal(IDevice* device, const InteropSupport
 bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, std::wstring& fullyQualifiedDeviceDisplayName) const
 {
 	//Ensure the specified target device is one of the currently loaded devices
-	boost::mutex::scoped_lock loadedElementLock(loadedElementMutex);
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
 	bool foundTargetDevice = false;
 	LoadedDeviceInfoList::const_iterator loadedDeviceInfoListIterator = loadedDeviceInfoList.begin();
 	while(!foundTargetDevice && (loadedDeviceInfoListIterator != loadedDeviceInfoList.end()))
@@ -8617,115 +8621,115 @@ void System::GetLoadedExtensionsInternal(const InteropSupport::ISTLObjectTarget<
 System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 {
 	//Control keys
-	if(keyCodeName == L"Esc")             return ISystemDeviceInterface::KEYCODE_ESCAPE;
-	else if(keyCodeName == L"Tab")        return ISystemDeviceInterface::KEYCODE_TAB;
-	else if(keyCodeName == L"Enter")      return ISystemDeviceInterface::KEYCODE_ENTER;
-	else if(keyCodeName == L"Space")      return ISystemDeviceInterface::KEYCODE_SPACE;
-	else if(keyCodeName == L"Backspace")  return ISystemDeviceInterface::KEYCODE_BACKSPACE;
-	else if(keyCodeName == L"Insert")     return ISystemDeviceInterface::KEYCODE_INSERT;
-	else if(keyCodeName == L"Delete")     return ISystemDeviceInterface::KEYCODE_DELETE;
-	else if(keyCodeName == L"PgUp")       return ISystemDeviceInterface::KEYCODE_PAGEUP;
-	else if(keyCodeName == L"PgDn")       return ISystemDeviceInterface::KEYCODE_PAGEDOWN;
-	else if(keyCodeName == L"Home")       return ISystemDeviceInterface::KEYCODE_HOME;
-	else if(keyCodeName == L"End")        return ISystemDeviceInterface::KEYCODE_END;
-	else if(keyCodeName == L"Up")         return ISystemDeviceInterface::KEYCODE_UP;
-	else if(keyCodeName == L"Down")       return ISystemDeviceInterface::KEYCODE_DOWN;
-	else if(keyCodeName == L"Left")       return ISystemDeviceInterface::KEYCODE_LEFT;
-	else if(keyCodeName == L"Right")      return ISystemDeviceInterface::KEYCODE_RIGHT;
-	else if(keyCodeName == L"Print")      return ISystemDeviceInterface::KEYCODE_PRINTSCREEN;
-	else if(keyCodeName == L"Pause")      return ISystemDeviceInterface::KEYCODE_PAUSE;
-	else if(keyCodeName == L"NumLock")    return ISystemDeviceInterface::KEYCODE_NUMLOCK;
-	else if(keyCodeName == L"CapsLock")   return ISystemDeviceInterface::KEYCODE_CAPSLOCK;
-	else if(keyCodeName == L"ScrollLock") return ISystemDeviceInterface::KEYCODE_SCROLLLOCK;
-	else if(keyCodeName == L"LeftWin")    return ISystemDeviceInterface::KEYCODE_LEFTWINDOWS;
-	else if(keyCodeName == L"RightWin")   return ISystemDeviceInterface::KEYCODE_RIGHTWINDOWS;
-	else if(keyCodeName == L"Menu")       return ISystemDeviceInterface::KEYCODE_MENU;
+	if(keyCodeName == L"Esc")             return ISystemDeviceInterface::KeyCode::Escape;
+	else if(keyCodeName == L"Tab")        return ISystemDeviceInterface::KeyCode::Tab;
+	else if(keyCodeName == L"Enter")      return ISystemDeviceInterface::KeyCode::Enter;
+	else if(keyCodeName == L"Space")      return ISystemDeviceInterface::KeyCode::Space;
+	else if(keyCodeName == L"Backspace")  return ISystemDeviceInterface::KeyCode::Backspace;
+	else if(keyCodeName == L"Insert")     return ISystemDeviceInterface::KeyCode::Insert;
+	else if(keyCodeName == L"Delete")     return ISystemDeviceInterface::KeyCode::Delete;
+	else if(keyCodeName == L"PgUp")       return ISystemDeviceInterface::KeyCode::PageUp;
+	else if(keyCodeName == L"PgDn")       return ISystemDeviceInterface::KeyCode::PageDown;
+	else if(keyCodeName == L"Home")       return ISystemDeviceInterface::KeyCode::Home;
+	else if(keyCodeName == L"End")        return ISystemDeviceInterface::KeyCode::End;
+	else if(keyCodeName == L"Up")         return ISystemDeviceInterface::KeyCode::Up;
+	else if(keyCodeName == L"Down")       return ISystemDeviceInterface::KeyCode::Down;
+	else if(keyCodeName == L"Left")       return ISystemDeviceInterface::KeyCode::Left;
+	else if(keyCodeName == L"Right")      return ISystemDeviceInterface::KeyCode::Right;
+	else if(keyCodeName == L"Print")      return ISystemDeviceInterface::KeyCode::PrintScreen;
+	else if(keyCodeName == L"Pause")      return ISystemDeviceInterface::KeyCode::Pause;
+	else if(keyCodeName == L"NumLock")    return ISystemDeviceInterface::KeyCode::NumLock;
+	else if(keyCodeName == L"CapsLock")   return ISystemDeviceInterface::KeyCode::CapsLock;
+	else if(keyCodeName == L"ScrollLock") return ISystemDeviceInterface::KeyCode::ScrollLock;
+	else if(keyCodeName == L"LeftWin")    return ISystemDeviceInterface::KeyCode::LeftWindows;
+	else if(keyCodeName == L"RightWin")   return ISystemDeviceInterface::KeyCode::RightWindows;
+	else if(keyCodeName == L"Menu")       return ISystemDeviceInterface::KeyCode::Menu;
 	//Modifier keys
-	else if(keyCodeName == L"Ctrl")       return ISystemDeviceInterface::KEYCODE_CTRL;
-	else if(keyCodeName == L"Alt")        return ISystemDeviceInterface::KEYCODE_ALT;
-	else if(keyCodeName == L"Shift")      return ISystemDeviceInterface::KEYCODE_SHIFT;
+	else if(keyCodeName == L"Ctrl")       return ISystemDeviceInterface::KeyCode::Ctrl;
+	else if(keyCodeName == L"Alt")        return ISystemDeviceInterface::KeyCode::Alt;
+	else if(keyCodeName == L"Shift")      return ISystemDeviceInterface::KeyCode::Shift;
 	//Function keys
-	else if(keyCodeName == L"F1")         return ISystemDeviceInterface::KEYCODE_F1;
-	else if(keyCodeName == L"F2")         return ISystemDeviceInterface::KEYCODE_F2;
-	else if(keyCodeName == L"F3")         return ISystemDeviceInterface::KEYCODE_F3;
-	else if(keyCodeName == L"F4")         return ISystemDeviceInterface::KEYCODE_F4;
-	else if(keyCodeName == L"F5")         return ISystemDeviceInterface::KEYCODE_F5;
-	else if(keyCodeName == L"F6")         return ISystemDeviceInterface::KEYCODE_F6;
-	else if(keyCodeName == L"F7")         return ISystemDeviceInterface::KEYCODE_F7;
-	else if(keyCodeName == L"F8")         return ISystemDeviceInterface::KEYCODE_F8;
-	else if(keyCodeName == L"F9")         return ISystemDeviceInterface::KEYCODE_F9;
-	else if(keyCodeName == L"F10")        return ISystemDeviceInterface::KEYCODE_F10;
-	else if(keyCodeName == L"F11")        return ISystemDeviceInterface::KEYCODE_F11;
-	else if(keyCodeName == L"F12")        return ISystemDeviceInterface::KEYCODE_F12;
+	else if(keyCodeName == L"F1")         return ISystemDeviceInterface::KeyCode::F1;
+	else if(keyCodeName == L"F2")         return ISystemDeviceInterface::KeyCode::F2;
+	else if(keyCodeName == L"F3")         return ISystemDeviceInterface::KeyCode::F3;
+	else if(keyCodeName == L"F4")         return ISystemDeviceInterface::KeyCode::F4;
+	else if(keyCodeName == L"F5")         return ISystemDeviceInterface::KeyCode::F5;
+	else if(keyCodeName == L"F6")         return ISystemDeviceInterface::KeyCode::F6;
+	else if(keyCodeName == L"F7")         return ISystemDeviceInterface::KeyCode::F7;
+	else if(keyCodeName == L"F8")         return ISystemDeviceInterface::KeyCode::F8;
+	else if(keyCodeName == L"F9")         return ISystemDeviceInterface::KeyCode::F9;
+	else if(keyCodeName == L"F10")        return ISystemDeviceInterface::KeyCode::F10;
+	else if(keyCodeName == L"F11")        return ISystemDeviceInterface::KeyCode::F11;
+	else if(keyCodeName == L"F12")        return ISystemDeviceInterface::KeyCode::F12;
 	//Numbers
-	else if(keyCodeName == L"0")          return ISystemDeviceInterface::KEYCODE_0;
-	else if(keyCodeName == L"1")          return ISystemDeviceInterface::KEYCODE_1;
-	else if(keyCodeName == L"2")          return ISystemDeviceInterface::KEYCODE_2;
-	else if(keyCodeName == L"3")          return ISystemDeviceInterface::KEYCODE_3;
-	else if(keyCodeName == L"4")          return ISystemDeviceInterface::KEYCODE_4;
-	else if(keyCodeName == L"5")          return ISystemDeviceInterface::KEYCODE_5;
-	else if(keyCodeName == L"6")          return ISystemDeviceInterface::KEYCODE_6;
-	else if(keyCodeName == L"7")          return ISystemDeviceInterface::KEYCODE_7;
-	else if(keyCodeName == L"8")          return ISystemDeviceInterface::KEYCODE_8;
-	else if(keyCodeName == L"9")          return ISystemDeviceInterface::KEYCODE_9;
+	else if(keyCodeName == L"0")          return ISystemDeviceInterface::KeyCode::Number0;
+	else if(keyCodeName == L"1")          return ISystemDeviceInterface::KeyCode::Number1;
+	else if(keyCodeName == L"2")          return ISystemDeviceInterface::KeyCode::Number2;
+	else if(keyCodeName == L"3")          return ISystemDeviceInterface::KeyCode::Number3;
+	else if(keyCodeName == L"4")          return ISystemDeviceInterface::KeyCode::Number4;
+	else if(keyCodeName == L"5")          return ISystemDeviceInterface::KeyCode::Number5;
+	else if(keyCodeName == L"6")          return ISystemDeviceInterface::KeyCode::Number6;
+	else if(keyCodeName == L"7")          return ISystemDeviceInterface::KeyCode::Number7;
+	else if(keyCodeName == L"8")          return ISystemDeviceInterface::KeyCode::Number8;
+	else if(keyCodeName == L"9")          return ISystemDeviceInterface::KeyCode::Number9;
 	//Letters
-	else if(keyCodeName == L"A")          return ISystemDeviceInterface::KEYCODE_A;
-	else if(keyCodeName == L"B")          return ISystemDeviceInterface::KEYCODE_B;
-	else if(keyCodeName == L"C")          return ISystemDeviceInterface::KEYCODE_C;
-	else if(keyCodeName == L"D")          return ISystemDeviceInterface::KEYCODE_D;
-	else if(keyCodeName == L"E")          return ISystemDeviceInterface::KEYCODE_E;
-	else if(keyCodeName == L"F")          return ISystemDeviceInterface::KEYCODE_F;
-	else if(keyCodeName == L"G")          return ISystemDeviceInterface::KEYCODE_G;
-	else if(keyCodeName == L"H")          return ISystemDeviceInterface::KEYCODE_H;
-	else if(keyCodeName == L"I")          return ISystemDeviceInterface::KEYCODE_I;
-	else if(keyCodeName == L"J")          return ISystemDeviceInterface::KEYCODE_J;
-	else if(keyCodeName == L"K")          return ISystemDeviceInterface::KEYCODE_K;
-	else if(keyCodeName == L"L")          return ISystemDeviceInterface::KEYCODE_L;
-	else if(keyCodeName == L"M")          return ISystemDeviceInterface::KEYCODE_M;
-	else if(keyCodeName == L"N")          return ISystemDeviceInterface::KEYCODE_N;
-	else if(keyCodeName == L"O")          return ISystemDeviceInterface::KEYCODE_O;
-	else if(keyCodeName == L"P")          return ISystemDeviceInterface::KEYCODE_P;
-	else if(keyCodeName == L"Q")          return ISystemDeviceInterface::KEYCODE_Q;
-	else if(keyCodeName == L"R")          return ISystemDeviceInterface::KEYCODE_R;
-	else if(keyCodeName == L"S")          return ISystemDeviceInterface::KEYCODE_S;
-	else if(keyCodeName == L"T")          return ISystemDeviceInterface::KEYCODE_T;
-	else if(keyCodeName == L"U")          return ISystemDeviceInterface::KEYCODE_U;
-	else if(keyCodeName == L"V")          return ISystemDeviceInterface::KEYCODE_V;
-	else if(keyCodeName == L"W")          return ISystemDeviceInterface::KEYCODE_W;
-	else if(keyCodeName == L"X")          return ISystemDeviceInterface::KEYCODE_X;
-	else if(keyCodeName == L"Y")          return ISystemDeviceInterface::KEYCODE_Y;
-	else if(keyCodeName == L"Z")          return ISystemDeviceInterface::KEYCODE_Z;
+	else if(keyCodeName == L"A")          return ISystemDeviceInterface::KeyCode::A;
+	else if(keyCodeName == L"B")          return ISystemDeviceInterface::KeyCode::B;
+	else if(keyCodeName == L"C")          return ISystemDeviceInterface::KeyCode::C;
+	else if(keyCodeName == L"D")          return ISystemDeviceInterface::KeyCode::D;
+	else if(keyCodeName == L"E")          return ISystemDeviceInterface::KeyCode::E;
+	else if(keyCodeName == L"F")          return ISystemDeviceInterface::KeyCode::F;
+	else if(keyCodeName == L"G")          return ISystemDeviceInterface::KeyCode::G;
+	else if(keyCodeName == L"H")          return ISystemDeviceInterface::KeyCode::H;
+	else if(keyCodeName == L"I")          return ISystemDeviceInterface::KeyCode::I;
+	else if(keyCodeName == L"J")          return ISystemDeviceInterface::KeyCode::J;
+	else if(keyCodeName == L"K")          return ISystemDeviceInterface::KeyCode::K;
+	else if(keyCodeName == L"L")          return ISystemDeviceInterface::KeyCode::L;
+	else if(keyCodeName == L"M")          return ISystemDeviceInterface::KeyCode::M;
+	else if(keyCodeName == L"N")          return ISystemDeviceInterface::KeyCode::N;
+	else if(keyCodeName == L"O")          return ISystemDeviceInterface::KeyCode::O;
+	else if(keyCodeName == L"P")          return ISystemDeviceInterface::KeyCode::P;
+	else if(keyCodeName == L"Q")          return ISystemDeviceInterface::KeyCode::Q;
+	else if(keyCodeName == L"R")          return ISystemDeviceInterface::KeyCode::R;
+	else if(keyCodeName == L"S")          return ISystemDeviceInterface::KeyCode::S;
+	else if(keyCodeName == L"T")          return ISystemDeviceInterface::KeyCode::T;
+	else if(keyCodeName == L"U")          return ISystemDeviceInterface::KeyCode::U;
+	else if(keyCodeName == L"V")          return ISystemDeviceInterface::KeyCode::V;
+	else if(keyCodeName == L"W")          return ISystemDeviceInterface::KeyCode::W;
+	else if(keyCodeName == L"X")          return ISystemDeviceInterface::KeyCode::X;
+	else if(keyCodeName == L"Y")          return ISystemDeviceInterface::KeyCode::Y;
+	else if(keyCodeName == L"Z")          return ISystemDeviceInterface::KeyCode::Z;
 	//Symbol keys
-	else if(keyCodeName == L"OEM1")       return ISystemDeviceInterface::KEYCODE_OEM1;
-	else if(keyCodeName == L"OEMPlus")    return ISystemDeviceInterface::KEYCODE_OEMPLUS;
-	else if(keyCodeName == L"OEMComma")   return ISystemDeviceInterface::KEYCODE_OEMCOMMA;
-	else if(keyCodeName == L"OEMMinus")   return ISystemDeviceInterface::KEYCODE_OEMMINUS;
-	else if(keyCodeName == L"OEMPeriod")  return ISystemDeviceInterface::KEYCODE_OEMPERIOD;
-	else if(keyCodeName == L"OEM2")       return ISystemDeviceInterface::KEYCODE_OEM2;
-	else if(keyCodeName == L"OEM3")       return ISystemDeviceInterface::KEYCODE_OEM3;
-	else if(keyCodeName == L"OEM4")       return ISystemDeviceInterface::KEYCODE_OEM4;
-	else if(keyCodeName == L"OEM5")       return ISystemDeviceInterface::KEYCODE_OEM5;
-	else if(keyCodeName == L"OEM6")       return ISystemDeviceInterface::KEYCODE_OEM6;
-	else if(keyCodeName == L"OEM7")       return ISystemDeviceInterface::KEYCODE_OEM7;
-	else if(keyCodeName == L"OEM8")       return ISystemDeviceInterface::KEYCODE_OEM8;
-	else if(keyCodeName == L"OEMAX")      return ISystemDeviceInterface::KEYCODE_OEMAX;
-	else if(keyCodeName == L"OEM102")     return ISystemDeviceInterface::KEYCODE_OEM102;
+	else if(keyCodeName == L"OEM1")       return ISystemDeviceInterface::KeyCode::OEM1;
+	else if(keyCodeName == L"OEMPlus")    return ISystemDeviceInterface::KeyCode::OEMPLUS;
+	else if(keyCodeName == L"OEMComma")   return ISystemDeviceInterface::KeyCode::OEMCOMMA;
+	else if(keyCodeName == L"OEMMinus")   return ISystemDeviceInterface::KeyCode::OEMMINUS;
+	else if(keyCodeName == L"OEMPeriod")  return ISystemDeviceInterface::KeyCode::OEMPERIOD;
+	else if(keyCodeName == L"OEM2")       return ISystemDeviceInterface::KeyCode::OEM2;
+	else if(keyCodeName == L"OEM3")       return ISystemDeviceInterface::KeyCode::OEM3;
+	else if(keyCodeName == L"OEM4")       return ISystemDeviceInterface::KeyCode::OEM4;
+	else if(keyCodeName == L"OEM5")       return ISystemDeviceInterface::KeyCode::OEM5;
+	else if(keyCodeName == L"OEM6")       return ISystemDeviceInterface::KeyCode::OEM6;
+	else if(keyCodeName == L"OEM7")       return ISystemDeviceInterface::KeyCode::OEM7;
+	else if(keyCodeName == L"OEM8")       return ISystemDeviceInterface::KeyCode::OEM8;
+	else if(keyCodeName == L"OEMAX")      return ISystemDeviceInterface::KeyCode::OEMAX;
+	else if(keyCodeName == L"OEM102")     return ISystemDeviceInterface::KeyCode::OEM102;
 	//Numpad keys
-	else if(keyCodeName == L"Numpad0")    return ISystemDeviceInterface::KEYCODE_NUMPAD0;
-	else if(keyCodeName == L"Numpad1")    return ISystemDeviceInterface::KEYCODE_NUMPAD1;
-	else if(keyCodeName == L"Numpad2")    return ISystemDeviceInterface::KEYCODE_NUMPAD2;
-	else if(keyCodeName == L"Numpad3")    return ISystemDeviceInterface::KEYCODE_NUMPAD3;
-	else if(keyCodeName == L"Numpad4")    return ISystemDeviceInterface::KEYCODE_NUMPAD4;
-	else if(keyCodeName == L"Numpad5")    return ISystemDeviceInterface::KEYCODE_NUMPAD5;
-	else if(keyCodeName == L"Numpad6")    return ISystemDeviceInterface::KEYCODE_NUMPAD6;
-	else if(keyCodeName == L"Numpad7")    return ISystemDeviceInterface::KEYCODE_NUMPAD7;
-	else if(keyCodeName == L"Numpad8")    return ISystemDeviceInterface::KEYCODE_NUMPAD8;
-	else if(keyCodeName == L"Numpad9")    return ISystemDeviceInterface::KEYCODE_NUMPAD9;
-	else if(keyCodeName == L"Numpad*")    return ISystemDeviceInterface::KEYCODE_NUMPADMULTIPLY;
-	else if(keyCodeName == L"Numpad/")    return ISystemDeviceInterface::KEYCODE_NUMPADDIVIDE;
-	else if(keyCodeName == L"Numpad-")    return ISystemDeviceInterface::KEYCODE_NUMPADSUBTRACT;
-	else if(keyCodeName == L"Numpad+")    return ISystemDeviceInterface::KEYCODE_NUMPADADD;
-	else if(keyCodeName == L"Numpad.")    return ISystemDeviceInterface::KEYCODE_NUMPADDECIMAL;
+	else if(keyCodeName == L"Numpad0")    return ISystemDeviceInterface::KeyCode::NUMPAD0;
+	else if(keyCodeName == L"Numpad1")    return ISystemDeviceInterface::KeyCode::NUMPAD1;
+	else if(keyCodeName == L"Numpad2")    return ISystemDeviceInterface::KeyCode::NUMPAD2;
+	else if(keyCodeName == L"Numpad3")    return ISystemDeviceInterface::KeyCode::NUMPAD3;
+	else if(keyCodeName == L"Numpad4")    return ISystemDeviceInterface::KeyCode::NUMPAD4;
+	else if(keyCodeName == L"Numpad5")    return ISystemDeviceInterface::KeyCode::NUMPAD5;
+	else if(keyCodeName == L"Numpad6")    return ISystemDeviceInterface::KeyCode::NUMPAD6;
+	else if(keyCodeName == L"Numpad7")    return ISystemDeviceInterface::KeyCode::NUMPAD7;
+	else if(keyCodeName == L"Numpad8")    return ISystemDeviceInterface::KeyCode::NUMPAD8;
+	else if(keyCodeName == L"Numpad9")    return ISystemDeviceInterface::KeyCode::NUMPAD9;
+	else if(keyCodeName == L"Numpad*")    return ISystemDeviceInterface::KeyCode::NUMPADMULTIPLY;
+	else if(keyCodeName == L"Numpad/")    return ISystemDeviceInterface::KeyCode::NUMPADDIVIDE;
+	else if(keyCodeName == L"Numpad-")    return ISystemDeviceInterface::KeyCode::NUMPADSUBTRACT;
+	else if(keyCodeName == L"Numpad+")    return ISystemDeviceInterface::KeyCode::NUMPADADD;
+	else if(keyCodeName == L"Numpad.")    return ISystemDeviceInterface::KeyCode::NUMPADDECIMAL;
 	//Joysticks
 	else if(keyCodeName.compare(0, 3, L"Joy") == 0)
 	{
@@ -8746,7 +8750,7 @@ System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 			//Validate the text string components
 			if((joystickText != L"Joy") || (buttonText != L"Btn"))
 			{
-				return ISystemDeviceInterface::KEYCODE_NONE;
+				return ISystemDeviceInterface::KeyCode::None;
 			}
 
 			//Ensure the joystick and button numbers are within the valid range
@@ -8754,11 +8758,11 @@ System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 			const unsigned int maxJoystickButtonCount = 32;
 			if((joystickNo >= maxJoystickCount) || (buttonNo >= maxJoystickButtonCount))
 			{
-				return ISystemDeviceInterface::KEYCODE_NONE;
+				return ISystemDeviceInterface::KeyCode::None;
 			}
 
 			//Return the corresponding key code for the target joystick button
-			return (KeyCode)((unsigned int)ISystemDeviceInterface::KEYCODE_JOYSTICK00BUTTON00 + (joystickNo * maxJoystickButtonCount) + buttonNo);
+			return (KeyCode)((unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00BUTTON00 + (joystickNo * maxJoystickButtonCount) + buttonNo);
 		}
 		else if(keyCodeName.find(L"Axis") != std::wstring::npos)
 		{
@@ -8780,7 +8784,7 @@ System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 			//Validate the text string components
 			if((joystickText != L"Joy") || (axisText != L"Axis") || ((directionText != L"+") && (directionText != L"-")))
 			{
-				return ISystemDeviceInterface::KEYCODE_NONE;
+				return ISystemDeviceInterface::KeyCode::None;
 			}
 
 			//Ensure the joystick and axis numbers are within the valid range
@@ -8789,7 +8793,7 @@ System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 			const unsigned int joystickAxisDirectionCount = 2;
 			if((joystickNo >= maxJoystickCount) || (axisNo >= maxJoystickAxisCount))
 			{
-				return ISystemDeviceInterface::KEYCODE_NONE;
+				return ISystemDeviceInterface::KeyCode::None;
 			}
 
 			//Decode the axis direction
@@ -8798,11 +8802,11 @@ System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 
 			//Return the corresponding key code for the target joystick axis acting as a
 			//button
-			return (KeyCode)((unsigned int)ISystemDeviceInterface::KEYCODE_JOYSTICK00AXIS0PLUS + (joystickNo * maxJoystickAxisCount * joystickAxisDirectionCount) + (axisNo * joystickAxisDirectionCount) + axisDirectionOffset);
+			return (KeyCode)((unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0PLUS + (joystickNo * maxJoystickAxisCount * joystickAxisDirectionCount) + (axisNo * joystickAxisDirectionCount) + axisDirectionOffset);
 		}
 	}
 
-	return ISystemDeviceInterface::KEYCODE_NONE;
+	return ISystemDeviceInterface::KeyCode::None;
 }
 
 //----------------------------------------------------------------------------------------
@@ -8817,123 +8821,123 @@ std::wstring System::GetKeyCodeName(KeyCode keyCode) const
 	switch(keyCode)
 	{
 	//Control keys
-	case ISystemDeviceInterface::KEYCODE_ESCAPE:            return L"Esc";
-	case ISystemDeviceInterface::KEYCODE_TAB:               return L"Tab";
-	case ISystemDeviceInterface::KEYCODE_ENTER:             return L"Enter";
-	case ISystemDeviceInterface::KEYCODE_SPACE:             return L"Space";
-	case ISystemDeviceInterface::KEYCODE_BACKSPACE:         return L"Backspace";
-	case ISystemDeviceInterface::KEYCODE_INSERT:            return L"Insert";
-	case ISystemDeviceInterface::KEYCODE_DELETE:            return L"Delete";
-	case ISystemDeviceInterface::KEYCODE_PAGEUP:            return L"PgUp";
-	case ISystemDeviceInterface::KEYCODE_PAGEDOWN:          return L"PgDn";
-	case ISystemDeviceInterface::KEYCODE_HOME:              return L"Home";
-	case ISystemDeviceInterface::KEYCODE_END:               return L"End";
-	case ISystemDeviceInterface::KEYCODE_UP:                return L"Up";
-	case ISystemDeviceInterface::KEYCODE_DOWN:              return L"Down";
-	case ISystemDeviceInterface::KEYCODE_LEFT:              return L"Left";
-	case ISystemDeviceInterface::KEYCODE_RIGHT:             return L"Right";
-	case ISystemDeviceInterface::KEYCODE_PRINTSCREEN:       return L"Print";
-	case ISystemDeviceInterface::KEYCODE_PAUSE:             return L"Pause";
-	case ISystemDeviceInterface::KEYCODE_NUMLOCK:           return L"NumLock";
-	case ISystemDeviceInterface::KEYCODE_CAPSLOCK:          return L"CapsLock";
-	case ISystemDeviceInterface::KEYCODE_SCROLLLOCK:        return L"ScrollLock";
-	case ISystemDeviceInterface::KEYCODE_LEFTWINDOWS:       return L"LeftWin";
-	case ISystemDeviceInterface::KEYCODE_RIGHTWINDOWS:      return L"RightWin";
-	case ISystemDeviceInterface::KEYCODE_MENU:              return L"Menu";
+	case ISystemDeviceInterface::KeyCode::Escape:            return L"Esc";
+	case ISystemDeviceInterface::KeyCode::Tab:               return L"Tab";
+	case ISystemDeviceInterface::KeyCode::Enter:             return L"Enter";
+	case ISystemDeviceInterface::KeyCode::Space:             return L"Space";
+	case ISystemDeviceInterface::KeyCode::Backspace:         return L"Backspace";
+	case ISystemDeviceInterface::KeyCode::Insert:            return L"Insert";
+	case ISystemDeviceInterface::KeyCode::Delete:            return L"Delete";
+	case ISystemDeviceInterface::KeyCode::PageUp:            return L"PgUp";
+	case ISystemDeviceInterface::KeyCode::PageDown:          return L"PgDn";
+	case ISystemDeviceInterface::KeyCode::Home:              return L"Home";
+	case ISystemDeviceInterface::KeyCode::End:               return L"End";
+	case ISystemDeviceInterface::KeyCode::Up:                return L"Up";
+	case ISystemDeviceInterface::KeyCode::Down:              return L"Down";
+	case ISystemDeviceInterface::KeyCode::Left:              return L"Left";
+	case ISystemDeviceInterface::KeyCode::Right:             return L"Right";
+	case ISystemDeviceInterface::KeyCode::PrintScreen:       return L"Print";
+	case ISystemDeviceInterface::KeyCode::Pause:             return L"Pause";
+	case ISystemDeviceInterface::KeyCode::NumLock:           return L"NumLock";
+	case ISystemDeviceInterface::KeyCode::CapsLock:          return L"CapsLock";
+	case ISystemDeviceInterface::KeyCode::ScrollLock:        return L"ScrollLock";
+	case ISystemDeviceInterface::KeyCode::LeftWindows:       return L"LeftWin";
+	case ISystemDeviceInterface::KeyCode::RightWindows:      return L"RightWin";
+	case ISystemDeviceInterface::KeyCode::Menu:              return L"Menu";
 	//Modifier keys
-	case ISystemDeviceInterface::KEYCODE_CTRL:              return L"Ctrl";
-	case ISystemDeviceInterface::KEYCODE_ALT:               return L"Alt";
-	case ISystemDeviceInterface::KEYCODE_SHIFT:             return L"Shift";
+	case ISystemDeviceInterface::KeyCode::Ctrl:              return L"Ctrl";
+	case ISystemDeviceInterface::KeyCode::Alt:               return L"Alt";
+	case ISystemDeviceInterface::KeyCode::Shift:             return L"Shift";
 	//Function keys
-	case ISystemDeviceInterface::KEYCODE_F1:                return L"F1";
-	case ISystemDeviceInterface::KEYCODE_F2:                return L"F2";
-	case ISystemDeviceInterface::KEYCODE_F3:                return L"F3";
-	case ISystemDeviceInterface::KEYCODE_F4:                return L"F4";
-	case ISystemDeviceInterface::KEYCODE_F5:                return L"F5";
-	case ISystemDeviceInterface::KEYCODE_F6:                return L"F6";
-	case ISystemDeviceInterface::KEYCODE_F7:                return L"F7";
-	case ISystemDeviceInterface::KEYCODE_F8:                return L"F8";
-	case ISystemDeviceInterface::KEYCODE_F9:                return L"F9";
-	case ISystemDeviceInterface::KEYCODE_F10:               return L"F10";
-	case ISystemDeviceInterface::KEYCODE_F11:               return L"F11";
-	case ISystemDeviceInterface::KEYCODE_F12:               return L"F12";
+	case ISystemDeviceInterface::KeyCode::F1:                return L"F1";
+	case ISystemDeviceInterface::KeyCode::F2:                return L"F2";
+	case ISystemDeviceInterface::KeyCode::F3:                return L"F3";
+	case ISystemDeviceInterface::KeyCode::F4:                return L"F4";
+	case ISystemDeviceInterface::KeyCode::F5:                return L"F5";
+	case ISystemDeviceInterface::KeyCode::F6:                return L"F6";
+	case ISystemDeviceInterface::KeyCode::F7:                return L"F7";
+	case ISystemDeviceInterface::KeyCode::F8:                return L"F8";
+	case ISystemDeviceInterface::KeyCode::F9:                return L"F9";
+	case ISystemDeviceInterface::KeyCode::F10:               return L"F10";
+	case ISystemDeviceInterface::KeyCode::F11:               return L"F11";
+	case ISystemDeviceInterface::KeyCode::F12:               return L"F12";
 	//Numbers
-	case ISystemDeviceInterface::KEYCODE_0:                 return L"0";
-	case ISystemDeviceInterface::KEYCODE_1:                 return L"1";
-	case ISystemDeviceInterface::KEYCODE_2:                 return L"2";
-	case ISystemDeviceInterface::KEYCODE_3:                 return L"3";
-	case ISystemDeviceInterface::KEYCODE_4:                 return L"4";
-	case ISystemDeviceInterface::KEYCODE_5:                 return L"5";
-	case ISystemDeviceInterface::KEYCODE_6:                 return L"6";
-	case ISystemDeviceInterface::KEYCODE_7:                 return L"7";
-	case ISystemDeviceInterface::KEYCODE_8:                 return L"8";
-	case ISystemDeviceInterface::KEYCODE_9:                 return L"9";
+	case ISystemDeviceInterface::KeyCode::Number0:                 return L"0";
+	case ISystemDeviceInterface::KeyCode::Number1:                 return L"1";
+	case ISystemDeviceInterface::KeyCode::Number2:                 return L"2";
+	case ISystemDeviceInterface::KeyCode::Number3:                 return L"3";
+	case ISystemDeviceInterface::KeyCode::Number4:                 return L"4";
+	case ISystemDeviceInterface::KeyCode::Number5:                 return L"5";
+	case ISystemDeviceInterface::KeyCode::Number6:                 return L"6";
+	case ISystemDeviceInterface::KeyCode::Number7:                 return L"7";
+	case ISystemDeviceInterface::KeyCode::Number8:                 return L"8";
+	case ISystemDeviceInterface::KeyCode::Number9:                 return L"9";
 	//Letters
-	case ISystemDeviceInterface::KEYCODE_A:                 return L"A";
-	case ISystemDeviceInterface::KEYCODE_B:                 return L"B";
-	case ISystemDeviceInterface::KEYCODE_C:                 return L"C";
-	case ISystemDeviceInterface::KEYCODE_D:                 return L"D";
-	case ISystemDeviceInterface::KEYCODE_E:                 return L"E";
-	case ISystemDeviceInterface::KEYCODE_F:                 return L"F";
-	case ISystemDeviceInterface::KEYCODE_G:                 return L"G";
-	case ISystemDeviceInterface::KEYCODE_H:                 return L"H";
-	case ISystemDeviceInterface::KEYCODE_I:                 return L"I";
-	case ISystemDeviceInterface::KEYCODE_J:                 return L"J";
-	case ISystemDeviceInterface::KEYCODE_K:                 return L"K";
-	case ISystemDeviceInterface::KEYCODE_L:                 return L"L";
-	case ISystemDeviceInterface::KEYCODE_M:                 return L"M";
-	case ISystemDeviceInterface::KEYCODE_N:                 return L"N";
-	case ISystemDeviceInterface::KEYCODE_O:                 return L"O";
-	case ISystemDeviceInterface::KEYCODE_P:                 return L"P";
-	case ISystemDeviceInterface::KEYCODE_Q:                 return L"Q";
-	case ISystemDeviceInterface::KEYCODE_R:                 return L"R";
-	case ISystemDeviceInterface::KEYCODE_S:                 return L"S";
-	case ISystemDeviceInterface::KEYCODE_T:                 return L"T";
-	case ISystemDeviceInterface::KEYCODE_U:                 return L"U";
-	case ISystemDeviceInterface::KEYCODE_V:                 return L"V";
-	case ISystemDeviceInterface::KEYCODE_W:                 return L"W";
-	case ISystemDeviceInterface::KEYCODE_X:                 return L"X";
-	case ISystemDeviceInterface::KEYCODE_Y:                 return L"Y";
-	case ISystemDeviceInterface::KEYCODE_Z:                 return L"Z";
+	case ISystemDeviceInterface::KeyCode::A:                 return L"A";
+	case ISystemDeviceInterface::KeyCode::B:                 return L"B";
+	case ISystemDeviceInterface::KeyCode::C:                 return L"C";
+	case ISystemDeviceInterface::KeyCode::D:                 return L"D";
+	case ISystemDeviceInterface::KeyCode::E:                 return L"E";
+	case ISystemDeviceInterface::KeyCode::F:                 return L"F";
+	case ISystemDeviceInterface::KeyCode::G:                 return L"G";
+	case ISystemDeviceInterface::KeyCode::H:                 return L"H";
+	case ISystemDeviceInterface::KeyCode::I:                 return L"I";
+	case ISystemDeviceInterface::KeyCode::J:                 return L"J";
+	case ISystemDeviceInterface::KeyCode::K:                 return L"K";
+	case ISystemDeviceInterface::KeyCode::L:                 return L"L";
+	case ISystemDeviceInterface::KeyCode::M:                 return L"M";
+	case ISystemDeviceInterface::KeyCode::N:                 return L"N";
+	case ISystemDeviceInterface::KeyCode::O:                 return L"O";
+	case ISystemDeviceInterface::KeyCode::P:                 return L"P";
+	case ISystemDeviceInterface::KeyCode::Q:                 return L"Q";
+	case ISystemDeviceInterface::KeyCode::R:                 return L"R";
+	case ISystemDeviceInterface::KeyCode::S:                 return L"S";
+	case ISystemDeviceInterface::KeyCode::T:                 return L"T";
+	case ISystemDeviceInterface::KeyCode::U:                 return L"U";
+	case ISystemDeviceInterface::KeyCode::V:                 return L"V";
+	case ISystemDeviceInterface::KeyCode::W:                 return L"W";
+	case ISystemDeviceInterface::KeyCode::X:                 return L"X";
+	case ISystemDeviceInterface::KeyCode::Y:                 return L"Y";
+	case ISystemDeviceInterface::KeyCode::Z:                 return L"Z";
 	//Symbol keys
-	case ISystemDeviceInterface::KEYCODE_OEM1:              return L"OEM1";
-	case ISystemDeviceInterface::KEYCODE_OEMPLUS:           return L"OEMPlus";
-	case ISystemDeviceInterface::KEYCODE_OEMCOMMA:          return L"OEMComma";
-	case ISystemDeviceInterface::KEYCODE_OEMMINUS:          return L"OEMMinus";
-	case ISystemDeviceInterface::KEYCODE_OEMPERIOD:         return L"OEMPeriod";
-	case ISystemDeviceInterface::KEYCODE_OEM2:              return L"OEM2";
-	case ISystemDeviceInterface::KEYCODE_OEM3:              return L"OEM3";
-	case ISystemDeviceInterface::KEYCODE_OEM4:              return L"OEM4";
-	case ISystemDeviceInterface::KEYCODE_OEM5:              return L"OEM5";
-	case ISystemDeviceInterface::KEYCODE_OEM6:              return L"OEM6";
-	case ISystemDeviceInterface::KEYCODE_OEM7:              return L"OEM7";
-	case ISystemDeviceInterface::KEYCODE_OEM8:              return L"OEM8";
-	case ISystemDeviceInterface::KEYCODE_OEMAX:             return L"OEMAX";
-	case ISystemDeviceInterface::KEYCODE_OEM102:            return L"OEM102";
+	case ISystemDeviceInterface::KeyCode::OEM1:              return L"OEM1";
+	case ISystemDeviceInterface::KeyCode::OEMPLUS:           return L"OEMPlus";
+	case ISystemDeviceInterface::KeyCode::OEMCOMMA:          return L"OEMComma";
+	case ISystemDeviceInterface::KeyCode::OEMMINUS:          return L"OEMMinus";
+	case ISystemDeviceInterface::KeyCode::OEMPERIOD:         return L"OEMPeriod";
+	case ISystemDeviceInterface::KeyCode::OEM2:              return L"OEM2";
+	case ISystemDeviceInterface::KeyCode::OEM3:              return L"OEM3";
+	case ISystemDeviceInterface::KeyCode::OEM4:              return L"OEM4";
+	case ISystemDeviceInterface::KeyCode::OEM5:              return L"OEM5";
+	case ISystemDeviceInterface::KeyCode::OEM6:              return L"OEM6";
+	case ISystemDeviceInterface::KeyCode::OEM7:              return L"OEM7";
+	case ISystemDeviceInterface::KeyCode::OEM8:              return L"OEM8";
+	case ISystemDeviceInterface::KeyCode::OEMAX:             return L"OEMAX";
+	case ISystemDeviceInterface::KeyCode::OEM102:            return L"OEM102";
 	//Numpad keys
-	case ISystemDeviceInterface::KEYCODE_NUMPAD0:           return L"Numpad0";
-	case ISystemDeviceInterface::KEYCODE_NUMPAD1:           return L"Numpad1";
-	case ISystemDeviceInterface::KEYCODE_NUMPAD2:           return L"Numpad2";
-	case ISystemDeviceInterface::KEYCODE_NUMPAD3:           return L"Numpad3";
-	case ISystemDeviceInterface::KEYCODE_NUMPAD4:           return L"Numpad4";
-	case ISystemDeviceInterface::KEYCODE_NUMPAD5:           return L"Numpad5";
-	case ISystemDeviceInterface::KEYCODE_NUMPAD6:           return L"Numpad6";
-	case ISystemDeviceInterface::KEYCODE_NUMPAD7:           return L"Numpad7";
-	case ISystemDeviceInterface::KEYCODE_NUMPAD8:           return L"Numpad8";
-	case ISystemDeviceInterface::KEYCODE_NUMPAD9:           return L"Numpad9";
-	case ISystemDeviceInterface::KEYCODE_NUMPADMULTIPLY:    return L"Numpad*";
-	case ISystemDeviceInterface::KEYCODE_NUMPADDIVIDE:      return L"Numpad/";
-	case ISystemDeviceInterface::KEYCODE_NUMPADSUBTRACT:    return L"Numpad-";
-	case ISystemDeviceInterface::KEYCODE_NUMPADADD:         return L"Numpad+";
-	case ISystemDeviceInterface::KEYCODE_NUMPADDECIMAL:     return L"Numpad.";
+	case ISystemDeviceInterface::KeyCode::NUMPAD0:           return L"Numpad0";
+	case ISystemDeviceInterface::KeyCode::NUMPAD1:           return L"Numpad1";
+	case ISystemDeviceInterface::KeyCode::NUMPAD2:           return L"Numpad2";
+	case ISystemDeviceInterface::KeyCode::NUMPAD3:           return L"Numpad3";
+	case ISystemDeviceInterface::KeyCode::NUMPAD4:           return L"Numpad4";
+	case ISystemDeviceInterface::KeyCode::NUMPAD5:           return L"Numpad5";
+	case ISystemDeviceInterface::KeyCode::NUMPAD6:           return L"Numpad6";
+	case ISystemDeviceInterface::KeyCode::NUMPAD7:           return L"Numpad7";
+	case ISystemDeviceInterface::KeyCode::NUMPAD8:           return L"Numpad8";
+	case ISystemDeviceInterface::KeyCode::NUMPAD9:           return L"Numpad9";
+	case ISystemDeviceInterface::KeyCode::NUMPADMULTIPLY:    return L"Numpad*";
+	case ISystemDeviceInterface::KeyCode::NUMPADDIVIDE:      return L"Numpad/";
+	case ISystemDeviceInterface::KeyCode::NUMPADSUBTRACT:    return L"Numpad-";
+	case ISystemDeviceInterface::KeyCode::NUMPADADD:         return L"Numpad+";
+	case ISystemDeviceInterface::KeyCode::NUMPADDECIMAL:     return L"Numpad.";
 	}
 
 	//Joystick buttons
-	if((keyCode >= ISystemDeviceInterface::KEYCODE_JOYSTICK00BUTTON00) && (keyCode <= ISystemDeviceInterface::KEYCODE_JOYSTICK15BUTTON31))
+	if((keyCode >= ISystemDeviceInterface::KeyCode::JOYSTICK00BUTTON00) && (keyCode <= ISystemDeviceInterface::KeyCode::JOYSTICK15BUTTON31))
 	{
 		//Calculate the joystick and button numbers for this keycode
 		const unsigned int maxJoystickButtonCount = 32;
-		unsigned int keyCodeRebased = (unsigned int)(keyCode - ISystemDeviceInterface::KEYCODE_JOYSTICK00BUTTON00);
+		unsigned int keyCodeRebased = (unsigned int)keyCode - (unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00BUTTON00;
 		unsigned int joystickNo = keyCodeRebased / maxJoystickButtonCount;
 		unsigned int buttonNo = keyCodeRebased % maxJoystickButtonCount;
 
@@ -8944,12 +8948,12 @@ std::wstring System::GetKeyCodeName(KeyCode keyCode) const
 	}
 
 	//Joystick axes
-	if((keyCode >= ISystemDeviceInterface::KEYCODE_JOYSTICK00AXIS0PLUS) && (keyCode <= ISystemDeviceInterface::KEYCODE_JOYSTICK15AXIS5MINUS))
+	if((keyCode >= ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0PLUS) && (keyCode <= ISystemDeviceInterface::KeyCode::JOYSTICK15AXIS5MINUS))
 	{
 		//Calculate the joystick, axis numbers, and direction, for this keycode.
 		const unsigned int maxJoystickAxisCount = 6;
 		const unsigned int joystickAxisDirectionCount = 2;
-		unsigned int keyCodeRebased = (unsigned int)(keyCode - ISystemDeviceInterface::KEYCODE_JOYSTICK00AXIS0PLUS);
+		unsigned int keyCodeRebased = (unsigned int)keyCode - (unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0PLUS;
 		unsigned int joystickNo = keyCodeRebased / (maxJoystickAxisCount * joystickAxisDirectionCount);
 		unsigned int axesNo = (keyCodeRebased % (maxJoystickAxisCount * joystickAxisDirectionCount)) / joystickAxisDirectionCount;
 		bool axisPlus = ((keyCodeRebased % (maxJoystickAxisCount * joystickAxisDirectionCount)) % joystickAxisDirectionCount) == 0;
@@ -8977,325 +8981,325 @@ bool System::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCod
 	{
 		//Control keys
 	case VK_ESCAPE:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_ESCAPE;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Escape;
 		return true;
 	case VK_TAB:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_TAB;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Tab;
 		return true;
 	case VK_RETURN:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_ENTER;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Enter;
 		return true;
 	case VK_SPACE:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_SPACE;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Space;
 		return true;
 	case VK_BACK:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_BACKSPACE;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Backspace;
 		return true;
 	case VK_INSERT:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_INSERT;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Insert;
 		return true;
 	case VK_DELETE:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_DELETE;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Delete;
 		return true;
 	case VK_PRIOR:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_PAGEUP;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::PageUp;
 		return true;
 	case VK_NEXT:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_PAGEDOWN;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::PageDown;
 		return true;
 	case VK_HOME:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_HOME;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Home;
 		return true;
 	case VK_END:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_END;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::End;
 		return true;
 	case VK_UP:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_UP;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Up;
 		return true;
 	case VK_DOWN:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_DOWN;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Down;
 		return true;
 	case VK_LEFT:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_LEFT;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Left;
 		return true;
 	case VK_RIGHT:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_RIGHT;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Right;
 		return true;
 	case VK_SNAPSHOT:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_PRINTSCREEN;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::PrintScreen;
 		return true;
 	case VK_PAUSE:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_PAUSE;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Pause;
 		return true;
 	case VK_NUMLOCK:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMLOCK;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NumLock;
 		return true;
 	case VK_CAPITAL:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_CAPSLOCK;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::CapsLock;
 		return true;
 	case VK_SCROLL:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_SCROLLLOCK;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::ScrollLock;
 		return true;
 	case VK_LWIN:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_LEFTWINDOWS;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::LeftWindows;
 		return true;
 	case VK_RWIN:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_RIGHTWINDOWS;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::RightWindows;
 		return true;
 	case VK_APPS:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_MENU;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Menu;
 		return true;
 
 		//Modifier keys
 	case VK_CONTROL:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_CTRL;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Ctrl;
 		return true;
 	case VK_MENU:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_ALT;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Alt;
 		return true;
 	case VK_SHIFT:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_SHIFT;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Shift;
 		return true;
 
 		//Function keys
 	case VK_F1:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F1;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F1;
 		return true;
 	case VK_F2:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F2;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F2;
 		return true;
 	case VK_F3:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F3;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F3;
 		return true;
 	case VK_F4:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F4;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F4;
 		return true;
 	case VK_F5:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F5;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F5;
 		return true;
 	case VK_F6:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F6;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F6;
 		return true;
 	case VK_F7:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F7;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F7;
 		return true;
 	case VK_F8:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F8;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F8;
 		return true;
 	case VK_F9:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F9;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F9;
 		return true;
 	case VK_F10:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F10;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F10;
 		return true;
 	case VK_F11:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F11;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F11;
 		return true;
 	case VK_F12:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F12;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F12;
 		return true;
 
 		//Numbers
 	case '0':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_0;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number0;
 		return true;
 	case '1':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_1;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number1;
 		return true;
 	case '2':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_2;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number2;
 		return true;
 	case '3':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_3;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number3;
 		return true;
 	case '4':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_4;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number4;
 		return true;
 	case '5':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_5;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number5;
 		return true;
 	case '6':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_6;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number6;
 		return true;
 	case '7':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_7;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number7;
 		return true;
 	case '8':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_8;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number8;
 		return true;
 	case '9':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_9;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Number9;
 		return true;
 
 		//Letters
 	case 'A':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_A;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::A;
 		return true;
 	case 'B':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_B;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::B;
 		return true;
 	case 'C':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_C;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::C;
 		return true;
 	case 'D':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_D;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::D;
 		return true;
 	case 'E':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_E;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::E;
 		return true;
 	case 'F':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_F;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::F;
 		return true;
 	case 'G':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_G;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::G;
 		return true;
 	case 'H':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_H;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::H;
 		return true;
 	case 'I':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_I;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::I;
 		return true;
 	case 'J':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_J;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::J;
 		return true;
 	case 'K':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_K;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::K;
 		return true;
 	case 'L':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_L;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::L;
 		return true;
 	case 'M':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_M;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::M;
 		return true;
 	case 'N':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_N;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::N;
 		return true;
 	case 'O':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_O;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::O;
 		return true;
 	case 'P':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_P;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::P;
 		return true;
 	case 'Q':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_Q;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Q;
 		return true;
 	case 'R':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_R;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::R;
 		return true;
 	case 'S':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_S;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::S;
 		return true;
 	case 'T':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_T;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::T;
 		return true;
 	case 'U':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_U;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::U;
 		return true;
 	case 'V':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_V;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::V;
 		return true;
 	case 'W':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_W;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::W;
 		return true;
 	case 'X':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_X;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::X;
 		return true;
 	case 'Y':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_Y;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Y;
 		return true;
 	case 'Z':
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_Z;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::Z;
 		return true;
 
 		//Symbol keys
 	case VK_OEM_1:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEM1;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM1;
 		return true;
 	case VK_OEM_PLUS:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEMPLUS;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEMPLUS;
 		return true;
 	case VK_OEM_COMMA:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEMCOMMA;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEMCOMMA;
 		return true;
 	case VK_OEM_MINUS:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEMMINUS;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEMMINUS;
 		return true;
 	case VK_OEM_PERIOD:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEMPERIOD;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEMPERIOD;
 		return true;
 	case VK_OEM_2:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEM2;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM2;
 		return true;
 	case VK_OEM_3:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEM3;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM3;
 		return true;
 	case VK_OEM_4:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEM4;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM4;
 		return true;
 	case VK_OEM_5:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEM5;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM5;
 		return true;
 	case VK_OEM_6:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEM6;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM6;
 		return true;
 	case VK_OEM_7:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEM7;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM7;
 		return true;
 	case VK_OEM_8:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEM8;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM8;
 		return true;
 	case VK_OEM_AX:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEMAX;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEMAX;
 		return true;
 	case VK_OEM_102:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_OEM102;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM102;
 		return true;
 
 		//Numpad keys
 	case VK_NUMPAD0:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD0;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD0;
 		return true;
 	case VK_NUMPAD1:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD1;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD1;
 		return true;
 	case VK_NUMPAD2:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD2;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD2;
 		return true;
 	case VK_NUMPAD3:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD3;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD3;
 		return true;
 	case VK_NUMPAD4:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD4;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD4;
 		return true;
 	case VK_NUMPAD5:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD5;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD5;
 		return true;
 	case VK_NUMPAD6:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD6;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD6;
 		return true;
 	case VK_NUMPAD7:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD7;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD7;
 		return true;
 	case VK_NUMPAD8:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD8;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD8;
 		return true;
 	case VK_NUMPAD9:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPAD9;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD9;
 		return true;
 	case VK_MULTIPLY:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPADMULTIPLY;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPADMULTIPLY;
 		return true;
 	case VK_DIVIDE:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPADDIVIDE;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPADDIVIDE;
 		return true;
 	case VK_SUBTRACT:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPADSUBTRACT;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPADSUBTRACT;
 		return true;
 	case VK_ADD:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPADADD;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPADADD;
 		return true;
 	case VK_DECIMAL:
-		inputKeyCode = ISystemDeviceInterface::KEYCODE_NUMPADDECIMAL;
+		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPADDECIMAL;
 		return true;
 	}
 	return false;
@@ -9313,7 +9317,7 @@ bool System::TranslateJoystickButton(unsigned int joystickNo, unsigned int butto
 	}
 
 	//Map the input joystick and button numbers to the corresponding keycode
-	inputKeyCode = (KeyCode)((unsigned int)KEYCODE_JOYSTICK00BUTTON00 + (joystickNo * maxJoystickButtonCount) + buttonNo);
+	inputKeyCode = (KeyCode)((unsigned int)KeyCode::JOYSTICK00BUTTON00 + (joystickNo * maxJoystickButtonCount) + buttonNo);
 	return true;
 }
 
@@ -9331,7 +9335,7 @@ bool System::TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int
 
 	//Map the input joystick and axis numbers to the corresponding keycode
 	unsigned int axisDirectionOffset = (positiveAxis)? 0: 1;
-	inputKeyCode = (KeyCode)((unsigned int)KEYCODE_JOYSTICK00AXIS0PLUS + (joystickNo * maxJoystickAxisCount * joystickAxisDirectionCount) + (axisNo * joystickAxisDirectionCount) + axisDirectionOffset);
+	inputKeyCode = (KeyCode)((unsigned int)KeyCode::JOYSTICK00AXIS0PLUS + (joystickNo * maxJoystickAxisCount * joystickAxisDirectionCount) + (axisNo * joystickAxisDirectionCount) + axisDirectionOffset);
 	return true;
 }
 
@@ -9347,14 +9351,14 @@ bool System::TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo,
 	}
 
 	//Map the input joystick and axis numbers to the corresponding axis code
-	inputAxisCode = (AxisCode)((unsigned int)AXISCODE_JOYSTICK00AXIS0 + (joystickNo * maxJoystickAxisCount) + axisNo);
+	inputAxisCode = (AxisCode)((unsigned int)AxisCode::Joystick00Axis0 + (joystickNo * maxJoystickAxisCount) + axisNo);
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
 void System::HandleInputKeyDown(KeyCode keyCode)
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	if(!systemStopped)
 	{
 		InputKeyMap::const_iterator i = inputKeyMap.find(keyCode);
@@ -9362,7 +9366,7 @@ void System::HandleInputKeyDown(KeyCode keyCode)
 		{
 			InputEventEntry entry;
 			entry.sent = false;
-			entry.inputEvent = INPUTEVENT_KEYDOWN;
+			entry.inputEvent = InputEvent::KeyDown;
 			entry.keyCode = keyCode;
 			inputEvents.push_back(entry);
 		}
@@ -9372,7 +9376,7 @@ void System::HandleInputKeyDown(KeyCode keyCode)
 //----------------------------------------------------------------------------------------
 void System::HandleInputKeyUp(KeyCode keyCode)
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	if(!systemStopped)
 	{
 		InputKeyMap::const_iterator i = inputKeyMap.find(keyCode);
@@ -9380,7 +9384,7 @@ void System::HandleInputKeyUp(KeyCode keyCode)
 		{
 			InputEventEntry entry;
 			entry.sent = false;
-			entry.inputEvent = INPUTEVENT_KEYUP;
+			entry.inputEvent = InputEvent::KeyUp;
 			entry.keyCode = keyCode;
 			inputEvents.push_back(entry);
 		}
@@ -9402,14 +9406,14 @@ void System::HandleInputScrollUpdate(ScrollCode scrollCode, int scrollTicks)
 //----------------------------------------------------------------------------------------
 unsigned int System::GetInputDeviceListLastModifiedToken() const
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	return inputDeviceListLastModifiedToken;
 }
 
 //----------------------------------------------------------------------------------------
 std::list<IDevice*> System::GetInputDeviceList() const
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	std::set<IDevice*> inputDeviceSet;
 	for(InputRegistrationList::const_iterator i = inputRegistrationList.begin(); i != inputRegistrationList.end(); ++i)
 	{
@@ -9429,7 +9433,7 @@ void System::GetInputDeviceListInternal(const InteropSupport::ISTLObjectTarget<s
 //----------------------------------------------------------------------------------------
 std::list<unsigned int> System::GetDeviceKeyCodeList(IDevice* targetDevice) const
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	std::list<unsigned int> deviceKeyCodeList;
 	for(InputRegistrationList::const_iterator i = inputRegistrationList.begin(); i != inputRegistrationList.end(); ++i)
 	{
@@ -9451,7 +9455,7 @@ void System::GetDeviceKeyCodeListInternal(IDevice* targetDevice, const InteropSu
 //----------------------------------------------------------------------------------------
 std::list<System::KeyCode> System::GetDeviceKeyCodePreferredDefaultMappingList(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	std::list<KeyCode> preferredDefaultMappingList;
 	InputRegistrationList::const_iterator inputRegistrationListIterator = inputRegistrationList.begin();
 	while(inputRegistrationListIterator != inputRegistrationList.end())
@@ -9479,14 +9483,14 @@ void System::GetDeviceKeyCodePreferredDefaultMappingListInternal(IDevice* target
 //----------------------------------------------------------------------------------------
 bool System::IsKeyCodeMapped(KeyCode keyCode) const
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	return (inputKeyMap.find(keyCode) != inputKeyMap.end());
 }
 
 //----------------------------------------------------------------------------------------
 bool System::IsDeviceKeyCodeMapped(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	bool foundMapping = false;
 	InputKeyMap::const_iterator inputKeyMapIterator = inputKeyMap.begin();
 	while(!foundMapping&& (inputKeyMapIterator != inputKeyMap.end()))
@@ -9504,7 +9508,7 @@ bool System::IsDeviceKeyCodeMapped(IDevice* targetDevice, unsigned int targetDev
 //----------------------------------------------------------------------------------------
 System::KeyCode System::GetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	InputKeyMap::const_iterator inputKeyMapIterator = inputKeyMap.begin();
 	while(inputKeyMapIterator != inputKeyMap.end())
 	{
@@ -9515,13 +9519,13 @@ System::KeyCode System::GetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned 
 		}
 		++inputKeyMapIterator;
 	}
-	return ISystemDeviceInterface::KEYCODE_NONE;
+	return ISystemDeviceInterface::KeyCode::None;
 }
 
 //----------------------------------------------------------------------------------------
 bool System::SetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int deviceKeyCode, KeyCode systemKeyCode)
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	InputMapEntry mapEntry;
 	mapEntry.keyCode = systemKeyCode;
 	mapEntry.targetDevice = targetDevice;
@@ -9533,7 +9537,7 @@ bool System::SetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int deviceK
 //----------------------------------------------------------------------------------------
 void System::UnmapAllKeyCodeMappingsForDevice(IDevice* adevice)
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	std::list<KeyCode> keyCodesToRemove;
 	for(InputKeyMap::iterator i = inputKeyMap.begin(); i != inputKeyMap.end(); ++i)
 	{
@@ -9551,7 +9555,7 @@ void System::UnmapAllKeyCodeMappingsForDevice(IDevice* adevice)
 //----------------------------------------------------------------------------------------
 void System::SendStoredInputEvents()
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	for(std::list<InputEventEntry>::iterator i = inputEvents.begin(); i != inputEvents.end(); ++i)
 	{
 		i->sent = true;
@@ -9560,10 +9564,10 @@ void System::SendStoredInputEvents()
 		{
 			switch(i->inputEvent)
 			{
-			case INPUTEVENT_KEYDOWN:
+			case InputEvent::KeyDown:
 				keyMapEntry->second.targetDevice->HandleInputKeyDown(keyMapEntry->second.targetDeviceKeyCode);
 				break;
-			case INPUTEVENT_KEYUP:
+			case InputEvent::KeyUp:
 				keyMapEntry->second.targetDevice->HandleInputKeyUp(keyMapEntry->second.targetDeviceKeyCode);
 				break;
 			}
@@ -9574,7 +9578,7 @@ void System::SendStoredInputEvents()
 //----------------------------------------------------------------------------------------
 void System::ClearSentStoredInputEvents()
 {
-	boost::mutex::scoped_lock lock(inputMutex);
+	std::unique_lock<std::mutex> lock(inputMutex);
 	std::list<InputEventEntry>::iterator i = inputEvents.begin();
 	while((i != inputEvents.end()) && i->sent)
 	{
@@ -9591,12 +9595,12 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 	//Apply the specified system state change
 	switch(stateChange.type)
 	{
-	case SYSTEMSTATECHANGETYPE_SETCLOCKFREQUENCY:{
+	case SystemStateChangeType::SetClockFrequency:{
 		//Retrieve the target clock source
 		ClockSource* clockSource = GetClockSource(stateChange.moduleID, stateChange.targetElementName);
 		if(clockSource == 0)
 		{
-			LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
+			LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
 			logEntry << L"Could not locate clock source with name \"" << stateChange.targetElementName << L"\" on module with ID \"" << stateChange.moduleID << L"\" in System::ApplySystemStateChange!";
 			WriteLogEvent(logEntry);
 			return false;
@@ -9605,25 +9609,25 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 		//Apply the clock rate change
 		switch(stateChange.setClockRateClockType)
 		{
-		case ClockSource::CLOCKTYPE_DIRECT:
+		case ClockSource::ClockType::Direct:
 			return clockSource->TransparentSetClockFrequency(stateChange.setClockRateValue);
-		case ClockSource::CLOCKTYPE_DIVIDER:
+		case ClockSource::ClockType::Divider:
 			return clockSource->TransparentSetClockDivider(stateChange.setClockRateValue);
-		case ClockSource::CLOCKTYPE_MULTIPLIER:
+		case ClockSource::ClockType::Multiplier:
 			return clockSource->TransparentSetClockMultiplier(stateChange.setClockRateValue);
 		default:
-			LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
-			logEntry << L"An attempt was made to change a system clock rate using an invalid clock type flag with a value of \"" << stateChange.setClockRateClockType << L"\" in System::ApplySystemStateChange!";
+			LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
+			logEntry << L"An attempt was made to change a system clock rate using an invalid clock type flag with a value of \"" << (unsigned int)stateChange.setClockRateClockType << L"\" in System::ApplySystemStateChange!";
 			WriteLogEvent(logEntry);
 			return false;
 		}
 		break;}
-	case SYSTEMSTATECHANGETYPE_SETSYSTEMLINESTATE:{
+	case SystemStateChangeType::SetSystemLineState:{
 		//Retrieve the target system line ID
 		unsigned int systemLineID = GetSystemLineID(stateChange.moduleID, stateChange.targetElementName);
 		if(systemLineID == 0)
 		{
-			LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
+			LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
 			logEntry << L"Could not locate system line with name \"" << stateChange.targetElementName << L"\" on module with ID \"" << stateChange.moduleID << L"\" in System::ApplySystemStateChange!";
 			WriteLogEvent(logEntry);
 			return false;
@@ -9634,12 +9638,12 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 
 		//Apply the line state change
 		return SetSystemLineState(systemLineID, Data(systemLineWidth, stateChange.setLineStateValue));}
-	case SYSTEMSTATECHANGETYPE_SETSYSTEMOPTION:{
+	case SystemStateChangeType::SetSystemOption:{
 		//Retrieve the target system setting ID
 		unsigned int systemSettingID = GetSystemSettingID(stateChange.moduleID, stateChange.targetElementName);
 		if(systemSettingID == 0)
 		{
-			LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
+			LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
 			logEntry << L"Could not locate system setting with name \"" << stateChange.targetElementName << L"\" on module with ID \"" << stateChange.moduleID << L"\" in System::ApplySystemStateChange!";
 			WriteLogEvent(logEntry);
 			return false;
@@ -9649,7 +9653,7 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 		SystemSettingsMap::iterator systemSettingsIterator = systemSettings.find(systemSettingID);
 		if(systemSettingsIterator == systemSettings.end())
 		{
-			LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
+			LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
 			logEntry << L"Failed to retrieve system setting info for system setting with name \"" << stateChange.targetElementName << L"\" on module with ID \"" << stateChange.moduleID << L"\" in System::ApplySystemStateChange!";
 			WriteLogEvent(logEntry);
 			return false;
@@ -9680,7 +9684,7 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 					//Apply this system state change
 					if(!ApplySystemStateChange(*i))
 					{
-						WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"Failed to apply system setting change while setting option \"" + stateChange.setSystemOptionValue + L"\" on setting \"" + systemSettingInfo.name + L"\" in System::ApplySystemStateChange!"));
+						WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to apply system setting change while setting option \"" + stateChange.setSystemOptionValue + L"\" on setting \"" + systemSettingInfo.name + L"\" in System::ApplySystemStateChange!"));
 						appliedWithoutErrors = false;
 					}
 				}
@@ -9691,13 +9695,13 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 		}
 
 		//If we failed to find the target option, log the error, and return false.
-		LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
 		logEntry << L"Could not locate option with name \"" << stateChange.setSystemOptionValue << L"\" under setting with name \"" << systemSettingInfo.name << L"\" on module with ID \"" << systemSettingInfo.moduleID << L"\" in System::ApplySystemStateChange!";
 		WriteLogEvent(logEntry);
 		return false;}
 	default:
-		LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
-		logEntry << L"An attempt was made to apply an invalid system state change with a value of \"" << stateChange.type << L"\" in System::ApplySystemStateChange!";
+		LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
+		logEntry << L"An attempt was made to apply an invalid system state change with a value of \"" << (unsigned int)stateChange.type << L"\" in System::ApplySystemStateChange!";
 		WriteLogEvent(logEntry);
 		return false;
 	}
@@ -9727,7 +9731,7 @@ bool System::SetSystemLineState(unsigned int systemLineID, const Data& lineData)
 	SystemLineMap::iterator systemLinesIterator = systemLines.find(systemLineID);
 	if(systemLinesIterator == systemLines.end())
 	{
-		LogEntry logEntry(LogEntry::EVENTLEVEL_WARNING, L"System", L"");
+		LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
 		logEntry << L"An attempt was made to change a system line using an invalid system line ID with a value of \"" << systemLineID << L"\" in System::SetSystemLineState!";
 		WriteLogEvent(logEntry);
 		return false;

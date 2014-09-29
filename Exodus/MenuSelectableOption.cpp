@@ -26,7 +26,7 @@ unsigned int MenuSelectableOption::GetIMenuSelectableOptionVersion() const
 //----------------------------------------------------------------------------------------
 MenuSelectableOption::Type MenuSelectableOption::GetType() const
 {
-	return TYPE_SELECTABLEOPTION;
+	return Type::SelectableOption;
 }
 
 //----------------------------------------------------------------------------------------

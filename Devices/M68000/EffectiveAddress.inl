@@ -4,24 +4,24 @@ namespace M68000 {
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum EffectiveAddress::Mode
+enum class EffectiveAddress::Mode
 {
-	DATAREG_DIRECT,             //ext 0
-	ADDREG_DIRECT,              //ext 0
+	DataRegDirect = 0,       //ext 0
+	AddRegDirect,            //ext 0
 
-	ADDREG_INDIRECT,            //ext 0
-	ADDREG_INDIRECT_POSTINC,    //ext 0
-	ADDREG_INDIRECT_PREDEC,     //ext 0
-	ADDREG_INDIRECT_DISPLACE,   //ext 1
-	ADDREG_INDIRECT_INDEX_8BIT, //ext 1
+	AddRegIndirect,          //ext 0
+	AddRegIndirectPostInc,   //ext 0
+	AddRegIndirectPreDec,    //ext 0
+	AddRegIndirectDisplace,  //ext 1
+	AddRegIndirectIndex8Bit, //ext 1
 
-	PC_INDIRECT_DISPLACE,       //ext 1
-	PC_INDIRECT_INDEX_8BIT,     //ext 1
+	PCIndirectDisplace,      //ext 1
+	PCIndirectIndex8Bit,     //ext 1
 
-	ABS_WORD,                   //ext 1
-	ABS_LONG,                   //ext 2
+	ABSWord,                 //ext 1
+	ABSLong,                 //ext 2
 
-	IMMEDIATE,                  //ext 1-2
+	Immediate,               //ext 1-2
 };
 
 //----------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ void EffectiveAddress::BuildDataDirect(Bitcount asize, const M68000Long& locatio
 {
 	size = asize;
 	savedPC = location;
-	mode = DATAREG_DIRECT;
+	mode = Mode::DataRegDirect;
 	reg = areg;
 }
 
@@ -47,7 +47,7 @@ void EffectiveAddress::BuildAddressDirect(Bitcount asize, const M68000Long& loca
 {
 	size = asize;
 	savedPC = location;
-	mode = ADDREG_DIRECT;
+	mode = Mode::AddRegDirect;
 	reg = areg;
 }
 
@@ -56,7 +56,7 @@ void EffectiveAddress::BuildAddressIndirect(Bitcount asize, const M68000Long& lo
 {
 	size = asize;
 	savedPC = location;
-	mode = ADDREG_INDIRECT;
+	mode = Mode::AddRegIndirect;
 	reg = areg;
 }
 
@@ -65,7 +65,7 @@ void EffectiveAddress::BuildAddressPostinc(Bitcount asize, const M68000Long& loc
 {
 	size = asize;
 	savedPC = location;
-	mode = ADDREG_INDIRECT_POSTINC;
+	mode = Mode::AddRegIndirectPostInc;
 	reg = areg;
 }
 
@@ -74,7 +74,7 @@ void EffectiveAddress::BuildAddressPredec(Bitcount asize, const M68000Long& loca
 {
 	size = asize;
 	savedPC = location;
-	mode = ADDREG_INDIRECT_PREDEC;
+	mode = Mode::AddRegIndirectPreDec;
 	reg = areg;
 }
 
@@ -83,7 +83,7 @@ void EffectiveAddress::BuildAddressIndirectDisplace(Bitcount asize, const M68000
 {
 	size = asize;
 	savedPC = location;
-	mode = ADDREG_INDIRECT_DISPLACE;
+	mode = Mode::AddRegIndirectDisplace;
 	reg = areg;
 
 	displacement.Resize(BITCOUNT_WORD);
@@ -95,7 +95,7 @@ void EffectiveAddress::BuildAddressIndirectIndex(Bitcount asize, const M68000Lon
 {
 	size = asize;
 	savedPC = location;
-	mode = ADDREG_INDIRECT_INDEX_8BIT;
+	mode = Mode::AddRegIndirectIndex8Bit;
 	reg = areg;
 
 	M68000Word temp;
@@ -125,7 +125,7 @@ void EffectiveAddress::BuildAbsoluteAddressWord(Bitcount asize, const M68000Long
 {
 	size = asize;
 	savedPC = location;
-	mode = ABS_WORD;
+	mode = Mode::ABSWord;
 
 	address.Resize(BITCOUNT_WORD);
 	cpu->ReadMemory(location, address, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
@@ -136,7 +136,7 @@ void EffectiveAddress::BuildAbsoluteAddressLong(Bitcount asize, const M68000Long
 {
 	size = asize;
 	savedPC = location;
-	mode = ABS_LONG;
+	mode = Mode::ABSLong;
 
 	address.Resize(BITCOUNT_LONG);
 	cpu->ReadMemory(location, address, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
@@ -146,7 +146,7 @@ void EffectiveAddress::BuildAbsoluteAddressLong(Bitcount asize, const M68000Long
 void EffectiveAddress::BuildPCIndirectDisplace(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	size = asize;
-	mode = PC_INDIRECT_DISPLACE;
+	mode = Mode::PCIndirectDisplace;
 
 	//Note that all PC-relative address calculations work by taking the address of the
 	//extension word which defines the effective address as the current value of the PC.
@@ -164,7 +164,7 @@ void EffectiveAddress::BuildPCIndirectDisplace(Bitcount asize, const M68000Long&
 void EffectiveAddress::BuildPCIndirectIndex(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	size = asize;
-	mode = PC_INDIRECT_INDEX_8BIT;
+	mode = Mode::PCIndirectIndex8Bit;
 
 	//Note that all PC-relative address calculations work by taking the address of the
 	//extension word which defines the effective address as the current value of the PC.
@@ -201,7 +201,7 @@ void EffectiveAddress::BuildImmediateData(Bitcount asize, const M68000Long& loca
 {
 	size = asize;
 	savedPC = location;
-	mode = IMMEDIATE;
+	mode = Mode::Immediate;
 
 	data.Resize(size);
 	M68000Long tempLocation = location;
@@ -217,7 +217,7 @@ void EffectiveAddress::BuildImmediateData(const M68000Long& location, const Data
 {
 	size = (Bitcount)data.GetBitCount();
 	savedPC = location;
-	mode = IMMEDIATE;
+	mode = Mode::Immediate;
 	data.Resize(size);
 	data = adata;
 	dataSignExtended = signExtended;
@@ -228,7 +228,7 @@ void EffectiveAddress::BuildQuickData(const M68000Long& location, unsigned int a
 {
 	size = BITCOUNT_BYTE;
 	savedPC = location;
-	mode = IMMEDIATE;
+	mode = Mode::Immediate;
 	data.Resize(size);
 	if(adata == 0)
 	{
@@ -273,10 +273,10 @@ unsigned int EffectiveAddress::ExtensionSize()
 		break;
 	case BITCOUNT_BYTE:
 	case BITCOUNT_WORD:
-		addressSize = extensionSize8[mode];
+		addressSize = extensionSize8[(unsigned int)mode];
 		break;
 	case BITCOUNT_LONG:
-		addressSize = extensionSize32[mode];
+		addressSize = extensionSize32[(unsigned int)mode];
 	}
 	return addressSize;
 }
@@ -292,10 +292,10 @@ ExecuteTime EffectiveAddress::DecodeTime()
 		break;
 	case BITCOUNT_BYTE:
 	case BITCOUNT_WORD:
-		executeTime = executeTime8[mode];
+		executeTime = executeTime8[(unsigned int)mode];
 		break;
 	case BITCOUNT_LONG:
-		executeTime = executeTime32[mode];
+		executeTime = executeTime32[(unsigned int)mode];
 	}
 	return executeTime;
 }

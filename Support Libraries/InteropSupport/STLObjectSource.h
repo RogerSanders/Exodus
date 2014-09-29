@@ -10,12 +10,15 @@
 #include "DecomposeSTLContainer.h"
 namespace InteropSupport {
 
-//Disable warning about using "this" pointer in initializer list. Our usage here is safe,
-//and guaranteed by the standard. See section 12.6.2 [class.base.init] paragraph 7 of the
-//standard for clarification.
 #ifdef _MSC_VER
 #pragma warning(push)
+//Disable warning about using "this" pointer in initializer list. Our usage here is safe, and
+//guaranteed by the standard. See section 12.6.2 [class.base.init] paragraph 7 of the standard for
+//clarification.
 #pragma warning(disable:4355)
+//Disable warning about our use of std::is_pod causing a conditional expression to be constant. The
+//code behaves as intended, and the compiler is free to optimize away the dead branch.
+#pragma warning(disable:4127)
 #endif
 
 //----------------------------------------------------------------------------------------
@@ -403,7 +406,7 @@ private:
 	const std::basic_string<ElementType>& sourceObject;
 };
 
-//Restore the disabled C4355 warning
+//Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif

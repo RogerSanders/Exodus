@@ -9,7 +9,7 @@
 GenericAccessDataValueInt::GenericAccessDataValueInt(int value)
 :dataValue(value)
 {
-	displayMode = INTDISPLAYMODE_DECIMAL;
+	displayMode = IntDisplayMode::Decimal;
 	minChars = 0;
 	minValue = std::numeric_limits<int>::min();
 	maxValue = std::numeric_limits<int>::max();
@@ -28,7 +28,7 @@ unsigned int GenericAccessDataValueInt::GetIGenericAccessDataValueIntVersion() c
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueInt::DataType GenericAccessDataValueInt::GetType() const
 {
-	return DATATYPE_INT;
+	return DataType::Int;
 }
 
 //----------------------------------------------------------------------------------------
@@ -45,16 +45,16 @@ std::wstring GenericAccessDataValueInt::GetValueString() const
 	std::wstring result;
 	switch(displayMode)
 	{
-	case INTDISPLAYMODE_BINARY:
+	case IntDisplayMode::Binary:
 		IntToStringBase2(dataValue, result, minChars);
 		break;
-	case INTDISPLAYMODE_OCTAL:
+	case IntDisplayMode::Octal:
 		IntToStringBase8(dataValue, result, minChars);
 		break;
-	case INTDISPLAYMODE_DECIMAL:
+	case IntDisplayMode::Decimal:
 		IntToStringBase10(dataValue, result, minChars);
 		break;
-	case INTDISPLAYMODE_HEXADECIMAL:
+	case IntDisplayMode::Hexadecimal:
 		IntToStringBase16(dataValue, result, minChars);
 		break;
 	}
@@ -85,16 +85,16 @@ bool GenericAccessDataValueInt::SetValueString(const std::wstring& value)
 	unsigned int defaultBase = 10;
 	switch(displayMode)
 	{
-	case INTDISPLAYMODE_BINARY:
+	case IntDisplayMode::Binary:
 		defaultBase = 2;
 		break;
-	case INTDISPLAYMODE_OCTAL:
+	case IntDisplayMode::Octal:
 		defaultBase = 8;
 		break;
-	case INTDISPLAYMODE_DECIMAL:
+	case IntDisplayMode::Decimal:
 		defaultBase = 10;
 		break;
-	case INTDISPLAYMODE_HEXADECIMAL:
+	case IntDisplayMode::Hexadecimal:
 		defaultBase = 16;
 		break;
 	}
@@ -144,19 +144,19 @@ unsigned int GenericAccessDataValueInt::CalculateDisplayChars(IntDisplayMode adi
 	std::wstring maxValueString;
 	switch(adisplayMode)
 	{
-	case INTDISPLAYMODE_BINARY:
+	case IntDisplayMode::Binary:
 		IntToStringBase2(abs(aminValue), minValueString, 0, false);
 		IntToStringBase2(abs(amaxValue), maxValueString, 0, false);
 		break;
-	case INTDISPLAYMODE_OCTAL:
+	case IntDisplayMode::Octal:
 		IntToStringBase8(abs(aminValue), minValueString, 0, false);
 		IntToStringBase8(abs(amaxValue), maxValueString, 0, false);
 		break;
-	case INTDISPLAYMODE_DECIMAL:
+	case IntDisplayMode::Decimal:
 		IntToStringBase10(abs(aminValue), minValueString, 0, false);
 		IntToStringBase10(abs(amaxValue), maxValueString, 0, false);
 		break;
-	case INTDISPLAYMODE_HEXADECIMAL:
+	case IntDisplayMode::Hexadecimal:
 		IntToStringBase16(abs(aminValue), minValueString, 0, false);
 		IntToStringBase16(abs(amaxValue), maxValueString, 0, false);
 		break;

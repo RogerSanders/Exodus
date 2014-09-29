@@ -36,19 +36,19 @@ public:
 		if(!data.GetBit(0))
 		{
 			//EX AF,AF'		00001000
-			source.SetMode(EffectiveAddress::MODE_AF);
-			target.SetMode(EffectiveAddress::MODE_AF2);
+			source.SetMode(EffectiveAddress::Mode::AF);
+			target.SetMode(EffectiveAddress::Mode::AF2);
 			AddExecuteCycleCount(4);
 		}
 		else if(data.GetBit(3))
 		{
 			//EX DE,HL		11101011
-			source.SetMode(EffectiveAddress::MODE_DE);
+			source.SetMode(EffectiveAddress::Mode::DE);
 			//##NOTE## We override the index state for the target in this form of the
 			//opcode. The only other opcode which has exceptions to the indexing rule
 			//is LD8.
-			target.SetIndexState(EffectiveAddress::INDEX_NONE, 0);
-			target.SetMode(EffectiveAddress::MODE_HL);
+			target.SetIndexState(EffectiveAddress::IndexState::None, 0);
+			target.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(4);
 		}
 		else
@@ -56,8 +56,8 @@ public:
 			//EX (SP),HL		11100011
 			//EX (SP),IX		11011101 11100011
 			//EX (SP),IY		11111101 11100011
-			source.SetMode(EffectiveAddress::MODE_SP_INDIRECT);
-			target.SetMode(EffectiveAddress::MODE_HL);
+			source.SetMode(EffectiveAddress::Mode::SPIndirect);
+			target.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(19);
 		}
 

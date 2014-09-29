@@ -60,31 +60,31 @@ public:
 		unsigned int targetIndex = 0;
 		switch(targetMode)
 		{
-		case EffectiveAddress::ADDREG_INDIRECT:
+		case EffectiveAddress::Mode::AddRegIndirect:
 			targetIndex = 0;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_POSTINC:
+		case EffectiveAddress::Mode::AddRegIndirectPostInc:
 			targetIndex = 1;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_PREDEC:
+		case EffectiveAddress::Mode::AddRegIndirectPreDec:
 			targetIndex = 2;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_DISPLACE:
+		case EffectiveAddress::Mode::AddRegIndirectDisplace:
 			targetIndex = 3;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_INDEX_8BIT:
+		case EffectiveAddress::Mode::AddRegIndirectIndex8Bit:
 			targetIndex = 4;
 			break;
-		case EffectiveAddress::ABS_WORD:
+		case EffectiveAddress::Mode::ABSWord:
 			targetIndex = 5;
 			break;
-		case EffectiveAddress::ABS_LONG:
+		case EffectiveAddress::Mode::ABSLong:
 			targetIndex = 6;
 			break;
-		case EffectiveAddress::PC_INDIRECT_DISPLACE:
+		case EffectiveAddress::Mode::PCIndirectDisplace:
 			targetIndex = 7;
 			break;
-		case EffectiveAddress::PC_INDIRECT_INDEX_8BIT:
+		case EffectiveAddress::Mode::PCIndirectIndex8Bit:
 			targetIndex = 8;
 			break;
 		}
@@ -214,11 +214,11 @@ public:
 		target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		switch(target.GetAddressMode())
 		{
-		case EffectiveAddress::ADDREG_INDIRECT_PREDEC:
+		case EffectiveAddress::Mode::AddRegIndirectPreDec:
 			addressMode = MODE_PREDECREMENT;
 			target.BuildAddressDirect(size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_POSTINC:
+		case EffectiveAddress::Mode::AddRegIndirectPostInc:
 			addressMode = MODE_POSTINCREMENT;
 			target.BuildAddressDirect(size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			break;
@@ -260,11 +260,11 @@ public:
 		//Calculate the execution time
 		if(addressMode == MODE_PREDECREMENT)
 		{
-			AddExecuteCycleCount(GetExecuteTime(EffectiveAddress::ADDREG_INDIRECT_PREDEC, memoryToRegisters, size, (unsigned int)registers.size()));
+			AddExecuteCycleCount(GetExecuteTime(EffectiveAddress::Mode::AddRegIndirectPreDec, memoryToRegisters, size, (unsigned int)registers.size()));
 		}
 		else if(addressMode == MODE_POSTINCREMENT)
 		{
-			AddExecuteCycleCount(GetExecuteTime(EffectiveAddress::ADDREG_INDIRECT_POSTINC, memoryToRegisters, size, (unsigned int)registers.size()));
+			AddExecuteCycleCount(GetExecuteTime(EffectiveAddress::Mode::AddRegIndirectPostInc, memoryToRegisters, size, (unsigned int)registers.size()));
 		}
 		else
 		{
@@ -282,7 +282,7 @@ public:
 		//section 4, page 128, paragraph 4, for more info.
 		EffectiveAddress memory;
 		M68000Long address;
-		if(target.GetAddressMode() == EffectiveAddress::ADDREG_DIRECT)
+		if(target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
 		{
 			additionalTime += target.Read(cpu, address, GetInstructionRegister());
 		}
@@ -303,7 +303,7 @@ public:
 				{
 					M68000::LabelSubstitutionSettings labelSettings;
 					labelSettings.enableSubstitution = false;
-					cpu->AddDisassemblyAddressInfoData(address.GetData(), temp.GetByteSize(), M68000::DISASSEMBLYDATATYPE_INTEGER, 0, i->Disassemble(labelSettings));
+					cpu->AddDisassemblyAddressInfoData(address.GetData(), temp.GetByteSize(), M68000::DisassemblyDataType::Integer, 0, i->Disassemble(labelSettings));
 				}
 
 				//Read the register data from memory and load it into the register
@@ -324,7 +324,7 @@ public:
 
 		//If the address mode was predec or postinc, write the updated address to the
 		//register.
-		if(target.GetAddressMode() == EffectiveAddress::ADDREG_DIRECT)
+		if(target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
 		{
 			target.Write(cpu, address, GetInstructionRegister());
 		}

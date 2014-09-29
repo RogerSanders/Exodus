@@ -1,14 +1,14 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IUIManager::WindowType
+enum class IUIManager::WindowType
 {
-	WINDOWTYPE_DIALOG,
-	WINDOWTYPE_DOCKABLE
+	Dialog,
+	Dockable
 };
 
 //----------------------------------------------------------------------------------------
-enum IUIManager::InitialDockingLocation
+enum class IUIManager::InitialDockingLocation
 {
 	//##TODO##
 };

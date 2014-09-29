@@ -1,7 +1,7 @@
 #include "ModuleManagerView.h"
 #include "DataConversion/DataConversion.pkg"
 #include "resource.h"
-#include <boost/bind.hpp>
+#include <functional>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -10,7 +10,7 @@ ModuleManagerView::ModuleManagerView(IUIManager& auiManager, ModuleManagerViewPr
 :ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), windowHandle(NULL)
 {
 	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_MODULEMANAGER));
-	SetDialogViewType(DIALOGMODE_MODELESS);
+	SetDialogViewType(DialogMode::Modeless);
 }
 
 //----------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ INT_PTR ModuleManagerView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPA
 INT_PTR ModuleManagerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Subscribe to change notifications for the loaded module list
-	loadedModulesChangeSubscription.SetBoundCallback(boost::bind(boost::mem_fn(&ModuleManagerView::RefreshModuleList), this));
+	loadedModulesChangeSubscription.SetBoundCallback(std::bind(std::mem_fn(&ModuleManagerView::RefreshModuleList), this));
 	ISystemGUIInterface& systemInterface = *model.GetSystemInterface();
 	systemInterface.LoadedModulesChangeNotifyRegister(loadedModulesChangeSubscription);
 

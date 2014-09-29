@@ -193,13 +193,11 @@ void DPIGetScreenScaleFactors(float& dpiScaleX, float& dpiScaleY)
 //----------------------------------------------------------------------------------------
 void BindStdHandlesToConsole()
 {
-	HANDLE stdHandle;
-
 	//Redirect unbuffered STDIN to the console
-	stdHandle = GetStdHandle(STD_INPUT_HANDLE);
-	if(stdHandle != INVALID_HANDLE_VALUE)
+	HANDLE stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
+	if(stdInHandle != INVALID_HANDLE_VALUE)
 	{
-		int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
+		int fileDescriptor = _open_osfhandle((intptr_t)stdInHandle, _O_TEXT);
 		if(fileDescriptor != -1)
 		{
 			FILE* file = _fdopen(fileDescriptor, "r");
@@ -212,10 +210,10 @@ void BindStdHandlesToConsole()
 	}
 
 	//Redirect unbuffered STDOUT to the console
-	stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	if(stdHandle != INVALID_HANDLE_VALUE)
+	HANDLE stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	if(stdOutHandle != INVALID_HANDLE_VALUE)
 	{
-		int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
+		int fileDescriptor = _open_osfhandle((intptr_t)stdOutHandle, _O_TEXT);
 		if(fileDescriptor != -1)
 		{
 			FILE* file = _fdopen(fileDescriptor, "w");
@@ -228,10 +226,10 @@ void BindStdHandlesToConsole()
 	}
 
 	//Redirect unbuffered STDERR to the console
-	stdHandle = GetStdHandle(STD_ERROR_HANDLE);
-	if(stdHandle != INVALID_HANDLE_VALUE)
+	HANDLE stdErrHandle = GetStdHandle(STD_ERROR_HANDLE);
+	if(stdErrHandle != INVALID_HANDLE_VALUE)
 	{
-		int fileDescriptor = _open_osfhandle((intptr_t)stdHandle, _O_TEXT);
+		int fileDescriptor = _open_osfhandle((intptr_t)stdErrHandle, _O_TEXT);
 		if(fileDescriptor != -1)
 		{
 			FILE* file = _fdopen(fileDescriptor, "w");
@@ -243,12 +241,17 @@ void BindStdHandlesToConsole()
 		}
 	}
 
-	//Make cin, wcin, cout, wcout, cerr, wcerr, clog and wclog point to console as well.
-	//##FIX## I don't think that's what this function actually does. Documentation and
-	//internal checking show all it actually does is set a flag to indicate that IO should
-	//be synchronized between the C and C++ runtimes, but this is set by default anyway.
-	//Do some more testing and determine if we can eliminate this call.
-	std::ios::sync_with_stdio();
+	//Clear the error state for each of the C++ standard stream objects. We need to do this, as
+	//attempts to access the standard streams before they refer to a valid target will cause the
+	//iostream objects to enter an error state. In versions of Visual Studio after 2005, this seems
+	//to always occur during startup regardless of whether anything has been read from or written to
+	//the console or not.
+	std::wcin.clear();
+	std::cin.clear();
+	std::wcout.clear();
+	std::cout.clear();
+	std::wcerr.clear();
+	std::cerr.clear();
 }
 
 //----------------------------------------------------------------------------------------

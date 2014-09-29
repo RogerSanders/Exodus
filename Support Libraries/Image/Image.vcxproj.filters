@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Image">
+      <UniqueIdentifier>{39cd9508-c4f2-48f9-a44c-ccc0b5b0d60f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImageSet">
+      <UniqueIdentifier>{c7e90fd0-cecd-44e7-ad7b-a847ac019792}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Image.cpp">
+      <Filter>Image</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageSet.cpp">
+      <Filter>ImageSet</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Image.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageSet.h">
+      <Filter>ImageSet</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Image.inl">
+      <Filter>Image</Filter>
+    </None>
+    <None Include="Image.pkg" />
+  </ItemGroup>
+</Project>

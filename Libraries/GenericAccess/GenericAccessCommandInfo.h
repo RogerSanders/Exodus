@@ -7,7 +7,7 @@ class GenericAccessCommandInfo :public IGenericAccessCommandInfo
 {
 public:
 	//Constructors
-	inline GenericAccessCommandInfo(unsigned int aid);
+	template<class T> inline GenericAccessCommandInfo(T aid);
 
 	//Interface version functions
 	virtual unsigned int GetIGenericAccessCommandInfoVersion() const;

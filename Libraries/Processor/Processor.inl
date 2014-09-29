@@ -1,21 +1,21 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum Processor::DisassemblyEntryType
+enum class Processor::DisassemblyEntryType
 {
-	DISASSEMBLYENTRYTYPE_CODE,
-	DISASSEMBLYENTRYTYPE_CODE_AUTODETECT,
-	DISASSEMBLYENTRYTYPE_DATA,
-	DISASSEMBLYENTRYTYPE_OFFSETCODE,
-	DISASSEMBLYENTRYTYPE_OFFSETDATA
+	Code,
+	CodeAutoDetect,
+	Data,
+	OffsetCode,
+	OffsetData
 };
 
 //----------------------------------------------------------------------------------------
-enum Processor::DisassemblyDataType
+enum class Processor::DisassemblyDataType
 {
-	DISASSEMBLYDATATYPE_INTEGER,
-	DISASSEMBLYDATATYPE_FLOAT,
-	DISASSEMBLYDATATYPE_CHARACTER
+	Integer,
+	Float,
+	Character
 };
 
 //----------------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ double Processor::CalculateExecutionTime(unsigned int cycles) const
 //----------------------------------------------------------------------------------------
 std::list<IBreakpoint*> Processor::GetBreakpointList() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	std::list<IBreakpoint*> result(breakpoints.begin(), breakpoints.end());
 	return result;
 }
@@ -217,7 +217,7 @@ void Processor::CheckExecution(unsigned int location) const
 //----------------------------------------------------------------------------------------
 std::list<IWatchpoint*> Processor::GetWatchpointList() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	std::list<IWatchpoint*> result(watchpoints.begin(), watchpoints.end());
 	return result;
 }
@@ -257,7 +257,7 @@ void Processor::CheckMemoryWrite(unsigned int location, unsigned int data) const
 //----------------------------------------------------------------------------------------
 std::list<Processor::CallStackEntry> Processor::GetCallStack() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return callStack;
 }
 
@@ -266,7 +266,7 @@ std::list<Processor::CallStackEntry> Processor::GetCallStack() const
 //----------------------------------------------------------------------------------------
 std::list<Processor::TraceLogEntry> Processor::GetTraceLog() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return traceLog;
 }
 

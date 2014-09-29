@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ViewBase::ViewBase(IUIManager& auiManager, IViewPresenter& aviewPresenter)
-:hwndInternal(NULL), parentWindow(0), uiManager(auiManager), viewPresenter(aviewPresenter), assemblyHandle(0), dialogSettingsCaptured(false), windowSettingsCaptured(false), initiallyDocked(false), initiallyCollapsed(false), windowShownForFirstTime(false), viewType(VIEWTYPE_DOCKABLE), initialDialogPos(INITIALDIALOGPOS_DEFAULT)
+:hwndInternal(NULL), parentWindow(0), uiManager(auiManager), viewPresenter(aviewPresenter), assemblyHandle(0), dialogSettingsCaptured(false), windowSettingsCaptured(false), initiallyDocked(false), initiallyCollapsed(false), windowShownForFirstTime(false), viewType(ViewType::Dockable), initialDialogPos(DialogPos::Default)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -40,13 +40,13 @@ void ViewBase::SetDialogTemplateSettings(const std::wstring& ainitialWindowTitle
 //----------------------------------------------------------------------------------------
 void ViewBase::SetDocumentViewType()
 {
-	viewType = VIEWTYPE_DOCUMENT;
+	viewType = ViewType::Document;
 }
 
 //----------------------------------------------------------------------------------------
-void ViewBase::SetDockableViewType(bool ainitiallyDocked, InitialDockPos ainitialDockPos, bool ainitiallyCollapsed, const std::wstring& aviewDockingGroup)
+void ViewBase::SetDockableViewType(bool ainitiallyDocked, DockPos ainitialDockPos, bool ainitiallyCollapsed, const std::wstring& aviewDockingGroup)
 {
-	viewType = VIEWTYPE_DOCKABLE;
+	viewType = ViewType::Dockable;
 	viewDockingGroup = aviewDockingGroup;
 	initiallyDocked = ainitiallyDocked;
 	initialDockPos = ainitialDockPos;
@@ -54,9 +54,9 @@ void ViewBase::SetDockableViewType(bool ainitiallyDocked, InitialDockPos ainitia
 }
 
 //----------------------------------------------------------------------------------------
-void ViewBase::SetDialogViewType(DialogMode adialogMode, bool adialogResizable, InitialDialogPos ainitialDialogPos)
+void ViewBase::SetDialogViewType(DialogMode adialogMode, bool adialogResizable, DialogPos ainitialDialogPos)
 {
-	viewType = VIEWTYPE_DIALOG;
+	viewType = ViewType::Dialog;
 	dialogMode = adialogMode;
 	dialogResizable = adialogResizable;
 	initialDialogPos = ainitialDialogPos;
@@ -228,7 +228,7 @@ bool ViewBase::IsViewInitiallyCollapsed() const
 }
 
 //----------------------------------------------------------------------------------------
-ViewBase::InitialDockPos ViewBase::GetViewInitialDockPosition() const
+ViewBase::DockPos ViewBase::GetViewInitialDockPosition() const
 {
 	return initialDockPos;
 }
@@ -246,7 +246,7 @@ ViewBase::DialogMode ViewBase::GetViewDialogMode() const
 }
 
 //----------------------------------------------------------------------------------------
-ViewBase::InitialDialogPos ViewBase::GetViewInitialDialogPosition() const
+ViewBase::DialogPos ViewBase::GetViewInitialDialogPosition() const
 {
 	return initialDialogPos;
 }

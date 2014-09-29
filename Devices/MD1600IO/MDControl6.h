@@ -16,7 +16,7 @@ References:
 #define __MDCONTROL6_H__
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Device/Device.pkg"
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 class MDControl6 :public Device
 {
@@ -47,10 +47,6 @@ public:
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
-	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
-	void UpdateLineState(bool timeoutSettingsChanged, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	void UpdateOutputLineStateForLine(unsigned int lineID, bool revokeAllTimeoutStateChanges, IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	static bool GetDesiredLineState(unsigned int currentBankswitchCounter, unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, unsigned int lineID);
 
 	//Input functions
 	virtual unsigned int GetKeyCodeID(const std::wstring& keyCodeName) const;
@@ -63,31 +59,36 @@ public:
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
+	//Constants
+	static const unsigned int buttonCount = 12;
+	static const unsigned int bankswitchCounterResetPoint = 4;
+	static const unsigned int outputLineCount = 7;
+
 	//Enumerations
-	enum LineID
+	enum class LineID
 	{
-		LINE_D0 = 1, //IO
-		LINE_D1,     //IO
-		LINE_D2,     //IO
-		LINE_D3,     //IO
-		LINE_TL,     //IO
-		LINE_TR,     //IO
-		LINE_TH      //IO
+		D0 = 1, //IO
+		D1,     //IO
+		D2,     //IO
+		D3,     //IO
+		TL,     //IO
+		TR,     //IO
+		TH      //IO
 	};
-	enum Button
+	enum ButtonIndex
 	{
-		BUTTON_UP     = 0,
-		BUTTON_DOWN   = 1,
-		BUTTON_LEFT   = 2,
-		BUTTON_RIGHT  = 3,
-		BUTTON_A      = 4,
-		BUTTON_B      = 5,
-		BUTTON_C      = 6,
-		BUTTON_START  = 7,
-		BUTTON_X      = 8,
-		BUTTON_Y      = 9,
-		BUTTON_Z      = 10,
-		BUTTON_MODE   = 11
+		BUTTONINDEX_UP     = 0,
+		BUTTONINDEX_DOWN   = 1,
+		BUTTONINDEX_LEFT   = 2,
+		BUTTONINDEX_RIGHT  = 3,
+		BUTTONINDEX_A      = 4,
+		BUTTONINDEX_B      = 5,
+		BUTTONINDEX_C      = 6,
+		BUTTONINDEX_START  = 7,
+		BUTTONINDEX_X      = 8,
+		BUTTONINDEX_Y      = 9,
+		BUTTONINDEX_Z      = 10,
+		BUTTONINDEX_MODE   = 11
 	};
 
 	//Structures
@@ -100,11 +101,14 @@ private:
 	};
 
 private:
-	//Constants
-	static const unsigned int buttonCount = 12;
-	static const unsigned int bankswitchCounterResetPoint = 4;
-	static const unsigned int outputLineCount = 7;
+	//Line functions
+	void ApplyLineStateChange(LineID targetLine, const Data& lineData);
+	void UpdateLineState(bool timeoutSettingsChanged, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	void UpdateOutputLineStateForLine(LineID lineID, bool revokeAllTimeoutStateChanges, IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	static bool GetDesiredLineState(unsigned int currentBankswitchCounter, unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, LineID lineID);
+	static unsigned int GetLineIndex(LineID lineID);
 
+private:
 	//Bus interface
 	IBusInterface* memoryBus;
 
@@ -130,7 +134,7 @@ private:
 	std::vector<OutputLineState> boutputLineState;
 
 	//Line access
-	boost::mutex lineMutex;
+	std::mutex lineMutex;
 	double lastLineAccessTime;
 };
 

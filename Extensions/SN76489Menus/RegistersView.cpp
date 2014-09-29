@@ -224,28 +224,28 @@ bool RegistersView::ControlIDToDataID(int controlID, unsigned int& genericDataID
 	default:
 		return false;
 	case IDC_SN76489_REG_C0V:
-		genericDataID = (unsigned int)ISN76489::DATASOURCE_CHANNEL1_VOLUMEREGISTER;
+		genericDataID = (unsigned int)ISN76489::ISN76489DataSource::Channel1VolumeRegister;
 		break;
 	case IDC_SN76489_REG_C0D:
-		genericDataID = (unsigned int)ISN76489::DATASOURCE_CHANNEL1_TONEREGISTER;
+		genericDataID = (unsigned int)ISN76489::ISN76489DataSource::Channel1ToneRegister;
 		break;
 	case IDC_SN76489_REG_C1V:
-		genericDataID = (unsigned int)ISN76489::DATASOURCE_CHANNEL2_VOLUMEREGISTER;
+		genericDataID = (unsigned int)ISN76489::ISN76489DataSource::Channel2VolumeRegister;
 		break;
 	case IDC_SN76489_REG_C1D:
-		genericDataID = (unsigned int)ISN76489::DATASOURCE_CHANNEL2_TONEREGISTER;
+		genericDataID = (unsigned int)ISN76489::ISN76489DataSource::Channel2ToneRegister;
 		break;
 	case IDC_SN76489_REG_C2V:
-		genericDataID = (unsigned int)ISN76489::DATASOURCE_CHANNEL3_VOLUMEREGISTER;
+		genericDataID = (unsigned int)ISN76489::ISN76489DataSource::Channel3VolumeRegister;
 		break;
 	case IDC_SN76489_REG_C2D:
-		genericDataID = (unsigned int)ISN76489::DATASOURCE_CHANNEL3_TONEREGISTER;
+		genericDataID = (unsigned int)ISN76489::ISN76489DataSource::Channel3ToneRegister;
 		break;
 	case IDC_SN76489_REG_C3V:
-		genericDataID = (unsigned int)ISN76489::DATASOURCE_CHANNEL4_VOLUMEREGISTER;
+		genericDataID = (unsigned int)ISN76489::ISN76489DataSource::Channel4VolumeRegister;
 		break;
 	case IDC_SN76489_REG_C3D:
-		genericDataID = (unsigned int)ISN76489::DATASOURCE_CHANNEL4_TONEREGISTER;
+		genericDataID = (unsigned int)ISN76489::ISN76489DataSource::Channel4ToneRegister;
 		break;
 	}
 	return true;

@@ -9,7 +9,7 @@ class M68000Instruction
 {
 public:
 	//Enumerations
-	enum ConditionCode;
+	enum class ConditionCode;
 
 	//Structures
 	struct Disassembly;

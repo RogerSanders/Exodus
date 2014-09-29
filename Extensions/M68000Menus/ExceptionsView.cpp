@@ -114,14 +114,14 @@ INT_PTR ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			switch(LOWORD(wparam))
 			{
 			case IDC_M68000_EXCEPTIONS_VECTORNUMBER:
-				exceptionEntry.vectorNumber = GetDlgItemHex(hwnd, LOWORD(wparam));
+				exceptionEntry.vectorNumber = (IM68000::Exceptions)GetDlgItemHex(hwnd, LOWORD(wparam));
 				break;
 			case IDC_M68000_EXCEPTIONS_VECTORADDRESS:
-				exceptionEntry.vectorNumber = GetDlgItemHex(hwnd, LOWORD(wparam)) / 4;
+				exceptionEntry.vectorNumber = (IM68000::Exceptions)(GetDlgItemHex(hwnd, LOWORD(wparam)) / 4);
 				break;
 			}
-			UpdateDlgItemHex(hwnd, IDC_M68000_EXCEPTIONS_VECTORNUMBER, addressBusCharWidth, exceptionEntry.vectorNumber);
-			UpdateDlgItemHex(hwnd, IDC_M68000_EXCEPTIONS_VECTORADDRESS, addressBusCharWidth, exceptionEntry.vectorNumber * 4);
+			UpdateDlgItemHex(hwnd, IDC_M68000_EXCEPTIONS_VECTORNUMBER, addressBusCharWidth, (unsigned int)exceptionEntry.vectorNumber);
+			UpdateDlgItemHex(hwnd, IDC_M68000_EXCEPTIONS_VECTORADDRESS, addressBusCharWidth, (unsigned int)exceptionEntry.vectorNumber * 4);
 			UpdateDlgItemString(hwnd, IDC_M68000_EXCEPTIONS_VECTORNAME, model.GetExceptionName(exceptionEntry.vectorNumber));
 		}
 	}
@@ -263,18 +263,18 @@ void ExceptionsView::UpdateExceptionEntry(HWND hwnd, const IM68000::ExceptionDeb
 	CheckDlgButton(hwnd, IDC_M68000_EXCEPTIONS_BREAK, (targetExceptionEntry.enableBreak)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_M68000_EXCEPTIONS_DISABLE, (targetExceptionEntry.disable)? BST_CHECKED: BST_UNCHECKED);
 
-	UpdateDlgItemHex(hwnd, IDC_M68000_EXCEPTIONS_VECTORNUMBER, addressBusCharWidth, targetExceptionEntry.vectorNumber);
-	UpdateDlgItemHex(hwnd, IDC_M68000_EXCEPTIONS_VECTORADDRESS, addressBusCharWidth, targetExceptionEntry.vectorNumber * 4);
+	UpdateDlgItemHex(hwnd, IDC_M68000_EXCEPTIONS_VECTORNUMBER, addressBusCharWidth, (unsigned int)targetExceptionEntry.vectorNumber);
+	UpdateDlgItemHex(hwnd, IDC_M68000_EXCEPTIONS_VECTORADDRESS, addressBusCharWidth, (unsigned int)targetExceptionEntry.vectorNumber * 4);
 	UpdateDlgItemString(hwnd, IDC_M68000_EXCEPTIONS_VECTORNAME, model.GetExceptionName(targetExceptionEntry.vectorNumber));
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ExceptionsView::BuildExceptionName(unsigned int vectorNumber) const
+std::wstring ExceptionsView::BuildExceptionName(IM68000::Exceptions vectorNumber) const
 {
 	std::wstring vectorNumberAsString;
 	std::wstring vectorAddressAsString;
-	IntToStringBase16(vectorNumber, vectorNumberAsString, 2, true);
-	IntToStringBase16(vectorNumber * 4, vectorAddressAsString, 4, true);
+	IntToStringBase16((unsigned int)vectorNumber, vectorNumberAsString, 2, true);
+	IntToStringBase16((unsigned int)vectorNumber * 4, vectorAddressAsString, 4, true);
 	std::wstring exceptionName;
 	exceptionName = vectorNumberAsString + L"(" + vectorAddressAsString + L") " + model.GetExceptionName(vectorNumber);
 	return exceptionName;

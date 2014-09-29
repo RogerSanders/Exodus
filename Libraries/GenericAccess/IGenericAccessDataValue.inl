@@ -1,32 +1,32 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IGenericAccessDataValue::DataType
+enum class IGenericAccessDataValue::DataType
 {
-	DATATYPE_BOOL,
-	DATATYPE_INT,
-	DATATYPE_UINT,
-	DATATYPE_FLOAT,
-	DATATYPE_DOUBLE,
-	DATATYPE_STRING,
-	DATATYPE_FILEPATH,
-	DATATYPE_FOLDERPATH
+	Bool,
+	Int,
+	UInt,
+	Float,
+	Double,
+	String,
+	FilePath,
+	FolderPath
 };
 
 //----------------------------------------------------------------------------------------
-enum IGenericAccessDataValue::IntDisplayMode
+enum class IGenericAccessDataValue::IntDisplayMode
 {
-	INTDISPLAYMODE_BINARY,
-	INTDISPLAYMODE_OCTAL,
-	INTDISPLAYMODE_DECIMAL,
-	INTDISPLAYMODE_HEXADECIMAL
+	Binary,
+	Octal,
+	Decimal,
+	Hexadecimal
 };
 
 //----------------------------------------------------------------------------------------
-enum IGenericAccessDataValue::FloatDisplayMode
+enum class IGenericAccessDataValue::FloatDisplayMode
 {
-	FLOATDISPLAYMODE_FIXED,
-	FLOATDISPLAYMODE_SCIENTIFIC
+	Fixed,
+	Scientific
 };
 
 //----------------------------------------------------------------------------------------

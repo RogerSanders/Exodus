@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioPropertySheet
-	ProjectType="Visual C++"
-	Version="8.00"
-	Name="LibraryDebugx86"
-	InheritedPropertySheets=".\IncludeReference.vsprops;.\CompileWarningLevel.vsprops;.\SymbolGeneration.vsprops;.\DebugOptimization.vsprops;.\IntermediateDirectory.vsprops;.\OutputDirectory.vsprops;.\ThirdDirectoryPathsx86.vsprops;.\RuntimeDebugDLL.vsprops;.\StaticLibDefines.vsprops"
-	>
-</VisualStudioPropertySheet>

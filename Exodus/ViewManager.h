@@ -5,10 +5,10 @@
 #include "IViewManagerNotifierInterface.h"
 #include "ViewStateChangeNotifier.h"
 #include "SystemInterface/SystemInterface.pkg"
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <functional>
+#include <functional>
+#include <mutex>
+#include <condition_variable>
 #include <list>
 
 class ViewManager :public IViewManagerNotifierInterface, public IUIManager
@@ -92,7 +92,7 @@ private:
 	static const wchar_t* dialogFrameWindowClassName;
 
 	//Enumerations
-	enum ViewOperationType;
+	enum class ViewOperationType;
 
 	//Structures
 	struct ViewInfo;
@@ -147,6 +147,7 @@ private:
 	void CloseExistingWindows(const std::list<HWND>& existingWindowsToClose);
 	static WC_DockPanel::DockLocation StringToDockLocation(const std::wstring& dockLocationAsString);
 	static std::wstring DockLocationToString(WC_DockPanel::DockLocation dockLocation);
+	static WC_DockPanel::DockLocation ViewDockLocationToDockPanelDockLocation(IView::DockPos viewDockLocation);
 	static IView::ViewType StringToViewType(const std::wstring& viewTypeAsString);
 	static std::wstring ViewTypeToString(IView::ViewType viewType);
 
@@ -166,7 +167,7 @@ private:
 	static LRESULT CALLBACK WndProcDialogWindowFrame(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 	//UI thread invocation
-	void InvokeOnUIThread(const boost::function<void()>& callback);
+	void InvokeOnUIThread(const std::function<void()>& callback);
 
 private:
 	//Object interfaces
@@ -179,13 +180,13 @@ private:
 	HWND messageWindow;
 
 	//UI thread invocation
-	mutable boost::mutex invokeMutex;
+	mutable std::mutex invokeMutex;
 	unsigned long uithreadID;
 	volatile bool pendingUIThreadInvoke;
 	std::list<InvokeUIParams> pendingInvokeUIRequests;
 
 	//View info
-	mutable boost::mutex viewMutex;
+	mutable std::mutex viewMutex;
 	bool eventProcessingPaused;
 	std::list<ViewOperation> viewOperationQueue;
 	std::map<IViewPresenter*, ViewInfo*> viewInfoSet;

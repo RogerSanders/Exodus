@@ -6,7 +6,7 @@ class GenericAccessGroupCommandEntry :public IGenericAccessGroupCommandEntry
 {
 public:
 	//Constructors
-	inline GenericAccessGroupCommandEntry(unsigned int acommandID, const std::wstring& aname);
+	template<class T> inline GenericAccessGroupCommandEntry(T acommandID, const std::wstring& aname);
 	inline ~GenericAccessGroupCommandEntry();
 
 	//Interface version functions

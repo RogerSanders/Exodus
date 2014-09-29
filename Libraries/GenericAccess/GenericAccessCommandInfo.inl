@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-GenericAccessCommandInfo::GenericAccessCommandInfo(unsigned int aid)
-:id(aid)
+template<class T> GenericAccessCommandInfo::GenericAccessCommandInfo(T aid)
+:id((unsigned int)aid)
 {
 	//Initialize the general command info to defaults
 	canExecute = true;

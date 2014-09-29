@@ -11,7 +11,7 @@ ImageView::ImageView(IUIManager& auiManager, ImageViewPresenter& apresenter, IS3
 	hwndOpenGL = NULL;
 	hwndStatusBar = NULL;
 	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, 420, 313);
-	SetDockableViewType(true, INITIALDOCKPOS_CENTER);
+	SetDockableViewType(true, DockPos::Center);
 	videoFixedAspectRatioCached = model.GetVideoFixedAspectRatio();
 	imageAspectRatio = 4.0 / 3.0;
 	QueryPerformanceFrequency(&counterFrequency);

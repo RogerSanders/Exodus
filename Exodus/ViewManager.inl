@@ -1,14 +1,14 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum ViewManager::ViewOperationType
+enum class ViewManager::ViewOperationType
 {
-	VIEWOPERATIONTYPE_OPEN,
-	VIEWOPERATIONTYPE_CLOSE,
-	VIEWOPERATIONTYPE_DELETE,
-	VIEWOPERATIONTYPE_ACTIVATE,
-	VIEWOPERATIONTYPE_SHOW,
-	VIEWOPERATIONTYPE_HIDE,
+	Open,
+	Close,
+	Delete,
+	Activate,
+	Show,
+	Hide,
 };
 
 //----------------------------------------------------------------------------------------
@@ -26,9 +26,9 @@ struct ViewManager::ViewInfo
 	int waitCount;
 	IViewPresenter& viewPresenter;
 	ViewStateChangeNotifier* notifier;
-	boost::condition viewClosed;
-	boost::condition viewOpened;
-	boost::condition viewInfoSafeToDelete;
+	std::condition_variable viewClosed;
+	std::condition_variable viewOpened;
+	std::condition_variable viewInfoSafeToDelete;
 	IHierarchicalStorageNode* node;
 };
 
@@ -63,7 +63,7 @@ struct ViewManager::WorkspaceViewEntryDetails
 struct ViewManager::PlaceholderWindowInfo
 {
 	PlaceholderWindowInfo()
-	:placeholderContentWindow(NULL), parentWindowFrame(NULL), makeContentVisible(false), selectedContentWindow(false), viewType(IView::VIEWTYPE_DOCKABLE)
+	:placeholderContentWindow(NULL), parentWindowFrame(NULL), makeContentVisible(false), selectedContentWindow(false), viewType(IView::ViewType::Dockable)
 	{}
 
 	HWND placeholderContentWindow;
@@ -89,12 +89,12 @@ struct ViewManager::OpenWindowInfo
 //----------------------------------------------------------------------------------------
 struct ViewManager::InvokeUIParams
 {
-	InvokeUIParams(const boost::function<void()>& acallback, boost::condition& acallbackComplete)
+	InvokeUIParams(const std::function<void()>& acallback, std::condition_variable& acallbackComplete)
 	:callback(acallback), callbackComplete(acallbackComplete)
 	{}
 
-	const boost::function<void()>& callback;
-	boost::condition& callbackComplete;
+	const std::function<void()>& callback;
+	std::condition_variable& callbackComplete;
 };
 
 //----------------------------------------------------------------------------------------

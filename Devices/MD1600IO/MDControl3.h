@@ -15,7 +15,7 @@ References:
 #define __MDCONTROL3_H__
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Device/Device.pkg"
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 class MDControl3 :public Device
 {
@@ -46,9 +46,6 @@ public:
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
-	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
-	void UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
-	static bool GetDesiredLineState(unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, unsigned int lineID);
 
 	//Input functions
 	virtual unsigned int GetKeyCodeID(const std::wstring& keyCodeName) const;
@@ -61,19 +58,38 @@ public:
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
-	enum Button
-	{
-		BUTTON_UP     = 0,
-		BUTTON_DOWN   = 1,
-		BUTTON_LEFT   = 2,
-		BUTTON_RIGHT  = 3,
-		BUTTON_A      = 4,
-		BUTTON_B      = 5,
-		BUTTON_C      = 6,
-		BUTTON_START  = 7
-	};
+	//Constants
 	static const unsigned int buttonCount = 8;
 
+	//Enumerations
+	enum LineID
+	{
+		D0 = 1, //IO
+		D1,     //IO
+		D2,     //IO
+		D3,     //IO
+		TL,     //IO
+		TR,     //IO
+		TH      //IO
+	};
+	enum ButtonIndex
+	{
+		BUTTONINDEX_UP     = 0,
+		BUTTONINDEX_DOWN   = 1,
+		BUTTONINDEX_LEFT   = 2,
+		BUTTONINDEX_RIGHT  = 3,
+		BUTTONINDEX_A      = 4,
+		BUTTONINDEX_B      = 5,
+		BUTTONINDEX_C      = 6,
+		BUTTONINDEX_START  = 7
+	};
+
+private:
+	//Line functions
+	void UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
+	static bool GetDesiredLineState(unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, LineID lineID);
+
+private:
 	//Bus interface
 	IBusInterface* memoryBus;
 
@@ -102,20 +118,10 @@ private:
 	bool blineAssertedTH;
 
 	//Line access
-	boost::mutex lineMutex;
+	std::mutex lineMutex;
 	double lastLineAccessTime;
 	double currentTimesliceLength;
 	double bcurrentTimesliceLength;
-	enum LineID
-	{
-		LINE_D0 = 1, //IO
-		LINE_D1,     //IO
-		LINE_D2,     //IO
-		LINE_D3,     //IO
-		LINE_TL,     //IO
-		LINE_TR,     //IO
-		LINE_TH      //IO
-	};
 };
 
 #endif

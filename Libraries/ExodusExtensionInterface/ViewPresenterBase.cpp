@@ -4,22 +4,22 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ViewPresenterBase::ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID)
-:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(VIEWTARGET_SYSTEM), viewTargetGlobalExtension(false)
+:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(ViewTarget::System), viewTargetGlobalExtension(false)
 {}
 
 //----------------------------------------------------------------------------------------
 ViewPresenterBase::ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, unsigned int amoduleID, const std::wstring& amoduleDisplayName)
-:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(VIEWTARGET_MODULE), viewTargetModuleID(amoduleID), viewTargetModuleDisplayName(amoduleDisplayName), viewTargetGlobalExtension(false)
+:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(ViewTarget::Module), viewTargetModuleID(amoduleID), viewTargetModuleDisplayName(amoduleDisplayName), viewTargetGlobalExtension(false)
 {}
 
 //----------------------------------------------------------------------------------------
 ViewPresenterBase::ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, const std::wstring& adeviceInstanceName, unsigned int amoduleID, const std::wstring& amoduleDisplayName)
-:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(VIEWTARGET_DEVICE), viewTargetDeviceInstanceName(adeviceInstanceName), viewTargetModuleID(amoduleID), viewTargetModuleDisplayName(amoduleDisplayName), viewTargetGlobalExtension(false)
+:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(ViewTarget::Device), viewTargetDeviceInstanceName(adeviceInstanceName), viewTargetModuleID(amoduleID), viewTargetModuleDisplayName(amoduleDisplayName), viewTargetGlobalExtension(false)
 {}
 
 //----------------------------------------------------------------------------------------
 ViewPresenterBase::ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, const std::wstring& aextensionInstanceName, bool aglobalExtension, unsigned int amoduleID, const std::wstring& amoduleDisplayName)
-:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(VIEWTARGET_DEVICE), viewTargetExtensionInstanceName(aextensionInstanceName), viewTargetModuleID(amoduleID), viewTargetModuleDisplayName(amoduleDisplayName), viewTargetGlobalExtension(aglobalExtension)
+:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(ViewTarget::Device), viewTargetExtensionInstanceName(aextensionInstanceName), viewTargetModuleID(amoduleID), viewTargetModuleDisplayName(amoduleDisplayName), viewTargetGlobalExtension(aglobalExtension)
 {}
 
 //----------------------------------------------------------------------------------------

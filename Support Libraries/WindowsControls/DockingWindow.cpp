@@ -249,31 +249,31 @@ LRESULT DockingWindow::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam
 		return msgWM_SETFONT(wParam, lParam);
 	case WM_BOUNCE:
 		return msgWM_BOUNCE(wParam, lParam);
-	case DOCKWIN_ADDCONTENTWINDOW:
+	case WindowMessages::AddContentWindow:
 		return msgDOCKWIN_ADDCONTENTWINDOW(wParam, lParam);
-	case DOCKWIN_REMOVECONTENTWINDOW:
+	case WindowMessages::RemoveContentWindow:
 		return msgDOCKWIN_REMOVECONTENTWINDOW(wParam, lParam);
-	case DOCKWIN_MODIFYCONTENTWINDOW:
+	case WindowMessages::ModifyContentWindow:
 		return msgDOCKWIN_MODIFYCONTENTWINDOW(wParam, lParam);
-	case DOCKWIN_ADDDOCKEDWINDOW:
+	case WindowMessages::AddDockedWindow:
 		return msgDOCKWIN_ADDDOCKEDWINDOW(wParam, lParam);
-	case DOCKWIN_REMOVEDOCKEDWINDOW:
+	case WindowMessages::RemoveDockedWindow:
 		return msgDOCKWIN_REMOVEDOCKEDWINDOW(wParam, lParam);
-	case DOCKWIN_GETCONTENTWINDOWINDEXFROMHANDLE:
+	case WindowMessages::GetContentWindowIndexFromHandle:
 		return msgDOCKWIN_GETCONTENTWINDOWINDEXFROMHANDLE(wParam, lParam);
-	case DOCKWIN_GETDOCKEDWINDOWINDEXFROMHANDLE:
+	case WindowMessages::GetDockedWindowIndexFromHandle:
 		return msgDOCKWIN_GETDOCKEDWINDOWINDEXFROMHANDLE(wParam, lParam);
-	case DOCKWIN_GETCONTENTWINDOWCOUNT:
+	case WindowMessages::GetContentWindowCount:
 		return msgDOCKWIN_GETCONTENTWINDOWCOUNT(wParam, lParam);
-	case DOCKWIN_GETCONTENTWINDOWINFO:
+	case WindowMessages::GetContentWindowInfo:
 		return msgDOCKWIN_GETCONTENTWINDOWINFO(wParam, lParam);
-	case DOCKWIN_GETDOCKEDWINDOWCOUNT:
+	case WindowMessages::GetDockedWindowCount:
 		return msgDOCKWIN_GETDOCKEDWINDOWCOUNT(wParam, lParam);
-	case DOCKWIN_GETDOCKEDWINDOWINFO:
+	case WindowMessages::GetDockedWindowInfo:
 		return msgDOCKWIN_GETDOCKEDWINDOWINFO(wParam, lParam);
-	case DOCKWIN_GETACTIVECONTENTWINDOW:
+	case WindowMessages::GetActiveContentWindow:
 		return msgDOCKWIN_GETACTIVECONTENTWINDOW(wParam, lParam);
-	case DOCKWIN_SETACTIVECONTENTWINDOW:
+	case WindowMessages::SetActiveContentWindow:
 		return msgDOCKWIN_SETACTIVECONTENTWINDOW(wParam, lParam);
 	}
 
@@ -318,7 +318,7 @@ LRESULT DockingWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	SetWindowSubclass(dockPanel, BounceBackSubclassProc, 0, 0);
 
 	//Set the dock panel control as the content content for our tab dock panel control
-	SendMessage(tabDockPanel, WC_DockPanel::DOCK_ADDCONTENTWINDOW, 0, (LPARAM)dockPanel);
+	SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::AddContentWindow, 0, (LPARAM)dockPanel);
 
 	//Set the font for the created dock panel. Note that we don't set the font for the tab
 	//dock panel, since we need a different font for horizontal and vertical tab text in
@@ -331,28 +331,28 @@ LRESULT DockingWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	//Create the placement target windows to indicate the drag and drop docking target for
 	//this window
 	placementTargetCenter = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	placementTargets[WC_DockPanel::DOCKLOCATION_LEFT] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	placementTargets[WC_DockPanel::DOCKLOCATION_RIGHT] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	placementTargets[WC_DockPanel::DOCKLOCATION_TOP] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	placementTargets[WC_DockPanel::DOCKLOCATION_BOTTOM] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_LEFT] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_RIGHT] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_TOP] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_BOTTOM] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
+	placementTargets[WC_DockPanel::DockLocation::Left] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
+	placementTargets[WC_DockPanel::DockLocation::Right] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
+	placementTargets[WC_DockPanel::DockLocation::Top] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
+	placementTargets[WC_DockPanel::DockLocation::Bottom] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
+	placementTargetsForceTop[WC_DockPanel::DockLocation::Left] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
+	placementTargetsForceTop[WC_DockPanel::DockLocation::Right] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
+	placementTargetsForceTop[WC_DockPanel::DockLocation::Top] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
+	placementTargetsForceTop[WC_DockPanel::DockLocation::Bottom] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
 
 	//Create the placement shadow window
 	placementShadow = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED, placementShadowWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
 	SetLayeredWindowAttributes(placementShadow, 0, 128, LWA_ALPHA);
 
 	//Load each dock and undock custom cursor
-	enableAutoHideCursor[WC_DockPanel::DOCKLOCATION_LEFT] = LoadCursorFile(&AutoHideCursor_Left_cur[0], sizeof(AutoHideCursor_Left_cur) / sizeof(AutoHideCursor_Left_cur[0]));
-	enableAutoHideCursor[WC_DockPanel::DOCKLOCATION_RIGHT] = LoadCursorFile(&AutoHideCursor_Right_cur[0], sizeof(AutoHideCursor_Right_cur) / sizeof(AutoHideCursor_Right_cur[0]));
-	enableAutoHideCursor[WC_DockPanel::DOCKLOCATION_TOP] = LoadCursorFile(&AutoHideCursor_Up_cur[0], sizeof(AutoHideCursor_Up_cur) / sizeof(AutoHideCursor_Up_cur[0]));
-	enableAutoHideCursor[WC_DockPanel::DOCKLOCATION_BOTTOM] = LoadCursorFile(&AutoHideCursor_Down_cur[0], sizeof(AutoHideCursor_Down_cur) / sizeof(AutoHideCursor_Down_cur[0]));
-	disableAutoHideCursor[WC_DockPanel::DOCKLOCATION_LEFT] = LoadCursorFile(&AutoHideCursor_Left_Expand_cur[0], sizeof(AutoHideCursor_Left_Expand_cur) / sizeof(AutoHideCursor_Left_Expand_cur[0]));
-	disableAutoHideCursor[WC_DockPanel::DOCKLOCATION_RIGHT] = LoadCursorFile(&AutoHideCursor_Right_Expand_cur[0], sizeof(AutoHideCursor_Right_Expand_cur) / sizeof(AutoHideCursor_Right_Expand_cur[0]));
-	disableAutoHideCursor[WC_DockPanel::DOCKLOCATION_TOP] = LoadCursorFile(&AutoHideCursor_Up_Expand_cur[0], sizeof(AutoHideCursor_Up_Expand_cur) / sizeof(AutoHideCursor_Up_Expand_cur[0]));
-	disableAutoHideCursor[WC_DockPanel::DOCKLOCATION_BOTTOM] = LoadCursorFile(&AutoHideCursor_Down_Expand_cur[0], sizeof(AutoHideCursor_Down_Expand_cur) / sizeof(AutoHideCursor_Down_Expand_cur[0]));
+	enableAutoHideCursor[WC_DockPanel::DockLocation::Left] = LoadCursorFile(&AutoHideCursor_Left_cur[0], sizeof(AutoHideCursor_Left_cur) / sizeof(AutoHideCursor_Left_cur[0]));
+	enableAutoHideCursor[WC_DockPanel::DockLocation::Right] = LoadCursorFile(&AutoHideCursor_Right_cur[0], sizeof(AutoHideCursor_Right_cur) / sizeof(AutoHideCursor_Right_cur[0]));
+	enableAutoHideCursor[WC_DockPanel::DockLocation::Top] = LoadCursorFile(&AutoHideCursor_Up_cur[0], sizeof(AutoHideCursor_Up_cur) / sizeof(AutoHideCursor_Up_cur[0]));
+	enableAutoHideCursor[WC_DockPanel::DockLocation::Bottom] = LoadCursorFile(&AutoHideCursor_Down_cur[0], sizeof(AutoHideCursor_Down_cur) / sizeof(AutoHideCursor_Down_cur[0]));
+	disableAutoHideCursor[WC_DockPanel::DockLocation::Left] = LoadCursorFile(&AutoHideCursor_Left_Expand_cur[0], sizeof(AutoHideCursor_Left_Expand_cur) / sizeof(AutoHideCursor_Left_Expand_cur[0]));
+	disableAutoHideCursor[WC_DockPanel::DockLocation::Right] = LoadCursorFile(&AutoHideCursor_Right_Expand_cur[0], sizeof(AutoHideCursor_Right_Expand_cur) / sizeof(AutoHideCursor_Right_Expand_cur[0]));
+	disableAutoHideCursor[WC_DockPanel::DockLocation::Top] = LoadCursorFile(&AutoHideCursor_Up_Expand_cur[0], sizeof(AutoHideCursor_Up_Expand_cur) / sizeof(AutoHideCursor_Up_Expand_cur[0]));
+	disableAutoHideCursor[WC_DockPanel::DockLocation::Bottom] = LoadCursorFile(&AutoHideCursor_Down_Expand_cur[0], sizeof(AutoHideCursor_Down_Expand_cur) / sizeof(AutoHideCursor_Down_Expand_cur[0]));
 
 	//Calculate the dimensions of the client region of this control
 	RECT rect;
@@ -397,31 +397,31 @@ LRESULT DockingWindow::msgWM_SIZING(WPARAM wParam, LPARAM lParam)
 	//account the new requested window size.
 	if(!autoHideDockedWindow)
 	{
-		if(((currentDockLocation == WC_DockPanel::DOCKLOCATION_LEFT) && ((wParam == WMSZ_RIGHT) || (wParam == WMSZ_TOPRIGHT) || (wParam == WMSZ_BOTTOMRIGHT))) || ((currentDockLocation == WC_DockPanel::DOCKLOCATION_RIGHT) && ((wParam == WMSZ_LEFT) || (wParam == WMSZ_TOPLEFT) || (wParam == WMSZ_BOTTOMLEFT))))
+		if(((currentDockLocation == WC_DockPanel::DockLocation::Left) && ((wParam == WMSZ_RIGHT) || (wParam == WMSZ_TOPRIGHT) || (wParam == WMSZ_BOTTOMRIGHT))) || ((currentDockLocation == WC_DockPanel::DockLocation::Right) && ((wParam == WMSZ_LEFT) || (wParam == WMSZ_TOPLEFT) || (wParam == WMSZ_BOTTOMLEFT))))
 		{
-			SendMessage(parentDockingWindow->GetDockPanelWindowHandle(), WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDWIDTH, rect.right - rect.left, (LPARAM)hwnd);
+			SendMessage(parentDockingWindow->GetDockPanelWindowHandle(), (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredWidth, rect.right - rect.left, (LPARAM)hwnd);
 		}
-		else if(((currentDockLocation == WC_DockPanel::DOCKLOCATION_TOP) && ((wParam == WMSZ_BOTTOM) || (wParam == WMSZ_BOTTOMLEFT) || (wParam == WMSZ_BOTTOMRIGHT))) || ((currentDockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM) && ((wParam == WMSZ_TOP) || (wParam == WMSZ_TOPLEFT) || (wParam == WMSZ_TOPRIGHT))))
+		else if(((currentDockLocation == WC_DockPanel::DockLocation::Top) && ((wParam == WMSZ_BOTTOM) || (wParam == WMSZ_BOTTOMLEFT) || (wParam == WMSZ_BOTTOMRIGHT))) || ((currentDockLocation == WC_DockPanel::DockLocation::Bottom) && ((wParam == WMSZ_TOP) || (wParam == WMSZ_TOPLEFT) || (wParam == WMSZ_TOPRIGHT))))
 		{
-			SendMessage(parentDockingWindow->GetDockPanelWindowHandle(), WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDHEIGHT, rect.bottom - rect.top, (LPARAM)hwnd);
+			SendMessage(parentDockingWindow->GetDockPanelWindowHandle(), (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredHeight, rect.bottom - rect.top, (LPARAM)hwnd);
 		}
 	}
 
 	//Only allow the free side of this docked window to be adjusted. The other three
 	//window edges are fully controlled by the parent window.
-	if(currentDockLocation != WC_DockPanel::DOCKLOCATION_RIGHT)
+	if(currentDockLocation != WC_DockPanel::DockLocation::Right)
 	{
 		rect.left = windowSizeMoveInitialPos.left;
 	}
-	if(currentDockLocation != WC_DockPanel::DOCKLOCATION_LEFT)
+	if(currentDockLocation != WC_DockPanel::DockLocation::Left)
 	{
 		rect.right = windowSizeMoveInitialPos.right;
 	}
-	if(currentDockLocation != WC_DockPanel::DOCKLOCATION_BOTTOM)
+	if(currentDockLocation != WC_DockPanel::DockLocation::Bottom)
 	{
 		rect.top = windowSizeMoveInitialPos.top;
 	}
-	if(currentDockLocation != WC_DockPanel::DOCKLOCATION_TOP)
+	if(currentDockLocation != WC_DockPanel::DockLocation::Top)
 	{
 		rect.bottom = windowSizeMoveInitialPos.bottom;
 	}
@@ -745,10 +745,10 @@ LRESULT DockingWindow::msgWM_NCHITTEST(WPARAM wParam, LPARAM lParam)
 	LRESULT result = DefWindowProc(hwnd, WM_NCHITTEST, wParam, lParam);
 	if(parentDockingWindow != 0)
 	{
-		result = ((result == HTLEFT) && (currentDockLocation != WC_DockPanel::DOCKLOCATION_RIGHT))? HTBORDER: result;
-		result = ((result == HTRIGHT) && (currentDockLocation != WC_DockPanel::DOCKLOCATION_LEFT))? HTBORDER: result;
-		result = ((result == HTTOP) && (currentDockLocation != WC_DockPanel::DOCKLOCATION_BOTTOM))? HTBORDER: result;
-		result = ((result == HTBOTTOM) && (currentDockLocation != WC_DockPanel::DOCKLOCATION_TOP))? HTBORDER: result;
+		result = ((result == HTLEFT) && (currentDockLocation != WC_DockPanel::DockLocation::Right))? HTBORDER: result;
+		result = ((result == HTRIGHT) && (currentDockLocation != WC_DockPanel::DockLocation::Left))? HTBORDER: result;
+		result = ((result == HTTOP) && (currentDockLocation != WC_DockPanel::DockLocation::Bottom))? HTBORDER: result;
+		result = ((result == HTBOTTOM) && (currentDockLocation != WC_DockPanel::DockLocation::Top))? HTBORDER: result;
 	}
 	return result;
 }
@@ -765,10 +765,10 @@ LRESULT DockingWindow::msgWM_NCLBUTTONUP(WPARAM wParam, LPARAM lParam)
 	//Check if we're currently over the border that activates auto hide toggling
 	int windowPosHitRegion = (int)DefWindowProc(hwnd, WM_NCHITTEST, 0, lParam);
 	bool overAutoHideToggleBorder = false;
-	overAutoHideToggleBorder |= ((windowPosHitRegion == HTLEFT) && (currentDockLocation == WC_DockPanel::DOCKLOCATION_LEFT));
-	overAutoHideToggleBorder |= ((windowPosHitRegion == HTRIGHT) && (currentDockLocation == WC_DockPanel::DOCKLOCATION_RIGHT));
-	overAutoHideToggleBorder |= ((windowPosHitRegion == HTTOP) && (currentDockLocation == WC_DockPanel::DOCKLOCATION_TOP));
-	overAutoHideToggleBorder |= ((windowPosHitRegion == HTBOTTOM) && (currentDockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM));
+	overAutoHideToggleBorder |= ((windowPosHitRegion == HTLEFT) && (currentDockLocation == WC_DockPanel::DockLocation::Left));
+	overAutoHideToggleBorder |= ((windowPosHitRegion == HTRIGHT) && (currentDockLocation == WC_DockPanel::DockLocation::Right));
+	overAutoHideToggleBorder |= ((windowPosHitRegion == HTTOP) && (currentDockLocation == WC_DockPanel::DockLocation::Top));
+	overAutoHideToggleBorder |= ((windowPosHitRegion == HTBOTTOM) && (currentDockLocation == WC_DockPanel::DockLocation::Bottom));
 
 	//Toggle the auto hide mode if required
 	if(overAutoHideToggleBorder)
@@ -818,31 +818,16 @@ LRESULT DockingWindow::msgWM_SETCURSOR(WPARAM wParam, LPARAM lParam)
 	//Check if we're currently over the border that activates auto hide toggling
 	int windowPosHitRegion = (int)DefWindowProc(hwnd, WM_NCHITTEST, 0, MAKELPARAM(cursorPosX, cursorPosY));
 	bool overAutoHideToggleBorder = false;
-	overAutoHideToggleBorder |= ((windowPosHitRegion == HTLEFT) && (currentDockLocation == WC_DockPanel::DOCKLOCATION_LEFT));
-	overAutoHideToggleBorder |= ((windowPosHitRegion == HTRIGHT) && (currentDockLocation == WC_DockPanel::DOCKLOCATION_RIGHT));
-	overAutoHideToggleBorder |= ((windowPosHitRegion == HTTOP) && (currentDockLocation == WC_DockPanel::DOCKLOCATION_TOP));
-	overAutoHideToggleBorder |= ((windowPosHitRegion == HTBOTTOM) && (currentDockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM));
+	overAutoHideToggleBorder |= ((windowPosHitRegion == HTLEFT) && (currentDockLocation == WC_DockPanel::DockLocation::Left));
+	overAutoHideToggleBorder |= ((windowPosHitRegion == HTRIGHT) && (currentDockLocation == WC_DockPanel::DockLocation::Right));
+	overAutoHideToggleBorder |= ((windowPosHitRegion == HTTOP) && (currentDockLocation == WC_DockPanel::DockLocation::Top));
+	overAutoHideToggleBorder |= ((windowPosHitRegion == HTBOTTOM) && (currentDockLocation == WC_DockPanel::DockLocation::Bottom));
 
 	//Display a custom cursor if the mouse is over the auto hide region
 	if(overAutoHideToggleBorder)
 	{
 		//Select the cursor to use for this docking border
-		HCURSOR cursorHandle = NULL;
-		switch(currentDockLocation)
-		{
-		case WC_DockPanel::DOCKLOCATION_LEFT:
-			cursorHandle = (!autoHideDockedWindow)? enableAutoHideCursor[WC_DockPanel::DOCKLOCATION_LEFT]: disableAutoHideCursor[WC_DockPanel::DOCKLOCATION_LEFT];
-			break;
-		case WC_DockPanel::DOCKLOCATION_RIGHT:
-			cursorHandle = (!autoHideDockedWindow)? enableAutoHideCursor[WC_DockPanel::DOCKLOCATION_RIGHT]: disableAutoHideCursor[WC_DockPanel::DOCKLOCATION_RIGHT];
-			break;
-		case WC_DockPanel::DOCKLOCATION_TOP:
-			cursorHandle = (!autoHideDockedWindow)? enableAutoHideCursor[WC_DockPanel::DOCKLOCATION_TOP]: disableAutoHideCursor[WC_DockPanel::DOCKLOCATION_TOP];
-			break;
-		case WC_DockPanel::DOCKLOCATION_BOTTOM:
-			cursorHandle = (!autoHideDockedWindow)? enableAutoHideCursor[WC_DockPanel::DOCKLOCATION_BOTTOM]: disableAutoHideCursor[WC_DockPanel::DOCKLOCATION_BOTTOM];
-			break;
-		}
+		HCURSOR cursorHandle = (!autoHideDockedWindow)? enableAutoHideCursor[currentDockLocation]: disableAutoHideCursor[currentDockLocation];
 
 		//Apply the selected cursor at this location
 		SetCursor(cursorHandle);
@@ -1432,11 +1417,11 @@ LRESULT DockingWindow::msgDOCKWIN_MODIFYCONTENTWINDOW(WPARAM wParam, LPARAM lPar
 {
 	unsigned int contentEntryNo = (unsigned int)wParam;
 	const ModifyContentWindowParams& params = *((const ModifyContentWindowParams*)lParam);
-	if((params.contentWindowInfo & CONTENTWINDOWINFO_HANDLE) != 0)
+	if((params.contentWindowInfo & ContentWindowInfo::Handle) != 0)
 	{
 		SetHostedContentWindow(contentEntryNo, params.hwnd);
 	}
-	if((params.contentWindowInfo & CONTENTWINDOWINFO_TITLE) != 0)
+	if((params.contentWindowInfo & ContentWindowInfo::Title) != 0)
 	{
 		SetHostedContentTitle(contentEntryNo, params.windowTitle);
 	}
@@ -1568,8 +1553,8 @@ LRESULT DockingWindow::msgDOCKWIN_GETDOCKEDWINDOWINFO(WPARAM wParam, LPARAM lPar
 	}
 	else
 	{
-		params.desiredWidth = (int)SendMessage(dockPanel, WC_DockPanel::DOCK_GETDOCKEDWINDOWDESIREDWIDTH, 0, (LPARAM)params.hwnd);
-		params.desiredHeight = (int)SendMessage(dockPanel, WC_DockPanel::DOCK_GETDOCKEDWINDOWDESIREDHEIGHT, 0, (LPARAM)params.hwnd);
+		params.desiredWidth = (int)SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::GetDockedWindowDesiredWidth, 0, (LPARAM)params.hwnd);
+		params.desiredHeight = (int)SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::GetDockedWindowDesiredHeight, 0, (LPARAM)params.hwnd);
 	}
 	return 0;
 }
@@ -1808,22 +1793,22 @@ LRESULT DockingWindow::msgTabTrayWM_PAINT(HWND tabTrayHwnd, WPARAM wParam, LPARA
 	if(dockInfo.tabRowCount != initialDockRowCount)
 	{
 		//Update the size of this tab tray
-		if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+		if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Top) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom))
 		{
-			SendMessage(tabDockPanel, WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDHEIGHT, (dockInfo.tabRowCount * tabTrayRowSize), (LPARAM)tabTrayHwnd);
+			SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredHeight, (dockInfo.tabRowCount * tabTrayRowSize), (LPARAM)tabTrayHwnd);
 		}
 		else
 		{
-			SendMessage(tabDockPanel, WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDWIDTH, (dockInfo.tabRowCount * tabTrayRowSize), (LPARAM)tabTrayHwnd);
+			SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredWidth, (dockInfo.tabRowCount * tabTrayRowSize), (LPARAM)tabTrayHwnd);
 		}
 
 		//If this tab tray is docked to the top or bottom, force any left or right docked
 		//tab trays to redraw too, since the top and bottom padding sizes have changed.
-		if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+		if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Top) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom))
 		{
 			for(std::map<WC_DockPanel::DockLocation, AutoHideDockInfo>::const_iterator i = autoHideDocks.begin(); i != autoHideDocks.end(); ++i)
 			{
-				if((i->first == WC_DockPanel::DOCKLOCATION_LEFT) || (i->first == WC_DockPanel::DOCKLOCATION_RIGHT))
+				if((i->first == WC_DockPanel::DockLocation::Left) || (i->first == WC_DockPanel::DockLocation::Right))
 				{
 					InvalidateRect(i->second.dockWindow, NULL, FALSE);
 				}
@@ -1867,15 +1852,15 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 	//adjoining this one.
 	int verticalTabTrayStartPadding = 0;
 	int verticalTabTrayEndPadding = 0;
-	if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_RIGHT))
+	if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Left) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Right))
 	{
 		for(std::map<WC_DockPanel::DockLocation, AutoHideDockInfo>::const_iterator i = autoHideDocks.begin(); i != autoHideDocks.end(); ++i)
 		{
-			if(i->first == WC_DockPanel::DOCKLOCATION_TOP)
+			if(i->first == WC_DockPanel::DockLocation::Top)
 			{
 				verticalTabTrayStartPadding += i->second.tabRowCount * tabTrayRowSize;
 			}
-			else if(i->first == WC_DockPanel::DOCKLOCATION_BOTTOM)
+			else if(i->first == WC_DockPanel::DockLocation::Bottom)
 			{
 				verticalTabTrayEndPadding += i->second.tabRowCount * tabTrayRowSize;
 			}
@@ -1891,7 +1876,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 	DeleteObject(backgroundBrush);
 
 	//Switch to our font
-	HFONT fontToUseForTab = ((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_RIGHT))? controlFontVertical: controlFont;
+	HFONT fontToUseForTab = ((dockInfo.dockLocation == WC_DockPanel::DockLocation::Left) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Right))? controlFontVertical: controlFont;
 	HFONT hfontOld = (HFONT)SelectObject(hdc, fontToUseForTab);
 
 	//Set the font colours
@@ -1899,8 +1884,8 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 	SetBkMode(hdc, TRANSPARENT);
 
 	//Draw each tab in this tray
-	int nextTabGroupWindowPosX = (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_RIGHT)? dockingPanelTabMarginSize: 0;
-	int nextTabGroupWindowPosY = (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM)? dockingPanelTabMarginSize: 0;
+	int nextTabGroupWindowPosX = (dockInfo.dockLocation == WC_DockPanel::DockLocation::Right)? dockingPanelTabMarginSize: 0;
+	int nextTabGroupWindowPosY = (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom)? dockingPanelTabMarginSize: 0;
 	nextTabGroupWindowPosY += verticalTabTrayStartPadding;
 	int newTabRowCount = 1;
 	for(std::list<AutoHideDockTabGroup>::iterator tabGroupIterator = dockInfo.dockTabGroups.begin(); tabGroupIterator != dockInfo.dockTabGroups.end(); ++tabGroupIterator)
@@ -1932,7 +1917,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 			BOOL getTextExtentPoint32Return = GetTextExtentPoint32(hdc, contentWindowTitle.c_str(), (int)contentWindowTitle.size(), &textSize);
 			if(getTextExtentPoint32Return != 0)
 			{
-				if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_RIGHT))
+				if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Left) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Right))
 				{
 					newTabWidth = controlFontHeight + (dockingPanelTabMarginSize * 2);
 					newTabHeight = textSize.cx + (dockingPanelTabMarginSize * 4);
@@ -1951,18 +1936,18 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 			int borderHeight = newTabHeight;
 			switch(dockInfo.dockLocation)
 			{
-			case WC_DockPanel::DOCKLOCATION_LEFT:
+			case WC_DockPanel::DockLocation::Left:
 				borderPosX -= borderWidth;
 				borderWidth *= 2;
 				break;
-			case WC_DockPanel::DOCKLOCATION_RIGHT:
+			case WC_DockPanel::DockLocation::Right:
 				borderWidth *= 2;
 				break;
-			case WC_DockPanel::DOCKLOCATION_TOP:
+			case WC_DockPanel::DockLocation::Top:
 				borderPosY -= borderHeight;
 				borderHeight *= 2;
 				break;
-			case WC_DockPanel::DOCKLOCATION_BOTTOM:
+			case WC_DockPanel::DockLocation::Bottom:
 				borderHeight *= 2;
 				break;
 			}
@@ -1971,7 +1956,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 			//the borders for the two tabs share a single dividing line between them.
 			if(!tabRenderInfoList.empty())
 			{
-				if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+				if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Top) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom))
 				{
 					borderPosX -= 1;
 					borderWidth += 1;
@@ -1997,7 +1982,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 			tabRenderInfoList.push_back(tabRenderInfo);
 
 			//Calculate the position of the next tab in this tab group
-			if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+			if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Top) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom))
 			{
 				nextTabWindowPosX += newTabWidth;
 			}
@@ -2010,7 +1995,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 		int tabGroupHeight = nextTabWindowPosY;
 
 		//Calculate the position of this tab group
-		if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+		if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Top) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom))
 		{
 			if((tabGroupIterator != dockInfo.dockTabGroups.begin()) && ((nextTabGroupWindowPosX + tabGroupWidth) > tabTrayWidth))
 			{
@@ -2066,7 +2051,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 			//Calculate the position for the text in this tab
 			int textPosX = tabGroupWindowPosX + tabRenderInfo.tabPosX + dockingPanelTabMarginSize;
 			int textPosY = tabGroupWindowPosY + tabRenderInfo.tabPosY + dockingPanelTabMarginSize;
-			if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_RIGHT))
+			if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Left) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Right))
 			{
 				SetTextAlign(hdc, TA_BASELINE);
 				textPosX += controlFontDescent;
@@ -2088,7 +2073,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 		}
 
 		//Calculate the initial position for the next docking tab group
-		if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+		if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Top) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom))
 		{
 			nextTabGroupWindowPosX = tabGroupWindowPosX + tabGroupWidth + dockingPanelTabGroupSeparatorSize;
 			nextTabGroupWindowPosY = tabGroupWindowPosY;
@@ -2266,7 +2251,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	}
 	else if(!targetLocationIsForceTop)
 	{
-		if((targetLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT))
+		if((targetLocation == WC_DockPanel::DockLocation::Left) || (targetLocation == WC_DockPanel::DockLocation::Right))
 		{
 			windowImageWidth = windowWidth - dockingRegionTopInsertMarginSize;
 			windowImageHeight = windowHeight - ((borderWidth + marginSize) * 2);
@@ -2279,7 +2264,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	}
 	else
 	{
-		if((targetLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT))
+		if((targetLocation == WC_DockPanel::DockLocation::Left) || (targetLocation == WC_DockPanel::DockLocation::Right))
 		{
 			windowImageWidth = windowWidth - (borderWidth + marginSize);
 			windowImageHeight = windowHeight - ((borderWidth + marginSize) * 2);
@@ -2296,7 +2281,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	int dockingRegionTopInsertIconArrowHeight = 0;
 	if(targetLocationIsForceTop)
 	{
-		if((targetLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT))
+		if((targetLocation == WC_DockPanel::DockLocation::Left) || (targetLocation == WC_DockPanel::DockLocation::Right))
 		{
 			dockingRegionTopInsertIconArrowWidth = windowImageWidth - (borderWidth * 4);
 			dockingRegionTopInsertIconArrowHeight = dockingRegionTopInsertIconArrowWidth * 2;
@@ -2318,22 +2303,22 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	}
 	else if(!targetLocationIsForceTop)
 	{
-		if(targetLocation == WC_DockPanel::DOCKLOCATION_LEFT)
+		if(targetLocation == WC_DockPanel::DockLocation::Left)
 		{
 			windowImagePosX = dockingRegionTopInsertMarginSize;
 			windowImagePosY = borderWidth + marginSize;
 		}
-		else if(targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT)
+		else if(targetLocation == WC_DockPanel::DockLocation::Right)
 		{
 			windowImagePosX = 0;
 			windowImagePosY = borderWidth + marginSize;
 		}
-		else if(targetLocation == WC_DockPanel::DOCKLOCATION_TOP)
+		else if(targetLocation == WC_DockPanel::DockLocation::Top)
 		{
 			windowImagePosX = borderWidth + marginSize;
 			windowImagePosY = dockingRegionTopInsertMarginSize;
 		}
-		else if(targetLocation == WC_DockPanel::DOCKLOCATION_BOTTOM)
+		else if(targetLocation == WC_DockPanel::DockLocation::Bottom)
 		{
 			windowImagePosX = borderWidth + marginSize;
 			windowImagePosY = 0;
@@ -2341,8 +2326,8 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	}
 	else
 	{
-		windowImagePosX = (targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT)? 0: borderWidth + marginSize;
-		windowImagePosY = (targetLocation == WC_DockPanel::DOCKLOCATION_BOTTOM)? 0: borderWidth + marginSize;
+		windowImagePosX = (targetLocation == WC_DockPanel::DockLocation::Right)? 0: borderWidth + marginSize;
+		windowImagePosY = (targetLocation == WC_DockPanel::DockLocation::Bottom)? 0: borderWidth + marginSize;
 	}
 
 	//Calculate the position of the forced top insertion arrow icon
@@ -2377,9 +2362,9 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	}
 	else if(!targetLocationIsForceTop)
 	{
-		dockTargetImagePosX = (targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT)? windowImageClientPosX + (windowImageClientWidth / 2): windowImageClientPosX;
-		dockTargetImagePosY = (targetLocation == WC_DockPanel::DOCKLOCATION_BOTTOM)? windowImageClientPosY + (windowImageClientHeight / 2): windowImageClientPosY;
-		if((targetLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT))
+		dockTargetImagePosX = (targetLocation == WC_DockPanel::DockLocation::Right)? windowImageClientPosX + (windowImageClientWidth / 2): windowImageClientPosX;
+		dockTargetImagePosY = (targetLocation == WC_DockPanel::DockLocation::Bottom)? windowImageClientPosY + (windowImageClientHeight / 2): windowImageClientPosY;
+		if((targetLocation == WC_DockPanel::DockLocation::Left) || (targetLocation == WC_DockPanel::DockLocation::Right))
 		{
 			dockTargetImageWidth = (windowImageClientWidth / 2);
 			dockTargetImageHeight = windowImageClientHeight;
@@ -2408,7 +2393,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	{
 		HPEN hpen = CreatePen(PS_SOLID, 0, borderColor.GetColorREF());
 		HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
-		if((targetLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT))
+		if((targetLocation == WC_DockPanel::DockLocation::Left) || (targetLocation == WC_DockPanel::DockLocation::Right))
 		{
 			MoveToEx(hdc, 0, 0, NULL);
 			LineTo(hdc, windowWidth, 0);
@@ -2424,22 +2409,22 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 		}
 		if(targetLocationIsForceTop)
 		{
-			if(targetLocation == WC_DockPanel::DOCKLOCATION_LEFT)
+			if(targetLocation == WC_DockPanel::DockLocation::Left)
 			{
 				MoveToEx(hdc, 0, 0, NULL);
 				LineTo(hdc, 0, windowHeight);
 			}
-			else if(targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT)
+			else if(targetLocation == WC_DockPanel::DockLocation::Right)
 			{
 				MoveToEx(hdc, windowWidth-1, 0, NULL);
 				LineTo(hdc, windowWidth-1, windowHeight);
 			}
-			else if(targetLocation == WC_DockPanel::DOCKLOCATION_TOP)
+			else if(targetLocation == WC_DockPanel::DockLocation::Top)
 			{
 				MoveToEx(hdc, 0, 0, NULL);
 				LineTo(hdc, windowWidth, 0);
 			}
-			else if(targetLocation == WC_DockPanel::DOCKLOCATION_BOTTOM)
+			else if(targetLocation == WC_DockPanel::DockLocation::Bottom)
 			{
 				MoveToEx(hdc, 0, windowHeight-1, NULL);
 				LineTo(hdc, windowWidth, windowHeight-1);
@@ -2495,22 +2480,22 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 		logBrush.lbColor = windowBorderColor.GetColorREF();
 		HPEN hpen = ExtCreatePen(PS_COSMETIC | PS_ALTERNATE, 1, &logBrush, 0, NULL);
 		HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
-		if(targetLocation == WC_DockPanel::DOCKLOCATION_LEFT)
+		if(targetLocation == WC_DockPanel::DockLocation::Left)
 		{
 			MoveToEx(hdc, dockTargetImagePosX + (dockTargetImageWidth - 1), dockTargetImagePosY, NULL);
 			LineTo(hdc, dockTargetImagePosX + (dockTargetImageWidth - 1), dockTargetImagePosY + dockTargetImageHeight);
 		}
-		else if(targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT)
+		else if(targetLocation == WC_DockPanel::DockLocation::Right)
 		{
 			MoveToEx(hdc, dockTargetImagePosX, dockTargetImagePosY, NULL);
 			LineTo(hdc, dockTargetImagePosX, dockTargetImagePosY + dockTargetImageHeight);
 		}
-		else if(targetLocation == WC_DockPanel::DOCKLOCATION_TOP)
+		else if(targetLocation == WC_DockPanel::DockLocation::Top)
 		{
 			MoveToEx(hdc, dockTargetImagePosX, dockTargetImagePosY + (dockTargetImageHeight - 1), NULL);
 			LineTo(hdc, dockTargetImagePosX + dockTargetImageWidth, dockTargetImagePosY + (dockTargetImageHeight - 1));
 		}
-		else if(targetLocation == WC_DockPanel::DOCKLOCATION_BOTTOM)
+		else if(targetLocation == WC_DockPanel::DockLocation::Bottom)
 		{
 			MoveToEx(hdc, dockTargetImagePosX, dockTargetImagePosY, NULL);
 			LineTo(hdc, dockTargetImagePosX + dockTargetImageWidth, dockTargetImagePosY);
@@ -2526,7 +2511,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 		HPEN dockingRegionTopInsertIconArrowPenOld = (HPEN)SelectObject(hdc, dockingRegionTopInsertIconArrowPen);
 		HBRUSH dockingRegionTopInsertIconArrowBrushOld = (HBRUSH)SelectObject(hdc, windowBorderBrush);
 		POINT dockingRegionTopInsertIconArrowPoints[4];
-		if(targetLocation == WC_DockPanel::DOCKLOCATION_LEFT)
+		if(targetLocation == WC_DockPanel::DockLocation::Left)
 		{
 			dockingRegionTopInsertIconArrowPoints[0].x = dockingRegionTopInsertIconArrowPosX + (dockingRegionTopInsertIconArrowWidth - 1);
 			dockingRegionTopInsertIconArrowPoints[0].y = dockingRegionTopInsertIconArrowPosY;
@@ -2537,7 +2522,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 			dockingRegionTopInsertIconArrowPoints[3].x = dockingRegionTopInsertIconArrowPosX + (dockingRegionTopInsertIconArrowWidth - 1);
 			dockingRegionTopInsertIconArrowPoints[3].y = dockingRegionTopInsertIconArrowPosY + (dockingRegionTopInsertIconArrowHeight - 1);
 		}
-		else if(targetLocation == WC_DockPanel::DOCKLOCATION_RIGHT)
+		else if(targetLocation == WC_DockPanel::DockLocation::Right)
 		{
 			dockingRegionTopInsertIconArrowPoints[0].x = dockingRegionTopInsertIconArrowPosX;
 			dockingRegionTopInsertIconArrowPoints[0].y = dockingRegionTopInsertIconArrowPosY;
@@ -2548,7 +2533,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 			dockingRegionTopInsertIconArrowPoints[3].x = dockingRegionTopInsertIconArrowPosX;
 			dockingRegionTopInsertIconArrowPoints[3].y = dockingRegionTopInsertIconArrowPosY + (dockingRegionTopInsertIconArrowHeight - 1);
 		}
-		else if(targetLocation == WC_DockPanel::DOCKLOCATION_TOP)
+		else if(targetLocation == WC_DockPanel::DockLocation::Top)
 		{
 			dockingRegionTopInsertIconArrowPoints[0].x = dockingRegionTopInsertIconArrowPosX;
 			dockingRegionTopInsertIconArrowPoints[0].y = dockingRegionTopInsertIconArrowPosY + (dockingRegionTopInsertIconArrowHeight - 1);
@@ -2559,7 +2544,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 			dockingRegionTopInsertIconArrowPoints[3].x = dockingRegionTopInsertIconArrowPosX + (dockingRegionTopInsertIconArrowWidth - 1);
 			dockingRegionTopInsertIconArrowPoints[3].y = dockingRegionTopInsertIconArrowPosY + (dockingRegionTopInsertIconArrowHeight - 1);
 		}
-		else if(targetLocation == WC_DockPanel::DOCKLOCATION_BOTTOM)
+		else if(targetLocation == WC_DockPanel::DockLocation::Bottom)
 		{
 			dockingRegionTopInsertIconArrowPoints[0].x = dockingRegionTopInsertIconArrowPosX;
 			dockingRegionTopInsertIconArrowPoints[0].y = dockingRegionTopInsertIconArrowPosY;
@@ -2814,14 +2799,14 @@ void DockingWindow::HidePlacementTargets()
 	placementShadowVisible = false;
 
 	//Hide all the placement target windows
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_LEFT], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_RIGHT], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_TOP], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_BOTTOM], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_LEFT], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_RIGHT], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_TOP], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_BOTTOM], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 	DeferWindowPos(deferWindowPosSession, placementTargetCenter, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 
 	//Process all the window size and position changes involved in this update
@@ -2837,7 +2822,7 @@ void DockingWindow::ShowPlacementTargets(bool allowCenterDocking)
 	//Calculate the size of the docking region and its position in client coordinates
 	//relative to the tab docking region
 	RECT dockingRegionRect;
-	SendMessage(dockPanel, WC_DockPanel::DOCK_GETCONTENTRECT, 0, (LPARAM)&dockingRegionRect);
+	SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::GetContentRect, 0, (LPARAM)&dockingRegionRect);
 	int dockingRegionPosX = dockingRegionRect.left;
 	int dockingRegionPosY = dockingRegionRect.top;
 	int dockingRegionWidth = dockingRegionRect.right - dockingRegionRect.left;
@@ -2867,22 +2852,22 @@ void DockingWindow::ShowPlacementTargets(bool allowCenterDocking)
 	std::map<WC_DockPanel::DockLocation, int> dockingIconHeight;
 	std::map<WC_DockPanel::DockLocation, int> dockingIconForceTopWidth;
 	std::map<WC_DockPanel::DockLocation, int> dockingIconForceTopHeight;
-	dockingIconWidth[WC_DockPanel::DOCKLOCATION_LEFT] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
-	dockingIconHeight[WC_DockPanel::DOCKLOCATION_LEFT] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconWidth[WC_DockPanel::DOCKLOCATION_RIGHT] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
-	dockingIconHeight[WC_DockPanel::DOCKLOCATION_RIGHT] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconWidth[WC_DockPanel::DOCKLOCATION_TOP] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconHeight[WC_DockPanel::DOCKLOCATION_TOP] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
-	dockingIconWidth[WC_DockPanel::DOCKLOCATION_BOTTOM] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconHeight[WC_DockPanel::DOCKLOCATION_BOTTOM] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
-	dockingIconForceTopWidth[WC_DockPanel::DOCKLOCATION_LEFT] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
-	dockingIconForceTopHeight[WC_DockPanel::DOCKLOCATION_LEFT] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconForceTopWidth[WC_DockPanel::DOCKLOCATION_RIGHT] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
-	dockingIconForceTopHeight[WC_DockPanel::DOCKLOCATION_RIGHT] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconForceTopWidth[WC_DockPanel::DOCKLOCATION_TOP] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconForceTopHeight[WC_DockPanel::DOCKLOCATION_TOP] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
-	dockingIconForceTopWidth[WC_DockPanel::DOCKLOCATION_BOTTOM] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconForceTopHeight[WC_DockPanel::DOCKLOCATION_BOTTOM] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
+	dockingIconWidth[WC_DockPanel::DockLocation::Left] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
+	dockingIconHeight[WC_DockPanel::DockLocation::Left] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconWidth[WC_DockPanel::DockLocation::Right] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
+	dockingIconHeight[WC_DockPanel::DockLocation::Right] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconWidth[WC_DockPanel::DockLocation::Top] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconHeight[WC_DockPanel::DockLocation::Top] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
+	dockingIconWidth[WC_DockPanel::DockLocation::Bottom] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconHeight[WC_DockPanel::DockLocation::Bottom] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
+	dockingIconForceTopWidth[WC_DockPanel::DockLocation::Left] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
+	dockingIconForceTopHeight[WC_DockPanel::DockLocation::Left] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconForceTopWidth[WC_DockPanel::DockLocation::Right] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
+	dockingIconForceTopHeight[WC_DockPanel::DockLocation::Right] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconForceTopWidth[WC_DockPanel::DockLocation::Top] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconForceTopHeight[WC_DockPanel::DockLocation::Top] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
+	dockingIconForceTopWidth[WC_DockPanel::DockLocation::Bottom] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconForceTopHeight[WC_DockPanel::DockLocation::Bottom] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
 
 	//Calculate the position of each docking region
 	int centerDockingIconPosX = dockingRegionCenterScreenPosX - (centerDockingIconWidth / 2);
@@ -2891,22 +2876,22 @@ void DockingWindow::ShowPlacementTargets(bool allowCenterDocking)
 	std::map<WC_DockPanel::DockLocation, int> dockingIconPosY;
 	std::map<WC_DockPanel::DockLocation, int> dockingIconForceTopPosX;
 	std::map<WC_DockPanel::DockLocation, int> dockingIconForceTopPosY;
-	dockingIconPosX[WC_DockPanel::DOCKLOCATION_LEFT] = centerDockingIconPosX - dockingIconWidth[WC_DockPanel::DOCKLOCATION_LEFT];
-	dockingIconPosY[WC_DockPanel::DOCKLOCATION_LEFT] = centerDockingIconPosY - borderWidth;
-	dockingIconPosX[WC_DockPanel::DOCKLOCATION_RIGHT] = centerDockingIconPosX + centerDockingIconWidth;
-	dockingIconPosY[WC_DockPanel::DOCKLOCATION_RIGHT] = centerDockingIconPosY - borderWidth;
-	dockingIconPosX[WC_DockPanel::DOCKLOCATION_TOP] = centerDockingIconPosX - borderWidth;
-	dockingIconPosY[WC_DockPanel::DOCKLOCATION_TOP] = centerDockingIconPosY - dockingIconHeight[WC_DockPanel::DOCKLOCATION_TOP];
-	dockingIconPosX[WC_DockPanel::DOCKLOCATION_BOTTOM] = centerDockingIconPosX - borderWidth;
-	dockingIconPosY[WC_DockPanel::DOCKLOCATION_BOTTOM] = centerDockingIconPosY + centerDockingIconHeight;
-	dockingIconForceTopPosX[WC_DockPanel::DOCKLOCATION_LEFT] = dockingIconPosX[WC_DockPanel::DOCKLOCATION_LEFT] - dockingIconForceTopWidth[WC_DockPanel::DOCKLOCATION_LEFT];
-	dockingIconForceTopPosY[WC_DockPanel::DOCKLOCATION_LEFT] = dockingIconPosY[WC_DockPanel::DOCKLOCATION_LEFT];
-	dockingIconForceTopPosX[WC_DockPanel::DOCKLOCATION_RIGHT] = dockingIconPosX[WC_DockPanel::DOCKLOCATION_RIGHT] + dockingIconWidth[WC_DockPanel::DOCKLOCATION_RIGHT];
-	dockingIconForceTopPosY[WC_DockPanel::DOCKLOCATION_RIGHT] = dockingIconPosY[WC_DockPanel::DOCKLOCATION_RIGHT];
-	dockingIconForceTopPosX[WC_DockPanel::DOCKLOCATION_TOP] = dockingIconPosX[WC_DockPanel::DOCKLOCATION_TOP];
-	dockingIconForceTopPosY[WC_DockPanel::DOCKLOCATION_TOP] = dockingIconPosY[WC_DockPanel::DOCKLOCATION_TOP] - dockingIconForceTopHeight[WC_DockPanel::DOCKLOCATION_TOP];
-	dockingIconForceTopPosX[WC_DockPanel::DOCKLOCATION_BOTTOM] = dockingIconPosX[WC_DockPanel::DOCKLOCATION_BOTTOM];
-	dockingIconForceTopPosY[WC_DockPanel::DOCKLOCATION_BOTTOM] = dockingIconPosY[WC_DockPanel::DOCKLOCATION_BOTTOM] + dockingIconHeight[WC_DockPanel::DOCKLOCATION_BOTTOM];
+	dockingIconPosX[WC_DockPanel::DockLocation::Left] = centerDockingIconPosX - dockingIconWidth[WC_DockPanel::DockLocation::Left];
+	dockingIconPosY[WC_DockPanel::DockLocation::Left] = centerDockingIconPosY - borderWidth;
+	dockingIconPosX[WC_DockPanel::DockLocation::Right] = centerDockingIconPosX + centerDockingIconWidth;
+	dockingIconPosY[WC_DockPanel::DockLocation::Right] = centerDockingIconPosY - borderWidth;
+	dockingIconPosX[WC_DockPanel::DockLocation::Top] = centerDockingIconPosX - borderWidth;
+	dockingIconPosY[WC_DockPanel::DockLocation::Top] = centerDockingIconPosY - dockingIconHeight[WC_DockPanel::DockLocation::Top];
+	dockingIconPosX[WC_DockPanel::DockLocation::Bottom] = centerDockingIconPosX - borderWidth;
+	dockingIconPosY[WC_DockPanel::DockLocation::Bottom] = centerDockingIconPosY + centerDockingIconHeight;
+	dockingIconForceTopPosX[WC_DockPanel::DockLocation::Left] = dockingIconPosX[WC_DockPanel::DockLocation::Left] - dockingIconForceTopWidth[WC_DockPanel::DockLocation::Left];
+	dockingIconForceTopPosY[WC_DockPanel::DockLocation::Left] = dockingIconPosY[WC_DockPanel::DockLocation::Left];
+	dockingIconForceTopPosX[WC_DockPanel::DockLocation::Right] = dockingIconPosX[WC_DockPanel::DockLocation::Right] + dockingIconWidth[WC_DockPanel::DockLocation::Right];
+	dockingIconForceTopPosY[WC_DockPanel::DockLocation::Right] = dockingIconPosY[WC_DockPanel::DockLocation::Right];
+	dockingIconForceTopPosX[WC_DockPanel::DockLocation::Top] = dockingIconPosX[WC_DockPanel::DockLocation::Top];
+	dockingIconForceTopPosY[WC_DockPanel::DockLocation::Top] = dockingIconPosY[WC_DockPanel::DockLocation::Top] - dockingIconForceTopHeight[WC_DockPanel::DockLocation::Top];
+	dockingIconForceTopPosX[WC_DockPanel::DockLocation::Bottom] = dockingIconPosX[WC_DockPanel::DockLocation::Bottom];
+	dockingIconForceTopPosY[WC_DockPanel::DockLocation::Bottom] = dockingIconPosY[WC_DockPanel::DockLocation::Bottom] + dockingIconHeight[WC_DockPanel::DockLocation::Bottom];
 
 	//Begin a session for processing this batch of window size changes. Processing all the
 	//window size and position changes in a single operation in this manner gives the best
@@ -2915,25 +2900,25 @@ void DockingWindow::ShowPlacementTargets(bool allowCenterDocking)
 
 	//Position each placement target over the center content region of the target docking
 	//window
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_LEFT], NULL, dockingIconPosX[WC_DockPanel::DOCKLOCATION_LEFT], dockingIconPosY[WC_DockPanel::DOCKLOCATION_LEFT], dockingIconWidth[WC_DockPanel::DOCKLOCATION_LEFT], dockingIconHeight[WC_DockPanel::DOCKLOCATION_LEFT], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_RIGHT], NULL, dockingIconPosX[WC_DockPanel::DOCKLOCATION_RIGHT], dockingIconPosY[WC_DockPanel::DOCKLOCATION_RIGHT], dockingIconWidth[WC_DockPanel::DOCKLOCATION_RIGHT], dockingIconHeight[WC_DockPanel::DOCKLOCATION_RIGHT], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_TOP], NULL, dockingIconPosX[WC_DockPanel::DOCKLOCATION_TOP], dockingIconPosY[WC_DockPanel::DOCKLOCATION_TOP], dockingIconWidth[WC_DockPanel::DOCKLOCATION_TOP], dockingIconHeight[WC_DockPanel::DOCKLOCATION_TOP], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_BOTTOM], NULL, dockingIconPosX[WC_DockPanel::DOCKLOCATION_BOTTOM], dockingIconPosY[WC_DockPanel::DOCKLOCATION_BOTTOM], dockingIconWidth[WC_DockPanel::DOCKLOCATION_BOTTOM], dockingIconHeight[WC_DockPanel::DOCKLOCATION_BOTTOM], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_LEFT], NULL, dockingIconForceTopPosX[WC_DockPanel::DOCKLOCATION_LEFT], dockingIconForceTopPosY[WC_DockPanel::DOCKLOCATION_LEFT], dockingIconForceTopWidth[WC_DockPanel::DOCKLOCATION_LEFT], dockingIconForceTopHeight[WC_DockPanel::DOCKLOCATION_LEFT], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_RIGHT], NULL, dockingIconForceTopPosX[WC_DockPanel::DOCKLOCATION_RIGHT], dockingIconForceTopPosY[WC_DockPanel::DOCKLOCATION_RIGHT], dockingIconForceTopWidth[WC_DockPanel::DOCKLOCATION_RIGHT], dockingIconForceTopHeight[WC_DockPanel::DOCKLOCATION_RIGHT], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_TOP], NULL, dockingIconForceTopPosX[WC_DockPanel::DOCKLOCATION_TOP], dockingIconForceTopPosY[WC_DockPanel::DOCKLOCATION_TOP], dockingIconForceTopWidth[WC_DockPanel::DOCKLOCATION_TOP], dockingIconForceTopHeight[WC_DockPanel::DOCKLOCATION_TOP], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_BOTTOM], NULL, dockingIconForceTopPosX[WC_DockPanel::DOCKLOCATION_BOTTOM], dockingIconForceTopPosY[WC_DockPanel::DOCKLOCATION_BOTTOM], dockingIconForceTopWidth[WC_DockPanel::DOCKLOCATION_BOTTOM], dockingIconForceTopHeight[WC_DockPanel::DOCKLOCATION_BOTTOM], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Left], NULL, dockingIconPosX[WC_DockPanel::DockLocation::Left], dockingIconPosY[WC_DockPanel::DockLocation::Left], dockingIconWidth[WC_DockPanel::DockLocation::Left], dockingIconHeight[WC_DockPanel::DockLocation::Left], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Right], NULL, dockingIconPosX[WC_DockPanel::DockLocation::Right], dockingIconPosY[WC_DockPanel::DockLocation::Right], dockingIconWidth[WC_DockPanel::DockLocation::Right], dockingIconHeight[WC_DockPanel::DockLocation::Right], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Top], NULL, dockingIconPosX[WC_DockPanel::DockLocation::Top], dockingIconPosY[WC_DockPanel::DockLocation::Top], dockingIconWidth[WC_DockPanel::DockLocation::Top], dockingIconHeight[WC_DockPanel::DockLocation::Top], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Bottom], NULL, dockingIconPosX[WC_DockPanel::DockLocation::Bottom], dockingIconPosY[WC_DockPanel::DockLocation::Bottom], dockingIconWidth[WC_DockPanel::DockLocation::Bottom], dockingIconHeight[WC_DockPanel::DockLocation::Bottom], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Left], NULL, dockingIconForceTopPosX[WC_DockPanel::DockLocation::Left], dockingIconForceTopPosY[WC_DockPanel::DockLocation::Left], dockingIconForceTopWidth[WC_DockPanel::DockLocation::Left], dockingIconForceTopHeight[WC_DockPanel::DockLocation::Left], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Right], NULL, dockingIconForceTopPosX[WC_DockPanel::DockLocation::Right], dockingIconForceTopPosY[WC_DockPanel::DockLocation::Right], dockingIconForceTopWidth[WC_DockPanel::DockLocation::Right], dockingIconForceTopHeight[WC_DockPanel::DockLocation::Right], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Top], NULL, dockingIconForceTopPosX[WC_DockPanel::DockLocation::Top], dockingIconForceTopPosY[WC_DockPanel::DockLocation::Top], dockingIconForceTopWidth[WC_DockPanel::DockLocation::Top], dockingIconForceTopHeight[WC_DockPanel::DockLocation::Top], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Bottom], NULL, dockingIconForceTopPosX[WC_DockPanel::DockLocation::Bottom], dockingIconForceTopPosY[WC_DockPanel::DockLocation::Bottom], dockingIconForceTopWidth[WC_DockPanel::DockLocation::Bottom], dockingIconForceTopHeight[WC_DockPanel::DockLocation::Bottom], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 	DeferWindowPos(deferWindowPosSession, placementTargetCenter, NULL, centerDockingIconPosX, centerDockingIconPosY, centerDockingIconWidth, centerDockingIconHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 
 	//Show the placement target over the target docking window
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_LEFT], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_RIGHT], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_TOP], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DOCKLOCATION_BOTTOM], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_LEFT], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_RIGHT], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_TOP], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_BOTTOM], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargets[WC_DockPanel::DockLocation::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	DeferWindowPos(deferWindowPosSession, placementTargetsForceTop[WC_DockPanel::DockLocation::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 	DeferWindowPos(deferWindowPosSession, placementTargetCenter, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 
 	//Process all the window size and position changes involved in this update
@@ -2956,40 +2941,40 @@ void DockingWindow::UpdatePlacementShadow(int cursorPosX, int cursorPosY, int do
 	{
 		newDockLocationIsContentRegion = true;
 	}
-	else if((GetWindowRect(placementTargets[WC_DockPanel::DOCKLOCATION_LEFT], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargets[WC_DockPanel::DockLocation::Left], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_LEFT;
+		newDockLocation = WC_DockPanel::DockLocation::Left;
 	}
-	else if((GetWindowRect(placementTargets[WC_DockPanel::DOCKLOCATION_RIGHT], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargets[WC_DockPanel::DockLocation::Right], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_RIGHT;
+		newDockLocation = WC_DockPanel::DockLocation::Right;
 	}
-	else if((GetWindowRect(placementTargets[WC_DockPanel::DOCKLOCATION_TOP], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargets[WC_DockPanel::DockLocation::Top], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_TOP;
+		newDockLocation = WC_DockPanel::DockLocation::Top;
 	}
-	else if((GetWindowRect(placementTargets[WC_DockPanel::DOCKLOCATION_BOTTOM], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargets[WC_DockPanel::DockLocation::Bottom], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_BOTTOM;
+		newDockLocation = WC_DockPanel::DockLocation::Bottom;
 	}
-	else if((GetWindowRect(placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_LEFT], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargetsForceTop[WC_DockPanel::DockLocation::Left], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_LEFT;
+		newDockLocation = WC_DockPanel::DockLocation::Left;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_RIGHT], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargetsForceTop[WC_DockPanel::DockLocation::Right], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_RIGHT;
+		newDockLocation = WC_DockPanel::DockLocation::Right;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_TOP], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargetsForceTop[WC_DockPanel::DockLocation::Top], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_TOP;
+		newDockLocation = WC_DockPanel::DockLocation::Top;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(placementTargetsForceTop[WC_DockPanel::DOCKLOCATION_BOTTOM], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargetsForceTop[WC_DockPanel::DockLocation::Bottom], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_BOTTOM;
+		newDockLocation = WC_DockPanel::DockLocation::Bottom;
 		forceTopOfDockingOrder = true;
 	}
 	else
@@ -3008,7 +2993,7 @@ void DockingWindow::UpdatePlacementShadow(int cursorPosX, int cursorPosY, int do
 		{
 			//Since the content region is the target of this dock panel, obtain the
 			//content rectangle as the rectangle for this dock window.
-			SendMessage(dockPanel, WC_DockPanel::DOCK_GETCONTENTRECT, 0, (LPARAM)&newDockRect);
+			SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::GetContentRect, 0, (LPARAM)&newDockRect);
 		}
 		else
 		{
@@ -3016,7 +3001,7 @@ void DockingWindow::UpdatePlacementShadow(int cursorPosX, int cursorPosY, int do
 			//docked window to the dock panel. We always limit new dock windows to take up
 			//no more than half the available content region automatically.
 			RECT contentRect;
-			SendMessage(dockPanel, WC_DockPanel::DOCK_GETCONTENTRECT, 0, (LPARAM)&contentRect);
+			SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::GetContentRect, 0, (LPARAM)&contentRect);
 			int maxInitialDockedWidth = (contentRect.right - contentRect.left) / 2;
 			int maxInitialDockedHeight = (contentRect.bottom - contentRect.top) / 2;
 
@@ -3032,7 +3017,7 @@ void DockingWindow::UpdatePlacementShadow(int cursorPosX, int cursorPosY, int do
 			params.addToFront = forceTopOfDockingOrder;
 			params.preferredWidth = dockWindowWidth;
 			params.preferredHeight = dockWindowHeight;
-			SendMessage(dockPanel, WC_DockPanel::DOCK_CALCULATENEWDOCKEDWINDOWRECT, 0, (LPARAM)&params);
+			SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::CalculateNewDockedWindowRect, 0, (LPARAM)&params);
 			newDockRect = params.rect;
 		}
 
@@ -3069,7 +3054,7 @@ bool DockingWindow::HitTestPlacementTargets(int cursorPosX, int cursorPosY, bool
 	//Calculate a docking location within the target window
 	bool foundDockLocation = true;
 	bool newDockLocationIsContentRegion = false;
-	WC_DockPanel::DockLocation newDockLocation = WC_DockPanel::DOCKLOCATION_LEFT;
+	WC_DockPanel::DockLocation newDockLocation = WC_DockPanel::DockLocation::Left;
 	bool forceTopOfDockingOrder = false;
 	POINT cursorPos;
 	cursorPos.x = cursorPosX;
@@ -3079,40 +3064,40 @@ bool DockingWindow::HitTestPlacementTargets(int cursorPosX, int cursorPosY, bool
 	{
 		newDockLocationIsContentRegion = true;
 	}
-	else if((GetWindowRect(placementTargets.find(WC_DockPanel::DOCKLOCATION_LEFT)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargets.find(WC_DockPanel::DockLocation::Left)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_LEFT;
+		newDockLocation = WC_DockPanel::DockLocation::Left;
 	}
-	else if((GetWindowRect(placementTargets.find(WC_DockPanel::DOCKLOCATION_RIGHT)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargets.find(WC_DockPanel::DockLocation::Right)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_RIGHT;
+		newDockLocation = WC_DockPanel::DockLocation::Right;
 	}
-	else if((GetWindowRect(placementTargets.find(WC_DockPanel::DOCKLOCATION_TOP)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargets.find(WC_DockPanel::DockLocation::Top)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_TOP;
+		newDockLocation = WC_DockPanel::DockLocation::Top;
 	}
-	else if((GetWindowRect(placementTargets.find(WC_DockPanel::DOCKLOCATION_BOTTOM)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargets.find(WC_DockPanel::DockLocation::Bottom)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_BOTTOM;
+		newDockLocation = WC_DockPanel::DockLocation::Bottom;
 	}
-	else if((GetWindowRect(placementTargetsForceTop.find(WC_DockPanel::DOCKLOCATION_LEFT)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargetsForceTop.find(WC_DockPanel::DockLocation::Left)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_LEFT;
+		newDockLocation = WC_DockPanel::DockLocation::Left;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(placementTargetsForceTop.find(WC_DockPanel::DOCKLOCATION_RIGHT)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargetsForceTop.find(WC_DockPanel::DockLocation::Right)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_RIGHT;
+		newDockLocation = WC_DockPanel::DockLocation::Right;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(placementTargetsForceTop.find(WC_DockPanel::DOCKLOCATION_TOP)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargetsForceTop.find(WC_DockPanel::DockLocation::Top)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_TOP;
+		newDockLocation = WC_DockPanel::DockLocation::Top;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(placementTargetsForceTop.find(WC_DockPanel::DOCKLOCATION_BOTTOM)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(placementTargetsForceTop.find(WC_DockPanel::DockLocation::Bottom)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
-		newDockLocation = WC_DockPanel::DOCKLOCATION_BOTTOM;
+		newDockLocation = WC_DockPanel::DockLocation::Bottom;
 		forceTopOfDockingOrder = true;
 	}
 	else
@@ -3207,7 +3192,7 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 				}
 
 				//Add the "length" of this tab item to the total length of the tab group
-				dockGroupLength += ((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_RIGHT))? dockTab.tabHeight: dockTab.tabWidth;
+				dockGroupLength += ((dockInfo.dockLocation == WC_DockPanel::DockLocation::Left) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Right))? dockTab.tabHeight: dockTab.tabWidth;
 
 				//If the cursor is currently located within this tab, latch the associated
 				//docking window and content item as the target.
@@ -3227,22 +3212,22 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 
 					//Calculate the position and size of the extended hit region for the
 					//tab of the autohide dock panel currently being shown
-					if(dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_LEFT)
+					if(dockInfo.dockLocation == WC_DockPanel::DockLocation::Left)
 					{
 						targetTabExtendedHitRegionWidth = dockTab.tabWidth + dockingPanelTabMarginSize;
 						targetTabExtendedHitRegionX = tabTrayPosX + dockTab.tabPosX;
 					}
-					else if(dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_RIGHT)
+					else if(dockInfo.dockLocation == WC_DockPanel::DockLocation::Right)
 					{
 						targetTabExtendedHitRegionWidth = dockTab.tabWidth + dockingPanelTabMarginSize;
 						targetTabExtendedHitRegionX = tabTrayPosX + (dockTab.tabPosX - dockingPanelTabMarginSize);
 					}
-					else if(dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP)
+					else if(dockInfo.dockLocation == WC_DockPanel::DockLocation::Top)
 					{
 						targetTabExtendedHitRegionHeight = dockTab.tabHeight + dockingPanelTabMarginSize;
 						targetTabExtendedHitRegionY = tabTrayPosY + dockTab.tabPosY;
 					}
-					else if(dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM)
+					else if(dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom)
 					{
 						targetTabExtendedHitRegionHeight = dockTab.tabHeight + dockingPanelTabMarginSize;
 						targetTabExtendedHitRegionY = tabTrayPosY + (dockTab.tabPosY - dockingPanelTabMarginSize);
@@ -3255,7 +3240,7 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 			//dead zone position based on the start location of the docking group.
 			if(foundTargetDockWindow)
 			{
-				if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_LEFT) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_RIGHT))
+				if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Left) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Right))
 				{
 					targetTabExtendedHitRegionHeight = dockGroupLength;
 					targetTabExtendedHitRegionY = dockGroupPosScreenY;
@@ -3323,25 +3308,25 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 			int newPanelHeight;
 			switch(targetDockedWindow->GetDockLocation())
 			{
-			case WC_DockPanel::DOCKLOCATION_LEFT:
+			case WC_DockPanel::DockLocation::Left:
 				newPanelPosX = targetTabExtendedHitRegionX + targetTabExtendedHitRegionWidth;
 				newPanelPosY = tabTrayPosY;
 				newPanelWidth = hiddenPanelWidth;
 				newPanelHeight = tabTrayHeight;
 				break;
-			case WC_DockPanel::DOCKLOCATION_RIGHT:
+			case WC_DockPanel::DockLocation::Right:
 				newPanelPosX = targetTabExtendedHitRegionX - hiddenPanelWidth;
 				newPanelPosY = tabTrayPosY;
 				newPanelWidth = hiddenPanelWidth;
 				newPanelHeight = tabTrayHeight;
 				break;
-			case WC_DockPanel::DOCKLOCATION_TOP:
+			case WC_DockPanel::DockLocation::Top:
 				newPanelPosX = tabTrayPosX;
 				newPanelPosY = targetTabExtendedHitRegionY + targetTabExtendedHitRegionHeight;
 				newPanelWidth = tabTrayWidth;
 				newPanelHeight = hiddenPanelHeight;
 				break;
-			case WC_DockPanel::DOCKLOCATION_BOTTOM:
+			case WC_DockPanel::DockLocation::Bottom:
 				newPanelPosX = tabTrayPosX;
 				newPanelPosY = targetTabExtendedHitRegionY - hiddenPanelHeight;
 				newPanelWidth = tabTrayWidth;
@@ -3355,15 +3340,15 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 			int verticalTabTrayStartPadding = 0;
 			int verticalTabTrayEndPadding = 0;
 			int tabTrayRowSize = (controlFontHeight + (dockingPanelTabMarginSize * 3));
-			if((targetDockedWindow->GetDockLocation() == WC_DockPanel::DOCKLOCATION_LEFT) || (targetDockedWindow->GetDockLocation() == WC_DockPanel::DOCKLOCATION_RIGHT))
+			if((targetDockedWindow->GetDockLocation() == WC_DockPanel::DockLocation::Left) || (targetDockedWindow->GetDockLocation() == WC_DockPanel::DockLocation::Right))
 			{
 				for(std::map<WC_DockPanel::DockLocation, AutoHideDockInfo>::const_iterator i = autoHideDocks.begin(); i != autoHideDocks.end(); ++i)
 				{
-					if(i->first == WC_DockPanel::DOCKLOCATION_TOP)
+					if(i->first == WC_DockPanel::DockLocation::Top)
 					{
 						verticalTabTrayStartPadding += i->second.tabRowCount * tabTrayRowSize;
 					}
-					else if(i->first == WC_DockPanel::DOCKLOCATION_BOTTOM)
+					else if(i->first == WC_DockPanel::DockLocation::Bottom)
 					{
 						verticalTabTrayEndPadding += i->second.tabRowCount * tabTrayRowSize;
 					}
@@ -3436,13 +3421,13 @@ void DockingWindow::UpdateAutoHideWindowTabSizes()
 	{
 		//Set the size for this tab tray
 		AutoHideDockInfo& dockInfo = dockIterator->second;
-		if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+		if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Top) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom))
 		{
-			SendMessage(tabDockPanel, WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDHEIGHT, controlFontHeight + (3 * dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
+			SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredHeight, controlFontHeight + (3 * dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
 		}
 		else
 		{
-			SendMessage(tabDockPanel, WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDWIDTH, controlFontHeight + (3 * dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
+			SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredWidth, controlFontHeight + (3 * dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
 		}
 
 		//Force the tab group to redraw using the new size information
@@ -3472,7 +3457,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, WC_DockPan
 		//depending on the target dock location. We do this to ensure that a new docked
 		//window is never made to cover the content region when it is initially docked.
 		RECT rect;
-		SendMessage(dockPanel, WC_DockPanel::DOCK_GETCONTENTRECT, 0, (LPARAM)&rect);
+		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::GetContentRect, 0, (LPARAM)&rect);
 		int maxInitialDockedWidth = (rect.right - rect.left) / 2;
 		int maxInitialDockedHeight = (rect.bottom - rect.top) / 2;
 
@@ -3484,26 +3469,26 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, WC_DockPan
 		//Add this child container to our internal docking panel
 		if(forceTop)
 		{
-			SendMessage(dockPanel, WC_DockPanel::DOCK_ADDDOCKEDWINDOWTOFRONT, entry.dockLocation, (LPARAM)childContainer->GetWindowHandle());
+			SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::AddDockedWindowToFront, (WPARAM)entry.dockLocation, (LPARAM)childContainer->GetWindowHandle());
 		}
 		else
 		{
-			SendMessage(dockPanel, WC_DockPanel::DOCK_ADDDOCKEDWINDOW, entry.dockLocation, (LPARAM)childContainer->GetWindowHandle());
+			SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::AddDockedWindow, (WPARAM)entry.dockLocation, (LPARAM)childContainer->GetWindowHandle());
 		}
 
 		//Limit the new docked child window by its maximum width or height if required
-		if((entry.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (entry.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+		if((entry.dockLocation == WC_DockPanel::DockLocation::Top) || (entry.dockLocation == WC_DockPanel::DockLocation::Bottom))
 		{
 			if(childWindowHeight > maxInitialDockedHeight)
 			{
-				SendMessage(dockPanel, WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDHEIGHT, maxInitialDockedHeight, (LPARAM)childContainer->GetWindowHandle());
+				SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredHeight, maxInitialDockedHeight, (LPARAM)childContainer->GetWindowHandle());
 			}
 		}
 		else
 		{
 			if(childWindowWidth > maxInitialDockedWidth)
 			{
-				SendMessage(dockPanel, WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDWIDTH, maxInitialDockedWidth, (LPARAM)childContainer->GetWindowHandle());
+				SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredWidth, maxInitialDockedWidth, (LPARAM)childContainer->GetWindowHandle());
 			}
 		}
 	}
@@ -3530,23 +3515,23 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, WC_DockPan
 			//particular ordering of vertical tab trays vs horizontal tab trays so that we
 			//can deal with the corner regions which appear where a horizontal and
 			//vertical tab tray meet.
-			if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+			if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Top) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom))
 			{
-				SendMessage(tabDockPanel, WC_DockPanel::DOCK_ADDDOCKEDWINDOW, dockInfo.dockLocation, (LPARAM)dockInfo.dockWindow);
+				SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::AddDockedWindow, (WPARAM)dockInfo.dockLocation, (LPARAM)dockInfo.dockWindow);
 			}
 			else
 			{
-				SendMessage(tabDockPanel, WC_DockPanel::DOCK_ADDDOCKEDWINDOWTOFRONT, dockInfo.dockLocation, (LPARAM)dockInfo.dockWindow);
+				SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::AddDockedWindowToFront, (WPARAM)dockInfo.dockLocation, (LPARAM)dockInfo.dockWindow);
 			}
 
 			//Set the size for this tab tray
-			if((dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_TOP) || (dockInfo.dockLocation == WC_DockPanel::DOCKLOCATION_BOTTOM))
+			if((dockInfo.dockLocation == WC_DockPanel::DockLocation::Top) || (dockInfo.dockLocation == WC_DockPanel::DockLocation::Bottom))
 			{
-				SendMessage(tabDockPanel, WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDHEIGHT, controlFontHeight + (3 * dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
+				SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredHeight, controlFontHeight + (3 * dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
 			}
 			else
 			{
-				SendMessage(tabDockPanel, WC_DockPanel::DOCK_SETDOCKEDWINDOWDESIREDWIDTH, controlFontHeight + (3 * dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
+				SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredWidth, controlFontHeight + (3 * dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
 			}
 
 			//Show the tab dock tray
@@ -3609,7 +3594,7 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 	if(!childContainer->IsAutoHideEnabled())
 	{
 		//Remove this child container from our internal docking panel
-		SendMessage(dockPanel, WC_DockPanel::DOCK_REMOVEDOCKEDWINDOW, 0, (LPARAM)childContainer->GetWindowHandle());
+		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveDockedWindow, 0, (LPARAM)childContainer->GetWindowHandle());
 	}
 	else
 	{
@@ -3648,7 +3633,7 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 		{
 			//Destroy the tab tray window
 			ShowWindow(dockInfo.dockWindow, SW_HIDE);
-			SendMessage(tabDockPanel, WC_DockPanel::DOCK_REMOVEDOCKEDWINDOW, 0, (LPARAM)dockInfo.dockWindow);
+			SendMessage(tabDockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveDockedWindow, 0, (LPARAM)dockInfo.dockWindow);
 			DestroyWindow(dockInfo.dockWindow);
 
 			//Remove this tab tray from the list of tab trays
@@ -3819,7 +3804,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 		hostedContent.push_back(entry);
 
 		//Set this content window as the content for our internal docking panel
-		SendMessage(dockPanel, WC_DockPanel::DOCK_ADDCONTENTWINDOW, 0, (LPARAM)entry.contentWindow);
+		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::AddContentWindow, 0, (LPARAM)entry.contentWindow);
 
 		//Update the title of our docking window to match the content title
 		SetWindowText(hwnd, entry.contentTitle.c_str());
@@ -3834,7 +3819,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 			ShowWindow(existingContentEntry.contentWindow, SW_HIDE);
 
 			//Remove the content window from our internal docking panel
-			SendMessage(dockPanel, WC_DockPanel::DOCK_REMOVECONTENTWINDOW, 0, (LPARAM)existingContentEntry.contentWindow);
+			SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveContentWindow, 0, (LPARAM)existingContentEntry.contentWindow);
 
 			//Create a new tab control to manage the content
 			contentTabControl = CreateWindowEx(0, WC_TABCONTROL, L"", WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 0, 0, 0, 0, hwnd, NULL, moduleHandle, NULL);
@@ -3901,7 +3886,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 		if(createNewTabControl)
 		{
 			//Set the content tab control as the content for our internal docking panel
-			SendMessage(dockPanel, WC_DockPanel::DOCK_ADDCONTENTWINDOW, 0, (LPARAM)contentTabControl);
+			SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::AddContentWindow, 0, (LPARAM)contentTabControl);
 
 			//Show the tab control
 			ShowWindow(contentTabControl, SW_SHOWNA);
@@ -4002,7 +3987,7 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 		tabIndexToHostedContentNo[remainingContentEntry.tabIndex] = 0;
 
 		//Remove the tab control from our internal docking panel
-		SendMessage(dockPanel, WC_DockPanel::DOCK_REMOVECONTENTWINDOW, 0, (LPARAM)contentTabControl);
+		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveContentWindow, 0, (LPARAM)contentTabControl);
 
 		//Destroy the content tab control window now that only a single item is going to
 		//be displayed in the content region
@@ -4014,7 +3999,7 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 		currentSelectedTabIndex = -1;
 
 		//Set the remaining content window as the content for our internal docking panel
-		SendMessage(dockPanel, WC_DockPanel::DOCK_ADDCONTENTWINDOW, 0, (LPARAM)remainingContentEntry.contentWindow);
+		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::AddContentWindow, 0, (LPARAM)remainingContentEntry.contentWindow);
 
 		//Ensure the remaining content window is visible
 		SetWindowPos(remainingContentEntry.contentWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
@@ -4025,7 +4010,7 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 	else
 	{
 		//Remove the content window from our internal docking panel
-		SendMessage(dockPanel, WC_DockPanel::DOCK_REMOVECONTENTWINDOW, 0, (LPARAM)entry.contentWindow);
+		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveContentWindow, 0, (LPARAM)entry.contentWindow);
 
 		//Clear the title of our docking window now that there's no hosted content
 		SetWindowText(hwnd, L"");
@@ -4217,8 +4202,8 @@ void DockingWindow::SetHostedContentWindow(unsigned int contentEntryNo, HWND new
 	{
 		//Replace the old content window with the new content window in our dock panel
 		//control
-		SendMessage(dockPanel, WC_DockPanel::DOCK_REMOVECONTENTWINDOW, 0, (LPARAM)oldContentWindow);
-		SendMessage(dockPanel, WC_DockPanel::DOCK_ADDCONTENTWINDOW, 0, (LPARAM)newContentWindow);
+		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveContentWindow, 0, (LPARAM)oldContentWindow);
+		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::AddContentWindow, 0, (LPARAM)newContentWindow);
 	}
 
 	//If we're docked to a parent window in auto hide mode, request the parent window to

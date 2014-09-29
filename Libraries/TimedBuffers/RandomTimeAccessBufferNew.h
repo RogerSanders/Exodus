@@ -3,7 +3,7 @@
 #include <list>
 #include <vector>
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 //template<class T> class RandomTimeAccessBufferNew
 //{
@@ -165,7 +165,7 @@ private:
 	//##TODO## Create an iterator member which stores a reference to the first non-committed
 	//entry in the writelist, for use with the advance functions
 
-	mutable boost::mutex accessLock;
+	mutable std::mutex accessLock;
 };
 
 #include "RandomTimeAccessBufferNew.inl"

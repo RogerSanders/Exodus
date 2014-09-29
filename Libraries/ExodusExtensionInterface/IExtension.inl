@@ -1,34 +1,34 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IExtension::SystemMenu
+enum class IExtension::SystemMenu
 {
-	SYSTEMMENU_FILE      = 1000,
-	SYSTEMMENU_SYSTEM    = 2000,
-	SYSTEMMENU_SETTINGS  = 3000,
-	SYSTEMMENU_DEBUG     = 4000,
-	SYSTEMMENU_HELP      = 5000
+	File      = 1000,
+	System    = 2000,
+	Settings  = 3000,
+	Debug     = 4000,
+	Help      = 5000
 };
 
 //----------------------------------------------------------------------------------------
-enum IExtension::ModuleMenu
+enum class IExtension::ModuleMenu
 {
-	MODULEMENU_SETTINGS  = 3000,
-	MODULEMENU_DEBUG     = 4000
+	Settings  = 3000,
+	Debug     = 4000
 };
 
 //----------------------------------------------------------------------------------------
-enum IExtension::DeviceMenu
+enum class IExtension::DeviceMenu
 {
-	DEVICEMENU_SETTINGS  = 3000,
-	DEVICEMENU_DEBUG     = 4000
+	Settings  = 3000,
+	Debug     = 4000
 };
 
 //----------------------------------------------------------------------------------------
-enum IExtension::ExtensionMenu
+enum class IExtension::ExtensionMenu
 {
-	EXTENSIONMENU_SETTINGS  = 3000,
-	EXTENSIONMENU_DEBUG     = 4000
+	Settings  = 3000,
+	Debug     = 4000
 };
 
 //----------------------------------------------------------------------------------------

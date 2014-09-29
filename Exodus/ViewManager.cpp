@@ -154,7 +154,7 @@ bool ViewManager::OpenView(IViewPresenter& aviewPresenter, IHierarchicalStorageN
 //----------------------------------------------------------------------------------------
 bool ViewManager::OpenViewInternal(IViewPresenter& aviewPresenter, IHierarchicalStorageNode* viewState, bool waitToClose)
 {
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 
 	//Ensure this view isn't already open or in the queue to be opened
 	if(viewInfoSet.find(&aviewPresenter) != viewInfoSet.end())
@@ -168,7 +168,7 @@ bool ViewManager::OpenViewInternal(IViewPresenter& aviewPresenter, IHierarchical
 	viewInfoSet.insert(std::pair<IViewPresenter*, ViewInfo*>(&viewInfo->viewPresenter, viewInfo));
 
 	//Add an operation to the queue to open this view
-	viewOperationQueue.push_back(ViewOperation(VIEWOPERATIONTYPE_OPEN, aviewPresenter, viewState));
+	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Open, aviewPresenter, viewState));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 
 	//Wait for the view to close
@@ -194,7 +194,7 @@ bool ViewManager::OpenViewInternal(IViewPresenter& aviewPresenter, IHierarchical
 //----------------------------------------------------------------------------------------
 void ViewManager::CloseView(IViewPresenter& aviewPresenter, bool waitToClose)
 {
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 
 	//Retrieve the viewInfo structure for this view
 	ViewInfo* viewInfo = 0;
@@ -206,7 +206,7 @@ void ViewManager::CloseView(IViewPresenter& aviewPresenter, bool waitToClose)
 	viewInfo = viewInfoSetIterator->second;
 
 	//Add an operation to the queue to close this view
-	viewOperationQueue.push_back(ViewOperation(VIEWOPERATIONTYPE_CLOSE, aviewPresenter));
+	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Close, aviewPresenter));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 
 	//Wait for the view to close
@@ -229,8 +229,8 @@ void ViewManager::CloseView(IViewPresenter& aviewPresenter, bool waitToClose)
 void ViewManager::ShowView(IViewPresenter& aviewPresenter)
 {
 	//Add an operation to the queue to show this view
-	boost::mutex::scoped_lock lock(viewMutex);
-	viewOperationQueue.push_back(ViewOperation(VIEWOPERATIONTYPE_SHOW, aviewPresenter));
+	std::unique_lock<std::mutex> lock(viewMutex);
+	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Show, aviewPresenter));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 }
 
@@ -238,8 +238,8 @@ void ViewManager::ShowView(IViewPresenter& aviewPresenter)
 void ViewManager::HideView(IViewPresenter& aviewPresenter)
 {
 	//Add an operation to the queue to hide this view
-	boost::mutex::scoped_lock lock(viewMutex);
-	viewOperationQueue.push_back(ViewOperation(VIEWOPERATIONTYPE_HIDE, aviewPresenter));
+	std::unique_lock<std::mutex> lock(viewMutex);
+	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Hide, aviewPresenter));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 }
 
@@ -247,15 +247,15 @@ void ViewManager::HideView(IViewPresenter& aviewPresenter)
 void ViewManager::ActivateView(IViewPresenter& aviewPresenter)
 {
 	//Add an operation to the queue to activate this view
-	boost::mutex::scoped_lock lock(viewMutex);
-	viewOperationQueue.push_back(ViewOperation(VIEWOPERATIONTYPE_ACTIVATE, aviewPresenter));
+	std::unique_lock<std::mutex> lock(viewMutex);
+	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Activate, aviewPresenter));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 }
 
 //----------------------------------------------------------------------------------------
 bool ViewManager::WaitUntilViewOpened(IViewPresenter& aviewPresenter)
 {
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 
 	//Retrieve the viewInfo structure for this view
 	ViewInfo* viewInfo = 0;
@@ -289,7 +289,7 @@ bool ViewManager::WaitUntilViewOpened(IViewPresenter& aviewPresenter)
 //----------------------------------------------------------------------------------------
 void ViewManager::WaitUntilViewClosed(IViewPresenter& aviewPresenter)
 {
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 
 	//Retrieve the viewInfo structure for this view
 	ViewInfo* viewInfo = 0;
@@ -315,15 +315,15 @@ void ViewManager::WaitUntilViewClosed(IViewPresenter& aviewPresenter)
 //----------------------------------------------------------------------------------------
 void ViewManager::NotifyViewClosed(IViewPresenter& aviewPresenter)
 {
-	boost::mutex::scoped_lock lock(viewMutex);
-	viewOperationQueue.push_back(ViewOperation(VIEWOPERATIONTYPE_DELETE, aviewPresenter));
+	std::unique_lock<std::mutex> lock(viewMutex);
+	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Delete, aviewPresenter));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 }
 
 //----------------------------------------------------------------------------------------
 void ViewManager::ProcessPendingEvents()
 {
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 	while(!viewOperationQueue.empty())
 	{
 		//Grab the details of the next view operation, and pop it from the queue.
@@ -343,22 +343,22 @@ void ViewManager::ProcessPendingEvents()
 			lock.unlock();
 			switch(viewOperation.type)
 			{
-			case VIEWOPERATIONTYPE_OPEN:
+			case ViewOperationType::Open:
 				ProcessOpenView(viewOperation.viewPresenter, viewInfo, viewOperation.viewState);
 				break;
-			case VIEWOPERATIONTYPE_CLOSE:
+			case ViewOperationType::Close:
 				ProcessCloseView(viewOperation.viewPresenter, viewInfo);
 				break;
-			case VIEWOPERATIONTYPE_DELETE:
+			case ViewOperationType::Delete:
 				ProcessDeleteView(viewOperation.viewPresenter, viewInfo);
 				break;
-			case VIEWOPERATIONTYPE_ACTIVATE:
+			case ViewOperationType::Activate:
 				ProcessActivateView(viewOperation.viewPresenter, viewInfo);
 				break;
-			case VIEWOPERATIONTYPE_SHOW:
+			case ViewOperationType::Show:
 				ProcessShowView(viewOperation.viewPresenter, viewInfo);
 				break;
-			case VIEWOPERATIONTYPE_HIDE:
+			case ViewOperationType::Hide:
 				ProcessHideView(viewOperation.viewPresenter, viewInfo);
 				break;
 			}
@@ -398,7 +398,7 @@ void ViewManager::ProcessCloseView(IViewPresenter& aviewPresenter, ViewInfo* vie
 void ViewManager::ProcessDeleteView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo)
 {
 	//Erase all references to this view from our lists of views
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 	std::list<ViewOperation>::iterator viewOperationQueueIterator = viewOperationQueue.begin();
 	while(viewOperationQueueIterator != viewOperationQueue.end())
 	{
@@ -537,13 +537,13 @@ bool ViewManager::ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter
 	IView::ViewType viewType = view.GetViewType();
 	switch(viewType)
 	{
-	case IView::VIEWTYPE_DIALOG:
+	case IView::ViewType::Dialog:
 		result = ShowDialogWindowFirstTime(view, viewPresenter, windowHandle, windowTitle);
 		break;
-	case IView::VIEWTYPE_DOCKABLE:
+	case IView::ViewType::Dockable:
 		result = ShowDockingWindowFirstTime(view, viewPresenter, windowHandle, windowTitle);
 		break;
-	case IView::VIEWTYPE_DOCUMENT:
+	case IView::ViewType::Document:
 		result = ShowDocumentWindowFirstTime(view, viewPresenter, windowHandle, windowTitle);
 		break;
 	}
@@ -589,8 +589,8 @@ bool ViewManager::ShowDialogWindowFirstTime(IView& view, IViewPresenter& viewPre
 	LPVOID createWindowParam = 0;
 	std::list<HWND> disabledWindowList;
 	IView::DialogMode dialogMode = view.GetViewDialogMode();
-	IView::InitialDialogPos initialDialogPos = view.GetViewInitialDialogPosition();
-	if(dialogMode == IView::DIALOGMODE_MODAL)
+	IView::DialogPos initialDialogPos = view.GetViewInitialDialogPosition();
+	if(dialogMode == IView::DialogMode::Modal)
 	{
 		//Disable all other currently enabled top-level owned windows of the main window
 		disabledWindowList = DisableAllEnabledDialogWindows(mainWindow);
@@ -611,7 +611,7 @@ bool ViewManager::ShowDialogWindowFirstTime(IView& view, IViewPresenter& viewPre
 	//Calculate the screen position for the dialog window
 	int dialogFramePosX;
 	int dialogFramePosY;
-	if((initialDialogPos == IView::INITIALDIALOGPOS_CENTER) || (dialogMode == IView::DIALOGMODE_MODAL))
+	if((initialDialogPos == IView::DialogPos::Center) || (dialogMode == IView::DialogMode::Modal))
 	{
 		//Calculate the position and size of the main window
 		RECT rect;
@@ -735,10 +735,10 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 	bool showWindow = false;
 	bool activateWindow = false;
 	bool viewInitiallyDocked = view.IsViewInitiallyDocked();
-	IView::InitialDockPos initialDockPos = view.GetViewInitialDockPosition();
+	IView::DockPos initialDockPos = view.GetViewInitialDockPosition();
 	if((dockingWindow == NULL) && viewInitiallyDocked)
 	{
-		if(initialDockPos == IView::INITIALDOCKPOS_CENTER)
+		if(initialDockPos == IView::DockPos::Center)
 		{
 			//If we're docking to the center, use the main docking window directly.
 			dockingWindow = mainDockingWindow;
@@ -750,14 +750,15 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 			//If we're docking to any target other than the center, search the list of
 			//currently docked child windows in the main docking window for the first
 			//window that's docked at the target location.
+			WC_DockPanel::DockLocation initialDockPosAsDockPanelDockLocation = ViewDockLocationToDockPanelDockLocation(initialDockPos);
 			unsigned int currentDockedWindowNo = 0;
-			unsigned int dockedWindowCount = (unsigned int)SendMessage(mainDockingWindow, DockingWindow::DOCKWIN_GETDOCKEDWINDOWCOUNT, 0, 0);
+			unsigned int dockedWindowCount = (unsigned int)SendMessage(mainDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowCount, 0, 0);
 			while((dockingWindow == NULL) && (currentDockedWindowNo < dockedWindowCount))
 			{
 				DockingWindow::GetDockedWindowInfo dockedWindowInfo;
-				if(SendMessage(mainDockingWindow, DockingWindow::DOCKWIN_GETDOCKEDWINDOWINFO, (WPARAM)currentDockedWindowNo, (LPARAM)&dockedWindowInfo) == 0)
+				if(SendMessage(mainDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowInfo, (WPARAM)currentDockedWindowNo, (LPARAM)&dockedWindowInfo) == 0)
 				{
-					if(dockedWindowInfo.dockLocation == initialDockPos)
+					if(dockedWindowInfo.dockLocation == initialDockPosAsDockPanelDockLocation)
 					{
 						dockingWindow = dockedWindowInfo.hwnd;
 						continue;
@@ -813,23 +814,7 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 		if(viewInitiallyDocked)
 		{
 			//Determine the initial docking location for this new docking window
-			WC_DockPanel::DockLocation dockPanelDockPos;
-			switch(initialDockPos)
-			{
-			default:
-			case IView::INITIALDOCKPOS_LEFT:
-				dockPanelDockPos = WC_DockPanel::DOCKLOCATION_LEFT;
-				break;
-			case IView::INITIALDOCKPOS_RIGHT:
-				dockPanelDockPos = WC_DockPanel::DOCKLOCATION_RIGHT;
-				break;
-			case IView::INITIALDOCKPOS_TOP:
-				dockPanelDockPos = WC_DockPanel::DOCKLOCATION_TOP;
-				break;
-			case IView::INITIALDOCKPOS_BOTTOM:
-				dockPanelDockPos = WC_DockPanel::DOCKLOCATION_BOTTOM;
-				break;
-			}
+			WC_DockPanel::DockLocation dockPanelDockPos = ViewDockLocationToDockPanelDockLocation(initialDockPos);
 
 			//Add the new docking window to the main docking window
 			DockingWindow::AddDockedWindowParams addDockedWindowParams;
@@ -837,7 +822,7 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 			addDockedWindowParams.dockLocation = dockPanelDockPos;
 			addDockedWindowParams.forceToTopOfDockingOrder = false;
 			addDockedWindowParams.autoHide = viewInitiallyCollapsed;
-			SendMessage(mainDockingWindow, DockingWindow::DOCKWIN_ADDDOCKEDWINDOW, 0, (LPARAM)&addDockedWindowParams);
+			SendMessage(mainDockingWindow, (UINT)DockingWindow::WindowMessages::AddDockedWindow, 0, (LPARAM)&addDockedWindowParams);
 		}
 		else
 		{
@@ -898,7 +883,7 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 	DockingWindow::AddContentWindowParams addContentWindowParams;
 	addContentWindowParams.hwnd = windowHandle;
 	addContentWindowParams.windowTitle = qualifiedWindowTitle.c_str();
-	SendMessage(dockingWindow, DockingWindow::DOCKWIN_ADDCONTENTWINDOW, 0, (LPARAM)&addContentWindowParams);
+	SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::AddContentWindow, 0, (LPARAM)&addContentWindowParams);
 
 	//Show and activate the window if requested
 	if(showWindow)
@@ -939,7 +924,7 @@ void ViewManager::CloseWindow(IView& view, IViewPresenter& viewPresenter, HWND w
 	IView::ViewType viewType = view.GetViewType();
 	switch(viewType)
 	{
-	case IView::VIEWTYPE_DIALOG:{
+	case IView::ViewType::Dialog:{
 		//Destroy the window and its parent dialog frame
 		HWND dialogFrame = GetParentDialogWindowFrame(windowHandle);
 		if(dialogFrame != NULL)
@@ -947,14 +932,14 @@ void ViewManager::CloseWindow(IView& view, IViewPresenter& viewPresenter, HWND w
 			DestroyWindow(dialogFrame);
 		}
 		break;}
-	case IView::VIEWTYPE_DOCKABLE:
-	case IView::VIEWTYPE_DOCUMENT:{
+	case IView::ViewType::Dockable:
+	case IView::ViewType::Document:{
 		//Remove this window from any current docking parent
 		HWND parentDockingWindow = GetParentDockingWindow(windowHandle);
 		if(parentDockingWindow != NULL)
 		{
 			//Remove our window from the parent docking window
-			SendMessage(parentDockingWindow, DockingWindow::DOCKWIN_REMOVECONTENTWINDOW, 0, (LPARAM)windowHandle);
+			SendMessage(parentDockingWindow, (UINT)DockingWindow::WindowMessages::RemoveContentWindow, 0, (LPARAM)windowHandle);
 
 			//Now that we've removed our window from its parent docking window,
 			//recursively close any parent docking windows that contained it until we find
@@ -962,8 +947,8 @@ void ViewManager::CloseWindow(IView& view, IViewPresenter& viewPresenter, HWND w
 			HWND searchParentDockingWindow = parentDockingWindow;
 			while((searchParentDockingWindow != NULL) && (searchParentDockingWindow != mainDockingWindow))
 			{
-				unsigned int dockedWindowCount = (unsigned int)SendMessage(searchParentDockingWindow, DockingWindow::DOCKWIN_GETDOCKEDWINDOWCOUNT, 0, 0);
-				unsigned int contentWindowCount = (unsigned int)SendMessage(searchParentDockingWindow, DockingWindow::DOCKWIN_GETCONTENTWINDOWCOUNT, 0, 0);
+				unsigned int dockedWindowCount = (unsigned int)SendMessage(searchParentDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowCount, 0, 0);
+				unsigned int contentWindowCount = (unsigned int)SendMessage(searchParentDockingWindow, (UINT)DockingWindow::WindowMessages::GetContentWindowCount, 0, 0);
 				if((dockedWindowCount == 0) && (contentWindowCount == 0))
 				{
 					HWND nextParentDockingWindow = GetParentDockingWindow(searchParentDockingWindow);
@@ -1159,7 +1144,7 @@ bool ViewManager::LoadWindowState(IView& view, IViewPresenter& viewPresenter, HW
 
 		//If the target window is already visible, remove it from any current parent
 		//docking window.
-		if(!showingForFirstTime && ((viewType == IView::VIEWTYPE_DOCKABLE) || (viewType == IView::VIEWTYPE_DOCUMENT)))
+		if(!showingForFirstTime && ((viewType == IView::ViewType::Dockable) || (viewType == IView::ViewType::Document)))
 		{
 			//Temporarily hide the target window
 			::ShowWindow(windowHandle, SW_HIDE);
@@ -1168,12 +1153,12 @@ bool ViewManager::LoadWindowState(IView& view, IViewPresenter& viewPresenter, HW
 			HWND parentDockingWindow = parentDockingWindow = GetParentDockingWindow(windowHandle);
 			if(parentDockingWindow != NULL)
 			{
-				SendMessage(parentDockingWindow, DockingWindow::DOCKWIN_REMOVECONTENTWINDOW, 0, (LPARAM)windowHandle);
+				SendMessage(parentDockingWindow, (UINT)DockingWindow::WindowMessages::RemoveContentWindow, 0, (LPARAM)windowHandle);
 			}
 		}
 
 		//Add the target window to its appropriate parent window based on the view type
-		if(viewType == IView::VIEWTYPE_DIALOG)
+		if(viewType == IView::ViewType::Dialog)
 		{
 			//Make the specified window a child of the dialog frame
 			SetWindowParent(windowHandle, placeholderWindowInfo.parentWindowFrame);
@@ -1189,29 +1174,29 @@ bool ViewManager::LoadWindowState(IView& view, IViewPresenter& viewPresenter, HW
 			::ShowWindow(placeholderWindowInfo.parentWindowFrame, SW_SHOWNA);
 			UpdateWindow(placeholderWindowInfo.parentWindowFrame);
 		}
-		else if((viewType == IView::VIEWTYPE_DOCKABLE) || (viewType == IView::VIEWTYPE_DOCUMENT))
+		else if((viewType == IView::ViewType::Dockable) || (viewType == IView::ViewType::Document))
 		{
 			//Retrieve the content window index of the placeholder window
-			unsigned int placeholderContentWindowIndex = (unsigned int)SendMessage(placeholderWindowInfo.parentWindowFrame, DockingWindow::DOCKWIN_GETCONTENTWINDOWINDEXFROMHANDLE, 0, (LPARAM)placeholderWindowInfo.placeholderContentWindow);
+			unsigned int placeholderContentWindowIndex = (unsigned int)SendMessage(placeholderWindowInfo.parentWindowFrame, (UINT)DockingWindow::WindowMessages::GetContentWindowIndexFromHandle, 0, (LPARAM)placeholderWindowInfo.placeholderContentWindow);
 
 			//Replace the placeholder window with our actual window
 			DockingWindow::ModifyContentWindowParams modifyContentWindowParams;
-			modifyContentWindowParams.contentWindowInfo = DockingWindow::ContentWindowInfo(DockingWindow::CONTENTWINDOWINFO_HANDLE | DockingWindow::CONTENTWINDOWINFO_TITLE);
+			modifyContentWindowParams.contentWindowInfo = DockingWindow::ContentWindowInfo(DockingWindow::ContentWindowInfo::Handle | DockingWindow::ContentWindowInfo::Title);
 			modifyContentWindowParams.hwnd = windowHandle;
 			modifyContentWindowParams.windowTitle = windowTitle.c_str();
-			SendMessage(placeholderWindowInfo.parentWindowFrame, DockingWindow::DOCKWIN_MODIFYCONTENTWINDOW, (WPARAM)placeholderContentWindowIndex, (LPARAM)&modifyContentWindowParams);
+			SendMessage(placeholderWindowInfo.parentWindowFrame, (UINT)DockingWindow::WindowMessages::ModifyContentWindow, (WPARAM)placeholderContentWindowIndex, (LPARAM)&modifyContentWindowParams);
 
 			//If the window needs to be set as the currently selected window in its parent
 			//docking window, set it as the active selection now.
 			if(placeholderWindowInfo.selectedContentWindow)
 			{
-				SendMessage(placeholderWindowInfo.parentWindowFrame, DockingWindow::DOCKWIN_SETACTIVECONTENTWINDOW, (WPARAM)placeholderContentWindowIndex, 0);
+				SendMessage(placeholderWindowInfo.parentWindowFrame, (UINT)DockingWindow::WindowMessages::SetActiveContentWindow, (WPARAM)placeholderContentWindowIndex, 0);
 			}
 
 			//If the window is initially visible, show it.
 			if(placeholderWindowInfo.makeContentVisible)
 			{
-				unsigned int activeContentNo = (unsigned int)SendMessage(placeholderWindowInfo.parentWindowFrame, DockingWindow::DOCKWIN_GETACTIVECONTENTWINDOW, 0, 0);
+				unsigned int activeContentNo = (unsigned int)SendMessage(placeholderWindowInfo.parentWindowFrame, (UINT)DockingWindow::WindowMessages::GetActiveContentWindow, 0, 0);
 				if(placeholderContentWindowIndex == activeContentNo)
 				{
 					::ShowWindow(windowHandle, SW_SHOWNA);
@@ -1285,7 +1270,7 @@ void ViewManager::UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, 
 
 	//Update the visible title of the target window according to its view type
 	IView::ViewType viewType = view.GetViewType();
-	if(viewType == IView::VIEWTYPE_DIALOG)
+	if(viewType == IView::ViewType::Dialog)
 	{
 		//Update the text of the dialog window frame
 		HWND dialogFrame = GetParentDialogWindowFrame(windowHandle);
@@ -1294,20 +1279,20 @@ void ViewManager::UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, 
 			SetWindowText(dialogFrame, windowTitle.c_str());
 		}
 	}
-	else if((viewType == IView::VIEWTYPE_DOCKABLE) || (viewType == IView::VIEWTYPE_DOCUMENT))
+	else if((viewType == IView::ViewType::Dockable) || (viewType == IView::ViewType::Document))
 	{
 		//Update the current title for the window in its parent docking window
 		HWND parentDockingWindow = GetParentDockingWindow(windowHandle);
 		if(parentDockingWindow != NULL)
 		{
-			LRESULT getContentWindowIndexFromHandleReturn = SendMessage(parentDockingWindow, DockingWindow::DOCKWIN_GETCONTENTWINDOWINDEXFROMHANDLE, 0, (LPARAM)windowHandle);
+			LRESULT getContentWindowIndexFromHandleReturn = SendMessage(parentDockingWindow, (UINT)DockingWindow::WindowMessages::GetContentWindowIndexFromHandle, 0, (LPARAM)windowHandle);
 			if(getContentWindowIndexFromHandleReturn != -1)
 			{
 				unsigned int contentNo = (unsigned int)getContentWindowIndexFromHandleReturn;
 				DockingWindow::ModifyContentWindowParams modifyContentWindowParams;
-				modifyContentWindowParams.contentWindowInfo = DockingWindow::CONTENTWINDOWINFO_TITLE;
+				modifyContentWindowParams.contentWindowInfo = DockingWindow::ContentWindowInfo::Title;
 				modifyContentWindowParams.windowTitle = qualifiedWindowTitle.c_str();
-				SendMessage(parentDockingWindow, DockingWindow::DOCKWIN_MODIFYCONTENTWINDOW, (WPARAM)contentNo, (LPARAM)&modifyContentWindowParams);
+				SendMessage(parentDockingWindow, (UINT)DockingWindow::WindowMessages::ModifyContentWindow, (WPARAM)contentNo, (LPARAM)&modifyContentWindowParams);
 			}
 		}
 	}
@@ -1333,17 +1318,17 @@ std::wstring ViewManager::BuildQualifiedWindowTitle(IView& view, IViewPresenter&
 	switch(viewPresenter.GetViewTarget())
 	{
 	default:
-	case IViewPresenter::VIEWTARGET_SYSTEM:
+	case IViewPresenter::ViewTarget::System:
 		qualifiedWindowTitle = windowTitle;
 		break;
 
-	case IViewPresenter::VIEWTARGET_MODULE:{
+	case IViewPresenter::ViewTarget::Module:{
 		std::wstring moduleDisplayName;
 		system.GetModuleDisplayName(viewPresenter.GetViewTargetModuleID(), moduleDisplayName);
 		qualifiedWindowTitle = moduleDisplayName + L" - " + windowTitle;
 		break;}
 
-	case IViewPresenter::VIEWTARGET_DEVICE:{
+	case IViewPresenter::ViewTarget::Device:{
 		//Retrieve the target device instance name and module ID
 		unsigned int deviceModuleID = viewPresenter.GetViewTargetModuleID();
 		std::wstring deviceInstanceName = viewPresenter.GetViewTargetDeviceInstanceName();
@@ -1379,7 +1364,7 @@ std::wstring ViewManager::BuildQualifiedWindowTitle(IView& view, IViewPresenter&
 		}
 		break;}
 
-	case IViewPresenter::VIEWTARGET_EXTENSION:
+	case IViewPresenter::ViewTarget::Extension:
 		//Retrieve the target extension instance name and module ID
 		unsigned int extensionModuleID = viewPresenter.GetViewTargetModuleID();
 		std::wstring extensionInstanceName = viewPresenter.GetViewTargetExtensionInstanceName();
@@ -1427,12 +1412,12 @@ std::wstring ViewManager::BuildQualifiedWindowTitle(IView& view, IViewPresenter&
 void ViewManager::CloseViewsForSystem()
 {
 	//Build a set of all views to close
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 	std::set<IViewPresenter*> viewsToClose;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
 		ViewInfo& viewInfo = *i->second;
-		if(viewInfo.viewCurrentlyOpen && (viewInfo.viewPresenter.GetViewTarget() == IViewPresenter::VIEWTARGET_SYSTEM))
+		if(viewInfo.viewCurrentlyOpen && (viewInfo.viewPresenter.GetViewTarget() == IViewPresenter::ViewTarget::System))
 		{
 			viewsToClose.insert(&viewInfo.viewPresenter);
 		}
@@ -1450,12 +1435,12 @@ void ViewManager::CloseViewsForSystem()
 void ViewManager::CloseViewsForModule(unsigned int moduleID)
 {
 	//Build a set of all views to close
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 	std::set<IViewPresenter*> viewsToClose;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
 		ViewInfo& viewInfo = *i->second;
-		if(viewInfo.viewCurrentlyOpen && (viewInfo.viewPresenter.GetViewTarget() == IViewPresenter::VIEWTARGET_MODULE) && (viewInfo.viewPresenter.GetViewTargetModuleID() == moduleID))
+		if(viewInfo.viewCurrentlyOpen && (viewInfo.viewPresenter.GetViewTarget() == IViewPresenter::ViewTarget::Module) && (viewInfo.viewPresenter.GetViewTargetModuleID() == moduleID))
 		{
 			viewsToClose.insert(&viewInfo.viewPresenter);
 		}
@@ -1473,12 +1458,12 @@ void ViewManager::CloseViewsForModule(unsigned int moduleID)
 void ViewManager::CloseViewsForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName)
 {
 	//Build a set of all views to close
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 	std::set<IViewPresenter*> viewsToClose;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
 		ViewInfo& viewInfo = *i->second;
-		if(viewInfo.viewCurrentlyOpen && (viewInfo.viewPresenter.GetViewTarget() == IViewPresenter::VIEWTARGET_DEVICE) && (viewInfo.viewPresenter.GetViewTargetModuleID() == moduleID) && (viewInfo.viewPresenter.GetViewTargetDeviceInstanceName() == deviceInstanceName))
+		if(viewInfo.viewCurrentlyOpen && (viewInfo.viewPresenter.GetViewTarget() == IViewPresenter::ViewTarget::Device) && (viewInfo.viewPresenter.GetViewTargetModuleID() == moduleID) && (viewInfo.viewPresenter.GetViewTargetDeviceInstanceName() == deviceInstanceName))
 		{
 			viewsToClose.insert(&viewInfo.viewPresenter);
 		}
@@ -1496,7 +1481,7 @@ void ViewManager::CloseViewsForDevice(unsigned int moduleID, const std::wstring&
 void ViewManager::CloseAllViews()
 {
 	//Build a set of all views to close
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 	std::set<IViewPresenter*> viewsToClose;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
@@ -1547,7 +1532,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 	placeholderWindowsForViewLayout.clear();
 
 	//Build a set of all currently open views
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 	std::set<IViewPresenter*> existingViewSet;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
@@ -1568,7 +1553,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 	//windows currently, we need to close all floating windows, and all docking windows
 	//contained within the main docking window.
 	std::list<HWND> existingDockingWindowsToClose;
-	InvokeOnUIThread(boost::bind(boost::mem_fn(&ViewManager::BuildExistingWindowsToCloseList), this, boost::ref(existingDockingWindowsToClose)));
+	InvokeOnUIThread(std::bind(std::mem_fn(&ViewManager::BuildExistingWindowsToCloseList), this, std::ref(existingDockingWindowsToClose)));
 
 	//Restore any windows attached to the main docking window. Note that we have to
 	//perform this operation on the UI thread, since we need to re-create actual windows
@@ -1576,7 +1561,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 	IHierarchicalStorageNode* mainWindowStateNode = viewLayout.GetChild(L"MainWindowState");
 	if(mainWindowStateNode != 0)
 	{
-		InvokeOnUIThread(boost::bind(boost::mem_fn(&ViewManager::LoadMainWindowStateFromViewLayout), this, boost::ref(*mainWindowStateNode), boost::ref(placeholderWindowsForViewLayout)));
+		InvokeOnUIThread(std::bind(std::mem_fn(&ViewManager::LoadMainWindowStateFromViewLayout), this, std::ref(*mainWindowStateNode), std::ref(placeholderWindowsForViewLayout)));
 	}
 
 	//Iterate through each valid window entry in the file, and open matching windows with
@@ -1603,7 +1588,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 				if(system.RestoreViewStateForSystem(viewGroupName, viewName, *viewPresenterStateNode))
 				{
 					//If the view state was restored, save info about this view.
-					loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::VIEWTARGET_SYSTEM));
+					loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::System));
 				}
 			}
 			else if(target == L"Module")
@@ -1625,7 +1610,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 							{
 								//If the view state was restored, save info about this
 								//view.
-								loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::VIEWTARGET_MODULE, moduleRelationship.loadedModuleID));
+								loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::Module, moduleRelationship.loadedModuleID));
 							}
 						}
 					}
@@ -1652,7 +1637,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 							{
 								//If the view state was restored, save info about this
 								//view.
-								loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::VIEWTARGET_DEVICE, moduleRelationship.loadedModuleID, deviceInstanceName));
+								loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::Device, moduleRelationship.loadedModuleID, deviceInstanceName));
 							}
 						}
 					}
@@ -1669,7 +1654,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 					if(system.RestoreViewStateForExtension(viewGroupName, viewName, *viewPresenterStateNode, extensionInstanceName))
 					{
 						//If the view state was restored, save info about this view.
-						loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::VIEWTARGET_EXTENSION, 0, extensionInstanceName, true));
+						loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::Extension, 0, extensionInstanceName, true));
 					}
 				}
 				else if((extensionInstanceNameAttribute != 0) && (moduleIDAttribute != 0))
@@ -1689,7 +1674,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 							{
 								//If the view state was restored, save info about this
 								//view.
-								loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::VIEWTARGET_EXTENSION, moduleRelationship.loadedModuleID, extensionInstanceName));
+								loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::Extension, moduleRelationship.loadedModuleID, extensionInstanceName));
 							}
 						}
 					}
@@ -1713,16 +1698,16 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 			{
 				switch(loadedViewDetails->viewTarget)
 				{
-				case IViewPresenter::VIEWTARGET_SYSTEM:
+				case IViewPresenter::ViewTarget::System:
 					viewReferenced = true;
 					break;
-				case IViewPresenter::VIEWTARGET_MODULE:
+				case IViewPresenter::ViewTarget::Module:
 					viewReferenced = (existingView.GetViewTargetModuleID() == loadedViewDetails->moduleID);
 					break;
-				case IViewPresenter::VIEWTARGET_DEVICE:
+				case IViewPresenter::ViewTarget::Device:
 					viewReferenced = (existingView.GetViewTargetModuleID() == loadedViewDetails->moduleID) && (existingView.GetViewTargetDeviceInstanceName() == loadedViewDetails->instanceName);
 					break;
-				case IViewPresenter::VIEWTARGET_EXTENSION:
+				case IViewPresenter::ViewTarget::Extension:
 					viewReferenced = (existingView.GetViewTargetExtensionInstanceName() == loadedViewDetails->instanceName) && (existingView.GetViewTargetGlobalExtension() == loadedViewDetails->globalExtension) && (loadedViewDetails->globalExtension || (existingView.GetViewTargetModuleID() == loadedViewDetails->moduleID));
 					break;
 				}
@@ -1740,13 +1725,13 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 	for(std::map<unsigned int, PlaceholderWindowInfo>::const_iterator i = placeholderWindowsForViewLayout.begin(); i != placeholderWindowsForViewLayout.end(); ++i)
 	{
 		const PlaceholderWindowInfo& placeholderWindowInfo = i->second;
-		SendMessage(placeholderWindowInfo.parentWindowFrame, DockingWindow::DOCKWIN_REMOVECONTENTWINDOW, 0, (LPARAM)placeholderWindowInfo.placeholderContentWindow);
+		SendMessage(placeholderWindowInfo.parentWindowFrame, (UINT)DockingWindow::WindowMessages::RemoveContentWindow, 0, (LPARAM)placeholderWindowInfo.placeholderContentWindow);
 		DestroyWindow(placeholderWindowInfo.placeholderContentWindow);
 	}
 	placeholderWindowsForViewLayout.clear();
 
 	//Destroy any existing windows which are no longer being used
-	InvokeOnUIThread(boost::bind(boost::mem_fn(&ViewManager::CloseExistingWindows), this, boost::ref(existingDockingWindowsToClose)));
+	InvokeOnUIThread(std::bind(std::mem_fn(&ViewManager::CloseExistingWindows), this, std::ref(existingDockingWindowsToClose)));
 
 	return true;
 }
@@ -1755,7 +1740,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 bool ViewManager::SaveViewLayout(IHierarchicalStorageNode& viewLayout) const
 {
 	//Build a set of all currently open views
-	boost::mutex::scoped_lock lock(viewMutex);
+	std::unique_lock<std::mutex> lock(viewMutex);
 	std::set<IViewPresenter*> existingViewSet;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
@@ -1916,19 +1901,19 @@ bool ViewManager::SaveViewLayout(IHierarchicalStorageNode& viewLayout) const
 		default:
 			result = false;
 			continue;
-		case IViewPresenter::VIEWTARGET_SYSTEM:
+		case IViewPresenter::ViewTarget::System:
 			viewPresenterStateNode.CreateAttribute(L"Target", "System");
 			break;
-		case IViewPresenter::VIEWTARGET_MODULE:
+		case IViewPresenter::ViewTarget::Module:
 			viewPresenterStateNode.CreateAttribute(L"Target", "Module");
 			viewPresenterStateNode.CreateAttribute(L"ModuleID", viewPresenter->GetViewTargetModuleID());
 			break;
-		case IViewPresenter::VIEWTARGET_DEVICE:
+		case IViewPresenter::ViewTarget::Device:
 			viewPresenterStateNode.CreateAttribute(L"Target", "Device");
 			viewPresenterStateNode.CreateAttribute(L"DeviceInstanceName", viewPresenter->GetViewTargetDeviceInstanceName());
 			viewPresenterStateNode.CreateAttribute(L"ModuleID", viewPresenter->GetViewTargetModuleID());
 			break;
-		case IViewPresenter::VIEWTARGET_EXTENSION:
+		case IViewPresenter::ViewTarget::Extension:
 			viewPresenterStateNode.CreateAttribute(L"Target", "Extension");
 			viewPresenterStateNode.CreateAttribute(L"ExtensionInstanceName", viewPresenter->GetViewTargetExtensionInstanceName());
 			viewPresenterStateNode.CreateAttribute(L"ModuleID", viewPresenter->GetViewTargetModuleID());
@@ -2197,7 +2182,7 @@ HWND ViewManager::LoadDockingWindowFrameFromViewLayout(HWND parentDockingWindow,
 		IHierarchicalStorageAttribute* autoHideAttribute = dockingWindowState.GetAttribute(L"AutoHide");
 		IHierarchicalStorageAttribute* desiredWidthAttribute = dockingWindowState.GetAttribute(L"DesiredWidth");
 		IHierarchicalStorageAttribute* desiredHeightAttribute = dockingWindowState.GetAttribute(L"DesiredHeight");
-		WC_DockPanel::DockLocation dockLocation = (dockPosAttribute != 0)? StringToDockLocation(dockPosAttribute->GetValue()): WC_DockPanel::DOCKLOCATION_LEFT;
+		WC_DockPanel::DockLocation dockLocation = (dockPosAttribute != 0)? StringToDockLocation(dockPosAttribute->GetValue()): WC_DockPanel::DockLocation::Left;
 		bool autoHide = (autoHideAttribute != 0)? autoHideAttribute->ExtractValue<bool>(): false;
 		int desiredWidth = (desiredWidthAttribute != 0)? desiredWidthAttribute->ExtractValue<int>(): 200;
 		int desiredHeight = (desiredHeightAttribute != 0)? desiredHeightAttribute->ExtractValue<int>(): 200;
@@ -2215,7 +2200,7 @@ HWND ViewManager::LoadDockingWindowFrameFromViewLayout(HWND parentDockingWindow,
 		addDockedWindowParams.dockLocation = dockLocation;
 		addDockedWindowParams.forceToTopOfDockingOrder = false;
 		addDockedWindowParams.autoHide = autoHide;
-		SendMessage(parentDockingWindow, DockingWindow::DOCKWIN_ADDDOCKEDWINDOW, 0, (LPARAM)&addDockedWindowParams);
+		SendMessage(parentDockingWindow, (UINT)DockingWindow::WindowMessages::AddDockedWindow, 0, (LPARAM)&addDockedWindowParams);
 
 		//Show the docking window if required
 		if(!autoHide)
@@ -2236,7 +2221,7 @@ void ViewManager::CreateDockingWindowChildrenFromViewLayout(HWND dockingWindow, 
 	unsigned int selectedContentWindowID = (activeHostedWindowIDAttribute != 0)? activeHostedWindowIDAttribute->ExtractValue<unsigned int>(): (unsigned int)-1;
 
 	//Determine if the target docking window currently has any hosted content windows
-	bool dockingWindowHasChildContent = (SendMessage(dockingWindow, DockingWindow::DOCKWIN_GETCONTENTWINDOWCOUNT, 0, 0) != 0);
+	bool dockingWindowHasChildContent = (SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::GetContentWindowCount, 0, 0) != 0);
 
 	//Create placeholders for each content window in this docking window
 	IHierarchicalStorageNode* hostedWindowNode = dockingWindowState.GetChild(L"HostedWindow");
@@ -2258,7 +2243,7 @@ void ViewManager::CreateDockingWindowChildrenFromViewLayout(HWND dockingWindow, 
 			DockingWindow::AddContentWindowParams addContentWindowParams;
 			addContentWindowParams.hwnd = placeholderWindow;
 			addContentWindowParams.windowTitle = L"";
-			SendMessage(dockingWindow, DockingWindow::DOCKWIN_ADDCONTENTWINDOW, 0, (LPARAM)&addContentWindowParams);
+			SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::AddContentWindow, 0, (LPARAM)&addContentWindowParams);
 
 			//Record information on this created placeholder window
 			PlaceholderWindowInfo placeholderWindowInfo;
@@ -2335,19 +2320,19 @@ void ViewManager::SaveDockingWindowFrameStateToViewLayout(HWND dockingWindow, IH
 {
 	//Retrieve information on each hosted content window of the parent docking window, and
 	//sort them according to the tab index order.
-	unsigned int contentWindowCount = (unsigned int)SendMessage(dockingWindow, DockingWindow::DOCKWIN_GETCONTENTWINDOWCOUNT, 0, 0);
+	unsigned int contentWindowCount = (unsigned int)SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::GetContentWindowCount, 0, 0);
 	std::map<int, DockingWindow::GetContentWindowInfo> contentWindowInfoList;
 	for(unsigned int contentWindowNo = 0; contentWindowNo < contentWindowCount; ++contentWindowNo)
 	{
 		DockingWindow::GetContentWindowInfo contentWindowInfo;
-		if(SendMessage(dockingWindow, DockingWindow::DOCKWIN_GETCONTENTWINDOWINFO, (WPARAM)contentWindowNo, (LPARAM)&contentWindowInfo) == 0)
+		if(SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::GetContentWindowInfo, (WPARAM)contentWindowNo, (LPARAM)&contentWindowInfo) == 0)
 		{
 			contentWindowInfoList.insert(std::pair<int, DockingWindow::GetContentWindowInfo>(contentWindowInfo.tabIndex, contentWindowInfo));
 		}
 	}
 
 	//Retrieve the index number of the currently selected content window
-	unsigned int activeContentWindowIndex = (unsigned int)SendMessage(dockingWindow, DockingWindow::DOCKWIN_GETACTIVECONTENTWINDOW, 0, 0);
+	unsigned int activeContentWindowIndex = (unsigned int)SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::GetActiveContentWindow, 0, 0);
 
 	//Save information on each hosted content window in the target docking window, and
 	//attempt to retrieve the window ID of the currently selected content window.
@@ -2400,11 +2385,11 @@ void ViewManager::SaveDockingWindowFrameStateToViewLayout(HWND dockingWindow, IH
 	}
 
 	//Save information on each child docking window in the target docking window
-	unsigned int dockedWindowCount = (unsigned int)SendMessage(dockingWindow, DockingWindow::DOCKWIN_GETDOCKEDWINDOWCOUNT, 0, 0);
+	unsigned int dockedWindowCount = (unsigned int)SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowCount, 0, 0);
 	for(unsigned int dockedWindowNo = 0; dockedWindowNo < dockedWindowCount; ++dockedWindowNo)
 	{
 		DockingWindow::GetDockedWindowInfo getDockedWindowInfo;
-		if(SendMessage(dockingWindow, DockingWindow::DOCKWIN_GETDOCKEDWINDOWINFO, (WPARAM)dockedWindowNo, (LPARAM)&getDockedWindowInfo) == 0)
+		if(SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowInfo, (WPARAM)dockedWindowNo, (LPARAM)&getDockedWindowInfo) == 0)
 		{
 			IHierarchicalStorageNode& childDockedWindowNode = dockedWindowState.CreateChild(L"DockingWindowFrame");
 			childDockedWindowNode.CreateAttribute(L"DockPos", DockLocationToString(getDockedWindowInfo.dockLocation));
@@ -2420,11 +2405,11 @@ void ViewManager::SaveDockingWindowFrameStateToViewLayout(HWND dockingWindow, IH
 void ViewManager::BuildExistingWindowsToCloseList(std::list<HWND>& existingWindowsToClose) const
 {
 	existingWindowsToClose = GetOpenFloatingWindows();
-	unsigned int mainDockingWindowChildDockingWindowCount = (unsigned int)SendMessage(mainDockingWindow, DockingWindow::DOCKWIN_GETDOCKEDWINDOWCOUNT, 0, 0);
+	unsigned int mainDockingWindowChildDockingWindowCount = (unsigned int)SendMessage(mainDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowCount, 0, 0);
 	for(unsigned int i = 0; i < mainDockingWindowChildDockingWindowCount; ++i)
 	{
 		DockingWindow::GetDockedWindowInfo dockedWindowInfo;
-		if(SendMessage(mainDockingWindow, DockingWindow::DOCKWIN_GETDOCKEDWINDOWINFO, i, (LPARAM)&dockedWindowInfo) == 0)
+		if(SendMessage(mainDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowInfo, i, (LPARAM)&dockedWindowInfo) == 0)
 		{
 			existingWindowsToClose.push_back(dockedWindowInfo.hwnd);
 		}
@@ -2445,21 +2430,21 @@ WC_DockPanel::DockLocation ViewManager::StringToDockLocation(const std::wstring&
 {
 	if(dockLocationAsString == L"Left")
 	{
-		return WC_DockPanel::DOCKLOCATION_LEFT;
+		return WC_DockPanel::DockLocation::Left;
 	}
 	else if(dockLocationAsString == L"Right")
 	{
-		return WC_DockPanel::DOCKLOCATION_RIGHT;
+		return WC_DockPanel::DockLocation::Right;
 	}
 	else if(dockLocationAsString == L"Top")
 	{
-		return WC_DockPanel::DOCKLOCATION_TOP;
+		return WC_DockPanel::DockLocation::Top;
 	}
 	else if(dockLocationAsString == L"Bottom")
 	{
-		return WC_DockPanel::DOCKLOCATION_BOTTOM;
+		return WC_DockPanel::DockLocation::Bottom;
 	}
-	return WC_DockPanel::DOCKLOCATION_LEFT;
+	return WC_DockPanel::DockLocation::Left;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2467,16 +2452,33 @@ std::wstring ViewManager::DockLocationToString(WC_DockPanel::DockLocation dockLo
 {
 	switch(dockLocation)
 	{
-	case WC_DockPanel::DOCKLOCATION_LEFT:
+	case WC_DockPanel::DockLocation::Left:
 		return L"Left";
-	case WC_DockPanel::DOCKLOCATION_RIGHT:
+	case WC_DockPanel::DockLocation::Right:
 		return L"Right";
-	case WC_DockPanel::DOCKLOCATION_TOP:
+	case WC_DockPanel::DockLocation::Top:
 		return L"Top";
-	case WC_DockPanel::DOCKLOCATION_BOTTOM:
+	case WC_DockPanel::DockLocation::Bottom:
 		return L"Bottom";
 	}
 	return L"Unknown";
+}
+
+//----------------------------------------------------------------------------------------
+WC_DockPanel::DockLocation ViewManager::ViewDockLocationToDockPanelDockLocation(IView::DockPos viewDockLocation)
+{
+	switch(viewDockLocation)
+	{
+	default:
+	case IView::DockPos::Left:
+		return WC_DockPanel::DockLocation::Left;
+	case IView::DockPos::Right:
+		return WC_DockPanel::DockLocation::Right;
+	case IView::DockPos::Top:
+		return WC_DockPanel::DockLocation::Top;
+	case IView::DockPos::Bottom:
+		return WC_DockPanel::DockLocation::Bottom;
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -2484,17 +2486,17 @@ IView::ViewType ViewManager::StringToViewType(const std::wstring& viewTypeAsStri
 {
 	if(viewTypeAsString == L"Dialog")
 	{
-		return IView::VIEWTYPE_DIALOG;
+		return IView::ViewType::Dialog;
 	}
 	else if(viewTypeAsString == L"Dockable")
 	{
-		return IView::VIEWTYPE_DOCKABLE;
+		return IView::ViewType::Dockable;
 	}
 	else if(viewTypeAsString == L"Document")
 	{
-		return IView::VIEWTYPE_DOCUMENT;
+		return IView::ViewType::Document;
 	}
-	return IView::VIEWTYPE_DIALOG;
+	return IView::ViewType::Dialog;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2502,11 +2504,11 @@ std::wstring ViewManager::ViewTypeToString(IView::ViewType viewType)
 {
 	switch(viewType)
 	{
-	case IView::VIEWTYPE_DIALOG:
+	case IView::ViewType::Dialog:
 		return L"Dialog";
-	case IView::VIEWTYPE_DOCKABLE:
+	case IView::ViewType::Dockable:
 		return L"Dockable";
-	case IView::VIEWTYPE_DOCUMENT:
+	case IView::ViewType::Document:
 		return L"Document";
 	}
 	return L"Unknown";
@@ -3129,7 +3131,7 @@ LRESULT CALLBACK ViewManager::WndProcMessageWindow(HWND hwnd, UINT msg, WPARAM w
 			//Perform any pending UI thread invocation requests
 			if(state->pendingUIThreadInvoke)
 			{
-				boost::mutex::scoped_lock lock(state->invokeMutex);
+				std::unique_lock<std::mutex> lock(state->invokeMutex);
 				while(!state->pendingInvokeUIRequests.empty())
 				{
 					//Retrieve the next invoke request, and remove it from the queue.
@@ -3217,7 +3219,7 @@ LRESULT CALLBACK ViewManager::WndProcDialogWindowFrame(HWND hwnd, UINT msg, WPAR
 //----------------------------------------------------------------------------------------
 //UI thread invocation
 //----------------------------------------------------------------------------------------
-void ViewManager::InvokeOnUIThread(const boost::function<void()>& callback)
+void ViewManager::InvokeOnUIThread(const std::function<void()>& callback)
 {
 	//Either execute the supplied callback, or pass it to the UI thread for execution,
 	//depending on whether we're already on the UI thread or not.
@@ -3230,11 +3232,11 @@ void ViewManager::InvokeOnUIThread(const boost::function<void()>& callback)
 	else
 	{
 		//Construct a set of parameters for this UI thread invocation
-		boost::condition callbackComplete;
+		std::condition_variable callbackComplete;
 		InvokeUIParams invokeParams(callback, callbackComplete);
 
 		//Add this invoke request to the list of pending invocation requests
-		boost::mutex::scoped_lock lock(invokeMutex);
+		std::unique_lock<std::mutex> lock(invokeMutex);
 		pendingInvokeUIRequests.push_back(invokeParams);
 		pendingUIThreadInvoke = true;
 		PostMessage(messageWindow, WM_USER, 0, 0);

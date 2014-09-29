@@ -1,11 +1,11 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IDevice::UpdateMethod
+enum class IDevice::UpdateMethod
 {
-	UPDATEMETHOD_NONE,
-	UPDATEMETHOD_STEP,
-	UPDATEMETHOD_TIMESLICE
+	None,
+	Step,
+	Timeslice
 };
 
 //----------------------------------------------------------------------------------------

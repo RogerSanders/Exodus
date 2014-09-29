@@ -9,7 +9,7 @@ struct ByteOrder
 {
 public:
 	//Constructors
-	inline ByteOrder(IStream::ByteOrder abyteOrder = IStream::BYTEORDER_PLATFORM);
+	inline ByteOrder(IStream::ByteOrder abyteOrder = IStream::ByteOrder::Platform);
 
 	//Byte order functions
 	inline IStream::ByteOrder GetByteOrder() const;

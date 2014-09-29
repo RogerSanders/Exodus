@@ -1,5 +1,5 @@
 #include "ModuleOptionMenuHandler.h"
-#include <boost/bind.hpp>
+#include <functional>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -96,7 +96,7 @@ std::map<unsigned int, ModuleOptionMenuHandler::SettingEntry*> ModuleOptionMenuH
 		}
 
 		//Build a SettingEntry object for this module setting
-		SettingEntry* settingEntry = new SettingEntry(boost::bind(boost::mem_fn(&ModuleOptionMenuHandler::RefreshActiveMenuSettingOption), this, settingID));
+		SettingEntry* settingEntry = new SettingEntry(std::bind(std::mem_fn(&ModuleOptionMenuHandler::RefreshActiveMenuSettingOption), this, settingID));
 		settingEntry->settingID = settingID;
 		settingEntry->displayName = moduleSettingInfo.GetDisplayName();
 		settingEntry->toggleSetting = moduleSettingInfo.IsToggleSetting();

@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MemoryRead">
+      <UniqueIdentifier>{a14afd12-fc6a-425a-a316-66ac0b537ce9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MemoryWrite">
+      <UniqueIdentifier>{8a217609-2d66-4b29-9fb2-d05cba52408d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ROM">
+      <UniqueIdentifier>{2aeb0933-e559-42e9-be0d-71a42b8e2a15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ROM\ROM16">
+      <UniqueIdentifier>{16095b11-ffdd-4e2b-8c58-a13d0162e762}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ROM\ROM32">
+      <UniqueIdentifier>{671c57bc-42b4-4bf5-a2a5-9f234ce344ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ROM\ROM8">
+      <UniqueIdentifier>{c1d6b4f2-5736-4593-ade7-00b8b0a6bc3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ROM\ROMBase">
+      <UniqueIdentifier>{19dcba68-4003-4ab1-a81e-bee092c39040}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ROM\ROM8Variable">
+      <UniqueIdentifier>{16a6c638-7fb6-4c40-b721-482a98199ccc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ROM\ROM16Variable">
+      <UniqueIdentifier>{b206349d-697c-4ebf-9e93-4bb597faa334}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ROM\ROM32Variable">
+      <UniqueIdentifier>{6a5006e4-d202-46fe-b18a-08796e1f8ba5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RAM">
+      <UniqueIdentifier>{019b9c31-412e-4028-bd1f-24338180aac7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RAM\RAM8Variable">
+      <UniqueIdentifier>{6cf9641d-ebd3-40cc-98df-b5925db37167}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RAM\RAMBase">
+      <UniqueIdentifier>{e82daee0-6505-4747-a381-d1ea5df6a754}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RAM\RAM8">
+      <UniqueIdentifier>{b0b4d139-af4f-44fc-9f97-b36258d5379d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RAM\RAM16">
+      <UniqueIdentifier>{31da8a09-658a-4a07-b2b4-4cbeaf428826}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RAM\RAM32">
+      <UniqueIdentifier>{9c2a0e10-1e1d-4006-9012-9538a6bb8dc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RAM\RAM16Variable">
+      <UniqueIdentifier>{b5524618-9235-43e8-bf1e-9fc39c934e4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RAM\RAM32Variable">
+      <UniqueIdentifier>{850afd51-5e28-425b-bf30-c4caed04cc8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedRAM">
+      <UniqueIdentifier>{6bb8ceac-b4de-4673-875d-2beb338ed276}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer">
+      <UniqueIdentifier>{9386f0e5-6470-4cbc-81fd-01ce2a923637}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer\TimedBufferInt">
+      <UniqueIdentifier>{c9f79a25-893d-45be-b636-ec1a764d3b60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer\TimedBufferIntDevice">
+      <UniqueIdentifier>{560817c8-ed10-44af-b75e-68346e6737b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer\TimedBufferTimeslice">
+      <UniqueIdentifier>{eb98be48-e6dd-4689-ba51-a07eb15e32a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{101bc3d5-4e79-4827-afed-fa27206ea084}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IMemory">
+      <UniqueIdentifier>{30acc109-091f-4d13-be70-4ca0d8472649}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MemoryRead.cpp">
+      <Filter>MemoryRead</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryWrite.cpp">
+      <Filter>MemoryWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="ROM16.cpp">
+      <Filter>ROM\ROM16</Filter>
+    </ClCompile>
+    <ClCompile Include="ROM32.cpp">
+      <Filter>ROM\ROM32</Filter>
+    </ClCompile>
+    <ClCompile Include="ROM8.cpp">
+      <Filter>ROM\ROM8</Filter>
+    </ClCompile>
+    <ClCompile Include="ROM8Variable.cpp">
+      <Filter>ROM\ROM8Variable</Filter>
+    </ClCompile>
+    <ClCompile Include="ROM16Variable.cpp">
+      <Filter>ROM\ROM16Variable</Filter>
+    </ClCompile>
+    <ClCompile Include="ROM32Variable.cpp">
+      <Filter>ROM\ROM32Variable</Filter>
+    </ClCompile>
+    <ClCompile Include="RAM8Variable.cpp">
+      <Filter>RAM\RAM8Variable</Filter>
+    </ClCompile>
+    <ClCompile Include="RAM8.cpp">
+      <Filter>RAM\RAM8</Filter>
+    </ClCompile>
+    <ClCompile Include="RAM16.cpp">
+      <Filter>RAM\RAM16</Filter>
+    </ClCompile>
+    <ClCompile Include="RAM32.cpp">
+      <Filter>RAM\RAM32</Filter>
+    </ClCompile>
+    <ClCompile Include="RAM16Variable.cpp">
+      <Filter>RAM\RAM16Variable</Filter>
+    </ClCompile>
+    <ClCompile Include="RAM32Variable.cpp">
+      <Filter>RAM\RAM32Variable</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedRAM.cpp">
+      <Filter>SharedRAM</Filter>
+    </ClCompile>
+    <ClCompile Include="TimedBufferInt.cpp">
+      <Filter>TimedBuffer\TimedBufferInt</Filter>
+    </ClCompile>
+    <ClCompile Include="TimedBufferIntDevice.cpp">
+      <Filter>TimedBuffer\TimedBufferIntDevice</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MemoryRead.h">
+      <Filter>MemoryRead</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryWrite.h">
+      <Filter>MemoryWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="ROM16.h">
+      <Filter>ROM\ROM16</Filter>
+    </ClInclude>
+    <ClInclude Include="ROM32.h">
+      <Filter>ROM\ROM32</Filter>
+    </ClInclude>
+    <ClInclude Include="ROM8.h">
+      <Filter>ROM\ROM8</Filter>
+    </ClInclude>
+    <ClInclude Include="ROMBase.h">
+      <Filter>ROM\ROMBase</Filter>
+    </ClInclude>
+    <ClInclude Include="ROM8Variable.h">
+      <Filter>ROM\ROM8Variable</Filter>
+    </ClInclude>
+    <ClInclude Include="ROM16Variable.h">
+      <Filter>ROM\ROM16Variable</Filter>
+    </ClInclude>
+    <ClInclude Include="ROM32Variable.h">
+      <Filter>ROM\ROM32Variable</Filter>
+    </ClInclude>
+    <ClInclude Include="RAM8Variable.h">
+      <Filter>RAM\RAM8Variable</Filter>
+    </ClInclude>
+    <ClInclude Include="RAMBase.h">
+      <Filter>RAM\RAMBase</Filter>
+    </ClInclude>
+    <ClInclude Include="RAM8.h">
+      <Filter>RAM\RAM8</Filter>
+    </ClInclude>
+    <ClInclude Include="RAM16.h">
+      <Filter>RAM\RAM16</Filter>
+    </ClInclude>
+    <ClInclude Include="RAM32.h">
+      <Filter>RAM\RAM32</Filter>
+    </ClInclude>
+    <ClInclude Include="RAM16Variable.h">
+      <Filter>RAM\RAM16Variable</Filter>
+    </ClInclude>
+    <ClInclude Include="RAM32Variable.h">
+      <Filter>RAM\RAM32Variable</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedRAM.h">
+      <Filter>SharedRAM</Filter>
+    </ClInclude>
+    <ClInclude Include="TimedBufferInt.h">
+      <Filter>TimedBuffer\TimedBufferInt</Filter>
+    </ClInclude>
+    <ClInclude Include="TimedBufferIntDevice.h">
+      <Filter>TimedBuffer\TimedBufferIntDevice</Filter>
+    </ClInclude>
+    <ClInclude Include="TimedBufferTimeslice.h">
+      <Filter>TimedBuffer\TimedBufferTimeslice</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="IMemory.h">
+      <Filter>IMemory</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ROMBase.inl">
+      <Filter>ROM\ROMBase</Filter>
+    </None>
+    <None Include="RAMBase.inl">
+      <Filter>RAM\RAMBase</Filter>
+    </None>
+    <None Include="TimedBufferTimeslice.inl">
+      <Filter>TimedBuffer\TimedBufferTimeslice</Filter>
+    </None>
+    <None Include="IMemory.inl">
+      <Filter>IMemory</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Memory.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

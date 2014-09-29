@@ -3,20 +3,20 @@ namespace Stream {
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum WAVFile::OpenMode
+enum class WAVFile::OpenMode
 {
-	OPENMODE_READONLY,
-	OPENMODE_WRITEONLY,
-	OPENMODE_READANDWRITE
+	ReadOnly,
+	WriteOnly,
+	ReadAndWrite
 };
 
 //----------------------------------------------------------------------------------------
-enum WAVFile::CreateMode
+enum class WAVFile::CreateMode
 {
-	CREATEMODE_OPEN,       //Open an existing file. Fails if the file doesn't exist.
-	CREATEMODE_CREATE,     //Create a new file. Truncates the file if it exists.
-	CREATEMODE_CREATENEW,  //Create a new file. Fails if the file already exists.
-	CREATEMODE_OVERWRITE   //The file must exist, and will be truncated.
+	Open,       //Open an existing file. Fails if the file doesn't exist.
+	Create,     //Create a new file. Truncates the file if it exists.
+	CreateNew,  //Create a new file. Fails if the file already exists.
+	Overwrite   //The file must exist, and will be truncated.
 };
 
 //----------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ enum WAVFile::CreateMode
 WAVFile::WAVFile()
 :fileBuffer(0), bufferSize(0), fileOpen(false), waveHeaderLoaded(false), savedSampleCount(0)
 {
-	SetByteOrder(BYTEORDER_LITTLEENDIAN);
+	SetByteOrder(ByteOrder::LittleEndian);
 }
 
 //----------------------------------------------------------------------------------------
@@ -88,15 +88,15 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 	//Process the openMode parameter
 	switch(openMode)
 	{
-	case OPENMODE_READONLY:
+	case OpenMode::ReadOnly:
 		desiredAccess = GENERIC_READ;
 		shareMode = FILE_SHARE_READ;
 		break;
-	case OPENMODE_WRITEONLY:
+	case OpenMode::WriteOnly:
 		desiredAccess = GENERIC_WRITE;
 		shareMode = 0;
 		break;
-	case OPENMODE_READANDWRITE:
+	case OpenMode::ReadAndWrite:
 		desiredAccess = GENERIC_READ | GENERIC_WRITE;
 		shareMode = 0;
 		break;
@@ -108,17 +108,17 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 	bool openExistingFile = false;
 	switch(createMode)
 	{
-	case CREATEMODE_OPEN: //Open an existing file. Fails if the file doesn't exist.
+	case CreateMode::Open: //Open an existing file. Fails if the file doesn't exist.
 		openExistingFile = true;
 		creationDisposition = OPEN_EXISTING;
 		break;
-	case CREATEMODE_CREATE: //Create a new file. Truncates the file if it exists.
+	case CreateMode::Create: //Create a new file. Truncates the file if it exists.
 		creationDisposition = CREATE_ALWAYS;
 		break;
-	case CREATEMODE_CREATENEW: //Create a new file. Fails if the file already exists.
+	case CreateMode::CreateNew: //Create a new file. Fails if the file already exists.
 		creationDisposition = CREATE_NEW;
 		break;
-	case CREATEMODE_OVERWRITE: //The file must exist, and will be truncated.
+	case CreateMode::Overwrite: //The file must exist, and will be truncated.
 		creationDisposition = TRUNCATE_EXISTING;
 		break;
 	default:

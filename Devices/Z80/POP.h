@@ -33,20 +33,20 @@ public:
 		//POP qq		11qq0001
 		//POP IX		11011101 11100001
 		//POP IY		11111101 11100001
-		source.SetMode(EffectiveAddress::MODE_SP_POSTINC);
+		source.SetMode(EffectiveAddress::Mode::SPPostInc);
 		switch(data.GetDataSegment(4, 2))
 		{
 		case 0:
-			target.SetMode(EffectiveAddress::MODE_BC);
+			target.SetMode(EffectiveAddress::Mode::BC);
 			break;
 		case 1:
-			target.SetMode(EffectiveAddress::MODE_DE);
+			target.SetMode(EffectiveAddress::Mode::DE);
 			break;
 		case 2:
-			target.SetMode(EffectiveAddress::MODE_HL);
+			target.SetMode(EffectiveAddress::Mode::HL);
 			break;
 		case 3:
-			target.SetMode(EffectiveAddress::MODE_AF);
+			target.SetMode(EffectiveAddress::Mode::AF);
 			break;
 		}
 

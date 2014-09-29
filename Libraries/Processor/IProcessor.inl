@@ -1,33 +1,33 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IProcessor::IProcessorDataSource
+enum class IProcessor::IProcessorDataSource
 {
-	IPROCESSORDATASOURCE_BREAKPOINT_NAME = 1,
-	IPROCESSORDATASOURCE_BREAKPOINT_ENABLE,
-	IPROCESSORDATASOURCE_BREAKPOINT_LOG,
-	IPROCESSORDATASOURCE_BREAKPOINT_BREAK,
-	IPROCESSORDATASOURCE_BREAKPOINT_NOTCONDITION,
-	IPROCESSORDATASOURCE_BREAKPOINT_CONDITION,
-	IPROCESSORDATASOURCE_BREAKPOINT_LOCATION1,
-	IPROCESSORDATASOURCE_BREAKPOINT_LOCATION2,
-	IPROCESSORDATASOURCE_BREAKPOINT_LOCATIONMASK,
-	IPROCESSORDATASOURCE_BREAKPOINT_HITCOUNTER,
-	IPROCESSORDATASOURCE_BREAKPOINT_ENABLEBREAKINTERVAL,
-	IPROCESSORDATASOURCE_BREAKPOINT_BREAKINTERVAL,
-	IPROCESSORDATASOURCE_END = 0x1000
+	BreakpointName = 1,
+	BreakpointEnable,
+	BreakpointLog,
+	BreakpointBreak,
+	BreakpointNotCondition,
+	BreakpointCondition,
+	BreakpointLocation1,
+	BreakpointLocation2,
+	BreakpointLocationMask,
+	BreakpointHitCounter,
+	BreakpointEnableBreakInterval,
+	BreakpointBreakInterval,
+	End = 0x1000
 };
 
 //----------------------------------------------------------------------------------------
-enum IProcessor::IProcessorCommand
+enum class IProcessor::IProcessorCommand
 {
-	IPROCESSORCOMMAND_BREAKPOINT_RESETHITCOUNTER = 1,
-	IPROCESSORCOMMAND_BREAKPOINT_DELETE,
-	IPROCESSORCOMMAND_BREAKPOINT_NEW,
-	IPROCESSORCOMMAND_BREAKPOINT_ENABLEALL,
-	IPROCESSORCOMMAND_BREAKPOINT_DISABLEALL,
-	IPROCESSORCOMMAND_BREAKPOINT_DELETEALL,
-	IPROCESSORCOMMAND_END = 0x1000
+	BreakpointResetHitCounter = 1,
+	BreakpointDelete,
+	BreakpointNew,
+	BreakpointEnableAll,
+	BreakpointDisableAll,
+	BreakpointDeleteAll,
+	End = 0x1000
 };
 
 //----------------------------------------------------------------------------------------

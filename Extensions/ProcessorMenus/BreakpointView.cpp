@@ -187,19 +187,19 @@ INT_PTR BreakpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			breakpointConditionNot = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_BREAK_LOCCOND1:
-			breakpointCondition = IBreakpoint::CONDITION_EQUAL;
+			breakpointCondition = IBreakpoint::Condition::Equal;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LOCCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_BREAK_LOCCOND2:
-			breakpointCondition = IBreakpoint::CONDITION_GREATER;
+			breakpointCondition = IBreakpoint::Condition::Greater;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LOCCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_BREAK_LOCCOND3:
-			breakpointCondition = IBreakpoint::CONDITION_LESS;
+			breakpointCondition = IBreakpoint::Condition::Less;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LOCCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_BREAK_LOCCOND4:
-			breakpointCondition = IBreakpoint::CONDITION_GREATER_AND_LESS;
+			breakpointCondition = IBreakpoint::Condition::GreaterAndLess;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LOCCONDDATA2), TRUE);
 			break;
 
@@ -381,7 +381,7 @@ void BreakpointView::ClearBreakpointData()
 	breakpointBreak = true;
 	breakpointCounterEnable = false;
 	breakpointConditionNot = false;
-	breakpointCondition = IBreakpoint::CONDITION_EQUAL;
+	breakpointCondition = IBreakpoint::Condition::Equal;
 }
 
 //----------------------------------------------------------------------------------------
@@ -420,20 +420,20 @@ void BreakpointView::UpdateBreakpointFields(HWND hwnd)
 	CheckDlgButton(hwnd, IDC_PROCESSOR_BREAK_LOCCONDNOT, (breakpointConditionNot)? BST_CHECKED: BST_UNCHECKED);
 	switch(breakpointCondition)
 	{
-	case IBreakpoint::CONDITION_EQUAL:
+	case IBreakpoint::Condition::Equal:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_BREAK_LOCCOND1, IDC_PROCESSOR_BREAK_LOCCOND4, IDC_PROCESSOR_BREAK_LOCCOND1);
 		break;
-	case IBreakpoint::CONDITION_GREATER:
+	case IBreakpoint::Condition::Greater:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_BREAK_LOCCOND1, IDC_PROCESSOR_BREAK_LOCCOND4, IDC_PROCESSOR_BREAK_LOCCOND2);
 		break;
-	case IBreakpoint::CONDITION_LESS:
+	case IBreakpoint::Condition::Less:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_BREAK_LOCCOND1, IDC_PROCESSOR_BREAK_LOCCOND4, IDC_PROCESSOR_BREAK_LOCCOND3);
 		break;
-	case IBreakpoint::CONDITION_GREATER_AND_LESS:
+	case IBreakpoint::Condition::GreaterAndLess:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_BREAK_LOCCOND1, IDC_PROCESSOR_BREAK_LOCCOND4, IDC_PROCESSOR_BREAK_LOCCOND4);
 		break;
 	}
-	if(breakpointCondition == IBreakpoint::CONDITION_GREATER_AND_LESS)
+	if(breakpointCondition == IBreakpoint::Condition::GreaterAndLess)
 	{
 		EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_BREAK_LOCCONDDATA2), TRUE);
 	}

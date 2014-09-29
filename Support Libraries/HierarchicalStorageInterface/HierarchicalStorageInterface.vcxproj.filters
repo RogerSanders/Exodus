@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="IHierarchicalStorageTree">
+      <UniqueIdentifier>{256b5597-e87a-4cd9-b7a2-407b50576d53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IHierarchicalStorageNode">
+      <UniqueIdentifier>{b5baadfa-f578-4051-82e1-7afe41417142}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IHierarchicalStorageAttribute">
+      <UniqueIdentifier>{c838aa93-4b03-4230-b86e-f3337288cd4d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IHierarchicalStorageTree.h">
+      <Filter>IHierarchicalStorageTree</Filter>
+    </ClInclude>
+    <ClInclude Include="IHierarchicalStorageNode.h">
+      <Filter>IHierarchicalStorageNode</Filter>
+    </ClInclude>
+    <ClInclude Include="IHierarchicalStorageAttribute.h">
+      <Filter>IHierarchicalStorageAttribute</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IHierarchicalStorageTree.inl">
+      <Filter>IHierarchicalStorageTree</Filter>
+    </None>
+    <None Include="IHierarchicalStorageNode.inl">
+      <Filter>IHierarchicalStorageNode</Filter>
+    </None>
+    <None Include="IHierarchicalStorageAttribute.inl">
+      <Filter>IHierarchicalStorageAttribute</Filter>
+    </None>
+    <None Include="HierarchicalStorageInterface.pkg" />
+  </ItemGroup>
+</Project>

@@ -31,8 +31,8 @@ public:
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//LDIR		11101101 10110000
-		source.SetMode(EffectiveAddress::MODE_HL_POSTINC);
-		target.SetMode(EffectiveAddress::MODE_DE_POSTINC);
+		source.SetMode(EffectiveAddress::Mode::HLPostInc);
+		target.SetMode(EffectiveAddress::Mode::DEPostInc);
 		AddExecuteCycleCount(12);
 
 		AddInstructionSize(GetIndexOffsetSize(source.UsesIndexOffset() || target.UsesIndexOffset()));

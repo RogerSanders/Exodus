@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assertion">
+      <UniqueIdentifier>{cf42afb0-67ef-4072-8224-567b35dc719b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CrashReport">
+      <UniqueIdentifier>{a281818a-93fb-44e9-9e13-83b49d278f92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Threading">
+      <UniqueIdentifier>{32841f7e-5bc3-44c3-a40f-93539b62a347}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Assertion.h">
+      <Filter>Assertion</Filter>
+    </ClInclude>
+    <ClInclude Include="CrashReport.h">
+      <Filter>CrashReport</Filter>
+    </ClInclude>
+    <ClInclude Include="Threading.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assertion.inl">
+      <Filter>Assertion</Filter>
+    </None>
+    <None Include="Debug.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CrashReport.cpp">
+      <Filter>CrashReport</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading.cpp">
+      <Filter>Threading</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

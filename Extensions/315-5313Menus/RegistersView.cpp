@@ -1710,7 +1710,7 @@ bool RegistersView::RawRegistersControlIDToDataID(int controlID, unsigned int& g
 	case IDC_REG_21:
 	case IDC_REG_22:
 	case IDC_REG_23:{
-		genericDataID = IS315_5313::DATASOURCE_RAWREGISTER;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RawRegister;
 		registerDataContext.registerNo = (unsigned int)(controlID - IDC_REG_0);
 		*dataContext = (IGenericAccess::DataContext*)&registerDataContext;
 		return true;}
@@ -1724,100 +1724,100 @@ bool RegistersView::ModeRegistersControlIDToDataID(int controlID, unsigned int& 
 	switch(controlID)
 	{
 	case IDC_VDP_REGISTERS_VSI:
-		genericDataID = IS315_5313::DATASOURCE_REG_VSI;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegVSI;
 		return true;
 	case IDC_VDP_REGISTERS_HSI:
-		genericDataID = IS315_5313::DATASOURCE_REG_HSI;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegHSI;
 		return true;
 	case IDC_VDP_REGISTERS_LCB:
-		genericDataID = IS315_5313::DATASOURCE_REG_LCB;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegLCB;
 		return true;
 	case IDC_VDP_REGISTERS_IE1:
-		genericDataID = IS315_5313::DATASOURCE_REG_IE1;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegIE1;
 		return true;
 	case IDC_VDP_REGISTERS_SS:
-		genericDataID = IS315_5313::DATASOURCE_REG_SS;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegSS;
 		return true;
 	case IDC_VDP_REGISTERS_PS:
-		genericDataID = IS315_5313::DATASOURCE_REG_PS;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegPS;
 		return true;
 	case IDC_VDP_REGISTERS_M2:
-		genericDataID = IS315_5313::DATASOURCE_REG_M2;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegM2;
 		return true;
 	case IDC_VDP_REGISTERS_ES:
-		genericDataID = IS315_5313::DATASOURCE_REG_ES;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegES;
 		return true;
 	case IDC_VDP_REGISTERS_EVRAM:
-		genericDataID = IS315_5313::DATASOURCE_REG_EVRAM;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegEVRAM;
 		return true;
 	case IDC_VDP_REGISTERS_DISP:
-		genericDataID = IS315_5313::DATASOURCE_REG_DISPLAYENABLED;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegDisplayEnabled;
 		return true;
 	case IDC_VDP_REGISTERS_IE0:
-		genericDataID = IS315_5313::DATASOURCE_REG_IE0;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegIE0;
 		return true;
 	case IDC_VDP_REGISTERS_M1:
-		genericDataID = IS315_5313::DATASOURCE_REG_DMAENABLED;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegDMAEnabled;
 		return true;
 	case IDC_VDP_REGISTERS_M3:
-		genericDataID = IS315_5313::DATASOURCE_REG_M3;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegM3;
 		return true;
 	case IDC_VDP_REGISTERS_M5:
-		genericDataID = IS315_5313::DATASOURCE_REG_MODE5;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegMode5;
 		return true;
 	case IDC_VDP_REGISTERS_SZ:
-		genericDataID = IS315_5313::DATASOURCE_REG_SZ;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegSZ;
 		return true;
 	case IDC_VDP_REGISTERS_MAG:
-		genericDataID = IS315_5313::DATASOURCE_REG_MAG;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegMAG;
 		return true;
 	case IDC_VDP_REGISTERS_0B7:
-		genericDataID = IS315_5313::DATASOURCE_REG_0B7;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg0B7;
 		return true;
 	case IDC_VDP_REGISTERS_0B6:
-		genericDataID = IS315_5313::DATASOURCE_REG_0B6;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg0B6;
 		return true;
 	case IDC_VDP_REGISTERS_0B5:
-		genericDataID = IS315_5313::DATASOURCE_REG_0B5;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg0B5;
 		return true;
 	case IDC_VDP_REGISTERS_0B4:
-		genericDataID = IS315_5313::DATASOURCE_REG_0B4;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg0B4;
 		return true;
 	case IDC_VDP_REGISTERS_IE2:
-		genericDataID = IS315_5313::DATASOURCE_REG_IE2;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegIE2;
 		return true;
 	case IDC_VDP_REGISTERS_VSCR:
-		genericDataID = IS315_5313::DATASOURCE_REG_VSCR;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegVSCR;
 		return true;
 	case IDC_VDP_REGISTERS_HSCR:
-		genericDataID = IS315_5313::DATASOURCE_REG_HSCR;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegHSCR;
 		return true;
 	case IDC_VDP_REGISTERS_LSCR:
-		genericDataID = IS315_5313::DATASOURCE_REG_LSCR;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegLSCR;
 		return true;
 	case IDC_VDP_REGISTERS_RS0:
-		genericDataID = IS315_5313::DATASOURCE_REG_RS0;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegRS0;
 		return true;
 	case IDC_VDP_REGISTERS_U1:
-		genericDataID = IS315_5313::DATASOURCE_REG_U1;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegU1;
 		return true;
 	case IDC_VDP_REGISTERS_U2:
-		genericDataID = IS315_5313::DATASOURCE_REG_U2;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegU2;
 		return true;
 	case IDC_VDP_REGISTERS_U3:
-		genericDataID = IS315_5313::DATASOURCE_REG_U3;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegU3;
 		return true;
 	case IDC_VDP_REGISTERS_STE:
-		genericDataID = IS315_5313::DATASOURCE_REG_STE;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegSTE;
 		return true;
 	case IDC_VDP_REGISTERS_LSM1:
-		genericDataID = IS315_5313::DATASOURCE_REG_LSM1;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegLSM1;
 		return true;
 	case IDC_VDP_REGISTERS_LSM0:
-		genericDataID = IS315_5313::DATASOURCE_REG_LSM0;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegLSM0;
 		return true;
 	case IDC_VDP_REGISTERS_RS1:
-		genericDataID = IS315_5313::DATASOURCE_REG_RS1;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegRS1;
 		return true;
 	}
 	return false;
@@ -1829,100 +1829,100 @@ bool RegistersView::OtherRegistersControlIDToDataID(int controlID, unsigned int&
 	switch(controlID)
 	{
 	case IDC_VDP_REGISTERS_SCROLLABASE:
-		genericDataID = IS315_5313::DATASOURCE_REG_NAMETABLEBASEA;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegNameTableBaseA;
 		return true;
 	case IDC_VDP_REGISTERS_WINDOWBASE:
-		genericDataID = IS315_5313::DATASOURCE_REG_NAMETABLEBASEWINDOW;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegNameTableBaseWindow;
 		return true;
 	case IDC_VDP_REGISTERS_SCROLLBBASE:
-		genericDataID = IS315_5313::DATASOURCE_REG_NAMETABLEBASEB;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegNameTableBaseB;
 		return true;
 	case IDC_VDP_REGISTERS_SPRITEBASE:
-		genericDataID = IS315_5313::DATASOURCE_REG_NAMETABLEBASESPRITE;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegNameTableBaseSprite;
 		return true;
 	case IDC_VDP_REGISTERS_SPRITEPATTERNBASE:
-		genericDataID = IS315_5313::DATASOURCE_REG_PATTERNBASESPRITE;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegPatternBaseSprite;
 		return true;
 	case IDC_VDP_REGISTERS_077:
-		genericDataID = IS315_5313::DATASOURCE_REG_077;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg077;
 		return true;
 	case IDC_VDP_REGISTERS_076:
-		genericDataID = IS315_5313::DATASOURCE_REG_076;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg076;
 		return true;
 	case IDC_VDP_REGISTERS_BACKGROUNDPALETTEROW:
-		genericDataID = IS315_5313::DATASOURCE_REG_BACKGROUNDPALETTEROW;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegBackgroundPaletteRow;
 		return true;
 	case IDC_VDP_REGISTERS_BACKGROUNDPALETTECOLUMN:
-		genericDataID = IS315_5313::DATASOURCE_REG_BACKGROUNDPALETTECOLUMN;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegBackgroundPaletteColumn;
 		return true;
 	case IDC_VDP_REGISTERS_BACKGROUNDSCROLLX:
-		genericDataID = IS315_5313::DATASOURCE_REG_BACKGROUNDSCROLLX;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegBackgroundScrollX;
 		return true;
 	case IDC_VDP_REGISTERS_BACKGROUNDSCROLLY:
-		genericDataID = IS315_5313::DATASOURCE_REG_BACKGROUNDSCROLLY;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegBackgroundScrollY;
 		return true;
 	case IDC_VDP_REGISTERS_HINTLINECOUNTER:
-		genericDataID = IS315_5313::DATASOURCE_REG_HINTDATA;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegHINTData;
 		return true;
 	case IDC_VDP_REGISTERS_HSCROLLBASE:
-		genericDataID = IS315_5313::DATASOURCE_REG_HSCROLLDATABASE;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegHScrollDataBase;
 		return true;
 	case IDC_VDP_REGISTERS_0E57:
-		genericDataID = IS315_5313::DATASOURCE_REG_0E57;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg0E57;
 		return true;
 	case IDC_VDP_REGISTERS_SCROLLAPATTERNBASE:
-		genericDataID = IS315_5313::DATASOURCE_REG_PATTERNBASEA;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegPatternBaseA;
 		return true;
 	case IDC_VDP_REGISTERS_0E13:
-		genericDataID = IS315_5313::DATASOURCE_REG_0E13;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg0E13;
 		return true;
 	case IDC_VDP_REGISTERS_SCROLLBPATTERNBASE:
-		genericDataID = IS315_5313::DATASOURCE_REG_PATTERNBASEB;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegPatternBaseB;
 		return true;
 	case IDC_VDP_REGISTERS_AUTOINCREMENT:
-		genericDataID = IS315_5313::DATASOURCE_REG_AUTOINCREMENTDATA;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegAutoIncrementData;
 		return true;
 	case IDC_VDP_REGISTERS_1067:
-		genericDataID = IS315_5313::DATASOURCE_REG_1067;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg1067;
 		return true;
 	case IDC_VDP_REGISTERS_VSZ:
-		genericDataID = IS315_5313::DATASOURCE_REG_VSZ;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegVSZ;
 		return true;
 	case IDC_VDP_REGISTERS_1023:
-		genericDataID = IS315_5313::DATASOURCE_REG_1023;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg1023;
 		return true;
 	case IDC_VDP_REGISTERS_HSZ:
-		genericDataID = IS315_5313::DATASOURCE_REG_HSZ;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegHSZ;
 		return true;
 	case IDC_VDP_REGISTERS_1156:
-		genericDataID = IS315_5313::DATASOURCE_REG_1156;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg1156;
 		return true;
 	case IDC_VDP_REGISTERS_WINDOWRIGHT:
-		genericDataID = IS315_5313::DATASOURCE_REG_WINDOWRIGHT;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegWindowRight;
 		return true;
 	case IDC_VDP_REGISTERS_WINDOWBASEX:
-		genericDataID = IS315_5313::DATASOURCE_REG_WINDOWBASEX;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegWindowBaseX;
 		return true;
 	case IDC_VDP_REGISTERS_1256:
-		genericDataID = IS315_5313::DATASOURCE_REG_1256;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::Reg1256;
 		return true;
 	case IDC_VDP_REGISTERS_WINDOWDOWN:
-		genericDataID = IS315_5313::DATASOURCE_REG_WINDOWBOTTOM;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegWindowBottom;
 		return true;
 	case IDC_VDP_REGISTERS_WINDOWBASEY:
-		genericDataID = IS315_5313::DATASOURCE_REG_WINDOWBASEY;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegWindowBaseY;
 		return true;
 	case IDC_VDP_REGISTERS_DMALENGTH:
-		genericDataID = IS315_5313::DATASOURCE_REG_DMALENGTH;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegDMALength;
 		return true;
 	case IDC_VDP_REGISTERS_DMASOURCE:
-		genericDataID = IS315_5313::DATASOURCE_REG_DMASOURCE;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegDMASource;
 		return true;
 	case IDC_VDP_REGISTERS_DMD1:
-		genericDataID = IS315_5313::DATASOURCE_REG_DMD1;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegDMD1;
 		return true;
 	case IDC_VDP_REGISTERS_DMD0:
-		genericDataID = IS315_5313::DATASOURCE_REG_DMD0;
+		genericDataID = (unsigned int)IS315_5313::IS315_5313DataSource::RegDMD0;
 		return true;
 	}
 	return false;

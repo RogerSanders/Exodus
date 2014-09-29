@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ISystemInfo">
+      <UniqueIdentifier>{46e7b12f-fac3-4a80-8692-10176e6e4151}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ISystemGUIInterface">
+      <UniqueIdentifier>{52e36141-55ef-4345-a6e1-d183892517fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IEmbeddedROMInfo">
+      <UniqueIdentifier>{9997ef30-8a1d-4386-a318-feb5d9f8861f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmbeddedROMInfo">
+      <UniqueIdentifier>{c9d8a0aa-d58e-48e6-b5d6-f8ee9f5cdd0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IModuleSettingInfo">
+      <UniqueIdentifier>{d6242c61-154b-45de-b2bf-0fa1812f2c0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModuleSettingInfo">
+      <UniqueIdentifier>{de2f4f32-f349-4478-81d2-8df8ae7e6a32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IModuleSettingOptionInfo">
+      <UniqueIdentifier>{7d866ef1-d363-46b0-864c-58e62b435241}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ModuleSettingOptionInfo">
+      <UniqueIdentifier>{5274bdc4-dcd2-4849-9102-dd80eccb03a3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ISystemInfo.h">
+      <Filter>ISystemInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="ISystemGUIInterface.h">
+      <Filter>ISystemGUIInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="IEmbeddedROMInfo.h">
+      <Filter>IEmbeddedROMInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="EmbeddedROMInfo.h">
+      <Filter>EmbeddedROMInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="IModuleSettingInfo.h">
+      <Filter>IModuleSettingInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleSettingInfo.h">
+      <Filter>ModuleSettingInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="IModuleSettingOptionInfo.h">
+      <Filter>IModuleSettingOptionInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleSettingOptionInfo.h">
+      <Filter>ModuleSettingOptionInfo</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ISystemInfo.inl">
+      <Filter>ISystemInfo</Filter>
+    </None>
+    <None Include="ISystemGUIInterface.inl">
+      <Filter>ISystemGUIInterface</Filter>
+    </None>
+    <None Include="IEmbeddedROMInfo.inl">
+      <Filter>IEmbeddedROMInfo</Filter>
+    </None>
+    <None Include="IModuleSettingInfo.inl">
+      <Filter>IModuleSettingInfo</Filter>
+    </None>
+    <None Include="IModuleSettingOptionInfo.inl">
+      <Filter>IModuleSettingOptionInfo</Filter>
+    </None>
+    <None Include="SystemInterface.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="EmbeddedROMInfo.cpp">
+      <Filter>EmbeddedROMInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleSettingInfo.cpp">
+      <Filter>ModuleSettingInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleSettingOptionInfo.cpp">
+      <Filter>ModuleSettingOptionInfo</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

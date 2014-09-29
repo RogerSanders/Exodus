@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MDControl3">
+      <UniqueIdentifier>{f6f54cf5-adb7-4d77-9d6a-6b3ed5c07d25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="A10000">
+      <UniqueIdentifier>{51a79f06-72a6-4d3b-86dd-05ae9dc42bd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MDBusArbiter">
+      <UniqueIdentifier>{9ba9a650-4652-4936-8eb7-d1d700004b1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MDControl6">
+      <UniqueIdentifier>{55ba1438-2e16-427c-8590-85f21bc5c240}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{e2e76716-6158-4213-8499-91ff637d1135}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MDControl3.cpp">
+      <Filter>MDControl3</Filter>
+    </ClCompile>
+    <ClCompile Include="A10000.cpp">
+      <Filter>A10000</Filter>
+    </ClCompile>
+    <ClCompile Include="MDBusArbiter.cpp">
+      <Filter>MDBusArbiter</Filter>
+    </ClCompile>
+    <ClCompile Include="MDControl6.cpp">
+      <Filter>MDControl6</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MDControl3.h">
+      <Filter>MDControl3</Filter>
+    </ClInclude>
+    <ClInclude Include="A10000.h">
+      <Filter>A10000</Filter>
+    </ClInclude>
+    <ClInclude Include="MDBusArbiter.h">
+      <Filter>MDBusArbiter</Filter>
+    </ClInclude>
+    <ClInclude Include="MDControl6.h">
+      <Filter>MDControl6</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="A10000.inl">
+      <Filter>A10000</Filter>
+    </None>
+    <None Include="MDBusArbiter.inl">
+      <Filter>MDBusArbiter</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MD1600IO.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

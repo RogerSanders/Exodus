@@ -52,9 +52,9 @@ References:
 #define __YM2612_H__
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include <vector>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/function.hpp>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
 #include <list>
 #include <set>
 #include <map>
@@ -129,9 +129,9 @@ public:
 
 private:
 	//Enumerations
-	enum LineID;
-	enum ClockID;
-	enum AccessContext;
+	enum class LineID;
+	enum class ClockID;
+	enum class AccessContext;
 
 	//Structures
 	struct OperatorData
@@ -385,13 +385,13 @@ private:
 	unsigned int timerBClockDivider;
 
 	//Bus interface
-	mutable boost::mutex lineMutex;
+	mutable std::mutex lineMutex;
 	IBusInterface* memoryBus;
 	volatile bool icLineState;
 	bool bicLineState;
 
 	//Registers
-	mutable boost::mutex accessMutex;
+	mutable std::mutex accessMutex;
 	double lastAccessTime;
 	RandomTimeAccessBuffer<Data, double> reg;
 	unsigned int currentReg;
@@ -442,14 +442,14 @@ private:
 	RandomTimeAccessValue<bool, double> timerAOverflowTimes;
 
 	//Render thread properties
-	mutable boost::mutex renderThreadMutex;
-	mutable boost::mutex timesliceMutex;
-	boost::condition renderThreadUpdate;
-	boost::condition renderThreadStopped;
+	mutable std::mutex renderThreadMutex;
+	mutable std::mutex timesliceMutex;
+	std::condition_variable renderThreadUpdate;
+	std::condition_variable renderThreadStopped;
 	bool renderThreadActive;
 	static const unsigned int maxPendingRenderOperationCount = 4;
 	bool renderThreadLagging;
-	boost::condition renderThreadLaggingStateChange;
+	std::condition_variable renderThreadLaggingStateChange;
 	unsigned int pendingRenderOperationCount;
 	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceList;
 	std::list<RandomTimeAccessValue<bool, double>::Timeslice> timerATimesliceList;
@@ -470,7 +470,7 @@ private:
 	unsigned int currentLFOCounter;
 
 	//Register locking
-	mutable boost::mutex registerLockMutex;
+	mutable std::mutex registerLockMutex;
 	bool keyStateLocking[channelCount][operatorCount];
 	bool rawRegisterLocking[registerCountTotal];
 	std::map<unsigned int, std::list<RegisterLocking>> lockedRegisterState;
@@ -478,7 +478,7 @@ private:
 	TimerStateLocking timerBStateLocking;
 
 	//Wave logging
-	mutable boost::mutex waveLoggingMutex;
+	mutable std::mutex waveLoggingMutex;
 	bool wavLoggingEnabled;
 	bool wavLoggingChannelEnabled[channelCount];
 	bool wavLoggingOperatorEnabled[channelCount][operatorCount];

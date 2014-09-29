@@ -47,29 +47,29 @@
 #ifdef _DEBUG
 	#ifdef _DLL
 		#ifdef _M_X64
-			#pragma comment(lib, "libexpatwdrdx64")
+			#pragma comment(lib, "libexpatwx64d")
 		#else
-			#pragma comment(lib, "libexpatwdrd")
+			#pragma comment(lib, "libexpatwd")
 		#endif
 	#else
 		#ifdef _M_X64
-			#pragma comment(lib, "libexpatwdx64")
+			#pragma comment(lib, "libexpatwx64sd")
 		#else
-			#pragma comment(lib, "libexpatwd")
+			#pragma comment(lib, "libexpatwsd")
 		#endif
 	#endif
 #else
 	#ifdef _DLL
 		#ifdef _M_X64
-			#pragma comment(lib, "libexpatwdrx64")
-		#else
-			#pragma comment(lib, "libexpatwdr")
-		#endif
-	#else
-		#ifdef _M_X64
 			#pragma comment(lib, "libexpatwx64")
 		#else
 			#pragma comment(lib, "libexpatw")
+		#endif
+	#else
+		#ifdef _M_X64
+			#pragma comment(lib, "libexpatwx64s")
+		#else
+			#pragma comment(lib, "libexpatws")
 		#endif
 	#endif
 #endif

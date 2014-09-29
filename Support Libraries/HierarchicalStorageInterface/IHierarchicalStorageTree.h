@@ -10,7 +10,7 @@ class IHierarchicalStorageTree
 {
 public:
 	//Enumerations
-	enum StorageMode;
+	enum class StorageMode;
 
 	//Constructors
 	virtual ~IHierarchicalStorageTree() = 0 {}

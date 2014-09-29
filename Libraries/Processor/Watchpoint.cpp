@@ -84,22 +84,22 @@ std::wstring Watchpoint::GenerateName() const
 	std::wstring newName;
 	switch(locationCondition)
 	{
-	case CONDITION_EQUAL:{
+	case Condition::Equal:{
 		std::wstring locationData1AsString;
 		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
 		newName += (!locationConditionNot)? locationData1AsString: L"!=" + locationData1AsString;
 		break;}
-	case CONDITION_GREATER:{
+	case Condition::Greater:{
 		std::wstring locationData1AsString;
 		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
 		newName += (!locationConditionNot)? L">" + locationData1AsString: L"<=" + locationData1AsString;
 		break;}
-	case CONDITION_LESS:{
+	case Condition::Less:{
 		std::wstring locationData1AsString;
 		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
 		newName += (!locationConditionNot)? L"<" + locationData1AsString: L">=" + locationData1AsString;
 		break;}
-	case CONDITION_GREATER_AND_LESS:{
+	case Condition::GreaterAndLess:{
 		std::wstring locationData1AsString;
 		std::wstring locationData2AsString;
 		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
@@ -179,16 +179,16 @@ bool Watchpoint::PassesLocationCondition(unsigned int location)
 	unsigned int locationMasked = (location & locationMask);
 	switch(GetLocationCondition())
 	{
-	case CONDITION_EQUAL:
+	case Condition::Equal:
 		result = (locationMasked == GetLocationConditionData1());
 		break;
-	case CONDITION_GREATER:
+	case Condition::Greater:
 		result = (locationMasked > GetLocationConditionData1());
 		break;
-	case CONDITION_LESS:
+	case Condition::Less:
 		result = (locationMasked < GetLocationConditionData1());
 		break;
-	case CONDITION_GREATER_AND_LESS:
+	case Condition::GreaterAndLess:
 		result = (locationMasked > GetLocationConditionData1()) && (locationMasked < GetLocationConditionData2());
 		break;
 	}
@@ -344,16 +344,16 @@ bool Watchpoint::PassesReadCondition(unsigned int data)
 	{
 		switch(GetReadCondition())
 		{
-		case CONDITION_EQUAL:
+		case Condition::Equal:
 			result = (data == GetReadConditionData1());
 			break;
-		case CONDITION_GREATER:
+		case Condition::Greater:
 			result = (data > GetReadConditionData1());
 			break;
-		case CONDITION_LESS:
+		case Condition::Less:
 			result = (data < GetReadConditionData1());
 			break;
-		case CONDITION_GREATER_AND_LESS:
+		case Condition::GreaterAndLess:
 			result = (data > GetReadConditionData1()) && (data < GetReadConditionData2());
 			break;
 		}
@@ -432,16 +432,16 @@ bool Watchpoint::PassesWriteCondition(unsigned int data)
 	{
 		switch(GetWriteCondition())
 		{
-		case CONDITION_EQUAL:
+		case Condition::Equal:
 			result = (data == GetWriteConditionData1());
 			break;
-		case CONDITION_GREATER:
+		case Condition::Greater:
 			result = (data > GetWriteConditionData1());
 			break;
-		case CONDITION_LESS:
+		case Condition::Less:
 			result = (data < GetWriteConditionData1());
 			break;
-		case CONDITION_GREATER_AND_LESS:
+		case Condition::GreaterAndLess:
 			result = (data > GetWriteConditionData1()) && (data < GetWriteConditionData2());
 			break;
 		}

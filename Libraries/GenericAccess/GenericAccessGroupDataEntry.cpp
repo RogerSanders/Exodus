@@ -20,7 +20,7 @@ unsigned int GenericAccessGroupDataEntry::GetIGenericAccessGroupDataEntryVersion
 //----------------------------------------------------------------------------------------
 GenericAccessGroupDataEntry::GroupEntryType GenericAccessGroupDataEntry::GetGroupEntryType() const
 {
-	return GROUPENTRYTYPE_DATA;
+	return GroupEntryType::Data;
 }
 
 //----------------------------------------------------------------------------------------

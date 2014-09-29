@@ -9,8 +9,8 @@ class WAVFile :public Stream<IStreamNonSeekable>
 {
 public:
 	//Enumerations
-	enum OpenMode;
-	enum CreateMode;
+	enum class OpenMode;
+	enum class CreateMode;
 
 	//Make sure the WAVFile object is non-copyable
 	protected: WAVFile(const WAVFile& object) {} public:

@@ -43,10 +43,10 @@ public:
 		cpu->SetPC(location + GetInstructionSize());
 		if(cpu->GetV())
 		{
-			if(!cpu->ExceptionDisabled(M68000::EX_TRAPV_INSTRUCTION))
+			if(!cpu->ExceptionDisabled(M68000::Exceptions::TrapVInstruction))
 			{
 				cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());
-				additionalCycles = cpu->ProcessException(M68000::EX_TRAPV_INSTRUCTION);
+				additionalCycles = cpu->ProcessException(M68000::Exceptions::TrapVInstruction);
 			}
 		}
 

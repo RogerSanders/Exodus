@@ -40,14 +40,14 @@ public:
 			//SRA (HL)		11001011 00101110
 			//SRA (IX+d)	11011101 11001011 dddddddd 00101110
 			//SRA (IY+d)	11111101 11001011 dddddddd 00101110
-			target.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
+			target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			AddExecuteCycleCount(11);
 
-			if(GetIndexState() != EffectiveAddress::INDEX_NONE)
+			if(GetIndexState() != EffectiveAddress::IndexState::None)
 			{
 				doubleOutput = true;
 				targetHL.SetIndexState(GetIndexState(), GetIndexOffset());
-				targetHL.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
+				targetHL.SetMode(EffectiveAddress::Mode::HLIndirect);
 				AddExecuteCycleCount(4);
 			}
 		}

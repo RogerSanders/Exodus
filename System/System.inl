@@ -3,18 +3,18 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum System::InputEvent
+enum class System::InputEvent
 {
-	INPUTEVENT_KEYDOWN,
-	INPUTEVENT_KEYUP
+	KeyDown,
+	KeyUp
 };
 
 //----------------------------------------------------------------------------------------
-enum System::SystemStateChangeType
+enum class System::SystemStateChangeType
 {
-	SYSTEMSTATECHANGETYPE_SETSYSTEMLINESTATE,
-	SYSTEMSTATECHANGETYPE_SETCLOCKFREQUENCY,
-	SYSTEMSTATECHANGETYPE_SETSYSTEMOPTION
+	SetSystemLineState,
+	SetClockFrequency,
+	SetSystemOption
 };
 
 //----------------------------------------------------------------------------------------

@@ -25,7 +25,7 @@ DisassemblyView::DisassemblyView(IUIManager& auiManager, DisassemblyViewPresente
 	lastBufferedOpcodeSize = 0;
 	firstVisibleOpcodeSize = 0;
 	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, 440, 500);
-	SetDockableViewType(true, INITIALDOCKPOS_RIGHT);
+	SetDockableViewType(true, DockPos::Right);
 }
 
 //----------------------------------------------------------------------------------------
@@ -66,25 +66,25 @@ LRESULT DisassemblyView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Enable manual scrolling for the grid control, so that we only have to generate
 	//content for the rows that are currently in view.
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_SETMANUALSCROLLING, 1, 0);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetManualScrolling, 1, 0);
 
 	//Insert our columns into the DataGrid control
 	WC_DataGrid::Grid_InsertColumn addressColumn(L"Address", COLUMN_ADDRESS);
 	WC_DataGrid::Grid_InsertColumn opcodeColumn(L"Opcode", COLUMN_OPCODE);
-	opcodeColumn.sizeMode = WC_DataGrid::COLUMNSIZEMODE_PROPORTIONAL;
+	opcodeColumn.sizeMode = WC_DataGrid::ColumnSizeMode::Proportional;
 	opcodeColumn.proportionalWidth = 0.4f;
 	WC_DataGrid::Grid_InsertColumn argsColumn(L"Args", COLUMN_ARGS);
-	argsColumn.sizeMode = WC_DataGrid::COLUMNSIZEMODE_PROPORTIONAL;
+	argsColumn.sizeMode = WC_DataGrid::ColumnSizeMode::Proportional;
 	argsColumn.proportionalWidth = 1.0f;
 	WC_DataGrid::Grid_InsertColumn commentColumn(L"Comment", COLUMN_COMMENT);
 	WC_DataGrid::Grid_InsertColumn machineCodeColumn(L"Machine Code", COLUMN_BINARY);
-	machineCodeColumn.sizeMode = WC_DataGrid::COLUMNSIZEMODE_ABSOLUTE;
+	machineCodeColumn.sizeMode = WC_DataGrid::ColumnSizeMode::Absolute;
 	machineCodeColumn.absoluteWidth = 100;
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&addressColumn);
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&opcodeColumn);
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&argsColumn);
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&commentColumn);
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_INSERTCOLUMN, 0, (LPARAM)&machineCodeColumn);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&addressColumn);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&opcodeColumn);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&argsColumn);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&commentColumn);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&machineCodeColumn);
 
 	//Create the dialog control panel
 	hwndControlPanel = CreateDialogParam(GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_DISASSEMBLY_PANEL), hwnd, WndProcPanelStatic, (LPARAM)this);
@@ -109,7 +109,7 @@ LRESULT DisassemblyView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	hfontData = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &dataFontTypefaceName[0]);
 
 	//Set the data region font for the grid control
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_SETDATAAREAFONT, (WPARAM)hfontData, (LPARAM)TRUE);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)hfontData, (LPARAM)TRUE);
 
 	//Create a timer to trigger updates to the disassembly window
 	SetTimer(hwnd, 1, 200, NULL);
@@ -122,7 +122,7 @@ LRESULT DisassemblyView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Delete our custom font objects
 	SendMessage(hwndDataGrid, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_SETDATAAREAFONT, (WPARAM)NULL, (LPARAM)FALSE);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)NULL, (LPARAM)FALSE);
 	DeleteObject(hfontHeader);
 	DeleteObject(hfontData);
 
@@ -195,7 +195,7 @@ LRESULT DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		scrollInfo.maxPos = (int)endLocation;
 		scrollInfo.currentPos = (int)firstVisibleValueLocation;
 		scrollInfo.valuesPerPage = (int)visibleRows;
-		SendMessage(hwndDataGrid, WC_DataGrid::GRID_SETVSCROLLINFO, 0, (LPARAM)&scrollInfo);
+		SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetVScrollInfo, 0, (LPARAM)&scrollInfo);
 
 		//If the current location is outside the previous start and end location
 		//boundaries, extend the boundaries to include the current address.
@@ -259,13 +259,14 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if(LOWORD(wparam) == CTL_DATAGRID)
 	{
-		if(HIWORD(wparam) == WC_DataGrid::GRID_NEWROWCOUNT)
+		WC_DataGrid::WindowNotifications notification = (WC_DataGrid::WindowNotifications)HIWORD(wparam);
+		if(notification == WC_DataGrid::WindowNotifications::NewRowCount)
 		{
 			WC_DataGrid::Grid_NewRowCount* newRowCountInfo = (WC_DataGrid::Grid_NewRowCount*)lparam;
 			visibleRows = newRowCountInfo->visibleRows;
 			UpdateDisassembly();
 		}
-		else if(HIWORD(wparam) == WC_DataGrid::GRID_SHIFTROWSUP)
+		else if(notification == WC_DataGrid::WindowNotifications::ShiftRowsUp)
 		{
 			WC_DataGrid::Grid_ShiftRowsUp* info = (WC_DataGrid::Grid_ShiftRowsUp*)lparam;
 			unsigned int shiftCount = 0;
@@ -282,7 +283,7 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				++shiftCount;
 			}
 		}
-		else if(HIWORD(wparam) == WC_DataGrid::GRID_SHIFTROWSDOWN)
+		else if(notification == WC_DataGrid::WindowNotifications::ShiftRowsDown)
 		{
 			WC_DataGrid::Grid_ShiftRowsDown* info = (WC_DataGrid::Grid_ShiftRowsDown*)lparam;
 			unsigned int shiftCount = 0;
@@ -294,7 +295,7 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				++shiftCount;
 			}
 		}
-		else if(HIWORD(wparam) == WC_DataGrid::GRID_NEWSCROLLPOSITION)
+		else if(notification == WC_DataGrid::WindowNotifications::NewScrollPosition)
 		{
 			//Move the window to an absolute address as a result of a command from
 			//the list control. We align the absolute address to the minimum opcode
@@ -304,7 +305,7 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			firstVisibleValueLocation = info->scrollPos - (info->scrollPos % model.GetMinimumOpcodeByteSize());
 			UpdateDisassembly();
 		}
-		else if(HIWORD(wparam) == WC_DataGrid::GRID_SELECTIONEVENT)
+		else if(notification == WC_DataGrid::WindowNotifications::SelectionEvent)
 		{
 			WC_DataGrid::Grid_SelectionEvent* info = (WC_DataGrid::Grid_SelectionEvent*)lparam;
 
@@ -328,7 +329,7 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		scrollInfo.maxPos = (int)endLocation;
 		scrollInfo.currentPos = (int)firstVisibleValueLocation;
 		scrollInfo.valuesPerPage = (int)visibleRows;
-		SendMessage(hwndDataGrid, WC_DataGrid::GRID_SETVSCROLLINFO, 0, (LPARAM)&scrollInfo);
+		SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetVScrollInfo, 0, (LPARAM)&scrollInfo);
 	}
 
 	return 0;
@@ -627,7 +628,7 @@ void DisassemblyView::UpdateDisassembly()
 				setRowColor.colorTextBack = setRowColor.colorBackground;
 			}
 		}
-		SendMessage(hwndDataGrid, WC_DataGrid::GRID_SETROWCOLOR, i, (LPARAM)&setRowColor);
+		SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetRowColor, i, (LPARAM)&setRowColor);
 
 		//Read the opcode info
 		OpcodeInfo opcodeInfo;
@@ -691,11 +692,11 @@ void DisassemblyView::UpdateDisassembly()
 	}
 
 	//Write the disassembly data to the window
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_UPDATECOLUMNTEXT, COLUMN_ADDRESS, (LPARAM)&columnDataAddress);
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_UPDATECOLUMNTEXT, COLUMN_OPCODE, (LPARAM)&columnDataOpcode);
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_UPDATECOLUMNTEXT, COLUMN_ARGS, (LPARAM)&columnDataArgs);
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_UPDATECOLUMNTEXT, COLUMN_COMMENT, (LPARAM)&columnDataComment);
-	SendMessage(hwndDataGrid, WC_DataGrid::GRID_UPDATECOLUMNTEXT, COLUMN_BINARY, (LPARAM)&columnDataBinary);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, COLUMN_ADDRESS, (LPARAM)&columnDataAddress);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, COLUMN_OPCODE, (LPARAM)&columnDataOpcode);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, COLUMN_ARGS, (LPARAM)&columnDataArgs);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, COLUMN_COMMENT, (LPARAM)&columnDataComment);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, COLUMN_BINARY, (LPARAM)&columnDataBinary);
 
 	//Force the grid control to redraw now that we've updated the text
 	InvalidateRect(hwndDataGrid, NULL, FALSE);

@@ -51,7 +51,7 @@ public:
 		if(size == BITCOUNT_LONG)
 		{
 			AddExecuteCycleCount(ExecuteTime(6, 1, 0));
-			if((source.GetAddressMode() == EffectiveAddress::DATAREG_DIRECT) || (source.GetAddressMode() == EffectiveAddress::ADDREG_DIRECT) || (source.GetAddressMode() == EffectiveAddress::IMMEDIATE))
+			if((source.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (source.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect) || (source.GetAddressMode() == EffectiveAddress::Mode::Immediate))
 			{
 				AddExecuteCycleCount(ExecuteTime(2, 0, 0));
 			}

@@ -35,7 +35,7 @@ References:
 #define __A10000_H__
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Device/Device.pkg"
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 #include <vector>
 
 //Physical port interface:
@@ -92,9 +92,9 @@ public:
 
 private:
 	//Enumerations
-	enum Ports;
-	enum PortLine;
-	enum LineID;
+	enum class Ports;
+	enum class PortLine;
+	enum class LineID;
 
 	//Structures
 	struct InputLineState;
@@ -102,45 +102,46 @@ private:
 
 private:
 	//Line functions
-	void AssertCurrentOutputLineStateForPort(unsigned int portNo) const;
-	void NegateCurrentOutputLineStateForPort(unsigned int portNo) const;
-	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData);
+	void AssertCurrentOutputLineStateForPort(Ports portNo) const;
+	void NegateCurrentOutputLineStateForPort(Ports portNo) const;
+	void ApplyLineStateChange(LineID targetLine, const Data& lineData);
 	void ApplyPendingLineStateChanges(double currentTimesliceProgress);
-	LineID GetLineIDForPort(unsigned int portNo, PortLine portLine) const;
+	static LineID GetLineIDForPort(Ports portNo, PortLine portLine);
+	static inline unsigned int GetPortIndexForPort(Ports portNo);
 
 	//Data register access
-	inline Data ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
-	inline void WriteDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
+	inline Data ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
+	inline void WriteDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
 	//Control register access
-	inline Data ReadControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
-	inline void WriteControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
+	inline Data ReadControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
+	inline void WriteControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
 	//Serial control register access
-	inline Data ReadSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
-	inline void WriteSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
+	inline Data ReadSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
+	inline void WriteSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
 	//TxData register access
-	inline Data ReadTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
-	inline void WriteTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
+	inline Data ReadTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
+	inline void WriteTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
 	//RxData register access
-	inline Data ReadRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo) const;
-	inline void WriteRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int portNo, const Data& data);
+	inline Data ReadRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
+	inline void WriteRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
 	//Raw register functions
 	inline Data GetVersionRegister() const;
 	inline void SetVersionRegister(const Data& data);
-	inline Data GetDataRegister(unsigned int portNo) const;
-	inline void SetDataRegister(unsigned int portNo, const Data& data);
-	inline Data GetControlRegister(unsigned int portNo) const;
-	inline void SetControlRegister(unsigned int portNo, const Data& data);
-	inline Data GetSerialControlRegister(unsigned int portNo) const;
-	inline void SetSerialControlRegister(unsigned int portNo, const Data& data);
-	inline Data GetTxDataRegister(unsigned int portNo) const;
-	inline void SetTxDataRegister(unsigned int portNo, const Data& data);
-	inline Data GetRxDataRegister(unsigned int portNo) const;
-	inline void SetRxDataRegister(unsigned int portNo, const Data& data);
+	inline Data GetDataRegister(Ports portNo) const;
+	inline void SetDataRegister(Ports portNo, const Data& data);
+	inline Data GetControlRegister(Ports portNo) const;
+	inline void SetControlRegister(Ports portNo, const Data& data);
+	inline Data GetSerialControlRegister(Ports portNo) const;
+	inline void SetSerialControlRegister(Ports portNo, const Data& data);
+	inline Data GetTxDataRegister(Ports portNo) const;
+	inline void SetTxDataRegister(Ports portNo, const Data& data);
+	inline Data GetRxDataRegister(Ports portNo) const;
+	inline void SetRxDataRegister(Ports portNo, const Data& data);
 
 	//Version register functions
 	inline bool GetOverseasFlag() const;
@@ -153,56 +154,56 @@ private:
 	inline void SetHardwareVersion(unsigned int data);
 
 	//Data register functions
-	inline bool GetDataRegisterHL(unsigned int portNo) const;
-	inline void SetDataRegisterHL(unsigned int portNo, bool state);
-	inline bool GetDataRegisterTH(unsigned int portNo) const;
-	inline void SetDataRegisterTH(unsigned int portNo, bool state);
-	inline bool GetDataRegisterTR(unsigned int portNo) const;
-	inline void SetDataRegisterTR(unsigned int portNo, bool state);
-	inline bool GetDataRegisterTL(unsigned int portNo) const;
-	inline void SetDataRegisterTL(unsigned int portNo, bool state);
-	inline bool GetDataRegisterD3(unsigned int portNo) const;
-	inline void SetDataRegisterD3(unsigned int portNo, bool state);
-	inline bool GetDataRegisterD2(unsigned int portNo) const;
-	inline void SetDataRegisterD2(unsigned int portNo, bool state);
-	inline bool GetDataRegisterD1(unsigned int portNo) const;
-	inline void SetDataRegisterD1(unsigned int portNo, bool state);
-	inline bool GetDataRegisterD0(unsigned int portNo) const;
-	inline void SetDataRegisterD0(unsigned int portNo, bool state);
+	inline bool GetDataRegisterHL(Ports portNo) const;
+	inline void SetDataRegisterHL(Ports portNo, bool state);
+	inline bool GetDataRegisterTH(Ports portNo) const;
+	inline void SetDataRegisterTH(Ports portNo, bool state);
+	inline bool GetDataRegisterTR(Ports portNo) const;
+	inline void SetDataRegisterTR(Ports portNo, bool state);
+	inline bool GetDataRegisterTL(Ports portNo) const;
+	inline void SetDataRegisterTL(Ports portNo, bool state);
+	inline bool GetDataRegisterD3(Ports portNo) const;
+	inline void SetDataRegisterD3(Ports portNo, bool state);
+	inline bool GetDataRegisterD2(Ports portNo) const;
+	inline void SetDataRegisterD2(Ports portNo, bool state);
+	inline bool GetDataRegisterD1(Ports portNo) const;
+	inline void SetDataRegisterD1(Ports portNo, bool state);
+	inline bool GetDataRegisterD0(Ports portNo) const;
+	inline void SetDataRegisterD0(Ports portNo, bool state);
 
 	//Control register functions
-	inline bool GetControlRegisterHL(unsigned int portNo) const;
-	inline void SetControlRegisterHL(unsigned int portNo, bool state);
-	inline bool GetControlRegisterTH(unsigned int portNo) const;
-	inline void SetControlRegisterTH(unsigned int portNo, bool state);
-	inline bool GetControlRegisterTR(unsigned int portNo) const;
-	inline void SetControlRegisterTR(unsigned int portNo, bool state);
-	inline bool GetControlRegisterTL(unsigned int portNo) const;
-	inline void SetControlRegisterTL(unsigned int portNo, bool state);
-	inline bool GetControlRegisterD3(unsigned int portNo) const;
-	inline void SetControlRegisterD3(unsigned int portNo, bool state);
-	inline bool GetControlRegisterD2(unsigned int portNo) const;
-	inline void SetControlRegisterD2(unsigned int portNo, bool state);
-	inline bool GetControlRegisterD1(unsigned int portNo) const;
-	inline void SetControlRegisterD1(unsigned int portNo, bool state);
-	inline bool GetControlRegisterD0(unsigned int portNo) const;
-	inline void SetControlRegisterD0(unsigned int portNo, bool state);
+	inline bool GetControlRegisterHL(Ports portNo) const;
+	inline void SetControlRegisterHL(Ports portNo, bool state);
+	inline bool GetControlRegisterTH(Ports portNo) const;
+	inline void SetControlRegisterTH(Ports portNo, bool state);
+	inline bool GetControlRegisterTR(Ports portNo) const;
+	inline void SetControlRegisterTR(Ports portNo, bool state);
+	inline bool GetControlRegisterTL(Ports portNo) const;
+	inline void SetControlRegisterTL(Ports portNo, bool state);
+	inline bool GetControlRegisterD3(Ports portNo) const;
+	inline void SetControlRegisterD3(Ports portNo, bool state);
+	inline bool GetControlRegisterD2(Ports portNo) const;
+	inline void SetControlRegisterD2(Ports portNo, bool state);
+	inline bool GetControlRegisterD1(Ports portNo) const;
+	inline void SetControlRegisterD1(Ports portNo, bool state);
+	inline bool GetControlRegisterD0(Ports portNo) const;
+	inline void SetControlRegisterD0(Ports portNo, bool state);
 
 	//Serial control register functions
-	inline unsigned int GetSerialBaudRate(unsigned int portNo) const;
-	inline void SetSerialBaudRate(unsigned int portNo, unsigned int state);
-	inline bool GetSerialInputEnabled(unsigned int portNo) const;
-	inline void SetSerialInputEnabled(unsigned int portNo, bool state);
-	inline bool GetSerialOutputEnabled(unsigned int portNo) const;
-	inline void SetSerialOutputEnabled(unsigned int portNo, bool state);
-	inline bool GetSerialInterruptEnabled(unsigned int portNo) const;
-	inline void SetSerialInterruptEnabled(unsigned int portNo, bool state);
-	inline bool GetSerialErrorFlag(unsigned int portNo) const;
-	inline void SetSerialErrorFlag(unsigned int portNo, bool state);
-	inline bool GetRxDataBufferFull(unsigned int portNo) const;
-	inline void SetRxDataBufferFull(unsigned int portNo, bool state);
-	inline bool GetTxDataBufferFull(unsigned int portNo) const;
-	inline void SetTxDataBufferFull(unsigned int portNo, bool state);
+	inline unsigned int GetSerialBaudRate(Ports portNo) const;
+	inline void SetSerialBaudRate(Ports portNo, unsigned int state);
+	inline bool GetSerialInputEnabled(Ports portNo) const;
+	inline void SetSerialInputEnabled(Ports portNo, bool state);
+	inline bool GetSerialOutputEnabled(Ports portNo) const;
+	inline void SetSerialOutputEnabled(Ports portNo, bool state);
+	inline bool GetSerialInterruptEnabled(Ports portNo) const;
+	inline void SetSerialInterruptEnabled(Ports portNo, bool state);
+	inline bool GetSerialErrorFlag(Ports portNo) const;
+	inline void SetSerialErrorFlag(Ports portNo, bool state);
+	inline bool GetRxDataBufferFull(Ports portNo) const;
+	inline void SetRxDataBufferFull(Ports portNo, bool state);
+	inline bool GetTxDataBufferFull(Ports portNo) const;
+	inline void SetTxDataBufferFull(Ports portNo, bool state);
 
 	//Interrupt functions
 	void UpdateHLInterruptState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
@@ -222,7 +223,7 @@ private:
 	unsigned int binputHardwareVersion;
 
 	//Control port registers
-	mutable boost::mutex accessMutex;
+	mutable std::mutex accessMutex;
 	std::vector<Data> dataRegisters;
 	std::vector<Data> bdataRegisters;
 	std::vector<Data> controlRegisters;
@@ -241,7 +242,7 @@ private:
 	std::vector<InputLineState> binputLineState;
 
 	//Line access
-	boost::mutex lineMutex;
+	std::mutex lineMutex;
 	double lastLineCheckTime;
 	volatile bool lineAccessPending;
 	double lastTimesliceLength;

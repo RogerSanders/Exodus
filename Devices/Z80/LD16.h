@@ -39,8 +39,8 @@ public:
 			//LD SP,HL		11111001
 			//LD SP,IX		11011101 11111001
 			//LD SP,IY		11111101 11111001
-			source.SetMode(EffectiveAddress::MODE_HL);
-			target.SetMode(EffectiveAddress::MODE_SP);
+			source.SetMode(EffectiveAddress::Mode::HL);
+			target.SetMode(EffectiveAddress::Mode::SP);
 			AddExecuteCycleCount(6);
 		}
 		else if(data == 0x2A)
@@ -49,7 +49,7 @@ public:
 			//LD IX,(nn)	11011101 00101010 nnnnnnnn nnnnnnnn
 			//LD IY,(nn)	11111101 00101010 nnnnnnnn nnnnnnnn
 			source.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
-			target.SetMode(EffectiveAddress::MODE_HL);
+			target.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(16);
 		}
 		else if(data == 0x22)
@@ -57,7 +57,7 @@ public:
 			//LD (nn),HL	00100010 nnnnnnnn nnnnnnnn
 			//LD (nn),IX	11011101 00100010 nnnnnnnn nnnnnnnn
 			//LD (nn),IY	11111101 00100010 nnnnnnnn nnnnnnnn
-			source.SetMode(EffectiveAddress::MODE_HL);
+			source.SetMode(EffectiveAddress::Mode::HL);
 			target.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 			AddExecuteCycleCount(16);
 		}

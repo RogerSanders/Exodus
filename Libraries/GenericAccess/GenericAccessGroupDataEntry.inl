@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-GenericAccessGroupDataEntry::GenericAccessGroupDataEntry(unsigned int adataID, const std::wstring& aname)
-:parent(0), dataContext(0), dataID(adataID), name(aname)
+template<class T> GenericAccessGroupDataEntry::GenericAccessGroupDataEntry(T adataID, const std::wstring& aname)
+:parent(0), dataContext(0), dataID((unsigned int)adataID), name(aname)
 {}
 
 //----------------------------------------------------------------------------------------

@@ -25,7 +25,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(target.GetAddressMode() == EffectiveAddress::DATAREG_DIRECT)
+		if(target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
 		}
@@ -145,7 +145,7 @@ public:
 
 		//Calculate the additional execution time
 		ExecuteTime additionalCycles;
-		if(target.GetAddressMode() == EffectiveAddress::DATAREG_DIRECT)
+		if(target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			additionalCycles.Set(2 * op1.GetData(), 0, 0);
 		}

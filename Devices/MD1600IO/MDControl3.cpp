@@ -21,13 +21,13 @@ void MDControl3::Initialize()
 		buttonPressed[i] = false;
 	}
 	lineInputStateTH = false;
-	lineAssertedD0 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D0);
-	lineAssertedD1 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D1);
-	lineAssertedD2 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D2);
-	lineAssertedD3 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D3);
-	lineAssertedTL = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TL);
-	lineAssertedTR = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TR);
-	lineAssertedTH = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TH);
+	lineAssertedD0 = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::D0);
+	lineAssertedD1 = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::D1);
+	lineAssertedD2 = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::D2);
+	lineAssertedD3 = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::D3);
+	lineAssertedTL = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::TL);
+	lineAssertedTR = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::TR);
+	lineAssertedTH = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::TH);
 	lastLineAccessTime = 0;
 	currentTimesliceLength = 0;
 }
@@ -126,31 +126,31 @@ unsigned int MDControl3::GetLineID(const std::wstring& lineName) const
 {
 	if(lineName == L"D0")
 	{
-		return LINE_D0;
+		return (unsigned int)LineID::D0;
 	}
 	else if(lineName == L"D1")
 	{
-		return LINE_D1;
+		return (unsigned int)LineID::D1;
 	}
 	else if(lineName == L"D2")
 	{
-		return LINE_D2;
+		return (unsigned int)LineID::D2;
 	}
 	else if(lineName == L"D3")
 	{
-		return LINE_D3;
+		return (unsigned int)LineID::D3;
 	}
 	else if(lineName == L"TL")
 	{
-		return LINE_TL;
+		return (unsigned int)LineID::TL;
 	}
 	else if(lineName == L"TR")
 	{
-		return LINE_TR;
+		return (unsigned int)LineID::TR;
 	}
 	else if(lineName == L"TH")
 	{
-		return LINE_TH;
+		return (unsigned int)LineID::TH;
 	}
 	return 0;
 }
@@ -158,21 +158,21 @@ unsigned int MDControl3::GetLineID(const std::wstring& lineName) const
 //----------------------------------------------------------------------------------------
 std::wstring MDControl3::GetLineName(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_D0:
+	case LineID::D0:
 		return L"D0";
-	case LINE_D1:
+	case LineID::D1:
 		return L"D1";
-	case LINE_D2:
+	case LineID::D2:
 		return L"D2";
-	case LINE_D3:
+	case LineID::D3:
 		return L"D3";
-	case LINE_TL:
+	case LineID::TL:
 		return L"TL";
-	case LINE_TR:
+	case LineID::TR:
 		return L"TR";
-	case LINE_TH:
+	case LineID::TH:
 		return L"TH";
 	}
 	return L"";
@@ -181,15 +181,15 @@ std::wstring MDControl3::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int MDControl3::GetLineWidth(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_D0:
-	case LINE_D1:
-	case LINE_D2:
-	case LINE_D3:
-	case LINE_TL:
-	case LINE_TR:
-	case LINE_TH:
+	case LineID::D0:
+	case LineID::D1:
+	case LineID::D2:
+	case LineID::D3:
+	case LineID::TL:
+	case LineID::TR:
+	case LineID::TH:
 		return 1;
 	}
 	return 0;
@@ -198,7 +198,7 @@ unsigned int MDControl3::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//Read the time at which this access is being made, and trigger a rollback if the
 	//device has been accessed out of order.
@@ -209,7 +209,7 @@ void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 	lastLineAccessTime = accessTime;
 
 	//If the TH line has been toggled, select the currently enabled bank.
-	if(targetLine == LINE_TH)
+	if(targetLine == LineID::TH)
 	{
 		lineInputStateTH = lineData.GetBit(0);
 	}
@@ -235,13 +235,13 @@ void MDControl3::AssertCurrentOutputLineState() const
 {
 	if(memoryBus != 0)
 	{
-		if(lineAssertedD0) memoryBus->SetLineState(LINE_D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedD1) memoryBus->SetLineState(LINE_D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedD2) memoryBus->SetLineState(LINE_D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedD3) memoryBus->SetLineState(LINE_D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedTL) memoryBus->SetLineState(LINE_TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedTR) memoryBus->SetLineState(LINE_TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedTH) memoryBus->SetLineState(LINE_TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD0) memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD1) memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD2) memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD3) memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTL) memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTR) memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTH) memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -250,65 +250,65 @@ void MDControl3::NegateCurrentOutputLineState() const
 {
 	if(memoryBus != 0)
 	{
-		if(lineAssertedD0) memoryBus->SetLineState(LINE_D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedD1) memoryBus->SetLineState(LINE_D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedD2) memoryBus->SetLineState(LINE_D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedD3) memoryBus->SetLineState(LINE_D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedTL) memoryBus->SetLineState(LINE_TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedTR) memoryBus->SetLineState(LINE_TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(lineAssertedTH) memoryBus->SetLineState(LINE_TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD0) memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD1) memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD2) memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedD3) memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTL) memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTR) memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(lineAssertedTH) memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	bool newLineStateD0 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D0);
+	bool newLineStateD0 = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::D0);
 	if(lineAssertedD0 != newLineStateD0)
 	{
 		lineAssertedD0 = newLineStateD0;
-		memoryBus->SetLineState(LINE_D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LineID::D0, Data(1, (unsigned int)lineAssertedD0), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	bool newLineStateD1 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D1);
+	bool newLineStateD1 = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::D1);
 	if(lineAssertedD1 != newLineStateD1)
 	{
 		lineAssertedD1 = newLineStateD1;
-		memoryBus->SetLineState(LINE_D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LineID::D1, Data(1, (unsigned int)lineAssertedD1), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	bool newLineStateD2 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D2);
+	bool newLineStateD2 = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::D2);
 	if(lineAssertedD2 != newLineStateD2)
 	{
 		lineAssertedD2 = newLineStateD2;
-		memoryBus->SetLineState(LINE_D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LineID::D2, Data(1, (unsigned int)lineAssertedD2), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	bool newLineStateD3 = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_D3);
+	bool newLineStateD3 = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::D3);
 	if(lineAssertedD3 != newLineStateD3)
 	{
 		lineAssertedD3 = newLineStateD3;
-		memoryBus->SetLineState(LINE_D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LineID::D3, Data(1, (unsigned int)lineAssertedD3), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	bool newLineStateTL = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TL);
+	bool newLineStateTL = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::TL);
 	if(lineAssertedTL != newLineStateTL)
 	{
 		lineAssertedTL = newLineStateTL;
-		memoryBus->SetLineState(LINE_TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LineID::TL, Data(1, (unsigned int)lineAssertedTL), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	bool newLineStateTR = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TR);
+	bool newLineStateTR = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::TR);
 	if(lineAssertedTR != newLineStateTR)
 	{
 		lineAssertedTR = newLineStateTR;
-		memoryBus->SetLineState(LINE_TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LineID::TR, Data(1, (unsigned int)lineAssertedTR), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	bool newLineStateTH = GetDesiredLineState(lineInputStateTH, buttonPressed, LINE_TH);
+	bool newLineStateTH = GetDesiredLineState(lineInputStateTH, buttonPressed, LineID::TH);
 	if(lineAssertedTH != newLineStateTH)
 	{
 		lineAssertedTH = newLineStateTH;
-		memoryBus->SetLineState(LINE_TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState(LineID::TH, Data(1, (unsigned int)lineAssertedTH), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 }
 
 //----------------------------------------------------------------------------------------
-bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, unsigned int lineID)
+bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, LineID lineID)
 {
 	if(currentLineInputStateTH)
 	{
@@ -322,19 +322,19 @@ bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const
 		//TH = Null (+5v)
 		switch(lineID)
 		{
-		case LINE_D0:
-			return !currentButtonPressedState[BUTTON_UP];
-		case LINE_D1:
-			return !currentButtonPressedState[BUTTON_DOWN];
-		case LINE_D2:
-			return !currentButtonPressedState[BUTTON_LEFT];
-		case LINE_D3:
-			return !currentButtonPressedState[BUTTON_RIGHT];
-		case LINE_TL:
-			return !currentButtonPressedState[BUTTON_B];
-		case LINE_TR:
-			return !currentButtonPressedState[BUTTON_C];
-		case LINE_TH:
+		case LineID::D0:
+			return !currentButtonPressedState[BUTTONINDEX_UP];
+		case LineID::D1:
+			return !currentButtonPressedState[BUTTONINDEX_DOWN];
+		case LineID::D2:
+			return !currentButtonPressedState[BUTTONINDEX_LEFT];
+		case LineID::D3:
+			return !currentButtonPressedState[BUTTONINDEX_RIGHT];
+		case LineID::TL:
+			return !currentButtonPressedState[BUTTONINDEX_B];
+		case LineID::TR:
+			return !currentButtonPressedState[BUTTONINDEX_C];
+		case LineID::TH:
 			return true;
 		}
 	}
@@ -350,19 +350,19 @@ bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const
 		//TH = Null (+5v)
 		switch(lineID)
 		{
-		case LINE_D0:
-			return !currentButtonPressedState[BUTTON_UP];
-		case LINE_D1:
-			return !currentButtonPressedState[BUTTON_DOWN];
-		case LINE_D2:
+		case LineID::D0:
+			return !currentButtonPressedState[BUTTONINDEX_UP];
+		case LineID::D1:
+			return !currentButtonPressedState[BUTTONINDEX_DOWN];
+		case LineID::D2:
 			return false;
-		case LINE_D3:
+		case LineID::D3:
 			return false;
-		case LINE_TL:
-			return !currentButtonPressedState[BUTTON_A];
-		case LINE_TR:
-			return !currentButtonPressedState[BUTTON_START];
-		case LINE_TH:
+		case LineID::TL:
+			return !currentButtonPressedState[BUTTONINDEX_A];
+		case LineID::TR:
+			return !currentButtonPressedState[BUTTONINDEX_START];
+		case LineID::TH:
 			return true;
 		}
 	}
@@ -379,35 +379,35 @@ unsigned int MDControl3::GetKeyCodeID(const std::wstring& keyCodeName) const
 {
 	if(keyCodeName == L"Up")
 	{
-		return BUTTON_UP+1;
+		return BUTTONINDEX_UP+1;
 	}
 	else if(keyCodeName == L"Down")
 	{
-		return BUTTON_DOWN+1;
+		return BUTTONINDEX_DOWN+1;
 	}
 	else if(keyCodeName == L"Left")
 	{
-		return BUTTON_LEFT+1;
+		return BUTTONINDEX_LEFT+1;
 	}
 	else if(keyCodeName == L"Right")
 	{
-		return BUTTON_RIGHT+1;
+		return BUTTONINDEX_RIGHT+1;
 	}
 	else if(keyCodeName == L"A")
 	{
-		return BUTTON_A+1;
+		return BUTTONINDEX_A+1;
 	}
 	else if(keyCodeName == L"B")
 	{
-		return BUTTON_B+1;
+		return BUTTONINDEX_B+1;
 	}
 	else if(keyCodeName == L"C")
 	{
-		return BUTTON_C+1;
+		return BUTTONINDEX_C+1;
 	}
 	else if(keyCodeName == L"Start")
 	{
-		return BUTTON_START+1;
+		return BUTTONINDEX_START+1;
 	}
 	return 0;
 }
@@ -417,21 +417,21 @@ std::wstring MDControl3::GetKeyCodeName(unsigned int keyCodeID) const
 {
 	switch(keyCodeID)
 	{
-	case BUTTON_UP+1:
+	case BUTTONINDEX_UP+1:
 		return L"Up";
-	case BUTTON_DOWN+1:
+	case BUTTONINDEX_DOWN+1:
 		return L"Down";
-	case BUTTON_LEFT+1:
+	case BUTTONINDEX_LEFT+1:
 		return L"Left";
-	case BUTTON_RIGHT+1:
+	case BUTTONINDEX_RIGHT+1:
 		return L"Right";
-	case BUTTON_A+1:
+	case BUTTONINDEX_A+1:
 		return L"A";
-	case BUTTON_B+1:
+	case BUTTONINDEX_B+1:
 		return L"B";
-	case BUTTON_C+1:
+	case BUTTONINDEX_C+1:
 		return L"C";
-	case BUTTON_START+1:
+	case BUTTONINDEX_START+1:
 		return L"Start";
 	}
 	return L"";
@@ -440,7 +440,7 @@ std::wstring MDControl3::GetKeyCodeName(unsigned int keyCodeID) const
 //----------------------------------------------------------------------------------------
 void MDControl3::HandleInputKeyDown(unsigned int keyCodeID)
 {
-	Button keyCode = (Button)(keyCodeID-1);
+	ButtonIndex keyCode = (ButtonIndex)(keyCodeID-1);
 	buttonPressed[keyCode] = true;
 	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }
@@ -448,7 +448,7 @@ void MDControl3::HandleInputKeyDown(unsigned int keyCodeID)
 //----------------------------------------------------------------------------------------
 void MDControl3::HandleInputKeyUp(unsigned int keyCodeID)
 {
-	Button keyCode = (Button)(keyCodeID-1);
+	ButtonIndex keyCode = (ButtonIndex)(keyCodeID-1);
 	buttonPressed[keyCode] = false;
 	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }

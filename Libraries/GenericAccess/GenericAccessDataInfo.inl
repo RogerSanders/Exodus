@@ -3,16 +3,16 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-GenericAccessDataInfo::GenericAccessDataInfo(unsigned int aid, IGenericAccessDataValue::DataType atype)
-:id(aid), dataType(atype)
+template<class T> GenericAccessDataInfo::GenericAccessDataInfo(T aid, IGenericAccessDataValue::DataType atype)
+:id((unsigned int)aid), dataType(atype)
 {
 	//Initialize the general data info to defaults
 	lockingSupported = false;
 	readOnly = false;
 
 	//Initialize the display mode state to defaults
-	intDisplayMode = IGenericAccessDataValue::INTDISPLAYMODE_DECIMAL;
-	floatDisplayMode = IGenericAccessDataValue::FLOATDISPLAYMODE_FIXED;
+	intDisplayMode = IGenericAccessDataValue::IntDisplayMode::Decimal;
+	floatDisplayMode = IGenericAccessDataValue::FloatDisplayMode::Fixed;
 	minWholeNumberChars = 0;
 	minFractionalNumberChars = 0;
 

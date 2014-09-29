@@ -201,7 +201,7 @@ void Device::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 Device::UpdateMethod Device::GetUpdateMethod() const
 {
-	return UPDATEMETHOD_NONE;
+	return UpdateMethod::None;
 }
 
 //----------------------------------------------------------------------------------------

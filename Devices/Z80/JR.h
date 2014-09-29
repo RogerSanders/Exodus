@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(conditionCode == CONDITIONCODE_NONE)
+		if(conditionCode == ConditionCode::None)
 		{
 			return Disassembly(GetOpcodeName(), source.Disassemble(), source.DisassembleImmediateAsPCDisplacement(GetInstructionLocation() + GetInstructionSize()));
 		}
@@ -37,7 +37,7 @@ public:
 		source.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//JR e			00011000 eeeeeeee
-		conditionCode = CONDITIONCODE_NONE;
+		conditionCode = ConditionCode::None;
 		if(data.GetDataSegment(3, 3) != 3)
 		{
 			//JR NZ,e		00100000 eeeeeeee

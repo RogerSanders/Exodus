@@ -30,7 +30,7 @@ public:
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//RST p		11ttt111
-		target.SetMode(EffectiveAddress::MODE_SP_PREDEC);
+		target.SetMode(EffectiveAddress::Mode::SPPreDec);
 		source.BuildImmediateData(Z80Word(data.GetDataSegment(3, 3) << 3));
 		AddExecuteCycleCount(11);
 

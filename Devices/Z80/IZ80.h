@@ -6,7 +6,7 @@ class IZ80 :public virtual IGenericAccess
 {
 public:
 	//Enumerations
-	enum IZ80DataSource;
+	enum class IZ80DataSource;
 
 public:
 	//Interface version functions

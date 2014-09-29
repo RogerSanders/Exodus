@@ -28,7 +28,7 @@ public:
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetMode(EffectiveAddress::MODE_A);
+		target.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(4);
 
 		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));

@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ThinList">
+      <UniqueIdentifier>{61b8ebff-d6e3-4cb4-9377-bfd878336b0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThinListContainer">
+      <UniqueIdentifier>{a82c8d5f-7576-47b1-9d04-7c7f31bee69c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThinListDouble">
+      <UniqueIdentifier>{9711df90-eac5-438f-b53f-a3acb110e40a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThinListDoubleContainer">
+      <UniqueIdentifier>{f7356c45-94f5-4de0-a668-d80fd4af2251}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThinVector">
+      <UniqueIdentifier>{7cf0ba81-5cb4-476c-85f2-598effd9fcdc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ThinList.h">
+      <Filter>ThinList</Filter>
+    </ClInclude>
+    <ClInclude Include="ThinListContainer.h">
+      <Filter>ThinListContainer</Filter>
+    </ClInclude>
+    <ClInclude Include="ThinListDouble.h">
+      <Filter>ThinListDouble</Filter>
+    </ClInclude>
+    <ClInclude Include="ThinListDoubleContainer.h">
+      <Filter>ThinListDoubleContainer</Filter>
+    </ClInclude>
+    <ClInclude Include="ThinVector.h">
+      <Filter>ThinVector</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThinList.inl">
+      <Filter>ThinList</Filter>
+    </None>
+    <None Include="ThinListContainer.inl">
+      <Filter>ThinListContainer</Filter>
+    </None>
+    <None Include="ThinListDouble.inl">
+      <Filter>ThinListDouble</Filter>
+    </None>
+    <None Include="ThinListDoubleContainer.inl">
+      <Filter>ThinListDoubleContainer</Filter>
+    </None>
+    <None Include="ThinVector.inl">
+      <Filter>ThinVector</Filter>
+    </None>
+    <None Include="ThinContainers.pkg" />
+  </ItemGroup>
+</Project>

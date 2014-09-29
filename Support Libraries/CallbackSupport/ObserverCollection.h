@@ -2,7 +2,7 @@
 #define __OBSERVERCOLLECTION_H__
 #include "IObserverSubscription.h"
 #include <set>
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 class ObserverCollection :public IObserverCollection
 {
@@ -28,7 +28,7 @@ private:
 	{}
 
 private:
-	mutable boost::mutex accessMutex;
+	mutable std::mutex accessMutex;
 	std::set<IObserverSubscription*> observers;
 };
 

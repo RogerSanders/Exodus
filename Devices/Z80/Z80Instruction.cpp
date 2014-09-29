@@ -15,21 +15,21 @@ bool Z80Instruction::ConditionCodeTrue(Z80* cpu, ConditionCode conditionCode)
 {
 	switch(conditionCode)
 	{
-	case CONDITIONCODE_NZ: //Non Zero
+	case ConditionCode::NZ: //Non Zero
 		return !cpu->GetFlagZ();
-	case CONDITIONCODE_Z:  //Zero
+	case ConditionCode::Z:  //Zero
 		return cpu->GetFlagZ();
-	case CONDITIONCODE_NC: //No Carry
+	case ConditionCode::NC: //No Carry
 		return !cpu->GetFlagC();
-	case CONDITIONCODE_C:  //Carry
+	case ConditionCode::C:  //Carry
 		return cpu->GetFlagC();
-	case CONDITIONCODE_PO: //Parity Odd
+	case ConditionCode::PO: //Parity Odd
 		return !cpu->GetFlagPV();
-	case CONDITIONCODE_PE: //Parity Even
+	case ConditionCode::PE: //Parity Even
 		return cpu->GetFlagPV();
-	case CONDITIONCODE_P:  //Sign Positive
+	case ConditionCode::P:  //Sign Positive
 		return !cpu->GetFlagS();
-	case CONDITIONCODE_M:  //Sign Negative
+	case ConditionCode::M:  //Sign Negative
 		return cpu->GetFlagS();
 	}
 	return true;
@@ -54,21 +54,21 @@ std::wstring Z80Instruction::DisassembleConditionCode(ConditionCode conditionCod
 {
 	switch(conditionCode)
 	{
-	case CONDITIONCODE_NZ: //Non Zero
+	case ConditionCode::NZ: //Non Zero
 		return L"NZ";
-	case CONDITIONCODE_Z:  //Zero
+	case ConditionCode::Z:  //Zero
 		return L"Z";
-	case CONDITIONCODE_NC: //No Carry
+	case ConditionCode::NC: //No Carry
 		return L"NC";
-	case CONDITIONCODE_C:  //Carry
+	case ConditionCode::C:  //Carry
 		return L"C";
-	case CONDITIONCODE_PO: //Parity Odd
+	case ConditionCode::PO: //Parity Odd
 		return L"PO";
-	case CONDITIONCODE_PE: //Parity Even
+	case ConditionCode::PE: //Parity Even
 		return L"PE";
-	case CONDITIONCODE_P: //Sign Positive 
+	case ConditionCode::P: //Sign Positive 
 		return L"P";
-	case CONDITIONCODE_M:  //Sign Negative
+	case ConditionCode::M:  //Sign Negative
 		return L"M";
 	}
 	return L"BAD";

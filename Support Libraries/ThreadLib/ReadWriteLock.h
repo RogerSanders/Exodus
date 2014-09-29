@@ -1,8 +1,8 @@
 #ifndef __READWRITELOCK_H__
 #define __READWRITELOCK_H__
 #include <WindowsSupport/WindowsSupport.pkg>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 #include <map>
 #include <set>
 
@@ -44,9 +44,9 @@ private:
 
 private:
 	//Thread synchronization
-	boost::mutex accessMutex;
-	boost::condition writeLockReleased;
-	boost::condition writeLockAvailable;
+	std::mutex accessMutex;
+	std::condition_variable writeLockReleased;
+	std::condition_variable writeLockAvailable;
 
 	//Read lock info
 	std::map<DWORD, unsigned int> readLockCount;

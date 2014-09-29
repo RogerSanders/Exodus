@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IViewPresenter::ViewTarget
+enum class IViewPresenter::ViewTarget
 {
-	VIEWTARGET_SYSTEM,
-	VIEWTARGET_MODULE,
-	VIEWTARGET_DEVICE,
-	VIEWTARGET_EXTENSION
+	System,
+	Module,
+	Device,
+	Extension
 };
 
 //----------------------------------------------------------------------------------------

@@ -37,7 +37,7 @@ unsigned int MenuSubmenu::GetIMenuSubmenuVersion() const
 //----------------------------------------------------------------------------------------
 MenuSubmenu::Type MenuSubmenu::GetType() const
 {
-	return TYPE_SUBMENU;
+	return Type::SubMenu;
 }
 
 //----------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ bool MenuSubmenu::NoMenuItemsExist() const
 	{
 		const IMenuItem* menuItem = *i;
 		IMenuItem::Type menuItemType = menuItem->GetType();
-		if(menuItemType == IMenuItem::TYPE_SEGMENT)
+		if(menuItemType == IMenuItem::Type::Segment)
 		{
 			const IMenuSegment* menuItemAsSegment = (IMenuSegment*)menuItem;
 			if(!menuItemAsSegment->NoMenuItemsExist())
@@ -71,7 +71,7 @@ bool MenuSubmenu::NoMenuItemsExist() const
 				return false;
 			}
 		}
-		else if(menuItemType == IMenuItem::TYPE_SUBMENU)
+		else if(menuItemType == IMenuItem::Type::SubMenu)
 		{
 			const IMenuSubmenu* menuItemAsSubmenu = (IMenuSubmenu*)menuItem;
 			if(!menuItemAsSubmenu->NoMenuItemsExist())

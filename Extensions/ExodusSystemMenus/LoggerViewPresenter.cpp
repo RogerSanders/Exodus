@@ -45,9 +45,9 @@ void LoggerViewPresenter::OpenLoggerDetailsView(const ISystemGUIInterface::Syste
 void LoggerViewPresenter::SaveEventLog(const std::vector<ISystemGUIInterface::SystemLogEntry>& eventLog, const std::wstring& filePath)
 {
 	Stream::File target;
-	if(target.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	if(target.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
-		target.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+		target.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		target.InsertByteOrderMark();
 		Stream::ViewText targetView(target);
 		for(unsigned int i = 0; i < (unsigned int)eventLog.size(); ++i)

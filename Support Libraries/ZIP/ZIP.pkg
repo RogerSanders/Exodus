@@ -51,29 +51,29 @@
 	#ifdef _DEBUG
 		#ifdef _DLL
 			#ifdef _M_X64
-				#pragma comment(lib, "zlibdrdx64")
+				#pragma comment(lib, "zlibx64d")
 			#else
-				#pragma comment(lib, "zlibdrd")
+				#pragma comment(lib, "zlibd")
 			#endif
 		#else
 			#ifdef _M_X64
-				#pragma comment(lib, "zlibdx64")
+				#pragma comment(lib, "zlibx64sd")
 			#else
-				#pragma comment(lib, "zlibd")
+				#pragma comment(lib, "zlibsd")
 			#endif
 		#endif
 	#else
 		#ifdef _DLL
 			#ifdef _M_X64
-				#pragma comment(lib, "zlibdrx64")
-			#else
-				#pragma comment(lib, "zlibdr")
-			#endif
-		#else
-			#ifdef _M_X64
 				#pragma comment(lib, "zlibx64")
 			#else
 				#pragma comment(lib, "zlib")
+			#endif
+		#else
+			#ifdef _M_X64
+				#pragma comment(lib, "zlibx64s")
+			#else
+				#pragma comment(lib, "zlibs")
 			#endif
 		#endif
 	#endif

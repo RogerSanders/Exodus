@@ -20,7 +20,7 @@ unsigned int GenericAccessGroupSingleSelectionList::GetIGenericAccessGroupSingle
 //----------------------------------------------------------------------------------------
 GenericAccessGroupSingleSelectionList::GroupEntryType GenericAccessGroupSingleSelectionList::GetGroupEntryType() const
 {
-	return GROUPENTRYTYPE_SINGLESELECTIONLIST;
+	return GroupEntryType::SingleSelectionList;
 }
 
 //----------------------------------------------------------------------------------------
