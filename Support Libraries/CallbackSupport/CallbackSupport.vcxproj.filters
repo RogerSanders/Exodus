@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Observer">
+      <UniqueIdentifier>{2077539b-625c-440b-821b-70ffdeb31869}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Observer\IObserverCollection">
+      <UniqueIdentifier>{79b4f3be-8e0e-4e93-bab4-95bb0c8267e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Observer\ObserverCollection">
+      <UniqueIdentifier>{364ef9b3-f0ea-48ec-91cc-8540c6124ff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Observer\IObserverSubscription">
+      <UniqueIdentifier>{7256e5cd-f73e-45c3-bdec-703122d9d042}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Observer\ObserverSubscription">
+      <UniqueIdentifier>{4a3f0d72-1ee8-48ae-b0a9-e731a20ca0b7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IObserverCollection.h">
+      <Filter>Observer\IObserverCollection</Filter>
+    </ClInclude>
+    <ClInclude Include="ObserverCollection.h">
+      <Filter>Observer\ObserverCollection</Filter>
+    </ClInclude>
+    <ClInclude Include="IObserverSubscription.h">
+      <Filter>Observer\IObserverSubscription</Filter>
+    </ClInclude>
+    <ClInclude Include="ObserverSubscription.h">
+      <Filter>Observer\ObserverSubscription</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ObserverCollection.inl">
+      <Filter>Observer\ObserverCollection</Filter>
+    </None>
+    <None Include="ObserverSubscription.inl">
+      <Filter>Observer\ObserverSubscription</Filter>
+    </None>
+    <None Include="CallbackSupport.pkg" />
+  </ItemGroup>
+</Project>

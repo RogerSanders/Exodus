@@ -29,7 +29,7 @@ public:
 	{
 		source.SetIndexState(GetIndexState(), GetIndexOffset());
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetMode(EffectiveAddress::MODE_HL);
+		target.SetMode(EffectiveAddress::Mode::HL);
 
 		//ADC HL,ss		11101101 01ss1010
 		//ADC IX,ss		11011101 11101101 01ss1010

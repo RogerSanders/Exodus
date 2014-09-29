@@ -25,7 +25,7 @@ unsigned int GenericAccessGroupCollectionEntry::GetIGenericAccessGroupCollection
 //----------------------------------------------------------------------------------------
 GenericAccessGroupCollectionEntry::GroupEntryType GenericAccessGroupCollectionEntry::GetGroupEntryType() const
 {
-	return GROUPENTRYTYPE_COLLECTION;
+	return GroupEntryType::Collection;
 }
 
 //----------------------------------------------------------------------------------------

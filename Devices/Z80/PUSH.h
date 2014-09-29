@@ -36,19 +36,19 @@ public:
 		switch(data.GetDataSegment(4, 2))
 		{
 		case 0:
-			source.SetMode(EffectiveAddress::MODE_BC);
+			source.SetMode(EffectiveAddress::Mode::BC);
 			break;
 		case 1:
-			source.SetMode(EffectiveAddress::MODE_DE);
+			source.SetMode(EffectiveAddress::Mode::DE);
 			break;
 		case 2:
-			source.SetMode(EffectiveAddress::MODE_HL);
+			source.SetMode(EffectiveAddress::Mode::HL);
 			break;
 		case 3:
-			source.SetMode(EffectiveAddress::MODE_AF);
+			source.SetMode(EffectiveAddress::Mode::AF);
 			break;
 		}
-		target.SetMode(EffectiveAddress::MODE_SP_PREDEC);
+		target.SetMode(EffectiveAddress::Mode::SPPreDec);
 
 		AddInstructionSize(GetIndexOffsetSize(source.UsesIndexOffset() || target.UsesIndexOffset()));
 		AddInstructionSize(source.ExtensionSize());

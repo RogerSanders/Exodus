@@ -50,37 +50,27 @@
 	#ifdef _DEBUG
 		#ifdef _DLL
 			#ifdef _M_X64
-				#pragma comment(lib, "libpngdrdx64")
-				#pragma comment(lib, "libjpegdrdx64")
-				#pragma comment(lib, "libtiffdrdx64")
-			#else
-				#pragma comment(lib, "libpngdrd")
-				#pragma comment(lib, "libjpegdrd")
-				#pragma comment(lib, "libtiffdrd")
-			#endif
-		#else
-			#ifdef _M_X64
-				#pragma comment(lib, "libpngdx64")
-				#pragma comment(lib, "libjpegdx64")
-				#pragma comment(lib, "libtiffdx64")
+				#pragma comment(lib, "libpngx64d")
+				#pragma comment(lib, "libjpegx64d")
+				#pragma comment(lib, "libtiffx64d")
 			#else
 				#pragma comment(lib, "libpngd")
 				#pragma comment(lib, "libjpegd")
 				#pragma comment(lib, "libtiffd")
 			#endif
+		#else
+			#ifdef _M_X64
+				#pragma comment(lib, "libpngx64sd")
+				#pragma comment(lib, "libjpegx64sd")
+				#pragma comment(lib, "libtiffx64sd")
+			#else
+				#pragma comment(lib, "libpngsd")
+				#pragma comment(lib, "libjpegsd")
+				#pragma comment(lib, "libtiffsd")
+			#endif
 		#endif
 	#else
 		#ifdef _DLL
-			#ifdef _M_X64
-				#pragma comment(lib, "libpngdrx64")
-				#pragma comment(lib, "libjpegdrx64")
-				#pragma comment(lib, "libtiffdrx64")
-			#else
-				#pragma comment(lib, "libpngdr")
-				#pragma comment(lib, "libjpegdr")
-				#pragma comment(lib, "libtiffdr")
-			#endif
-		#else
 			#ifdef _M_X64
 				#pragma comment(lib, "libpngx64")
 				#pragma comment(lib, "libjpegx64")
@@ -89,6 +79,16 @@
 				#pragma comment(lib, "libpng")
 				#pragma comment(lib, "libjpeg")
 				#pragma comment(lib, "libtiff")
+			#endif
+		#else
+			#ifdef _M_X64
+				#pragma comment(lib, "libpngx64s")
+				#pragma comment(lib, "libjpegx64s")
+				#pragma comment(lib, "libtiffx64s")
+			#else
+				#pragma comment(lib, "libpngs")
+				#pragma comment(lib, "libjpegs")
+				#pragma comment(lib, "libtiffs")
 			#endif
 		#endif
 	#endif

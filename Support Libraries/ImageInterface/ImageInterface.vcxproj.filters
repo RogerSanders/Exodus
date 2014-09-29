@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="IImage">
+      <UniqueIdentifier>{c1af8f04-e038-44ce-b7a4-5c58af9985b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IImageSet">
+      <UniqueIdentifier>{ad5df9d5-f425-4002-bbe4-b7e226333165}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IImage.h">
+      <Filter>IImage</Filter>
+    </ClInclude>
+    <ClInclude Include="IImageSet.h">
+      <Filter>IImageSet</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IImage.inl">
+      <Filter>IImage</Filter>
+    </None>
+    <None Include="ImageInterface.pkg" />
+  </ItemGroup>
+</Project>

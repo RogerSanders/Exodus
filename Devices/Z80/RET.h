@@ -25,7 +25,7 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(conditionCode == CONDITIONCODE_NONE)
+		if(conditionCode == ConditionCode::None)
 		{
 			return Disassembly(GetOpcodeName(), L"");
 		}
@@ -38,7 +38,7 @@ public:
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		conditionCode = CONDITIONCODE_NONE;
+		conditionCode = ConditionCode::None;
 
 		if(data.GetBit(0))
 		{
@@ -50,7 +50,7 @@ public:
 			conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
 			AddExecuteCycleCount(1);
 		}
-		target.SetMode(EffectiveAddress::MODE_SP_POSTINC);
+		target.SetMode(EffectiveAddress::Mode::SPPostInc);
 
 		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));
 		AddInstructionSize(target.ExtensionSize());

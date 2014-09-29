@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{a0639ada-bc9c-46b5-aee8-058da2239a19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="View System">
+      <UniqueIdentifier>{81642209-4c1a-4d3a-bd88-e13b7b55e53e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="View System\ViewStateChangeNotifier">
+      <UniqueIdentifier>{2be38304-adeb-469a-bdf7-a3c49ea293ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="View System\IViewManagerNotifierInterface">
+      <UniqueIdentifier>{ba301a4f-f1c0-4af0-baaf-5d8751a741c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="View System\ViewManager">
+      <UniqueIdentifier>{ba3076be-dfb7-4e4c-9d3d-26472599cb84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusInterface">
+      <UniqueIdentifier>{c496e73f-4f35-41f2-a211-809ce7bf7d9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusInterface\AboutView">
+      <UniqueIdentifier>{5cffa1c4-c0cd-4753-a7e4-a5f88ee2c09e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusInterface\SettingsView">
+      <UniqueIdentifier>{1edebc69-03ac-4aef-ab37-1f5f94d68e3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusInterface\ModuleManagerView">
+      <UniqueIdentifier>{015b3b56-3bbb-4952-b4e8-5ff7b2b56cc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusInterface\MenuHandler">
+      <UniqueIdentifier>{b05f2db1-314e-4dad-be5d-acca704b05ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Menu System">
+      <UniqueIdentifier>{4ada13ee-9932-4d00-a963-ddf79806dd97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Menu System\MenuSegment">
+      <UniqueIdentifier>{a55d45ce-c03a-4eba-9813-8aed525c79e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Menu System\MenuSelectableOption">
+      <UniqueIdentifier>{9f1805ac-fb46-479b-b06a-a606f03fdf3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Menu System\MenuSubmenu">
+      <UniqueIdentifier>{47f4cc54-4e77-4410-9571-f614aa0e773f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DeviceInfo">
+      <UniqueIdentifier>{3195356f-c0c9-41cf-abf2-f6b522bd4d68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExtensionInfo">
+      <UniqueIdentifier>{2f54a141-ed0c-468c-b3af-f61ae54c89ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SystemInfo">
+      <UniqueIdentifier>{8141a6f6-9520-4ef4-b34c-9849b8f625d1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\folder.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="Resources\program.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ViewStateChangeNotifier.cpp">
+      <Filter>View System\ViewStateChangeNotifier</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewManager.cpp">
+      <Filter>View System\ViewManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ExodusInterface.cpp">
+      <Filter>ExodusInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="AboutView.cpp">
+      <Filter>ExodusInterface\AboutView</Filter>
+    </ClCompile>
+    <ClCompile Include="AboutViewPresenter.cpp">
+      <Filter>ExodusInterface\AboutView</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsView.cpp">
+      <Filter>ExodusInterface\SettingsView</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsViewPresenter.cpp">
+      <Filter>ExodusInterface\SettingsView</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleManagerView.cpp">
+      <Filter>ExodusInterface\ModuleManagerView</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleManagerViewPresenter.cpp">
+      <Filter>ExodusInterface\ModuleManagerView</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuHandler.cpp">
+      <Filter>ExodusInterface\MenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuSegment.cpp">
+      <Filter>Menu System\MenuSegment</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuSelectableOption.cpp">
+      <Filter>Menu System\MenuSelectableOption</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuSubmenu.cpp">
+      <Filter>Menu System\MenuSubmenu</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceInfo.cpp">
+      <Filter>DeviceInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtensionInfo.cpp">
+      <Filter>ExtensionInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemInfo.cpp">
+      <Filter>SystemInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ViewStateChangeNotifier.h">
+      <Filter>View System\ViewStateChangeNotifier</Filter>
+    </ClInclude>
+    <ClInclude Include="IViewManagerNotifierInterface.h">
+      <Filter>View System\IViewManagerNotifierInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewManager.h">
+      <Filter>View System\ViewManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ExodusInterface.h">
+      <Filter>ExodusInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="AboutView.h">
+      <Filter>ExodusInterface\AboutView</Filter>
+    </ClInclude>
+    <ClInclude Include="AboutViewPresenter.h">
+      <Filter>ExodusInterface\AboutView</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsView.h">
+      <Filter>ExodusInterface\SettingsView</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsViewPresenter.h">
+      <Filter>ExodusInterface\SettingsView</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleManagerView.h">
+      <Filter>ExodusInterface\ModuleManagerView</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleManagerViewPresenter.h">
+      <Filter>ExodusInterface\ModuleManagerView</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuHandler.h">
+      <Filter>ExodusInterface\MenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuSegment.h">
+      <Filter>Menu System\MenuSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuSelectableOption.h">
+      <Filter>Menu System\MenuSelectableOption</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuSubmenu.h">
+      <Filter>Menu System\MenuSubmenu</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceInfo.h">
+      <Filter>DeviceInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtensionInfo.h">
+      <Filter>ExtensionInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemInfo.h">
+      <Filter>SystemInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ViewManager.inl">
+      <Filter>View System\ViewManager</Filter>
+    </None>
+    <None Include="ExodusInterface.inl">
+      <Filter>ExodusInterface</Filter>
+    </None>
+    <None Include="DeviceInfo.inl">
+      <Filter>DeviceInfo</Filter>
+    </None>
+    <None Include="ExtensionInfo.inl">
+      <Filter>ExtensionInfo</Filter>
+    </None>
+    <None Include="SystemInfo.inl">
+      <Filter>SystemInfo</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Exodus.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="manifest.xml" />
+    <Xml Include="manifestx64.xml" />
+  </ItemGroup>
+</Project>

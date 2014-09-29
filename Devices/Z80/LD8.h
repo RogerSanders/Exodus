@@ -45,15 +45,15 @@ public:
 				//LD r,(HL)		01rrr110
 				//LD r,(IX+d)	11011101 01rrr110 dddddddd
 				//LD r,(IY+d)	11111101 01rrr110 dddddddd
-				source.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
+				source.SetMode(EffectiveAddress::Mode::HLIndirect);
 				//##NOTE## We override the index state for the target in this form of the
 				//opcode. Just to be difficult, this form doesn't apply the index mode to
 				//the target field, but it does apply it to the source field. The same is
 				//true of the reverse form below. The only other opcode where there are
 				//exceptions to the indexing rule is EX.
-				target.SetIndexState(EffectiveAddress::INDEX_NONE, 0);
+				target.SetIndexState(EffectiveAddress::IndexState::None, 0);
 				target.Decode8BitRegister(data.GetDataSegment(3, 3));
-				if(GetIndexState() == EffectiveAddress::INDEX_NONE)
+				if(GetIndexState() == EffectiveAddress::IndexState::None)
 				{
 					AddExecuteCycleCount(7);
 				}
@@ -68,10 +68,10 @@ public:
 				//LD (IX+d),r	11011101 01110rrr dddddddd
 				//LD (IY+d),r	11111101 01110rrr dddddddd
 				//##NOTE## See notes on reverse form above.
-				source.SetIndexState(EffectiveAddress::INDEX_NONE, 0);
+				source.SetIndexState(EffectiveAddress::IndexState::None, 0);
 				source.Decode8BitRegister(data.GetDataSegment(0, 3));
-				target.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
-				if(GetIndexState() == EffectiveAddress::INDEX_NONE)
+				target.SetMode(EffectiveAddress::Mode::HLIndirect);
+				if(GetIndexState() == EffectiveAddress::IndexState::None)
 				{
 					AddExecuteCycleCount(7);
 				}
@@ -95,42 +95,42 @@ public:
 			if(data == 0x0A)
 			{
 				//LD A,(BC)		00001010
-				source.SetMode(EffectiveAddress::MODE_BC_INDIRECT);
-				target.SetMode(EffectiveAddress::MODE_A);
+				source.SetMode(EffectiveAddress::Mode::BCIndirect);
+				target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(7);
 			}
 			else if(data == 0x1A)
 			{
 				//LD A,(DE)		00011010
-				source.SetMode(EffectiveAddress::MODE_DE_INDIRECT);
-				target.SetMode(EffectiveAddress::MODE_A);
+				source.SetMode(EffectiveAddress::Mode::DEIndirect);
+				target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(7);
 			}
 			else if(data == 0x3A)
 			{
 				//LD A,(nn)		00111010 nnnnnnnn nnnnnnnn
 				source.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
-				target.SetMode(EffectiveAddress::MODE_A);
+				target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(13);
 			}
 			else if(data == 0x02)
 			{
 				//LD (BC),A		00000010
-				source.SetMode(EffectiveAddress::MODE_A);
-				target.SetMode(EffectiveAddress::MODE_BC_INDIRECT);
+				source.SetMode(EffectiveAddress::Mode::A);
+				target.SetMode(EffectiveAddress::Mode::BCIndirect);
 				AddExecuteCycleCount(7);
 			}
 			else if(data == 0x12)
 			{
 				//LD (DE),A		00010010
-				source.SetMode(EffectiveAddress::MODE_A);
-				target.SetMode(EffectiveAddress::MODE_DE_INDIRECT);
+				source.SetMode(EffectiveAddress::Mode::A);
+				target.SetMode(EffectiveAddress::Mode::DEIndirect);
 				AddExecuteCycleCount(7);
 			}
 			else if(data == 0x32)
 			{
 				//LD (nn),A		00110010 nnnnnnnn nnnnnnnn
-				source.SetMode(EffectiveAddress::MODE_A);
+				source.SetMode(EffectiveAddress::Mode::A);
 				target.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 				AddExecuteCycleCount(13);
 			}
@@ -139,9 +139,9 @@ public:
 				//LD (HL),n		00110110 nnnnnnnn
 				//LD (IX+d),n	11011101 00110110 nnnnnnnn
 				//LD (IY+d),n	11111101 00110110 nnnnnnnn
-				target.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
+				target.SetMode(EffectiveAddress::Mode::HLIndirect);
 				source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize() + GetIndexOffsetSize(target.UsesIndexOffset()), cpu, transparent);
-				if(GetIndexState() == EffectiveAddress::INDEX_NONE)
+				if(GetIndexState() == EffectiveAddress::IndexState::None)
 				{
 					AddExecuteCycleCount(10);
 				}

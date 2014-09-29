@@ -25,7 +25,7 @@
 //is supported. We can emulate this check with a C++03 conformant compiler if required.
 #ifdef INTEROPSUPPORT_CPP11SUPPORTED
 #include <type_traits>
-#define INTEROPSUPPORT_ISBASEOF(B, D) std::is_base_of<B, D>
+#define INTEROPSUPPORT_ISBASEOF(B, D) std::is_base_of<B, D>::value
 #else
 #include "IsBaseOfTypeTraitEmulator.h"
 #define INTEROPSUPPORT_ISBASEOF(B, D) is_base_of_emulator<B, D>::result

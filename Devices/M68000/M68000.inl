@@ -3,75 +3,55 @@ namespace M68000 {
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum M68000::Exceptions
-{
-	EX_RESET                    = 0,
-	EX_BUS_ERROR                = 2,
-	EX_ADDRESS_ERROR            = 3,
-	EX_ILLEGAL_INSTRUCTION      = 4,
-	EX_ZERO_DIVIDE              = 5,
-	EX_CHK_INSTRUCTION          = 6,
-	EX_TRAPV_INSTRUCTION        = 7,
-	EX_PRIVILEGE_VIOLATION      = 8,
-	EX_TRACE                    = 9,
-	EX_LINE_1010                = 10,
-	EX_LINE_1111                = 11,
-	EX_INTERRUPT_UNINITIALIZED  = 15,
-	EX_INTERRUPT_SPURIOUS       = 24,
-	EX_INTERRUPT_AUTOVECTOR     = 25,
-	EX_INTERRUPT_TRAP           = 32
-};
-
-//----------------------------------------------------------------------------------------
 //For more info on what references happen in what address space, refer to the M68000
 //Programmers Manual, section 2, page 1.
 //----------------------------------------------------------------------------------------
-enum M68000::FunctionCode
+enum class M68000::FunctionCode
 {
-	FUNCTIONCODE_UNDEFINED0         = 0, //000
-	FUNCTIONCODE_USERDATA           = 1, //001
-	FUNCTIONCODE_USERPROGRAM        = 2, //010
-	FUNCTIONCODE_UNDEFINED3         = 3, //011
-	FUNCTIONCODE_UNDEFINED4         = 4, //100
-	FUNCTIONCODE_SUPERVISORDATA     = 5, //101
-	FUNCTIONCODE_SUPERVISORPROGRAM  = 6, //110
-	FUNCTIONCODE_CPUSPACE           = 7  //111
+	Undefined0         = 0, //000
+	UserData           = 1, //001
+	UserProgram        = 2, //010
+	Undefined3         = 3, //011
+	Undefined4         = 4, //100
+	SupervisorData     = 5, //101
+	SupervisorProgram  = 6, //110
+	CPUSpace           = 7  //111
 };
 
 //----------------------------------------------------------------------------------------
 //For more info on internal processor states, refer to the M68000 Users Manual,
 //section 6, page 1.
 //----------------------------------------------------------------------------------------
-enum M68000::State
+enum class M68000::State
 {
-	STATE_NORMAL    = 0,
-	STATE_STOPPED   = 1,
-	STATE_EXCEPTION = 2,
-	STATE_HALTED    = 3
+	Normal    = 0,
+	Stopped   = 1,
+	Exception = 2,
+	Halted    = 3
 };
 
 //----------------------------------------------------------------------------------------
-enum M68000::CELineID
+enum class M68000::CELineID
 {
-	CELINE_LDS = 1,
-	CELINE_UDS,
-	CELINE_RW,
-	CELINE_AS,
-	CELINE_FC,
-	CELINE_FCCPUSPACE,
-	CELINE_RMWCYCLEINPROGRESS,
-	CELINE_RMWCYCLEFIRSTOPERATION
+	LDS = 1,
+	UDS,
+	RW,
+	AS,
+	FC,
+	FCCPUSpace,
+	RMWCycleInProgress,
+	RMWCycleFirstOperation
 };
 
 //----------------------------------------------------------------------------------------
-enum M68000::LineID
+enum class M68000::LineID
 {
-	LINE_RESET = 1,
-	LINE_BR,
-	LINE_BG,
-	LINE_HALT,
-	LINE_IPL,
-	LINE_VPA
+	RESET = 1,
+	BR,
+	BG,
+	HALT,
+	IPL,
+	VPA
 	//##TODO## Add DTAK and BERR lines, with proper support for both. We need to phase out
 	//the "busError" flag from the IBusInterface::AccessResult structure, and rely on line
 	//based communication for bus errors to be flagged. We also need to implement actual
@@ -82,9 +62,9 @@ enum M68000::LineID
 };
 
 //----------------------------------------------------------------------------------------
-enum M68000::ClockID
+enum class M68000::ClockID
 {
-	CLOCK_CLK = 1
+	CLK = 1
 };
 
 //----------------------------------------------------------------------------------------
@@ -92,14 +72,21 @@ enum M68000::ClockID
 //----------------------------------------------------------------------------------------
 struct M68000::LineAccess
 {
-	LineAccess(unsigned int alineLD, const Data& astate, double aaccessTime)
+	LineAccess()
+	:state(0), clockRate(0), accessTime(0.0), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0), clockRateChange(false)
+	{}
+	LineAccess(LineID alineLD, const Data& astate, double aaccessTime)
 	:lineID(alineLD), state(astate), accessTime(aaccessTime), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0), clockRateChange(false)
 	{}
-	LineAccess(unsigned int alineLD, double aclockRate, double aaccessTime)
-	:lineID(alineLD), state(0, 0), clockRate(aclockRate), accessTime(aaccessTime), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0), clockRateChange(true)
+	LineAccess(ClockID aclockLD, double aclockRate, double aaccessTime)
+	:clockID(aclockLD), state(0, 0), clockRate(aclockRate), accessTime(aaccessTime), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0), clockRateChange(true)
 	{}
 
-	unsigned int lineID;
+	union
+	{
+		LineID lineID;
+		ClockID clockID;
+	};
 	bool clockRateChange;
 	double clockRate;
 	Data state;

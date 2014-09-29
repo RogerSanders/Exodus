@@ -4,7 +4,7 @@ namespace Stream {
 //Constructors
 //----------------------------------------------------------------------------------------
 ViewBinary::ViewBinary(IStreamNonSeekable& astream)
-:stream(astream), byteOrder(IStream::BYTEORDER_PLATFORM), noErrorState(true)
+:stream(astream), byteOrder(IStream::ByteOrder::Platform), noErrorState(true)
 {}
 
 //----------------------------------------------------------------------------------------

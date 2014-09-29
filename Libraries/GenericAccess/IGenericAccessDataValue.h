@@ -7,9 +7,9 @@ class IGenericAccessDataValue
 {
 public:
 	//Enumerations
-	enum DataType;
-	enum IntDisplayMode;
-	enum FloatDisplayMode;
+	enum class DataType;
+	enum class IntDisplayMode;
+	enum class FloatDisplayMode;
 
 public:
 	//Constructors

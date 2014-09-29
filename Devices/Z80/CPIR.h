@@ -31,8 +31,8 @@ public:
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//CPIR		11101101 10110001
-		source.SetMode(EffectiveAddress::MODE_HL_POSTINC);
-		target.SetMode(EffectiveAddress::MODE_A);
+		source.SetMode(EffectiveAddress::Mode::HLPostInc);
+		target.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(12);
 
 		AddInstructionSize(GetIndexOffsetSize(source.UsesIndexOffset() || target.UsesIndexOffset()));

@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IBreakpoint::Condition
+enum class IBreakpoint::Condition
 {
-	CONDITION_EQUAL = 0,
-	CONDITION_GREATER,
-	CONDITION_LESS,
-	CONDITION_GREATER_AND_LESS
+	Equal = 0,
+	Greater,
+	Less,
+	GreaterAndLess
 };
 
 //----------------------------------------------------------------------------------------

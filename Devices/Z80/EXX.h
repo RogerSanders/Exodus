@@ -29,12 +29,12 @@ public:
 	{
 		//##NOTE## This opcode is not affected by index prefixes. HL is always the target.
 		//EXX		11011001
-		sourceBC.SetMode(EffectiveAddress::MODE_BC);
-		sourceDE.SetMode(EffectiveAddress::MODE_DE);
-		sourceHL.SetMode(EffectiveAddress::MODE_HL);
-		targetBC.SetMode(EffectiveAddress::MODE_BC2);
-		targetDE.SetMode(EffectiveAddress::MODE_DE2);
-		targetHL.SetMode(EffectiveAddress::MODE_HL2);
+		sourceBC.SetMode(EffectiveAddress::Mode::BC);
+		sourceDE.SetMode(EffectiveAddress::Mode::DE);
+		sourceHL.SetMode(EffectiveAddress::Mode::HL);
+		targetBC.SetMode(EffectiveAddress::Mode::BC2);
+		targetDE.SetMode(EffectiveAddress::Mode::DE2);
+		targetHL.SetMode(EffectiveAddress::Mode::HL2);
 		AddExecuteCycleCount(4);
 	}
 

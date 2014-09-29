@@ -2,7 +2,7 @@
 #define __MDBUSARBITER_H__
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "Device/Device.pkg"
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 class MDBusArbiter :public Device
 {
@@ -51,9 +51,6 @@ public:
 	virtual void RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
-	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, double accessTime);
-	void ApplyPendingLineStateChanges(double accessTime);
-	bool AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* caller, double accessTime, unsigned int accessContext, unsigned int targetLine, Data targetLineState, double& lineStateReachedTime);
 
 	//Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
@@ -61,9 +58,9 @@ public:
 
 private:
 	//Enumerations
-	enum CELineID;
-	enum LineID;
-	enum MemoryInterface;
+	enum class CELineID;
+	enum class LineID;
+	enum class MemoryInterface;
 
 	//Structures
 	struct LineAccess;
@@ -72,6 +69,11 @@ private:
 	//CE line state functions
 	unsigned int BuildCELineM68K(unsigned int targetAddress, bool write, bool ceLineUDS, bool ceLineLDS, bool ceLineOE0, bool cartInLineAsserted, IDeviceContext* caller, double accessTime) const;
 	unsigned int BuildCELineZ80(unsigned int targetAddress) const;
+
+	//Line functions
+	void ApplyLineStateChange(LineID targetLine, const Data& lineData, double accessTime);
+	void ApplyPendingLineStateChanges(double accessTime);
+	bool AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* caller, double accessTime, unsigned int accessContext, LineID targetLine, Data targetLineState, double& lineStateReachedTime);
 
 private:
 	//Device references
@@ -96,7 +98,7 @@ private:
 	bool bvdpLockoutTripped;
 
 	//Z80 to M68K memory bankswitch register settings
-	mutable boost::mutex bankswitchAccessMutex;
+	mutable std::mutex bankswitchAccessMutex;
 	Data z80BankswitchDataCurrent;
 	Data bz80BankswitchDataCurrent;
 	Data z80BankswitchDataNew;
@@ -123,7 +125,7 @@ private:
 	unsigned int ceLineMaskSOUND;
 
 	//Line access
-	boost::mutex lineMutex;
+	std::mutex lineMutex;
 	mutable double lastLineCheckTime;
 	volatile bool lineAccessPending;
 	double lastTimesliceLength;

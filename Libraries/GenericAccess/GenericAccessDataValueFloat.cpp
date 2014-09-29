@@ -8,7 +8,7 @@
 GenericAccessDataValueFloat::GenericAccessDataValueFloat(float value)
 :dataValue(value)
 {
-	displayMode = FLOATDISPLAYMODE_FIXED;
+	displayMode = FloatDisplayMode::Fixed;
 	minWholeNumberChars = 0;
 	minFractionalNumberChars = 0;
 	minValue = std::numeric_limits<float>::min();
@@ -28,7 +28,7 @@ unsigned int GenericAccessDataValueFloat::GetIGenericAccessDataValueFloatVersion
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueFloat::DataType GenericAccessDataValueFloat::GetType() const
 {
-	return DATATYPE_FLOAT;
+	return DataType::Float;
 }
 
 //----------------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ float GenericAccessDataValueFloat::GetValue() const
 std::wstring GenericAccessDataValueFloat::GetValueString() const
 {
 	std::wstring result;
-	bool useScientificNotation = (displayMode == FLOATDISPLAYMODE_SCIENTIFIC);
+	bool useScientificNotation = (displayMode == FloatDisplayMode::Scientific);
 	FloatToString(dataValue, result, useScientificNotation, minFractionalNumberChars, minWholeNumberChars);
 	return result;
 }

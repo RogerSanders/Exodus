@@ -15,7 +15,7 @@ class ISystemGUIInterface :public ISystemExtensionInterface
 {
 public:
 	//Enumerations
-	enum FileType;
+	enum class FileType;
 
 	//Structures
 	struct StateInfo;

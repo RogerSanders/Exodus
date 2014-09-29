@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="STLContainerDecomposition">
+      <UniqueIdentifier>{49578913-e140-49a0-b9e3-539ac7949a97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="STLObjectKeyMarshaller">
+      <UniqueIdentifier>{74d55fce-7aac-4c6d-a5cb-6c45fc9f77d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="STLObjectTarget">
+      <UniqueIdentifier>{41557acb-3bbf-4c31-83ee-e436674c9e49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="STLObjectSource">
+      <UniqueIdentifier>{09cb07a6-5efe-4852-a981-edb77276526a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Marshallers">
+      <UniqueIdentifier>{8f3999e8-beb9-4275-b082-281389e51d1f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CalculateDecomposedSTLContainerSize.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="CalculateSTLContainerNestingDepth.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="ClearSTLContainer.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateSTLContainerItemArray.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateSTLContainerKeyMarshallers.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="DecomposedSTLContainerHasKeys.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="DecomposeSTLContainer.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="DeleteSTLContainerItemArray.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="DeleteSTLContainerKeyMarshallers.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="MarshalObject.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="RecomposeSTLContainer.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="ISTLObjectKeyMarshaller.h">
+      <Filter>STLObjectKeyMarshaller</Filter>
+    </ClInclude>
+    <ClInclude Include="ISTLObjectKeyMarshallerBase.h">
+      <Filter>STLObjectKeyMarshaller</Filter>
+    </ClInclude>
+    <ClInclude Include="STLObjectKeyMarshaller.h">
+      <Filter>STLObjectKeyMarshaller</Filter>
+    </ClInclude>
+    <ClInclude Include="ISTLObjectTarget.h">
+      <Filter>STLObjectTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="STLObjectTarget.h">
+      <Filter>STLObjectTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="ISTLObjectSource.h">
+      <Filter>STLObjectSource</Filter>
+    </ClInclude>
+    <ClInclude Include="STLObjectSource.h">
+      <Filter>STLObjectSource</Filter>
+    </ClInclude>
+    <ClInclude Include="MarshalIn.h">
+      <Filter>Marshallers</Filter>
+    </ClInclude>
+    <ClInclude Include="MarshalInOut.h">
+      <Filter>Marshallers</Filter>
+    </ClInclude>
+    <ClInclude Include="MarshalOut.h">
+      <Filter>Marshallers</Filter>
+    </ClInclude>
+    <ClInclude Include="MarshalRet.h">
+      <Filter>Marshallers</Filter>
+    </ClInclude>
+    <ClInclude Include="IMarshallingObject.h" />
+    <ClInclude Include="InteropPreprocessorMacros.h" />
+    <ClInclude Include="IsBaseOfTypeTraitEmulator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CalculateDecomposedSTLContainerSize.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="CalculateSTLContainerNestingDepth.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="ClearSTLContainer.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="CreateSTLContainerItemArray.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="CreateSTLContainerKeyMarshallers.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="DecomposedSTLContainerHasKeys.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="DecomposeSTLContainer.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="DeleteSTLContainerItemArray.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="DeleteSTLContainerKeyMarshallers.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="MarshalObject.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="RecomposeSTLContainer.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="InteropSupport.pkg" />
+  </ItemGroup>
+</Project>

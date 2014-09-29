@@ -33,7 +33,7 @@ void MDControl6::Initialize()
 	bankswitchCounterToggleLastRisingEdge = 0;
 	for(unsigned int i = 0; i < outputLineCount; ++i)
 	{
-		unsigned int lineID = LINE_D0 + i;
+		LineID lineID = (LineID)((unsigned int)LineID::D0 + i);
 		outputLineState[i].asserted = GetDesiredLineState(bankswitchCounter, lineInputStateTH, buttonPressed, lineID);
 		outputLineState[i].timeoutFlagged = false;
 	}
@@ -184,31 +184,31 @@ unsigned int MDControl6::GetLineID(const std::wstring& lineName) const
 {
 	if(lineName == L"D0")
 	{
-		return LINE_D0;
+		return (unsigned int)LineID::D0;
 	}
 	else if(lineName == L"D1")
 	{
-		return LINE_D1;
+		return (unsigned int)LineID::D1;
 	}
 	else if(lineName == L"D2")
 	{
-		return LINE_D2;
+		return (unsigned int)LineID::D2;
 	}
 	else if(lineName == L"D3")
 	{
-		return LINE_D3;
+		return (unsigned int)LineID::D3;
 	}
 	else if(lineName == L"TL")
 	{
-		return LINE_TL;
+		return (unsigned int)LineID::TL;
 	}
 	else if(lineName == L"TR")
 	{
-		return LINE_TR;
+		return (unsigned int)LineID::TR;
 	}
 	else if(lineName == L"TH")
 	{
-		return LINE_TH;
+		return (unsigned int)LineID::TH;
 	}
 	return 0;
 }
@@ -216,21 +216,21 @@ unsigned int MDControl6::GetLineID(const std::wstring& lineName) const
 //----------------------------------------------------------------------------------------
 std::wstring MDControl6::GetLineName(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_D0:
+	case LineID::D0:
 		return L"D0";
-	case LINE_D1:
+	case LineID::D1:
 		return L"D1";
-	case LINE_D2:
+	case LineID::D2:
 		return L"D2";
-	case LINE_D3:
+	case LineID::D3:
 		return L"D3";
-	case LINE_TL:
+	case LineID::TL:
 		return L"TL";
-	case LINE_TR:
+	case LineID::TR:
 		return L"TR";
-	case LINE_TH:
+	case LineID::TH:
 		return L"TH";
 	}
 	return L"";
@@ -239,15 +239,15 @@ std::wstring MDControl6::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int MDControl6::GetLineWidth(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_D0:
-	case LINE_D1:
-	case LINE_D2:
-	case LINE_D3:
-	case LINE_TL:
-	case LINE_TR:
-	case LINE_TH:
+	case LineID::D0:
+	case LineID::D1:
+	case LineID::D2:
+	case LineID::D3:
+	case LineID::TL:
+	case LineID::TR:
+	case LineID::TH:
 		return 1;
 	}
 	return 0;
@@ -256,7 +256,7 @@ unsigned int MDControl6::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//Read the time at which this access is being made, and trigger a rollback if the
 	//device has been accessed out of order.
@@ -310,7 +310,7 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 	//data is read. We need to emulate that here, with an option to disable this
 	//behaviour.
 	bool timeoutSettingsChanged = false;
-	if(targetLine == LINE_TH)
+	if((LineID)targetLine == LineID::TH)
 	{
 		bool newLineState = lineData.GetBit(0);
 		if(lineInputStateTH != newLineState)
@@ -380,49 +380,49 @@ void MDControl6::AssertCurrentOutputLineState() const
 	}
 
 	//Assert the current line output state for the output lines
-	if(outputLineState[0].asserted) memoryBus->SetLineState(LINE_D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[1].asserted) memoryBus->SetLineState(LINE_D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[2].asserted) memoryBus->SetLineState(LINE_D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[3].asserted) memoryBus->SetLineState(LINE_D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[4].asserted) memoryBus->SetLineState(LINE_TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[5].asserted) memoryBus->SetLineState(LINE_TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[6].asserted) memoryBus->SetLineState(LINE_TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[0].asserted) memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[1].asserted) memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[2].asserted) memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[3].asserted) memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[4].asserted) memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[5].asserted) memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[6].asserted) memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 
 	//Re-assert any pending line state timeout changes
-	if(outputLineState[LINE_D0-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::D0)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_D0, Data(1, outputLineState[LINE_D0-LINE_D0].timeoutAssertedState), outputLineState[LINE_D0-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		memoryBus->SetLineState(LINE_D0, Data(1, outputLineState[LINE_D0-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_D0-LINE_D0].timeoutTime, 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::D0, Data(1, outputLineState[GetLineIndex(LineID::D0)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::D0)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, outputLineState[GetLineIndex(LineID::D0)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[GetLineIndex(LineID::D0)].timeoutTime, 0);
 	}
-	if(outputLineState[LINE_D1-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::D1)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_D1, Data(1, outputLineState[LINE_D1-LINE_D0].timeoutAssertedState), outputLineState[LINE_D1-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		memoryBus->SetLineState(LINE_D1, Data(1, outputLineState[LINE_D1-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_D1-LINE_D0].timeoutTime, 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::D1, Data(1, outputLineState[GetLineIndex(LineID::D1)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::D1)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, outputLineState[GetLineIndex(LineID::D1)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[GetLineIndex(LineID::D1)].timeoutTime, 0);
 	}
-	if(outputLineState[LINE_D2-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::D2)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_D2, Data(1, outputLineState[LINE_D2-LINE_D0].timeoutAssertedState), outputLineState[LINE_D2-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		memoryBus->SetLineState(LINE_D2, Data(1, outputLineState[LINE_D2-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_D2-LINE_D0].timeoutTime, 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::D2, Data(1, outputLineState[GetLineIndex(LineID::D2)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::D2)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, outputLineState[GetLineIndex(LineID::D2)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[GetLineIndex(LineID::D2)].timeoutTime, 0);
 	}
-	if(outputLineState[LINE_D3-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::D3)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_D3, Data(1, outputLineState[LINE_D3-LINE_D0].timeoutAssertedState), outputLineState[LINE_D3-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		memoryBus->SetLineState(LINE_D3, Data(1, outputLineState[LINE_D3-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_D3-LINE_D0].timeoutTime, 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::D3, Data(1, outputLineState[GetLineIndex(LineID::D3)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::D3)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, outputLineState[GetLineIndex(LineID::D3)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[GetLineIndex(LineID::D3)].timeoutTime, 0);
 	}
-	if(outputLineState[LINE_TL-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::TL)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_TL, Data(1, outputLineState[LINE_TL-LINE_D0].timeoutAssertedState), outputLineState[LINE_TL-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		memoryBus->SetLineState(LINE_TL, Data(1, outputLineState[LINE_TL-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_TL-LINE_D0].timeoutTime, 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::TL, Data(1, outputLineState[GetLineIndex(LineID::TL)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::TL)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, outputLineState[GetLineIndex(LineID::TL)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[GetLineIndex(LineID::TL)].timeoutTime, 0);
 	}
-	if(outputLineState[LINE_TR-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::TR)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_TR, Data(1, outputLineState[LINE_TR-LINE_D0].timeoutAssertedState), outputLineState[LINE_TR-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		memoryBus->SetLineState(LINE_TR, Data(1, outputLineState[LINE_TR-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_TR-LINE_D0].timeoutTime, 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::TR, Data(1, outputLineState[GetLineIndex(LineID::TR)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::TR)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, outputLineState[GetLineIndex(LineID::TR)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[GetLineIndex(LineID::TR)].timeoutTime, 0);
 	}
-	if(outputLineState[LINE_TH-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::TH)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_TH, Data(1, outputLineState[LINE_TH-LINE_D0].timeoutAssertedState), outputLineState[LINE_TH-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		memoryBus->SetLineState(LINE_TH, Data(1, outputLineState[LINE_TH-LINE_D0].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[LINE_TH-LINE_D0].timeoutTime, 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::TH, Data(1, outputLineState[GetLineIndex(LineID::TH)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::TH)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, outputLineState[GetLineIndex(LineID::TH)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), outputLineState[GetLineIndex(LineID::TH)].timeoutTime, 0);
 	}
 }
 
@@ -435,42 +435,42 @@ void MDControl6::NegateCurrentOutputLineState() const
 	}
 
 	//Negate the current line output state for the output lines
-	if(outputLineState[0].asserted) memoryBus->SetLineState(LINE_D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[1].asserted) memoryBus->SetLineState(LINE_D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[2].asserted) memoryBus->SetLineState(LINE_D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[3].asserted) memoryBus->SetLineState(LINE_D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[4].asserted) memoryBus->SetLineState(LINE_TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[5].asserted) memoryBus->SetLineState(LINE_TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(outputLineState[6].asserted) memoryBus->SetLineState(LINE_TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[0].asserted) memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[1].asserted) memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[2].asserted) memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[3].asserted) memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[4].asserted) memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[5].asserted) memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if(outputLineState[6].asserted) memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 
 	//Revoke any pending line state timeout changes
-	if(outputLineState[LINE_D0-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::D0)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_D0, Data(1, outputLineState[LINE_D0-LINE_D0].timeoutAssertedState), outputLineState[LINE_D0-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::D0, Data(1, outputLineState[GetLineIndex(LineID::D0)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::D0)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(outputLineState[LINE_D1-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::D1)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_D1, Data(1, outputLineState[LINE_D1-LINE_D0].timeoutAssertedState), outputLineState[LINE_D1-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::D1, Data(1, outputLineState[GetLineIndex(LineID::D1)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::D1)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(outputLineState[LINE_D2-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::D2)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_D2, Data(1, outputLineState[LINE_D2-LINE_D0].timeoutAssertedState), outputLineState[LINE_D2-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::D2, Data(1, outputLineState[GetLineIndex(LineID::D2)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::D2)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(outputLineState[LINE_D3-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::D3)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_D3, Data(1, outputLineState[LINE_D3-LINE_D0].timeoutAssertedState), outputLineState[LINE_D3-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::D3, Data(1, outputLineState[GetLineIndex(LineID::D3)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::D3)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(outputLineState[LINE_TL-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::TL)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_TL, Data(1, outputLineState[LINE_TL-LINE_D0].timeoutAssertedState), outputLineState[LINE_TL-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::TL, Data(1, outputLineState[GetLineIndex(LineID::TL)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::TL)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(outputLineState[LINE_TR-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::TR)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_TR, Data(1, outputLineState[LINE_TR-LINE_D0].timeoutAssertedState), outputLineState[LINE_TR-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::TR, Data(1, outputLineState[GetLineIndex(LineID::TR)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::TR)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(outputLineState[LINE_TH-LINE_D0].timeoutFlagged)
+	if(outputLineState[GetLineIndex(LineID::TH)].timeoutFlagged)
 	{
-		memoryBus->RevokeSetLineState(LINE_TH, Data(1, outputLineState[LINE_TH-LINE_D0].timeoutAssertedState), outputLineState[LINE_TH-LINE_D0].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		memoryBus->RevokeSetLineState((unsigned int)LineID::TH, Data(1, outputLineState[GetLineIndex(LineID::TH)].timeoutAssertedState), outputLineState[GetLineIndex(LineID::TH)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -478,27 +478,27 @@ void MDControl6::NegateCurrentOutputLineState() const
 void MDControl6::UpdateLineState(bool timeoutSettingsChanged, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Update the line state for each output line
-	UpdateOutputLineStateForLine(LINE_D0, timeoutSettingsChanged, caller, accessTime, accessContext);
-	UpdateOutputLineStateForLine(LINE_D1, timeoutSettingsChanged, caller, accessTime, accessContext);
-	UpdateOutputLineStateForLine(LINE_D2, timeoutSettingsChanged, caller, accessTime, accessContext);
-	UpdateOutputLineStateForLine(LINE_D3, timeoutSettingsChanged, caller, accessTime, accessContext);
-	UpdateOutputLineStateForLine(LINE_TL, timeoutSettingsChanged, caller, accessTime, accessContext);
-	UpdateOutputLineStateForLine(LINE_TR, timeoutSettingsChanged, caller, accessTime, accessContext);
-	UpdateOutputLineStateForLine(LINE_TH, timeoutSettingsChanged, caller, accessTime, accessContext);
+	UpdateOutputLineStateForLine(LineID::D0, timeoutSettingsChanged, caller, accessTime, accessContext);
+	UpdateOutputLineStateForLine(LineID::D1, timeoutSettingsChanged, caller, accessTime, accessContext);
+	UpdateOutputLineStateForLine(LineID::D2, timeoutSettingsChanged, caller, accessTime, accessContext);
+	UpdateOutputLineStateForLine(LineID::D3, timeoutSettingsChanged, caller, accessTime, accessContext);
+	UpdateOutputLineStateForLine(LineID::TL, timeoutSettingsChanged, caller, accessTime, accessContext);
+	UpdateOutputLineStateForLine(LineID::TR, timeoutSettingsChanged, caller, accessTime, accessContext);
+	UpdateOutputLineStateForLine(LineID::TH, timeoutSettingsChanged, caller, accessTime, accessContext);
 }
 
 //----------------------------------------------------------------------------------------
-void MDControl6::UpdateOutputLineStateForLine(unsigned int lineID, bool revokeAllTimeoutStateChanges, IDeviceContext* caller, double accessTime, unsigned int accessContext)
+void MDControl6::UpdateOutputLineStateForLine(LineID lineID, bool revokeAllTimeoutStateChanges, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Calculate the index of this line in the output line state array
-	unsigned int lineIndex = lineID - LINE_D0;
+	unsigned int lineIndex = GetLineIndex(lineID);
 
 	//Update the target line output state
 	bool lineAssertedNew = GetDesiredLineState(bankswitchCounter, lineInputStateTH, buttonPressed, lineID);
 	if(outputLineState[lineIndex].asserted != lineAssertedNew)
 	{
 		outputLineState[lineIndex].asserted = lineAssertedNew;
-		memoryBus->SetLineState(lineID, Data(1, (unsigned int)lineAssertedNew), GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->SetLineState((unsigned int)lineID, Data(1, (unsigned int)lineAssertedNew), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//Determine if we require a change to be made on the target line when the timeout
@@ -520,7 +520,7 @@ void MDControl6::UpdateOutputLineStateForLine(unsigned int lineID, bool revokeAl
 	//if a line state change is no longer required on timeout.
 	if(outputLineState[lineIndex].timeoutFlagged && (revokeAllTimeoutStateChanges || !timeoutLineStateChangeRequired))
 	{
-		memoryBus->RevokeSetLineState(lineID, Data(1, outputLineState[lineIndex].timeoutAssertedState), outputLineState[lineIndex].timeoutTime, GetDeviceContext(), caller, accessTime, accessContext);
+		memoryBus->RevokeSetLineState((unsigned int)lineID, Data(1, outputLineState[lineIndex].timeoutAssertedState), outputLineState[lineIndex].timeoutTime, GetDeviceContext(), caller, accessTime, accessContext);
 		outputLineState[lineIndex].timeoutFlagged = false;
 	}
 
@@ -534,7 +534,7 @@ void MDControl6::UpdateOutputLineStateForLine(unsigned int lineID, bool revokeAl
 		//##DEBUG##
 		if(timeoutTime <= accessTime)
 		{
-			std::wcout << "MDControl6 timeoutTime <= accessTime: " << timeoutTime << '\t' << accessTime << '\t' << lineID << '\n';
+			std::wcout << "MDControl6 timeoutTime <= accessTime: " << timeoutTime << '\t' << accessTime << '\t' << (unsigned int)lineID << '\n';
 		}
 
 		//Record information on the timeout for the target line
@@ -543,12 +543,12 @@ void MDControl6::UpdateOutputLineStateForLine(unsigned int lineID, bool revokeAl
 		outputLineState[lineIndex].timeoutTime = timeoutTime;
 
 		//Raise the future line state change for the timeout
-		memoryBus->SetLineState(lineID, Data(1, (unsigned int)outputLineState[lineIndex].timeoutAssertedState), GetDeviceContext(), caller, outputLineState[lineIndex].timeoutTime, accessContext);
+		memoryBus->SetLineState((unsigned int)lineID, Data(1, (unsigned int)outputLineState[lineIndex].timeoutAssertedState), GetDeviceContext(), caller, outputLineState[lineIndex].timeoutTime, accessContext);
 	}
 }
 
 //----------------------------------------------------------------------------------------
-bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, unsigned int lineID)
+bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, LineID lineID)
 {
 	switch(currentBankswitchCounter)
 	{
@@ -566,19 +566,19 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TH = Null (+5v)
 			switch(lineID)
 			{
-			case LINE_D0:
-				return !currentButtonPressedState[BUTTON_UP];
-			case LINE_D1:
-				return !currentButtonPressedState[BUTTON_DOWN];
-			case LINE_D2:
-				return !currentButtonPressedState[BUTTON_LEFT];
-			case LINE_D3:
-				return !currentButtonPressedState[BUTTON_RIGHT];
-			case LINE_TL:
-				return !currentButtonPressedState[BUTTON_B];
-			case LINE_TR:
-				return !currentButtonPressedState[BUTTON_C];
-			case LINE_TH:
+			case LineID::D0:
+				return !currentButtonPressedState[BUTTONINDEX_UP];
+			case LineID::D1:
+				return !currentButtonPressedState[BUTTONINDEX_DOWN];
+			case LineID::D2:
+				return !currentButtonPressedState[BUTTONINDEX_LEFT];
+			case LineID::D3:
+				return !currentButtonPressedState[BUTTONINDEX_RIGHT];
+			case LineID::TL:
+				return !currentButtonPressedState[BUTTONINDEX_B];
+			case LineID::TR:
+				return !currentButtonPressedState[BUTTONINDEX_C];
+			case LineID::TH:
 				return true;
 			}
 		}
@@ -594,19 +594,19 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TH = Null (+5v)
 			switch(lineID)
 			{
-			case LINE_D0:
-				return !currentButtonPressedState[BUTTON_UP];
-			case LINE_D1:
-				return !currentButtonPressedState[BUTTON_DOWN];
-			case LINE_D2:
+			case LineID::D0:
+				return !currentButtonPressedState[BUTTONINDEX_UP];
+			case LineID::D1:
+				return !currentButtonPressedState[BUTTONINDEX_DOWN];
+			case LineID::D2:
 				return false;
-			case LINE_D3:
+			case LineID::D3:
 				return false;
-			case LINE_TL:
-				return !currentButtonPressedState[BUTTON_A];
-			case LINE_TR:
-				return !currentButtonPressedState[BUTTON_START];
-			case LINE_TH:
+			case LineID::TL:
+				return !currentButtonPressedState[BUTTONINDEX_A];
+			case LineID::TR:
+				return !currentButtonPressedState[BUTTONINDEX_START];
+			case LineID::TH:
 				return true;
 			}
 		}
@@ -623,19 +623,19 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TH = Null (+5v)
 			switch(lineID)
 			{
-			case LINE_D0:
-				return !currentButtonPressedState[BUTTON_UP];
-			case LINE_D1:
-				return !currentButtonPressedState[BUTTON_DOWN];
-			case LINE_D2:
-				return !currentButtonPressedState[BUTTON_LEFT];
-			case LINE_D3:
-				return !currentButtonPressedState[BUTTON_RIGHT];
-			case LINE_TL:
-				return !currentButtonPressedState[BUTTON_B];
-			case LINE_TR:
-				return !currentButtonPressedState[BUTTON_C];
-			case LINE_TH:
+			case LineID::D0:
+				return !currentButtonPressedState[BUTTONINDEX_UP];
+			case LineID::D1:
+				return !currentButtonPressedState[BUTTONINDEX_DOWN];
+			case LineID::D2:
+				return !currentButtonPressedState[BUTTONINDEX_LEFT];
+			case LineID::D3:
+				return !currentButtonPressedState[BUTTONINDEX_RIGHT];
+			case LineID::TL:
+				return !currentButtonPressedState[BUTTONINDEX_B];
+			case LineID::TR:
+				return !currentButtonPressedState[BUTTONINDEX_C];
+			case LineID::TH:
 				return true;
 			}
 		}
@@ -650,19 +650,19 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TH = Null (+5v)
 			switch(lineID)
 			{
-			case LINE_D0:
+			case LineID::D0:
 				return false;
-			case LINE_D1:
+			case LineID::D1:
 				return false;
-			case LINE_D2:
+			case LineID::D2:
 				return false;
-			case LINE_D3:
+			case LineID::D3:
 				return false;
-			case LINE_TL:
-				return !currentButtonPressedState[BUTTON_A];
-			case LINE_TR:
-				return !currentButtonPressedState[BUTTON_START];
-			case LINE_TH:
+			case LineID::TL:
+				return !currentButtonPressedState[BUTTONINDEX_A];
+			case LineID::TR:
+				return !currentButtonPressedState[BUTTONINDEX_START];
+			case LineID::TH:
 				return true;
 			}
 		}
@@ -679,19 +679,19 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TH = Null (+5v)
 			switch(lineID)
 			{
-			case LINE_D0:
-				return !currentButtonPressedState[BUTTON_Z];
-			case LINE_D1:
-				return !currentButtonPressedState[BUTTON_Y];
-			case LINE_D2:
-				return !currentButtonPressedState[BUTTON_X];
-			case LINE_D3:
-				return !currentButtonPressedState[BUTTON_MODE];
-			case LINE_TL:
-				return !currentButtonPressedState[BUTTON_B];
-			case LINE_TR:
-				return !currentButtonPressedState[BUTTON_C];
-			case LINE_TH:
+			case LineID::D0:
+				return !currentButtonPressedState[BUTTONINDEX_Z];
+			case LineID::D1:
+				return !currentButtonPressedState[BUTTONINDEX_Y];
+			case LineID::D2:
+				return !currentButtonPressedState[BUTTONINDEX_X];
+			case LineID::D3:
+				return !currentButtonPressedState[BUTTONINDEX_MODE];
+			case LineID::TL:
+				return !currentButtonPressedState[BUTTONINDEX_B];
+			case LineID::TR:
+				return !currentButtonPressedState[BUTTONINDEX_C];
+			case LineID::TH:
 				return true;
 			}
 		}
@@ -706,19 +706,19 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TH = Null (+5v)
 			switch(lineID)
 			{
-			case LINE_D0:
+			case LineID::D0:
 				return true;
-			case LINE_D1:
+			case LineID::D1:
 				return true;
-			case LINE_D2:
+			case LineID::D2:
 				return true;
-			case LINE_D3:
+			case LineID::D3:
 				return true;
-			case LINE_TL:
-				return !currentButtonPressedState[BUTTON_A];
-			case LINE_TR:
-				return !currentButtonPressedState[BUTTON_START];
-			case LINE_TH:
+			case LineID::TL:
+				return !currentButtonPressedState[BUTTONINDEX_A];
+			case LineID::TR:
+				return !currentButtonPressedState[BUTTONINDEX_START];
+			case LineID::TH:
 				return true;
 			}
 		}
@@ -731,57 +731,63 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 }
 
 //----------------------------------------------------------------------------------------
+unsigned int MDControl6::GetLineIndex(LineID lineID)
+{
+	return (unsigned int)lineID - 1;
+}
+
+//----------------------------------------------------------------------------------------
 //Input functions
 //----------------------------------------------------------------------------------------
 unsigned int MDControl6::GetKeyCodeID(const std::wstring& keyCodeName) const
 {
 	if(keyCodeName == L"Up")
 	{
-		return BUTTON_UP+1;
+		return BUTTONINDEX_UP+1;
 	}
 	else if(keyCodeName == L"Down")
 	{
-		return BUTTON_DOWN+1;
+		return BUTTONINDEX_DOWN+1;
 	}
 	else if(keyCodeName == L"Left")
 	{
-		return BUTTON_LEFT+1;
+		return BUTTONINDEX_LEFT+1;
 	}
 	else if(keyCodeName == L"Right")
 	{
-		return BUTTON_RIGHT+1;
+		return BUTTONINDEX_RIGHT+1;
 	}
 	else if(keyCodeName == L"A")
 	{
-		return BUTTON_A+1;
+		return BUTTONINDEX_A+1;
 	}
 	else if(keyCodeName == L"B")
 	{
-		return BUTTON_B+1;
+		return BUTTONINDEX_B+1;
 	}
 	else if(keyCodeName == L"C")
 	{
-		return BUTTON_C+1;
+		return BUTTONINDEX_C+1;
 	}
 	else if(keyCodeName == L"Start")
 	{
-		return BUTTON_START+1;
+		return BUTTONINDEX_START+1;
 	}
 	else if(keyCodeName == L"X")
 	{
-		return BUTTON_X+1;
+		return BUTTONINDEX_X+1;
 	}
 	else if(keyCodeName == L"Y")
 	{
-		return BUTTON_Y+1;
+		return BUTTONINDEX_Y+1;
 	}
 	else if(keyCodeName == L"Z")
 	{
-		return BUTTON_Z+1;
+		return BUTTONINDEX_Z+1;
 	}
 	else if(keyCodeName == L"Mode")
 	{
-		return BUTTON_MODE+1;
+		return BUTTONINDEX_MODE+1;
 	}
 	return 0;
 }
@@ -791,29 +797,29 @@ std::wstring MDControl6::GetKeyCodeName(unsigned int keyCodeID) const
 {
 	switch(keyCodeID)
 	{
-	case BUTTON_UP+1:
+	case BUTTONINDEX_UP+1:
 		return L"Up";
-	case BUTTON_DOWN+1:
+	case BUTTONINDEX_DOWN+1:
 		return L"Down";
-	case BUTTON_LEFT+1:
+	case BUTTONINDEX_LEFT+1:
 		return L"Left";
-	case BUTTON_RIGHT+1:
+	case BUTTONINDEX_RIGHT+1:
 		return L"Right";
-	case BUTTON_A+1:
+	case BUTTONINDEX_A+1:
 		return L"A";
-	case BUTTON_B+1:
+	case BUTTONINDEX_B+1:
 		return L"B";
-	case BUTTON_C+1:
+	case BUTTONINDEX_C+1:
 		return L"C";
-	case BUTTON_START+1:
+	case BUTTONINDEX_START+1:
 		return L"Start";
-	case BUTTON_X+1:
+	case BUTTONINDEX_X+1:
 		return L"X";
-	case BUTTON_Y+1:
+	case BUTTONINDEX_Y+1:
 		return L"Y";
-	case BUTTON_Z+1:
+	case BUTTONINDEX_Z+1:
 		return L"Z";
-	case BUTTON_MODE+1:
+	case BUTTONINDEX_MODE+1:
 		return L"Mode";
 	}
 	return L"";
@@ -837,7 +843,7 @@ void MDControl6::HandleInputKeyDown(unsigned int keyCodeID)
 	//default but possible to disable, that will ensure that if a mutually exclusive set
 	//of key press events are received, the most recent key press will cause the set state
 	//of its exclusive keys to be negated.
-	Button keyCode = (Button)(keyCodeID-1);
+	ButtonIndex keyCode = (ButtonIndex)(keyCodeID-1);
 	bool newButtonPressState = true;
 	if(buttonPressed[keyCode] != newButtonPressState)
 	{
@@ -849,7 +855,7 @@ void MDControl6::HandleInputKeyDown(unsigned int keyCodeID)
 //----------------------------------------------------------------------------------------
 void MDControl6::HandleInputKeyUp(unsigned int keyCodeID)
 {
-	Button keyCode = (Button)(keyCodeID-1);
+	ButtonIndex keyCode = (ButtonIndex)(keyCodeID-1);
 	bool newButtonPressState = false;
 	if(buttonPressed[keyCode] != newButtonPressState)
 	{

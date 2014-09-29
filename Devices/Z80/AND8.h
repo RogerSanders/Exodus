@@ -32,7 +32,7 @@ public:
 	{
 		source.SetIndexState(GetIndexState(), GetIndexOffset());
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetMode(EffectiveAddress::MODE_A);
+		target.SetMode(EffectiveAddress::Mode::A);
 
 		if(source.Decode8BitRegister(data.GetDataSegment(0, 3)))
 		{
@@ -50,8 +50,8 @@ public:
 			//AND A,(HL)		10100110
 			//AND A,(IX + d)	11011101 10100110 dddddddd
 			//AND A,(IY + d)	11111101 10100110 dddddddd
-			source.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
-			if(GetIndexState() == EffectiveAddress::INDEX_NONE)
+			source.SetMode(EffectiveAddress::Mode::HLIndirect);
+			if(GetIndexState() == EffectiveAddress::IndexState::None)
 			{
 				AddExecuteCycleCount(7);
 			}

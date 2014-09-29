@@ -9,8 +9,8 @@ class IUIManager
 {
 public:
 	//Enumerations
-	enum WindowType;
-	enum InitialDockingLocation;
+	enum class WindowType;
+	enum class InitialDockingLocation;
 
 public:
 	//Constructors

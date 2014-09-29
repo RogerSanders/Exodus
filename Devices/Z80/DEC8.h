@@ -39,8 +39,8 @@ public:
 			//DEC (HL)		00110101
 			//DEC (IX + d)	11011101 00110101
 			//DEC (IY + d)	11111101 00110101
-			target.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
-			if(GetIndexState() == EffectiveAddress::INDEX_NONE)
+			target.SetMode(EffectiveAddress::Mode::HLIndirect);
+			if(GetIndexState() == EffectiveAddress::IndexState::None)
 			{
 				AddExecuteCycleCount(11);
 			}

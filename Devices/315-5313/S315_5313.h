@@ -57,8 +57,8 @@ References:
 #include <vector>
 #include <list>
 #include <map>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 
 class S315_5313 :public Device, public GenericAccessBase<IS315_5313>
 {
@@ -155,11 +155,11 @@ public:
 
 private:
 	//Enumerations
-	enum CELineID;
-	enum LineID;
-	enum ClockID;
-	enum Layer;
-	enum AccessContext;
+	enum class CELineID;
+	enum class LineID;
+	enum class ClockID;
+	enum LayerIndex :unsigned int;
+	enum class AccessContext;
 
 	//Structures
 	struct HScanSettings;
@@ -577,7 +577,7 @@ private:
 	bool enableSpriteLow;
 
 	//Port monitor settings
-	mutable boost::mutex portMonitorMutex;
+	mutable std::mutex portMonitorMutex;
 	bool logStatusRegisterRead;
 	bool logDataPortRead;
 	bool logHVCounterRead;
@@ -588,9 +588,9 @@ private:
 	std::list<PortMonitorEntry> bportMonitorList;
 
 	//Physical registers and memory buffers
-	mutable boost::mutex accessMutex; //Top-level, protects against concurrent interface access.
-	mutable boost::mutex lineMutex; //Top level, must never be held during a blocking operation
-	mutable boost::mutex externalReferenceMutex;
+	mutable std::mutex accessMutex; //Top-level, protects against concurrent interface access.
+	mutable std::mutex lineMutex; //Top level, must never be held during a blocking operation
+	mutable std::mutex externalReferenceMutex;
 	double lastAccessTime;
 	RegBuffer reg;
 	ITimedBufferInt* vram;
@@ -618,7 +618,7 @@ private:
 	bool bexintPending;
 
 	//Register locking
-	mutable boost::mutex registerLockMutex;
+	mutable std::mutex registerLockMutex;
 	bool rawRegisterLocking[registerCount];
 	std::map<unsigned int, std::wstring> lockedRegisterState;
 
@@ -776,10 +776,10 @@ private:
 	Data bcommandCode;
 
 	//Render thread properties
-	mutable boost::mutex renderThreadMutex; //Top level, timesliceMutex child
-	mutable boost::mutex timesliceMutex; //Child of renderThreadMutex
-	boost::condition renderThreadUpdate;
-	boost::condition renderThreadStopped;
+	mutable std::mutex renderThreadMutex; //Top level, timesliceMutex child
+	mutable std::mutex timesliceMutex; //Child of renderThreadMutex
+	std::condition_variable renderThreadUpdate;
+	std::condition_variable renderThreadStopped;
 	bool renderThreadActive;
 	bool pendingRenderOperation;
 	bool renderTimeslicePending;
@@ -805,7 +805,7 @@ private:
 
 	static const unsigned int maxPendingRenderOperationCount = 4;
 	volatile bool renderThreadLagging;
-	boost::condition renderThreadLaggingStateChange;
+	std::condition_variable renderThreadLaggingStateChange;
 	unsigned int pendingRenderOperationCount;
 	std::list<TimesliceRenderInfo> timesliceRenderInfoList;
 	std::list<RegBuffer::Timeslice> regTimesliceList;
@@ -876,7 +876,7 @@ private:
 	Data renderVSRAMCachedRead;
 
 	//Analog render data buffers
-	mutable boost::mutex imageBufferMutex;
+	mutable std::mutex imageBufferMutex;
 	unsigned int drawingImageBufferPlane;
 	volatile unsigned int lastRenderedFrameToken;
 	mutable ReadWriteLock imageBufferLock[imageBufferPlanes];
@@ -888,14 +888,14 @@ private:
 	unsigned int imageBufferActiveScanPosXEnd[imageBufferPlanes][imageBufferHeight];
 	unsigned int imageBufferActiveScanPosYStart[imageBufferPlanes];
 	unsigned int imageBufferActiveScanPosYEnd[imageBufferPlanes];
-	mutable boost::mutex spriteBoundaryMutex[imageBufferPlanes];
+	mutable std::mutex spriteBoundaryMutex[imageBufferPlanes];
 	mutable std::list<SpriteBoundaryLineEntry> imageBufferSpriteBoundaryLines[imageBufferPlanes];
 
 	//DMA worker thread properties
-	mutable boost::mutex workerThreadMutex; //Top-level, required in order to interact with state affecting DMA worker thread.
-	boost::condition workerThreadUpdate;
-	boost::condition workerThreadStopped;
-	boost::condition workerThreadIdle;
+	mutable std::mutex workerThreadMutex; //Top-level, required in order to interact with state affecting DMA worker thread.
+	std::condition_variable workerThreadUpdate;
+	std::condition_variable workerThreadStopped;
+	std::condition_variable workerThreadIdle;
 	bool workerThreadActive;
 	bool workerThreadPaused;
 	bool bworkerThreadPaused;

@@ -107,7 +107,7 @@ void DeviceContext::NotifyAfterExecuteCalled()
 //----------------------------------------------------------------------------------------
 void DeviceContext::ExecuteTimeslice(double nanoseconds)
 {
-	boost::mutex::scoped_lock lock(executeThreadMutex);
+	std::unique_lock<std::mutex> lock(executeThreadMutex);
 	timeslice = nanoseconds;
 	timesliceCompleted = false;
 	executeTaskSent.notify_all();
@@ -118,7 +118,7 @@ double DeviceContext::ExecuteStep()
 {
 	double additionalTime = 0;
 
-	if(device.GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+	if(device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
 		remainingTime += device.ExecuteStep();
 		additionalTime = remainingTime;
@@ -132,12 +132,12 @@ double DeviceContext::ExecuteStep(unsigned int accessContext)
 {
 	double additionalTime = 0;
 
-	if(device.GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+	if(device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
 		remainingTime += device.ExecuteStep();
 		additionalTime = remainingTime;
 	}
-	else if(device.GetUpdateMethod() == IDevice::UPDATEMETHOD_TIMESLICE)
+	else if(device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
 	{
 		device.ExecuteTimesliceTimingPointStep(accessContext);
 	}
@@ -148,7 +148,7 @@ double DeviceContext::ExecuteStep(unsigned int accessContext)
 //----------------------------------------------------------------------------------------
 void DeviceContext::WaitForCompletion()
 {
-	boost::mutex::scoped_lock executeLock(executeThreadMutex);
+	std::unique_lock<std::mutex> executeLock(executeThreadMutex);
 	while(!timesliceCompleted)
 	{
 		executeCompletionStateChanged.wait(executeLock);
@@ -156,9 +156,9 @@ void DeviceContext::WaitForCompletion()
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, boost::mutex& commandMutex, IExecutionSuspendManager* asuspendManager)
+void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, std::mutex& commandMutex, IExecutionSuspendManager* asuspendManager)
 {
-	boost::mutex::scoped_lock executeLock(executeThreadMutex);
+	std::unique_lock<std::mutex> executeLock(executeThreadMutex);
 	while(!timesliceCompleted)
 	{
 		if(!timesliceSuspended || timesliceSuspensionDisable)
@@ -182,7 +182,7 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 
 			//Obtain a lock on the shared command mutex. We need to do this so that we can
 			//safely work with the result of the suspendedThreadCount variable.
-			boost::mutex::scoped_lock commandLock(commandMutex);
+			std::unique_lock<std::mutex> commandLock(commandMutex);
 
 			//Evaluate whether all remaining threads are suspended. If they are, release
 			//all suspended threads. If not, wait for the completion state of this execute
@@ -257,7 +257,7 @@ double DeviceContext::GetNextTimingPoint(unsigned int& accessContext) const
 {
 	double result = -1;
 
-	if(device.GetUpdateMethod() == IDevice::UPDATEMETHOD_STEP)
+	if(device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
 		result = device.GetNextTimingPointInDeviceTime(accessContext);
 		if(result >= 0)
@@ -265,7 +265,7 @@ double DeviceContext::GetNextTimingPoint(unsigned int& accessContext) const
 			result += remainingTime;
 		}
 	}
-	else if(device.GetUpdateMethod() == IDevice::UPDATEMETHOD_TIMESLICE)
+	else if(device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
 	{
 		result = device.GetNextTimingPointInDeviceTime(accessContext);
 	}
@@ -302,7 +302,7 @@ void DeviceContext::SetDeviceIndexNo(unsigned int adeviceIndexNo)
 //----------------------------------------------------------------------------------------
 bool DeviceContext::ActiveDevice() const
 {
-	return (GetTargetDevice().GetUpdateMethod() != IDevice::UPDATEMETHOD_NONE);
+	return (GetTargetDevice().GetUpdateMethod() != IDevice::UpdateMethod::None);
 }
 
 //----------------------------------------------------------------------------------------

@@ -125,7 +125,7 @@ public:
 private:
 	//PCX structures
 	struct PCXFileHeader;
-	enum PCXImageFormat;
+	enum class PCXImageFormat;
 
 	//TIFF structures
 	struct TIFFStreamManager;
@@ -137,7 +137,7 @@ private:
 	//TGA structures
 	struct TGAFileHeader;
 	struct TGAColorMapEntry;
-	enum TGAImageType;
+	enum class TGAImageType;
 
 private:
 	//Image format functions

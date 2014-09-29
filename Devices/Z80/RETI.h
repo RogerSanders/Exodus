@@ -27,7 +27,7 @@ public:
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		source.SetMode(EffectiveAddress::MODE_SP_POSTINC);
+		source.SetMode(EffectiveAddress::Mode::SPPostInc);
 		AddExecuteCycleCount(10);
 	}
 

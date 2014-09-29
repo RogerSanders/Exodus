@@ -1,7 +1,7 @@
 #include "DebuggerView.h"
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "resource.h"
-#include <boost/bind.hpp>
+#include <functional>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -713,11 +713,11 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				IYM2612::OperatorDataContext operator2KeyStateDataContext(channelNo, IYM2612::OPERATOR2);
 				IYM2612::OperatorDataContext operator3KeyStateDataContext(channelNo, IYM2612::OPERATOR3);
 				IYM2612::OperatorDataContext operator4KeyStateDataContext(channelNo, IYM2612::OPERATOR4);
-				bool newKeyLockingState = (!model.GetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator1KeyStateDataContext) && !model.GetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator2KeyStateDataContext) && !model.GetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator3KeyStateDataContext) && !model.GetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator4KeyStateDataContext));
-				model.SetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator1KeyStateDataContext, newKeyLockingState);
-				model.SetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator2KeyStateDataContext, newKeyLockingState);
-				model.SetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator3KeyStateDataContext, newKeyLockingState);
-				model.SetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator4KeyStateDataContext, newKeyLockingState);
+				bool newKeyLockingState = (!model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator1KeyStateDataContext) && !model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator2KeyStateDataContext) && !model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator3KeyStateDataContext) && !model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator4KeyStateDataContext));
+				model.SetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator1KeyStateDataContext, newKeyLockingState);
+				model.SetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator2KeyStateDataContext, newKeyLockingState);
+				model.SetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator3KeyStateDataContext, newKeyLockingState);
+				model.SetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator4KeyStateDataContext, newKeyLockingState);
 
 				//We force the entire window to redraw instead as a special case here to
 				//deal with the "All" key-state checkboxes which toggle the locked state
@@ -797,7 +797,7 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			IYM2612::OperatorDataContext operator2KeyStateDataContext(channelNo, IYM2612::OPERATOR2);
 			IYM2612::OperatorDataContext operator3KeyStateDataContext(channelNo, IYM2612::OPERATOR3);
 			IYM2612::OperatorDataContext operator4KeyStateDataContext(channelNo, IYM2612::OPERATOR4);
-			bool keyLockingState = (model.GetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator1KeyStateDataContext) && model.GetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator2KeyStateDataContext) && model.GetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator3KeyStateDataContext) && model.GetGenericDataLocked(IYM2612::DATASOURCE_KEYSTATE, &operator4KeyStateDataContext));
+			bool keyLockingState = (model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator1KeyStateDataContext) && model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator2KeyStateDataContext) && model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator3KeyStateDataContext) && model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator4KeyStateDataContext));
 			if(keyLockingState)
 			{
 				PaintCheckboxHighlight(GetDlgItem(hwnd, controlID));
@@ -1363,7 +1363,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_KEY_62:
 	case IDC_YM2612_DEBUGGER_KEY_63:
 	case IDC_YM2612_DEBUGGER_KEY_64:{
-		genericDataID = IYM2612::DATASOURCE_KEYSTATE;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::KeyState;
 		operatorDataContext.channelNo = (controlID - IDC_YM2612_DEBUGGER_KEY_11) / IYM2612::operatorCount;
 		operatorDataContext.operatorNo = (controlID - IDC_YM2612_DEBUGGER_KEY_11) % IYM2612::operatorCount;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1373,7 +1373,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_TL_OP2:
 	case IDC_YM2612_DEBUGGER_TL_OP3:
 	case IDC_YM2612_DEBUGGER_TL_OP4:
-		genericDataID = IYM2612::DATASOURCE_TOTALLEVELDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TotalLevelData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_TL_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1382,7 +1382,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_SL_OP2:
 	case IDC_YM2612_DEBUGGER_SL_OP3:
 	case IDC_YM2612_DEBUGGER_SL_OP4:
-		genericDataID = IYM2612::DATASOURCE_SUSTAINLEVELDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::SustainLevelData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_SL_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1391,7 +1391,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_AR_OP2:
 	case IDC_YM2612_DEBUGGER_AR_OP3:
 	case IDC_YM2612_DEBUGGER_AR_OP4:
-		genericDataID = IYM2612::DATASOURCE_ATTACKRATEDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::AttackRateData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_AR_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1400,7 +1400,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_DR_OP2:
 	case IDC_YM2612_DEBUGGER_DR_OP3:
 	case IDC_YM2612_DEBUGGER_DR_OP4:
-		genericDataID = IYM2612::DATASOURCE_DECAYRATEDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::DecayRateData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_DR_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1409,7 +1409,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_SR_OP2:
 	case IDC_YM2612_DEBUGGER_SR_OP3:
 	case IDC_YM2612_DEBUGGER_SR_OP4:
-		genericDataID = IYM2612::DATASOURCE_SUSTAINRATEDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::SustainRateData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_SR_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1418,7 +1418,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_RR_OP2:
 	case IDC_YM2612_DEBUGGER_RR_OP3:
 	case IDC_YM2612_DEBUGGER_RR_OP4:
-		genericDataID = IYM2612::DATASOURCE_RELEASERATEDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::ReleaseRateData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_RR_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1427,7 +1427,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_SSGEG_OP2:
 	case IDC_YM2612_DEBUGGER_SSGEG_OP3:
 	case IDC_YM2612_DEBUGGER_SSGEG_OP4:
-		genericDataID = IYM2612::DATASOURCE_SSGDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::SSGData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_SSGEG_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1436,7 +1436,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_DT_OP2:
 	case IDC_YM2612_DEBUGGER_DT_OP3:
 	case IDC_YM2612_DEBUGGER_DT_OP4:
-		genericDataID = IYM2612::DATASOURCE_DETUNEDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::DetuneData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_DT_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1445,7 +1445,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_MUL_OP2:
 	case IDC_YM2612_DEBUGGER_MUL_OP3:
 	case IDC_YM2612_DEBUGGER_MUL_OP4:
-		genericDataID = IYM2612::DATASOURCE_MULTIPLEDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::MultipleData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_MUL_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1454,7 +1454,7 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_KS_OP2:
 	case IDC_YM2612_DEBUGGER_KS_OP3:
 	case IDC_YM2612_DEBUGGER_KS_OP4:
-		genericDataID = IYM2612::DATASOURCE_KEYSCALEDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::KeyScaleData;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_KS_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1463,74 +1463,74 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_AM_OP2:
 	case IDC_YM2612_DEBUGGER_AM_OP3:
 	case IDC_YM2612_DEBUGGER_AM_OP4:
-		genericDataID = IYM2612::DATASOURCE_AMPLITUDEMODULATIONENABLED;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::AmplitudeModulationEnabled;
 		operatorDataContext.channelNo = selectedChannel;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_AM_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
 		return true;
 
 	case IDC_YM2612_DEBUGGER_FNUM:
-		genericDataID = IYM2612::DATASOURCE_FREQUENCYDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::FrequencyData;
 		channelDataContext.channelNo = selectedChannel;
 		*dataContext = (IGenericAccess::DataContext*)&channelDataContext;
 		return true;
 	case IDC_YM2612_DEBUGGER_BLOCK:
-		genericDataID = IYM2612::DATASOURCE_BLOCKDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::BlockData;
 		channelDataContext.channelNo = selectedChannel;
 		*dataContext = (IGenericAccess::DataContext*)&channelDataContext;
 		return true;
 	case IDC_YM2612_DEBUGGER_ALGORITHM:
-		genericDataID = IYM2612::DATASOURCE_ALGORITHMDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::AlgorithmData;
 		channelDataContext.channelNo = selectedChannel;
 		*dataContext = (IGenericAccess::DataContext*)&channelDataContext;
 		return true;
 	case IDC_YM2612_DEBUGGER_FEEDBACK:
-		genericDataID = IYM2612::DATASOURCE_FEEDBACKDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::FeedbackData;
 		channelDataContext.channelNo = selectedChannel;
 		*dataContext = (IGenericAccess::DataContext*)&channelDataContext;
 		return true;
 	case IDC_YM2612_DEBUGGER_AMS:
-		genericDataID = IYM2612::DATASOURCE_AMSDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::AMSData;
 		channelDataContext.channelNo = selectedChannel;
 		*dataContext = (IGenericAccess::DataContext*)&channelDataContext;
 		return true;
 	case IDC_YM2612_DEBUGGER_PMS:
-		genericDataID = IYM2612::DATASOURCE_PMSDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::PMSData;
 		channelDataContext.channelNo = selectedChannel;
 		*dataContext = (IGenericAccess::DataContext*)&channelDataContext;
 		return true;
 	case IDC_YM2612_DEBUGGER_LEFT:
-		genericDataID = IYM2612::DATASOURCE_OUTPUTLEFT;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::OutputLeft;
 		channelDataContext.channelNo = selectedChannel;
 		*dataContext = (IGenericAccess::DataContext*)&channelDataContext;
 		return true;
 	case IDC_YM2612_DEBUGGER_RIGHT:
-		genericDataID = IYM2612::DATASOURCE_OUTPUTRIGHT;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::OutputRight;
 		channelDataContext.channelNo = selectedChannel;
 		*dataContext = (IGenericAccess::DataContext*)&channelDataContext;
 		return true;
 
 	case IDC_YM2612_DEBUGGER_LFOENABLED:
-		genericDataID = IYM2612::DATASOURCE_LFOENABLED;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::LFOEnabled;
 		return true;
 	case IDC_YM2612_DEBUGGER_LFOFREQ:
-		genericDataID = IYM2612::DATASOURCE_LFODATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::LFOData;
 		return true;
 	case IDC_YM2612_DEBUGGER_DACENABLED:
-		genericDataID = IYM2612::DATASOURCE_DACENABLED;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::DACEnabled;
 		return true;
 	case IDC_YM2612_DEBUGGER_DACDATA:
-		genericDataID = IYM2612::DATASOURCE_DACDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::DACData;
 		return true;
 	case IDC_YM2612_DEBUGGER_CH3MODE:
-		genericDataID = IYM2612::DATASOURCE_CH3MODE;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::CH3Mode;
 		return true;
 
 	case IDC_YM2612_DEBUGGER_CH3FNUM_OP1:
 	case IDC_YM2612_DEBUGGER_CH3FNUM_OP2:
 	case IDC_YM2612_DEBUGGER_CH3FNUM_OP3:
 	case IDC_YM2612_DEBUGGER_CH3FNUM_OP4:
-		genericDataID = IYM2612::DATASOURCE_FREQUENCYDATACHANNEL3;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::FrequencyDataChannel3;
 		operatorDataContext.channelNo = IYM2612::CHANNEL3;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_CH3FNUM_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
@@ -1539,41 +1539,41 @@ bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID,
 	case IDC_YM2612_DEBUGGER_CH3BLOCK_OP2:
 	case IDC_YM2612_DEBUGGER_CH3BLOCK_OP3:
 	case IDC_YM2612_DEBUGGER_CH3BLOCK_OP4:
-		genericDataID = IYM2612::DATASOURCE_BLOCKDATACHANNEL3;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::BlockDataChannel3;
 		operatorDataContext.channelNo = IYM2612::CHANNEL3;
 		operatorDataContext.operatorNo = controlID - IDC_YM2612_DEBUGGER_CH3BLOCK_OP1;
 		*dataContext = (IGenericAccess::DataContext*)&operatorDataContext;
 		return true;
 
 	case IDC_YM2612_DEBUGGER_TIMERA_ENABLED:
-		genericDataID = IYM2612::DATASOURCE_TIMERAENABLE;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerAEnable;
 		return true;
 	case IDC_YM2612_DEBUGGER_TIMERA_LOADED:
-		genericDataID = IYM2612::DATASOURCE_TIMERALOAD;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerALoad;
 		return true;
 	case IDC_YM2612_DEBUGGER_TIMERA_OVERFLOW:
-		genericDataID = IYM2612::DATASOURCE_TIMERAOVERFLOW;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerAOverflow;
 		return true;
 	case IDC_YM2612_DEBUGGER_TIMERA_RATE:
-		genericDataID = IYM2612::DATASOURCE_TIMERADATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerAData;
 		return true;
 	case IDC_YM2612_DEBUGGER_TIMERA_CURRENT:
-		genericDataID = IYM2612::DATASOURCE_TIMERACURRENTCOUNTER;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerACurrentCounter;
 		return true;
 	case IDC_YM2612_DEBUGGER_TIMERB_ENABLED:
-		genericDataID = IYM2612::DATASOURCE_TIMERBENABLE;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerBEnable;
 		return true;
 	case IDC_YM2612_DEBUGGER_TIMERB_LOADED:
-		genericDataID = IYM2612::DATASOURCE_TIMERBLOAD;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerBLoad;
 		return true;
 	case IDC_YM2612_DEBUGGER_TIMERB_OVERFLOW:
-		genericDataID = IYM2612::DATASOURCE_TIMERBOVERFLOW;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerBOverflow;
 		return true;
 	case IDC_YM2612_DEBUGGER_TIMERB_RATE:
-		genericDataID = IYM2612::DATASOURCE_TIMERBDATA;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerBData;
 		return true;
 	case IDC_YM2612_DEBUGGER_TIMERB_CURRENT:
-		genericDataID = IYM2612::DATASOURCE_TIMERBCURRENTCOUNTER;
+		genericDataID = (unsigned int)IYM2612::IYM2612DataSource::TimerBCurrentCounter;
 		return true;
 	}
 	return false;

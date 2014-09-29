@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Processor">
+      <UniqueIdentifier>{b4bb7578-103a-425e-8e94-fde5b2e6177c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Breakpoint">
+      <UniqueIdentifier>{c49df6cd-2f90-41cb-a873-3636012c5687}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpcodeTable">
+      <UniqueIdentifier>{a7521bdc-61a5-4fbe-b275-a021b490dc87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Watchpoint">
+      <UniqueIdentifier>{cc21fca8-ce05-46a9-867b-95840fa6b1b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IProcessor">
+      <UniqueIdentifier>{09f42c67-5790-4dab-a351-7e8b8ff5ae74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IBreakpoint">
+      <UniqueIdentifier>{8f1b2fc7-1dce-43ca-a6fe-1ec81f574119}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IWatchpoint">
+      <UniqueIdentifier>{2eec8623-c8c9-4c38-9a70-58f82d1d3245}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IOpcodeInfo">
+      <UniqueIdentifier>{f05aa936-150a-436c-811f-dd55fb8833e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpcodeInfo">
+      <UniqueIdentifier>{e64afb27-aec3-449c-a30e-4c1f7b4fff06}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Processor.cpp">
+      <Filter>Processor</Filter>
+    </ClCompile>
+    <ClCompile Include="Breakpoint.cpp">
+      <Filter>Breakpoint</Filter>
+    </ClCompile>
+    <ClCompile Include="Watchpoint.cpp">
+      <Filter>Watchpoint</Filter>
+    </ClCompile>
+    <ClCompile Include="OpcodeInfo.cpp">
+      <Filter>OpcodeInfo</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Processor.h">
+      <Filter>Processor</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakpoint.h">
+      <Filter>Breakpoint</Filter>
+    </ClInclude>
+    <ClInclude Include="OpcodeTable.h">
+      <Filter>OpcodeTable</Filter>
+    </ClInclude>
+    <ClInclude Include="Watchpoint.h">
+      <Filter>Watchpoint</Filter>
+    </ClInclude>
+    <ClInclude Include="IProcessor.h">
+      <Filter>IProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="IBreakpoint.h">
+      <Filter>IBreakpoint</Filter>
+    </ClInclude>
+    <ClInclude Include="IWatchpoint.h">
+      <Filter>IWatchpoint</Filter>
+    </ClInclude>
+    <ClInclude Include="IOpcodeInfo.h">
+      <Filter>IOpcodeInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="OpcodeInfo.h">
+      <Filter>OpcodeInfo</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Processor.inl">
+      <Filter>Processor</Filter>
+    </None>
+    <None Include="Breakpoint.inl">
+      <Filter>Breakpoint</Filter>
+    </None>
+    <None Include="OpcodeTable.inl">
+      <Filter>OpcodeTable</Filter>
+    </None>
+    <None Include="Watchpoint.inl">
+      <Filter>Watchpoint</Filter>
+    </None>
+    <None Include="IProcessor.inl">
+      <Filter>IProcessor</Filter>
+    </None>
+    <None Include="IBreakpoint.inl">
+      <Filter>IBreakpoint</Filter>
+    </None>
+    <None Include="IWatchpoint.inl">
+      <Filter>IWatchpoint</Filter>
+    </None>
+    <None Include="IOpcodeInfo.inl">
+      <Filter>IOpcodeInfo</Filter>
+    </None>
+    <None Include="OpcodeInfo.inl">
+      <Filter>OpcodeInfo</Filter>
+    </None>
+    <None Include="Processor.pkg" />
+  </ItemGroup>
+</Project>

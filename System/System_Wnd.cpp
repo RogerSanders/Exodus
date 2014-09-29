@@ -9,7 +9,7 @@ void System::BuildFileOpenMenu(IMenuSubmenu& menuSubmenu) const
 	IMenuSegment& menuSegmentForSystemMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for(std::set<IExtension*>::const_iterator menuHandlerIterator = systemMenuHandlers.begin(); menuHandlerIterator != systemMenuHandlers.end(); ++menuHandlerIterator)
 	{
-		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SYSTEMMENU_FILE, menuSegmentForSystemMenuHandlers);
+		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SystemMenu::File, menuSegmentForSystemMenuHandlers);
 	}
 }
 
@@ -20,7 +20,7 @@ void System::BuildSystemMenu(IMenuSubmenu& menuSubmenu) const
 	IMenuSegment& menuSegmentForSystemMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for(std::set<IExtension*>::const_iterator menuHandlerIterator = systemMenuHandlers.begin(); menuHandlerIterator != systemMenuHandlers.end(); ++menuHandlerIterator)
 	{
-		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SYSTEMMENU_SYSTEM, menuSegmentForSystemMenuHandlers);
+		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SystemMenu::System, menuSegmentForSystemMenuHandlers);
 	}
 }
 
@@ -31,7 +31,7 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const
 	IMenuSegment& menuSegmentForSystemMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for(std::set<IExtension*>::const_iterator menuHandlerIterator = systemMenuHandlers.begin(); menuHandlerIterator != systemMenuHandlers.end(); ++menuHandlerIterator)
 	{
-		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SYSTEMMENU_SETTINGS, menuSegmentForSystemMenuHandlers);
+		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SystemMenu::Settings, menuSegmentForSystemMenuHandlers);
 	}
 
 	//Add all extension settings menu item entries for each loaded global extension from
@@ -44,7 +44,7 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const
 		IMenuSegment& menuSegmentForExtensionSubmenu = extensionSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for(std::set<IExtension*>::const_iterator menuHandlerIterator = loadedGlobalExtensionInfo.menuHandlers.begin(); menuHandlerIterator != loadedGlobalExtensionInfo.menuHandlers.end(); ++menuHandlerIterator)
 		{
-			(*menuHandlerIterator)->AddExtensionMenuItems(IExtension::EXTENSIONMENU_SETTINGS, menuSegmentForExtensionSubmenu, loadedGlobalExtensionInfo.extension);
+			(*menuHandlerIterator)->AddExtensionMenuItems(IExtension::ExtensionMenu::Settings, menuSegmentForExtensionSubmenu, loadedGlobalExtensionInfo.extension);
 		}
 		if(menuSegmentForExtensionSubmenu.NoMenuItemsExist())
 		{
@@ -66,7 +66,7 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const
 		IMenuSegment& menuSegmentForModuleMenuHandlers = moduleSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for(std::set<IExtension*>::const_iterator menuHandlerIterator = loadedModuleInfo.menuHandlers.begin(); menuHandlerIterator != loadedModuleInfo.menuHandlers.end(); ++menuHandlerIterator)
 		{
-			(*menuHandlerIterator)->AddModuleMenuItems(IExtension::MODULEMENU_SETTINGS, menuSegmentForModuleMenuHandlers, loadedModuleInfo.moduleID);
+			(*menuHandlerIterator)->AddModuleMenuItems(IExtension::ModuleMenu::Settings, menuSegmentForModuleMenuHandlers, loadedModuleInfo.moduleID);
 		}
 
 		//Add all device settings menu item entries for each device in this module from
@@ -80,7 +80,7 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const
 				IMenuSegment& menuSegmentForDeviceSubmenu = deviceSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 				for(std::set<IExtension*>::const_iterator menuHandlerIterator = deviceInfo->menuHandlers.begin(); menuHandlerIterator != deviceInfo->menuHandlers.end(); ++menuHandlerIterator)
 				{
-					(*menuHandlerIterator)->AddDeviceMenuItems(IExtension::DEVICEMENU_SETTINGS, menuSegmentForDeviceSubmenu, deviceInfo->device);
+					(*menuHandlerIterator)->AddDeviceMenuItems(IExtension::DeviceMenu::Settings, menuSegmentForDeviceSubmenu, deviceInfo->device);
 				}
 				if(menuSegmentForDeviceSubmenu.NoMenuItemsExist())
 				{
@@ -100,7 +100,7 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const
 				IMenuSegment& menuSegmentForExtensionSubmenu = extensionSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 				for(std::set<IExtension*>::const_iterator menuHandlerIterator = extensionInfo->menuHandlers.begin(); menuHandlerIterator != extensionInfo->menuHandlers.end(); ++menuHandlerIterator)
 				{
-					(*menuHandlerIterator)->AddExtensionMenuItems(IExtension::EXTENSIONMENU_SETTINGS, menuSegmentForExtensionSubmenu, extensionInfo->extension);
+					(*menuHandlerIterator)->AddExtensionMenuItems(IExtension::ExtensionMenu::Settings, menuSegmentForExtensionSubmenu, extensionInfo->extension);
 				}
 				if(menuSegmentForExtensionSubmenu.NoMenuItemsExist())
 				{
@@ -118,7 +118,7 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 	IMenuSegment& menuSegmentForSystemMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for(std::set<IExtension*>::const_iterator menuHandlerIterator = systemMenuHandlers.begin(); menuHandlerIterator != systemMenuHandlers.end(); ++menuHandlerIterator)
 	{
-		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SYSTEMMENU_DEBUG, menuSegmentForSystemMenuHandlers);
+		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SystemMenu::Debug, menuSegmentForSystemMenuHandlers);
 	}
 
 	//Add all extension settings menu item entries for each loaded global extension from
@@ -131,7 +131,7 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 		IMenuSegment& menuSegmentForExtensionSubmenu = extensionSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for(std::set<IExtension*>::const_iterator menuHandlerIterator = loadedGlobalExtensionInfo.menuHandlers.begin(); menuHandlerIterator != loadedGlobalExtensionInfo.menuHandlers.end(); ++menuHandlerIterator)
 		{
-			(*menuHandlerIterator)->AddExtensionMenuItems(IExtension::EXTENSIONMENU_DEBUG, menuSegmentForExtensionSubmenu, loadedGlobalExtensionInfo.extension);
+			(*menuHandlerIterator)->AddExtensionMenuItems(IExtension::ExtensionMenu::Debug, menuSegmentForExtensionSubmenu, loadedGlobalExtensionInfo.extension);
 		}
 		if(menuSegmentForExtensionSubmenu.NoMenuItemsExist())
 		{
@@ -153,7 +153,7 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 		IMenuSegment& menuSegmentForModuleMenuHandlers = moduleSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for(std::set<IExtension*>::const_iterator menuHandlerIterator = loadedModuleInfo.menuHandlers.begin(); menuHandlerIterator != loadedModuleInfo.menuHandlers.end(); ++menuHandlerIterator)
 		{
-			(*menuHandlerIterator)->AddModuleMenuItems(IExtension::MODULEMENU_DEBUG, menuSegmentForModuleMenuHandlers, loadedModuleInfo.moduleID);
+			(*menuHandlerIterator)->AddModuleMenuItems(IExtension::ModuleMenu::Debug, menuSegmentForModuleMenuHandlers, loadedModuleInfo.moduleID);
 		}
 
 		//Add all device debug menu item entries for each device in this module from the
@@ -167,7 +167,7 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 				IMenuSegment& menuSegmentForDeviceSubmenu = deviceSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 				for(std::set<IExtension*>::const_iterator menuHandlerIterator = deviceInfo->menuHandlers.begin(); menuHandlerIterator != deviceInfo->menuHandlers.end(); ++menuHandlerIterator)
 				{
-					(*menuHandlerIterator)->AddDeviceMenuItems(IExtension::DEVICEMENU_DEBUG, menuSegmentForDeviceSubmenu, deviceInfo->device);
+					(*menuHandlerIterator)->AddDeviceMenuItems(IExtension::DeviceMenu::Debug, menuSegmentForDeviceSubmenu, deviceInfo->device);
 				}
 				if(menuSegmentForDeviceSubmenu.NoMenuItemsExist())
 				{
@@ -187,7 +187,7 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 				IMenuSegment& menuSegmentForExtensionSubmenu = extensionSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 				for(std::set<IExtension*>::const_iterator menuHandlerIterator = extensionInfo->menuHandlers.begin(); menuHandlerIterator != extensionInfo->menuHandlers.end(); ++menuHandlerIterator)
 				{
-					(*menuHandlerIterator)->AddExtensionMenuItems(IExtension::EXTENSIONMENU_DEBUG, menuSegmentForExtensionSubmenu, extensionInfo->extension);
+					(*menuHandlerIterator)->AddExtensionMenuItems(IExtension::ExtensionMenu::Debug, menuSegmentForExtensionSubmenu, extensionInfo->extension);
 				}
 				if(menuSegmentForExtensionSubmenu.NoMenuItemsExist())
 				{

@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Data">
+      <UniqueIdentifier>{0af98dc7-ed98-4d49-8966-867517257580}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EffectiveAddress">
+      <UniqueIdentifier>{643e3341-17c9-48e3-8654-04ab8c08a91f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExecuteTime">
+      <UniqueIdentifier>{2066a120-e4cb-4738-991b-9768763b96a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions">
+      <UniqueIdentifier>{7530e3ea-be89-4fbf-b59b-2b7eaf547f5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\16-Bit Arithmetic">
+      <UniqueIdentifier>{58e5804d-0ded-4d82-83e1-7fa08f916ad9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\16-Bit Load">
+      <UniqueIdentifier>{a119fec1-2c11-418a-939d-a3a68d3fff70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\8-Bit Arithmetic">
+      <UniqueIdentifier>{1b9233e8-0f7c-463f-8843-be08a4a06008}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\8-Bit Load">
+      <UniqueIdentifier>{303c540a-15a3-4046-91a6-0893d3f17d29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Bit Set, Reset, and Test">
+      <UniqueIdentifier>{fb016ab2-0bb0-47f1-a105-d8f7fb60258d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Call and Return">
+      <UniqueIdentifier>{e7865e10-475f-4a3e-a387-bdb1f1e67e06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Exchange, Block Transfer, and Search">
+      <UniqueIdentifier>{75dd28fc-76f6-4328-91d4-c41d345b8ba3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\General-Purpose Arithmetic and CPU Control">
+      <UniqueIdentifier>{b447cdec-c284-4806-9e56-0197ac4773a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Jump">
+      <UniqueIdentifier>{60c2b775-d9ad-4855-827b-93396dd22eff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Rotate and Shift">
+      <UniqueIdentifier>{eecd6986-85df-4203-b7de-c756eaa2569e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instructions\Input and Output">
+      <UniqueIdentifier>{b9c5085f-e8d4-4fdd-a33c-5408a8cc7431}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Z80">
+      <UniqueIdentifier>{261f2b28-d888-493b-a4dd-8bb1de51c101}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{93d4765f-418b-4bee-9105-a771541037e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IZ80">
+      <UniqueIdentifier>{12af7945-e133-4050-bfc3-ab560d2678e3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Data.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectiveAddress.h">
+      <Filter>EffectiveAddress</Filter>
+    </ClInclude>
+    <ClInclude Include="ExecuteTime.h">
+      <Filter>ExecuteTime</Filter>
+    </ClInclude>
+    <ClInclude Include="Z80Instruction.h">
+      <Filter>Instructions</Filter>
+    </ClInclude>
+    <ClInclude Include="ADC16.h">
+      <Filter>Instructions\16-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="ADD16.h">
+      <Filter>Instructions\16-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="DEC16.h">
+      <Filter>Instructions\16-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="INC16.h">
+      <Filter>Instructions\16-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="SBC16.h">
+      <Filter>Instructions\16-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="LD16.h">
+      <Filter>Instructions\16-Bit Load</Filter>
+    </ClInclude>
+    <ClInclude Include="LD16ED.h">
+      <Filter>Instructions\16-Bit Load</Filter>
+    </ClInclude>
+    <ClInclude Include="POP.h">
+      <Filter>Instructions\16-Bit Load</Filter>
+    </ClInclude>
+    <ClInclude Include="PUSH.h">
+      <Filter>Instructions\16-Bit Load</Filter>
+    </ClInclude>
+    <ClInclude Include="ADC8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="ADD8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="AND8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="CP8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="DEC8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="INC8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="OR8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="SBC8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="SUB8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="XOR8.h">
+      <Filter>Instructions\8-Bit Arithmetic</Filter>
+    </ClInclude>
+    <ClInclude Include="LD8.h">
+      <Filter>Instructions\8-Bit Load</Filter>
+    </ClInclude>
+    <ClInclude Include="LD8ED.h">
+      <Filter>Instructions\8-Bit Load</Filter>
+    </ClInclude>
+    <ClInclude Include="BIT.h">
+      <Filter>Instructions\Bit Set, Reset, and Test</Filter>
+    </ClInclude>
+    <ClInclude Include="RES.h">
+      <Filter>Instructions\Bit Set, Reset, and Test</Filter>
+    </ClInclude>
+    <ClInclude Include="SET.h">
+      <Filter>Instructions\Bit Set, Reset, and Test</Filter>
+    </ClInclude>
+    <ClInclude Include="CALL.h">
+      <Filter>Instructions\Call and Return</Filter>
+    </ClInclude>
+    <ClInclude Include="RET.h">
+      <Filter>Instructions\Call and Return</Filter>
+    </ClInclude>
+    <ClInclude Include="RETI.h">
+      <Filter>Instructions\Call and Return</Filter>
+    </ClInclude>
+    <ClInclude Include="RETN.h">
+      <Filter>Instructions\Call and Return</Filter>
+    </ClInclude>
+    <ClInclude Include="RST.h">
+      <Filter>Instructions\Call and Return</Filter>
+    </ClInclude>
+    <ClInclude Include="CPD.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="CPDR.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="CPI.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="CPIR.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="EX.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="EXX.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="LDD.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="LDDR.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="LDI.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="LDIR.h">
+      <Filter>Instructions\Exchange, Block Transfer, and Search</Filter>
+    </ClInclude>
+    <ClInclude Include="CCF.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="CPL.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="DAA.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="DI.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="EI.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="HALT.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="IM.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="NEG.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="NOP.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="SCF.h">
+      <Filter>Instructions\General-Purpose Arithmetic and CPU Control</Filter>
+    </ClInclude>
+    <ClInclude Include="DJNZ.h">
+      <Filter>Instructions\Jump</Filter>
+    </ClInclude>
+    <ClInclude Include="JP.h">
+      <Filter>Instructions\Jump</Filter>
+    </ClInclude>
+    <ClInclude Include="JR.h">
+      <Filter>Instructions\Jump</Filter>
+    </ClInclude>
+    <ClInclude Include="RL.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="RLA.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="RLC.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="RLCA.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="RLD.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="RR.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="RRA.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="RRC.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCA.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="RRD.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="SLA.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="SLL.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="SRA.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="SRL.h">
+      <Filter>Instructions\Rotate and Shift</Filter>
+    </ClInclude>
+    <ClInclude Include="Z80.h">
+      <Filter>Z80</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="IZ80.h">
+      <Filter>IZ80</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="EffectiveAddress.cpp">
+      <Filter>EffectiveAddress</Filter>
+    </ClCompile>
+    <ClCompile Include="Z80Instruction.cpp">
+      <Filter>Instructions</Filter>
+    </ClCompile>
+    <ClCompile Include="Z80.cpp">
+      <Filter>Z80</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="EffectiveAddress.inl">
+      <Filter>EffectiveAddress</Filter>
+    </None>
+    <None Include="ExecuteTime.inl">
+      <Filter>ExecuteTime</Filter>
+    </None>
+    <None Include="Z80Instruction.inl">
+      <Filter>Instructions</Filter>
+    </None>
+    <None Include="Z80Opcodes.pkg">
+      <Filter>Instructions</Filter>
+    </None>
+    <None Include="Z80.inl">
+      <Filter>Z80</Filter>
+    </None>
+    <None Include="IZ80.inl">
+      <Filter>IZ80</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Z80.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

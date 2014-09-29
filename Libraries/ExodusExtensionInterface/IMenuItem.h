@@ -5,7 +5,7 @@ class IMenuItem
 {
 public:
 	//Enumerations
-	enum Type;
+	enum class Type;
 
 public:
 	//Constructors

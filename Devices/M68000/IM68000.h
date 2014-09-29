@@ -12,7 +12,8 @@ public:
 	static const unsigned int SP = 7;
 
 	//Enumerations
-	enum IM68000DataSource;
+	enum class IM68000DataSource;
+	enum class Exceptions;
 
 	//Structures
 	struct RegisterDataContext;
@@ -89,14 +90,14 @@ public:
 	virtual void SetDisableAllExceptions(bool state) = 0;
 	inline std::list<ExceptionDebuggingEntry> GetExceptionDebugEntries() const;
 	inline void SetExceptionDebugEntries(const std::list<ExceptionDebuggingEntry>& state);
-	inline std::wstring GetExceptionName(unsigned int vectorNumber) const;
-	virtual void TriggerException(unsigned int vectorNumber) = 0;
+	inline std::wstring GetExceptionName(Exceptions vectorNumber) const;
+	virtual void TriggerException(Exceptions vectorNumber) = 0;
 
 protected:
 	//Exception debugging functions
 	virtual void GetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<ExceptionDebuggingEntry>>& marshaller) const = 0;
 	virtual void SetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectSource<std::list<ExceptionDebuggingEntry>>& marshaller) = 0;
-	virtual void GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int vectorNumber) const = 0;
+	virtual void GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, Exceptions vectorNumber) const = 0;
 };
 
 #include "IM68000.inl"

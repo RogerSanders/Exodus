@@ -29,8 +29,8 @@ should be able to be sent to all devices simultaneously.
 #include <string>
 #include <vector>
 #include <map>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 
 //Terminology:
 //Assembly  - An assembly (IE, a dll) which contains the definition of one or more devices
@@ -273,8 +273,8 @@ protected:
 
 private:
 	//Enumerations
-	enum InputEvent;
-	enum SystemStateChangeType;
+	enum class InputEvent;
+	enum class SystemStateChangeType;
 
 	//Structures
 	struct DeviceLibraryEntry;
@@ -594,7 +594,7 @@ private:
 	std::set<IExtension*> systemMenuHandlers;
 
 	//Input settings
-	mutable boost::mutex inputMutex;
+	mutable std::mutex inputMutex;
 	unsigned int inputDeviceListLastModifiedToken;
 	InputRegistrationList inputRegistrationList;
 	InputKeyMap inputKeyMap;
@@ -615,17 +615,17 @@ private:
 	LineGroupDetailsMap lineGroupDetailsMap;
 
 	//Access mutexes
-	mutable boost::mutex systemRollbackMutex;
-	mutable boost::mutex systemStateMutex;
-	mutable boost::mutex moduleLoadMutex;
-	mutable boost::mutex loadedElementMutex;
-	mutable boost::mutex eventLogMutex;
-	mutable boost::mutex embeddedROMMutex;
-	mutable boost::mutex moduleSettingMutex;
+	mutable std::mutex systemRollbackMutex;
+	mutable std::mutex systemStateMutex;
+	mutable std::mutex moduleLoadMutex;
+	mutable std::mutex loadedElementMutex;
+	mutable std::mutex eventLogMutex;
+	mutable std::mutex embeddedROMMutex;
+	mutable std::mutex moduleSettingMutex;
 
 	//Asynchronous notification settings
-	mutable boost::mutex moduleNameMutex;
-	boost::condition notifySystemStopped;
+	mutable std::mutex moduleNameMutex;
+	std::condition_variable notifySystemStopped;
 	volatile bool stopSystem;
 	volatile bool systemStopped;
 	volatile bool initialize;

@@ -3,8 +3,8 @@
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "InputMappingDetailsViewPresenter.h"
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 
 class InputMappingDetailsView :public ViewBase
 {
@@ -44,9 +44,9 @@ private:
 	std::vector<unsigned int> deviceKeyCodeMap;
 	int selectedInputRegistration;
 	volatile bool autoKeyMappingActive;
-	mutable boost::mutex joystickWorkerThreadMutex;
+	mutable std::mutex joystickWorkerThreadMutex;
 	volatile bool joystickWorkerThreadActive;
-	boost::condition joystickWorkerThreadStopped;
+	std::condition_variable joystickWorkerThreadStopped;
 };
 
 #endif

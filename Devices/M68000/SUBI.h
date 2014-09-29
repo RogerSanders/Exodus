@@ -56,7 +56,7 @@ public:
 		target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(target.ExtensionSize());
 
-		if(target.GetAddressMode() == EffectiveAddress::DATAREG_DIRECT)
+		if(target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			if(size != BITCOUNT_LONG)
 			{

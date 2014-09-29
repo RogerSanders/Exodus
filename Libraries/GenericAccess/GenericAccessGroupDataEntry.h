@@ -6,7 +6,7 @@ class GenericAccessGroupDataEntry :public IGenericAccessGroupDataEntry
 {
 public:
 	//Constructors
-	inline GenericAccessGroupDataEntry(unsigned int adataID, const std::wstring& aname);
+	template<class T> inline GenericAccessGroupDataEntry(T adataID, const std::wstring& aname);
 	inline ~GenericAccessGroupDataEntry();
 
 	//Interface version functions

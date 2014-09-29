@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum DashboardWindow::InsertDirection
+enum class DashboardWindow::InsertDirection
 {
-	INSERTDIRECTON_TOP,
-	INSERTDIRECTON_BOTTOM,
-	INSERTDIRECTON_LEFT,
-	INSERTDIRECTON_RIGHT
+	Top,
+	Bottom,
+	Left,
+	Right
 };
 
 //----------------------------------------------------------------------------------------

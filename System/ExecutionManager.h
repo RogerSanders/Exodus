@@ -5,8 +5,8 @@
 #include "ThreadLib/ThreadLib.pkg"
 #include "DeviceContext.h"
 #include "IExecutionSuspendManager.h"
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 #include <vector>
 #include <set>
 
@@ -49,9 +49,9 @@ public:
 	inline void SuspendExecution();
 
 private:
-	mutable boost::mutex commandMutex;
-	boost::condition commandSent;
-	boost::condition commandProcessed;
+	mutable std::mutex commandMutex;
+	std::condition_variable commandSent;
+	std::condition_variable commandProcessed;
 	DeviceContext::DeviceContextCommand command;
 	ReferenceCounterType totalDeviceCount;
 	volatile ReferenceCounterType pendingDeviceCount;

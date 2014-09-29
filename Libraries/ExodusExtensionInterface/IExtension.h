@@ -13,10 +13,10 @@ class IExtension
 {
 public:
 	//Enumerations
-	enum SystemMenu;
-	enum ModuleMenu;
-	enum DeviceMenu;
-	enum ExtensionMenu;
+	enum class SystemMenu;
+	enum class ModuleMenu;
+	enum class DeviceMenu;
+	enum class ExtensionMenu;
 
 	//Typedefs
 	typedef void* AssemblyHandle;

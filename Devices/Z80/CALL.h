@@ -25,7 +25,7 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(conditionCode == CONDITIONCODE_NONE)
+		if(conditionCode == ConditionCode::None)
 		{
 			return Disassembly(GetOpcodeName(), source.Disassemble());
 		}
@@ -39,7 +39,7 @@ public:
 	{
 		source.SetIndexState(GetIndexState(), GetIndexOffset());
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		conditionCode = CONDITIONCODE_NONE;
+		conditionCode = ConditionCode::None;
 
 		//CALL nn		//11001101 nnnnnnnn nnnnnnnn
 		source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent);
@@ -48,7 +48,7 @@ public:
 			//CALL cc,nn		//11ccc100 nnnnnnnn nnnnnnnn
 			conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
 		}
-		target.SetMode(EffectiveAddress::MODE_SP_PREDEC);
+		target.SetMode(EffectiveAddress::Mode::SPPreDec);
 
 		AddInstructionSize(GetIndexOffsetSize(source.UsesIndexOffset() || target.UsesIndexOffset()));
 		AddInstructionSize(source.ExtensionSize());

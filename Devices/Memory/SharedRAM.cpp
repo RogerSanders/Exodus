@@ -45,7 +45,7 @@ void SharedRAM::Initialize()
 //----------------------------------------------------------------------------------------
 void SharedRAM::ExecuteRollback()
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 	for(MemoryAccessBuffer::const_iterator i = buffer.begin(); i != buffer.end(); ++i)
 	{
 		memory[i->first] = i->second.data;
@@ -56,7 +56,7 @@ void SharedRAM::ExecuteRollback()
 //----------------------------------------------------------------------------------------
 void SharedRAM::ExecuteCommit()
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 	buffer.clear();
 }
 
@@ -65,7 +65,7 @@ void SharedRAM::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
@@ -101,7 +101,7 @@ IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumbe
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)

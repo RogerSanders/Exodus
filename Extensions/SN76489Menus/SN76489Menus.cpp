@@ -50,7 +50,7 @@ void SN76489Menus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void SN76489Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	if(deviceMenu == IExtension::DEVICEMENU_DEBUG)
+	if(deviceMenu == IExtension::DeviceMenu::Debug)
 	{
 		debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 	}

@@ -38,7 +38,7 @@ unsigned int MenuSegment::GetIMenuSegmentVersion() const
 //----------------------------------------------------------------------------------------
 MenuSegment::Type MenuSegment::GetType() const
 {
-	return TYPE_SEGMENT;
+	return Type::Segment;
 }
 
 //----------------------------------------------------------------------------------------
@@ -57,13 +57,13 @@ std::wstring MenuSegment::GetMenuSortTitle() const
 	std::wstring firstChildMenuItemTitle;
 	switch(firstChildMenuItem->GetType())
 	{
-	case TYPE_SEGMENT:
+	case Type::Segment:
 		firstChildMenuItemTitle = ((IMenuSegment*)firstChildMenuItem)->GetMenuSortTitle();
 		break;
-	case TYPE_SELECTABLEOPTION:
+	case Type::SelectableOption:
 		firstChildMenuItemTitle = ((IMenuSelectableOption*)firstChildMenuItem)->GetMenuTitle();
 		break;
-	case TYPE_SUBMENU:
+	case Type::SubMenu:
 		firstChildMenuItemTitle = ((IMenuSubmenu*)firstChildMenuItem)->GetMenuTitle();
 		break;
 	}
@@ -131,13 +131,13 @@ std::list<IMenuItem*> MenuSegment::GetSortedMenuItems() const
 		std::wstring childMenuItemTitle;
 		switch(childMenuItem->GetType())
 		{
-		case TYPE_SEGMENT:
+		case Type::Segment:
 			childMenuItemTitle = ((IMenuSegment*)childMenuItem)->GetMenuSortTitle();
 			break;
-		case TYPE_SELECTABLEOPTION:
+		case Type::SelectableOption:
 			childMenuItemTitle = ((IMenuSelectableOption*)childMenuItem)->GetMenuTitle();
 			break;
-		case TYPE_SUBMENU:
+		case Type::SubMenu:
 			childMenuItemTitle = ((IMenuSubmenu*)childMenuItem)->GetMenuTitle();
 			break;
 		}

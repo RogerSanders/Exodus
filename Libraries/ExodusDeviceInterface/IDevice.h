@@ -17,7 +17,7 @@ class IDevice
 {
 public:
 	//Enumerations
-	enum UpdateMethod;
+	enum class UpdateMethod;
 
 public:
 	//Constructors

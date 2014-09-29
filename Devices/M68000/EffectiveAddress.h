@@ -34,7 +34,7 @@ class EffectiveAddress
 {
 public:
 	//Enumerations
-	enum Mode;
+	enum class Mode;
 
 	//Constructors
 	inline EffectiveAddress();

@@ -71,10 +71,10 @@ void S315_5313Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& men
 {
 	switch(deviceMenu)
 	{
-	case IExtension::DEVICEMENU_DEBUG:
+	case IExtension::DeviceMenu::Debug:
 		debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 		break;
-	case IExtension::DEVICEMENU_SETTINGS:
+	case IExtension::DeviceMenu::Settings:
 		settingsMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 		break;
 	}

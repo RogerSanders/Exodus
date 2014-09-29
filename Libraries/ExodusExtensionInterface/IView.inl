@@ -1,35 +1,35 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IView::InitialDockPos
+enum class IView::DockPos
 {
-	INITIALDOCKPOS_LEFT,
-	INITIALDOCKPOS_RIGHT,
-	INITIALDOCKPOS_TOP,
-	INITIALDOCKPOS_BOTTOM,
-	INITIALDOCKPOS_CENTER
+	Left,
+	Right,
+	Top,
+	Bottom,
+	Center
 };
 
 //----------------------------------------------------------------------------------------
-enum IView::InitialDialogPos
+enum class IView::DialogPos
 {
-	INITIALDIALOGPOS_DEFAULT,
-	INITIALDIALOGPOS_CENTER
+	Default,
+	Center
 };
 
 //----------------------------------------------------------------------------------------
-enum IView::ViewType
+enum class IView::ViewType
 {
-	VIEWTYPE_DIALOG,
-	VIEWTYPE_DOCKABLE,
-	VIEWTYPE_DOCUMENT
+	Dialog,
+	Dockable,
+	Document
 };
 
 //----------------------------------------------------------------------------------------
-enum IView::DialogMode
+enum class IView::DialogMode
 {
-	DIALOGMODE_MODAL,
-	DIALOGMODE_MODELESS
+	Modal,
+	Modeless
 };
 
 //----------------------------------------------------------------------------------------

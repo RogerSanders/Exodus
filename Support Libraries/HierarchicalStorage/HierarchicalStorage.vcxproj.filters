@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="HierarchicalStorageAttribute">
+      <UniqueIdentifier>{55f58865-c1c8-4338-913d-588c40e91656}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HierarchicalStorageNode">
+      <UniqueIdentifier>{c8a744f6-201f-446a-b524-fe9d3ec9ec39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HierarchicalStorageTree">
+      <UniqueIdentifier>{0166c788-4ec3-412d-9980-5091130800db}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="HierarchicalStorageAttribute.cpp">
+      <Filter>HierarchicalStorageAttribute</Filter>
+    </ClCompile>
+    <ClCompile Include="HierarchicalStorageNode.cpp">
+      <Filter>HierarchicalStorageNode</Filter>
+    </ClCompile>
+    <ClCompile Include="HierarchicalStorageTree.cpp">
+      <Filter>HierarchicalStorageTree</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="HierarchicalStorageAttribute.h">
+      <Filter>HierarchicalStorageAttribute</Filter>
+    </ClInclude>
+    <ClInclude Include="HierarchicalStorageNode.h">
+      <Filter>HierarchicalStorageNode</Filter>
+    </ClInclude>
+    <ClInclude Include="HierarchicalStorageTree.h">
+      <Filter>HierarchicalStorageTree</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="HierarchicalStorageAttribute.inl">
+      <Filter>HierarchicalStorageAttribute</Filter>
+    </None>
+    <None Include="HierarchicalStorageNode.inl">
+      <Filter>HierarchicalStorageNode</Filter>
+    </None>
+    <None Include="HierarchicalStorageTree.inl">
+      <Filter>HierarchicalStorageTree</Filter>
+    </None>
+    <None Include="HierarchicalStorage.pkg" />
+  </ItemGroup>
+</Project>

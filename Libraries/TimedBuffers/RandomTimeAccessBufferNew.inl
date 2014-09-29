@@ -1212,7 +1212,7 @@ template<class T> void RandomTimeAccessBufferNew<T>::AddTimeslice(double timesli
 //----------------------------------------------------------------------------------------
 template<class T> T RandomTimeAccessBufferNew<T>::ReadLatest(unsigned int address) const
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Search for written values in any timeslice
 	WriteList::Element* i = writeList.GetLastEntry();
@@ -1232,7 +1232,7 @@ template<class T> T RandomTimeAccessBufferNew<T>::ReadLatest(unsigned int addres
 //----------------------------------------------------------------------------------------
 template<class T> void RandomTimeAccessBufferNew<T>::WriteLatest(unsigned int address, const T& data)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Erase any write entries to this address in any timeslice. We do this to prevent
 	//uncommitted writes from overwriting this change. This write function should make
@@ -1254,7 +1254,7 @@ template<class T> void RandomTimeAccessBufferNew<T>::WriteLatest(unsigned int ad
 //----------------------------------------------------------------------------------------
 template<class T> void RandomTimeAccessBufferNew<T>::GetLatestBufferCopy(std::vector<T>& buffer) const
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Resize the target buffer to match the size of the source buffer, and populate with
 	//the committed memory state.
@@ -1672,7 +1672,7 @@ template<class T> typename RandomTimeAccessBufferNew<T>::WriteInfo RandomTimeAcc
 //----------------------------------------------------------------------------------------
 template<class T> void RandomTimeAccessBufferNew<T>::Flush(const Timeslice& targetTimeslice)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	TimesliceList::Element* currentTimeslice = timesliceList.GetFirstEntry();
 	while((currentTimeslice != targetTimeslice) && !currentTimeslice->object.notDeleted)

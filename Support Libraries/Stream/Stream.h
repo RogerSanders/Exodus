@@ -13,13 +13,13 @@ namespace Stream {
 //#define STREAM_PLATFORMBYTEORDER_BIGENDIAN BOOST_BIG_ENDIAN
 
 #define STREAM_PLATFORMBYTEORDER_BIGENDIAN 0
-#define STREAM_PLATFORMNEWLINEENCODING NEWLINEENCODING_DOS
+#define STREAM_PLATFORMNEWLINEENCODING DOS
 
 template<class B> class Stream :public B
 {
 public:
 	//Constructors
-	inline Stream(typename B::TextEncoding atextEncoding = B::TEXTENCODING_UTF8, typename B::NewLineEncoding anewLineEncoding = B::STREAM_PLATFORMNEWLINEENCODING, typename B::ByteOrder abyteOrder = B::BYTEORDER_PLATFORM);
+	inline Stream(typename B::TextEncoding atextEncoding = B::TextEncoding::UTF8, typename B::NewLineEncoding anewLineEncoding = B::NewLineEncoding::STREAM_PLATFORMNEWLINEENCODING, typename B::ByteOrder abyteOrder = B::ByteOrder::Platform);
 
 	//Byte order mark functions
 	virtual bool ProcessByteOrderMark();
@@ -459,28 +459,28 @@ protected:
 
 private:
 	//Internal text format independent char read functions
-	inline bool ReadCharInternal(typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
-	inline bool ReadCharInternalAsASCII(typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
-	inline bool ReadCharInternalAsUTF8(typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
-	inline bool ReadCharInternalAsUTF16(typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
-	inline bool ReadCharInternalAsUTF32(typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
+	inline bool ReadCharInternal(typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
+	inline bool ReadCharInternalAsASCII(typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
+	inline bool ReadCharInternalAsUTF8(typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
+	inline bool ReadCharInternalAsUTF16(typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
+	inline bool ReadCharInternalAsUTF32(typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn);
 
 	//Internal fixed length text buffer read functions
-	inline bool ReadTextInternalFixedLengthBufferAsASCII(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar);
-	inline bool ReadTextInternalFixedLengthBufferAsASCII(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar);
-	inline bool ReadTextInternalFixedLengthBufferAsUTF8(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar);
-	inline bool ReadTextInternalFixedLengthBufferAsUTF8(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar);
-	inline bool ReadTextInternalFixedLengthBufferAsUTF16(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar);
-	inline bool ReadTextInternalFixedLengthBufferAsUTF16(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar);
-	inline bool ReadTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar);
-	inline bool ReadTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar);
+	inline bool ReadTextInternalFixedLengthBufferAsASCII(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar);
+	inline bool ReadTextInternalFixedLengthBufferAsASCII(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar);
+	inline bool ReadTextInternalFixedLengthBufferAsUTF8(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar);
+	inline bool ReadTextInternalFixedLengthBufferAsUTF8(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar);
+	inline bool ReadTextInternalFixedLengthBufferAsUTF16(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar);
+	inline bool ReadTextInternalFixedLengthBufferAsUTF16(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar);
+	inline bool ReadTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar);
+	inline bool ReadTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar);
 
 	//Internal type-independent data read functions
-	template<class T> bool ReadDataInternal(T& data, typename B::ByteOrder aByteOrder);
+	template<class T> bool ReadDataInternal(T& data, typename B::ByteOrder abyteOrder);
 	template<class T> bool ReadDataInternal(T& data);
 	template<class T> bool ReadDataInternalBigEndian(T& data);
 	template<class T> bool ReadDataInternalLittleEndian(T& data);
-	template<class T> bool ReadDataInternal(T* data, typename B::SizeType length, typename B::ByteOrder aByteOrder);
+	template<class T> bool ReadDataInternal(T* data, typename B::SizeType length, typename B::ByteOrder abyteOrder);
 	template<class T> bool ReadDataInternal(T* data, typename B::SizeType length);
 	template<class T> bool ReadDataInternalBigEndian(T* data, typename B::SizeType length);
 	template<class T> bool ReadDataInternalLittleEndian(T* data, typename B::SizeType length);
@@ -490,33 +490,33 @@ private:
 	template<class T> bool ReadBinaryInvertedByteOrder(T* data, typename B::SizeType length);
 
 	//Internal text format independent char write functions
-	inline bool WriteCharInternal(const typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
-	inline bool WriteCharInternalAsASCII(const typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
-	inline bool WriteCharInternalAsUTF8(const typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
-	inline bool WriteCharInternalAsUTF16(const typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
-	inline bool WriteCharInternalAsUTF32(const typename B::UnicodeCodePoint& data, typename B::ByteOrder aByteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
+	inline bool WriteCharInternal(const typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
+	inline bool WriteCharInternalAsASCII(const typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
+	inline bool WriteCharInternalAsUTF8(const typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
+	inline bool WriteCharInternalAsUTF16(const typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
+	inline bool WriteCharInternalAsUTF32(const typename B::UnicodeCodePoint& data, typename B::ByteOrder abyteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
 
 	//Text string write functions
-	inline bool WriteTextInternal(typename B::ByteOrder aByteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
-	inline bool WriteTextInternal(typename B::ByteOrder aByteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
-	inline bool WriteTextInternalAsASCII(typename B::ByteOrder aByteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
-	inline bool WriteTextInternalAsASCII(typename B::ByteOrder aByteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
-	inline bool WriteTextInternalAsUTF8(typename B::ByteOrder aByteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
-	inline bool WriteTextInternalAsUTF8(typename B::ByteOrder aByteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
-	inline bool WriteTextInternalAsUTF16(typename B::ByteOrder aByteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
-	inline bool WriteTextInternalAsUTF16(typename B::ByteOrder aByteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
-	inline bool WriteTextInternalAsUTF32(typename B::ByteOrder aByteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
-	inline bool WriteTextInternalAsUTF32(typename B::ByteOrder aByteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
+	inline bool WriteTextInternal(typename B::ByteOrder abyteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
+	inline bool WriteTextInternal(typename B::ByteOrder abyteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
+	inline bool WriteTextInternalAsASCII(typename B::ByteOrder abyteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
+	inline bool WriteTextInternalAsASCII(typename B::ByteOrder abyteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
+	inline bool WriteTextInternalAsUTF8(typename B::ByteOrder abyteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
+	inline bool WriteTextInternalAsUTF8(typename B::ByteOrder abyteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
+	inline bool WriteTextInternalAsUTF16(typename B::ByteOrder abyteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
+	inline bool WriteTextInternalAsUTF16(typename B::ByteOrder abyteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
+	inline bool WriteTextInternalAsUTF32(typename B::ByteOrder abyteOrder, const char* data, typename B::SizeType bufferSize, char terminator);
+	inline bool WriteTextInternalAsUTF32(typename B::ByteOrder abyteOrder, const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator);
 
 	//Internal fixed length text buffer write functions
-	inline bool WriteTextInternalFixedLengthBufferAsASCII(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar);
-	inline bool WriteTextInternalFixedLengthBufferAsASCII(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar);
-	inline bool WriteTextInternalFixedLengthBufferAsUTF8(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar);
-	inline bool WriteTextInternalFixedLengthBufferAsUTF8(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar);
-	inline bool WriteTextInternalFixedLengthBufferAsUTF16(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar);
-	inline bool WriteTextInternalFixedLengthBufferAsUTF16(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar);
-	inline bool WriteTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar);
-	inline bool WriteTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder aByteOrder, typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar);
+	inline bool WriteTextInternalFixedLengthBufferAsASCII(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar);
+	inline bool WriteTextInternalFixedLengthBufferAsASCII(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar);
+	inline bool WriteTextInternalFixedLengthBufferAsUTF8(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar);
+	inline bool WriteTextInternalFixedLengthBufferAsUTF8(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar);
+	inline bool WriteTextInternalFixedLengthBufferAsUTF16(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar);
+	inline bool WriteTextInternalFixedLengthBufferAsUTF16(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar);
+	inline bool WriteTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar);
+	inline bool WriteTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder abyteOrder, typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar);
 
 	//Internal type-independent data write functions
 	template<class T> bool WriteDataInternal(T data, typename B::ByteOrder abyteOrder);

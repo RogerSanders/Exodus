@@ -65,8 +65,8 @@ References:
 #include "ThreadLib/ThreadLib.pkg"
 #include "Data.h"
 #include "ExecuteTime.h"
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 #include <list>
 namespace M68000 {
 class M68000Instruction;
@@ -75,9 +75,8 @@ class M68000 :public Processor, public IM68000
 {
 public:
 	//Enumerations
-	enum Exceptions;
-	enum FunctionCode;
-	enum State;
+	enum class FunctionCode;
+	enum class State;
 
 public:
 	//Constructors
@@ -104,11 +103,11 @@ public:
 	//Exception functions
 	double PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool processingInstruction = true);
 	double PushStackFrame(const M68000Long& apc, const M68000Word& asr, const M68000Word& ainstructionRegister, const M68000Long& aaccessAddress, bool aread, bool aprocessingInstruction, FunctionCode afunctionCode);
-	ExecuteTime ProcessException(unsigned int vector);
-	ExecuteTime GetExceptionProcessingTime(unsigned int vector) const;
-	bool ExceptionDisabled(unsigned int vector);
-	void ExceptionLogIfRequested(unsigned int vector);
-	void ExceptionBreakIfRequested(unsigned int vector);
+	ExecuteTime ProcessException(Exceptions vector);
+	ExecuteTime GetExceptionProcessingTime(Exceptions vector) const;
+	bool ExceptionDisabled(Exceptions vector);
+	void ExceptionLogIfRequested(Exceptions vector);
+	void ExceptionBreakIfRequested(Exceptions vector);
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const;
@@ -143,14 +142,12 @@ public:
 	virtual bool AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
-	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock);
 
 	//Clock source functions
 	virtual unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
 	virtual std::wstring GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
-	void ApplyClockStateChange(unsigned int targetClock, double clockRate);
 
 	//Disassembly functions
 	bool DisassemblyGetAddressRegisterLastAccessedInPostIncMode(unsigned int regNo) const;
@@ -253,8 +250,8 @@ public:
 	virtual void SetDisableAllExceptions(bool state);
 	std::list<ExceptionDebuggingEntry> GetExceptionDebugEntries() const;
 	void SetExceptionDebugEntries(const std::list<ExceptionDebuggingEntry>& state);
-	std::wstring GetExceptionName(unsigned int vectorNumber) const;
-	virtual void TriggerException(unsigned int vectorNumber);
+	std::wstring GetExceptionName(Exceptions vectorNumber) const;
+	virtual void TriggerException(Exceptions vectorNumber);
 
 	//Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
@@ -272,13 +269,13 @@ protected:
 	//Exception debugging functions
 	virtual void GetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<ExceptionDebuggingEntry>>& marshaller) const;
 	virtual void SetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectSource<std::list<ExceptionDebuggingEntry>>& marshaller);
-	virtual void GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int vectorNumber) const;
+	virtual void GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, Exceptions vectorNumber) const;
 
 private:
 	//Enumerations
-	enum CELineID;
-	enum LineID;
-	enum ClockID;
+	enum class CELineID;
+	enum class LineID;
+	enum class ClockID;
 
 	//Structures
 	struct LineAccess;
@@ -295,6 +292,13 @@ private:
 		unsigned int sourceLocation;
 		unsigned int dataSize;
 	};
+
+private:
+	//Line functions
+	void ApplyLineStateChange(LineID targetLine, const Data& lineData, std::unique_lock<std::mutex>& lock);
+
+	//Clock source functions
+	void ApplyClockStateChange(ClockID targetClock, double clockRate);
 
 private:
 	//Bus interface
@@ -356,20 +360,20 @@ private:
 	bool bgroup0ReadWriteFlag;
 	mutable bool group0InstructionFlag;
 	bool bgroup0InstructionFlag;
-	mutable unsigned int group0Vector;
-	unsigned int bgroup0Vector;
+	mutable Exceptions group0Vector;
+	Exceptions bgroup0Vector;
 	mutable FunctionCode group0FunctionCode;
 	FunctionCode bgroup0FunctionCode;
 
 	//Exception debugging
-	mutable boost::mutex debugMutex;
+	mutable std::mutex debugMutex;
 	std::list<ExceptionDebuggingEntry> exceptionList;
 	volatile bool exceptionListEmpty;
 	volatile bool logAllExceptions;
 	volatile bool breakOnAllExceptions;
 	volatile bool disableAllExceptions;
 	volatile bool debugExceptionTriggerPending;
-	unsigned int debugExceptionTriggerVector;
+	Exceptions debugExceptionTriggerVector;
 
 	//Changed register state
 	unsigned int systemPausedToggleCounter;
@@ -402,7 +406,7 @@ private:
 	unsigned int ceLineMaskRMWCycleFirstOperation;
 
 	//Line access
-	boost::mutex lineMutex;
+	std::mutex lineMutex;
 	double lastLineCheckTime;
 	volatile bool lineAccessPending;
 	double lastTimesliceLength;
@@ -412,10 +416,10 @@ private:
 	bool suspendWhenBusReleased;
 	bool suspendUntilLineStateChangeReceived;
 	bool bsuspendUntilLineStateChangeReceived;
-	boost::condition lineStateChangeReceived;
+	std::condition_variable lineStateChangeReceived;
 	bool manualDeviceAdvanceInProgress;
 	volatile bool executionReachedEndOfTimeslice;
-	boost::condition advanceToTargetLineStateChanged;
+	std::condition_variable advanceToTargetLineStateChanged;
 	mutable bool autoVectorPendingInterrupt;
 	mutable double autoVectorPendingInterruptChangeTime;
 	bool resetLineState;

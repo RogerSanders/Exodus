@@ -31,8 +31,8 @@ public:
 		a.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//RRD		11101101 01100111
-		hl.SetMode(EffectiveAddress::MODE_HL_INDIRECT);
-		a.SetMode(EffectiveAddress::MODE_A);
+		hl.SetMode(EffectiveAddress::Mode::HLIndirect);
+		a.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(14);
 
 		AddInstructionSize(GetIndexOffsetSize(hl.UsesIndexOffset() || a.UsesIndexOffset()));

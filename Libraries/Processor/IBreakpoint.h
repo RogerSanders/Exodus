@@ -7,7 +7,7 @@ class IBreakpoint
 {
 public:
 	//Enumerations
-	enum Condition;
+	enum class Condition;
 
 public:
 	//Constructors

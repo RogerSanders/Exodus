@@ -20,7 +20,7 @@ unsigned int GenericAccessGroupCommandEntry::GetIGenericAccessGroupCommandEntryV
 //----------------------------------------------------------------------------------------
 GenericAccessGroupCommandEntry::GroupEntryType GenericAccessGroupCommandEntry::GetGroupEntryType() const
 {
-	return GROUPENTRYTYPE_COMMAND;
+	return GroupEntryType::Command;
 }
 
 //----------------------------------------------------------------------------------------

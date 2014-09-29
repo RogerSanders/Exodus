@@ -8,6 +8,13 @@
 #endif
 namespace InteropSupport {
 
+#ifdef _MSC_VER
+#pragma warning(push)
+//Disable warning about our use of std::is_pod causing a conditional expression to be constant. The
+//code behaves as intended, and the compiler is free to optimize away the dead branch.
+#pragma warning(disable:4127)
+#endif
+
 //----------------------------------------------------------------------------------------
 template<class ElementType>
 void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[], ISTLObjectKeyMarshallerBase* const keyMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t keyMarshallerArrayIndex, std::vector<ElementType>& element)
@@ -300,5 +307,10 @@ void RecomposeSTLContainer(const void* itemArray, const size_t elementSizeArray[
 #endif
 	}
 }
+
+//Restore the disabled warnings
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } //Close namespace InteropSupport

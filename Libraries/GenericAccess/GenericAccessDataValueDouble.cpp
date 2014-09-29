@@ -8,7 +8,7 @@
 GenericAccessDataValueDouble::GenericAccessDataValueDouble(double value)
 :dataValue(value)
 {
-	displayMode = FLOATDISPLAYMODE_FIXED;
+	displayMode = FloatDisplayMode::Fixed;
 	minWholeNumberChars = 0;
 	minFractionalNumberChars = 0;
 	minValue = std::numeric_limits<double>::min();
@@ -28,7 +28,7 @@ unsigned int GenericAccessDataValueDouble::GetIGenericAccessDataValueDoubleVersi
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueDouble::DataType GenericAccessDataValueDouble::GetType() const
 {
-	return DATATYPE_DOUBLE;
+	return DataType::Double;
 }
 
 //----------------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ double GenericAccessDataValueDouble::GetValue() const
 std::wstring GenericAccessDataValueDouble::GetValueString() const
 {
 	std::wstring result;
-	bool useScientificNotation = (displayMode == FLOATDISPLAYMODE_SCIENTIFIC);
+	bool useScientificNotation = (displayMode == FloatDisplayMode::Scientific);
 	DoubleToString(dataValue, result, useScientificNotation, minFractionalNumberChars, minWholeNumberChars);
 	return result;
 }

@@ -1,29 +1,29 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum WC_DockPanel::DockLocation
+enum class WC_DockPanel::DockLocation
 {
-	DOCKLOCATION_LEFT,
-	DOCKLOCATION_RIGHT,
-	DOCKLOCATION_TOP,
-	DOCKLOCATION_BOTTOM
+	Left,
+	Right,
+	Top,
+	Bottom
 };
 
 //----------------------------------------------------------------------------------------
-enum WC_DockPanel::WindowMessages
+enum class WC_DockPanel::WindowMessages
 {
-	DOCK_WMBASE = WM_USER + 0x100,
-	DOCK_ADDCONTENTWINDOW,
-	DOCK_REMOVECONTENTWINDOW,
-	DOCK_ADDDOCKEDWINDOW,
-	DOCK_ADDDOCKEDWINDOWTOFRONT,
-	DOCK_REMOVEDOCKEDWINDOW,
-	DOCK_GETDOCKEDWINDOWDESIREDWIDTH,
-	DOCK_SETDOCKEDWINDOWDESIREDWIDTH,
-	DOCK_GETDOCKEDWINDOWDESIREDHEIGHT,
-	DOCK_SETDOCKEDWINDOWDESIREDHEIGHT,
-	DOCK_GETCONTENTRECT,
-	DOCK_CALCULATENEWDOCKEDWINDOWRECT
+	WMBase = WM_USER + 0x100,
+	AddContentWindow,
+	RemoveContentWindow,
+	AddDockedWindow,
+	AddDockedWindowToFront,
+	RemoveDockedWindow,
+	GetDockedWindowDesiredWidth,
+	SetDockedWindowDesiredWidth,
+	GetDockedWindowDesiredHeight,
+	SetDockedWindowDesiredHeight,
+	GetContentRect,
+	CalculateNewDockedWindowRect
 };
 
 //----------------------------------------------------------------------------------------

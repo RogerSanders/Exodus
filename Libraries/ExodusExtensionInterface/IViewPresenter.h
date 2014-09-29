@@ -12,7 +12,7 @@ class IViewPresenter
 {
 public:
 	//Enumerations
-	enum ViewTarget;
+	enum class ViewTarget;
 
 public:
 	//Constructors

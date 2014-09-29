@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-GenericAccessGroupSingleSelectionList::GenericAccessGroupSingleSelectionList(unsigned int adataID, const std::wstring& aname)
-:parent(0), dataContext(0), dataID(adataID), allowNewItemEntry(false), name(aname)
+template<class T> GenericAccessGroupSingleSelectionList::GenericAccessGroupSingleSelectionList(T adataID, const std::wstring& aname)
+:parent(0), dataContext(0), dataID((unsigned int)adataID), allowNewItemEntry(false), name(aname)
 {}
 
 //----------------------------------------------------------------------------------------

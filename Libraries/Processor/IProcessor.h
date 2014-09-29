@@ -13,8 +13,8 @@ class IProcessor :public virtual IGenericAccess
 {
 public:
 	//Enumerations
-	enum IProcessorDataSource;
-	enum IProcessorCommand;
+	enum class IProcessorDataSource;
+	enum class IProcessorCommand;
 
 	//Structures
 	struct CallStackEntry;

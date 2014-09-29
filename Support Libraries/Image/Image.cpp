@@ -253,27 +253,27 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	if(paletteUsed)
 	{
 		newPixelFormat = PIXELFORMAT_RGB;
-		imageFormat = PCXIMAGEFORMAT_PALETTE;
+		imageFormat = PCXImageFormat::Palette;
 	}
 	else if(header.numPlanes == 1)
 	{
 		newPixelFormat = PIXELFORMAT_M;
-		imageFormat = PCXIMAGEFORMAT_LITERAL;
+		imageFormat = PCXImageFormat::Literal;
 	}
 	else if(header.numPlanes == 2)
 	{
 		newPixelFormat = PIXELFORMAT_MA;
-		imageFormat = PCXIMAGEFORMAT_LITERAL;
+		imageFormat = PCXImageFormat::Literal;
 	}
 	else if(header.numPlanes == 3)
 	{
 		newPixelFormat = PIXELFORMAT_RGB;
-		imageFormat = PCXIMAGEFORMAT_LITERAL;
+		imageFormat = PCXImageFormat::Literal;
 	}
 	else if(header.numPlanes == 4)
 	{
 		newPixelFormat = PIXELFORMAT_RGBA;
-		imageFormat = PCXIMAGEFORMAT_LITERAL;
+		imageFormat = PCXImageFormat::Literal;
 	}
 	else
 	{
@@ -287,14 +287,14 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	//if((header.numPlanes == 1) && (header.bitsPerPixel == 1))
 	//{
 	//	//Monochrome
-	//	imageFormat = PCXIMAGEFORMAT_MONO;
+	//	imageFormat = PCXImageFormat::Mono;
 	//	newPixelFormat = PIXELFORMAT_M;
 	//}
 	//else if((header.numPlanes == 1) && (header.bitsPerPixel == 2))
 	//{
 	//	//CGA - We should have a 4-entry palette in the header. There is 1 colour plane
 	//	//with 2-bit entries.
-	//	imageFormat = PCXIMAGEFORMAT_CGA;
+	//	imageFormat = PCXImageFormat::CGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
 	//else if((header.numPlanes == 3) && (header.bitsPerPixel == 1))
@@ -302,7 +302,7 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	//	//EGA - We should have an 8-entry palette in the header. There are 3 colour
 	//	//planes, with 1-bit per plane. The values from each plane are combined to make
 	//	//a single 3-bit palette index.
-	//	imageFormat = PCXIMAGEFORMAT_EGA;
+	//	imageFormat = PCXImageFormat::EGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
 	//else if((header.numPlanes == 4) && (header.bitsPerPixel == 1))
@@ -310,7 +310,7 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	//	//EGA and VGA - We should have a 16-entry palette in the header. There are 4
 	//	//colour planes, with 1-bit per plane. The values from each plane are combined
 	//	//to make a single 4-bit palette index.
-	//	imageFormat = PCXIMAGEFORMAT_EGA_AND_VGA;
+	//	imageFormat = PCXImageFormat::EGAAndVGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
 	//else if((header.numPlanes == 1) && (header.bitsPerPixel == 8))
@@ -318,13 +318,13 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	//	//Extended VGA - We should have a 256-entry palette appended to the end of the
 	//	//file. There is 1 colour plane with 8-bit entries, giving a single index into
 	//	//the palette.
-	//	imageFormat = PCXIMAGEFORMAT_EXTENDED_VGA;
+	//	imageFormat = PCXImageFormat::ExtendedVGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
 	//else if((header.numPlanes == 3) && (header.bitsPerPixel == 8))
 	//{
 	//	//Extended VGA and XGA
-	//	imageFormat = PCXIMAGEFORMAT_EXTENDED_VGA_AND_XGA;
+	//	imageFormat = PCXImageFormat::VGAAndXGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
 	//else
@@ -457,7 +457,7 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	unsigned int remainingBitsInPixelBuffer = 0;
 	for(unsigned int ypos = 0; ypos < imageHeight; ++ypos)
 	{
-		if(imageFormat == PCXIMAGEFORMAT_PALETTE)
+		if(imageFormat == PCXImageFormat::Palette)
 		{
 			//Initialize the index buffer. Sample images have shown that when a
 			//palletized image contains multiple planes, the palette index for a pixel is
@@ -502,7 +502,7 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 				WritePixelDataInternal(xpos, ypos, 2, b, 8);
 			}
 		}
-		else if(imageFormat == PCXIMAGEFORMAT_LITERAL)
+		else if(imageFormat == PCXImageFormat::Literal)
 		{
 			for(unsigned int planeNo = 0; planeNo < header.numPlanes; ++planeNo)
 			{
@@ -958,25 +958,25 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	bool rleCompressionUsed = false;
 	switch(fileHeader.imageType)
 	{
-	case TGAIMAGETYPE_RLEPALETTE:
+	case TGAImageType::RLEPalette:
 		rleCompressionUsed = true;
-	case TGAIMAGETYPE_PALETTE:
-		imageType = TGAIMAGETYPE_PALETTE;
+	case TGAImageType::Palette:
+		imageType = TGAImageType::Palette;
 		colorChannelCount = 3;
 		break;
-	case TGAIMAGETYPE_RLERGB:
+	case TGAImageType::RLERGB:
 		rleCompressionUsed = true;
-	case TGAIMAGETYPE_RGB:
-		imageType = TGAIMAGETYPE_RGB;
+	case TGAImageType::RGB:
+		imageType = TGAImageType::RGB;
 		colorChannelCount = 3;
 		break;
-	case TGAIMAGETYPE_RLEMONOCHROME:
+	case TGAImageType::RLEMonochrome:
 		rleCompressionUsed = true;
-	case TGAIMAGETYPE_MONOCHROME:
-		imageType = TGAIMAGETYPE_MONOCHROME;
+	case TGAImageType::Monchrome:
+		imageType = TGAImageType::Monchrome;
 		colorChannelCount = 1;
 		break;
-	case TGAIMAGETYPE_NONE:
+	case TGAImageType::None:
 		//The file contains no image data. Abort any further processing.
 		return false;
 	default:
@@ -1020,7 +1020,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	unsigned int aBitCount = 0;
 	DataFormat newDataFormat = DATAFORMAT_8BIT;
 	PixelFormat newPixelFormat;
-	if(imageType == TGAIMAGETYPE_PALETTE)
+	if(imageType == TGAImageType::Palette)
 	{
 		rBitCount = colorMapBitsRGB;
 		gBitCount = colorMapBitsRGB;
@@ -1035,7 +1035,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 			newPixelFormat = PIXELFORMAT_RGB;
 		}
 	}
-	else if(imageType == TGAIMAGETYPE_RGB)
+	else if(imageType == TGAImageType::RGB)
 	{
 		rBitCount = bitsPerChannel;
 		gBitCount = bitsPerChannel;
@@ -1050,7 +1050,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 			newPixelFormat = PIXELFORMAT_RGB;
 		}
 	}
-	else if(imageType == TGAIMAGETYPE_MONOCHROME)
+	else if(imageType == TGAImageType::Monchrome)
 	{
 		mBitCount = bitsPerChannel;
 		if(alphaChannelBits > 0)
@@ -1079,7 +1079,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 
 	//Check if we need to extract a colour map for this image
 	std::vector<TGAColorMapEntry> colorMap(colorMapLength);
-	if(imageType == TGAIMAGETYPE_PALETTE)
+	if(imageType == TGAImageType::Palette)
 	{
 		//If the image is set to use the colour map, but no colour map is present, abort
 		//any further processing.
@@ -1163,7 +1163,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 
 			if(!rleCompressionUsed || !currentPacketCompressed || readNewRepetitionData)
 			{
-				if(imageType == TGAIMAGETYPE_PALETTE)
+				if(imageType == TGAImageType::Palette)
 				{
 					unsigned int colorMapIndex = ReadBitfieldData(stream, currentBuffer, remainingBits, bitsPerPixel);
 
@@ -1181,7 +1181,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 					b = colorMap[colorMapIndex].b;
 					a = colorMap[colorMapIndex].a;
 				}
-				else if(imageType == TGAIMAGETYPE_RGB)
+				else if(imageType == TGAImageType::RGB)
 				{
 					//Note that the field order is BGRA in the file
 					b = ReadBitfieldData(stream, currentBuffer, remainingBits, bBitCount);
@@ -1189,7 +1189,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 					r = ReadBitfieldData(stream, currentBuffer, remainingBits, rBitCount);
 					a = ReadBitfieldData(stream, currentBuffer, remainingBits, aBitCount);
 				}
-				else if(imageType == TGAIMAGETYPE_MONOCHROME)
+				else if(imageType == TGAImageType::Monchrome)
 				{
 					m = ReadBitfieldData(stream, currentBuffer, remainingBits, mBitCount);
 					a = ReadBitfieldData(stream, currentBuffer, remainingBits, aBitCount);
@@ -1249,14 +1249,14 @@ bool Image::SaveTGAImage(Stream::IStream& stream)
 	case PIXELFORMAT_MA:
 		aBitCount = 8;
 	case PIXELFORMAT_M:
-		tgaImageType = TGAIMAGETYPE_MONOCHROME;
+		tgaImageType = TGAImageType::Monchrome;
 		colorChannelCount = 1;
 		mBitCount = colorChannelBitCount;
 		break;
 	case PIXELFORMAT_RGBA:
 		aBitCount = 8;
 	case PIXELFORMAT_RGB:
-		tgaImageType = TGAIMAGETYPE_RGB;
+		tgaImageType = TGAImageType::RGB;
 		colorChannelCount = 3;
 		rBitCount = colorChannelBitCount;
 		gBitCount = colorChannelBitCount;
@@ -1452,26 +1452,27 @@ bool Image::LoadPNGImage(Stream::IStream& stream)
 
 	//Extract the decoded PNG pixel data
 	png_bytepp pngPixelData = png_get_rows(pngStruct, pngInfo);
-	unsigned int pngPixelSize = pngInfo->pixel_depth / 8;
+	unsigned int pngPixelSize = png_get_bit_depth(pngStruct, pngInfo) * png_get_channels(pngStruct, pngInfo) / 8;
 
 	//Change our image format to match the decoded data
-	unsigned int newImageWidth = pngInfo->width;
-	unsigned int newImageHeight = pngInfo->height;
+	unsigned int newImageWidth = png_get_image_width(pngStruct, pngInfo);
+	unsigned int newImageHeight = png_get_image_height(pngStruct, pngInfo);
 	DataFormat newDataFormat = DATAFORMAT_8BIT;
 	PixelFormat newPixelFormat = PIXELFORMAT_RGB;
-	if(((pngInfo->color_type & PNG_COLOR_MASK_COLOR) == 0) && ((pngInfo->color_type & PNG_COLOR_MASK_ALPHA) == 0))
+	png_byte pngColorType = png_get_color_type(pngStruct, pngInfo);
+	if(((pngColorType & PNG_COLOR_MASK_COLOR) == 0) && ((pngColorType & PNG_COLOR_MASK_ALPHA) == 0))
 	{
 		newPixelFormat = PIXELFORMAT_M;
 	}
-	else if(((pngInfo->color_type & PNG_COLOR_MASK_COLOR) == 0) && ((pngInfo->color_type & PNG_COLOR_MASK_ALPHA) != 0))
+	else if(((pngColorType & PNG_COLOR_MASK_COLOR) == 0) && ((pngColorType & PNG_COLOR_MASK_ALPHA) != 0))
 	{
 		newPixelFormat = PIXELFORMAT_MA;
 	}
-	else if(((pngInfo->color_type & PNG_COLOR_MASK_COLOR) != 0) && ((pngInfo->color_type & PNG_COLOR_MASK_ALPHA) == 0))
+	else if(((pngColorType & PNG_COLOR_MASK_COLOR) != 0) && ((pngColorType & PNG_COLOR_MASK_ALPHA) == 0))
 	{
 		newPixelFormat = PIXELFORMAT_RGB;
 	}
-	else if(((pngInfo->color_type & PNG_COLOR_MASK_COLOR) != 0) && ((pngInfo->color_type & PNG_COLOR_MASK_ALPHA) != 0))
+	else if(((pngColorType & PNG_COLOR_MASK_COLOR) != 0) && ((pngColorType& PNG_COLOR_MASK_ALPHA) != 0))
 	{
 		newPixelFormat = PIXELFORMAT_RGBA;
 	}
@@ -1482,7 +1483,7 @@ bool Image::LoadPNGImage(Stream::IStream& stream)
 	{
 		for(unsigned int xpos = 0; xpos < imageWidth; ++xpos)
 		{
-			if((pngInfo->color_type & PNG_COLOR_MASK_COLOR) == 0)
+			if((pngColorType & PNG_COLOR_MASK_COLOR) == 0)
 			{
 				WritePixelDataInternal(xpos, ypos, 0, pngPixelData[ypos][xpos * pngPixelSize]);
 			}
@@ -1492,7 +1493,7 @@ bool Image::LoadPNGImage(Stream::IStream& stream)
 				WritePixelDataInternal(xpos, ypos, 1, pngPixelData[ypos][(xpos * pngPixelSize) + 1]);
 				WritePixelDataInternal(xpos, ypos, 2, pngPixelData[ypos][(xpos * pngPixelSize) + 2]);
 			}
-			if((pngInfo->color_type & PNG_COLOR_MASK_ALPHA) != 0)
+			if((pngColorType & PNG_COLOR_MASK_ALPHA) != 0)
 			{
 				WritePixelDataInternal(xpos, ypos, (dataPlaneCount - 1), pngPixelData[ypos][(xpos * pngPixelSize) + (pngPixelSize - 1)]);
 			}

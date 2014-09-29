@@ -30,7 +30,7 @@ public:
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//NEG		11101101 01000100
-		target.SetMode(EffectiveAddress::MODE_A);
+		target.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(4);
 
 		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));

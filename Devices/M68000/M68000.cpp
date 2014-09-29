@@ -203,7 +203,7 @@ bool M68000::BuildDevice()
 		if(!opcodeObject->RegisterOpcode(opcodeTable))
 		{
 			//Log the event
-			LogEntry logEntry(LogEntry::EVENTLEVEL_CRITICAL);
+			LogEntry logEntry(LogEntry::EventLevel::Critical);
 			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
 			GetDeviceContext()->WriteLogEvent(logEntry);
 			result = false;
@@ -219,22 +219,22 @@ bool M68000::BuildDevice()
 	opcodeBuffer = (void*)new unsigned char[largestObjectSize];
 
 	//Register each data source with the generic data access base class
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRX, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRN, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRZ, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRV, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRC, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRT, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRS, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SRIPM, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0x07));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_PC, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SR, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_CCR, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SP, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SSP, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_USP, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_A, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_D, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRX, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRN, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRZ, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRV, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRC, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRT, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRS, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRIPM, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0x07));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterPC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSR, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterCCR, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterUSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterA, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterD, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
 
 	//Register page layouts for generic access to this device
 	GenericAccessGroup* addressRegistersGroup = new GenericAccessGroup(L"Address Registers");
@@ -242,33 +242,33 @@ bool M68000::BuildDevice()
 	{
 		std::wstring registerNoAsString;
 		IntToString(registerNo + 1, registerNoAsString);
-		addressRegistersGroup->AddEntry((new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_A, L"A" + registerNoAsString))->SetDataContext(new RegisterDataContext(registerNo)));
+		addressRegistersGroup->AddEntry((new GenericAccessGroupDataEntry(IM68000DataSource::RegisterA, L"A" + registerNoAsString))->SetDataContext(new RegisterDataContext(registerNo)));
 	}
 	GenericAccessGroup* dataRegistersGroup = new GenericAccessGroup(L"Data Registers");
 	for(unsigned int registerNo = 0; registerNo < dataRegCount; ++registerNo)
 	{
 		std::wstring registerNoAsString;
 		IntToString(registerNo + 1, registerNoAsString);
-		dataRegistersGroup->AddEntry((new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_D, L"D" + registerNoAsString))->SetDataContext(new RegisterDataContext(registerNo)));
+		dataRegistersGroup->AddEntry((new GenericAccessGroupDataEntry(IM68000DataSource::RegisterD, L"D" + registerNoAsString))->SetDataContext(new RegisterDataContext(registerNo)));
 	}
 	GenericAccessPage* registersPage = new GenericAccessPage(L"Generic - Registers");
 	registersPage->AddEntry((new GenericAccessGroup(L"User Registers"))
 	                 ->AddEntry(addressRegistersGroup)
 	                 ->AddEntry(dataRegistersGroup)
 	                 ->AddEntry((new GenericAccessGroup(L"CCR Flags"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRX, L"X"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRN, L"N"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRZ, L"Z"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRV, L"V"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRC, L"C")))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_PC, L"PC")))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSRX, L"X"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSRN, L"N"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSRZ, L"Z"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSRV, L"V"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSRC, L"C")))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterPC, L"PC")))
 	             ->AddEntry((new GenericAccessGroup(L"Supervisor Registers"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_USP, L"USP"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SSP, L"SSP"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRS, L"S"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRT, L"T"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SRIPM, L"IPM"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SR, L"SR")));
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterUSP, L"USP"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSSP, L"SSP"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSRS, L"S"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSRT, L"T"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSRIPM, L"IPM"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IM68000DataSource::RegisterSR, L"SR")));
 	result &= AddGenericAccessPage(registersPage);
 
 	return result;
@@ -321,7 +321,7 @@ void M68000::Initialize()
 	brLineState = false;
 	bgLineState = false;
 	forceInterrupt = false;
-	processorState = STATE_NORMAL;
+	processorState = State::Normal;
 	lastReadBusData = 0;
 
 	//Trigger a reset exception to start execution
@@ -332,7 +332,7 @@ void M68000::Initialize()
 void M68000::Reset()
 {
 	//Queue the reset exception for the next cycle
-	group0Vector = EX_RESET;
+	group0Vector = Exceptions::Reset;
 	group0ExceptionPending = true;
 }
 
@@ -413,9 +413,9 @@ double M68000::PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool
 	double delayTime = 0.0;
 	M68000Long stackPointer = GetSSP();
 	stackPointer -= apc.GetByteSize();
-	delayTime += WriteMemory(stackPointer, apc, FUNCTIONCODE_SUPERVISORDATA, apc, processingInstruction, 0, false, false);
+	delayTime += WriteMemory(stackPointer, apc, FunctionCode::SupervisorData, apc, processingInstruction, 0, false, false);
 	stackPointer -= asr.GetByteSize();
-	delayTime += WriteMemory(stackPointer, asr, FUNCTIONCODE_SUPERVISORDATA, apc, processingInstruction, 0, false, false);
+	delayTime += WriteMemory(stackPointer, asr, FunctionCode::SupervisorData, apc, processingInstruction, 0, false, false);
 	SetSSP(stackPointer);
 	return delayTime;
 }
@@ -424,30 +424,30 @@ double M68000::PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool
 double M68000::PushStackFrame(const M68000Long& apc, const M68000Word& asr, const M68000Word& ainstructionRegister, const M68000Long& aaccessAddress, bool aread, bool aprocessingInstruction, FunctionCode afunctionCode)
 {
 	//Push Group 0 Bus/Address error exception stack frame
-	M68000Word statusFlags = afunctionCode;
-	statusFlags.SetDataSegment(0, 3, afunctionCode);
+	M68000Word statusFlags;
+	statusFlags.SetDataSegment(0, 3, (unsigned int)afunctionCode);
 	statusFlags.SetBit(3, !aprocessingInstruction);
 	statusFlags.SetBit(4, aread);
 
 	double delayTime = 0.0;
 	M68000Long stackPointer = GetSSP();
 	stackPointer -= apc.GetByteSize();
-	delayTime += WriteMemory(stackPointer, apc, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, apc, FunctionCode::SupervisorData, apc, false, 0, false, false);
 	stackPointer -= asr.GetByteSize();
-	delayTime += WriteMemory(stackPointer, asr, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, asr, FunctionCode::SupervisorData, apc, false, 0, false, false);
 	stackPointer -= ainstructionRegister.GetByteSize();
-	delayTime += WriteMemory(stackPointer, ainstructionRegister, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, ainstructionRegister, FunctionCode::SupervisorData, apc, false, 0, false, false);
 	stackPointer -= aaccessAddress.GetByteSize();
-	delayTime += WriteMemory(stackPointer, aaccessAddress, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, aaccessAddress, FunctionCode::SupervisorData, apc, false, 0, false, false);
 	stackPointer -= statusFlags.GetByteSize();
-	delayTime += WriteMemory(stackPointer, statusFlags, FUNCTIONCODE_SUPERVISORDATA, apc, false, 0, false, false);
+	delayTime += WriteMemory(stackPointer, statusFlags, FunctionCode::SupervisorData, apc, false, 0, false, false);
 	SetSSP(stackPointer);
 
 	return delayTime;
 }
 
 //----------------------------------------------------------------------------------------
-ExecuteTime M68000::ProcessException(unsigned int vector)
+ExecuteTime M68000::ProcessException(Exceptions vector)
 {
 	//Log or break on this exception if requested
 	ExceptionLogIfRequested(vector);
@@ -456,12 +456,12 @@ ExecuteTime M68000::ProcessException(unsigned int vector)
 	SetSR_S(true);
 	SetSR_T(false);
 	M68000Long interruptVector;
-	SetProcessorState(STATE_EXCEPTION);
+	SetProcessorState(State::Exception);
 
 	//##DEBUG##
 //	std::wcout << "Interrupt\t" << vector << '\n';
 
-	unsigned int vectorOffset = vector * interruptVector.GetByteSize();
+	unsigned int vectorOffset = (unsigned int)vector * interruptVector.GetByteSize();
 	//According to the M68000 Users Manual, section 6.3.9, the PC is loaded with the
 	//address of the exception vector while reading the vector from the vector table. We
 	//emulate this behaviour here, to ensure the contents of the PC are correct when they
@@ -469,31 +469,31 @@ ExecuteTime M68000::ProcessException(unsigned int vector)
 	//processing.
 	M68000Long oldPC = GetPC();
 	SetPC(M68000Long(vectorOffset));
-	if(vector == EX_RESET)
+	if(vector == Exceptions::Reset)
 	{
 		ClearCallStack();
 		SetSR_IPM(7);
 		M68000Long newSSP;
-		ReadMemory(vectorOffset, newSSP, FUNCTIONCODE_SUPERVISORPROGRAM, 0, false, 0, false, false);
+		ReadMemory(vectorOffset, newSSP, FunctionCode::SupervisorProgram, 0, false, 0, false, false);
 		AddDisassemblyAddressInfoOffset(vectorOffset, interruptVector.GetByteSize(), false, false, 0);
 		SetA(SP, newSSP);
-		ReadMemory(vectorOffset + newSSP.GetByteSize(), interruptVector, FUNCTIONCODE_SUPERVISORPROGRAM, 0, false, 0, false, false);
+		ReadMemory(vectorOffset + newSSP.GetByteSize(), interruptVector, FunctionCode::SupervisorProgram, 0, false, 0, false, false);
 		AddDisassemblyAddressInfoOffset(vectorOffset + newSSP.GetByteSize(), interruptVector.GetByteSize(), true, false, 0);
 	}
 	else
 	{
-		ReadMemory(vectorOffset, interruptVector, FUNCTIONCODE_SUPERVISORDATA, 0, false, 0, false, false);
+		ReadMemory(vectorOffset, interruptVector, FunctionCode::SupervisorData, 0, false, 0, false, false);
 		AddDisassemblyAddressInfoOffset(vectorOffset, interruptVector.GetByteSize(), true, false, 0);
 	}
 
 	PushCallStack(oldPC.GetData(), interruptVector.GetData(), oldPC.GetData(), L"Exception", true);
 	SetPC(interruptVector);
-	SetProcessorState(STATE_NORMAL);
+	SetProcessorState(State::Normal);
 	return GetExceptionProcessingTime(vector);
 }
 
 //----------------------------------------------------------------------------------------
-ExecuteTime M68000::GetExceptionProcessingTime(unsigned int vector) const
+ExecuteTime M68000::GetExceptionProcessingTime(Exceptions vector) const
 {
 	//These figures largely come from the M68000 Users Manual, section 8, page 11. We've
 	//tweaked a couple of the numbers however. The users manual doesn't specify whether
@@ -503,44 +503,45 @@ ExecuteTime M68000::GetExceptionProcessingTime(unsigned int vector) const
 	//and a few educated guesses to adjust some of the figures. There's a lot of dispute
 	//between most sources about exactly how many clock cycles are required for each
 	//exception, but these numbers should be pretty close.
+	//##TODO## Perform hardware tests to get precise execution times for each exception.
 	switch(vector)
 	{
-	case EX_ADDRESS_ERROR:
+	case Exceptions::AddressError:
 		return ExecuteTime(50, 4, 7);
-	case EX_BUS_ERROR:
+	case Exceptions::BusError:
 		return ExecuteTime(50, 4, 7);
-	case EX_CHK_INSTRUCTION:
+	case Exceptions::CHKInstruction:
 		return ExecuteTime(40, 4, 3);
-	case EX_ZERO_DIVIDE:
+	case Exceptions::ZeroDivide:
 		return ExecuteTime(38, 4, 3);
-	case EX_LINE_1010:
-	case EX_LINE_1111:
-	case EX_ILLEGAL_INSTRUCTION:
+	case Exceptions::Line1010:
+	case Exceptions::Line1111:
+	case Exceptions::IllegalInstruction:
 		return ExecuteTime(34, 4, 3);
-	case EX_PRIVILEGE_VIOLATION:
+	case Exceptions::PrivilegeViolation:
 		return ExecuteTime(34, 4, 3);
-	case EX_RESET:
+	case Exceptions::Reset:
 		return ExecuteTime(40, 6, 0);
-	case EX_TRACE:
+	case Exceptions::Trace:
 		return ExecuteTime(34, 4, 3);
-	case EX_INTERRUPT_TRAP + 0x0:
-	case EX_INTERRUPT_TRAP + 0x1:
-	case EX_INTERRUPT_TRAP + 0x2:
-	case EX_INTERRUPT_TRAP + 0x3:
-	case EX_INTERRUPT_TRAP + 0x4:
-	case EX_INTERRUPT_TRAP + 0x5:
-	case EX_INTERRUPT_TRAP + 0x6:
-	case EX_INTERRUPT_TRAP + 0x7:
-	case EX_INTERRUPT_TRAP + 0x8:
-	case EX_INTERRUPT_TRAP + 0x9:
-	case EX_INTERRUPT_TRAP + 0xA:
-	case EX_INTERRUPT_TRAP + 0xB:
-	case EX_INTERRUPT_TRAP + 0xC:
-	case EX_INTERRUPT_TRAP + 0xD:
-	case EX_INTERRUPT_TRAP + 0xE:
-	case EX_INTERRUPT_TRAP + 0xF:
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x0):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x1):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x2):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x3):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x4):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x5):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x6):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x7):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x8):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0x9):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0xA):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0xB):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0xC):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0xD):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0xE):
+	case (Exceptions)((unsigned int)Exceptions::InterruptTrap0 + 0xF):
 		return ExecuteTime(34, 4, 3);
-	case EX_TRAPV_INSTRUCTION:
+	case Exceptions::TrapVInstruction:
 		return ExecuteTime(30, 3, 3);
 	default:
 		//All other interrupts
@@ -556,7 +557,7 @@ ExecuteTime M68000::GetExceptionProcessingTime(unsigned int vector) const
 }
 
 //----------------------------------------------------------------------------------------
-bool M68000::ExceptionDisabled(unsigned int vector)
+bool M68000::ExceptionDisabled(Exceptions vector)
 {
 	//Check if all exceptions are disabled
 	if(disableAllExceptions)
@@ -567,7 +568,7 @@ bool M68000::ExceptionDisabled(unsigned int vector)
 	//Check if this specific exception is disabled
 	if(!exceptionListEmpty)
 	{
-		boost::mutex::scoped_lock lock(debugMutex);
+		std::unique_lock<std::mutex> lock(debugMutex);
 		for(std::list<ExceptionDebuggingEntry>::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
 		{
 			const ExceptionDebuggingEntry& entry = *i;
@@ -583,20 +584,20 @@ bool M68000::ExceptionDisabled(unsigned int vector)
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::ExceptionLogIfRequested(unsigned int vector)
+void M68000::ExceptionLogIfRequested(Exceptions vector)
 {
 	if(logAllExceptions)
 	{
 		//Log the event
-		LogEntry logEntry(LogEntry::EVENTLEVEL_DEBUG);
-		logEntry << L"Exception triggered. Exception number: 0x" << std::hex << std::uppercase << vector << ", Exception address: 0x" << vector * 4 << ", Exception name: " << GetExceptionName(vector) << ", Current PC: 0x" << GetPC().GetData();
+		LogEntry logEntry(LogEntry::EventLevel::Debug);
+		logEntry << L"Exception triggered. Exception number: 0x" << std::hex << std::uppercase << (unsigned int)vector << ", Exception address: 0x" << (unsigned int)vector * 4 << ", Exception name: " << GetExceptionName(vector) << ", Current PC: 0x" << GetPC().GetData();
 		GetDeviceContext()->WriteLogEvent(logEntry);
 		return;
 	}
 
 	if(!exceptionListEmpty)
 	{
-		boost::mutex::scoped_lock lock(debugMutex);
+		std::unique_lock<std::mutex> lock(debugMutex);
 		for(std::list<ExceptionDebuggingEntry>::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
 		{
 			const ExceptionDebuggingEntry& entry = *i;
@@ -605,8 +606,8 @@ void M68000::ExceptionLogIfRequested(unsigned int vector)
 				if(entry.enableLogging)
 				{
 					//Log the event
-					LogEntry logEntry(LogEntry::EVENTLEVEL_DEBUG);
-					logEntry << L"Exception triggered. Exception number: 0x" << std::hex << std::uppercase << vector << ", Exception address: 0x" << vector * 4 << ", Exception name: " << GetExceptionName(vector) << ", Current PC: 0x" << GetPC().GetData();
+					LogEntry logEntry(LogEntry::EventLevel::Debug);
+					logEntry << L"Exception triggered. Exception number: 0x" << std::hex << std::uppercase << (unsigned int)vector << ", Exception address: 0x" << (unsigned int)vector * 4 << ", Exception name: " << GetExceptionName(vector) << ", Current PC: 0x" << GetPC().GetData();
 					GetDeviceContext()->WriteLogEvent(logEntry);
 					return;
 				}
@@ -616,7 +617,7 @@ void M68000::ExceptionLogIfRequested(unsigned int vector)
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::ExceptionBreakIfRequested(unsigned int vector)
+void M68000::ExceptionBreakIfRequested(Exceptions vector)
 {
 	if(breakOnAllExceptions)
 	{
@@ -626,7 +627,7 @@ void M68000::ExceptionBreakIfRequested(unsigned int vector)
 
 	if(!exceptionListEmpty)
 	{
-		boost::mutex::scoped_lock lock(debugMutex);
+		std::unique_lock<std::mutex> lock(debugMutex);
 		for(std::list<ExceptionDebuggingEntry>::const_iterator i = exceptionList.begin(); i != exceptionList.end(); ++i)
 		{
 			const ExceptionDebuggingEntry& entry = *i;
@@ -681,7 +682,7 @@ double M68000::ExecuteStep()
 		//##DEBUG##
 		//std::wcout << "M68000 line access pending\n";
 
-		boost::mutex::scoped_lock lock(lineMutex);
+		std::unique_lock<std::mutex> lock(lineMutex);
 		double currentTimesliceProgress = GetCurrentTimesliceProgress();
 		bool done = false;
 		while(!done)
@@ -702,7 +703,7 @@ double M68000::ExecuteStep()
 			//Apply the line state change
 			if(lineAccess.clockRateChange)
 			{
-				ApplyClockStateChange(lineAccess.lineID, lineAccess.clockRate);
+				ApplyClockStateChange(lineAccess.clockID, lineAccess.clockRate);
 			}
 			else
 			{
@@ -732,7 +733,7 @@ double M68000::ExecuteStep()
 		//Check lineAccessPending again after taking a lock on lineMutex. This will ensure
 		//we never enter a suspend state when there are actually line access events
 		//sitting in the buffer.
-		boost::mutex::scoped_lock lock(lineMutex);
+		std::unique_lock<std::mutex> lock(lineMutex);
 		if(!lineAccessPending)
 		{
 			//Suspend timeslice execution, release the lock on lineMutex, then wait until
@@ -770,15 +771,15 @@ double M68000::ExecuteStep()
 	//If an exception has been triggered from the debugger, process it.
 	if(debugExceptionTriggerPending)
 	{
-		boost::mutex::scoped_lock lock(debugMutex);
+		std::unique_lock<std::mutex> lock(debugMutex);
 		debugExceptionTriggerPending = false;
 
 		//Push the appropriate stack frame for this exception
-		if(debugExceptionTriggerVector == EX_RESET)
+		if(debugExceptionTriggerVector == Exceptions::Reset)
 		{
 			//No exception stack frame for a reset exception
 		}
-		else if((debugExceptionTriggerVector == EX_BUS_ERROR) || (debugExceptionTriggerVector == EX_ADDRESS_ERROR))
+		else if((debugExceptionTriggerVector == Exceptions::BusError) || (debugExceptionTriggerVector == Exceptions::AddressError))
 		{
 			//Push a dummy group 0 exception stack frame. It's not really possible to give
 			//real data here, since a real exception didn't occur.
@@ -801,7 +802,7 @@ double M68000::ExecuteStep()
 		group0ExceptionPending = false;
 		if(!ExceptionDisabled(group0Vector))
 		{
-			if(group0Vector != EX_RESET)
+			if(group0Vector != Exceptions::Reset)
 			{
 				additionalTime += PushStackFrame(group0PC, group0SR, group0InstructionRegister, group0Address, group0ReadWriteFlag, group0InstructionFlag, group0FunctionCode);
 			}
@@ -828,17 +829,17 @@ double M68000::ExecuteStep()
 			}
 
 			//If we've triggered a double bus fault, enter the halted state.
-			if(group0ExceptionPending && (group0Vector != EX_RESET))
+			if(group0ExceptionPending && (group0Vector != Exceptions::Reset))
 			{
 				group0ExceptionPending = false;
-				SetProcessorState(STATE_HALTED);
+				SetProcessorState(State::Halted);
 			}
 			return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 		}
 	}
 
 	//If we're in a halted state, terminate instruction processing.
-	if(processorState == STATE_HALTED)
+	if(processorState == State::Halted)
 	{
 		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 	}
@@ -863,9 +864,9 @@ double M68000::ExecuteStep()
 		//Attempt to read the interrupt vector number from the bus by performing an
 		//interrupt acknowledge cycle.
 		autoVectorPendingInterrupt = false;
-		M68000Word interruptVectorNumber = 0;
-		CalculateCELineStateContext ceLineStateContext(FUNCTIONCODE_CPUSPACE, true, true, true, false, false);
-		IBusInterface::AccessResult accessResult = memoryBus->ReadMemory(interruptCycleAddress.GetData(), interruptVectorNumber, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
+		M68000Word interruptVectorNumberAsWord = 0;
+		CalculateCELineStateContext ceLineStateContext(FunctionCode::CPUSpace, true, true, true, false, false);
+		IBusInterface::AccessResult accessResult = memoryBus->ReadMemory(interruptCycleAddress.GetData(), interruptVectorNumberAsWord, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 
 		//Mask the resulting interrupt vector number to a single byte. According to the
 		//M68000 users manual, section 5.1.4, the M68000 does perform a 16-bit read for
@@ -873,20 +874,21 @@ double M68000::ExecuteStep()
 		//number is one byte, both data strobes are asserted due to the microcode used for
 		//exception processing. The processor does not recognize anything on data lines D8
 		//through D15 at this time".
-		interruptVectorNumber &= 0xFF;
+		interruptVectorNumberAsWord &= 0xFF;
 
 		//Determine the result of the interrupt acknowledge cycle
+		Exceptions interruptVectorNumber = (Exceptions)interruptVectorNumberAsWord.GetData();
 		if(accessResult.busError)
 		{
 			//If a bus error occurred during the interrupt acknowledge cycle, a spurious
 			//interrupt is triggered rather than a bus error exception.
-			interruptVectorNumber = EX_INTERRUPT_SPURIOUS;
+			interruptVectorNumber = Exceptions::InterruptSpurious;
 		}
 		else if(autoVectorPendingInterrupt)
 		{
 			//If VPA was asserted during the interrupt acknowledge cycle, autovector the
 			//interrupt.
-			interruptVectorNumber = EX_INTERRUPT_AUTOVECTOR + (interruptPendingLevel - 1);
+			interruptVectorNumber = (Exceptions)((unsigned int)Exceptions::InterruptAutoVectorL1 + (interruptPendingLevel - 1));
 
 			//Calculate the delay time between when we began the interrupt acknowledge
 			//cycle, and when the VPA line was asserted, and use this as the execution
@@ -897,7 +899,7 @@ double M68000::ExecuteStep()
 		{
 			//Critical error. No device responded to the interrupt acknowledge cycle. The
 			//processor is now locked in the interrupt acknowledge cycle forever.
-			SetProcessorState(STATE_HALTED);
+			SetProcessorState(State::Halted);
 			return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 		}
 		//##TODO## Confirm this behaviour. This is based on a best guess, that the M68000
@@ -905,29 +907,29 @@ double M68000::ExecuteStep()
 		//interrupt vector number to be uninitialized if the resulting vector number is 0.
 		//The official documentation doesn't clarify the exact conditions which can result
 		//in this interrupt vector occurring however.
-		else if(interruptVectorNumber == 0)
+		else if((unsigned int)interruptVectorNumber == 0)
 		{
 			//If a device responded to the interrupt acknowledge cycle by asserting DTACK,
 			//but failed to provide a vector number for the interrupt, we have an
 			//uninitialized interrupt.
-			interruptVectorNumber = EX_INTERRUPT_UNINITIALIZED;
+			interruptVectorNumber = Exceptions::InterruptUninitialized;
 		}
 
 		//Add any additional time from the memory read operation to the execution time
 		additionalTime += accessResult.executionTime;
 
 		//Process the interrupt
-		if(!ExceptionDisabled(interruptVectorNumber.GetData()))
+		if(!ExceptionDisabled(interruptVectorNumber))
 		{
 			additionalTime += PushStackFrame(GetPC(), GetSR(), false);
 			SetSR_IPM(interruptPendingLevel);
-			cyclesExecuted = ProcessException(interruptVectorNumber.GetData()).cycles;
+			cyclesExecuted = ProcessException(interruptVectorNumber).cycles;
 			return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 		}
 	}
 
 	//If the processor isn't stopped, fetch the next opcode.
-	if(processorState != STATE_STOPPED)
+	if(processorState != State::Stopped)
 	{
 		//Update the trace log, and test for breakpoints.
 		RecordTrace(GetPC().GetData());
@@ -943,14 +945,14 @@ double M68000::ExecuteStep()
 		if(nextOpcodeType == 0)
 		{
 			//Generate an exception if we've encountered an unimplemented opcode
-			unsigned int exception = EX_ILLEGAL_INSTRUCTION;
+			Exceptions exception = Exceptions::IllegalInstruction;
 			if((opcode & 0xF000) == 0xA000)
 			{
-				exception = EX_LINE_1010;
+				exception = Exceptions::Line1010;
 			}
 			else if((opcode & 0xF000) == 0xF000)
 			{
-				exception = EX_LINE_1111;
+				exception = Exceptions::Line1111;
 			}
 			if(!ExceptionDisabled(exception))
 			{
@@ -963,12 +965,12 @@ double M68000::ExecuteStep()
 			M68000Instruction* nextOpcode = 0;
 //			nextOpcode = nextOpcodeType->Clone();
 			nextOpcode = nextOpcodeType->ClonePlacement(opcodeBuffer);
-			if(nextOpcode->Privileged() && !GetSR_S() && !ExceptionDisabled(EX_PRIVILEGE_VIOLATION))
+			if(nextOpcode->Privileged() && !GetSR_S() && !ExceptionDisabled(Exceptions::PrivilegeViolation))
 			{
 				//Generate a privilege violation if the instruction is privileged and
 				//we're not in supervisor mode.
 				additionalTime += PushStackFrame(GetPC(), GetSR(), false);
-				cyclesExecuted = ProcessException(EX_PRIVILEGE_VIOLATION).cycles;
+				cyclesExecuted = ProcessException(Exceptions::PrivilegeViolation).cycles;
 			}
 			else
 			{
@@ -1007,10 +1009,10 @@ double M68000::ExecuteStep()
 				//exception is triggered, which in our emulator clears the trace flag
 				//immediately. The real M68000 probably does something slightly different
 				//internally, but this implementation should have identical behaviour.
-				if(trace && !group0ExceptionPending && !ExceptionDisabled(EX_TRACE))
+				if(trace && !group0ExceptionPending && !ExceptionDisabled(Exceptions::Trace))
 				{
 					additionalTime += PushStackFrame(GetPC(), GetSR(), false);
-					cyclesExecuted += ProcessException(EX_TRACE).cycles;
+					cyclesExecuted += ProcessException(Exceptions::Trace).cycles;
 				}
 			}
 			nextOpcode->~M68000Instruction();
@@ -1171,7 +1173,7 @@ void M68000::NotifyAfterExecuteStepFinishedTimeslice()
 {
 	//If any threads were waiting for notifications about line state changes, wake them
 	//now that we've reached the end of the timeslice.
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 	executionReachedEndOfTimeslice = true;
 	advanceToTargetLineStateChanged.notify_all();
 }
@@ -1224,7 +1226,7 @@ unsigned int M68000::GetMinimumDataByteSize() const
 unsigned int M68000::GetMemorySpaceByte(unsigned int location) const
 {
 	M68000Byte data;
-	ReadMemoryTransparent(location, data, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
+	ReadMemoryTransparent(location, data, FunctionCode::SupervisorProgram, false, false);
 	return data.GetData();
 }
 
@@ -1232,7 +1234,7 @@ unsigned int M68000::GetMemorySpaceByte(unsigned int location) const
 void M68000::SetMemorySpaceByte(unsigned int location, unsigned int data)
 {
 	M68000Byte byte(data);
-	WriteMemoryTransparent(location, byte, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
+	WriteMemoryTransparent(location, byte, FunctionCode::SupervisorProgram, false, false);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1242,7 +1244,7 @@ bool M68000::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 
 	M68000Long instructionLocation = location;
 	M68000Word opcode;
-	ReadMemoryTransparent(instructionLocation, opcode, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
+	ReadMemoryTransparent(instructionLocation, opcode, FunctionCode::SupervisorProgram, false, false);
 
 	const M68000Instruction* targetOpcodeType = 0;
 	targetOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
@@ -1287,27 +1289,27 @@ unsigned int M68000::GetLineID(const std::wstring& lineName) const
 {
 	if(lineName == L"RESET") //IO
 	{
-		return LINE_RESET;
+		return (unsigned int)LineID::RESET;
 	}
 	else if(lineName == L"BR") //I
 	{
-		return LINE_BR;
+		return (unsigned int)LineID::BR;
 	}
 	else if(lineName == L"BG") //O
 	{
-		return LINE_BG;
+		return (unsigned int)LineID::BG;
 	}
 	else if(lineName == L"HALT") //I
 	{
-		return LINE_HALT;
+		return (unsigned int)LineID::HALT;
 	}
 	else if(lineName == L"IPL") //I
 	{
-		return LINE_IPL;
+		return (unsigned int)LineID::IPL;
 	}
 	else if(lineName == L"VPA") //I
 	{
-		return LINE_VPA;
+		return (unsigned int)LineID::VPA;
 	}
 	return 0;
 }
@@ -1315,19 +1317,19 @@ unsigned int M68000::GetLineID(const std::wstring& lineName) const
 //----------------------------------------------------------------------------------------
 std::wstring M68000::GetLineName(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_RESET:
+	case LineID::RESET:
 		return L"RESET";
-	case LINE_BR:
+	case LineID::BR:
 		return L"BR";
-	case LINE_BG:
+	case LineID::BG:
 		return L"BG";
-	case LINE_HALT:
+	case LineID::HALT:
 		return L"HALT";
-	case LINE_IPL:
+	case LineID::IPL:
 		return L"IPL";
-	case LINE_VPA:
+	case LineID::VPA:
 		return L"VPA";
 	}
 	return L"";
@@ -1336,19 +1338,19 @@ std::wstring M68000::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int M68000::GetLineWidth(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_RESET:
+	case LineID::RESET:
 		return 1;
-	case LINE_BR:
+	case LineID::BR:
 		return 1;
-	case LINE_BG:
+	case LineID::BG:
 		return 1;
-	case LINE_HALT:
+	case LineID::HALT:
 		return 1;
-	case LINE_IPL:
+	case LineID::IPL:
 		return 3;
-	case LINE_VPA:
+	case LineID::VPA:
 		return 1;
 	}
 	return 0;
@@ -1372,16 +1374,16 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	//can provide a memory barrier we can drop into our code, and use that in place of the
 	//lock here, and shift the full-blown lock back below the immediate line state
 	//changes.
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//##DEBUG##
 	//	std::wcout << "M68000SetLineState\t" << targetLine << '\n';
 
 	//Check if this is a line which we need to process immediately. This would generally
 	//indicate a response to a request which this device is currently asserting.
-	switch(targetLine)
+	switch((LineID)targetLine)
 	{
-	case LINE_VPA:
+	case LineID::VPA:
 		autoVectorPendingInterrupt = true;
 		autoVectorPendingInterruptChangeTime = accessTime;
 		return;
@@ -1410,7 +1412,7 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	{
 		++i;
 	}
-	lineAccessBuffer.insert(i.base(), LineAccess(targetLine, lineData, accessTime));
+	lineAccessBuffer.insert(i.base(), LineAccess((LineID)targetLine, lineData, accessTime));
 
 	//Resume the main execution thread if it is currently suspended waiting for a line
 	//state change to be received.
@@ -1426,7 +1428,7 @@ void M68000::TransparentSetLineState(unsigned int targetLine, const Data& lineDa
 //----------------------------------------------------------------------------------------
 void M68000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//Read the time at which this access is being made, and trigger a rollback if we've
 	//already passed that time.
@@ -1440,7 +1442,7 @@ void M68000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	bool foundTargetEntry = false;
 	while(!foundTargetEntry && (i != lineAccessBuffer.rend()))
 	{
-		if((i->lineID == targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
+		if((i->lineID == (LineID)targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
 		{
 			foundTargetEntry = true;
 			continue;
@@ -1466,9 +1468,9 @@ void M68000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 //----------------------------------------------------------------------------------------
 bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 	bool result = false;
-	if(targetLine == LINE_BG)
+	if((LineID)targetLine == LineID::BG)
 	{
 		bool targetLineState = lineData.GetBit(0);
 		if(bgLineState == targetLineState)
@@ -1495,7 +1497,7 @@ bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 		{
 			//If this line state change modifies the target line, latch the change if it
 			//matches the requested state, otherwise clear any currently latched change.
-			if(i->lineID == LINE_BR)
+			if(i->lineID == LineID::BR)
 			{
 				if(i->state == targetLineState)
 				{
@@ -1585,7 +1587,7 @@ void M68000::AssertCurrentOutputLineState() const
 {
 	if(memoryBus != 0)
 	{
-		if(bgLineState) memoryBus->SetLineState(LINE_BG, Data(GetLineWidth(LINE_BG), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(bgLineState) memoryBus->SetLineState((unsigned int)LineID::BG, Data(GetLineWidth((unsigned int)LineID::BG), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -1594,12 +1596,12 @@ void M68000::NegateCurrentOutputLineState() const
 {
 	if(memoryBus != 0)
 	{
-		if(bgLineState) memoryBus->SetLineState(LINE_BG, Data(GetLineWidth(LINE_BG), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(bgLineState) memoryBus->SetLineState((unsigned int)LineID::BG, Data(GetLineWidth((unsigned int)LineID::BG), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock)
+void M68000::ApplyLineStateChange(LineID targetLine, const Data& lineData, std::unique_lock<std::mutex>& lock)
 {
 	//##DEBUG##
 	//	std::wstringstream message;
@@ -1608,10 +1610,10 @@ void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData,
 
 	switch(targetLine)
 	{
-	case LINE_RESET:
+	case LineID::RESET:
 		resetLineState = !lineData.Zero();
 		break;
-	case LINE_BR:{
+	case LineID::BR:{
 		bool brLineStateNew = !lineData.Zero();
 		if(brLineState != brLineStateNew)
 		{
@@ -1630,17 +1632,17 @@ void M68000::ApplyLineStateChange(unsigned int targetLine, const Data& lineData,
 				//succeeding when we are in tern calling SetLineState.
 				lock.unlock();
 
-				memoryBus->SetLineState(LINE_BG, Data(GetLineWidth(LINE_BG), (unsigned int)bgLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+				memoryBus->SetLineState((unsigned int)LineID::BG, Data(GetLineWidth((unsigned int)LineID::BG), (unsigned int)bgLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 
 				//Re-acquire the lock now that we've completed our external call
 				lock.lock();
 			}
 		}
 		break;}
-	case LINE_HALT:
+	case LineID::HALT:
 		haltLineState = !lineData.Zero();
 		break;
-	case LINE_IPL:{
+	case LineID::IPL:{
 		//Calculate the new level of the pending interrupt
 		unsigned int newInterruptPendingLevel = lineData.GetData();
 
@@ -1674,7 +1676,7 @@ unsigned int M68000::GetClockSourceID(const std::wstring& clockSourceName) const
 {
 	if(clockSourceName == L"CLK")
 	{
-		return CLOCK_CLK;
+		return (unsigned int)ClockID::CLK;
 	}
 	return 0;
 }
@@ -1682,9 +1684,9 @@ unsigned int M68000::GetClockSourceID(const std::wstring& clockSourceName) const
 //----------------------------------------------------------------------------------------
 std::wstring M68000::GetClockSourceName(unsigned int clockSourceID) const
 {
-	switch(clockSourceID)
+	switch((ClockID)clockSourceID)
 	{
-	case CLOCK_CLK:
+	case ClockID::CLK:
 		return L"CLK";
 	}
 	return L"";
@@ -1695,7 +1697,7 @@ void M68000::SetClockSourceRate(unsigned int clockInput, double clockRate, IDevi
 {
 	//We push clock rate changes through the normal line state change tracking system
 	//here, since line state changes and clock changes are basically the same problem.
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
 	//locking operation in the active thread for this device when no line changes are
@@ -1720,7 +1722,7 @@ void M68000::SetClockSourceRate(unsigned int clockInput, double clockRate, IDevi
 	{
 		++i;
 	}
-	lineAccessBuffer.insert(i.base(), LineAccess(clockInput, clockRate, accessTime));
+	lineAccessBuffer.insert(i.base(), LineAccess((ClockID)clockInput, clockRate, accessTime));
 
 	//Resume the main execution thread if it is currently suspended waiting for a line
 	//state change to be received.
@@ -1730,14 +1732,14 @@ void M68000::SetClockSourceRate(unsigned int clockInput, double clockRate, IDevi
 //----------------------------------------------------------------------------------------
 void M68000::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
 {
-	ApplyClockStateChange(clockInput, clockRate);
+	ApplyClockStateChange((ClockID)clockInput, clockRate);
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::ApplyClockStateChange(unsigned int targetClock, double clockRate)
+void M68000::ApplyClockStateChange(ClockID targetClock, double clockRate)
 {
 	//Apply the input clock rate change
-	if(targetClock == CLOCK_CLK)
+	if(targetClock == ClockID::CLK)
 	{
 		SetClockSpeed(clockRate);
 	}
@@ -1853,8 +1855,8 @@ unsigned int M68000::DisassemblyGetDataRegisterUnmodifiedSize(unsigned int regNo
 void M68000::TriggerExternalReset(double resetTimeBegin, double resetTimeEnd)
 {
 	//Toggle the external RESET line state, to reset external devices.
-	memoryBus->SetLineState(M68000::LINE_RESET, Data(1, 1), GetDeviceContext(), GetDeviceContext(), resetTimeBegin, 0);
-	memoryBus->SetLineState(M68000::LINE_RESET, Data(1, 0), GetDeviceContext(), GetDeviceContext(), resetTimeEnd, 0);
+	memoryBus->SetLineState((unsigned int)M68000::LineID::RESET, Data(1, 1), GetDeviceContext(), GetDeviceContext(), resetTimeBegin, 0);
+	memoryBus->SetLineState((unsigned int)M68000::LineID::RESET, Data(1, 0), GetDeviceContext(), GetDeviceContext(), resetTimeEnd, 0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1863,14 +1865,14 @@ void M68000::TriggerExternalReset(double resetTimeBegin, double resetTimeEnd)
 M68000::FunctionCode M68000::GetFunctionCode(bool programReference) const
 {
 	static const FunctionCode codeTable[8] = {
-		FUNCTIONCODE_UNDEFINED0,		//000
-		FUNCTIONCODE_USERDATA,			//001
-		FUNCTIONCODE_USERPROGRAM,		//010
-		FUNCTIONCODE_UNDEFINED3,		//011
-		FUNCTIONCODE_UNDEFINED4,		//100
-		FUNCTIONCODE_SUPERVISORDATA,	//101
-		FUNCTIONCODE_SUPERVISORPROGRAM,	//110
-		FUNCTIONCODE_CPUSPACE			//111
+		FunctionCode::Undefined0,		//000
+		FunctionCode::UserData,			//001
+		FunctionCode::UserProgram,		//010
+		FunctionCode::Undefined3,		//011
+		FunctionCode::Undefined4,		//100
+		FunctionCode::SupervisorData,	//101
+		FunctionCode::SupervisorProgram,	//110
+		FunctionCode::CPUSpace			//111
 	};
 	unsigned int codeTableIndex = ((unsigned int)GetSR_S() << 2) | ((unsigned int)programReference << 1) | ((unsigned int)!programReference);
 	return codeTable[codeTableIndex];
@@ -1908,7 +1910,7 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 		group0SR = GetSR();
 		group0ReadWriteFlag = true;
 		group0InstructionFlag = !processingInstruction;
-		group0Vector = EX_ADDRESS_ERROR;
+		group0Vector = Exceptions::AddressError;
 		group0FunctionCode = code;
 	}
 	else
@@ -2008,7 +2010,7 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 			group0SR = GetSR();
 			group0ReadWriteFlag = true;
 			group0InstructionFlag = !processingInstruction;
-			group0Vector = EX_BUS_ERROR;
+			group0Vector = Exceptions::BusError;
 			group0FunctionCode = code;
 			//##DEBUG##
 			//std::wcout << "Bus error triggered on read of " << std::hex << location.GetData() << '\n';
@@ -2095,7 +2097,7 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 		group0SR = GetSR();
 		group0ReadWriteFlag = false;
 		group0InstructionFlag = !processingInstruction;
-		group0Vector = EX_ADDRESS_ERROR;
+		group0Vector = Exceptions::AddressError;
 		group0FunctionCode = code;
 	}
 	else
@@ -2161,7 +2163,7 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 			group0SR = GetSR();
 			group0ReadWriteFlag = false;
 			group0InstructionFlag = !processingInstruction;
-			group0Vector = EX_BUS_ERROR;
+			group0Vector = Exceptions::BusError;
 			group0FunctionCode = code;
 			//##DEBUG##
 			//std::wcout << "Bus error triggered on write of " << std::hex << location.GetData() << '\n';
@@ -2227,35 +2229,35 @@ unsigned int M68000::GetCELineID(const std::wstring& lineName, bool inputLine) c
 {
 	if(lineName == L"LDS")
 	{
-		return CELINE_LDS;
+		return (unsigned int)CELineID::LDS;
 	}
 	else if(lineName == L"UDS")
 	{
-		return CELINE_UDS;
+		return (unsigned int)CELineID::UDS;
 	}
 	else if(lineName == L"R/W")
 	{
-		return CELINE_RW;
+		return (unsigned int)CELineID::RW;
 	}
 	else if(lineName == L"AS")
 	{
-		return CELINE_AS;
+		return (unsigned int)CELineID::AS;
 	}
 	else if(lineName == L"FC")
 	{
-		return CELINE_FC;
+		return (unsigned int)CELineID::FC;
 	}
 	else if(lineName == L"FCCPUSpace")
 	{
-		return CELINE_FCCPUSPACE;
+		return (unsigned int)CELineID::FCCPUSpace;
 	}
 	else if(lineName == L"RMWCycleInProgress")
 	{
-		return CELINE_RMWCYCLEINPROGRESS;
+		return (unsigned int)CELineID::RMWCycleInProgress;
 	}
 	else if(lineName == L"RMWCycleFirstOperation")
 	{
-		return CELINE_RMWCYCLEFIRSTOPERATION;
+		return (unsigned int)CELineID::RMWCycleFirstOperation;
 	}
 	return 0;
 }
@@ -2263,31 +2265,31 @@ unsigned int M68000::GetCELineID(const std::wstring& lineName, bool inputLine) c
 //----------------------------------------------------------------------------------------
 void M68000::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber)
 {
-	switch(lineID)
+	switch((CELineID)lineID)
 	{
-	case CELINE_LDS:
+	case CELineID::LDS:
 		ceLineMaskLowerDataStrobe = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_UDS:
+	case CELineID::UDS:
 		ceLineMaskUpperDataStrobe = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_RW:
+	case CELineID::RW:
 		ceLineMaskReadHighWriteLow = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_AS:
+	case CELineID::AS:
 		ceLineMaskAddressStrobe = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_FC:
+	case CELineID::FC:
 		ceLineBitNumberFunctionCode = !lineMapped? 0: lineStartBitNumber;
 		ceLineMaskFunctionCode = !lineMapped? 0: 0x7 << lineStartBitNumber;
 		break;
-	case CELINE_RMWCYCLEINPROGRESS:
+	case CELineID::RMWCycleInProgress:
 		ceLineMaskRMWCycleInProgress = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_FCCPUSPACE:
+	case CELineID::FCCPUSpace:
 		ceLineMaskFCCPUSpace = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_RMWCYCLEFIRSTOPERATION:
+	case CELineID::RMWCycleFirstOperation:
 		ceLineMaskRMWCycleFirstOperation = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	}
@@ -2305,7 +2307,7 @@ unsigned int M68000::CalculateCELineStateMemory(unsigned int location, const Dat
 		ceLineState |= ceLineStateContext.readHighWriteLow? ceLineMaskReadHighWriteLow: 0x0;
 		ceLineState |= ceLineMaskAddressStrobe;
 		ceLineState |= ((unsigned int)ceLineStateContext.functionCode << ceLineBitNumberFunctionCode) & ceLineMaskFunctionCode;
-		ceLineState |= (ceLineStateContext.functionCode == 0x7)? ceLineMaskFCCPUSpace: 0x0;
+		ceLineState |= ((unsigned int)ceLineStateContext.functionCode == 0x7)? ceLineMaskFCCPUSpace: 0x0;
 		ceLineState |= ceLineStateContext.rmwCycleInProgress? ceLineMaskRMWCycleInProgress: 0x0;
 		ceLineState |= ceLineStateContext.rmwCycleFirstOperation? ceLineMaskRMWCycleFirstOperation: 0x0;
 	}
@@ -2352,7 +2354,7 @@ bool M68000::FormatOpcodeForDisassembly(unsigned int opcodeAddress, const LabelS
 {
 	M68000Long instructionLocation = opcodeAddress;
 	M68000Word opcode;
-	ReadMemoryTransparent(opcodeAddress, opcode, FUNCTIONCODE_SUPERVISORPROGRAM, false, false);
+	ReadMemoryTransparent(opcodeAddress, opcode, FunctionCode::SupervisorProgram, false, false);
 
 	const M68000Instruction* targetOpcodeType = 0;
 	targetOpcodeType = opcodeTable.GetInstruction(opcode.GetData());
@@ -2411,7 +2413,7 @@ bool M68000::FormatDataForDisassembly(const std::vector<Data>& dataElements, uns
 
 	//Write each data value to the disassembly string
 	formattedData.clear();
-	if(dataType == DISASSEMBLYDATATYPE_INTEGER)
+	if(dataType == DisassemblyDataType::Integer)
 	{
 		//Format these integer data elements
 		bool firstValueWritten = false;
@@ -2424,7 +2426,7 @@ bool M68000::FormatDataForDisassembly(const std::vector<Data>& dataElements, uns
 			firstValueWritten = true;
 		}
 	}
-	else if(dataType == DISASSEMBLYDATATYPE_CHARACTER)
+	else if(dataType == DisassemblyDataType::Character)
 	{
 		//Ensure the text element size matches the required size
 		if(dataElementByteSize != 1)
@@ -2670,7 +2672,7 @@ void M68000::GetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectTa
 //----------------------------------------------------------------------------------------
 std::list<M68000::ExceptionDebuggingEntry> M68000::GetExceptionDebugEntries() const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	return exceptionList;
 }
 
@@ -2683,136 +2685,135 @@ void M68000::SetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectSo
 //----------------------------------------------------------------------------------------
 void M68000::SetExceptionDebugEntries(const std::list<ExceptionDebuggingEntry>& state)
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	exceptionList = state;
 	exceptionListEmpty = exceptionList.empty();
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int vectorNumber) const
+void M68000::GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, Exceptions vectorNumber) const
 {
 	marshaller.MarshalFrom(GetExceptionName(vectorNumber));
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring M68000::GetExceptionName(unsigned int vectorNumber) const
+std::wstring M68000::GetExceptionName(Exceptions vectorNumber) const
 {
 	switch(vectorNumber)
 	{
-	case 0x00:
+	case Exceptions::Reset:
 		return L"Reset";
-	case 0x01:
+	case Exceptions::Invalid01:
 		return L"Invalid";
-	case 0x02:
+	case Exceptions::BusError:
 		return L"Bus Error";
-	case 0x03:
+	case Exceptions::AddressError:
 		return L"Address Error";
-	case 0x04:
+	case Exceptions::IllegalInstruction:
 		return L"Illegal Instruction";
-	case 0x05:
+	case Exceptions::ZeroDivide:
 		return L"Zero Divide";
-	case 0x06:
+	case Exceptions::CHKInstruction:
 		return L"CHK Instruction";
-	case 0x07:
+	case Exceptions::TrapVInstruction:
 		return L"TRAPV Instruction";
-	case 0x08:
+	case Exceptions::PrivilegeViolation:
 		return L"Privilege Violation";
-	case 0x09:
+	case Exceptions::Trace:
 		return L"Trace";
-	case 0x0A:
+	case Exceptions::Line1010:
 		return L"Line 1010 Emulator";
-	case 0x0B:
+	case Exceptions::Line1111:
 		return L"Line 1111 Emulator";
-	case 0x0C:
-	case 0x0D:
-	case 0x0E:
-		return L"Reserved";
-	case 0x0F:
+	case Exceptions::InterruptUninitialized:
 		return L"Uninitialized Interrupt Vector";
-	case 0x10:
-	case 0x11:
-	case 0x12:
-	case 0x13:
-	case 0x14:
-	case 0x15:
-	case 0x16:
-	case 0x17:
-		return L"Reserved";
-	case 0x18:
+	case Exceptions::InterruptSpurious:
 		return L"Spurious Interrupt";
-	case 0x19:
+	case Exceptions::InterruptAutoVectorL1:
 		return L"L1 Interrupt Autovector";
-	case 0x1A:
+	case Exceptions::InterruptAutoVectorL2:
 		return L"L2 Interrupt Autovector";
-	case 0x1B:
+	case Exceptions::InterruptAutoVectorL3:
 		return L"L3 Interrupt Autovector";
-	case 0x1C:
+	case Exceptions::InterruptAutoVectorL4:
 		return L"L4 Interrupt Autovector";
-	case 0x1D:
+	case Exceptions::InterruptAutoVectorL5:
 		return L"L5 Interrupt Autovector";
-	case 0x1E:
+	case Exceptions::InterruptAutoVectorL6:
 		return L"L6 Interrupt Autovector";
-	case 0x1F:
+	case Exceptions::InterruptAutoVectorL7:
 		return L"L7 Interrupt Autovector";
-	case 0x20:
+	case Exceptions::InterruptTrap0:
 		return L"Trap $0";
-	case 0x21:
+	case Exceptions::InterruptTrap1:
 		return L"Trap $1";
-	case 0x22:
+	case Exceptions::InterruptTrap2:
 		return L"Trap $2";
-	case 0x23:
+	case Exceptions::InterruptTrap3:
 		return L"Trap $3";
-	case 0x24:
+	case Exceptions::InterruptTrap4:
 		return L"Trap $4";
-	case 0x25:
+	case Exceptions::InterruptTrap5:
 		return L"Trap $5";
-	case 0x26:
+	case Exceptions::InterruptTrap6:
 		return L"Trap $6";
-	case 0x27:
+	case Exceptions::InterruptTrap7:
 		return L"Trap $7";
-	case 0x28:
+	case Exceptions::InterruptTrap8:
 		return L"Trap $8";
-	case 0x29:
+	case Exceptions::InterruptTrap9:
 		return L"Trap $9";
-	case 0x2A:
+	case Exceptions::InterruptTrapA:
 		return L"Trap $A";
-	case 0x2B:
+	case Exceptions::InterruptTrapB:
 		return L"Trap $B";
-	case 0x2C:
+	case Exceptions::InterruptTrapC:
 		return L"Trap $C";
-	case 0x2D:
+	case Exceptions::InterruptTrapD:
 		return L"Trap $D";
-	case 0x2E:
+	case Exceptions::InterruptTrapE:
 		return L"Trap $E";
-	case 0x2F:
+	case Exceptions::InterruptTrapF:
 		return L"Trap $F";
-	case 0x30:
-	case 0x31:
-	case 0x32:
-	case 0x33:
-	case 0x34:
-	case 0x35:
-	case 0x36:
-	case 0x37:
-	case 0x38:
-	case 0x39:
-	case 0x3A:
-	case 0x3B:
-	case 0x3C:
-	case 0x3D:
-	case 0x3E:
-	case 0x3F:
+	case Exceptions::Reserved0C:
+	case Exceptions::Reserved0D:
+	case Exceptions::Reserved0E:
+	case Exceptions::Reserved10:
+	case Exceptions::Reserved11:
+	case Exceptions::Reserved12:
+	case Exceptions::Reserved13:
+	case Exceptions::Reserved14:
+	case Exceptions::Reserved15:
+	case Exceptions::Reserved16:
+	case Exceptions::Reserved17:
+	case Exceptions::Reserved30:
+	case Exceptions::Reserved31:
+	case Exceptions::Reserved32:
+	case Exceptions::Reserved33:
+	case Exceptions::Reserved34:
+	case Exceptions::Reserved35:
+	case Exceptions::Reserved36:
+	case Exceptions::Reserved37:
+	case Exceptions::Reserved38:
+	case Exceptions::Reserved39:
+	case Exceptions::Reserved3A:
+	case Exceptions::Reserved3B:
+	case Exceptions::Reserved3C:
+	case Exceptions::Reserved3D:
+	case Exceptions::Reserved3E:
+	case Exceptions::Reserved3F:
 		return L"Reserved";
+	default:{
+		std::wstringstream nameStream;
+		nameStream << L"User Interrupt 0x" << std::hex << std::uppercase << (unsigned int)vectorNumber;
+		return nameStream.str();}
 	}
-	std::wstringstream nameStream;
-	nameStream << L"User Interrupt 0x" << std::hex << std::uppercase << vectorNumber;
-	return nameStream.str();
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::TriggerException(unsigned int vectorNumber)
+void M68000::TriggerException(Exceptions vectorNumber)
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 	debugExceptionTriggerVector = vectorNumber;
 	debugExceptionTriggerPending = true;
 }
@@ -2867,7 +2868,7 @@ void M68000::LoadState(IHierarchicalStorageNode& node)
 				else if(registerName == L"Group0SR")	group0SR = (*i)->ExtractHexData<unsigned int>();
 				else if(registerName == L"Group0ReadWriteFlag")	group0ReadWriteFlag = (*i)->ExtractData<bool>();
 				else if(registerName == L"Group0InstructionFlag")	group0InstructionFlag = (*i)->ExtractData<bool>();
-				else if(registerName == L"Group0Vector")	group0Vector = (*i)->ExtractHexData<unsigned int>();
+				else if(registerName == L"Group0Vector")	group0Vector = (Exceptions)(*i)->ExtractHexData<unsigned int>();
 				else if(registerName == L"Group0FunctionCode")	group0FunctionCode = (FunctionCode)(*i)->ExtractHexData<unsigned int>();
 
 				else if(registerName == L"LastTimesliceLength")		lastTimesliceLength = (*i)->ExtractData<double>();
@@ -2895,7 +2896,7 @@ void M68000::LoadState(IHierarchicalStorageNode& node)
 					if((lineNameAttribute != 0) && (clockRateChangeAttribute != 0) && (accessTimeAttribute != 0))
 					{
 						//Extract the entry from the XML stream
-						LineAccess lineAccess(0, 0.0, 0.0);
+						LineAccess lineAccess;
 						bool lineAccessDefined = false;
 						std::wstring lineName = lineNameAttribute->ExtractValue<std::wstring>();
 						bool clockRateChange = clockRateChangeAttribute->ExtractValue<bool>();
@@ -2910,7 +2911,7 @@ void M68000::LoadState(IHierarchicalStorageNode& node)
 								{
 									double clockRate;
 									clockRateAttribute->ExtractValue(clockRate);
-									lineAccess = LineAccess(lineID, clockRate, accessTime);
+									lineAccess = LineAccess((ClockID)lineID, clockRate, accessTime);
 									lineAccessDefined = true;
 								}
 							}
@@ -2926,7 +2927,7 @@ void M68000::LoadState(IHierarchicalStorageNode& node)
 									Data lineState(GetLineWidth(lineID));
 									lineStateAttribute->ExtractValue(lineState);
 									lineAccess.state.Resize(lineState.GetBitCount());
-									lineAccess = LineAccess(lineID, lineState, accessTime);
+									lineAccess = LineAccess((LineID)lineID, lineState, accessTime);
 									lineAccessDefined = true;
 								}
 							}
@@ -2992,7 +2993,7 @@ void M68000::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChildHex(L"Register", group0SR.GetData(), group0SR.GetHexCharCount()).CreateAttribute(L"name", L"Group0SR");
 	node.CreateChild(L"Register", group0ReadWriteFlag).CreateAttribute(L"name", L"Group0ReadWriteFlag");
 	node.CreateChild(L"Register", group0InstructionFlag).CreateAttribute(L"name", L"Group0InstructionFlag");
-	node.CreateChildHex(L"Register", group0Vector, 2).CreateAttribute(L"name", L"Group0Vector");
+	node.CreateChildHex(L"Register", (unsigned int)group0Vector, 2).CreateAttribute(L"name", L"Group0Vector");
 	node.CreateChildHex(L"Register", (unsigned int)group0FunctionCode, 1).CreateAttribute(L"name", L"Group0FunctionCode");
 
 	node.CreateChild(L"Register", lastTimesliceLength).CreateAttribute(L"name", L"LastTimesliceLength");
@@ -3013,12 +3014,12 @@ void M68000::SaveState(IHierarchicalStorageNode& node) const
 			lineAccessEntry.CreateAttribute(L"ClockRateChange", i->clockRateChange);
 			if(i->clockRateChange)
 			{
-				lineAccessEntry.CreateAttribute(L"LineName", GetClockSourceName(i->lineID));
+				lineAccessEntry.CreateAttribute(L"LineName", GetClockSourceName((unsigned int)i->lineID));
 				lineAccessEntry.CreateAttribute(L"ClockRate", i->clockRate);
 			}
 			else
 			{
-				lineAccessEntry.CreateAttribute(L"LineName", GetLineName(i->lineID));
+				lineAccessEntry.CreateAttribute(L"LineName", GetLineName((unsigned int)i->lineID));
 				lineAccessEntry.CreateAttribute(L"LineState", i->state);
 			}
 			lineAccessEntry.CreateAttribute(L"AccessTime", i->accessTime);
@@ -3031,7 +3032,7 @@ void M68000::SaveState(IHierarchicalStorageNode& node) const
 //----------------------------------------------------------------------------------------
 void M68000::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	//Exception debugging
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
@@ -3060,7 +3061,9 @@ void M68000::LoadDebuggerState(IHierarchicalStorageNode& node)
 				if(childNode.GetName() == L"ExceptionDebugListEntry")
 				{
 					ExceptionDebuggingEntry entry;
-					childNode.ExtractAttribute(L"VectorNumber", entry.vectorNumber);
+					unsigned int vectorNumber;
+					childNode.ExtractAttribute(L"VectorNumber", vectorNumber);
+					entry.vectorNumber = (Exceptions)vectorNumber;
 					childNode.ExtractAttribute(L"EnableLogging", entry.enableLogging);
 					childNode.ExtractAttribute(L"EnableBreak", entry.enableBreak);
 					childNode.ExtractAttribute(L"Disable", entry.disable);
@@ -3077,7 +3080,7 @@ void M68000::LoadDebuggerState(IHierarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void M68000::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
-	boost::mutex::scoped_lock lock(debugMutex);
+	std::unique_lock<std::mutex> lock(debugMutex);
 
 	//Exception debugging
 	IHierarchicalStorageNode& exceptionListNode = node.CreateChild(L"ExceptionDebugList");
@@ -3085,7 +3088,7 @@ void M68000::SaveDebuggerState(IHierarchicalStorageNode& node) const
 	{
 		const ExceptionDebuggingEntry& entry = *i;
 		IHierarchicalStorageNode& exceptionListEntry = exceptionListNode.CreateChild(L"ExceptionDebugListEntry");
-		exceptionListEntry.CreateAttributeHex(L"VectorNumber", entry.vectorNumber, 8);
+		exceptionListEntry.CreateAttributeHex(L"VectorNumber", (unsigned int)entry.vectorNumber, 8);
 		exceptionListEntry.CreateAttribute(L"EnableLogging", entry.enableLogging);
 		exceptionListEntry.CreateAttribute(L"EnableBreak", entry.enableBreak);
 		exceptionListEntry.CreateAttribute(L"Disable", entry.disable);
@@ -3103,76 +3106,76 @@ void M68000::SaveDebuggerState(IHierarchicalStorageNode& node) const
 bool M68000::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
-	switch(dataID)
+	switch((IM68000DataSource)dataID)
 	{
-	case DATASOURCE_REGISTER_SRX:{
+	case IM68000DataSource::RegisterSRX:{
 		return dataValue.SetValue(GetX());}
-	case DATASOURCE_REGISTER_SRN:
+	case IM68000DataSource::RegisterSRN:
 		return dataValue.SetValue(GetN());
-	case DATASOURCE_REGISTER_SRZ:
+	case IM68000DataSource::RegisterSRZ:
 		return dataValue.SetValue(GetZ());
-	case DATASOURCE_REGISTER_SRV:
+	case IM68000DataSource::RegisterSRV:
 		return dataValue.SetValue(GetV());
-	case DATASOURCE_REGISTER_SRC:
+	case IM68000DataSource::RegisterSRC:
 		return dataValue.SetValue(GetC());
-	case DATASOURCE_REGISTER_SRT:
+	case IM68000DataSource::RegisterSRT:
 		return dataValue.SetValue(GetSR_T());
-	case DATASOURCE_REGISTER_SRS:
+	case IM68000DataSource::RegisterSRS:
 		return dataValue.SetValue(GetSR_S());
-	case DATASOURCE_REGISTER_SRIPM:
+	case IM68000DataSource::RegisterSRIPM:
 		return dataValue.SetValue(GetSR_IPM());
-	case DATASOURCE_REGISTER_PC:
+	case IM68000DataSource::RegisterPC:
 		return dataValue.SetValue(GetPC().GetData());
-	case DATASOURCE_REGISTER_SR:
+	case IM68000DataSource::RegisterSR:
 		return dataValue.SetValue(GetSR().GetData());
-	case DATASOURCE_REGISTER_CCR:
+	case IM68000DataSource::RegisterCCR:
 		return dataValue.SetValue(GetCCR().GetData());
-	case DATASOURCE_REGISTER_SP:
+	case IM68000DataSource::RegisterSP:
 		return dataValue.SetValue(GetSP().GetData());
-	case DATASOURCE_REGISTER_SSP:
+	case IM68000DataSource::RegisterSSP:
 		return dataValue.SetValue(GetSSP().GetData());
-	case DATASOURCE_REGISTER_USP:
+	case IM68000DataSource::RegisterUSP:
 		return dataValue.SetValue(GetUSP().GetData());
-	case DATASOURCE_REGISTER_A:{
+	case IM68000DataSource::RegisterA:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		return dataValue.SetValue(GetA(registerDataContext.registerNo).GetData());}
-	case DATASOURCE_REGISTER_D:{
+	case IM68000DataSource::RegisterD:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		return dataValue.SetValue(GetD(registerDataContext.registerNo).GetData());}
-	case DATASOURCE_REGISTER_ORIGINALVALUE_CHANGECOUNTER:
+	case IM68000DataSource::RegisterOriginalValueChangeCounter:
 		return dataValue.SetValue(systemPausedToggleCounter);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SRX:
+	case IM68000DataSource::RegisterOriginalValueSRX:
 		return dataValue.SetValue(regChangedX);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SRN:
+	case IM68000DataSource::RegisterOriginalValueSRN:
 		return dataValue.SetValue(regChangedN);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SRZ:
+	case IM68000DataSource::RegisterOriginalValueSRZ:
 		return dataValue.SetValue(regChangedZ);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SRV:
+	case IM68000DataSource::RegisterOriginalValueSRV:
 		return dataValue.SetValue(regChangedV);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SRC:
+	case IM68000DataSource::RegisterOriginalValueSRC:
 		return dataValue.SetValue(regChangedC);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SRT:
+	case IM68000DataSource::RegisterOriginalValueSRT:
 		return dataValue.SetValue(regChangedT);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SRS:
+	case IM68000DataSource::RegisterOriginalValueSRS:
 		return dataValue.SetValue(regChangedS);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SRIPM:
+	case IM68000DataSource::RegisterOriginalValueSRIPM:
 		return dataValue.SetValue(regChangedIPM);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_PC:
+	case IM68000DataSource::RegisterOriginalValuePC:
 		return dataValue.SetValue(regChangedPC);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SR:
+	case IM68000DataSource::RegisterOriginalValueSR:
 		return dataValue.SetValue(regChangedSR);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_CCR:
+	case IM68000DataSource::RegisterOriginalValueCCR:
 		return dataValue.SetValue(regChangedCCR);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SP:
+	case IM68000DataSource::RegisterOriginalValueSP:
 		return dataValue.SetValue(regChangedSP);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SSP:
+	case IM68000DataSource::RegisterOriginalValueSSP:
 		return dataValue.SetValue(regChangedSSP);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_USP:
+	case IM68000DataSource::RegisterOriginalValueUSP:
 		return dataValue.SetValue(regChangedUSP);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_A:{
+	case IM68000DataSource::RegisterOriginalValueA:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		return dataValue.SetValue(regChangedA[registerDataContext.registerNo]);}
-	case DATASOURCE_REGISTER_ORIGINALVALUE_D:{
+	case IM68000DataSource::RegisterOriginalValueD:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		return dataValue.SetValue(regChangedD[registerDataContext.registerNo]);}
 	}
@@ -3184,80 +3187,80 @@ bool M68000::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 {
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
-	switch(dataID)
+	switch((IM68000DataSource)dataID)
 	{
-	case DATASOURCE_REGISTER_SRX:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IM68000DataSource::RegisterSRX:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetX(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_SRN:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IM68000DataSource::RegisterSRN:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetN(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_SRZ:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IM68000DataSource::RegisterSRZ:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetZ(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_SRV:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IM68000DataSource::RegisterSRV:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetV(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_SRC:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IM68000DataSource::RegisterSRC:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetC(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_SRT:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IM68000DataSource::RegisterSRT:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetSR_T(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_SRS:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IM68000DataSource::RegisterSRS:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetSR_S(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_SRIPM:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IM68000DataSource::RegisterSRIPM:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetSR_IPM(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_PC:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IM68000DataSource::RegisterPC:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		pc = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_REGISTER_SR:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IM68000DataSource::RegisterSR:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		sr = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_REGISTER_CCR:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IM68000DataSource::RegisterCCR:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		sr.SetLowerBits(5, dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_SP:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IM68000DataSource::RegisterSP:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetSP(M68000Long(dataValueAsUInt.GetValue()));
 		return true;}
-	case DATASOURCE_REGISTER_SSP:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IM68000DataSource::RegisterSSP:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		ssp = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_REGISTER_USP:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IM68000DataSource::RegisterUSP:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		usp = dataValueAsUInt.GetValue();
 		return true;}
-	case DATASOURCE_REGISTER_A:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IM68000DataSource::RegisterA:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		if(registerDataContext.registerNo == SP)
@@ -3269,8 +3272,8 @@ bool M68000::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 			a[registerDataContext.registerNo] = dataValueAsUInt.GetValue();
 		}
 		return true;}
-	case DATASOURCE_REGISTER_D:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IM68000DataSource::RegisterD:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		d[registerDataContext.registerNo] = dataValueAsUInt.GetValue();

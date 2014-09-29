@@ -131,7 +131,7 @@ void S315_5313::GetImageBufferActiveScanPosY(unsigned int planeNo, unsigned int&
 //----------------------------------------------------------------------------------------
 void S315_5313::RenderThread()
 {
-	boost::mutex::scoped_lock lock(renderThreadMutex);
+	std::unique_lock<std::mutex> lock(renderThreadMutex);
 
 	//Start the render loop
 	bool done = false;
@@ -141,7 +141,7 @@ void S315_5313::RenderThread()
 		bool renderTimesliceObtained = false;
 		TimesliceRenderInfo timesliceRenderInfo;
 		{
-			boost::mutex::scoped_lock timesliceLock(timesliceMutex);
+			std::unique_lock<std::mutex> timesliceLock(timesliceMutex);
 
 			//If there is at least one render timeslice pending, grab it from the queue.
 			//##FIX## Our pendingRenderOperationCount doesn't really work the way we want.
@@ -232,7 +232,7 @@ void S315_5313::RenderThread()
 		{
 			//##TODO## I don't think we need this lock here anymore. Confirm that we can
 			//remove it.
-			boost::mutex::scoped_lock timesliceLock(timesliceMutex);
+			std::unique_lock<std::mutex> timesliceLock(timesliceMutex);
 			reg.AdvancePastTimeslice(regTimesliceCopy);
 			vram->AdvancePastTimeslice(vramTimesliceCopy);
 			cram->AdvancePastTimeslice(cramTimesliceCopy);
@@ -1088,7 +1088,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		imageBufferActiveScanPosYEnd[drawingImageBufferPlane] = vscanSettings.topBorderLineCount + vscanSettings.activeDisplayLineCount;
 
 		//Clear the cache of sprite boundary lines in this frame
-		boost::mutex::scoped_lock spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
+		std::unique_lock<std::mutex> spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
 		imageBufferSpriteBoundaryLines[drawingImageBufferPlane].clear();
 
 		//Release the write lock on the image buffer plane
@@ -1153,15 +1153,15 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		bool layerPriority[4];
 
 		//Decode the sprite mapping and pattern data
-		layerPriority[LAYER_SPRITE] = false;
-		paletteLineData[LAYER_SPRITE] = 0;
-		paletteIndexData[LAYER_SPRITE] = 0;
+		layerPriority[LAYERINDEX_SPRITE] = false;
+		paletteLineData[LAYERINDEX_SPRITE] = 0;
+		paletteIndexData[LAYERINDEX_SPRITE] = 0;
 		if(spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex].entryWritten)
 		{
 			const SpritePixelBufferEntry& spritePixelBufferEntry = spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex];
-			layerPriority[LAYER_SPRITE] = spritePixelBufferEntry.layerPriority;
-			paletteLineData[LAYER_SPRITE] = spritePixelBufferEntry.paletteLine;
-			paletteIndexData[LAYER_SPRITE] = spritePixelBufferEntry.paletteIndex;
+			layerPriority[LAYERINDEX_SPRITE] = spritePixelBufferEntry.layerPriority;
+			paletteLineData[LAYERINDEX_SPRITE] = spritePixelBufferEntry.paletteLine;
+			paletteIndexData[LAYERINDEX_SPRITE] = spritePixelBufferEntry.paletteIndex;
 		}
 
 		//Decode the layer A mapping and pattern data
@@ -1174,9 +1174,9 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 			unsigned int mappingNumberWindow = ((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) / cellBlockSizeH;
 			unsigned int pixelNumberWindow = ((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) % cellBlockSizeH;
 			const Data& windowMappingData = renderMappingDataCacheLayerA[mappingNumberWindow];
-			layerPriority[LAYER_LAYERA] = windowMappingData.GetBit(15);
-			paletteLineData[LAYER_LAYERA] = windowMappingData.GetDataSegment(13, 2);
-			paletteIndexData[LAYER_LAYERA] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerA[mappingNumberWindow], windowMappingData.GetBit(11), pixelNumberWindow);
+			layerPriority[LAYERINDEX_LAYERA] = windowMappingData.GetBit(15);
+			paletteLineData[LAYERINDEX_LAYERA] = windowMappingData.GetDataSegment(13, 2);
+			paletteIndexData[LAYERINDEX_LAYERA] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerA[mappingNumberWindow], windowMappingData.GetBit(11), pixelNumberWindow);
 		}
 		else
 		{
@@ -1209,23 +1209,23 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 
 			//Read the pixel data from the layer A plane
 			const Data& layerAMappingData = renderMappingDataCacheLayerA[scrolledMappingNumberLayerA];
-			layerPriority[LAYER_LAYERA] = layerAMappingData.GetBit(15);
-			paletteLineData[LAYER_LAYERA] = layerAMappingData.GetDataSegment(13, 2);
-			paletteIndexData[LAYER_LAYERA] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerA[scrolledMappingNumberLayerA], layerAMappingData.GetBit(11), scrolledPixelNumberLayerA);
+			layerPriority[LAYERINDEX_LAYERA] = layerAMappingData.GetBit(15);
+			paletteLineData[LAYERINDEX_LAYERA] = layerAMappingData.GetDataSegment(13, 2);
+			paletteIndexData[LAYERINDEX_LAYERA] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerA[scrolledMappingNumberLayerA], layerAMappingData.GetBit(11), scrolledPixelNumberLayerA);
 		}
 
 		//Decode the layer B mapping and pattern data
 		unsigned int scrolledMappingNumberLayerB = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerBHscrollPatternDisplacement) / cellBlockSizeH;
 		unsigned int scrolledPixelNumberLayerB = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerBHscrollPatternDisplacement) % cellBlockSizeH;
 		const Data& layerBMappingData = renderMappingDataCacheLayerB[scrolledMappingNumberLayerB];
-		layerPriority[LAYER_LAYERB] = layerBMappingData.GetBit(15);
-		paletteLineData[LAYER_LAYERB] = layerBMappingData.GetDataSegment(13, 2);
-		paletteIndexData[LAYER_LAYERB] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerB[scrolledMappingNumberLayerB], layerBMappingData.GetBit(11), scrolledPixelNumberLayerB);
+		layerPriority[LAYERINDEX_LAYERB] = layerBMappingData.GetBit(15);
+		paletteLineData[LAYERINDEX_LAYERB] = layerBMappingData.GetDataSegment(13, 2);
+		paletteIndexData[LAYERINDEX_LAYERB] = DigitalRenderReadPixelIndex(renderPatternDataCacheLayerB[scrolledMappingNumberLayerB], layerBMappingData.GetBit(11), scrolledPixelNumberLayerB);
 
 		//Read the background palette settings
-		layerPriority[LAYER_BACKGROUND] = false;
-		paletteLineData[LAYER_BACKGROUND] = RegGetBackgroundPaletteRow(accessTarget);
-		paletteIndexData[LAYER_BACKGROUND] = RegGetBackgroundPaletteColumn(accessTarget);
+		layerPriority[LAYERINDEX_BACKGROUND] = false;
+		paletteLineData[LAYERINDEX_BACKGROUND] = RegGetBackgroundPaletteRow(accessTarget);
+		paletteIndexData[LAYERINDEX_BACKGROUND] = RegGetBackgroundPaletteColumn(accessTarget);
 
 		//Determine if any of the palette index values for any of the layers indicate a
 		//transparent pixel.
@@ -1234,22 +1234,22 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		//of the sprite layer "isPixelOpaque" could be misleading when the sprite pixel is
 		//being used as an operator in shadow/highlight mode. A flag with a name like
 		//isPixelTransparent would be much more descriptive.
-		bool foundSpritePixel = (paletteIndexData[LAYER_SPRITE] != 0);
-		bool foundLayerAPixel = (paletteIndexData[LAYER_LAYERA] != 0);
-		bool foundLayerBPixel = (paletteIndexData[LAYER_LAYERB] != 0);
+		bool foundSpritePixel = (paletteIndexData[LAYERINDEX_SPRITE] != 0);
+		bool foundLayerAPixel = (paletteIndexData[LAYERINDEX_LAYERA] != 0);
+		bool foundLayerBPixel = (paletteIndexData[LAYERINDEX_LAYERB] != 0);
 
 		//Read the shadow/highlight mode settings. Note that hardware tests have confirmed
 		//that changes to this register take effect immediately, at any point in a line.
 		//##TODO## Confirm whether shadow highlight is active in border areas
 		//##TODO## Confirm whether shadow highlight is active when the display is disabled
 		bool shadowHighlightEnabled = RegGetSTE(accessTarget);
-		bool spriteIsShadowOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 15);
-		bool spriteIsHighlightOperator = (paletteLineData[LAYER_SPRITE] == 3) && (paletteIndexData[LAYER_SPRITE] == 14);
+		bool spriteIsShadowOperator = (paletteLineData[LAYERINDEX_SPRITE] == 3) && (paletteIndexData[LAYERINDEX_SPRITE] == 15);
+		bool spriteIsHighlightOperator = (paletteLineData[LAYERINDEX_SPRITE] == 3) && (paletteIndexData[LAYERINDEX_SPRITE] == 14);
 
 		//Implement the layer removal debugging feature
-		foundSpritePixel &= ((enableSpriteHigh && enableSpriteLow) || (enableSpriteHigh && layerPriority[LAYER_SPRITE]) || (enableSpriteLow && !layerPriority[LAYER_SPRITE]));
-		foundLayerAPixel &= ((enableLayerAHigh && enableLayerALow) || (enableLayerAHigh && layerPriority[LAYER_LAYERA]) || (enableLayerALow && !layerPriority[LAYER_LAYERA]));
-		foundLayerBPixel &= ((enableLayerBHigh && enableLayerBLow) || (enableLayerBHigh && layerPriority[LAYER_LAYERB]) || (enableLayerBLow && !layerPriority[LAYER_LAYERB]));
+		foundSpritePixel &= ((enableSpriteHigh && enableSpriteLow) || (enableSpriteHigh && layerPriority[LAYERINDEX_SPRITE]) || (enableSpriteLow && !layerPriority[LAYERINDEX_SPRITE]));
+		foundLayerAPixel &= ((enableLayerAHigh && enableLayerALow) || (enableLayerAHigh && layerPriority[LAYERINDEX_LAYERA]) || (enableLayerALow && !layerPriority[LAYERINDEX_LAYERA]));
+		foundLayerBPixel &= ((enableLayerBHigh && enableLayerBLow) || (enableLayerBHigh && layerPriority[LAYERINDEX_LAYERB]) || (enableLayerBLow && !layerPriority[LAYERINDEX_LAYERB]));
 
 		//##NOTE## The following code is disabled, because we use a lookup table to cache
 		//the result of layer priority calculations. This gives us a significant
@@ -1272,9 +1272,9 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		priorityIndex |= (unsigned int)foundSpritePixel << 5;
 		priorityIndex |= (unsigned int)foundLayerAPixel << 4;
 		priorityIndex |= (unsigned int)foundLayerBPixel << 3;
-		priorityIndex |= (unsigned int)layerPriority[LAYER_SPRITE] << 2;
-		priorityIndex |= (unsigned int)layerPriority[LAYER_LAYERA] << 1;
-		priorityIndex |= (unsigned int)layerPriority[LAYER_LAYERB];
+		priorityIndex |= (unsigned int)layerPriority[LAYERINDEX_SPRITE] << 2;
+		priorityIndex |= (unsigned int)layerPriority[LAYERINDEX_LAYERA] << 1;
+		priorityIndex |= (unsigned int)layerPriority[LAYERINDEX_LAYERB];
 
 		//Lookup the pre-calculated layer priority from the lookup table. We use a lookup
 		//table to eliminate branching, which should yield a significant performance
@@ -1860,7 +1860,7 @@ void S315_5313::DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSetti
 			//Record sprite boundary information for sprite boxing support if requested
 			if(videoEnableSpriteBoxing && (spriteCellDisplayCacheEntryCount < renderSpriteCellDisplayCacheSize))
 			{
-				boost::mutex::scoped_lock spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
+				std::unique_lock<std::mutex> spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
 
 				//Calculate the position of this sprite relative to the screen
 				static const unsigned int cellWidthInPixels = 8;
@@ -1991,31 +1991,31 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 		//Perform standard layer priority calculations
 		if(foundSpritePixel && prioritySprite)
 		{
-			layerIndex = LAYER_SPRITE;
+			layerIndex = LAYERINDEX_SPRITE;
 		}
 		else if(foundLayerAPixel && priorityLayerA)
 		{
-			layerIndex = LAYER_LAYERA;
+			layerIndex = LAYERINDEX_LAYERA;
 		}
 		else if(foundLayerBPixel && priorityLayerB)
 		{
-			layerIndex = LAYER_LAYERB;
+			layerIndex = LAYERINDEX_LAYERB;
 		}
 		else if(foundSpritePixel)
 		{
-			layerIndex = LAYER_SPRITE;
+			layerIndex = LAYERINDEX_SPRITE;
 		}
 		else if(foundLayerAPixel)
 		{
-			layerIndex = LAYER_LAYERA;
+			layerIndex = LAYERINDEX_LAYERA;
 		}
 		else if(foundLayerBPixel)
 		{
-			layerIndex = LAYER_LAYERB;
+			layerIndex = LAYERINDEX_LAYERB;
 		}
 		else
 		{
-			layerIndex = LAYER_BACKGROUND;
+			layerIndex = LAYERINDEX_BACKGROUND;
 		}
 	}
 	else
@@ -2032,11 +2032,11 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 		//layer priority settings appear to be correct.
 		if(foundSpritePixel && prioritySprite && !spriteIsShadowOperator && !spriteIsHighlightOperator)
 		{
-			layerIndex = LAYER_SPRITE;
+			layerIndex = LAYERINDEX_SPRITE;
 		}
 		else if(foundLayerAPixel && priorityLayerA)
 		{
-			layerIndex = LAYER_LAYERA;
+			layerIndex = LAYERINDEX_LAYERA;
 			if(prioritySprite && spriteIsShadowOperator)
 			{
 				shadow = true;
@@ -2048,7 +2048,7 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 		}
 		else if(foundLayerBPixel && priorityLayerB)
 		{
-			layerIndex = LAYER_LAYERB;
+			layerIndex = LAYERINDEX_LAYERB;
 			if(prioritySprite && spriteIsShadowOperator)
 			{
 				shadow = true;
@@ -2060,7 +2060,7 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 		}
 		else if(foundSpritePixel && !spriteIsShadowOperator && !spriteIsHighlightOperator)
 		{
-			layerIndex = LAYER_SPRITE;
+			layerIndex = LAYERINDEX_SPRITE;
 			if(!priorityLayerA && !priorityLayerB)
 			{
 				shadow = true;
@@ -2068,7 +2068,7 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 		}
 		else if(foundLayerAPixel)
 		{
-			layerIndex = LAYER_LAYERA;
+			layerIndex = LAYERINDEX_LAYERA;
 			if(!priorityLayerA && !priorityLayerB)
 			{
 				shadow = true;
@@ -2084,7 +2084,7 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 		}
 		else if(foundLayerBPixel)
 		{
-			layerIndex = LAYER_LAYERB;
+			layerIndex = LAYERINDEX_LAYERB;
 			if(!priorityLayerA && !priorityLayerB)
 			{
 				shadow = true;
@@ -2100,7 +2100,7 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 		}
 		else
 		{
-			layerIndex = LAYER_BACKGROUND;
+			layerIndex = LAYERINDEX_BACKGROUND;
 			if(!priorityLayerA && !priorityLayerB)
 			{
 				shadow = true;
@@ -2236,7 +2236,7 @@ unsigned char S315_5313::ColorValueTo8BitValue(unsigned int colorValue, bool sha
 //----------------------------------------------------------------------------------------
 std::list<S315_5313::SpriteBoundaryLineEntry> S315_5313::GetSpriteBoundaryLines(unsigned int planeNo) const
 {
-	boost::mutex::scoped_lock spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
+	std::unique_lock<std::mutex> spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
 	return imageBufferSpriteBoundaryLines[drawingImageBufferPlane];
 }
 

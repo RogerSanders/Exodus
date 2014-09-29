@@ -60,7 +60,7 @@ public:
 	//Parent docking window methods
 	virtual IDockingWindow* GetParentDockingWindow() const = 0;
 	//##FIX## Remove this method. This will only require changes to the
-	//DOCKWIN_ADDDOCKEDWINDOW message as above.
+	//WindowMessages::DOCKWIN_ADDDOCKEDWINDOW message as above.
 	virtual void DockToNewParent(IDockingWindow* parentContainer, WC_DockPanel::DockLocation dockLocation, bool autoHide, bool forceTop) = 0;
 	//##FIX## Remove this method. Won't require any additional work.
 	virtual void UndockFromParent() = 0;

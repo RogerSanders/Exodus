@@ -15,7 +15,7 @@ ObserverCollection::~ObserverCollection()
 //----------------------------------------------------------------------------------------
 void ObserverCollection::AddObserver(IObserverSubscription& observer)
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	if(observers.find(&observer) == observers.end())
 	{
 		observer.NotifyLinkedToCollection(*this);
@@ -26,7 +26,7 @@ void ObserverCollection::AddObserver(IObserverSubscription& observer)
 //----------------------------------------------------------------------------------------
 void ObserverCollection::RemoveObserver(IObserverSubscription& observer)
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	std::set<IObserverSubscription*>::iterator observerIterator = observers.find(&observer);
 	if(observerIterator != observers.end())
 	{
@@ -38,7 +38,7 @@ void ObserverCollection::RemoveObserver(IObserverSubscription& observer)
 //----------------------------------------------------------------------------------------
 void ObserverCollection::RemoveAllObservers()
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	while(!observers.empty())
 	{
 		std::set<IObserverSubscription*>::iterator observerIterator = observers.begin();
@@ -53,7 +53,7 @@ void ObserverCollection::RemoveAllObservers()
 //----------------------------------------------------------------------------------------
 void ObserverCollection::NotifyObservers() const
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	for(std::set<IObserverSubscription*>::const_iterator i = observers.begin(); i != observers.end(); ++i)
 	{
 		const IObserverSubscription& observer = *(*i);

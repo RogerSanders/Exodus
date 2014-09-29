@@ -1,5 +1,6 @@
 #include "SN76489.h"
 #include <sstream>
+#include <thread>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -62,35 +63,35 @@ bool SN76489::BuildDevice()
 	GenericAccessDataInfo* dataInfoShiftRegisterWhiteNoiseBits;
 	GenericAccessDataInfo* dataInfoShiftRegisterPeriodicNoiseBits;
 	bool result = true;
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL1_VOLUMEREGISTER, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL2_VOLUMEREGISTER, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL3_VOLUMEREGISTER, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL4_VOLUMEREGISTER, IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL1_TONEREGISTER,   IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL2_TONEREGISTER,   IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL3_TONEREGISTER,   IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL4_TONEREGISTER,   IGenericAccessDataValue::DATATYPE_UINT))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL4_NOISETYPE, IGenericAccessDataValue::DATATYPE_BOOL))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL4_NOISEPERIOD, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(3));
-	result &= AddGenericDataInfo(dataInfoShiftRegister = (new GenericAccessDataInfo(DATASOURCE_NOISESHIFTREGISTER, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_LATCHEDCHANNELNO, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(channelCount-1));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_VOLUMEREGISTERLATCHED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_EXTERNALCLOCKRATE, IGenericAccessDataValue::DATATYPE_DOUBLE))->SetDoubleMinValue(0.0));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_EXTERNALCLOCKDIVIDER, IGenericAccessDataValue::DATATYPE_DOUBLE))->SetDoubleMinValue(1.0));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_SHIFTREGISTERBITCOUNT, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMinValue(1)->SetUIntMaxValue(32)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_DECIMAL));
-	result &= AddGenericDataInfo(dataInfoShiftRegisterDefaultValue = (new GenericAccessDataInfo(DATASOURCE_SHIFTREGISTERDEFAULTVALUE, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo(dataInfoShiftRegisterWhiteNoiseBits = (new GenericAccessDataInfo(DATASOURCE_WHITENOISETAPPEDBITMASK, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo(dataInfoShiftRegisterPeriodicNoiseBits = (new GenericAccessDataInfo(DATASOURCE_PERIODICNOISETAPPEDBITMASK, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_AUDIOLOGGINGENABLED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_AUDIOLOGGINGPATH, IGenericAccessDataValue::DATATYPE_FILEPATH))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL1_AUDIOLOGGINGENABLED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL2_AUDIOLOGGINGENABLED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL3_AUDIOLOGGINGENABLED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL4_AUDIOLOGGINGENABLED, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL1_AUDIOLOGGINGPATH, IGenericAccessDataValue::DATATYPE_FILEPATH))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL2_AUDIOLOGGINGPATH, IGenericAccessDataValue::DATATYPE_FILEPATH))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL3_AUDIOLOGGINGPATH, IGenericAccessDataValue::DATATYPE_FILEPATH))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_CHANNEL4_AUDIOLOGGINGPATH, IGenericAccessDataValue::DATATYPE_FILEPATH))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel1VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel2VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel3VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel1ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel2ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel3ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4NoiseType, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4NoisePeriod, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(3));
+	result &= AddGenericDataInfo(dataInfoShiftRegister = (new GenericAccessDataInfo(ISN76489DataSource::NoiseShiftRegister, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::LatchedChannelNo, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(channelCount-1));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::VolumeRegisterLatched, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::ExternalClockRate, IGenericAccessDataValue::DataType::Double))->SetDoubleMinValue(0.0));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::ExternalClockDivider, IGenericAccessDataValue::DataType::Double))->SetDoubleMinValue(1.0));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::ShiftRegisterBitCount, IGenericAccessDataValue::DataType::UInt))->SetUIntMinValue(1)->SetUIntMaxValue(32)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Decimal));
+	result &= AddGenericDataInfo(dataInfoShiftRegisterDefaultValue = (new GenericAccessDataInfo(ISN76489DataSource::ShiftRegisterDefaultValue, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo(dataInfoShiftRegisterWhiteNoiseBits = (new GenericAccessDataInfo(ISN76489DataSource::WhiteNoiseTappedBitMask, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo(dataInfoShiftRegisterPeriodicNoiseBits = (new GenericAccessDataInfo(ISN76489DataSource::PeriodicNoiseTappedBitMask, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::AudioLoggingEnabled, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::AudioLoggingPath, IGenericAccessDataValue::DataType::FilePath))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel1AudioLoggingEnabled, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel2AudioLoggingEnabled, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel3AudioLoggingEnabled, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4AudioLoggingEnabled, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel1AudioLoggingPath, IGenericAccessDataValue::DataType::FilePath))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel2AudioLoggingPath, IGenericAccessDataValue::DataType::FilePath))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel3AudioLoggingPath, IGenericAccessDataValue::DataType::FilePath))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4AudioLoggingPath, IGenericAccessDataValue::DataType::FilePath))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
 
 	//Save references to the data info structures which contain values that need to have
 	//their limits changed when the bitcount for the shift register is changed.
@@ -116,46 +117,46 @@ bool SN76489::BuildDevice()
 	//localization isn't yet.
 	GenericAccessPage* registersPage = new GenericAccessPage(L"Generic - Registers");
 	registersPage->AddEntry((new GenericAccessGroup(L"Channel 1"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL1_VOLUMEREGISTER, L"Volume"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL1_TONEREGISTER, L"Tone")))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel1VolumeRegister, L"Volume"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel1ToneRegister, L"Tone")))
 	             ->AddEntry((new GenericAccessGroup(L"Channel 2"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL2_VOLUMEREGISTER, L"Volume"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL2_TONEREGISTER, L"Tone")))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel2VolumeRegister, L"Volume"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel2ToneRegister, L"Tone")))
 	             ->AddEntry((new GenericAccessGroup(L"Channel 3"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL3_VOLUMEREGISTER, L"Volume"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL3_TONEREGISTER, L"Tone")))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel3VolumeRegister, L"Volume"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel3ToneRegister, L"Tone")))
 	             ->AddEntry((new GenericAccessGroup(L"Channel 4"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL4_VOLUMEREGISTER, L"Volume"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL4_TONEREGISTER, L"Tone"))
-	                 ->AddEntry((new GenericAccessGroupSingleSelectionList(DATASOURCE_CHANNEL4_NOISETYPE, L"Noise Type"))->SetAllowNewItemEntry(true)
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel4VolumeRegister, L"Volume"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel4ToneRegister, L"Tone"))
+	                 ->AddEntry((new GenericAccessGroupSingleSelectionList(ISN76489DataSource::Channel4NoiseType, L"Noise Type"))->SetAllowNewItemEntry(true)
 	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"Periodic [0]"), new GenericAccessDataValueBool(false))
 	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"White [1]"), new GenericAccessDataValueBool(true)))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL4_NOISEPERIOD, L"Noise Period"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_NOISESHIFTREGISTER, L"Noise Shift Register")))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel4NoisePeriod, L"Noise Period"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::NoiseShiftRegister, L"Noise Shift Register")))
 	             ->AddEntry((new GenericAccessGroup(L"Control"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_LATCHEDCHANNELNO, L"Latched Channel No"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_VOLUMEREGISTERLATCHED, L"Volume Register Latched")));
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::LatchedChannelNo, L"Latched Channel No"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::VolumeRegisterLatched, L"Volume Register Latched")));
 	result &= AddGenericAccessPage(registersPage);
 	GenericAccessPage* parametersPage = new GenericAccessPage(L"Generic - Parameters");
-	parametersPage->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_EXTERNALCLOCKRATE, L"External Clock Rate"))
-	              ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_EXTERNALCLOCKDIVIDER, L"External Clock Divider"))
+	parametersPage->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::ExternalClockRate, L"External Clock Rate"))
+	              ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::ExternalClockDivider, L"External Clock Divider"))
 	              ->AddEntry((new GenericAccessGroup(L"Noise Channel"))
-	                  ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_SHIFTREGISTERBITCOUNT, L"Shift Register Bit Count"))
-	                  ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_SHIFTREGISTERDEFAULTVALUE, L"Shift Register Default Value"))
-	                  ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_WHITENOISETAPPEDBITMASK, L"White Noise Tapped Bit Mask"))
-	                  ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_PERIODICNOISETAPPEDBITMASK, L"Periodic Noise Tapped Bit Mask")));
+	                  ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::ShiftRegisterBitCount, L"Shift Register Bit Count"))
+	                  ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::ShiftRegisterDefaultValue, L"Shift Register Default Value"))
+	                  ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::WhiteNoiseTappedBitMask, L"White Noise Tapped Bit Mask"))
+	                  ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::PeriodicNoiseTappedBitMask, L"Periodic Noise Tapped Bit Mask")));
 	result &= AddGenericAccessPage(parametersPage);
 	GenericAccessPage* audioLoggingPage = new GenericAccessPage(L"Generic - Audio Logging");
-	audioLoggingPage->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_AUDIOLOGGINGENABLED, L"Log Enabled"))
-	                ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_AUDIOLOGGINGPATH, L"Log Path"))
-	                ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL1_AUDIOLOGGINGENABLED, L"Channel 1 Log Enabled"))
-	                ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL2_AUDIOLOGGINGENABLED, L"Channel 2 Log Enabled"))
-	                ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL3_AUDIOLOGGINGENABLED, L"Channel 3 Log Enabled"))
-	                ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL4_AUDIOLOGGINGENABLED, L"Channel 4 Log Enabled"))
-	                ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL1_AUDIOLOGGINGPATH, L"Channel 1 Log Path"))
-	                ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL2_AUDIOLOGGINGPATH, L"Channel 2 Log Path"))
-	                ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL3_AUDIOLOGGINGPATH, L"Channel 3 Log Path"))
-	                ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_CHANNEL4_AUDIOLOGGINGPATH, L"Channel 4 Log Path"));
+	audioLoggingPage->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::AudioLoggingEnabled, L"Log Enabled"))
+	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::AudioLoggingPath, L"Log Path"))
+	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel1AudioLoggingEnabled, L"Channel 1 Log Enabled"))
+	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel2AudioLoggingEnabled, L"Channel 2 Log Enabled"))
+	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel3AudioLoggingEnabled, L"Channel 3 Log Enabled"))
+	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel4AudioLoggingEnabled, L"Channel 4 Log Enabled"))
+	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel1AudioLoggingPath, L"Channel 1 Log Path"))
+	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel2AudioLoggingPath, L"Channel 2 Log Path"))
+	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel3AudioLoggingPath, L"Channel 3 Log Path"))
+	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel4AudioLoggingPath, L"Channel 4 Log Path"));
 	result &= AddGenericAccessPage(audioLoggingPage);
 
 	return result;
@@ -228,7 +229,7 @@ unsigned int SN76489::GetClockSourceID(const std::wstring& clockSourceName) cons
 {
 	if(clockSourceName == L"CLOCK")
 	{
-		return CLOCK_CLOCK;
+		return (unsigned int)ClockID::Clock;
 	}
 	return 0;
 }
@@ -236,9 +237,9 @@ unsigned int SN76489::GetClockSourceID(const std::wstring& clockSourceName) cons
 //----------------------------------------------------------------------------------------
 std::wstring SN76489::GetClockSourceName(unsigned int clockSourceID) const
 {
-	switch(clockSourceID)
+	switch((ClockID)clockSourceID)
 	{
-	case CLOCK_CLOCK:
+	case ClockID::Clock:
 		return L"CLOCK";
 	}
 	return L"";
@@ -248,7 +249,7 @@ std::wstring SN76489::GetClockSourceName(unsigned int clockSourceID) const
 void SN76489::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Apply the input clock rate change
-	if(clockInput == CLOCK_CLOCK)
+	if((ClockID)clockInput == ClockID::Clock)
 	{
 		externalClockRate = clockRate;
 	}
@@ -262,7 +263,7 @@ void SN76489::SetClockSourceRate(unsigned int clockInput, double clockRate, IDev
 void SN76489::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
 {
 	//Apply the input clock rate change
-	if(clockInput == CLOCK_CLOCK)
+	if((ClockID)clockInput == ClockID::Clock)
 	{
 		externalClockRate = clockRate;
 	}
@@ -280,13 +281,14 @@ void SN76489::BeginExecution()
 
 	//Start the render worker thread
 	renderThreadActive = true;
-	boost::thread workerThread(boost::bind(boost::mem_fn(&SN76489::RenderThread), this));
+	std::thread workerThread(std::bind(std::mem_fn(&SN76489::RenderThread), this));
+	workerThread.detach();
 }
 
 //----------------------------------------------------------------------------------------
 void SN76489::SuspendExecution()
 {
-	boost::mutex::scoped_lock lock(renderThreadMutex);
+	std::unique_lock<std::mutex> lock(renderThreadMutex);
 
 	//Suspend the render worker thread
 	if(renderThreadActive)
@@ -319,7 +321,7 @@ void SN76489::NotifyUpcomingTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 Device::UpdateMethod SN76489::GetUpdateMethod() const
 {
-	return UPDATEMETHOD_TIMESLICE;
+	return UpdateMethod::Timeslice;
 }
 
 //----------------------------------------------------------------------------------------
@@ -330,7 +332,7 @@ void SN76489::ExecuteTimeslice(double nanoseconds)
 	//able to complete.
 	if(renderThreadLagging)
 	{
-		boost::mutex::scoped_lock lock(timesliceMutex);
+		std::unique_lock<std::mutex> lock(timesliceMutex);
 		while(renderThreadLagging)
 		{
 			renderThreadLaggingStateChange.wait(lock);
@@ -367,7 +369,7 @@ void SN76489::ExecuteCommit()
 	{
 		//Obtain a timeslice lock so we can update the data we feed to the render
 		//thread
-		boost::mutex::scoped_lock lock(timesliceMutex);
+		std::unique_lock<std::mutex> lock(timesliceMutex);
 
 		//Add the number of timeslices we are about to commit to the count of pending
 		//render operations. This is used to track if the render thread is lagging.
@@ -387,7 +389,7 @@ void SN76489::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 void SN76489::RenderThread()
 {
-	boost::mutex::scoped_lock lock(renderThreadMutex);
+	std::unique_lock<std::mutex> lock(renderThreadMutex);
 
 	//Start the render loop
 	bool done = false;
@@ -397,7 +399,7 @@ void SN76489::RenderThread()
 		RandomTimeAccessBuffer<Data, double>::Timeslice regTimesliceCopy;
 		bool renderTimesliceObtained = false;
 		{
-			boost::mutex::scoped_lock timesliceLock(timesliceMutex);
+			std::unique_lock<std::mutex> timesliceLock(timesliceMutex);
 
 			//If there is at least one render timeslice pending, grab it from the queue.
 			if(!regTimesliceList.empty())
@@ -470,7 +472,7 @@ void SN76489::RenderThread()
 					//Output the channel wave log
 					if(wavLoggingChannelEnabled[channelNo])
 					{
-						boost::mutex::scoped_lock lock(waveLoggingMutex);
+						std::unique_lock<std::mutex> lock(waveLoggingMutex);
 						for(unsigned int i = 0; i < channelBuffer[channelNo].size(); ++i)
 						{
 							short sample = (short)(channelBuffer[channelNo][i] * (32767.0f/channelCount));
@@ -514,7 +516,7 @@ void SN76489::RenderThread()
 		//Output the mixed channel wave log
 		if(wavLoggingEnabled)
 		{
-			boost::mutex::scoped_lock lock(waveLoggingMutex);
+			std::unique_lock<std::mutex> lock(waveLoggingMutex);
 			wavLog.WriteData(outputBuffer);
 		}
 
@@ -538,7 +540,7 @@ void SN76489::RenderThread()
 
 		//Advance past the timeslice we've just rendered from
 		{
-			boost::mutex::scoped_lock lock(timesliceMutex);
+			std::unique_lock<std::mutex> lock(timesliceMutex);
 			reg.AdvancePastTimeslice(regTimesliceCopy);
 		}
 	}
@@ -698,7 +700,7 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(accessMutex);
+	std::unique_lock<std::mutex> lock(accessMutex);
 	AccessTarget accessTarget;
 	accessTarget.AccessTime(accessTime);
 
@@ -925,63 +927,63 @@ bool SN76489::ReadGenericData(unsigned int dataID, const DataContext* dataContex
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
 	switch(dataID)
 	{
-	case DATASOURCE_CHANNEL1_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel1VolumeRegister:
 		return dataValue.SetValue(GetVolumeRegister(0, AccessTarget().AccessLatest()).GetData());
-	case DATASOURCE_CHANNEL2_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel2VolumeRegister:
 		return dataValue.SetValue(GetVolumeRegister(1, AccessTarget().AccessLatest()).GetData());
-	case DATASOURCE_CHANNEL3_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel3VolumeRegister:
 		return dataValue.SetValue(GetVolumeRegister(2, AccessTarget().AccessLatest()).GetData());
-	case DATASOURCE_CHANNEL4_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel4VolumeRegister:
 		return dataValue.SetValue(GetVolumeRegister(3, AccessTarget().AccessLatest()).GetData());
-	case DATASOURCE_CHANNEL1_TONEREGISTER:
+	case ISN76489DataSource::Channel1ToneRegister:
 		return dataValue.SetValue(GetToneRegister(0, AccessTarget().AccessLatest()).GetData());
-	case DATASOURCE_CHANNEL2_TONEREGISTER:
+	case ISN76489DataSource::Channel2ToneRegister:
 		return dataValue.SetValue(GetToneRegister(1, AccessTarget().AccessLatest()).GetData());
-	case DATASOURCE_CHANNEL3_TONEREGISTER:
+	case ISN76489DataSource::Channel3ToneRegister:
 		return dataValue.SetValue(GetToneRegister(2, AccessTarget().AccessLatest()).GetData());
-	case DATASOURCE_CHANNEL4_TONEREGISTER:
+	case ISN76489DataSource::Channel4ToneRegister:
 		return dataValue.SetValue(GetToneRegister(3, AccessTarget().AccessLatest()).GetData());
-	case DATASOURCE_CHANNEL4_NOISETYPE:
-	case DATASOURCE_CHANNEL4_NOISEPERIOD:
+	case ISN76489DataSource::Channel4NoiseType:
+	case ISN76489DataSource::Channel4NoisePeriod:
 		//##TODO##
 		return dataValue.SetValue(GetToneRegister(3, AccessTarget().AccessLatest()).GetData() != 0);
-	case DATASOURCE_NOISESHIFTREGISTER:
+	case ISN76489DataSource::NoiseShiftRegister:
 		return dataValue.SetValue(noiseShiftRegister);
-	case DATASOURCE_LATCHEDCHANNELNO:
+	case ISN76489DataSource::LatchedChannelNo:
 		return dataValue.SetValue(latchedChannel);
-	case DATASOURCE_VOLUMEREGISTERLATCHED:
+	case ISN76489DataSource::VolumeRegisterLatched:
 		return dataValue.SetValue(latchedVolume);
-	case DATASOURCE_EXTERNALCLOCKRATE:
+	case ISN76489DataSource::ExternalClockRate:
 		return dataValue.SetValue(externalClockRate);
-	case DATASOURCE_EXTERNALCLOCKDIVIDER:
+	case ISN76489DataSource::ExternalClockDivider:
 		return dataValue.SetValue(externalClockDivider);
-	case DATASOURCE_SHIFTREGISTERBITCOUNT:
+	case ISN76489DataSource::ShiftRegisterBitCount:
 		return dataValue.SetValue(shiftRegisterBitCount);
-	case DATASOURCE_SHIFTREGISTERDEFAULTVALUE:
+	case ISN76489DataSource::ShiftRegisterDefaultValue:
 		return dataValue.SetValue(shiftRegisterDefaultValue);
-	case DATASOURCE_WHITENOISETAPPEDBITMASK:
+	case ISN76489DataSource::WhiteNoiseTappedBitMask:
 		return dataValue.SetValue(noiseWhiteTappedBitMask);
-	case DATASOURCE_PERIODICNOISETAPPEDBITMASK:
+	case ISN76489DataSource::PeriodicNoiseTappedBitMask:
 		return dataValue.SetValue(noisePeriodicTappedBitMask);
-	case DATASOURCE_AUDIOLOGGINGENABLED:
+	case ISN76489DataSource::AudioLoggingEnabled:
 		return dataValue.SetValue(wavLoggingEnabled);
-	case DATASOURCE_AUDIOLOGGINGPATH:
+	case ISN76489DataSource::AudioLoggingPath:
 		return dataValue.SetValue(wavLoggingPath);
-	case DATASOURCE_CHANNEL1_AUDIOLOGGINGENABLED:
+	case ISN76489DataSource::Channel1AudioLoggingEnabled:
 		return dataValue.SetValue(wavLoggingChannelEnabled[0]);
-	case DATASOURCE_CHANNEL2_AUDIOLOGGINGENABLED:
+	case ISN76489DataSource::Channel2AudioLoggingEnabled:
 		return dataValue.SetValue(wavLoggingChannelEnabled[1]);
-	case DATASOURCE_CHANNEL3_AUDIOLOGGINGENABLED:
+	case ISN76489DataSource::Channel3AudioLoggingEnabled:
 		return dataValue.SetValue(wavLoggingChannelEnabled[2]);
-	case DATASOURCE_CHANNEL4_AUDIOLOGGINGENABLED:
+	case ISN76489DataSource::Channel4AudioLoggingEnabled:
 		return dataValue.SetValue(wavLoggingChannelEnabled[3]);
-	case DATASOURCE_CHANNEL1_AUDIOLOGGINGPATH:
+	case ISN76489DataSource::Channel1AudioLoggingPath:
 		return dataValue.SetValue(wavLoggingChannelPath[0]);
-	case DATASOURCE_CHANNEL2_AUDIOLOGGINGPATH:
+	case ISN76489DataSource::Channel2AudioLoggingPath:
 		return dataValue.SetValue(wavLoggingChannelPath[1]);
-	case DATASOURCE_CHANNEL3_AUDIOLOGGINGPATH:
+	case ISN76489DataSource::Channel3AudioLoggingPath:
 		return dataValue.SetValue(wavLoggingChannelPath[2]);
-	case DATASOURCE_CHANNEL4_AUDIOLOGGINGPATH:
+	case ISN76489DataSource::Channel4AudioLoggingPath:
 		return dataValue.SetValue(wavLoggingChannelPath[3]);
 	}
 	return false;
@@ -993,42 +995,42 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 	//##TODO## Restructure this to be a flat switch statement as per other devices
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
-	if(dataType == IGenericAccessDataValue::DATATYPE_UINT)
+	if(dataType == IGenericAccessDataValue::DataType::UInt)
 	{
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		switch(dataID)
 		{
-		case DATASOURCE_CHANNEL1_VOLUMEREGISTER:
+		case ISN76489DataSource::Channel1VolumeRegister:
 			SetVolumeRegister(0, Data(volumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
-		case DATASOURCE_CHANNEL2_VOLUMEREGISTER:
+		case ISN76489DataSource::Channel2VolumeRegister:
 			SetVolumeRegister(1, Data(volumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
-		case DATASOURCE_CHANNEL3_VOLUMEREGISTER:
+		case ISN76489DataSource::Channel3VolumeRegister:
 			SetVolumeRegister(2, Data(volumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
-		case DATASOURCE_CHANNEL4_VOLUMEREGISTER:
+		case ISN76489DataSource::Channel4VolumeRegister:
 			SetVolumeRegister(3, Data(volumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
-		case DATASOURCE_CHANNEL1_TONEREGISTER:
+		case ISN76489DataSource::Channel1ToneRegister:
 			SetToneRegister(0, Data(toneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
-		case DATASOURCE_CHANNEL2_TONEREGISTER:
+		case ISN76489DataSource::Channel2ToneRegister:
 			SetToneRegister(1, Data(toneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
-		case DATASOURCE_CHANNEL3_TONEREGISTER:
+		case ISN76489DataSource::Channel3ToneRegister:
 			SetToneRegister(2, Data(toneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
-		case DATASOURCE_CHANNEL4_TONEREGISTER:
+		case ISN76489DataSource::Channel4ToneRegister:
 			SetToneRegister(3, Data(toneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
-		case DATASOURCE_NOISESHIFTREGISTER:
+		case ISN76489DataSource::NoiseShiftRegister:
 			noiseShiftRegister = Data(GetShiftRegisterBitCount(), dataValueAsUInt.GetValue()).GetData();
 			return true;
-		case DATASOURCE_LATCHEDCHANNELNO:
+		case ISN76489DataSource::LatchedChannelNo:
 			latchedChannel = dataValueAsUInt.GetValue();
 			return true;
-		case DATASOURCE_SHIFTREGISTERBITCOUNT:{
+		case ISN76489DataSource::ShiftRegisterBitCount:{
 			shiftRegisterBitCount = dataValueAsUInt.GetValue();
 			//Update the maximum allowable values for each data value that depends on the
 			//shift register bit count
@@ -1043,78 +1045,78 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 			noiseWhiteTappedBitMask &= shiftRegisterBitCountMask;
 			noisePeriodicTappedBitMask &= shiftRegisterBitCountMask;
 			return true;}
-		case DATASOURCE_SHIFTREGISTERDEFAULTVALUE:
+		case ISN76489DataSource::ShiftRegisterDefaultValue:
 			shiftRegisterDefaultValue = dataValueAsUInt.GetValue();
 			return true;
-		case DATASOURCE_WHITENOISETAPPEDBITMASK:
+		case ISN76489DataSource::WhiteNoiseTappedBitMask:
 			noiseWhiteTappedBitMask = dataValueAsUInt.GetValue();
 			return true;
-		case DATASOURCE_PERIODICNOISETAPPEDBITMASK:
+		case ISN76489DataSource::PeriodicNoiseTappedBitMask:
 			noisePeriodicTappedBitMask = dataValueAsUInt.GetValue();
 			return true;
 		}
 	}
-	else if(dataType == IGenericAccessDataValue::DATATYPE_BOOL)
+	else if(dataType == IGenericAccessDataValue::DataType::Bool)
 	{
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		switch(dataID)
 		{
-		case DATASOURCE_CHANNEL4_NOISETYPE:
-		case DATASOURCE_CHANNEL4_NOISEPERIOD:
+		case ISN76489DataSource::Channel4NoiseType:
+		case ISN76489DataSource::Channel4NoisePeriod:
 			//##TODO##
 			SetToneRegister(3, Data(toneRegisterBitCount, (unsigned int)dataValueAsBool.GetValue()), AccessTarget().AccessLatest());
 			return true;
-		case DATASOURCE_VOLUMEREGISTERLATCHED:
+		case ISN76489DataSource::VolumeRegisterLatched:
 			latchedVolume = dataValueAsBool.GetValue();
 			return true;
-		case DATASOURCE_AUDIOLOGGINGENABLED:
+		case ISN76489DataSource::AudioLoggingEnabled:
 			SetAudioLoggingEnabled(dataValueAsBool.GetValue());
 			return true;
-		case DATASOURCE_CHANNEL1_AUDIOLOGGINGENABLED:
+		case ISN76489DataSource::Channel1AudioLoggingEnabled:
 			SetChannelAudioLoggingEnabled(0, dataValueAsBool.GetValue());
 			return true;
-		case DATASOURCE_CHANNEL2_AUDIOLOGGINGENABLED:
+		case ISN76489DataSource::Channel2AudioLoggingEnabled:
 			SetChannelAudioLoggingEnabled(1, dataValueAsBool.GetValue());
 			return true;
-		case DATASOURCE_CHANNEL3_AUDIOLOGGINGENABLED:
+		case ISN76489DataSource::Channel3AudioLoggingEnabled:
 			SetChannelAudioLoggingEnabled(2, dataValueAsBool.GetValue());
 			return true;
-		case DATASOURCE_CHANNEL4_AUDIOLOGGINGENABLED:
+		case ISN76489DataSource::Channel4AudioLoggingEnabled:
 			SetChannelAudioLoggingEnabled(3, dataValueAsBool.GetValue());
 			return true;
 		}
 	}
-	else if(dataType == IGenericAccessDataValue::DATATYPE_DOUBLE)
+	else if(dataType == IGenericAccessDataValue::DataType::Double)
 	{
 		IGenericAccessDataValueDouble& dataValueAsDouble = (IGenericAccessDataValueDouble&)dataValue;
 		switch(dataID)
 		{
-		case DATASOURCE_EXTERNALCLOCKRATE:
+		case ISN76489DataSource::ExternalClockRate:
 			externalClockRate = dataValueAsDouble.GetValue();
 			return true;
-		case DATASOURCE_EXTERNALCLOCKDIVIDER:
+		case ISN76489DataSource::ExternalClockDivider:
 			externalClockDivider = dataValueAsDouble.GetValue();
 			return true;
 		}
 	}
-	else if(dataType == IGenericAccessDataValue::DATATYPE_FILEPATH)
+	else if(dataType == IGenericAccessDataValue::DataType::FilePath)
 	{
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
 		switch(dataID)
 		{
-		case DATASOURCE_AUDIOLOGGINGPATH:
+		case ISN76489DataSource::AudioLoggingPath:
 			wavLoggingPath = dataValueAsFilePath.GetValue();
 			return true;
-		case DATASOURCE_CHANNEL1_AUDIOLOGGINGPATH:
+		case ISN76489DataSource::Channel1AudioLoggingPath:
 			wavLoggingChannelPath[0] = dataValueAsFilePath.GetValue();
 			return true;
-		case DATASOURCE_CHANNEL2_AUDIOLOGGINGPATH:
+		case ISN76489DataSource::Channel2AudioLoggingPath:
 			wavLoggingChannelPath[1] = dataValueAsFilePath.GetValue();
 			return true;
-		case DATASOURCE_CHANNEL3_AUDIOLOGGINGPATH:
+		case ISN76489DataSource::Channel3AudioLoggingPath:
 			wavLoggingChannelPath[2] = dataValueAsFilePath.GetValue();
 			return true;
-		case DATASOURCE_CHANNEL4_AUDIOLOGGINGPATH:
+		case ISN76489DataSource::Channel4AudioLoggingPath:
 			wavLoggingChannelPath[3] = dataValueAsFilePath.GetValue();
 			return true;
 		}
@@ -1129,24 +1131,24 @@ bool SN76489::GetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 {
 	switch(dataID)
 	{
-	case DATASOURCE_CHANNEL1_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel1VolumeRegister:
 		return channelVolumeRegisterLocked[0];
-	case DATASOURCE_CHANNEL2_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel2VolumeRegister:
 		return channelVolumeRegisterLocked[1];
-	case DATASOURCE_CHANNEL3_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel3VolumeRegister:
 		return channelVolumeRegisterLocked[2];
-	case DATASOURCE_CHANNEL4_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel4VolumeRegister:
 		return channelVolumeRegisterLocked[3];
-	case DATASOURCE_CHANNEL1_TONEREGISTER:
+	case ISN76489DataSource::Channel1ToneRegister:
 		return channelDataRegisterLocked[0];
-	case DATASOURCE_CHANNEL2_TONEREGISTER:
+	case ISN76489DataSource::Channel2ToneRegister:
 		return channelDataRegisterLocked[1];
-	case DATASOURCE_CHANNEL3_TONEREGISTER:
+	case ISN76489DataSource::Channel3ToneRegister:
 		return channelDataRegisterLocked[2];
-	case DATASOURCE_CHANNEL4_TONEREGISTER:
+	case ISN76489DataSource::Channel4ToneRegister:
 		return channelDataRegisterLocked[3];
 	//##DEBUG##
-	case DATASOURCE_CHANNEL4_NOISETYPE:
+	case ISN76489DataSource::Channel4NoiseType:
 		return channelDataRegisterLocked[3];
 	}
 	return false;
@@ -1157,32 +1159,32 @@ bool SN76489::SetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 {
 	switch(dataID)
 	{
-	case DATASOURCE_CHANNEL1_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel1VolumeRegister:
 		channelVolumeRegisterLocked[0] = state;
 		return true;
-	case DATASOURCE_CHANNEL2_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel2VolumeRegister:
 		channelVolumeRegisterLocked[1] = state;
 		return true;
-	case DATASOURCE_CHANNEL3_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel3VolumeRegister:
 		channelVolumeRegisterLocked[2] = state;
 		return true;
-	case DATASOURCE_CHANNEL4_VOLUMEREGISTER:
+	case ISN76489DataSource::Channel4VolumeRegister:
 		channelVolumeRegisterLocked[3] = state;
 		return true;
-	case DATASOURCE_CHANNEL1_TONEREGISTER:
+	case ISN76489DataSource::Channel1ToneRegister:
 		channelDataRegisterLocked[0] = state;
 		return true;
-	case DATASOURCE_CHANNEL2_TONEREGISTER:
+	case ISN76489DataSource::Channel2ToneRegister:
 		channelDataRegisterLocked[1] = state;
 		return true;
-	case DATASOURCE_CHANNEL3_TONEREGISTER:
+	case ISN76489DataSource::Channel3ToneRegister:
 		channelDataRegisterLocked[2] = state;
 		return true;
-	case DATASOURCE_CHANNEL4_TONEREGISTER:
+	case ISN76489DataSource::Channel4ToneRegister:
 		channelDataRegisterLocked[3] = state;
 		return true;
 	//##DEBUG##
-	case DATASOURCE_CHANNEL4_NOISETYPE:
+	case ISN76489DataSource::Channel4NoiseType:
 		channelDataRegisterLocked[3] = state;
 		return true;
 	}
@@ -1194,13 +1196,13 @@ bool SN76489::SetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 //----------------------------------------------------------------------------------------
 void SN76489::SetAudioLoggingEnabled(bool state)
 {
-	boost::mutex::scoped_lock lock(waveLoggingMutex);
+	std::unique_lock<std::mutex> lock(waveLoggingMutex);
 	if(wavLoggingEnabled != state)
 	{
 		if(state)
 		{
 			wavLog.SetDataFormat(1, 16, outputSampleRate);
-			wavLog.Open(wavLoggingPath, Stream::WAVFile::OPENMODE_WRITEONLY, Stream::WAVFile::CREATEMODE_CREATE);
+			wavLog.Open(wavLoggingPath, Stream::WAVFile::OpenMode::WriteOnly, Stream::WAVFile::CreateMode::Create);
 		}
 		else
 		{
@@ -1213,13 +1215,13 @@ void SN76489::SetAudioLoggingEnabled(bool state)
 //----------------------------------------------------------------------------------------
 void SN76489::SetChannelAudioLoggingEnabled(unsigned int channelNo, bool state)
 {
-	boost::mutex::scoped_lock lock(waveLoggingMutex);
+	std::unique_lock<std::mutex> lock(waveLoggingMutex);
 	if(wavLoggingChannelEnabled[channelNo] != state)
 	{
 		if(state)
 		{
 			wavLogChannel[channelNo].SetDataFormat(1, 16, outputSampleRate);
-			wavLogChannel[channelNo].Open(wavLoggingChannelPath[channelNo], Stream::WAVFile::OPENMODE_WRITEONLY, Stream::WAVFile::CREATEMODE_CREATE);
+			wavLogChannel[channelNo].Open(wavLoggingChannelPath[channelNo], Stream::WAVFile::OpenMode::WriteOnly, Stream::WAVFile::CreateMode::Create);
 		}
 		else
 		{

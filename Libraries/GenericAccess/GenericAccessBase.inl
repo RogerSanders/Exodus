@@ -180,7 +180,7 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 	//Attempt to read the target value as a string
 	switch(targetDataInfo->GetType())
 	{
-	case IGenericAccessDataValue::DATATYPE_BOOL:{
+	case IGenericAccessDataValue::DataType::Bool:{
 		GenericAccessDataValueBool genericDataValue;
 		if(!ReadGenericData(dataID, dataContext, genericDataValue))
 		{
@@ -188,7 +188,7 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 		}
 		dataValue = genericDataValue.GetValueString();
 		break;}
-	case IGenericAccessDataValue::DATATYPE_INT:{
+	case IGenericAccessDataValue::DataType::Int:{
 		GenericAccessDataValueInt genericDataValue;
 		if(!ReadGenericData(dataID, dataContext, genericDataValue))
 		{
@@ -196,7 +196,7 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 		}
 		dataValue = genericDataValue.GetValueString();
 		break;}
-	case IGenericAccessDataValue::DATATYPE_UINT:{
+	case IGenericAccessDataValue::DataType::UInt:{
 		GenericAccessDataValueUInt genericDataValue;
 		if(!ReadGenericData(dataID, dataContext, genericDataValue))
 		{
@@ -204,7 +204,7 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 		}
 		dataValue = genericDataValue.GetValueString();
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FLOAT:{
+	case IGenericAccessDataValue::DataType::Float:{
 		GenericAccessDataValueFloat genericDataValue;
 		if(!ReadGenericData(dataID, dataContext, genericDataValue))
 		{
@@ -212,7 +212,7 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 		}
 		dataValue = genericDataValue.GetValueString();
 		break;}
-	case IGenericAccessDataValue::DATATYPE_DOUBLE:{
+	case IGenericAccessDataValue::DataType::Double:{
 		GenericAccessDataValueDouble genericDataValue;
 		if(!ReadGenericData(dataID, dataContext, genericDataValue))
 		{
@@ -220,7 +220,7 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 		}
 		dataValue = genericDataValue.GetValueString();
 		break;}
-	case IGenericAccessDataValue::DATATYPE_STRING:{
+	case IGenericAccessDataValue::DataType::String:{
 		GenericAccessDataValueString genericDataValue;
 		if(!ReadGenericData(dataID, dataContext, genericDataValue))
 		{
@@ -228,7 +228,7 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 		}
 		dataValue = genericDataValue.GetValueString();
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FILEPATH:{
+	case IGenericAccessDataValue::DataType::FilePath:{
 		GenericAccessDataValueFilePath genericDataValue;
 		if(!ReadGenericData(dataID, dataContext, genericDataValue))
 		{
@@ -236,7 +236,7 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 		}
 		dataValue = genericDataValue.GetValueString();
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FOLDERPATH:{
+	case IGenericAccessDataValue::DataType::FolderPath:{
 		GenericAccessDataValueFolderPath genericDataValue;
 		if(!ReadGenericData(dataID, dataContext, genericDataValue))
 		{
@@ -265,7 +265,7 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 	//Attempt to write the target value
 	switch(targetDataInfo->GetType())
 	{
-	case IGenericAccessDataValue::DATATYPE_BOOL:{
+	case IGenericAccessDataValue::DataType::Bool:{
 		GenericAccessDataValueBool genericDataValue;
 		ApplyGenericDataValueDisplaySettings(dataID, genericDataValue);
 		if(!genericDataValue.SetValueString(dataValue))
@@ -277,7 +277,7 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 			return false;
 		}
 		break;}
-	case IGenericAccessDataValue::DATATYPE_INT:{
+	case IGenericAccessDataValue::DataType::Int:{
 		GenericAccessDataValueInt genericDataValue;
 		ApplyGenericDataValueDisplaySettings(dataID, genericDataValue);
 		if(!genericDataValue.SetValueString(dataValue))
@@ -289,7 +289,7 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 			return false;
 		}
 		break;}
-	case IGenericAccessDataValue::DATATYPE_UINT:{
+	case IGenericAccessDataValue::DataType::UInt:{
 		GenericAccessDataValueUInt genericDataValue;
 		ApplyGenericDataValueDisplaySettings(dataID, genericDataValue);
 		if(!genericDataValue.SetValueString(dataValue))
@@ -301,7 +301,7 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 			return false;
 		}
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FLOAT:{
+	case IGenericAccessDataValue::DataType::Float:{
 		GenericAccessDataValueFloat genericDataValue;
 		ApplyGenericDataValueDisplaySettings(dataID, genericDataValue);
 		if(!genericDataValue.SetValueString(dataValue))
@@ -313,7 +313,7 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 			return false;
 		}
 		break;}
-	case IGenericAccessDataValue::DATATYPE_DOUBLE:{
+	case IGenericAccessDataValue::DataType::Double:{
 		GenericAccessDataValueDouble genericDataValue;
 		ApplyGenericDataValueDisplaySettings(dataID, genericDataValue);
 		if(!genericDataValue.SetValueString(dataValue))
@@ -325,7 +325,7 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 			return false;
 		}
 		break;}
-	case IGenericAccessDataValue::DATATYPE_STRING:{
+	case IGenericAccessDataValue::DataType::String:{
 		GenericAccessDataValueString genericDataValue;
 		ApplyGenericDataValueDisplaySettings(dataID, genericDataValue);
 		if(!genericDataValue.SetValueString(dataValue))
@@ -337,7 +337,7 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 			return false;
 		}
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FILEPATH:{
+	case IGenericAccessDataValue::DataType::FilePath:{
 		GenericAccessDataValueFilePath genericDataValue;
 		ApplyGenericDataValueDisplaySettings(dataID, genericDataValue);
 		if(!genericDataValue.SetValueString(dataValue))
@@ -349,7 +349,7 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 			return false;
 		}
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FOLDERPATH:{
+	case IGenericAccessDataValue::DataType::FolderPath:{
 		GenericAccessDataValueFolderPath genericDataValue;
 		ApplyGenericDataValueDisplaySettings(dataID, genericDataValue);
 		if(!genericDataValue.SetValueString(dataValue))
@@ -397,38 +397,38 @@ template<class B> bool GenericAccessBase<B>::ApplyGenericDataValueLimitSettings(
 	//Load any specified data limits for the target data into the data value
 	switch(dataValue.GetType())
 	{
-	case IGenericAccessDataValue::DATATYPE_BOOL:{
+	case IGenericAccessDataValue::DataType::Bool:{
 		//IGenericGenericDataValueBool& dataValueTyped = (IGenericGenericDataValueBool&)dataValue;
 		break;}
-	case IGenericAccessDataValue::DATATYPE_INT:{
+	case IGenericAccessDataValue::DataType::Int:{
 		IGenericAccessDataValueInt& dataValueTyped = (IGenericAccessDataValueInt&)dataValue;
 		dataValueTyped.SetMinValue(targetDataInfo->GetIntMinValue());
 		dataValueTyped.SetMaxValue(targetDataInfo->GetIntMaxValue());
 		break;}
-	case IGenericAccessDataValue::DATATYPE_UINT:{
+	case IGenericAccessDataValue::DataType::UInt:{
 		IGenericAccessDataValueUInt& dataValueTyped = (IGenericAccessDataValueUInt&)dataValue;
 		dataValueTyped.SetMinValue(targetDataInfo->GetUIntMinValue());
 		dataValueTyped.SetMaxValue(targetDataInfo->GetUIntMaxValue());
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FLOAT:{
+	case IGenericAccessDataValue::DataType::Float:{
 		IGenericAccessDataValueFloat& dataValueTyped = (IGenericAccessDataValueFloat&)dataValue;
 		dataValueTyped.SetMinValue(targetDataInfo->GetFloatMinValue());
 		dataValueTyped.SetMaxValue(targetDataInfo->GetFloatMaxValue());
 		break;}
-	case IGenericAccessDataValue::DATATYPE_DOUBLE:{
+	case IGenericAccessDataValue::DataType::Double:{
 		IGenericAccessDataValueDouble& dataValueTyped = (IGenericAccessDataValueDouble&)dataValue;
 		dataValueTyped.SetMinValue(targetDataInfo->GetDoubleMinValue());
 		dataValueTyped.SetMaxValue(targetDataInfo->GetDoubleMaxValue());
 		break;}
-	case IGenericAccessDataValue::DATATYPE_STRING:{
+	case IGenericAccessDataValue::DataType::String:{
 		IGenericAccessDataValueString& dataValueTyped = (IGenericAccessDataValueString&)dataValue;
 		dataValueTyped.SetMaxLength(targetDataInfo->GetStringMaxLength());
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FILEPATH:{
+	case IGenericAccessDataValue::DataType::FilePath:{
 		IGenericAccessDataValueFilePath& dataValueTyped = (IGenericAccessDataValueFilePath&)dataValue;
 		dataValueTyped.SetMaxLength(targetDataInfo->GetStringMaxLength());
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FOLDERPATH:{
+	case IGenericAccessDataValue::DataType::FolderPath:{
 		IGenericAccessDataValueFolderPath& dataValueTyped = (IGenericAccessDataValueFolderPath&)dataValue;
 		dataValueTyped.SetMaxLength(targetDataInfo->GetStringMaxLength());
 		break;}
@@ -457,10 +457,10 @@ template<class B> bool GenericAccessBase<B>::ApplyGenericDataValueDisplaySetting
 	//Load any specified display settings for the target data into the data value
 	switch(dataValue.GetType())
 	{
-	case IGenericAccessDataValue::DATATYPE_BOOL:{
+	case IGenericAccessDataValue::DataType::Bool:{
 		//IGenericAccessDataValueBool& dataValueTyped = (IGenericAccessDataValueBool&)dataValue;
 		break;}
-	case IGenericAccessDataValue::DATATYPE_INT:{
+	case IGenericAccessDataValue::DataType::Int:{
 		IGenericAccessDataValueInt& dataValueTyped = (IGenericAccessDataValueInt&)dataValue;
 		dataValueTyped.SetDisplayMode(dataInfo->GetIntDisplayMode());
 		unsigned int displayChars = dataInfo->GetMinWholeNumberChars();
@@ -470,7 +470,7 @@ template<class B> bool GenericAccessBase<B>::ApplyGenericDataValueDisplaySetting
 		}
 		dataValueTyped.SetMinChars(displayChars);
 		break;}
-	case IGenericAccessDataValue::DATATYPE_UINT:{
+	case IGenericAccessDataValue::DataType::UInt:{
 		IGenericAccessDataValueUInt& dataValueTyped = (IGenericAccessDataValueUInt&)dataValue;
 		dataValueTyped.SetDisplayMode(dataInfo->GetIntDisplayMode());
 		unsigned int displayChars = dataInfo->GetMinWholeNumberChars();
@@ -480,25 +480,25 @@ template<class B> bool GenericAccessBase<B>::ApplyGenericDataValueDisplaySetting
 		}
 		dataValueTyped.SetMinChars(displayChars);
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FLOAT:{
+	case IGenericAccessDataValue::DataType::Float:{
 		IGenericAccessDataValueFloat& dataValueTyped = (IGenericAccessDataValueFloat&)dataValue;
 		dataValueTyped.SetDisplayMode(dataInfo->GetFloatDisplayMode());
 		dataValueTyped.SetMinWholeNumberChars(dataInfo->GetMinWholeNumberChars());
 		dataValueTyped.SetMinFractionalNumberChars(dataInfo->GetMinFractionalNumberChars());
 		break;}
-	case IGenericAccessDataValue::DATATYPE_DOUBLE:{
+	case IGenericAccessDataValue::DataType::Double:{
 		IGenericAccessDataValueDouble& dataValueTyped = (IGenericAccessDataValueDouble&)dataValue;
 		dataValueTyped.SetDisplayMode(dataInfo->GetFloatDisplayMode());
 		dataValueTyped.SetMinWholeNumberChars(dataInfo->GetMinWholeNumberChars());
 		dataValueTyped.SetMinFractionalNumberChars(dataInfo->GetMinFractionalNumberChars());
 		break;}
-	case IGenericAccessDataValue::DATATYPE_STRING:{
+	case IGenericAccessDataValue::DataType::String:{
 		//IGenericAccessDataValueString& dataValueTyped = (IGenericAccessDataValueString&)dataValue;
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FILEPATH:{
+	case IGenericAccessDataValue::DataType::FilePath:{
 		//IGenericAccessDataValueFilePath& dataValueTyped = (IGenericAccessDataValueFilePath&)dataValue;
 		break;}
-	case IGenericAccessDataValue::DATATYPE_FOLDERPATH:{
+	case IGenericAccessDataValue::DataType::FolderPath:{
 		//IGenericAccessDataValueFolderPath& dataValueTyped = (IGenericAccessDataValueFolderPath&)dataValue;
 		break;}
 	default:

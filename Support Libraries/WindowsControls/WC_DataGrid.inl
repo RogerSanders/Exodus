@@ -1,70 +1,70 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum WC_DataGrid::WindowMessages
+enum class WC_DataGrid::WindowMessages
 {
-	GRID_WMBASE = WM_USER + 0x100,
-	GRID_SETMANUALSCROLLING,
-	GRID_SETDATAAREAFONT,
-	GRID_INSERTCOLUMN,
-	GRID_DELETECOLUMN,
-	GRID_INSERTROWS,
-	GRID_DELETEROWS,
-	GRID_GETCOLUMNINFO,
-	GRID_SETCOLUMNINFO,
-	GRID_SETCELLINFO,
-	GRID_UPDATECOLUMNTEXT,
-	GRID_UPDATECELLTEXT,
-	GRID_SETCONTROLCOLOR,
-	GRID_SETROWCOLOR,
-	GRID_SETCELLCOLOR,
-	GRID_GETROWCOUNT,
-	GRID_SETVSCROLLINFO
+	WMBase = WM_USER + 0x100,
+	SetManualScrolling,
+	SetDataAreaFont,
+	InsertColumn,
+	DeleteColumn,
+	InsertRows,
+	DeleteRows,
+	GetColumnInfo,
+	SetColumnInfo,
+	SetCellInfo,
+	UpdateColumnText,
+	UpdateCellText,
+	SetControlColor,
+	SetRowColor,
+	SetCellColor,
+	GetRowCount,
+	SetVScrollInfo
 };
 
 //----------------------------------------------------------------------------------------
-enum WC_DataGrid::WindowNotifications
+enum class WC_DataGrid::WindowNotifications
 {
-	GRID_NEWROWCOUNT = 0x100,
-	GRID_SHIFTROWSUP,
-	GRID_SHIFTROWSDOWN,
-	GRID_NEWSCROLLPOSITION,
-	GRID_SELECTIONEVENT,
-	GRID_CELLEDIT,
-	GRID_CELLBUTTONCLICK,
-	GRID_TREEENTRYEXPANDEVENT
+	NewRowCount = 0x100,
+	ShiftRowsUp,
+	ShiftRowsDown,
+	NewScrollPosition,
+	SelectionEvent,
+	CellEdit,
+	CellButtonClick,
+	TreeEntryExpandEvent
 };
 
 //----------------------------------------------------------------------------------------
-enum WC_DataGrid::CellControlType
+enum class WC_DataGrid::CellControlType
 {
-	CELLCONTROLTYPE_TEXTBOX,
-	CELLCONTROLTYPE_CHECKBOX,
-	CELLCONTROLTYPE_COMBOBOX,
-	CELLCONTROLTYPE_BUTTON,
-	CELLCONTROLTYPE_TREEENTRY,
+	TextBox,
+	CheckBox,
+	ComboBox,
+	Button,
+	TreeEntry,
 	//##TODO## Our "TEXTBOXWITHBUTTON" type restricts us to a single right-aligned button
 	//per cell. Consider allowing an optional list of adorner buttons for all column
 	//types, which can be aligned either left or right on a button by button basis, and
 	//stack from the outermost edge to the innermost edge. With this in place, we can then
 	//phase out the "TEXTBOXWITHBUTTON" type.
-	CELLCONTROLTYPE_TEXTBOXWITHBUTTON
+	TextBoxWithButton
 };
 
 //----------------------------------------------------------------------------------------
-enum WC_DataGrid::TextEllipsisMode
+enum class WC_DataGrid::TextEllipsisMode
 {
-	TEXTELLIPSISMODE_NONE,
-	TEXTELLIPSISMODE_TEXT,
-	TEXTELLIPSISMODE_PATH
+	None,
+	Text,
+	Path
 };
 
 //----------------------------------------------------------------------------------------
-enum WC_DataGrid::ColumnSizeMode
+enum class WC_DataGrid::ColumnSizeMode
 {
-	COLUMNSIZEMODE_ABSOLUTE,
-	COLUMNSIZEMODE_SIZETOCONTENT,
-	COLUMNSIZEMODE_PROPORTIONAL
+	Absolute,
+	SizeToContent,
+	Proportional
 };
 
 //----------------------------------------------------------------------------------------
@@ -72,8 +72,8 @@ enum WC_DataGrid::ColumnSizeMode
 //----------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_InsertColumn
 {
-	Grid_InsertColumn(const std::wstring& aname = L"", unsigned int acolumnID = 0, bool aeditingAllowed = false, CellControlType acellType = CELLCONTROLTYPE_TEXTBOX)
-	:name(aname), columnID(acolumnID), editingAllowed(aeditingAllowed), cellType(acellType), sizeMode(COLUMNSIZEMODE_SIZETOCONTENT), absoluteWidth(0), proportionalWidth(1.0), minWidth(-1), maxWidth(-1)
+	Grid_InsertColumn(const std::wstring& aname = L"", unsigned int acolumnID = 0, bool aeditingAllowed = false, CellControlType acellType = CellControlType::TextBox)
+	:name(aname), columnID(acolumnID), editingAllowed(aeditingAllowed), cellType(acellType), sizeMode(ColumnSizeMode::SizeToContent), absoluteWidth(0), proportionalWidth(1.0), minWidth(-1), maxWidth(-1)
 	{}
 
 	std::wstring name;
@@ -116,7 +116,7 @@ struct WC_DataGrid::Grid_GetColumnInfo
 struct WC_DataGrid::Grid_SetColumnInfo
 {
 	Grid_SetColumnInfo()
-	:columnID(0), sizeMode(COLUMNSIZEMODE_SIZETOCONTENT), absoluteWidth(0), proportionalWidth(0), minWidth(-1), maxWidth(-1)
+	:columnID(0), sizeMode(ColumnSizeMode::SizeToContent), absoluteWidth(0), proportionalWidth(0), minWidth(-1), maxWidth(-1)
 	{}
 
 	std::wstring name;
@@ -133,10 +133,10 @@ struct WC_DataGrid::Grid_SetColumnInfo
 struct WC_DataGrid::Grid_SetCellInfo
 {
 	Grid_SetCellInfo()
-	:defined(false), columnID(0), rowNo(0), controlType(CELLCONTROLTYPE_TEXTBOX), treeEntryIndentLevel(0), showExpandIcon(false), pickFromSelectionListOnly(true), ellipsisMode(TEXTELLIPSISMODE_TEXT)
+	:defined(false), columnID(0), rowNo(0), controlType(CellControlType::TextBox), treeEntryIndentLevel(0), showExpandIcon(false), pickFromSelectionListOnly(true), ellipsisMode(TextEllipsisMode::Text)
 	{}
-	Grid_SetCellInfo(unsigned int acolumnID, unsigned int arowNo, CellControlType acontrolType = CELLCONTROLTYPE_TEXTBOX, unsigned int atreeEntryIndentLevel = 0, bool ashowExpandIcon = false, bool aexpandIconIsExpanded = false)
-	:defined(true), columnID(acolumnID), rowNo(arowNo), controlType(acontrolType), treeEntryIndentLevel(atreeEntryIndentLevel), showExpandIcon(ashowExpandIcon), expandIconIsExpanded(aexpandIconIsExpanded), pickFromSelectionListOnly(true), ellipsisMode(TEXTELLIPSISMODE_TEXT)
+	Grid_SetCellInfo(unsigned int acolumnID, unsigned int arowNo, CellControlType acontrolType = CellControlType::TextBox, unsigned int atreeEntryIndentLevel = 0, bool ashowExpandIcon = false, bool aexpandIconIsExpanded = false)
+	:defined(true), columnID(acolumnID), rowNo(arowNo), controlType(acontrolType), treeEntryIndentLevel(atreeEntryIndentLevel), showExpandIcon(ashowExpandIcon), expandIconIsExpanded(aexpandIconIsExpanded), pickFromSelectionListOnly(true), ellipsisMode(TextEllipsisMode::Text)
 	{}
 
 	bool defined;
@@ -322,8 +322,8 @@ struct WC_DataGrid::ColumnData
 //----------------------------------------------------------------------------------------
 struct WC_DataGrid::CellControlInfo
 {
-	CellControlInfo(CellControlType acontrolType = CELLCONTROLTYPE_TEXTBOX)
-	:controlType(acontrolType), createdControlType(CELLCONTROLTYPE_TEXTBOX), hwnd(NULL), lastBackgroundColorSet(false), lastBackgroundColorBrush(NULL), pickFromSelectionListOnly(true), ellipsisMode(TEXTELLIPSISMODE_TEXT)
+	CellControlInfo(CellControlType acontrolType = CellControlType::TextBox)
+	:controlType(acontrolType), createdControlType(CellControlType::TextBox), hwnd(NULL), lastBackgroundColorSet(false), lastBackgroundColorBrush(NULL), pickFromSelectionListOnly(true), ellipsisMode(TextEllipsisMode::Text)
 	{}
 
 	CellControlType controlType;

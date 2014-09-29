@@ -3,21 +3,21 @@ namespace Stream {
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum File::OpenMode
+enum class File::OpenMode
 {
-	OPENMODE_READONLY,
-	OPENMODE_WRITEONLY,
-	OPENMODE_READANDWRITE
+	ReadOnly,
+	WriteOnly,
+	ReadAndWrite
 };
 
 //----------------------------------------------------------------------------------------
-enum File::CreateMode
+enum class File::CreateMode
 {
-	CREATEMODE_OPEN,       //Open an existing file. Fails if the file doesn't exist.
-	CREATEMODE_OPENALWAYS, //Open an existing file. If the file doesn't exist, create it.
-	CREATEMODE_CREATE,     //Create a new file. Truncates the file if it exists.
-	CREATEMODE_CREATENEW,  //Create a new file. Fails if the file already exists.
-	CREATEMODE_OVERWRITE   //The file must exist, and will be truncated.
+	Open,       //Open an existing file. Fails if the file doesn't exist.
+	OpenAlways, //Open an existing file. If the file doesn't exist, create it.
+	Create,     //Create a new file. Truncates the file if it exists.
+	CreateNew,  //Create a new file. Fails if the file already exists.
+	Overwrite   //The file must exist, and will be truncated.
 };
 
 //----------------------------------------------------------------------------------------
@@ -61,15 +61,15 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 	//Process the openMode parameter
 	switch(openMode)
 	{
-	case OPENMODE_READONLY:
+	case OpenMode::ReadOnly:
 		desiredAccess = GENERIC_READ;
 		shareMode = FILE_SHARE_READ;
 		break;
-	case OPENMODE_WRITEONLY:
+	case OpenMode::WriteOnly:
 		desiredAccess = GENERIC_WRITE;
 		shareMode = 0;
 		break;
-	case OPENMODE_READANDWRITE:
+	case OpenMode::ReadAndWrite:
 		desiredAccess = GENERIC_READ | GENERIC_WRITE;
 		shareMode = 0;
 		break;
@@ -80,19 +80,19 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 	//Process the createMode parameter
 	switch(createMode)
 	{
-	case CREATEMODE_OPEN: //Open an existing file. Fails if the file doesn't exist.
+	case CreateMode::Open: //Open an existing file. Fails if the file doesn't exist.
 		creationDisposition = OPEN_EXISTING;
 		break;
-	case CREATEMODE_OPENALWAYS: //Open an existing file. If the file doesn't exist, create it.
+	case CreateMode::OpenAlways: //Open an existing file. If the file doesn't exist, create it.
 		creationDisposition = OPEN_ALWAYS;
 		break;
-	case CREATEMODE_CREATE: //Create a new file. Truncates the file if it exists.
+	case CreateMode::Create: //Create a new file. Truncates the file if it exists.
 		creationDisposition = CREATE_ALWAYS;
 		break;
-	case CREATEMODE_CREATENEW: //Create a new file. Fails if the file already exists.
+	case CreateMode::CreateNew: //Create a new file. Fails if the file already exists.
 		creationDisposition = CREATE_NEW;
 		break;
-	case CREATEMODE_OVERWRITE: //The file must exist, and will be truncated.
+	case CreateMode::Overwrite: //The file must exist, and will be truncated.
 		creationDisposition = TRUNCATE_EXISTING;
 		break;
 	default:

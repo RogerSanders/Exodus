@@ -2,7 +2,7 @@
 Things to do:
 -Build a system for custom text highlighting mid-line. Some kind of text markup language
  applied to the source string will probably be required. This should be supported using a
- new column type, possibly "CELLCONTROLTYPE_FORMATTEDTEXTBOX".
+ new column type, possibly "CellControlType::CELLCONTROLTYPE_FORMATTEDTEXTBOX".
 -Consider implementing a context menu for the header control, to enable and disable
  columns via tickboxes on the context menu.
 -Add optional row headers
@@ -30,11 +30,11 @@ public:
 	static const wchar_t* windowClassName;
 
 	//Enumerations
-	enum WindowMessages;
-	enum WindowNotifications;
-	enum CellControlType;
-	enum TextEllipsisMode;
-	enum ColumnSizeMode;
+	enum class WindowMessages;
+	enum class WindowNotifications;
+	enum class CellControlType;
+	enum class TextEllipsisMode;
+	enum class ColumnSizeMode;
 
 	//Message parameter structures
 	//##TODO## Remove the "Grid_" prefixes from these structures, and consider adding a

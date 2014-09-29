@@ -21,7 +21,7 @@ unsigned int GenericAccessDataValueBool::GetIGenericAccessDataValueBoolVersion()
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueBool::DataType GenericAccessDataValueBool::GetType() const
 {
-	return DATATYPE_BOOL;
+	return DataType::Bool;
 }
 
 //----------------------------------------------------------------------------------------

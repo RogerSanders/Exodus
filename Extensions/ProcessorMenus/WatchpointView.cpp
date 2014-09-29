@@ -205,19 +205,19 @@ INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			watchpointConditionNot = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_LOCCOND1:
-			watchpointCondition = IWatchpoint::CONDITION_EQUAL;
+			watchpointCondition = IWatchpoint::Condition::Equal;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_LOCCOND2:
-			watchpointCondition = IWatchpoint::CONDITION_GREATER;
+			watchpointCondition = IWatchpoint::Condition::Greater;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_LOCCOND3:
-			watchpointCondition = IWatchpoint::CONDITION_LESS;
+			watchpointCondition = IWatchpoint::Condition::Less;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_LOCCOND4:
-			watchpointCondition = IWatchpoint::CONDITION_GREATER_AND_LESS;
+			watchpointCondition = IWatchpoint::Condition::GreaterAndLess;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), TRUE);
 			break;
 		case IDC_PROCESSOR_WATCH_READCONDENABLED:
@@ -233,35 +233,35 @@ INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			watchpointWriteConditionNot = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_READCOND1:
-			watchpointReadCondition = IWatchpoint::CONDITION_EQUAL;
+			watchpointReadCondition = IWatchpoint::Condition::Equal;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_READCOND2:
-			watchpointReadCondition = IWatchpoint::CONDITION_GREATER;
+			watchpointReadCondition = IWatchpoint::Condition::Greater;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_READCOND3:
-			watchpointReadCondition = IWatchpoint::CONDITION_LESS;
+			watchpointReadCondition = IWatchpoint::Condition::Less;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_READCOND4:
-			watchpointReadCondition = IWatchpoint::CONDITION_GREATER_AND_LESS;
+			watchpointReadCondition = IWatchpoint::Condition::GreaterAndLess;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), TRUE);
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECOND1:
-			watchpointWriteCondition = IWatchpoint::CONDITION_EQUAL;
+			watchpointWriteCondition = IWatchpoint::Condition::Equal;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECOND2:
-			watchpointWriteCondition = IWatchpoint::CONDITION_GREATER;
+			watchpointWriteCondition = IWatchpoint::Condition::Greater;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECOND3:
-			watchpointWriteCondition = IWatchpoint::CONDITION_LESS;
+			watchpointWriteCondition = IWatchpoint::Condition::Less;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECOND4:
-			watchpointWriteCondition = IWatchpoint::CONDITION_GREATER_AND_LESS;
+			watchpointWriteCondition = IWatchpoint::Condition::GreaterAndLess;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), TRUE);
 			break;
 
@@ -468,9 +468,9 @@ void WatchpointView::ClearWatchpointData()
 	watchpointReadConditionNot = false;
 	watchpointWriteConditionEnabled = false;
 	watchpointWriteConditionNot = false;
-	watchpointCondition = IWatchpoint::CONDITION_EQUAL;
-	watchpointReadCondition = IWatchpoint::CONDITION_EQUAL;
-	watchpointWriteCondition = IWatchpoint::CONDITION_EQUAL;
+	watchpointCondition = IWatchpoint::Condition::Equal;
+	watchpointReadCondition = IWatchpoint::Condition::Equal;
+	watchpointWriteCondition = IWatchpoint::Condition::Equal;
 	watchpointLocation1 = 0;
 	watchpointLocation2 = 0;
 	watchpointLocationMask = model.GetAddressBusMask();
@@ -504,20 +504,20 @@ void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_LOCCONDNOT, (watchpointConditionNot)? BST_CHECKED: BST_UNCHECKED);
 	switch(watchpointCondition)
 	{
-	case IWatchpoint::CONDITION_EQUAL:
+	case IWatchpoint::Condition::Equal:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_LOCCOND1, IDC_PROCESSOR_WATCH_LOCCOND4, IDC_PROCESSOR_WATCH_LOCCOND1);
 		break;
-	case IWatchpoint::CONDITION_GREATER:
+	case IWatchpoint::Condition::Greater:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_LOCCOND1, IDC_PROCESSOR_WATCH_LOCCOND4, IDC_PROCESSOR_WATCH_LOCCOND2);
 		break;
-	case IWatchpoint::CONDITION_LESS:
+	case IWatchpoint::Condition::Less:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_LOCCOND1, IDC_PROCESSOR_WATCH_LOCCOND4, IDC_PROCESSOR_WATCH_LOCCOND3);
 		break;
-	case IWatchpoint::CONDITION_GREATER_AND_LESS:
+	case IWatchpoint::Condition::GreaterAndLess:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_LOCCOND1, IDC_PROCESSOR_WATCH_LOCCOND4, IDC_PROCESSOR_WATCH_LOCCOND4);
 		break;
 	}
-	if(watchpointCondition == IWatchpoint::CONDITION_GREATER_AND_LESS)
+	if(watchpointCondition == IWatchpoint::Condition::GreaterAndLess)
 	{
 		EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), TRUE);
 	}
@@ -537,20 +537,20 @@ void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 
 	switch(watchpointReadCondition)
 	{
-	case IWatchpoint::CONDITION_EQUAL:
+	case IWatchpoint::Condition::Equal:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_READCOND1, IDC_PROCESSOR_WATCH_READCOND4, IDC_PROCESSOR_WATCH_READCOND1);
 		break;
-	case IWatchpoint::CONDITION_GREATER:
+	case IWatchpoint::Condition::Greater:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_READCOND1, IDC_PROCESSOR_WATCH_READCOND4, IDC_PROCESSOR_WATCH_READCOND2);
 		break;
-	case IWatchpoint::CONDITION_LESS:
+	case IWatchpoint::Condition::Less:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_READCOND1, IDC_PROCESSOR_WATCH_READCOND4, IDC_PROCESSOR_WATCH_READCOND3);
 		break;
-	case IWatchpoint::CONDITION_GREATER_AND_LESS:
+	case IWatchpoint::Condition::GreaterAndLess:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_READCOND1, IDC_PROCESSOR_WATCH_READCOND4, IDC_PROCESSOR_WATCH_READCOND4);
 		break;
 	}
-	if(watchpointReadCondition == IWatchpoint::CONDITION_GREATER_AND_LESS)
+	if(watchpointReadCondition == IWatchpoint::Condition::GreaterAndLess)
 	{
 		EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), TRUE);
 	}
@@ -561,20 +561,20 @@ void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 
 	switch(watchpointWriteCondition)
 	{
-	case IWatchpoint::CONDITION_EQUAL:
+	case IWatchpoint::Condition::Equal:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_WRITECOND1, IDC_PROCESSOR_WATCH_WRITECOND4, IDC_PROCESSOR_WATCH_WRITECOND1);
 		break;
-	case IWatchpoint::CONDITION_GREATER:
+	case IWatchpoint::Condition::Greater:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_WRITECOND1, IDC_PROCESSOR_WATCH_WRITECOND4, IDC_PROCESSOR_WATCH_WRITECOND2);
 		break;
-	case IWatchpoint::CONDITION_LESS:
+	case IWatchpoint::Condition::Less:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_WRITECOND1, IDC_PROCESSOR_WATCH_WRITECOND4, IDC_PROCESSOR_WATCH_WRITECOND3);
 		break;
-	case IWatchpoint::CONDITION_GREATER_AND_LESS:
+	case IWatchpoint::Condition::GreaterAndLess:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_WRITECOND1, IDC_PROCESSOR_WATCH_WRITECOND4, IDC_PROCESSOR_WATCH_WRITECOND4);
 		break;
 	}
-	if(watchpointWriteCondition == IWatchpoint::CONDITION_GREATER_AND_LESS)
+	if(watchpointWriteCondition == IWatchpoint::Condition::GreaterAndLess)
 	{
 		EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), TRUE);
 	}

@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="M68000Menus">
+      <UniqueIdentifier>{86068bd1-2a18-4d21-888f-4626730116b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M68000Menus\DebugMenuHandler">
+      <UniqueIdentifier>{dc156069-206e-4a5f-b558-2a3d35abdb25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M68000Menus\ExceptionsView">
+      <UniqueIdentifier>{493b7d5c-8d65-4b50-b428-39c32c0aaa7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="M68000Menus\RegistersView">
+      <UniqueIdentifier>{bd15af93-5c41-4f65-a166-9bd868b3b1b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{2f1262d9-707b-4635-979d-9380f2229f19}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="M68000Menus.cpp">
+      <Filter>M68000Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMenuHandler.cpp">
+      <Filter>M68000Menus\DebugMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="ExceptionsView.cpp">
+      <Filter>M68000Menus\ExceptionsView</Filter>
+    </ClCompile>
+    <ClCompile Include="ExceptionsViewPresenter.cpp">
+      <Filter>M68000Menus\ExceptionsView</Filter>
+    </ClCompile>
+    <ClCompile Include="RegistersView.cpp">
+      <Filter>M68000Menus\RegistersView</Filter>
+    </ClCompile>
+    <ClCompile Include="RegistersViewPresenter.cpp">
+      <Filter>M68000Menus\RegistersView</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="M68000Menus.h">
+      <Filter>M68000Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMenuHandler.h">
+      <Filter>M68000Menus\DebugMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="ExceptionsView.h">
+      <Filter>M68000Menus\ExceptionsView</Filter>
+    </ClInclude>
+    <ClInclude Include="ExceptionsViewPresenter.h">
+      <Filter>M68000Menus\ExceptionsView</Filter>
+    </ClInclude>
+    <ClInclude Include="RegistersView.h">
+      <Filter>M68000Menus\RegistersView</Filter>
+    </ClInclude>
+    <ClInclude Include="RegistersViewPresenter.h">
+      <Filter>M68000Menus\RegistersView</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="M68000Menus.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -63,7 +63,7 @@ INT_PTR PortMonitorView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 INT_PTR PortMonitorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	initializedDialog = true;
-	//boost::mutex::scoped_lock lock(model.portMonitorMutex);
+	//std::unique_lock<std::mutex> lock(model.portMonitorMutex);
 
 	//SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PORTMONITOR_LIST), WM_SETREDRAW, FALSE, 0);
 
@@ -99,7 +99,7 @@ INT_PTR PortMonitorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//	switch(LOWORD(wparam))
 	//	{
 	//	case IDC_S315_5313_PORTMONITOR_LIST:{
-	//		boost::mutex::scoped_lock lock(model.portMonitorMutex);
+	//		std::unique_lock<std::mutex> lock(model.portMonitorMutex);
 	//		int currentItemListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PORTMONITOR_LIST), LB_GETCURSEL, 0, NULL);
 	//		unsigned int targetItemLogIndex = (unsigned int)SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PORTMONITOR_LIST), LB_GETITEMDATA, currentItemListIndex, NULL);
 

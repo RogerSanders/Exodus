@@ -111,14 +111,14 @@ actually executed are disassembled correctly.
 #include "Breakpoint.h"
 #include "Watchpoint.h"
 #include "ThinContainers/ThinContainers.pkg"
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
+#include <mutex>
+#include <condition_variable>
 
 class Processor :public Device, public GenericAccessBase<IProcessor>
 {
 public:
 	//Enumerations
-	enum DisassemblyDataType;
+	enum class DisassemblyDataType;
 
 	//Structures
 	struct LabelSubstitutionSettings;
@@ -331,7 +331,7 @@ protected:
 
 private:
 	//Enumerations
-	enum DisassemblyEntryType;
+	enum class DisassemblyEntryType;
 
 	//Structures
 	struct BreakpointCallbackParams;
@@ -403,8 +403,8 @@ private:
 	mutable std::vector<Watchpoint*> watchpoints;
 	mutable std::set<IBreakpoint*> lockedBreakpoints;
 	mutable std::set<IWatchpoint*> lockedWatchpoints;
-	mutable boost::condition breakpointLockReleased;
-	mutable boost::condition watchpointLockReleased;
+	mutable std::condition_variable breakpointLockReleased;
+	mutable std::condition_variable watchpointLockReleased;
 	volatile bool breakpointExists;
 	volatile bool watchpointExists;
 
@@ -464,7 +464,7 @@ private:
 	GenericAccessGroupCollectionEntry* breakpointCollection;
 
 	//Debug
-	mutable boost::mutex debugMutex;
+	mutable std::mutex debugMutex;
 };
 
 #include "Processor.inl"

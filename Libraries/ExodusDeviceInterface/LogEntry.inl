@@ -17,15 +17,15 @@ std::wstring LogEntry::GetEventLevelString() const
 {
 	switch(eventLevel)
 	{
-	case EVENTLEVEL_INFO:
+	case EventLevel::Info:
 		return L"1 - Information";
-	case EVENTLEVEL_DEBUG:
+	case EventLevel::Debug:
 		return L"2 - Debug";
-	case EVENTLEVEL_WARNING:
+	case EventLevel::Warning:
 		return L"3 - Warning";
-	case EVENTLEVEL_ERROR:
+	case EventLevel::Error:
 		return L"4 - Error";
-	case EVENTLEVEL_CRITICAL:
+	case EventLevel::Critical:
 		return L"5 - Critical";
 	default:
 		return L"";

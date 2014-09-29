@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 HierarchicalStorageTree::HierarchicalStorageTree()
-:allowSeparateBinaryData(true), storageMode(STORAGEMODE_XML)
+:allowSeparateBinaryData(true), storageMode(StorageMode::XML)
 {
 	root = new HierarchicalStorageNode();
 }

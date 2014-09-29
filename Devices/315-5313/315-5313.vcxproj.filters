@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="S315-5313">
+      <UniqueIdentifier>{f1aa73cc-eb26-4dc0-a633-93871e4f8977}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{be687051-1ace-480c-8782-27f02028119e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IS315-5313">
+      <UniqueIdentifier>{8bd22d94-6039-4d0e-978e-8195554ea41b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="S315-5313_General.cpp">
+      <Filter>S315-5313</Filter>
+    </ClCompile>
+    <ClCompile Include="S315-5313_Ports.cpp">
+      <Filter>S315-5313</Filter>
+    </ClCompile>
+    <ClCompile Include="S315-5313_Rendering.cpp">
+      <Filter>S315-5313</Filter>
+    </ClCompile>
+    <ClCompile Include="S315-5313_Timing.cpp">
+      <Filter>S315-5313</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="S315_5313.h">
+      <Filter>S315-5313</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="IS315_5313.h">
+      <Filter>IS315-5313</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="S315_5313.inl">
+      <Filter>S315-5313</Filter>
+    </None>
+    <None Include="IS315_5313.inl">
+      <Filter>IS315-5313</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="315-5313.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

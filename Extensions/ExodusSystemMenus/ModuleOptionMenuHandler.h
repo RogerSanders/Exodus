@@ -40,7 +40,7 @@ private:
 	};
 	struct SettingEntry
 	{
-		SettingEntry(const boost::function<void()>& acallback)
+		SettingEntry(const std::function<void()>& acallback)
 		:optionChangeObserver(acallback)
 		{}
 

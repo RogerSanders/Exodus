@@ -1,17 +1,17 @@
 namespace Z80 {
 
 //----------------------------------------------------------------------------------------
-enum Z80Instruction::ConditionCode
+enum class Z80Instruction::ConditionCode
 {
-	CONDITIONCODE_NZ   = 0x0, //Non Zero
-	CONDITIONCODE_Z    = 0x1, //Zero
-	CONDITIONCODE_NC   = 0x2, //No Carry
-	CONDITIONCODE_C    = 0x3, //Carry
-	CONDITIONCODE_PO   = 0x4, //Parity Odd
-	CONDITIONCODE_PE   = 0x5, //Parity Even
-	CONDITIONCODE_P    = 0x6, //Sign Positive
-	CONDITIONCODE_M    = 0x7, //Sign Negative
-	CONDITIONCODE_NONE = 0xFF //No condition. Always returns true.
+	NZ   = 0x0, //Non Zero
+	Z    = 0x1, //Zero
+	NC   = 0x2, //No Carry
+	C    = 0x3, //Carry
+	PO   = 0x4, //Parity Odd
+	PE   = 0x5, //Parity Even
+	P    = 0x6, //Sign Positive
+	M    = 0x7, //Sign Negative
+	None = 0xFF //No condition. Always returns true.
 };
 
 //----------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ struct Z80Instruction::Disassembly
 //Constructors
 //----------------------------------------------------------------------------------------
 Z80Instruction::Z80Instruction()
-:instructionSize(0), mandatoryIndexOffset(false), transparentOpcode(false), indexState(EffectiveAddress::INDEX_NONE), executeCycleCount(0)
+:instructionSize(0), mandatoryIndexOffset(false), transparentOpcode(false), indexState(EffectiveAddress::IndexState::None), executeCycleCount(0)
 {}
 
 //----------------------------------------------------------------------------------------

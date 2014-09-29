@@ -45,11 +45,12 @@ public:
 		ExecuteTime exceptionTime;
 
 		//Perform the operation
-		if(!cpu->ExceptionDisabled(M68000::EX_INTERRUPT_TRAP + trapNo))
+		M68000::Exceptions exceptionNo = (M68000::Exceptions)((unsigned int)M68000::Exceptions::InterruptTrap0 + trapNo);
+		if(!cpu->ExceptionDisabled(exceptionNo))
 		{
 			cpu->SetPC(location + GetInstructionSize());
 			cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());
-			exceptionTime = cpu->ProcessException(M68000::EX_INTERRUPT_TRAP + trapNo);
+			exceptionTime = cpu->ProcessException(exceptionNo);
 		}
 
 		//Return the execution time

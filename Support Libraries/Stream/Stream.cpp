@@ -32,8 +32,8 @@ template<> bool Stream<IStream>::ProcessByteOrderMark()
 		unsigned char byte4;
 		if(ReadData(byte3) && ReadData(byte4) && (byte3 == 0xFE) && (byte4 == 0xFF))
 		{
-			SetTextEncoding(IStream::TEXTENCODING_UTF32);
-			SetByteOrder(IStream::BYTEORDER_BIGENDIAN);
+			SetTextEncoding(IStream::TextEncoding::UTF32);
+			SetByteOrder(IStream::ByteOrder::BigEndian);
 			return true;
 		}
 		SetStreamPos(currentStreamPos);
@@ -42,8 +42,8 @@ template<> bool Stream<IStream>::ProcessByteOrderMark()
 	//Check for a UTF-16 big endian mark (FE FF)
 	if((byte1 == 0xFE) && (byte2 == 0xFF))
 	{
-		SetTextEncoding(IStream::TEXTENCODING_UTF16);
-		SetByteOrder(IStream::BYTEORDER_BIGENDIAN);
+		SetTextEncoding(IStream::TextEncoding::UTF16);
+		SetByteOrder(IStream::ByteOrder::BigEndian);
 		return true;
 	}
 
@@ -56,15 +56,15 @@ template<> bool Stream<IStream>::ProcessByteOrderMark()
 		unsigned char byte4;
 		if(ReadData(byte3) && ReadData(byte4) && (byte3 == 0x00) && (byte4 == 0x00))
 		{
-			SetTextEncoding(IStream::TEXTENCODING_UTF32);
-			SetByteOrder(IStream::BYTEORDER_LITTLEENDIAN);
+			SetTextEncoding(IStream::TextEncoding::UTF32);
+			SetByteOrder(IStream::ByteOrder::LittleEndian);
 			return true;
 		}
 		else
 		{
 			SetStreamPos(currentStreamPos);
-			SetTextEncoding(IStream::TEXTENCODING_UTF16);
-			SetByteOrder(IStream::BYTEORDER_LITTLEENDIAN);
+			SetTextEncoding(IStream::TextEncoding::UTF16);
+			SetByteOrder(IStream::ByteOrder::LittleEndian);
 			return true;
 		}
 	}
@@ -76,7 +76,7 @@ template<> bool Stream<IStream>::ProcessByteOrderMark()
 		unsigned char byte3;
 		if(ReadData(byte3) && (byte3 == 0xBF))
 		{
-			SetTextEncoding(IStream::TEXTENCODING_UTF8);
+			SetTextEncoding(IStream::TextEncoding::UTF8);
 			return true;
 		}
 		SetStreamPos(currentStreamPos);
@@ -102,16 +102,16 @@ template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark()
 	//Check for a UTF-32 big endian mark (00 00 FE FF)
 	if((byte1 == 0x00) && (byte2 == 0x00) && (byte3 == 0xFE) && (byte4 == 0xFF))
 	{
-		SetTextEncoding(IStream::TEXTENCODING_UTF32);
-		SetByteOrder(IStream::BYTEORDER_BIGENDIAN);
+		SetTextEncoding(IStream::TextEncoding::UTF32);
+		SetByteOrder(IStream::ByteOrder::BigEndian);
 		return true;
 	}
 
 	//Check for a UTF-16 big endian mark (FE FF)
 	if((byte1 == 0xFE) && (byte2 == 0xFF))
 	{
-		SetTextEncoding(IStream::TEXTENCODING_UTF16);
-		SetByteOrder(IStream::BYTEORDER_BIGENDIAN);
+		SetTextEncoding(IStream::TextEncoding::UTF16);
+		SetByteOrder(IStream::ByteOrder::BigEndian);
 		return true;
 	}
 
@@ -121,14 +121,14 @@ template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark()
 		//Check if this actually actually appears to be a UTF-32 mark
 		if((byte3 == 0x00) && (byte4 == 0x00))
 		{
-			SetTextEncoding(IStream::TEXTENCODING_UTF32);
-			SetByteOrder(IStream::BYTEORDER_LITTLEENDIAN);
+			SetTextEncoding(IStream::TextEncoding::UTF32);
+			SetByteOrder(IStream::ByteOrder::LittleEndian);
 			return true;
 		}
 		else
 		{
-			SetTextEncoding(IStream::TEXTENCODING_UTF16);
-			SetByteOrder(IStream::BYTEORDER_LITTLEENDIAN);
+			SetTextEncoding(IStream::TextEncoding::UTF16);
+			SetByteOrder(IStream::ByteOrder::LittleEndian);
 			return true;
 		}
 	}
@@ -136,7 +136,7 @@ template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark()
 	//Check for UTF-8 mark (EF BB BF)
 	if((byte1 == 0xEF) && (byte2 == 0xBB) && (byte3 == 0xBF))
 	{
-		SetTextEncoding(IStream::TEXTENCODING_UTF8);
+		SetTextEncoding(IStream::TextEncoding::UTF8);
 		return true;
 	}
 
@@ -148,7 +148,7 @@ template<class B> void Stream<B>::InsertByteOrderMark()
 {
 	switch(textEncoding)
 	{
-	case B::TEXTENCODING_UTF8:{
+	case B::TextEncoding::UTF8:{
 		unsigned char byte1 = 0xEF;
 		unsigned char byte2 = 0xBB;
 		unsigned char byte3 = 0xBF;
@@ -156,11 +156,11 @@ template<class B> void Stream<B>::InsertByteOrderMark()
 		WriteData(byte2);
 		WriteData(byte3);
 		break;}
-	case B::TEXTENCODING_UTF16:{
+	case B::TextEncoding::UTF16:{
 		unsigned short data = 0xFEFF;
 		WriteData(data);
 		break;}
-	case B::TEXTENCODING_UTF32:{
+	case B::TextEncoding::UTF32:{
 		unsigned short data = 0x0000FEFF;
 		WriteData(data);
 		break;}
@@ -250,70 +250,70 @@ template<class B> bool Stream<B>::ReadCharAsUTF32(typename B::UnicodeCodePoint& 
 template<class B> bool Stream<B>::ReadCharBigEndian(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternal(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternal(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharBigEndianAsASCII(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsASCII(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternalAsASCII(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharBigEndianAsUTF8(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF8(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternalAsUTF8(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharBigEndianAsUTF16(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF16(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternalAsUTF16(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharBigEndianAsUTF32(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF32(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternalAsUTF32(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharLittleEndian(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternal(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternal(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharLittleEndianAsASCII(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsASCII(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternalAsASCII(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharLittleEndianAsUTF8(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF8(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternalAsUTF8(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharLittleEndianAsUTF16(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF16(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternalAsUTF16(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharLittleEndianAsUTF32(typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return ReadCharInternalAsUTF32(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return ReadCharInternalAsUTF32(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
@@ -369,97 +369,97 @@ template<class B> bool Stream<B>::ReadTextFixedLengthBufferAsUTF32(typename B::S
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextBigEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, char* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, char paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadTextLittleEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	return ReadTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
+	return ReadTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1116,70 +1116,70 @@ template<class B> bool Stream<B>::WriteCharAsUTF32(const typename B::UnicodeCode
 template<class B> bool Stream<B>::WriteCharBigEndian(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternal(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternal(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharBigEndianAsASCII(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsASCII(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternalAsASCII(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharBigEndianAsUTF8(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF8(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternalAsUTF8(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharBigEndianAsUTF16(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF16(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternalAsUTF16(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharBigEndianAsUTF32(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF32(data, B::BYTEORDER_BIGENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternalAsUTF32(data, B::ByteOrder::BigEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharLittleEndian(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternal(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternal(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharLittleEndianAsASCII(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsASCII(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternalAsASCII(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharLittleEndianAsUTF8(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF8(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternalAsUTF8(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharLittleEndianAsUTF16(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF16(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternalAsUTF16(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharLittleEndianAsUTF32(const typename B::UnicodeCodePoint& data)
 {
 	typename B::SizeType remainingCodeUnitsAvailable = 9999;
-	return WriteCharInternalAsUTF32(data, B::BYTEORDER_LITTLEENDIAN, remainingCodeUnitsAvailable, true);
+	return WriteCharInternalAsUTF32(data, B::ByteOrder::LittleEndian, remainingCodeUnitsAvailable, true);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1247,121 +1247,121 @@ template<class B> bool Stream<B>::WriteTextAsUTF32(const wchar_t* data, typename
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndian(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternal(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternal(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndian(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternal(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternal(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianAsASCII(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsASCII(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsASCII(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianAsASCII(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsASCII(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsASCII(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianAsUTF8(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF8(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF8(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianAsUTF8(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF8(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF8(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianAsUTF16(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF16(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF16(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianAsUTF16(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF16(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF16(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianAsUTF32(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF32(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF32(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianAsUTF32(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF32(B::BYTEORDER_BIGENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF32(B::ByteOrder::BigEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndian(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternal(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternal(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndian(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternal(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternal(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianAsASCII(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsASCII(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsASCII(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianAsASCII(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsASCII(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsASCII(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF8(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF8(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF8(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF8(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF8(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF8(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF16(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF16(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF16(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF16(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF16(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF16(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF32(const char* data, typename B::SizeType bufferSize, char terminator)
 {
-	return WriteTextInternalAsUTF32(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF32(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianAsUTF32(const wchar_t* data, typename B::SizeType bufferSize, wchar_t terminator)
 {
-	return WriteTextInternalAsUTF32(B::BYTEORDER_LITTLEENDIAN, data, bufferSize, terminator);
+	return WriteTextInternalAsUTF32(B::ByteOrder::LittleEndian, data, bufferSize, terminator);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1417,97 +1417,97 @@ template<class B> bool Stream<B>::WriteTextFixedLengthBufferAsUTF32(typename B::
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextBigEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_BIGENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::BigEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsASCII(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF8(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF16(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const char* memoryBuffer, typename B::SizeType codeUnitsInMemory, char paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteTextLittleEndianFixedLengthBufferAsUTF32(typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	return WriteTextInternalFixedLengthBufferAsASCII(B::BYTEORDER_LITTLEENDIAN, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
+	return WriteTextInternalFixedLengthBufferAsASCII(B::ByteOrder::LittleEndian, codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 }
 
 //----------------------------------------------------------------------------------------

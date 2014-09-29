@@ -23,7 +23,7 @@ unsigned int GenericAccessDataValueString::GetIGenericAccessDataValueStringVersi
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueString::DataType GenericAccessDataValueString::GetType() const
 {
-	return DATATYPE_STRING;
+	return DataType::String;
 }
 
 //----------------------------------------------------------------------------------------

@@ -204,7 +204,7 @@ bool Z80::BuildDevice()
 		if(!opcodeObject->RegisterOpcode(opcodeTable))
 		{
 			//Log the event
-			LogEntry logEntry(LogEntry::EVENTLEVEL_CRITICAL);
+			LogEntry logEntry(LogEntry::EventLevel::Critical);
 			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
 			GetDeviceContext()->WriteLogEvent(logEntry);
 			result = false;
@@ -224,7 +224,7 @@ bool Z80::BuildDevice()
 		if(!opcodeObject->RegisterOpcode(opcodeTableCB))
 		{
 			//Log the event
-			LogEntry logEntry(LogEntry::EVENTLEVEL_CRITICAL);
+			LogEntry logEntry(LogEntry::EventLevel::Critical);
 			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
 			GetDeviceContext()->WriteLogEvent(logEntry);
 			result = false;
@@ -244,7 +244,7 @@ bool Z80::BuildDevice()
 		if(!opcodeObject->RegisterOpcode(opcodeTableED))
 		{
 			//Log the event
-			LogEntry logEntry(LogEntry::EVENTLEVEL_CRITICAL);
+			LogEntry logEntry(LogEntry::EventLevel::Critical);
 			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
 			GetDeviceContext()->WriteLogEvent(logEntry);
 			result = false;
@@ -260,94 +260,94 @@ bool Z80::BuildDevice()
 	opcodeBuffer = (void*)new unsigned char[largestObjectSize];
 
 	//Register each data source with the generic data access base class
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_A, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_F, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_B, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_C, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_D, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_E, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_H, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_L, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_AF, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_BC, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_DE, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_HL, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_A2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_F2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_B2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_C2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_D2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_E2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_H2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_L2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_AF2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_BC2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_DE2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_HL2, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IXHIGH, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IXLOW, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IYHIGH, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IYLOW, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_I, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_R, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IX, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IY, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_SP, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_PC, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::INTDISPLAYMODE_HEXADECIMAL));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IM, IGenericAccessDataValue::DATATYPE_UINT))->SetUIntMaxValue(2));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IFF1, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_IFF2, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_S, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_Z, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_Y, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_H, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_X, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_PV, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_N, IGenericAccessDataValue::DATATYPE_BOOL)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(DATASOURCE_REGISTER_FLAG_C, IGenericAccessDataValue::DATATYPE_BOOL)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterA, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterF, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterB, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterD, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterE, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterH, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterL, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterAF, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterBC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterDE, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterHL, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterA2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterF2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterB2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterC2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterD2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterE2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterH2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterL2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterAF2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterBC2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterDE2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterHL2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIXHigh, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIXLow, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIYHigh, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIYLow, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterI, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterR, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIX, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIY, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterPC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIM, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(2));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIFF1, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIFF2, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagS, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagZ, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagY, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagH, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagX, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagPV, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagN, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagC, IGenericAccessDataValue::DataType::Bool)));
 
 	//Register page layouts for generic access to this device
 	GenericAccessPage* registersPage = new GenericAccessPage(L"Generic - Registers");
 	registersPage->AddEntry((new GenericAccessGroup(L"Raw Registers"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_AF, L"AF"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_BC, L"BC"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_DE, L"DE"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_HL, L"HL"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_AF2, L"AF'"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_BC2, L"BC'"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_DE2, L"DE'"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_HL2, L"HL'"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_IX, L"IX"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_IY, L"IY"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_PC, L"PC"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_SP, L"SP"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterAF, L"AF"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterBC, L"BC"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterDE, L"DE"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterHL, L"HL"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterAF2, L"AF'"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterBC2, L"BC'"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterDE2, L"DE'"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterHL2, L"HL'"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterIX, L"IX"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterIY, L"IY"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterPC, L"PC"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterSP, L"SP"))
 	             ->AddEntry((new GenericAccessGroup(L"Virtual Registers"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_A, L"A"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_F, L"F"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_B, L"B"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_C, L"C"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_D, L"D"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_E, L"E"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_H, L"H"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_L, L"L"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterA, L"A"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterF, L"F"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterB, L"B"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterC, L"C"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterD, L"D"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterE, L"E"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterH, L"H"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterL, L"L"))
 	                 ->AddEntry((new GenericAccessGroup(L"Flags"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_S, L"S"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_Z, L"Z"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_Y, L"Y"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_H, L"H"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_X, L"X"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_PV, L"PV"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_N, L"N"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_FLAG_C, L"C"))))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterFlagS, L"S"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterFlagZ, L"Z"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterFlagY, L"Y"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterFlagH, L"H"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterFlagX, L"X"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterFlagPV, L"PV"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterFlagN, L"N"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterFlagC, L"C"))))
 	             ->AddEntry((new GenericAccessGroup(L"Private Registers"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_IFF1, L"IFF1"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_IFF2, L"IFF2"))
-	                 ->AddEntry((new GenericAccessGroupSingleSelectionList(DATASOURCE_REGISTER_IM, L"IM"))->SetAllowNewItemEntry(true)
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterIFF1, L"IFF1"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterIFF2, L"IFF2"))
+	                 ->AddEntry((new GenericAccessGroupSingleSelectionList(IZ80DataSource::RegisterIM, L"IM"))->SetAllowNewItemEntry(true)
 	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"0 (Instruction on Bus)"), new GenericAccessDataValueUInt(0))
 	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"1 (Call 38h)"), new GenericAccessDataValueUInt(1))
 	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"2 (Vector on Bus)"), new GenericAccessDataValueUInt(2)))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_I, L"I"))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(DATASOURCE_REGISTER_R, L"R"))));
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterI, L"I"))
+	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterR, L"R"))));
 	result &= AddGenericAccessPage(registersPage);
 
 	return result;
@@ -575,7 +575,7 @@ double Z80::ExecuteStep()
 		//##DEBUG##
 //		std::wcout << "Z80 line access pending\n";
 
-		boost::mutex::scoped_lock lock(lineMutex);
+		std::unique_lock<std::mutex> lock(lineMutex);
 		double currentTimesliceProgress = GetCurrentTimesliceProgress();
 		bool done = false;
 		while(!done)
@@ -596,7 +596,7 @@ double Z80::ExecuteStep()
 			//##DEBUG##
 			//std::wstringstream logMessage;
 			//logMessage << L"Z80 Line state change: " << std::setprecision(16) << lineaccess.accessTime << '\t' << currentTimesliceProgress << '\t' << lineAccess.lineID << '\t' << i->state.GetData();
-			//LogEntry logEntry(LogEntry::EVENTLEVEL_DEBUG, logMessage.str());
+			//LogEntry logEntry(LogEntry::EventLevel::DEBUG, logMessage.str());
 			//GetDeviceContext()->WriteLogEvent(logEntry);
 			//std::wcout << "Z80 Line state change: " << std::setprecision(16) << lineAccess.accessTime << '\t' << currentTimesliceProgress << '\n';
 
@@ -621,7 +621,7 @@ double Z80::ExecuteStep()
 		//Check lineAccessPending again after taking a lock on lineMutex. This will ensure
 		//we never enter a suspend state when there are actually line access events
 		//sitting in the buffer.
-		boost::mutex::scoped_lock lock(lineMutex);
+		std::unique_lock<std::mutex> lock(lineMutex);
 		if(!lineAccessPending)
 		{
 			//Suspend timeslice execution, release the lock on lineMutex, then wait until
@@ -684,7 +684,7 @@ double Z80::ExecuteStep()
 			SetIFF1(false);
 			//Write the return address to the stack
 			EffectiveAddress sp;
-			sp.SetMode(EffectiveAddress::MODE_SP_PREDEC);
+			sp.SetMode(EffectiveAddress::Mode::SPPreDec);
 			sp.Write(this, GetPC(), GetPC());
 			//Update the debug call stack, and branch to the interrupt handler
 			PushCallStack(GetPC().GetData(), 0x66, GetPC().GetData(), L"NMI", true);
@@ -705,7 +705,7 @@ double Z80::ExecuteStep()
 				//##TODO## Implement this interrupt mode
 				//##DEBUG##
 				std::wcout << "Z80 Attempted interrupt mode 0\n";
-				GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Z80 Attempted interrupt mode 0"));
+				GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Z80 Attempted interrupt mode 0"));
 
 				cyclesExecuted = 13;
 			}
@@ -716,7 +716,7 @@ double Z80::ExecuteStep()
 
 				//Write the return address to the stack
 				EffectiveAddress sp;
-				sp.SetMode(EffectiveAddress::MODE_SP_PREDEC);
+				sp.SetMode(EffectiveAddress::Mode::SPPreDec);
 				sp.Write(this, GetPC(), GetPC());
 				//Update the debug call stack, and branch to the interrupt handler
 				PushCallStack(GetPC().GetData(), 0x38, GetPC().GetData(), L"INT - mode 1", true);
@@ -729,7 +729,7 @@ double Z80::ExecuteStep()
 				//##TODO## Implement this interrupt mode
 				//##DEBUG##
 				std::wcout << "Z80 Attempted interrupt mode 2\n";
-				GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EVENTLEVEL_ERROR, L"Z80 Attempted interrupt mode 2"));
+				GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Z80 Attempted interrupt mode 2"));
 
 				cyclesExecuted = 19;
 			}
@@ -761,7 +761,7 @@ double Z80::ExecuteStep()
 		Z80Word instructionLocation = GetPC();
 		unsigned int instructionSize = 0;
 		Z80Byte opcode;
-		EffectiveAddress::IndexState indexState = EffectiveAddress::INDEX_NONE;
+		EffectiveAddress::IndexState indexState = EffectiveAddress::IndexState::None;
 
 		//Read the first byte of the instruction
 		additionalTime += ReadMemory(readLocation++, opcode, false);
@@ -772,11 +772,11 @@ double Z80::ExecuteStep()
 			AddRefresh(1);
 			if(opcode == 0xDD)
 			{
-				indexState = EffectiveAddress::INDEX_IX;
+				indexState = EffectiveAddress::IndexState::IX;
 			}
 			else if(opcode == 0xFD)
 			{
-				indexState = EffectiveAddress::INDEX_IY;
+				indexState = EffectiveAddress::IndexState::IY;
 			}
 			additionalTime += ReadMemory(readLocation++, opcode, false);
 			++instructionSize;
@@ -804,7 +804,7 @@ double Z80::ExecuteStep()
 		//Select the decode table to use, and extract the opcode
 		if(opcode == 0xCB)
 		{
-			if(indexState != EffectiveAddress::INDEX_NONE)
+			if(indexState != EffectiveAddress::IndexState::None)
 			{
 				//Decode a DDCB or an FDCB opcode. These opcodes include a mandatory index
 				//displacement value as the third byte of the opcode.
@@ -831,7 +831,7 @@ double Z80::ExecuteStep()
 		{
 			//Override any DD or FD prefix. The DD and FD prefix bytes are ignored for ED
 			//prefixed opcodes.
-			indexState = EffectiveAddress::INDEX_NONE;
+			indexState = EffectiveAddress::IndexState::None;
 
 			AddRefresh(1);
 			additionalTime += ReadMemory(readLocation++, opcode, false);
@@ -990,23 +990,23 @@ unsigned int Z80::GetLineID(const std::wstring& lineName) const
 {
 	if(lineName == L"RESET")
 	{
-		return LINE_RESET;
+		return (unsigned int)LineID::Reset;
 	}
 	else if(lineName == L"BUSREQ")
 	{
-		return LINE_BUSREQ;
+		return (unsigned int)LineID::BusReq;
 	}
 	else if(lineName == L"BUSACK")
 	{
-		return LINE_BUSACK;
+		return (unsigned int)LineID::BusAck;
 	}
 	else if(lineName == L"INT")
 	{
-		return LINE_INT;
+		return (unsigned int)LineID::Int;
 	}
 	else if(lineName == L"NMI")
 	{
-		return LINE_NMI;
+		return (unsigned int)LineID::Nmi;
 	}
 	return 0;
 }
@@ -1014,17 +1014,17 @@ unsigned int Z80::GetLineID(const std::wstring& lineName) const
 //----------------------------------------------------------------------------------------
 std::wstring Z80::GetLineName(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_RESET:
+	case LineID::Reset:
 		return L"RESET";
-	case LINE_BUSREQ:
+	case LineID::BusReq:
 		return L"BUSREQ";
-	case LINE_BUSACK:
+	case LineID::BusAck:
 		return L"BUSACK";
-	case LINE_INT:
+	case LineID::Int:
 		return L"INT";
-	case LINE_NMI:
+	case LineID::Nmi:
 		return L"NMI";
 	}
 	return L"";
@@ -1033,17 +1033,17 @@ std::wstring Z80::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int Z80::GetLineWidth(unsigned int lineID) const
 {
-	switch(lineID)
+	switch((LineID)lineID)
 	{
-	case LINE_RESET:
+	case LineID::Reset:
 		return 1;
-	case LINE_BUSREQ:
+	case LineID::BusReq:
 		return 1;
-	case LINE_BUSACK:
+	case LineID::BusAck:
 		return 1;
-	case LINE_INT:
+	case LineID::Int:
 		return 1;
-	case LINE_NMI:
+	case LineID::Nmi:
 		return 1;
 	}
 	return 0;
@@ -1052,7 +1052,7 @@ unsigned int Z80::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
 	//locking operation in the active thread for this device when no line changes are
@@ -1095,7 +1095,7 @@ void Z80::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 //----------------------------------------------------------------------------------------
 void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//Read the time at which this access is being made, and trigger a rollback if we've
 	//already passed that time.
@@ -1137,7 +1137,7 @@ void Z80::AssertCurrentOutputLineState() const
 {
 	if(memoryBus != 0)
 	{
-		if(busackLineState) memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(busackLineState) memoryBus->SetLineState((unsigned int)LineID::BusAck, Data(GetLineWidth((unsigned int)LineID::BusAck), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -1146,12 +1146,12 @@ void Z80::NegateCurrentOutputLineState() const
 {
 	if(memoryBus != 0)
 	{
-		if(busackLineState) memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(busackLineState) memoryBus->SetLineState((unsigned int)LineID::BusAck, Data(GetLineWidth((unsigned int)LineID::BusAck), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, boost::mutex::scoped_lock& lock)
+void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, std::unique_lock<std::mutex>& lock)
 {
 	//##DEBUG##
 //	std::wstringstream message;
@@ -1160,10 +1160,10 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, bo
 
 	switch(targetLine)
 	{
-	case LINE_RESET:
+	case LineID::Reset:
 		resetLineState = lineData.NonZero();
 		break;
-	case LINE_BUSREQ:{
+	case LineID::BusReq:{
 		bool newState = lineData.NonZero();
 		if(busreqLineState != newState)
 		{
@@ -1180,16 +1180,16 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, bo
 			//If we're processing a change to the BUSREQ line, we need to now change the
 			//state of the BUSACK line to match.
 			busackLineState = busreqLineState;
-			memoryBus->SetLineState(LINE_BUSACK, Data(GetLineWidth(LINE_BUSACK), (unsigned int)busackLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+			memoryBus->SetLineState((unsigned int)LineID::BusAck, Data(GetLineWidth((unsigned int)LineID::BusAck), (unsigned int)busackLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 
 			//Re-acquire the lock now that we've completed our external call
 			lock.lock();
 		}
 		break;}
-	case LINE_INT:
+	case LineID::Int:
 		intLineState = lineData.NonZero();
 		break;
-	case LINE_NMI:
+	case LineID::Nmi:
 		nmiLineState = lineData.NonZero();
 		break;
 	}
@@ -1210,7 +1210,7 @@ unsigned int Z80::GetClockSourceID(const std::wstring& clockSourceName) const
 {
 	if(clockSourceName == L"CLK")
 	{
-		return CLOCK_CLK;
+		return (unsigned int)ClockID::Clk;
 	}
 	return 0;
 }
@@ -1218,9 +1218,9 @@ unsigned int Z80::GetClockSourceID(const std::wstring& clockSourceName) const
 //----------------------------------------------------------------------------------------
 std::wstring Z80::GetClockSourceName(unsigned int clockSourceID) const
 {
-	switch(clockSourceID)
+	switch((ClockID)clockSourceID)
 	{
-	case CLOCK_CLK:
+	case ClockID::Clk:
 		return L"CLK";
 	}
 	return L"";
@@ -1231,7 +1231,7 @@ void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceC
 {
 	//We push clock rate changes through the normal line state change tracking system
 	//here, since line state changes and clock changes are basically the same problem.
-	boost::mutex::scoped_lock lock(lineMutex);
+	std::unique_lock<std::mutex> lock(lineMutex);
 
 	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
 	//locking operation in the active thread for this device when no line changes are
@@ -1275,7 +1275,7 @@ void Z80::TransparentSetClockSourceRate(unsigned int clockInput, double clockRat
 void Z80::ApplyClockStateChange(unsigned int targetClock, double clockRate)
 {
 	//Apply the input clock rate change
-	if(targetClock == CLOCK_CLK)
+	if((ClockID)targetClock == ClockID::Clk)
 	{
 		SetClockSpeed(clockRate);
 	}
@@ -1352,7 +1352,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	const Z80Instruction* nextOpcodeType = 0;
 	unsigned int instructionSize = 0;
 	Z80Byte opcode;
-	EffectiveAddress::IndexState indexState = EffectiveAddress::INDEX_NONE;
+	EffectiveAddress::IndexState indexState = EffectiveAddress::IndexState::None;
 
 	//Read the first byte of the instruction
 	ReadMemory(readLocation++, opcode, true);
@@ -1362,11 +1362,11 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	{
 		if(opcode == 0xDD)
 		{
-			indexState = EffectiveAddress::INDEX_IX;
+			indexState = EffectiveAddress::IndexState::IX;
 		}
 		else if(opcode == 0xFD)
 		{
-			indexState = EffectiveAddress::INDEX_IY;
+			indexState = EffectiveAddress::IndexState::IY;
 		}
 		ReadMemory(readLocation++, opcode, true);
 		++instructionSize;
@@ -1383,7 +1383,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	//Select the decode table to use, and extract the opcode
 	if(opcode == 0xCB)
 	{
-		if(indexState != EffectiveAddress::INDEX_NONE)
+		if(indexState != EffectiveAddress::IndexState::None)
 		{
 			//Decode a DDCB or an FDCB opcode. These opcodes include a mandatory index
 			//displacement value as the third byte of the opcode.
@@ -1399,7 +1399,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	{
 		//Override any DD or FD prefix. The DD and FD prefix bytes are ignored for ED
 		//prefixed opcodes.
-		indexState = EffectiveAddress::INDEX_NONE;
+		indexState = EffectiveAddress::IndexState::None;
 
 		ReadMemory(readLocation++, opcode, true);
 		++instructionSize;
@@ -1544,11 +1544,11 @@ unsigned int Z80::GetCELineID(const std::wstring& lineName, bool inputLine) cons
 {
 	if(lineName == L"RD")
 	{
-		return CELINE_RD;
+		return (unsigned int)CELineID::RD;
 	}
 	else if(lineName == L"WR")
 	{
-		return CELINE_WR;
+		return (unsigned int)CELineID::WR;
 	}
 	return 0;
 }
@@ -1556,12 +1556,12 @@ unsigned int Z80::GetCELineID(const std::wstring& lineName, bool inputLine) cons
 //----------------------------------------------------------------------------------------
 void Z80::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber)
 {
-	switch(lineID)
+	switch((CELineID)lineID)
 	{
-	case CELINE_RD:
+	case CELineID::RD:
 		ceLineMaskRD = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
-	case CELINE_WR:
+	case CELineID::WR:
 		ceLineMaskWR = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	}
@@ -1778,171 +1778,171 @@ bool Z80::ReadGenericData(unsigned int dataID, const DataContext* dataContext, I
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
 	switch(dataID)
 	{
-	case DATASOURCE_REGISTER_A:
+	case IZ80DataSource::RegisterA:
 		return dataValue.SetValue(GetA().GetData());
-	case DATASOURCE_REGISTER_F:
+	case IZ80DataSource::RegisterF:
 		return dataValue.SetValue(GetF().GetData());
-	case DATASOURCE_REGISTER_B:
+	case IZ80DataSource::RegisterB:
 		return dataValue.SetValue(GetB().GetData());
-	case DATASOURCE_REGISTER_C:
+	case IZ80DataSource::RegisterC:
 		return dataValue.SetValue(GetC().GetData());
-	case DATASOURCE_REGISTER_D:
+	case IZ80DataSource::RegisterD:
 		return dataValue.SetValue(GetD().GetData());
-	case DATASOURCE_REGISTER_E:
+	case IZ80DataSource::RegisterE:
 		return dataValue.SetValue(GetE().GetData());
-	case DATASOURCE_REGISTER_H:
+	case IZ80DataSource::RegisterH:
 		return dataValue.SetValue(GetH().GetData());
-	case DATASOURCE_REGISTER_L:
+	case IZ80DataSource::RegisterL:
 		return dataValue.SetValue(GetL().GetData());
-	case DATASOURCE_REGISTER_AF:
+	case IZ80DataSource::RegisterAF:
 		return dataValue.SetValue(GetAF().GetData());
-	case DATASOURCE_REGISTER_BC:
+	case IZ80DataSource::RegisterBC:
 		return dataValue.SetValue(GetBC().GetData());
-	case DATASOURCE_REGISTER_DE:
+	case IZ80DataSource::RegisterDE:
 		return dataValue.SetValue(GetDE().GetData());
-	case DATASOURCE_REGISTER_HL:
+	case IZ80DataSource::RegisterHL:
 		return dataValue.SetValue(GetHL().GetData());
-	case DATASOURCE_REGISTER_A2:
+	case IZ80DataSource::RegisterA2:
 		return dataValue.SetValue(GetA2().GetData());
-	case DATASOURCE_REGISTER_F2:
+	case IZ80DataSource::RegisterF2:
 		return dataValue.SetValue(GetF2().GetData());
-	case DATASOURCE_REGISTER_B2:
+	case IZ80DataSource::RegisterB2:
 		return dataValue.SetValue(GetB2().GetData());
-	case DATASOURCE_REGISTER_C2:
+	case IZ80DataSource::RegisterC2:
 		return dataValue.SetValue(GetC2().GetData());
-	case DATASOURCE_REGISTER_D2:
+	case IZ80DataSource::RegisterD2:
 		return dataValue.SetValue(GetD2().GetData());
-	case DATASOURCE_REGISTER_E2:
+	case IZ80DataSource::RegisterE2:
 		return dataValue.SetValue(GetE2().GetData());
-	case DATASOURCE_REGISTER_H2:
+	case IZ80DataSource::RegisterH2:
 		return dataValue.SetValue(GetH2().GetData());
-	case DATASOURCE_REGISTER_L2:
+	case IZ80DataSource::RegisterL2:
 		return dataValue.SetValue(GetL2().GetData());
-	case DATASOURCE_REGISTER_AF2:
+	case IZ80DataSource::RegisterAF2:
 		return dataValue.SetValue(GetAF2().GetData());
-	case DATASOURCE_REGISTER_BC2:
+	case IZ80DataSource::RegisterBC2:
 		return dataValue.SetValue(GetBC2().GetData());
-	case DATASOURCE_REGISTER_DE2:
+	case IZ80DataSource::RegisterDE2:
 		return dataValue.SetValue(GetDE2().GetData());
-	case DATASOURCE_REGISTER_HL2:
+	case IZ80DataSource::RegisterHL2:
 		return dataValue.SetValue(GetHL2().GetData());
-	case DATASOURCE_REGISTER_IXHIGH:
+	case IZ80DataSource::RegisterIXHigh:
 		return dataValue.SetValue(GetIXHigh().GetData());
-	case DATASOURCE_REGISTER_IXLOW:
+	case IZ80DataSource::RegisterIXLow:
 		return dataValue.SetValue(GetIXLow().GetData());
-	case DATASOURCE_REGISTER_IYHIGH:
+	case IZ80DataSource::RegisterIYHigh:
 		return dataValue.SetValue(GetIYHigh().GetData());
-	case DATASOURCE_REGISTER_IYLOW:
+	case IZ80DataSource::RegisterIYLow:
 		return dataValue.SetValue(GetIYLow().GetData());
-	case DATASOURCE_REGISTER_I:
+	case IZ80DataSource::RegisterI:
 		return dataValue.SetValue(GetI().GetData());
-	case DATASOURCE_REGISTER_R:
+	case IZ80DataSource::RegisterR:
 		return dataValue.SetValue(GetR().GetData());
-	case DATASOURCE_REGISTER_IX:
+	case IZ80DataSource::RegisterIX:
 		return dataValue.SetValue(GetIX().GetData());
-	case DATASOURCE_REGISTER_IY:
+	case IZ80DataSource::RegisterIY:
 		return dataValue.SetValue(GetIY().GetData());
-	case DATASOURCE_REGISTER_SP:
+	case IZ80DataSource::RegisterSP:
 		return dataValue.SetValue(GetSP().GetData());
-	case DATASOURCE_REGISTER_PC:
+	case IZ80DataSource::RegisterPC:
 		return dataValue.SetValue(GetPC().GetData());
-	case DATASOURCE_REGISTER_IM:
+	case IZ80DataSource::RegisterIM:
 		return dataValue.SetValue(GetInterruptMode());
-	case DATASOURCE_REGISTER_IFF1:
+	case IZ80DataSource::RegisterIFF1:
 		return dataValue.SetValue(GetIFF1());
-	case DATASOURCE_REGISTER_IFF2:
+	case IZ80DataSource::RegisterIFF2:
 		return dataValue.SetValue(GetIFF2());
-	case DATASOURCE_REGISTER_FLAG_S:
+	case IZ80DataSource::RegisterFlagS:
 		return dataValue.SetValue(GetFlagS());
-	case DATASOURCE_REGISTER_FLAG_Z:
+	case IZ80DataSource::RegisterFlagZ:
 		return dataValue.SetValue(GetFlagZ());
-	case DATASOURCE_REGISTER_FLAG_Y:
+	case IZ80DataSource::RegisterFlagY:
 		return dataValue.SetValue(GetFlagY());
-	case DATASOURCE_REGISTER_FLAG_H:
+	case IZ80DataSource::RegisterFlagH:
 		return dataValue.SetValue(GetFlagH());
-	case DATASOURCE_REGISTER_FLAG_X:
+	case IZ80DataSource::RegisterFlagX:
 		return dataValue.SetValue(GetFlagX());
-	case DATASOURCE_REGISTER_FLAG_PV:
+	case IZ80DataSource::RegisterFlagPV:
 		return dataValue.SetValue(GetFlagPV());
-	case DATASOURCE_REGISTER_FLAG_N:
+	case IZ80DataSource::RegisterFlagN:
 		return dataValue.SetValue(GetFlagN());
-	case DATASOURCE_REGISTER_FLAG_C:
+	case IZ80DataSource::RegisterFlagC:
 		return dataValue.SetValue(GetFlagC());
-	case DATASOURCE_REGISTER_ORIGINALVALUE_CHANGECOUNTER:
+	case IZ80DataSource::RegisterOriginalValueChangeCounter:
 		return dataValue.SetValue(systemPausedToggleCounter);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_A:
+	case IZ80DataSource::RegisterOriginalValueA:
 		return dataValue.SetValue(regChangedA);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_F:
+	case IZ80DataSource::RegisterOriginalValueF:
 		return dataValue.SetValue(regChangedF);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_B:
+	case IZ80DataSource::RegisterOriginalValueB:
 		return dataValue.SetValue(regChangedB);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_C:
+	case IZ80DataSource::RegisterOriginalValueC:
 		return dataValue.SetValue(regChangedC);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_D:
+	case IZ80DataSource::RegisterOriginalValueD:
 		return dataValue.SetValue(regChangedD);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_E:
+	case IZ80DataSource::RegisterOriginalValueE:
 		return dataValue.SetValue(regChangedE);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_H:
+	case IZ80DataSource::RegisterOriginalValueH:
 		return dataValue.SetValue(regChangedH);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_L:
+	case IZ80DataSource::RegisterOriginalValueL:
 		return dataValue.SetValue(regChangedL);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_AF:
+	case IZ80DataSource::RegisterOriginalValueAF:
 		return dataValue.SetValue(regChangedAF);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_BC:
+	case IZ80DataSource::RegisterOriginalValueBC:
 		return dataValue.SetValue(regChangedBC);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_DE:
+	case IZ80DataSource::RegisterOriginalValueDE:
 		return dataValue.SetValue(regChangedDE);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_HL:
+	case IZ80DataSource::RegisterOriginalValueHL:
 		return dataValue.SetValue(regChangedHL);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_AF2:
+	case IZ80DataSource::RegisterOriginalValueAF2:
 		return dataValue.SetValue(regChangedAF2);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_BC2:
+	case IZ80DataSource::RegisterOriginalValueBC2:
 		return dataValue.SetValue(regChangedBC2);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_DE2:
+	case IZ80DataSource::RegisterOriginalValueDE2:
 		return dataValue.SetValue(regChangedDE2);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_HL2:
+	case IZ80DataSource::RegisterOriginalValueHL2:
 		return dataValue.SetValue(regChangedHL2);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_IXHIGH:
+	case IZ80DataSource::RegisterOriginalValueIXHigh:
 		return dataValue.SetValue(regChangedIX);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_IXLOW:
+	case IZ80DataSource::RegisterOriginalValueIXLow:
 		return dataValue.SetValue(regChangedIXLow);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_IYHIGH:
+	case IZ80DataSource::RegisterOriginalValueIYHigh:
 		return dataValue.SetValue(regChangedIYHigh);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_IYLOW:
+	case IZ80DataSource::RegisterOriginalValueIYLow:
 		return dataValue.SetValue(regChangedIYLow);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_I:
+	case IZ80DataSource::RegisterOriginalValueI:
 		return dataValue.SetValue(regChangedI);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_R:
+	case IZ80DataSource::RegisterOriginalValueR:
 		return dataValue.SetValue(regChangedR);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_IX:
+	case IZ80DataSource::RegisterOriginalValueIX:
 		return dataValue.SetValue(regChangedIX);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_IY:
+	case IZ80DataSource::RegisterOriginalValueIY:
 		return dataValue.SetValue(regChangedIY);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_SP:
+	case IZ80DataSource::RegisterOriginalValueSP:
 		return dataValue.SetValue(regChangedSP);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_PC:
+	case IZ80DataSource::RegisterOriginalValuePC:
 		return dataValue.SetValue(regChangedPC);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_IM:
+	case IZ80DataSource::RegisterOriginalValueIM:
 		return dataValue.SetValue(regChangedIM);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_IFF1:
+	case IZ80DataSource::RegisterOriginalValueIFF1:
 		return dataValue.SetValue(regChangedIFF1);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_IFF2:
+	case IZ80DataSource::RegisterOriginalValueIFF2:
 		return dataValue.SetValue(regChangedIFF2);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_S:
+	case IZ80DataSource::RegisterOriginalValueFlagS:
 		return dataValue.SetValue(regChangedFlagS);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_Z:
+	case IZ80DataSource::RegisterOriginalValueFlagZ:
 		return dataValue.SetValue(regChangedFlagZ);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_Y:
+	case IZ80DataSource::RegisterOriginalValueFlagY:
 		return dataValue.SetValue(regChangedFlagY);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_H:
+	case IZ80DataSource::RegisterOriginalValueFlagH:
 		return dataValue.SetValue(regChangedFlagH);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_X:
+	case IZ80DataSource::RegisterOriginalValueFlagX:
 		return dataValue.SetValue(regChangedFlagX);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_PV:
+	case IZ80DataSource::RegisterOriginalValueFlagPV:
 		return dataValue.SetValue(regChangedFlagPV);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_N:
+	case IZ80DataSource::RegisterOriginalValueFlagN:
 		return dataValue.SetValue(regChangedFlagN);
-	case DATASOURCE_REGISTER_ORIGINALVALUE_FLAG_C:
+	case IZ80DataSource::RegisterOriginalValueFlagC:
 		return dataValue.SetValue(regChangedFlagC);
 	}
 	return Processor::ReadGenericData(dataID, dataContext, dataValue);
@@ -1955,228 +1955,228 @@ bool Z80::WriteGenericData(unsigned int dataID, const DataContext* dataContext, 
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
 	switch(dataID)
 	{
-	case DATASOURCE_REGISTER_A:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterA:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetA(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_F:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterF:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetF(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_B:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterB:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetB(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_C:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterC:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetC(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_D:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterD:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetD(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_E:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterE:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetE(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_H:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterH:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetH(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_L:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterL:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetL(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_AF:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterAF:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetAF(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_BC:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterBC:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetBC(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_DE:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterDE:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetDE(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_HL:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterHL:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetHL(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_A2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterA2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetA2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_F2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterF2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetF2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_B2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterB2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetB2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_C2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterC2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetC2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_D2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterD2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetD2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_E2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterE2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetE2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_H2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterH2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetH2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_L2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterL2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetL2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_AF2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterAF2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetAF2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_BC2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterBC2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetBC2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_DE2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterDE2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetDE2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_HL2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterHL2:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetHL2(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_IXHIGH:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterIXHigh:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIXHigh(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_IXLOW:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterIXLow:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIXLow(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_IYHIGH:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterIYHigh:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIYHigh(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_IYLOW:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterIYLow:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIYLow(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_I:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterI:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetI(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_R:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterR:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetR(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_IX:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterIX:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIX(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_IY:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterIY:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIY(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_SP:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterSP:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetSP(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_PC:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterPC:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetPC(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_IM:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_UINT) return false;
+	case IZ80DataSource::RegisterIM:{
+		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetInterruptMode(dataValueAsUInt.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_IFF1:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterIFF1:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetIFF1(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_IFF2:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterIFF2:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetIFF2(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_FLAG_S:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterFlagS:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagS(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_FLAG_Z:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterFlagZ:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagZ(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_FLAG_Y:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterFlagY:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagY(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_FLAG_H:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterFlagH:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagH(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_FLAG_X:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterFlagX:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagX(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_FLAG_PV:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterFlagPV:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagPV(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_FLAG_N:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterFlagN:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagN(dataValueAsBool.GetValue());
 		return true;}
-	case DATASOURCE_REGISTER_FLAG_C:{
-		if(dataType != IGenericAccessDataValue::DATATYPE_BOOL) return false;
+	case IZ80DataSource::RegisterFlagC:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagC(dataValueAsBool.GetValue());
 		return true;}

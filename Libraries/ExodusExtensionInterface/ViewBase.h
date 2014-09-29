@@ -19,8 +19,8 @@ public:
 	void SetWindowSettings(const std::wstring& ainitialWindowTitle, DWORD awindowStyle, DWORD aextendedWindowStyle, unsigned int awidth, unsigned int aheight);
 	void SetDialogTemplateSettings(const std::wstring& ainitialWindowTitle, void* aassemblyHandle, LPCWSTR atemplateName);
 	void SetDocumentViewType();
-	void SetDockableViewType(bool ainitiallyDocked = false, InitialDockPos ainitialDockPos = INITIALDOCKPOS_LEFT, bool ainitiallyCollapsed = false, const std::wstring& aviewDockingGroup = L"");
-	void SetDialogViewType(DialogMode adialogMode = DIALOGMODE_MODELESS, bool adialogResizable = false, InitialDialogPos ainitialDialogPos = INITIALDIALOGPOS_DEFAULT);
+	void SetDockableViewType(bool ainitiallyDocked = false, DockPos ainitialDockPos = DockPos::Left, bool ainitiallyCollapsed = false, const std::wstring& aviewDockingGroup = L"");
+	void SetDialogViewType(DialogMode adialogMode = DialogMode::Modeless, bool adialogResizable = false, DialogPos ainitialDialogPos = DialogPos::Default);
 
 	//View management functions
 	virtual bool OpenView(IHierarchicalStorageNode* viewState);
@@ -37,10 +37,10 @@ public:
 	std::wstring GetViewDockingGroup() const;
 	virtual bool IsViewInitiallyDocked() const;
 	virtual bool IsViewInitiallyCollapsed() const;
-	virtual InitialDockPos GetViewInitialDockPosition() const;
+	virtual DockPos GetViewInitialDockPosition() const;
 	virtual ViewType GetViewType() const;
 	virtual DialogMode GetViewDialogMode() const;
-	virtual InitialDialogPos GetViewInitialDialogPosition() const;
+	virtual DialogPos GetViewInitialDialogPosition() const;
 	virtual bool CanResizeDialog() const;
 
 protected:
@@ -86,10 +86,10 @@ private:
 	std::wstring viewDockingGroup;
 	bool initiallyDocked;
 	bool initiallyCollapsed;
-	InitialDockPos initialDockPos;
+	DockPos initialDockPos;
 	ViewType viewType;
 	DialogMode dialogMode;
-	InitialDialogPos initialDialogPos;
+	DialogPos initialDialogPos;
 	bool dialogResizable;
 };
 

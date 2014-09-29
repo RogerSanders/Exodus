@@ -3,27 +3,27 @@ namespace Stream {
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IStreamNonSeekable::ByteOrder
+enum class IStreamNonSeekable::ByteOrder
 {
-	BYTEORDER_PLATFORM,
-	BYTEORDER_LITTLEENDIAN,
-	BYTEORDER_BIGENDIAN
+	Platform,
+	LittleEndian,
+	BigEndian
 };
 
 //----------------------------------------------------------------------------------------
-enum IStreamNonSeekable::TextEncoding
+enum class IStreamNonSeekable::TextEncoding
 {
-	TEXTENCODING_ASCII,
-	TEXTENCODING_UTF8,
-	TEXTENCODING_UTF16,
-	TEXTENCODING_UTF32
+	ASCII,
+	UTF8,
+	UTF16,
+	UTF32
 };
 
 //----------------------------------------------------------------------------------------
-enum IStreamNonSeekable::NewLineEncoding
+enum class IStreamNonSeekable::NewLineEncoding
 {
-	NEWLINEENCODING_UNIX,
-	NEWLINEENCODING_DOS
+	Unix,
+	DOS
 };
 
 //----------------------------------------------------------------------------------------
@@ -43,11 +43,11 @@ bool IStreamNonSeekable::ReadChar(ByteOrder abyteOrder, UnicodeCodePoint& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadChar(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadCharLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadCharBigEndian(data);
 	}
 	return false;
@@ -58,11 +58,11 @@ bool IStreamNonSeekable::ReadCharAsASCII(ByteOrder abyteOrder, UnicodeCodePoint&
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadCharAsASCII(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadCharLittleEndianAsASCII(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadCharBigEndianAsASCII(data);
 	}
 	return false;
@@ -73,11 +73,11 @@ bool IStreamNonSeekable::ReadCharAsUTF8(ByteOrder abyteOrder, UnicodeCodePoint& 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadCharAsUTF8(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadCharLittleEndianAsUTF8(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadCharBigEndianAsUTF8(data);
 	}
 	return false;
@@ -88,11 +88,11 @@ bool IStreamNonSeekable::ReadCharAsUTF16(ByteOrder abyteOrder, UnicodeCodePoint&
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadCharAsUTF16(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadCharLittleEndianAsUTF16(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadCharBigEndianAsUTF16(data);
 	}
 	return false;
@@ -103,11 +103,11 @@ bool IStreamNonSeekable::ReadCharAsUTF32(ByteOrder abyteOrder, UnicodeCodePoint&
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadCharAsUTF32(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadCharLittleEndianAsUTF32(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadCharBigEndianAsUTF32(data);
 	}
 	return false;
@@ -120,11 +120,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 	}
 	return false;
@@ -135,11 +135,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 	}
 	return false;
@@ -150,11 +150,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, S
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 	}
 	return false;
@@ -165,11 +165,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, S
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 	}
 	return false;
@@ -180,11 +180,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 	}
 	return false;
@@ -195,11 +195,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 	}
 	return false;
@@ -210,11 +210,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 	}
 	return false;
@@ -225,11 +225,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
 	}
 	return false;
@@ -240,11 +240,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -255,11 +255,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -270,11 +270,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, S
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -285,11 +285,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, S
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -300,11 +300,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -315,11 +315,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -330,11 +330,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -345,11 +345,11 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -602,11 +602,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, bool& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -617,11 +617,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, char& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -632,11 +632,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, signed char& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -647,11 +647,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned char& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -662,11 +662,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, wchar_t& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -677,11 +677,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, short& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -692,11 +692,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned short& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -707,11 +707,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, int& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -722,11 +722,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned int& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -737,11 +737,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, long& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -752,11 +752,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned long& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -767,11 +767,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, long long& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -782,11 +782,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned long long& data
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -797,11 +797,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, float& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -812,11 +812,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, double& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -827,11 +827,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, long double& data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data);
 	}
 	return false;
@@ -844,11 +844,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, bool* data, SizeType len
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -859,11 +859,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, char* data, SizeType len
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -874,11 +874,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, signed char* data, SizeT
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -889,11 +889,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned char* data, Siz
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -904,11 +904,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, wchar_t* data, SizeType 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -919,11 +919,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, short* data, SizeType le
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -934,11 +934,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned short* data, Si
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -949,11 +949,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, int* data, SizeType leng
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -964,11 +964,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned int* data, Size
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -979,11 +979,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, long* data, SizeType len
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -994,11 +994,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned long* data, Siz
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -1009,11 +1009,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, long long* data, SizeTyp
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -1024,11 +1024,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, unsigned long long* data
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -1039,11 +1039,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, float* data, SizeType le
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -1054,11 +1054,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, double* data, SizeType l
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -1069,11 +1069,11 @@ bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, long double* data, SizeT
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -1084,11 +1084,11 @@ template<class T> bool IStreamNonSeekable::ReadData(ByteOrder abyteOrder, std::v
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return ReadData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return ReadDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return ReadDataBigEndian(data, length);
 	}
 	return false;
@@ -1179,11 +1179,11 @@ bool IStreamNonSeekable::WriteChar(ByteOrder abyteOrder, const UnicodeCodePoint&
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteChar(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteCharLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteCharBigEndian(data);
 	}
 	return false;
@@ -1194,11 +1194,11 @@ bool IStreamNonSeekable::WriteCharAsASCII(ByteOrder abyteOrder, const UnicodeCod
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteCharAsASCII(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteCharLittleEndianAsASCII(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteCharBigEndianAsASCII(data);
 	}
 	return false;
@@ -1209,11 +1209,11 @@ bool IStreamNonSeekable::WriteCharAsUTF8(ByteOrder abyteOrder, const UnicodeCode
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteCharAsUTF8(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteCharLittleEndianAsUTF8(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteCharBigEndianAsUTF8(data);
 	}
 	return false;
@@ -1224,11 +1224,11 @@ bool IStreamNonSeekable::WriteCharAsUTF16(ByteOrder abyteOrder, const UnicodeCod
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteCharAsUTF16(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteCharLittleEndianAsUTF16(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteCharBigEndianAsUTF16(data);
 	}
 	return false;
@@ -1239,11 +1239,11 @@ bool IStreamNonSeekable::WriteCharAsUTF32(ByteOrder abyteOrder, const UnicodeCod
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteCharAsUTF32(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteCharLittleEndianAsUTF32(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteCharBigEndianAsUTF32(data);
 	}
 	return false;
@@ -1256,11 +1256,11 @@ bool IStreamNonSeekable::WriteText(ByteOrder abyteOrder, const char* data, SizeT
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteText(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndian(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndian(data, bufferSize, terminator);
 	}
 	return false;
@@ -1271,11 +1271,11 @@ bool IStreamNonSeekable::WriteText(ByteOrder abyteOrder, const wchar_t* data, Si
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteText(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndian(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndian(data, bufferSize, terminator);
 	}
 	return false;
@@ -1286,11 +1286,11 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder abyteOrder, const char* data
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsASCII(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsASCII(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsASCII(data, bufferSize, terminator);
 	}
 	return false;
@@ -1301,11 +1301,11 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder abyteOrder, const wchar_t* d
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsASCII(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsASCII(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsASCII(data, bufferSize, terminator);
 	}
 	return false;
@@ -1316,11 +1316,11 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder abyteOrder, const char* data,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF8(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF8(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF8(data, bufferSize, terminator);
 	}
 	return false;
@@ -1331,11 +1331,11 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder abyteOrder, const wchar_t* da
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF8(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF8(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF8(data, bufferSize, terminator);
 	}
 	return false;
@@ -1346,11 +1346,11 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder abyteOrder, const char* data
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF16(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF16(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF16(data, bufferSize, terminator);
 	}
 	return false;
@@ -1361,11 +1361,11 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder abyteOrder, const wchar_t* d
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF16(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF16(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF16(data, bufferSize, terminator);
 	}
 	return false;
@@ -1376,11 +1376,11 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder abyteOrder, const char* data
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF32(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF32(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF32(data, bufferSize, terminator);
 	}
 	return false;
@@ -1391,11 +1391,11 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder abyteOrder, const wchar_t* d
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF32(data, bufferSize, terminator);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF32(data, bufferSize, terminator);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF32(data, bufferSize, terminator);
 	}
 	return false;
@@ -1406,11 +1406,11 @@ bool IStreamNonSeekable::WriteText(ByteOrder abyteOrder, const std::string& data
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteText(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndian(data);
 	}
 	return false;
@@ -1421,11 +1421,11 @@ bool IStreamNonSeekable::WriteText(ByteOrder abyteOrder, const std::wstring& dat
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteText(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndian(data);
 	}
 	return false;
@@ -1436,11 +1436,11 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder abyteOrder, const std::strin
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsASCII(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsASCII(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsASCII(data);
 	}
 	return false;
@@ -1451,11 +1451,11 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder abyteOrder, const std::wstri
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsASCII(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsASCII(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsASCII(data);
 	}
 	return false;
@@ -1466,11 +1466,11 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder abyteOrder, const std::string
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF8(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF8(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF8(data);
 	}
 	return false;
@@ -1481,11 +1481,11 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder abyteOrder, const std::wstrin
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF8(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF8(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF8(data);
 	}
 	return false;
@@ -1496,11 +1496,11 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder abyteOrder, const std::strin
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF16(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF16(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF16(data);
 	}
 	return false;
@@ -1511,11 +1511,11 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder abyteOrder, const std::wstri
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF16(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF16(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF16(data);
 	}
 	return false;
@@ -1526,11 +1526,11 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder abyteOrder, const std::strin
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF32(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF32(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF32(data);
 	}
 	return false;
@@ -1541,11 +1541,11 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder abyteOrder, const std::wstri
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextAsUTF32(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianAsUTF32(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianAsUTF32(data);
 	}
 	return false;
@@ -1702,11 +1702,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 	}
 	return false;
@@ -1717,11 +1717,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 	}
 	return false;
@@ -1732,11 +1732,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 	}
 	return false;
@@ -1747,11 +1747,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 	}
 	return false;
@@ -1762,11 +1762,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 	}
 	return false;
@@ -1777,11 +1777,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 	}
 	return false;
@@ -1792,11 +1792,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 	}
 	return false;
@@ -1807,11 +1807,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
 	}
 	return false;
@@ -1822,11 +1822,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -1837,11 +1837,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -1852,11 +1852,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -1867,11 +1867,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder abyteOrder, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -1882,11 +1882,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -1897,11 +1897,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -1912,11 +1912,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -1927,11 +1927,11 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder abyteOrder,
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
 	}
 	return false;
@@ -2088,11 +2088,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, bool data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2103,11 +2103,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, char data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2118,11 +2118,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, signed char data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2133,11 +2133,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, unsigned char data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2148,11 +2148,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, wchar_t data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2163,11 +2163,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, short data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2178,11 +2178,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, unsigned short data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2193,11 +2193,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, int data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2208,11 +2208,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, unsigned int data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2223,11 +2223,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, long data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2238,11 +2238,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, unsigned long data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2253,11 +2253,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, long long data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2268,11 +2268,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, unsigned long long data
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2283,11 +2283,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, float data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2298,11 +2298,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, double data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2313,11 +2313,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, long double data)
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2330,11 +2330,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const bool* data, SizeT
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2345,11 +2345,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const char* data, SizeT
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2360,11 +2360,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const signed char* data
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2375,11 +2375,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const unsigned char* da
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2390,11 +2390,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const wchar_t* data, Si
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2405,11 +2405,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const short* data, Size
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2420,11 +2420,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const unsigned short* d
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2435,11 +2435,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const int* data, SizeTy
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2450,11 +2450,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const unsigned int* dat
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2465,11 +2465,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const long* data, SizeT
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2480,11 +2480,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const unsigned long* da
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2495,11 +2495,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const long long* data, 
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2510,11 +2510,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const unsigned long lon
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2525,11 +2525,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const float* data, Size
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2540,11 +2540,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const double* data, Siz
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2555,11 +2555,11 @@ bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const long double* data
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data, length);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data, length);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data, length);
 	}
 	return false;
@@ -2570,11 +2570,11 @@ template<class T> bool IStreamNonSeekable::WriteData(ByteOrder abyteOrder, const
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteData(data);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndian(data);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndian(data);
 	}
 	return false;
@@ -2654,11 +2654,11 @@ template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(ByteOrder abyt
 {
 	switch(abyteOrder)
 	{
-	case BYTEORDER_PLATFORM:
+	case ByteOrder::Platform:
 		return WriteDataMultipleTimes(data, count);
-	case BYTEORDER_LITTLEENDIAN:
+	case ByteOrder::LittleEndian:
 		return WriteDataLittleEndianMultipleTimes(data, count);
-	case BYTEORDER_BIGENDIAN:
+	case ByteOrder::BigEndian:
 		return WriteDataBigEndianMultipleTimes(data, count);
 	}
 	return false;

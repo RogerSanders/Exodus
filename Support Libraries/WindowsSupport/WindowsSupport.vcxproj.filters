@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="WindowFunctions">
+      <UniqueIdentifier>{88a9c890-7f6e-46e9-9802-14e714987866}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PathFunctions">
+      <UniqueIdentifier>{c933ee56-b5d1-48a5-baf0-0534cea11cce}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WindowFunctions.cpp">
+      <Filter>WindowFunctions</Filter>
+    </ClCompile>
+    <ClCompile Include="PathFunctions.cpp">
+      <Filter>PathFunctions</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WindowFunctions.h">
+      <Filter>WindowFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="PathFunctions.h">
+      <Filter>PathFunctions</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WindowFunctions.inl">
+      <Filter>WindowFunctions</Filter>
+    </None>
+    <None Include="WindowsSupport.pkg" />
+  </ItemGroup>
+</Project>

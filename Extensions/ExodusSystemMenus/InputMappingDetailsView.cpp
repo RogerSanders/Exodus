@@ -1,5 +1,6 @@
 #include "InputMappingDetailsView.h"
 #include "resource.h"
+#include <thread>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -60,9 +61,10 @@ INT_PTR InputMappingDetailsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPAR
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_AUTOMAPPINGTOGGLE), BounceBackSubclassProc, 0, 0);
 
 	//Start the joystick worker thread
-	boost::mutex::scoped_lock lock(joystickWorkerThreadMutex);
+	std::unique_lock<std::mutex> lock(joystickWorkerThreadMutex);
 	joystickWorkerThreadActive = true;
-	boost::thread workerThread(boost::bind(boost::mem_fn(&InputMappingDetailsView::JoystickKeyMappingWorkerThread), this));
+	std::thread workerThread(std::bind(std::mem_fn(&InputMappingDetailsView::JoystickKeyMappingWorkerThread), this));
+	workerThread.detach();
 
 	return TRUE;
 }
@@ -71,7 +73,7 @@ INT_PTR InputMappingDetailsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPAR
 INT_PTR InputMappingDetailsView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Stop the joystick worker thread
-	boost::mutex::scoped_lock lock(joystickWorkerThreadMutex);
+	std::unique_lock<std::mutex> lock(joystickWorkerThreadMutex);
 	joystickWorkerThreadActive = false;
 	joystickWorkerThreadStopped.wait(lock);
 
@@ -106,7 +108,7 @@ void InputMappingDetailsView::UpdateTargetDeviceInputMappingsDisplay(HWND hwnd)
 
 	//Update the list of system keys
 	SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_SYSTEMKEY), CB_RESETCONTENT, 0, 0);
-	for(unsigned int i = (unsigned int)ISystemDeviceInterface::KEYCODE_NONE; i < (unsigned int)ISystemDeviceInterface::KEYCODE_ENDOFLIST; ++i)
+	for(unsigned int i = (unsigned int)ISystemDeviceInterface::KeyCode::None; i < (unsigned int)ISystemDeviceInterface::KeyCode::EndOfList; ++i)
 	{
 		ISystemDeviceInterface::KeyCode systemKeyCode = (ISystemDeviceInterface::KeyCode)i;
 		std::wstring systemKeyCodeString = model.GetKeyCodeName(systemKeyCode);
@@ -131,7 +133,7 @@ void InputMappingDetailsView::UpdateSelectedInputRegistration(HWND hwnd)
 		unsigned int deviceKeyCode = deviceKeyCodeMap[selectedInputRegistration];
 		ISystemDeviceInterface::KeyCode systemKeyCode = model.GetDeviceKeyCodeMapping(targetDevice, deviceKeyCode);
 		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_DEVICEKEY), CB_SETCURSEL, (WPARAM)selectedInputRegistration, 0);
-		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_SYSTEMKEY), CB_SETCURSEL, (WPARAM)((unsigned int)systemKeyCode - (unsigned int)ISystemDeviceInterface::KEYCODE_NONE), 0);
+		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_SYSTEMKEY), CB_SETCURSEL, (WPARAM)((unsigned int)systemKeyCode - (unsigned int)ISystemDeviceInterface::KeyCode::None), 0);
 
 		if(autoKeyMappingActive)
 		{
@@ -176,7 +178,7 @@ INT_PTR InputMappingDetailsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM 
 		case IDC_INPUTMAPPING_DETAILS_CLEARALL:
 			for(unsigned int i = 0; i < deviceKeyCodeMap.size(); ++i)
 			{
-				model.SetDeviceKeyCodeMapping(targetDevice, deviceKeyCodeMap[i], ISystemDeviceInterface::KEYCODE_NONE);
+				model.SetDeviceKeyCodeMapping(targetDevice, deviceKeyCodeMap[i], ISystemDeviceInterface::KeyCode::None);
 			}
 			UpdateSelectedInputRegistration(hwnd);
 			break;
@@ -184,7 +186,7 @@ INT_PTR InputMappingDetailsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM 
 			for(unsigned int i = 0; i < deviceKeyCodeMap.size(); ++i)
 			{
 				std::list<ISystemGUIInterface::KeyCode> preferredDefaultKeyCodeList = model.GetDeviceKeyCodePreferredDefaultMappingList(targetDevice, deviceKeyCodeMap[i]);
-				ISystemGUIInterface::KeyCode defaultKeyCode = (!preferredDefaultKeyCodeList.empty())? preferredDefaultKeyCodeList.front(): ISystemDeviceInterface::KEYCODE_NONE;
+				ISystemGUIInterface::KeyCode defaultKeyCode = (!preferredDefaultKeyCodeList.empty())? preferredDefaultKeyCodeList.front(): ISystemDeviceInterface::KeyCode::None;
 				model.SetDeviceKeyCodeMapping(targetDevice, deviceKeyCodeMap[i], defaultKeyCode);
 			}
 			UpdateSelectedInputRegistration(hwnd);
@@ -278,7 +280,7 @@ INT_PTR InputMappingDetailsView::msgWM_USER(HWND hwnd, WPARAM wParam, LPARAM lPa
 	{
 		ISystemDeviceInterface::KeyCode systemKeyCode = (ISystemDeviceInterface::KeyCode)wParam;
 		model.SetDeviceKeyCodeMapping(targetDevice, deviceKeyCodeMap[selectedInputRegistration], systemKeyCode);
-		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_SYSTEMKEY), CB_SETCURSEL, (WPARAM)((unsigned int)systemKeyCode - (unsigned int)ISystemDeviceInterface::KEYCODE_NONE), 0);
+		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_SYSTEMKEY), CB_SETCURSEL, (WPARAM)((unsigned int)systemKeyCode - (unsigned int)ISystemDeviceInterface::KeyCode::None), 0);
 
 		if(autoKeyMappingActive)
 		{
@@ -451,6 +453,6 @@ void InputMappingDetailsView::JoystickKeyMappingWorkerThread()
 	}
 
 	//Since this thread is terminating, notify any waiting threads.
-	boost::mutex::scoped_lock lock(joystickWorkerThreadMutex);
+	std::unique_lock<std::mutex> lock(joystickWorkerThreadMutex);
 	joystickWorkerThreadStopped.notify_all();
 }

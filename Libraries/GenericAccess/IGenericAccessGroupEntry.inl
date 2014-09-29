@@ -1,13 +1,13 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum IGenericAccessGroupEntry::GroupEntryType
+enum class IGenericAccessGroupEntry::GroupEntryType
 {
-	GROUPENTRYTYPE_GROUP,
-	GROUPENTRYTYPE_DATA,
-	GROUPENTRYTYPE_COMMAND,
-	GROUPENTRYTYPE_SINGLESELECTIONLIST,
-	GROUPENTRYTYPE_COLLECTION
+	Group,
+	Data,
+	Command,
+	SingleSelectionList,
+	Collection
 };
 
 //----------------------------------------------------------------------------------------

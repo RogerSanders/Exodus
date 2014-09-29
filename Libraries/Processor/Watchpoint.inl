@@ -13,7 +13,7 @@ Watchpoint::Watchpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth
 	breakEvent = true;
 
 	locationConditionNot = false;
-	locationCondition = CONDITION_EQUAL;
+	locationCondition = Condition::Equal;
 	locationConditionData1 = 0;
 	locationConditionData2 = 0;
 	locationMask = ((1 << addressBusWidth) - 1);
@@ -28,13 +28,13 @@ Watchpoint::Watchpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth
 
 	readConditionEnabled = false;
 	readConditionNot = false;
-	readCondition = CONDITION_EQUAL;
+	readCondition = Condition::Equal;
 	readConditionData1 = 0;
 	readConditionData2 = 0;
 
 	writeConditionEnabled = false;
 	writeConditionNot = false;
-	writeCondition = CONDITION_EQUAL;
+	writeCondition = Condition::Equal;
 	writeConditionData1 = 0;
 	writeConditionData2 = 0;
 }

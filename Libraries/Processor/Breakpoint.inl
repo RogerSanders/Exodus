@@ -13,7 +13,7 @@ Breakpoint::Breakpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth
 	breakEvent = true;
 
 	locationConditionNot = false;
-	locationCondition = CONDITION_EQUAL;
+	locationCondition = Condition::Equal;
 	locationConditionData1 = 0;
 	locationConditionData2 = 0;
 	locationMask = ((1 << addressBusWidth) - 1);

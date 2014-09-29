@@ -84,22 +84,22 @@ std::wstring Breakpoint::GenerateName() const
 	std::wstring newName;
 	switch(locationCondition)
 	{
-	case CONDITION_EQUAL:{
+	case Condition::Equal:{
 		std::wstring locationData1AsString;
 		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
 		newName += (!locationConditionNot)? locationData1AsString: L"!=" + locationData1AsString;
 		break;}
-	case CONDITION_GREATER:{
+	case Condition::Greater:{
 		std::wstring locationData1AsString;
 		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
 		newName += (!locationConditionNot)? L">" + locationData1AsString: L"<=" + locationData1AsString;
 		break;}
-	case CONDITION_LESS:{
+	case Condition::Less:{
 		std::wstring locationData1AsString;
 		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
 		newName += (!locationConditionNot)? L"<" + locationData1AsString: L">=" + locationData1AsString;
 		break;}
-	case CONDITION_GREATER_AND_LESS:{
+	case Condition::GreaterAndLess:{
 		std::wstring locationData1AsString;
 		std::wstring locationData2AsString;
 		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
@@ -179,16 +179,16 @@ bool Breakpoint::PassesLocationCondition(unsigned int location)
 	unsigned int locationMasked = (location & locationMask);
 	switch(GetLocationCondition())
 	{
-	case CONDITION_EQUAL:
+	case Condition::Equal:
 		result = (locationMasked == GetLocationConditionData1());
 		break;
-	case CONDITION_GREATER:
+	case Condition::Greater:
 		result = (locationMasked > GetLocationConditionData1());
 		break;
-	case CONDITION_LESS:
+	case Condition::Less:
 		result = (locationMasked < GetLocationConditionData1());
 		break;
-	case CONDITION_GREATER_AND_LESS:
+	case Condition::GreaterAndLess:
 		result = (locationMasked > GetLocationConditionData1()) && (locationMasked < GetLocationConditionData2());
 		break;
 	}

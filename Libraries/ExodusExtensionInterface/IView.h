@@ -10,10 +10,10 @@ class IView
 {
 public:
 	//Enumerations
-	enum InitialDockPos;
-	enum InitialDialogPos;
-	enum ViewType;
-	enum DialogMode;
+	enum class DockPos;
+	enum class DialogPos;
+	enum class ViewType;
+	enum class DialogMode;
 
 public:
 	//Constructors
@@ -38,10 +38,10 @@ public:
 	inline std::wstring GetViewDockingGroup() const;
 	virtual bool IsViewInitiallyDocked() const = 0;
 	virtual bool IsViewInitiallyCollapsed() const = 0;
-	virtual InitialDockPos GetViewInitialDockPosition() const = 0;
+	virtual DockPos GetViewInitialDockPosition() const = 0;
 	virtual ViewType GetViewType() const = 0;
 	virtual DialogMode GetViewDialogMode() const = 0;
-	virtual InitialDialogPos GetViewInitialDialogPosition() const = 0;
+	virtual DialogPos GetViewInitialDialogPosition() const = 0;
 	virtual bool CanResizeDialog() const = 0;
 
 protected:

@@ -26,16 +26,16 @@ struct Image::PCXFileHeader
 };
 
 //----------------------------------------------------------------------------------------
-enum Image::PCXImageFormat
+enum class Image::PCXImageFormat
 {
-//	PCXIMAGEFORMAT_MONO,
-//	PCXIMAGEFORMAT_CGA,
-//	PCXIMAGEFORMAT_EGA,
-//	PCXIMAGEFORMAT_EGA_AND_VGA,
-//	PCXIMAGEFORMAT_EXTENDED_VGA,
-//	PCXIMAGEFORMAT_EXTENDED_VGA_AND_XGA,
-	PCXIMAGEFORMAT_PALETTE,
-	PCXIMAGEFORMAT_LITERAL
+//	Mono,
+//	CGA,
+//	EGA,
+//	EGAAndVGA,
+//	ExtendedVGA,
+//	VGAAndXGA,
+	Palette,
+	Literal
 };
 
 //----------------------------------------------------------------------------------------
@@ -157,15 +157,15 @@ struct Image::TGAColorMapEntry
 };
 
 //----------------------------------------------------------------------------------------
-enum Image::TGAImageType
+enum class Image::TGAImageType
 {
-	TGAIMAGETYPE_NONE = 0,
-	TGAIMAGETYPE_PALETTE = 1,
-	TGAIMAGETYPE_RGB = 2,
-	TGAIMAGETYPE_MONOCHROME = 3,
-	TGAIMAGETYPE_RLEPALETTE = 9,
-	TGAIMAGETYPE_RLERGB = 10,
-	TGAIMAGETYPE_RLEMONOCHROME = 11
+	None = 0,
+	Palette = 1,
+	RGB = 2,
+	Monchrome = 3,
+	RLEPalette = 9,
+	RLERGB = 10,
+	RLEMonochrome = 11
 };
 
 //----------------------------------------------------------------------------------------

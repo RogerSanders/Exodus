@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MemoryMenus">
+      <UniqueIdentifier>{fd4366f0-1b01-4c48-92a3-eddd882d426f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MemoryMenus\MemoryRead">
+      <UniqueIdentifier>{5514f6f5-c077-49a0-920f-1e3e230ac45c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MemoryMenus\MemoryRead\DebugMenuHandler">
+      <UniqueIdentifier>{70c8b9ef-3cdb-429f-a47d-752555908a0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MemoryMenus\MemoryRead\MemoryEditorView">
+      <UniqueIdentifier>{9f23416b-5402-4d04-8c3f-34cd8c21db6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{5ce9c313-9ea7-443e-8d07-ffb8a1c84441}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MemoryMenus.cpp">
+      <Filter>MemoryMenus</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMenuHandler.cpp">
+      <Filter>MemoryMenus\MemoryRead\DebugMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryEditorView.cpp">
+      <Filter>MemoryMenus\MemoryRead\MemoryEditorView</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryEditorViewPresenter.cpp">
+      <Filter>MemoryMenus\MemoryRead\MemoryEditorView</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MemoryMenus.h">
+      <Filter>MemoryMenus</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMenuHandler.h">
+      <Filter>MemoryMenus\MemoryRead\DebugMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryEditorView.h">
+      <Filter>MemoryMenus\MemoryRead\MemoryEditorView</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryEditorViewPresenter.h">
+      <Filter>MemoryMenus\MemoryRead\MemoryEditorView</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MemoryMenus.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

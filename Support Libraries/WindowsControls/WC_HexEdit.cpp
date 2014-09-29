@@ -227,7 +227,7 @@ void WC_HexEdit::UpdateContextMenu()
 	copyMenuItem.cbSize = sizeof(copyMenuItem);
 	copyMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID;
 	copyMenuItem.fType = MFT_STRING;
-	copyMenuItem.wID = MNU_COPY;
+	copyMenuItem.wID = (UINT)MenuItem::Copy;
 	copyMenuItem.dwTypeData = &copyText[0];
 	copyMenuItem.cch = (UINT)copyText.size();
 	InsertMenuItem(hcontextMenu, 9999, TRUE, &copyMenuItem);
@@ -237,7 +237,7 @@ void WC_HexEdit::UpdateContextMenu()
 	pasteMenuItem.cbSize = sizeof(pasteMenuItem);
 	pasteMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID;
 	pasteMenuItem.fType = MFT_STRING;
-	pasteMenuItem.wID = MNU_PASTE;
+	pasteMenuItem.wID = (UINT)MenuItem::Paste;
 	pasteMenuItem.dwTypeData = &pasteText[0];
 	pasteMenuItem.cch = (UINT)pasteText.size();
 	InsertMenuItem(hcontextMenu, 9999, TRUE, &pasteMenuItem);
@@ -249,7 +249,7 @@ void WC_HexEdit::UpdateContextMenu()
 		markMenuItem.cbSize = sizeof(markMenuItem);
 		markMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID;
 		markMenuItem.fType = MFT_STRING;
-		markMenuItem.wID = MNU_MARK;
+		markMenuItem.wID = (UINT)MenuItem::Mark;
 		markMenuItem.dwTypeData = &markText[0];
 		markMenuItem.cch = (UINT)markText.size();
 		InsertMenuItem(hcontextMenu, 9999, TRUE, &markMenuItem);
@@ -259,7 +259,7 @@ void WC_HexEdit::UpdateContextMenu()
 		unmarkMenuItem.cbSize = sizeof(unmarkMenuItem);
 		unmarkMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID;
 		unmarkMenuItem.fType = MFT_STRING;
-		unmarkMenuItem.wID = MNU_UNMARK;
+		unmarkMenuItem.wID = (UINT)MenuItem::Unmark;
 		unmarkMenuItem.dwTypeData = &unmarkText[0];
 		unmarkMenuItem.cch = (UINT)unmarkText.size();
 		InsertMenuItem(hcontextMenu, 9999, TRUE, &unmarkMenuItem);
@@ -278,7 +278,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem1.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID | MIIM_STATE;
 	columnSizeMenuItem1.fType = MFT_STRING | MFT_RADIOCHECK;
 	columnSizeMenuItem1.fState = (valuesPerColumn == 1)? MFS_CHECKED: MFS_UNCHECKED;
-	columnSizeMenuItem1.wID = MNU_COLUMNWIDTH_1;
+	columnSizeMenuItem1.wID = (UINT)MenuItem::ColumnWidth1;
 	columnSizeMenuItem1.dwTypeData = &columnSizeMenuText1[0];
 	columnSizeMenuItem1.cch = (UINT)columnSizeMenuText1.size();
 	InsertMenuItem(hcolumnSizeMenu, 9999, TRUE, &columnSizeMenuItem1);
@@ -291,7 +291,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem2.hbmpChecked = NULL;
 	columnSizeMenuItem2.hbmpUnchecked = NULL;
 	columnSizeMenuItem2.fState = (valuesPerColumn == 2)? MFS_CHECKED: MFS_UNCHECKED;
-	columnSizeMenuItem2.wID = MNU_COLUMNWIDTH_2;
+	columnSizeMenuItem2.wID = (UINT)MenuItem::ColumnWidth2;
 	columnSizeMenuItem2.dwTypeData = &columnSizeMenuText2[0];
 	columnSizeMenuItem2.cch = (UINT)columnSizeMenuText2.size();
 	InsertMenuItem(hcolumnSizeMenu, 9999, TRUE, &columnSizeMenuItem2);
@@ -304,7 +304,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem4.hbmpChecked = NULL;
 	columnSizeMenuItem4.hbmpUnchecked = NULL;
 	columnSizeMenuItem4.fState = (valuesPerColumn == 4)? MFS_CHECKED: MFS_UNCHECKED;
-	columnSizeMenuItem4.wID = MNU_COLUMNWIDTH_4;
+	columnSizeMenuItem4.wID = (UINT)MenuItem::ColumnWidth4;
 	columnSizeMenuItem4.dwTypeData = &columnSizeMenuText4[0];
 	columnSizeMenuItem4.cch = (UINT)columnSizeMenuText4.size();
 	InsertMenuItem(hcolumnSizeMenu, 9999, TRUE, &columnSizeMenuItem4);
@@ -317,7 +317,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem8.hbmpChecked = NULL;
 	columnSizeMenuItem8.hbmpUnchecked = NULL;
 	columnSizeMenuItem8.fState = (valuesPerColumn == 8)? MFS_CHECKED: MFS_UNCHECKED;
-	columnSizeMenuItem8.wID = MNU_COLUMNWIDTH_8;
+	columnSizeMenuItem8.wID = (UINT)MenuItem::ColumnWidth8;
 	columnSizeMenuItem8.dwTypeData = &columnSizeMenuText8[0];
 	columnSizeMenuItem8.cch = (UINT)columnSizeMenuText8.size();
 	InsertMenuItem(hcolumnSizeMenu, 9999, TRUE, &columnSizeMenuItem8);
@@ -330,7 +330,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem16.hbmpChecked = NULL;
 	columnSizeMenuItem16.hbmpUnchecked = NULL;
 	columnSizeMenuItem16.fState = (valuesPerColumn == 16)? MFS_CHECKED: MFS_UNCHECKED;
-	columnSizeMenuItem16.wID = MNU_COLUMNWIDTH_16;
+	columnSizeMenuItem16.wID = (UINT)MenuItem::ColumnWidth16;
 	columnSizeMenuItem16.dwTypeData = &columnSizeMenuText16[0];
 	columnSizeMenuItem16.cch = (UINT)columnSizeMenuText16.size();
 	InsertMenuItem(hcolumnSizeMenu, 9999, TRUE, &columnSizeMenuItem16);
@@ -340,7 +340,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem.cbSize = sizeof(columnSizeMenuItem);
 	columnSizeMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID | MIIM_SUBMENU | MIIM_DATA;
 	columnSizeMenuItem.fType = MFT_STRING;
-	columnSizeMenuItem.wID = MNU_COLUMNWIDTH;
+	columnSizeMenuItem.wID = (UINT)MenuItem::ColumnWidth;
 	columnSizeMenuItem.hSubMenu = hcolumnSizeMenu;
 	columnSizeMenuItem.dwItemData = (ULONG_PTR)hcolumnSizeMenu;
 	columnSizeMenuItem.dwTypeData = &columnSizeMenuText[0];
@@ -353,7 +353,7 @@ void WC_HexEdit::UpdateContextMenu()
 	enableTextMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID | MIIM_STATE;
 	enableTextMenuItem.fType = MFT_STRING;
 	enableTextMenuItem.fState = (textDisplayEnabled)? MFS_CHECKED: MFS_UNCHECKED;
-	enableTextMenuItem.wID = MNU_ENABLETEXT;
+	enableTextMenuItem.wID = (UINT)MenuItem::EnableText;
 	enableTextMenuItem.dwTypeData = &enableTextMenuText[0];
 	enableTextMenuItem.cch = (UINT)enableTextMenuText.size();
 	InsertMenuItem(hcontextMenu, 9999, TRUE, &enableTextMenuItem);
@@ -369,7 +369,7 @@ void WC_HexEdit::UpdateContextMenu()
 	saveToFileMenuItem.cbSize = sizeof(saveToFileMenuItem);
 	saveToFileMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID;
 	saveToFileMenuItem.fType = MFT_STRING;
-	saveToFileMenuItem.wID = MNU_SAVETOFILE;
+	saveToFileMenuItem.wID = (UINT)MenuItem::SaveToFile;
 	saveToFileMenuItem.dwTypeData = &saveToFileText[0];
 	saveToFileMenuItem.cch = (UINT)saveToFileText.size();
 	InsertMenuItem(hcontextMenu, 9999, TRUE, &saveToFileMenuItem);
@@ -379,7 +379,7 @@ void WC_HexEdit::UpdateContextMenu()
 	loadFromFileMenuItem.cbSize = sizeof(loadFromFileMenuItem);
 	loadFromFileMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID;
 	loadFromFileMenuItem.fType = MFT_STRING;
-	loadFromFileMenuItem.wID = MNU_LOADFROMFILE;
+	loadFromFileMenuItem.wID = (UINT)MenuItem::LoadFromFile;
 	loadFromFileMenuItem.dwTypeData = &loadFromFileText[0];
 	loadFromFileMenuItem.cch = (UINT)loadFromFileText.size();
 	InsertMenuItem(hcontextMenu, 9999, TRUE, &loadFromFileMenuItem);
@@ -391,11 +391,11 @@ void WC_HexEdit::UpdateContextMenu()
 void WC_HexEdit::EnableSelectionMenuItems(bool state)
 {
 	UINT enableState = state? MF_ENABLED: MF_GRAYED;
-	EnableMenuItem(hcontextMenu, MNU_COPY, enableState);
+	EnableMenuItem(hcontextMenu, (UINT)MenuItem::Copy, enableState);
 	if(markingEnabled)
 	{
-		EnableMenuItem(hcontextMenu, MNU_MARK, enableState);
-		EnableMenuItem(hcontextMenu, MNU_UNMARK, enableState);
+		EnableMenuItem(hcontextMenu, (UINT)MenuItem::Mark, enableState);
+		EnableMenuItem(hcontextMenu, (UINT)MenuItem::Unmark, enableState);
 	}
 }
 
@@ -408,7 +408,7 @@ void WC_HexEdit::MarkSelection(bool state)
 		updateDataMarkingState.offset = dragSelectStartPos;
 		updateDataMarkingState.size = dragSelectEndPos - dragSelectStartPos;
 		updateDataMarkingState.state = state;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), HEX_UPDATEDATAMARKING), (LPARAM)&updateDataMarkingState);
+		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::UpdateDataMarking), (LPARAM)&updateDataMarkingState);
 	}
 }
 
@@ -556,7 +556,7 @@ bool WC_HexEdit::SaveToFile()
 
 	//Open the target file
 	Stream::File file;
-	if(!file.Open(selectedFilePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	if(!file.Open(selectedFilePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
 		return false;
 	}
@@ -590,7 +590,7 @@ bool WC_HexEdit::LoadFromFile()
 
 	//Open the target file
 	Stream::File file;
-	if(!file.Open(selectedFilePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	if(!file.Open(selectedFilePath, Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open))
 	{
 		return false;
 	}
@@ -623,7 +623,7 @@ void WC_HexEdit::SetWindowSettings(unsigned int windowPos, unsigned int windowSi
 	Hex_NewWindowPosInfo windowPosInfo;
 	windowPosInfo.windowPos = dataViewPos;
 	windowPosInfo.windowSize = windowSize;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), HEX_NEWWINDOWPOS), (LPARAM)&windowPosInfo);
+	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::NewWindowPos), (LPARAM)&windowPosInfo);
 }
 
 //----------------------------------------------------------------------------------------
@@ -859,7 +859,7 @@ unsigned char WC_HexEdit::ReadByte(unsigned int bytePos) const
 	readDataInfo.offset = bytePos;
 	readDataInfo.processed = false;
 	readDataInfo.data = 0;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), HEX_READDATA), (LPARAM)&readDataInfo);
+	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ReadData), (LPARAM)&readDataInfo);
 	return readDataInfo.data;
 }
 
@@ -869,7 +869,7 @@ void WC_HexEdit::WriteByte(unsigned int bytePos, unsigned char data)
 	Hex_WriteDataInfo writeDataInfo;
 	writeDataInfo.offset = bytePos;
 	writeDataInfo.data = data;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), HEX_WRITEDATA), (LPARAM)&writeDataInfo);
+	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::WriteData), (LPARAM)&writeDataInfo);
 	if((bytePos >= dataViewPos) && (bytePos < (dataViewPos + visibleValuesPerPage)))
 	{
 		dataBuffer[bytePos - dataViewPos] = data;
@@ -884,7 +884,7 @@ bool WC_HexEdit::ReadBlockToBuffer(unsigned int startPos, unsigned int blockSize
 	readDataBlockInfo.size = blockSize;
 	readDataBlockInfo.buffer = buffer;
 	readDataBlockInfo.processed = false;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), HEX_READDATABLOCK), (LPARAM)&readDataBlockInfo);
+	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ReadDataBlock), (LPARAM)&readDataBlockInfo);
 	return readDataBlockInfo.processed;
 }
 
@@ -896,7 +896,7 @@ bool WC_HexEdit::WriteBlockFromBuffer(unsigned int startPos, unsigned int blockS
 	writeDataBlockInfo.size = blockSize;
 	writeDataBlockInfo.buffer = buffer;
 	writeDataBlockInfo.processed = false;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), HEX_WRITEDATABLOCK), (LPARAM)&writeDataBlockInfo);
+	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::WriteDataBlock), (LPARAM)&writeDataBlockInfo);
 	return writeDataBlockInfo.processed;
 }
 
@@ -977,21 +977,21 @@ LRESULT WC_HexEdit::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PRINTCLIENT:
 		return msgWM_PRINTCLIENT(wParam, lParam);
 
-	case HEX_SETWINDOWSIZE:
+	case WindowMessages::SetWindowSize:
 		return msgHEX_SETWINDOWSIZE(wParam, lParam);
-	case HEX_SETWINDOWPOS:
+	case WindowMessages::SetWindowPos:
 		return msgHEX_SETWINDOWPOS(wParam, lParam);
-	case HEX_SETWINDOWADDRESSOFFSET:
+	case WindowMessages::SetWindowAddressOffset:
 		return msgHEX_SETWINDOWADDRESSOFFSET(wParam, lParam);
-	case HEX_SETWINDOWADDRESSWIDTH:
+	case WindowMessages::SetWindowAddressWidth:
 		return msgHEX_SETWINDOWADDRESSWIDTH(wParam, lParam);
-	case HEX_GETWINDOWSIZE:
+	case WindowMessages::GetWindowSize:
 		return msgHEX_GETWINDOWSIZE(wParam, lParam);
-	case HEX_GETWINDOWPOS:
+	case WindowMessages::GetWindowPos:
 		return msgHEX_GETWINDOWPOS(wParam, lParam);
-	case HEX_UPDATEWINDOWDATA:
+	case WindowMessages::UpdateWindowData:
 		return msgHEX_UPDATEWINDOWDATA(wParam, lParam);
-	case HEX_SETMARKINGINFO:
+	case WindowMessages::SetMarkingInfo:
 		return msgHEX_SETMARKINGINFO(wParam, lParam);
 	}
 
@@ -1194,9 +1194,9 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 	if(HIWORD(wParam) == 0)
 	{
 		unsigned int newColumnWidth = 0;
-		switch(LOWORD(wParam))
+		switch((MenuItem)LOWORD(wParam))
 		{
-		case MNU_ENABLETEXT:{
+		case MenuItem::EnableText:{
 			textDisplayEnabled = !textDisplayEnabled;
 			RECT rect;
 			GetClientRect(hwnd, &rect);
@@ -1205,17 +1205,17 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 			menuItemInfo.cbSize = sizeof(menuItemInfo);
 			menuItemInfo.fMask = MIIM_STATE;
 			menuItemInfo.fState = (textDisplayEnabled)? MFS_CHECKED: MFS_UNCHECKED;
-			SetMenuItemInfo(hcontextMenu, MNU_ENABLETEXT, FALSE, &menuItemInfo);
+			SetMenuItemInfo(hcontextMenu, (UINT)MenuItem::EnableText, FALSE, &menuItemInfo);
 			break;}
-		case MNU_COLUMNWIDTH_1:
+		case MenuItem::ColumnWidth1:
 			newColumnWidth = (newColumnWidth != 0)? newColumnWidth: 1;
-		case MNU_COLUMNWIDTH_2:
+		case MenuItem::ColumnWidth2:
 			newColumnWidth = (newColumnWidth != 0)? newColumnWidth: 2;
-		case MNU_COLUMNWIDTH_4:
+		case MenuItem::ColumnWidth4:
 			newColumnWidth = (newColumnWidth != 0)? newColumnWidth: 4;
-		case MNU_COLUMNWIDTH_8:
+		case MenuItem::ColumnWidth8:
 			newColumnWidth = (newColumnWidth != 0)? newColumnWidth: 8;
-		case MNU_COLUMNWIDTH_16:{
+		case MenuItem::ColumnWidth16:{
 			newColumnWidth = (newColumnWidth != 0)? newColumnWidth: 16;
 			valuesPerColumn = newColumnWidth;
 			RECT rect;
@@ -1225,10 +1225,10 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 			MENUITEMINFO menuItemInfo;
 			menuItemInfo.cbSize = sizeof(menuItemInfo);
 			menuItemInfo.fMask = MIIM_DATA;
-			GetMenuItemInfo(hcontextMenu, MNU_COLUMNWIDTH, FALSE, &menuItemInfo);
+			GetMenuItemInfo(hcontextMenu, (UINT)MenuItem::ColumnWidth, FALSE, &menuItemInfo);
 			HMENU columnWidthMenu = (HMENU)menuItemInfo.dwItemData;
 			unsigned int selectedMenuID = LOWORD(wParam);
-			for(unsigned int i = MNU_COLUMNWIDTH_1; i <= MNU_COLUMNWIDTH_16; ++i)
+			for(unsigned int i = (unsigned int)MenuItem::ColumnWidth1; i <= (unsigned int)MenuItem::ColumnWidth16; ++i)
 			{
 				MENUITEMINFO menuItemInfo;
 				menuItemInfo.cbSize = sizeof(menuItemInfo);
@@ -1237,22 +1237,22 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 				SetMenuItemInfo(columnWidthMenu, i, FALSE, &menuItemInfo);
 			}
 			break;}
-		case MNU_SAVETOFILE:
+		case MenuItem::SaveToFile:
 			SaveToFile();
 			break;
-		case MNU_LOADFROMFILE:
+		case MenuItem::LoadFromFile:
 			LoadFromFile();
 			break;
-		case MNU_COPY:
+		case MenuItem::Copy:
 			CopyToClipboard();
 			break;
-		case MNU_PASTE:
+		case MenuItem::Paste:
 			PasteFromClipboard();
 			break;
-		case MNU_MARK:
+		case MenuItem::Mark:
 			MarkSelection(true);
 			break;
-		case MNU_UNMARK:
+		case MenuItem::Unmark:
 			MarkSelection(false);
 			break;
 		}

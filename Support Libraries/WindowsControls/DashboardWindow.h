@@ -76,7 +76,7 @@ public:
 
 private:
 	//Enumerations
-	enum InsertDirection;
+	enum class InsertDirection;
 
 	//Structures
 	struct DividerContentEntry;

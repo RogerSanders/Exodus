@@ -67,7 +67,7 @@ public:
 			//UNDEFINED N
 			//UNDEFINED Z
 			//UNDEFINED V
-			if(cpu->ExceptionDisabled(M68000::EX_ZERO_DIVIDE))
+			if(cpu->ExceptionDisabled(M68000::Exceptions::ZeroDivide))
 			{
 				return GetExecuteCycleCount(additionalTime);
 			}
@@ -75,7 +75,7 @@ public:
 			{
 				cpu->SetPC(location + GetInstructionSize());
 				cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());
-				return GetExecuteCycleCount(additionalTime) + cpu->ProcessException(M68000::EX_ZERO_DIVIDE);
+				return GetExecuteCycleCount(additionalTime) + cpu->ProcessException(M68000::Exceptions::ZeroDivide);
 			}
 		}
 

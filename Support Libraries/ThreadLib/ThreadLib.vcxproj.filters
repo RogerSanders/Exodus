@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ThreadLib">
+      <UniqueIdentifier>{a59b8056-0c1a-4aa2-b28f-50defa9fc1e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timestamp">
+      <UniqueIdentifier>{30b30d20-6d77-4daa-990c-3105766f4bc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PerformanceTimer">
+      <UniqueIdentifier>{bebac01c-a353-4ac7-ae1f-056cc0664eac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ReferenceCounter">
+      <UniqueIdentifier>{190baf61-8297-46ae-92b0-abce4d0319f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MemoryBarrier">
+      <UniqueIdentifier>{7051a0ed-9795-4193-9281-270c39126313}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Performance Locks">
+      <UniqueIdentifier>{b05751ca-11b8-48e0-8293-3c1b2da8a498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ReadWriteLock">
+      <UniqueIdentifier>{2cfa289f-ef3b-4558-8ba6-40bf93484ce9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ThreadLib.cpp">
+      <Filter>ThreadLib</Filter>
+    </ClCompile>
+    <ClCompile Include="ReferenceCounter.cpp">
+      <Filter>ReferenceCounter</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryBarrier.cpp">
+      <Filter>MemoryBarrier</Filter>
+    </ClCompile>
+    <ClCompile Include="ReadWriteLock.cpp">
+      <Filter>ReadWriteLock</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ThreadLib.h">
+      <Filter>ThreadLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Timestamp.h">
+      <Filter>Timestamp</Filter>
+    </ClInclude>
+    <ClInclude Include="PerformanceTimer.h">
+      <Filter>PerformanceTimer</Filter>
+    </ClInclude>
+    <ClInclude Include="ReferenceCounter.h">
+      <Filter>ReferenceCounter</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryBarrier.h">
+      <Filter>MemoryBarrier</Filter>
+    </ClInclude>
+    <ClInclude Include="InterlockedTypes.h">
+      <Filter>Performance Locks</Filter>
+    </ClInclude>
+    <ClInclude Include="PerformanceLock.h">
+      <Filter>Performance Locks</Filter>
+    </ClInclude>
+    <ClInclude Include="PerformanceLockReentrant.h">
+      <Filter>Performance Locks</Filter>
+    </ClInclude>
+    <ClInclude Include="PerformanceMutex.h">
+      <Filter>Performance Locks</Filter>
+    </ClInclude>
+    <ClInclude Include="PerformanceMutexReentrant.h">
+      <Filter>Performance Locks</Filter>
+    </ClInclude>
+    <ClInclude Include="ReadWriteLock.h">
+      <Filter>ReadWriteLock</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Timestamp.inl">
+      <Filter>Timestamp</Filter>
+    </None>
+    <None Include="PerformanceTimer.inl">
+      <Filter>PerformanceTimer</Filter>
+    </None>
+    <None Include="ThreadLib.pkg" />
+  </ItemGroup>
+</Project>

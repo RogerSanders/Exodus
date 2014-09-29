@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ExodusSystemMenus">
+      <UniqueIdentifier>{1a4dbc5a-e5a5-46a0-8322-5f41bf1d9436}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\DebugMenuHandler">
+      <UniqueIdentifier>{9de04dd7-c1bd-49ff-bab1-563f160dd404}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\ModuleOptionMenuHandler">
+      <UniqueIdentifier>{469b8ba3-700e-4b4d-9aac-489dd2657d53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\DeviceControlView">
+      <UniqueIdentifier>{7512a7c2-4d8e-42ae-a10a-5d0f96b319cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\EmbeddedROMView">
+      <UniqueIdentifier>{cb57060a-63c1-4550-8d2c-7f3ca38e1898}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\InputMappingDetailsView">
+      <UniqueIdentifier>{84e5ce9f-4d46-4613-95ff-b6b142b231ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\InputMappingView">
+      <UniqueIdentifier>{2e243585-9d96-44cb-8ba5-5142c1a3ff07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\LoggerDetailsView">
+      <UniqueIdentifier>{b25c6c36-1adb-4d78-b48f-c37180ab4a8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\LoggerView">
+      <UniqueIdentifier>{981958a4-b426-436b-874d-98c0128aac08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\SettingsMenuHandler">
+      <UniqueIdentifier>{f4b07cfe-8449-4b00-ab35-b500a1d6a94f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\SystemMenuHandler">
+      <UniqueIdentifier>{04e19d11-5035-4cb2-9cb6-76867123e8b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{6b484d77-6487-42ee-9aab-fd98eacbe588}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ExodusSystemMenus.cpp">
+      <Filter>ExodusSystemMenus</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMenuHandler.cpp">
+      <Filter>ExodusSystemMenus\DebugMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleOptionMenuHandler.cpp">
+      <Filter>ExodusSystemMenus\ModuleOptionMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceControlView.cpp">
+      <Filter>ExodusSystemMenus\DeviceControlView</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceControlViewPresenter.cpp">
+      <Filter>ExodusSystemMenus\DeviceControlView</Filter>
+    </ClCompile>
+    <ClCompile Include="EmbeddedROMView.cpp">
+      <Filter>ExodusSystemMenus\EmbeddedROMView</Filter>
+    </ClCompile>
+    <ClCompile Include="EmbeddedROMViewPresenter.cpp">
+      <Filter>ExodusSystemMenus\EmbeddedROMView</Filter>
+    </ClCompile>
+    <ClCompile Include="InputMappingDetailsView.cpp">
+      <Filter>ExodusSystemMenus\InputMappingDetailsView</Filter>
+    </ClCompile>
+    <ClCompile Include="InputMappingDetailsViewPresenter.cpp">
+      <Filter>ExodusSystemMenus\InputMappingDetailsView</Filter>
+    </ClCompile>
+    <ClCompile Include="InputMappingView.cpp">
+      <Filter>ExodusSystemMenus\InputMappingView</Filter>
+    </ClCompile>
+    <ClCompile Include="InputMappingViewPresenter.cpp">
+      <Filter>ExodusSystemMenus\InputMappingView</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggerDetailsView.cpp">
+      <Filter>ExodusSystemMenus\LoggerDetailsView</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggerDetailsViewPresenter.cpp">
+      <Filter>ExodusSystemMenus\LoggerDetailsView</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggerView.cpp">
+      <Filter>ExodusSystemMenus\LoggerView</Filter>
+    </ClCompile>
+    <ClCompile Include="LoggerViewPresenter.cpp">
+      <Filter>ExodusSystemMenus\LoggerView</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsMenuHandler.cpp">
+      <Filter>ExodusSystemMenus\SettingsMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemMenuHandler.cpp">
+      <Filter>ExodusSystemMenus\SystemMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ExodusSystemMenus.h">
+      <Filter>ExodusSystemMenus</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMenuHandler.h">
+      <Filter>ExodusSystemMenus\DebugMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleOptionMenuHandler.h">
+      <Filter>ExodusSystemMenus\ModuleOptionMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceControlView.h">
+      <Filter>ExodusSystemMenus\DeviceControlView</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceControlViewPresenter.h">
+      <Filter>ExodusSystemMenus\DeviceControlView</Filter>
+    </ClInclude>
+    <ClInclude Include="EmbeddedROMView.h">
+      <Filter>ExodusSystemMenus\EmbeddedROMView</Filter>
+    </ClInclude>
+    <ClInclude Include="EmbeddedROMViewPresenter.h">
+      <Filter>ExodusSystemMenus\EmbeddedROMView</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMappingDetailsView.h">
+      <Filter>ExodusSystemMenus\InputMappingDetailsView</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMappingDetailsViewPresenter.h">
+      <Filter>ExodusSystemMenus\InputMappingDetailsView</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMappingView.h">
+      <Filter>ExodusSystemMenus\InputMappingView</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMappingViewPresenter.h">
+      <Filter>ExodusSystemMenus\InputMappingView</Filter>
+    </ClInclude>
+    <ClInclude Include="LoggerDetailsView.h">
+      <Filter>ExodusSystemMenus\LoggerDetailsView</Filter>
+    </ClInclude>
+    <ClInclude Include="LoggerDetailsViewPresenter.h">
+      <Filter>ExodusSystemMenus\LoggerDetailsView</Filter>
+    </ClInclude>
+    <ClInclude Include="LoggerView.h">
+      <Filter>ExodusSystemMenus\LoggerView</Filter>
+    </ClInclude>
+    <ClInclude Include="LoggerViewPresenter.h">
+      <Filter>ExodusSystemMenus\LoggerView</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsMenuHandler.h">
+      <Filter>ExodusSystemMenus\SettingsMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemMenuHandler.h">
+      <Filter>ExodusSystemMenus\SystemMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ExodusSystemMenus.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="folder.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

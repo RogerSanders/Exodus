@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOInstrument|Win32">
+      <Configuration>Release - PGOInstrument</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOInstrument|x64">
+      <Configuration>Release - PGOInstrument</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGORebuildOptimized|Win32">
+      <Configuration>Release - PGORebuildOptimized</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGORebuildOptimized|x64">
+      <Configuration>Release - PGORebuildOptimized</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2F6DD00A-03EB-4FE1-95BE-F1AF9232F302}</ProjectGuid>
+    <RootNamespace>GenericAccess</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryPGORebuildOptimizedx86.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryPGOInstrumentx86.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryReleasex86.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryDebugx86.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryPGORebuildOptimizedx64.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryPGOInstrumentx64.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryReleasex64.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryDebugx64.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="GenericAccessBase.h" />
+    <ClInclude Include="GenericAccessCommandInfo.h" />
+    <ClInclude Include="GenericAccessDataInfo.h" />
+    <ClInclude Include="GenericAccessDataValueBase.h" />
+    <ClInclude Include="GenericAccessDataValueBool.h" />
+    <ClInclude Include="GenericAccessDataValueDouble.h" />
+    <ClInclude Include="GenericAccessDataValueFilePath.h" />
+    <ClInclude Include="GenericAccessDataValueFloat.h" />
+    <ClInclude Include="GenericAccessDataValueFolderPath.h" />
+    <ClInclude Include="GenericAccessDataValueInt.h" />
+    <ClInclude Include="GenericAccessDataValueString.h" />
+    <ClInclude Include="GenericAccessDataValueUInt.h" />
+    <ClInclude Include="GenericAccessGroup.h" />
+    <ClInclude Include="GenericAccessGroupCollectionEntry.h" />
+    <ClInclude Include="GenericAccessGroupCommandEntry.h" />
+    <ClInclude Include="GenericAccessGroupDataEntry.h" />
+    <ClInclude Include="GenericAccessGroupSingleSelectionList.h" />
+    <ClInclude Include="GenericAccessPage.h" />
+    <ClInclude Include="IGenericAccess.h" />
+    <ClInclude Include="IGenericAccessCommandInfo.h" />
+    <ClInclude Include="IGenericAccessDataInfo.h" />
+    <ClInclude Include="IGenericAccessDataValue.h" />
+    <ClInclude Include="IGenericAccessDataValueBool.h" />
+    <ClInclude Include="IGenericAccessDataValueDouble.h" />
+    <ClInclude Include="IGenericAccessDataValueFilePath.h" />
+    <ClInclude Include="IGenericAccessDataValueFloat.h" />
+    <ClInclude Include="IGenericAccessDataValueFolderPath.h" />
+    <ClInclude Include="IGenericAccessDataValueInt.h" />
+    <ClInclude Include="IGenericAccessDataValueString.h" />
+    <ClInclude Include="IGenericAccessDataValueUInt.h" />
+    <ClInclude Include="IGenericAccessGroup.h" />
+    <ClInclude Include="IGenericAccessGroupCollectionEntry.h" />
+    <ClInclude Include="IGenericAccessGroupCommandEntry.h" />
+    <ClInclude Include="IGenericAccessGroupDataEntry.h" />
+    <ClInclude Include="IGenericAccessGroupEntry.h" />
+    <ClInclude Include="IGenericAccessGroupSingleSelectionList.h" />
+    <ClInclude Include="IGenericAccessPage.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GenericAccess.pkg" />
+    <None Include="GenericAccessBase.inl" />
+    <None Include="GenericAccessCommandInfo.inl" />
+    <None Include="GenericAccessDataInfo.inl" />
+    <None Include="GenericAccessDataValueBase.inl" />
+    <None Include="GenericAccessGroup.inl" />
+    <None Include="GenericAccessGroupCollectionEntry.inl" />
+    <None Include="GenericAccessGroupCommandEntry.inl" />
+    <None Include="GenericAccessGroupDataEntry.inl" />
+    <None Include="GenericAccessGroupSingleSelectionList.inl" />
+    <None Include="IGenericAccess.inl" />
+    <None Include="IGenericAccessCommandInfo.inl" />
+    <None Include="IGenericAccessDataInfo.inl" />
+    <None Include="IGenericAccessDataValue.inl" />
+    <None Include="IGenericAccessDataValueBool.inl" />
+    <None Include="IGenericAccessDataValueDouble.inl" />
+    <None Include="IGenericAccessDataValueFilePath.inl" />
+    <None Include="IGenericAccessDataValueFloat.inl" />
+    <None Include="IGenericAccessDataValueFolderPath.inl" />
+    <None Include="IGenericAccessDataValueInt.inl" />
+    <None Include="IGenericAccessDataValueString.inl" />
+    <None Include="IGenericAccessDataValueUInt.inl" />
+    <None Include="IGenericAccessGroup.inl" />
+    <None Include="IGenericAccessGroupCollectionEntry.inl" />
+    <None Include="IGenericAccessGroupCommandEntry.inl" />
+    <None Include="IGenericAccessGroupDataEntry.inl" />
+    <None Include="IGenericAccessGroupEntry.inl" />
+    <None Include="IGenericAccessGroupSingleSelectionList.inl" />
+    <None Include="IGenericAccessPage.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GenericAccessCommandInfo.cpp" />
+    <ClCompile Include="GenericAccessDataInfo.cpp" />
+    <ClCompile Include="GenericAccessDataValueBool.cpp" />
+    <ClCompile Include="GenericAccessDataValueDouble.cpp" />
+    <ClCompile Include="GenericAccessDataValueFilePath.cpp" />
+    <ClCompile Include="GenericAccessDataValueFloat.cpp" />
+    <ClCompile Include="GenericAccessDataValueFolderPath.cpp" />
+    <ClCompile Include="GenericAccessDataValueInt.cpp" />
+    <ClCompile Include="GenericAccessDataValueString.cpp" />
+    <ClCompile Include="GenericAccessDataValueUInt.cpp" />
+    <ClCompile Include="GenericAccessGroup.cpp" />
+    <ClCompile Include="GenericAccessGroupCollectionEntry.cpp" />
+    <ClCompile Include="GenericAccessGroupCommandEntry.cpp" />
+    <ClCompile Include="GenericAccessGroupDataEntry.cpp" />
+    <ClCompile Include="GenericAccessGroupSingleSelectionList.cpp" />
+    <ClCompile Include="GenericAccessPage.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

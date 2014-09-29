@@ -29,7 +29,7 @@ public:
 	{
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		target.SetMode(EffectiveAddress::MODE_A);
+		target.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(4);
 
 		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));

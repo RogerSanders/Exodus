@@ -118,7 +118,7 @@ void ExecutionManager::ClearAllDevices()
 //----------------------------------------------------------------------------------------
 void ExecutionManager::NotifyUpcomingTimeslice(double nanoseconds)
 {
-	boost::mutex::scoped_lock lock(commandMutex);
+	std::unique_lock<std::mutex> lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYUPCOMINGTIMESLICE;
 	command.timeslice = nanoseconds;
 	if(totalDeviceCount > 0)
@@ -132,7 +132,7 @@ void ExecutionManager::NotifyUpcomingTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 void ExecutionManager::NotifyBeforeExecuteCalled()
 {
-	boost::mutex::scoped_lock lock(commandMutex);
+	std::unique_lock<std::mutex> lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYBEFOREEXECUTECALLED;
 	pendingDeviceCount = totalDeviceCount;
 	if(totalDeviceCount > 0)
@@ -145,7 +145,7 @@ void ExecutionManager::NotifyBeforeExecuteCalled()
 //----------------------------------------------------------------------------------------
 void ExecutionManager::NotifyAfterExecuteCalled()
 {
-	boost::mutex::scoped_lock lock(commandMutex);
+	std::unique_lock<std::mutex> lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYAFTEREXECUTECALLED;
 	pendingDeviceCount = totalDeviceCount;
 	if(totalDeviceCount > 0)
@@ -158,7 +158,7 @@ void ExecutionManager::NotifyAfterExecuteCalled()
 //----------------------------------------------------------------------------------------
 void ExecutionManager::ExecuteTimeslice(double nanoseconds)
 {
-	boost::mutex::scoped_lock lock(commandMutex);
+	std::unique_lock<std::mutex> lock(commandMutex);
 
 	//Enable execution suspend features for devices that support it
 	EnableTimesliceExecutionSuspend();
@@ -192,7 +192,7 @@ void ExecutionManager::ExecuteTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 void ExecutionManager::Commit()
 {
-	boost::mutex::scoped_lock lock(commandMutex);
+	std::unique_lock<std::mutex> lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_COMMIT;
 	if(totalDeviceCount > 0)
 	{
@@ -205,7 +205,7 @@ void ExecutionManager::Commit()
 //----------------------------------------------------------------------------------------
 void ExecutionManager::Rollback()
 {
-	boost::mutex::scoped_lock lock(commandMutex);
+	std::unique_lock<std::mutex> lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_ROLLBACK;
 	if(totalDeviceCount > 0)
 	{
@@ -254,7 +254,7 @@ void ExecutionManager::NegateCurrentOutputLineState()
 //----------------------------------------------------------------------------------------
 double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceContext*& nextDeviceStep, unsigned int& nextDeviceStepContext)
 {
-	boost::mutex::scoped_lock lock(commandMutex);
+	std::unique_lock<std::mutex> lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_GETNEXTTIMINGPOINT;
 	if(totalDeviceCount > 0)
 	{
@@ -296,7 +296,7 @@ void ExecutionManager::BeginExecution()
 //----------------------------------------------------------------------------------------
 void ExecutionManager::SuspendExecution()
 {
-	boost::mutex::scoped_lock lock(commandMutex);
+	std::unique_lock<std::mutex> lock(commandMutex);
 	command.type = DeviceContext::DeviceContextCommand::TYPE_SUSPENDEXECUTION;
 	if(totalDeviceCount > 0)
 	{

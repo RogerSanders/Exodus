@@ -7,7 +7,7 @@
 #include "HierarchicalStorage/HierarchicalStorage.pkg"
 #include "DataConversion/DataConversion.pkg"
 #include "MenuSelectableOption.h"
-#include <boost/functional/hash.hpp>
+#include <thread>
 #include "MenuHandler.h"
 
 //----------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ ExodusInterface::ExodusInterface()
 ExodusInterface::~ExodusInterface()
 {
 	//Stop the joystick worker thread
-	boost::mutex::scoped_lock lock(joystickWorkerThreadMutex);
+	std::unique_lock<std::mutex> lock(joystickWorkerThreadMutex);
 	if(joystickWorkerThreadActive)
 	{
 		joystickWorkerThreadActive = false;
@@ -384,7 +384,8 @@ bool ExodusInterface::InitializeSystem()
 				//operation, which is important in order to make sure views can actually
 				//be loaded. Note that we specifically take a copy of the path string,
 				//rather than pass it by reference.
-				boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, prefs.loadWorkspace));
+				std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, prefs.loadWorkspace));
+				workerThread.detach();
 			}
 		}
 	}
@@ -413,9 +414,10 @@ bool ExodusInterface::InitializeSystem()
 	//Start the joystick worker thread if required
 	if(!connectedJoystickInfo.empty())
 	{
-		boost::mutex::scoped_lock lock(joystickWorkerThreadMutex);
+		std::unique_lock<std::mutex> lock(joystickWorkerThreadMutex);
 		joystickWorkerThreadActive = true;
-		boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::JoystickInputWorkerThread), this));
+		std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::JoystickInputWorkerThread), this));
+		workerThread.detach();
 	}
 
 	return true;
@@ -537,11 +539,16 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 		systemIdentifierString += *i;
 	}
 
-	//Build a hash of the system identifier string. We encode this into the filename to
-	//try and ensure that only savestates compatible with the current system configuration
-	//are offered to the user.
-	boost::hash<std::wstring> stringHasher;
-	size_t systemIdentifierHashRaw = stringHasher(systemIdentifierString);
+	//Build a hash of the system identifier string. We encode this into the filename to try and
+	//ensure that only savestates compatible with the current system configuration are offered to
+	//the user. Note that our original code used boost::hash. We've eliminated boost from our
+	//library dependencies at this time, and implemented the same logic as the boost hashing
+	//algorithm used below.
+	size_t systemIdentifierHashRaw = 0;
+	for(std::wstring::size_type i = 0; i < systemIdentifierString.size(); ++i)
+	{
+		systemIdentifierHashRaw ^= (size_t)systemIdentifierString[i] + 0x9E3779B9 + (systemIdentifierHashRaw << 6) + (systemIdentifierHashRaw >> 2);
+	}
 	std::wstring systemIdentifierHash;
 	IntToStringBase16((unsigned int)systemIdentifierHashRaw, systemIdentifierHash, 8, false);
 
@@ -584,10 +591,10 @@ void ExodusInterface::LoadState(const std::wstring& folder, bool debuggerState)
 	{
 		//Determine the type of state file being loaded
 		std::wstring fileExtension = PathGetFileExtension(selectedFilePath);
-		ISystemGUIInterface::FileType fileType = ISystemGUIInterface::FILETYPE_ZIP;
+		ISystemGUIInterface::FileType fileType = ISystemGUIInterface::FileType::ZIP;
 		if(fileExtension == L"xml")
 		{
-			fileType = ISystemGUIInterface::FILETYPE_XML;
+			fileType = ISystemGUIInterface::FileType::XML;
 		}
 
 		//Perform the state load operation
@@ -618,10 +625,10 @@ void ExodusInterface::SaveState(const std::wstring& folder, bool debuggerState)
 	{
 		//Determine the type of state file being saved
 		std::wstring fileExtension = PathGetFileExtension(selectedFilePath);
-		ISystemGUIInterface::FileType fileType = ISystemGUIInterface::FILETYPE_ZIP;
+		ISystemGUIInterface::FileType fileType = ISystemGUIInterface::FileType::ZIP;
 		if(fileExtension == L"xml")
 		{
-			fileType = ISystemGUIInterface::FILETYPE_XML;
+			fileType = ISystemGUIInterface::FileType::XML;
 		}
 
 		//Perform the state save operation
@@ -656,7 +663,7 @@ void ExodusInterface::QuickLoadState(bool debuggerState)
 		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L".exs";
 	}
 	std::wstring filePath = PathCombinePaths(prefs.pathSavestates, fileName);
-	LoadStateFromFile(filePath, ISystemGUIInterface::FILETYPE_ZIP, debuggerState);
+	LoadStateFromFile(filePath, ISystemGUIInterface::FileType::ZIP, debuggerState);
 	if(debuggerState && prefs.loadWorkspaceWithDebugState)
 	{
 		std::wstring workspaceFileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L" - DebugWorkspace" + L".xml";
@@ -667,7 +674,8 @@ void ExodusInterface::QuickLoadState(bool debuggerState)
 		//which is important in order to make sure views can actually be loaded. Note that
 		//we specifically take a copy of the path string, rather than pass it by
 		//reference.
-		boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, workspaceFilePath));
+		std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, workspaceFilePath));
+		workerThread.detach();
 	}
 }
 
@@ -685,7 +693,7 @@ void ExodusInterface::QuickSaveState(bool debuggerState)
 		fileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L".exs";
 	}
 	std::wstring filePath = PathCombinePaths(prefs.pathSavestates, fileName);
-	SaveStateToFile(filePath, ISystemGUIInterface::FILETYPE_ZIP, debuggerState);
+	SaveStateToFile(filePath, ISystemGUIInterface::FileType::ZIP, debuggerState);
 	if(debuggerState)
 	{
 		std::wstring workspaceFileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L" - DebugWorkspace" + L".xml";
@@ -752,7 +760,8 @@ void ExodusInterface::LoadWorkspace(const std::wstring& folder)
 		//which is important in order to make sure views can actually be loaded. Note that
 		//we specifically take a copy of the path string, rather than pass it by
 		//reference, since it's going to go out of scope when we leave this function.
-		boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, selectedFilePath));
+		std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, selectedFilePath));
+		workerThread.detach();
 	}
 }
 
@@ -768,7 +777,7 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 	Stream::IStream& file = *fileStreamReference;
 
 	//Attempt to load an XML structure from the file
-	file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+	file.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 	file.ProcessByteOrderMark();
 	HierarchicalStorageTree tree;
 	if(!tree.LoadTree(file))
@@ -835,8 +844,8 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 	viewManager->SaveViewLayout(viewLayoutNode);
 
 	//Save the workspace XML tree to the target workspace file
-	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
-	if(!file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	Stream::File file(Stream::IStream::TextEncoding::UTF8);
+	if(!file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
 		return false;
 	}
@@ -1087,7 +1096,8 @@ void ExodusInterface::UnloadModule(unsigned int moduleID)
 {
 	//Spawn a worker thread to perform the module unload
 	moduleCommandComplete = false;
-	boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::UnloadModuleThread), this, moduleID));
+	std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::UnloadModuleThread), this, moduleID));
+	workerThread.detach();
 
 	//Open the unload system progress dialog
 	INT_PTR dialogBoxParamResult;
@@ -1111,7 +1121,8 @@ void ExodusInterface::UnloadAllModules()
 	{
 		//Spawn a worker thread to perform the system unload
 		moduleCommandComplete = false;
-		boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::UnloadSystemThread), this));
+		std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::UnloadSystemThread), this));
+		workerThread.detach();
 
 		//Open the unload system progress dialog
 		INT_PTR dialogBoxParamResult;
@@ -1139,13 +1150,13 @@ bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 {
 	//Attempt to open the target preference file
 	Stream::File file;
-	if(!file.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	if(!file.Open(filePath, Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open))
 	{
 		return false;
 	}
 
 	//Attempt to decode the XML contents of the file
-	file.SetTextEncoding(Stream::IStream::TEXTENCODING_UTF8);
+	file.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 	file.ProcessByteOrderMark();
 	HierarchicalStorageTree tree;
 	if(!tree.LoadTree(file))
@@ -1241,8 +1252,8 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 	rootNode.CreateChild(L"LoadWorkspaceWithDebugState").SetData(prefs.loadWorkspaceWithDebugState);
 	rootNode.CreateChild(L"ShowDebugConsole").SetData(prefs.showDebugConsole);
 
-	Stream::File file(Stream::IStream::TEXTENCODING_UTF8);
-	if(file.Open(filePath, Stream::File::OPENMODE_READANDWRITE, Stream::File::CREATEMODE_CREATE))
+	Stream::File file(Stream::IStream::TextEncoding::UTF8);
+	if(file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
 		file.InsertByteOrderMark();
 		tree.SaveTree(file);
@@ -1336,7 +1347,8 @@ bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 	loadPluginsComplete = false;
 	loadPluginsProgress = 0;
 	loadPluginsAborted = false;
-	boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::LoadAssembliesFromFolderSynchronous), this, boost::ref(folderPath)));
+	std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::LoadAssembliesFromFolderSynchronous), this, std::ref(folderPath)));
+	workerThread.detach();
 
 	//Spawn a modal dialog to display the plugin load progress
 	bool result = true;
@@ -1403,7 +1415,7 @@ bool ExodusInterface::LoadAssembliesFromFolderSynchronous(const std::wstring& fo
 	for(std::list<std::wstring>::const_iterator i = pluginPaths.begin(); !loadPluginsAborted && (i != pluginPaths.end()); ++i)
 	{
 		//Update the progress and current plugin name
-		boost::mutex::scoped_lock lock(loadPluginsMutex);
+		std::unique_lock<std::mutex> lock(loadPluginsMutex);
 		loadPluginsCurrentPluginName = *i;
 		loadPluginsProgress = ((float)++entriesProcessed / (float)entryCount);
 		lock.unlock();
@@ -1460,7 +1472,7 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 			//##DEBUG##
 			std::wcout << L"Done.\n";
 
-			boost::mutex::scoped_lock lock(registeredElementMutex);
+			std::unique_lock<std::mutex> lock(registeredElementMutex);
 			RegisteredDeviceInfo registeredDeviceInfo;
 			registeredDeviceInfo.assemblyPath = filePath;
 			registeredDeviceInfo.info = entry;
@@ -1493,7 +1505,7 @@ bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
 			//##DEBUG##
 			std::wcout << L"Done.\n";
 
-			boost::mutex::scoped_lock lock(registeredElementMutex);
+			std::unique_lock<std::mutex> lock(registeredElementMutex);
 			RegisteredExtensionInfo registeredExtensionInfo;
 			registeredExtensionInfo.assemblyPath = filePath;
 			registeredExtensionInfo.info = entry;
@@ -1645,7 +1657,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 {
 	//Open the target archive file
 	Stream::File archiveFile;
-	if(!archiveFile.Open(archivePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+	if(!archiveFile.Open(archivePath, Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open))
 	{
 		std::wstring title = L"Error opening file!";
 		std::wstring text = L"Could not open the target compressed archive.";
@@ -1808,7 +1820,7 @@ Stream::IStream* ExodusInterface::OpenExistingFileForRead(const std::wstring& pa
 			//Open the target file
 			Stream::File* file = new Stream::File();
 			tempStream = file;
-			if(!file->Open(pathElements[i], Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+			if(!file->Open(pathElements[i], Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open))
 			{
 				delete tempStream;
 				return 0;
@@ -1894,7 +1906,7 @@ void ExodusInterface::DeleteFileStream(Stream::IStream* stream) const
 //----------------------------------------------------------------------------------------
 std::list<ExodusInterface::RegisteredDeviceInfo> ExodusInterface::GetRegisteredDevices() const
 {
-	boost::mutex::scoped_lock lock(registeredElementMutex);
+	std::unique_lock<std::mutex> lock(registeredElementMutex);
 	return registeredDevices;
 }
 
@@ -1903,7 +1915,7 @@ std::list<ExodusInterface::RegisteredDeviceInfo> ExodusInterface::GetRegisteredD
 //----------------------------------------------------------------------------------------
 std::list<ExodusInterface::RegisteredExtensionInfo> ExodusInterface::GetRegisteredExtensions() const
 {
-	boost::mutex::scoped_lock lock(registeredElementMutex);
+	std::unique_lock<std::mutex> lock(registeredElementMutex);
 	return registeredExtensions;
 }
 
@@ -1914,7 +1926,7 @@ bool ExodusInterface::BuildMenuRecursive(HMENU parentMenu, IMenuItem& amenuItem,
 {
 	bool result = true;
 
-	if(amenuItem.GetType() == IMenuItem::TYPE_SEGMENT)
+	if(amenuItem.GetType() == IMenuItem::Type::Segment)
 	{
 		IMenuSegment& menuItem = *((IMenuSegment*)(&amenuItem));
 		if(!menuItem.NoMenuItemsExist())
@@ -1936,7 +1948,7 @@ bool ExodusInterface::BuildMenuRecursive(HMENU parentMenu, IMenuItem& amenuItem,
 			}
 		}
 	}
-	else if(amenuItem.GetType() == IMenuItem::TYPE_SUBMENU)
+	else if(amenuItem.GetType() == IMenuItem::Type::SubMenu)
 	{
 		IMenuSubmenu& menuItem = *((IMenuSubmenu*)(&amenuItem));
 		if(!menuItem.NoMenuItemsExist())
@@ -1989,7 +2001,7 @@ bool ExodusInterface::BuildMenuRecursive(HMENU parentMenu, IMenuItem& amenuItem,
 			}
 		}
 	}
-	else if(amenuItem.GetType() == IMenuItem::TYPE_SELECTABLEOPTION)
+	else if(amenuItem.GetType() == IMenuItem::Type::SelectableOption)
 	{
 		if(insertLeadingSeparatorBeforeNextItem)
 		{
@@ -2345,7 +2357,7 @@ INT_PTR CALLBACK ExodusInterface::LoadPluginProc(HWND hwnd, UINT Message, WPARAM
 		}
 		else
 		{
-			boost::mutex::scoped_lock lock(state->loadPluginsMutex);
+			std::unique_lock<std::mutex> lock(state->loadPluginsMutex);
 			std::wstring currentPluginName = state->loadPluginsCurrentPluginName;
 			lock.unlock();
 			if(!currentPluginName.empty())
@@ -2775,7 +2787,8 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			if(!state->systemDestructionInProgress)
 			{
 				state->systemDestructionInProgress = true;
-				boost::thread workerThread(boost::bind(boost::mem_fn(&ExodusInterface::DestroySystemInterfaceThread), state));
+				std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::DestroySystemInterfaceThread), state));
+				workerThread.detach();
 			}
 		}
 		break;
@@ -2809,8 +2822,8 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		std::wstring debuggerSaveFileName = exodusInterface->GetSavestateAutoFileNamePrefix() + L" - " + savePostfix + L" - DebugState" + L".exs";
 		std::wstring saveFilePath = PathCombinePaths(exodusInterface->prefs.pathSavestates, saveFileName);
 		std::wstring debuggerSaveFilePath = PathCombinePaths(exodusInterface->prefs.pathSavestates, debuggerSaveFileName);
-		ISystemGUIInterface::StateInfo stateInfo = exodusInterface->system->GetStateInfo(saveFilePath, ISystemGUIInterface::FILETYPE_ZIP);
-		ISystemGUIInterface::StateInfo debuggerStateInfo = exodusInterface->system->GetStateInfo(debuggerSaveFilePath, ISystemGUIInterface::FILETYPE_ZIP);
+		ISystemGUIInterface::StateInfo stateInfo = exodusInterface->system->GetStateInfo(saveFilePath, ISystemGUIInterface::FileType::ZIP);
+		ISystemGUIInterface::StateInfo debuggerStateInfo = exodusInterface->system->GetStateInfo(debuggerSaveFilePath, ISystemGUIInterface::FileType::ZIP);
 		if((state->savestatePresent == stateInfo.valid)
 		&& (state->debugStatePresent == debuggerStateInfo.valid)
 		&& (state->date == (state->savestatePresent? stateInfo.creationDate: debuggerStateInfo.creationDate))
@@ -2840,7 +2853,7 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 			//Open the target file
 			std::wstring filePath = PathCombinePaths(exodusInterface->prefs.pathSavestates, saveFileName);
 			Stream::File source;
-			if(source.Open(filePath, Stream::File::OPENMODE_READONLY, Stream::File::CREATEMODE_OPEN))
+			if(source.Open(filePath, Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open))
 			{
 				//Load the ZIP header structure
 				ZIPArchive archive;
@@ -3673,6 +3686,6 @@ void ExodusInterface::JoystickInputWorkerThread()
 	}
 
 	//Since this thread is terminating, notify any waiting threads.
-	boost::mutex::scoped_lock lock(joystickWorkerThreadMutex);
+	std::unique_lock<std::mutex> lock(joystickWorkerThreadMutex);
 	joystickWorkerThreadStopped.notify_all();
 }

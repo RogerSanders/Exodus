@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Disable the C++ compile target. Note that the link target is not modified. This is useful for Profile
+  Guided Optimization targets where we have an already compiled output assembly that we don't want to
+  re-compile, we simply want to re-link and optimize using the latest profile information. -->
+  <Target Name="ClCompile"/>
+
+  <!-- Override the C++ clean target and only delete the output file on a clean. This allows us to do a
+  "Rebuild All" on the solution target and just re-link all projects. -->
+  <Target Name="CppClean">
+    <ItemGroup>
+      <InstrumentedClean Include="$(OutDir)$(TargetName)$(TargetExt)" />
+    </ItemGroup>
+    <Delete Files="@(InstrumentedClean)"/>
+  </Target>
+</Project>

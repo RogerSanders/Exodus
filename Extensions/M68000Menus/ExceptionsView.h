@@ -25,7 +25,7 @@ private:
 
 	//Exception functions
 	void UpdateExceptionEntry(HWND hwnd, const IM68000::ExceptionDebuggingEntry& targetExceptionEntry);
-	std::wstring BuildExceptionName(unsigned int vectorNumber) const;
+	std::wstring BuildExceptionName(IM68000::Exceptions vectorNumber) const;
 
 private:
 	ExceptionsViewPresenter& presenter;

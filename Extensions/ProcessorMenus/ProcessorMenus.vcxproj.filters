@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ProcessorMenus">
+      <UniqueIdentifier>{bf6491ab-3d8a-433b-be43-fe8c42ef785e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProcessorMenus\ActiveDisassemblyView">
+      <UniqueIdentifier>{2d23ff9b-840e-4310-a5ed-561643d8cd94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProcessorMenus\BreakpointView">
+      <UniqueIdentifier>{b5377f2d-ca19-4678-8f58-69f6b9549852}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProcessorMenus\CallStackView">
+      <UniqueIdentifier>{25382fec-f911-4427-af7c-858c8d1b8b7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProcessorMenus\ControlView">
+      <UniqueIdentifier>{1bc04d4f-83a3-478f-aa6d-182577b26ba4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProcessorMenus\DebugMenuHandler">
+      <UniqueIdentifier>{575848a9-3557-4c27-9212-bb3bab49bec1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProcessorMenus\DisassemblyView">
+      <UniqueIdentifier>{69f27d7f-25a7-431d-bddc-d401ff391c60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProcessorMenus\TraceView">
+      <UniqueIdentifier>{33b78f3b-310c-4c91-86d2-c5011d68dfa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProcessorMenus\WatchpointView">
+      <UniqueIdentifier>{c16e8b9c-bb3e-4665-9120-0c859e65228a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{abd41382-f3f8-449c-a2b0-ff193bb5d35f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ProcessorMenus.cpp">
+      <Filter>ProcessorMenus</Filter>
+    </ClCompile>
+    <ClCompile Include="ActiveDisassemblyView.cpp">
+      <Filter>ProcessorMenus\ActiveDisassemblyView</Filter>
+    </ClCompile>
+    <ClCompile Include="ActiveDisassemblyViewPresenter.cpp">
+      <Filter>ProcessorMenus\ActiveDisassemblyView</Filter>
+    </ClCompile>
+    <ClCompile Include="BreakpointView.cpp">
+      <Filter>ProcessorMenus\BreakpointView</Filter>
+    </ClCompile>
+    <ClCompile Include="BreakpointViewPresenter.cpp">
+      <Filter>ProcessorMenus\BreakpointView</Filter>
+    </ClCompile>
+    <ClCompile Include="CallStackView.cpp">
+      <Filter>ProcessorMenus\CallStackView</Filter>
+    </ClCompile>
+    <ClCompile Include="CallStackViewPresenter.cpp">
+      <Filter>ProcessorMenus\CallStackView</Filter>
+    </ClCompile>
+    <ClCompile Include="ControlView.cpp">
+      <Filter>ProcessorMenus\ControlView</Filter>
+    </ClCompile>
+    <ClCompile Include="ControlViewPresenter.cpp">
+      <Filter>ProcessorMenus\ControlView</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugMenuHandler.cpp">
+      <Filter>ProcessorMenus\DebugMenuHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="DisassemblyView.cpp">
+      <Filter>ProcessorMenus\DisassemblyView</Filter>
+    </ClCompile>
+    <ClCompile Include="DisassemblyViewPresenter.cpp">
+      <Filter>ProcessorMenus\DisassemblyView</Filter>
+    </ClCompile>
+    <ClCompile Include="TraceView.cpp">
+      <Filter>ProcessorMenus\TraceView</Filter>
+    </ClCompile>
+    <ClCompile Include="TraceViewPresenter.cpp">
+      <Filter>ProcessorMenus\TraceView</Filter>
+    </ClCompile>
+    <ClCompile Include="WatchpointView.cpp">
+      <Filter>ProcessorMenus\WatchpointView</Filter>
+    </ClCompile>
+    <ClCompile Include="WatchpointViewPresenter.cpp">
+      <Filter>ProcessorMenus\WatchpointView</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ProcessorMenus.h">
+      <Filter>ProcessorMenus</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveDisassemblyView.h">
+      <Filter>ProcessorMenus\ActiveDisassemblyView</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveDisassemblyViewPresenter.h">
+      <Filter>ProcessorMenus\ActiveDisassemblyView</Filter>
+    </ClInclude>
+    <ClInclude Include="BreakpointView.h">
+      <Filter>ProcessorMenus\BreakpointView</Filter>
+    </ClInclude>
+    <ClInclude Include="BreakpointViewPresenter.h">
+      <Filter>ProcessorMenus\BreakpointView</Filter>
+    </ClInclude>
+    <ClInclude Include="CallStackView.h">
+      <Filter>ProcessorMenus\CallStackView</Filter>
+    </ClInclude>
+    <ClInclude Include="CallStackViewPresenter.h">
+      <Filter>ProcessorMenus\CallStackView</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlView.h">
+      <Filter>ProcessorMenus\ControlView</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlViewPresenter.h">
+      <Filter>ProcessorMenus\ControlView</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugMenuHandler.h">
+      <Filter>ProcessorMenus\DebugMenuHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="DisassemblyView.h">
+      <Filter>ProcessorMenus\DisassemblyView</Filter>
+    </ClInclude>
+    <ClInclude Include="DisassemblyViewPresenter.h">
+      <Filter>ProcessorMenus\DisassemblyView</Filter>
+    </ClInclude>
+    <ClInclude Include="TraceView.h">
+      <Filter>ProcessorMenus\TraceView</Filter>
+    </ClInclude>
+    <ClInclude Include="TraceViewPresenter.h">
+      <Filter>ProcessorMenus\TraceView</Filter>
+    </ClInclude>
+    <ClInclude Include="WatchpointView.h">
+      <Filter>ProcessorMenus\WatchpointView</Filter>
+    </ClInclude>
+    <ClInclude Include="WatchpointViewPresenter.h">
+      <Filter>ProcessorMenus\WatchpointView</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ProcessorMenus.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

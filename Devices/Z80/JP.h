@@ -26,7 +26,7 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(conditionCode == CONDITIONCODE_NONE)
+		if(conditionCode == ConditionCode::None)
 		{
 			return Disassembly(GetOpcodeName(), source.Disassemble());
 		}
@@ -40,14 +40,14 @@ public:
 	{
 		source.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		conditionCode = CONDITIONCODE_NONE;
+		conditionCode = ConditionCode::None;
 		if(data.GetDataSegment(0, 3) == 0x01)
 		{
 			//##NOTE## This is NOT indirect, despite the notation.
 			//JP (HL)		11101001
 			//JP (IX)		11011101 11101001
 			//JP (IY)		11111101 11101001
-			source.SetMode(EffectiveAddress::MODE_HL);
+			source.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(4);
 		}
 		else if(data.GetDataSegment(0, 3) == 0x03)

@@ -9,7 +9,7 @@ SettingsView::SettingsView(IUIManager& auiManager, SettingsViewPresenter& aprese
 :ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
 {
 	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_SETTINGS));
-	SetDialogViewType(DIALOGMODE_MODAL, false, INITIALDIALOGPOS_CENTER);
+	SetDialogViewType(DialogMode::Modal, false, DialogPos::Center);
 }
 
 //----------------------------------------------------------------------------------------

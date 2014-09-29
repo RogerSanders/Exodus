@@ -41,70 +41,70 @@ public:
 		unsigned int targetIndex = 0;
 		switch(sourceMode)
 		{
-		case EffectiveAddress::DATAREG_DIRECT:
+		case EffectiveAddress::Mode::DataRegDirect:
 			sourceIndex = 0;
 			break;
-		case EffectiveAddress::ADDREG_DIRECT:
+		case EffectiveAddress::Mode::AddRegDirect:
 			sourceIndex = 1;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT:
+		case EffectiveAddress::Mode::AddRegIndirect:
 			sourceIndex = 2;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_POSTINC:
+		case EffectiveAddress::Mode::AddRegIndirectPostInc:
 			sourceIndex = 3;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_PREDEC:
+		case EffectiveAddress::Mode::AddRegIndirectPreDec:
 			sourceIndex = 4;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_DISPLACE:
+		case EffectiveAddress::Mode::AddRegIndirectDisplace:
 			sourceIndex = 5;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_INDEX_8BIT:
+		case EffectiveAddress::Mode::AddRegIndirectIndex8Bit:
 			sourceIndex = 6;
 			break;
-		case EffectiveAddress::ABS_WORD:
+		case EffectiveAddress::Mode::ABSWord:
 			sourceIndex = 7;
 			break;
-		case EffectiveAddress::ABS_LONG:
+		case EffectiveAddress::Mode::ABSLong:
 			sourceIndex = 8;
 			break;
-		case EffectiveAddress::PC_INDIRECT_DISPLACE:
+		case EffectiveAddress::Mode::PCIndirectDisplace:
 			sourceIndex = 9;
 			break;
-		case EffectiveAddress::PC_INDIRECT_INDEX_8BIT:
+		case EffectiveAddress::Mode::PCIndirectIndex8Bit:
 			sourceIndex = 10;
 			break;
-		case EffectiveAddress::IMMEDIATE:
+		case EffectiveAddress::Mode::Immediate:
 			sourceIndex = 11;
 			break;
 		}
 		switch(targetMode)
 		{
-		case EffectiveAddress::DATAREG_DIRECT:
+		case EffectiveAddress::Mode::DataRegDirect:
 			targetIndex = 0;
 			break;
-		case EffectiveAddress::ADDREG_DIRECT:
+		case EffectiveAddress::Mode::AddRegDirect:
 			targetIndex = 1;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT:
+		case EffectiveAddress::Mode::AddRegIndirect:
 			targetIndex = 2;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_POSTINC:
+		case EffectiveAddress::Mode::AddRegIndirectPostInc:
 			targetIndex = 3;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_PREDEC:
+		case EffectiveAddress::Mode::AddRegIndirectPreDec:
 			targetIndex = 4;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_DISPLACE:
+		case EffectiveAddress::Mode::AddRegIndirectDisplace:
 			targetIndex = 5;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_INDEX_8BIT:
+		case EffectiveAddress::Mode::AddRegIndirectIndex8Bit:
 			targetIndex = 6;
 			break;
-		case EffectiveAddress::ABS_WORD:
+		case EffectiveAddress::Mode::ABSWord:
 			targetIndex = 7;
 			break;
-		case EffectiveAddress::ABS_LONG:
+		case EffectiveAddress::Mode::ABSLong:
 			targetIndex = 8;
 			break;
 		}
@@ -208,7 +208,7 @@ public:
 		//The HV counter will increment between the reads, which will allow the order the
 		//words are read in to be determined.
 		additionalTime += source.Read(cpu, result, GetInstructionRegister());
-		if((target.GetAddressMode() == EffectiveAddress::ADDREG_INDIRECT_PREDEC) && (size == BITCOUNT_LONG))
+		if((target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectPreDec) && (size == BITCOUNT_LONG))
 		{
 			M68000Word lower(result.GetLowerBits(BITCOUNT_WORD));
 			M68000Word upper(result.GetUpperBits(BITCOUNT_WORD));

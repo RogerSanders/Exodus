@@ -94,7 +94,7 @@ template<class DataType, class TimesliceType> DataType& RandomTimeAccessValue<Da
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::Read(TimesliceType readTime) const
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Search for written values in the current timeslice
 	std::list<WriteEntry>::const_reverse_iterator i = writeList.rbegin();
@@ -122,7 +122,7 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<Dat
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Write(TimesliceType writeTime, const DataType& data)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 	WriteEntry entry(writeTime, data, latestTimeslice);
 
 	//Find the correct location in the list to insert the new write entry. The writeList
@@ -144,7 +144,7 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<Dat
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadCommitted(TimesliceType readTime) const
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 	TimesliceType currentTimeBase = 0;
 
 	//Default to the committed value
@@ -189,7 +189,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadLatest() const
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Search for written values in any timeslice
 	std::list<WriteEntry>::const_reverse_iterator i = writeList.rbegin();
@@ -208,7 +208,7 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<Dat
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::WriteLatest(const DataType& data)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Erase any write entries to this address in any timeslice. We do this to prevent
 	//uncommitted writes from overwriting this change. This write function should make
@@ -236,14 +236,14 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::DoesLatestTimesliceExist() const
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 	return !timesliceList.empty();
 }
 
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> typename RandomTimeAccessValue<DataType, TimesliceType>::Timeslice RandomTimeAccessValue<DataType, TimesliceType>::GetLatestTimeslice()
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	if(timesliceList.empty())
 	{
@@ -258,7 +258,7 @@ template<class DataType, class TimesliceType> typename RandomTimeAccessValue<Dat
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AdvancePastTimeslice(const Timeslice& targetTimeslice)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Commit buffered writes which we have passed in this step
 	std::list<TimesliceEntry>::iterator currentTimeslice = timesliceList.begin();
@@ -298,7 +298,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AdvanceToTimeslice(const Timeslice& targetTimeslice)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Commit buffered writes which we have passed in this step
 	std::list<TimesliceEntry>::iterator currentTimeslice = timesliceList.begin();
@@ -338,7 +338,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AdvanceByTime(TimesliceType step, const Timeslice& targetTimeslice)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 	TimesliceType currentTimeBase = 0;
 
 	//Commit buffered writes which we have passed in this step
@@ -385,7 +385,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::AdvanceByStep(const Timeslice& targetTimeslice)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 	TimesliceType currentTimeBase = 0;
 	TimesliceType writeTime = targetTimeslice->timesliceLength;
 	bool foundWrite = false;
@@ -437,7 +437,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessValue<DataType, TimesliceType>::GetNextWriteTime(const Timeslice& targetTimeslice)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 	bool foundWrite = false;
 	TimesliceType nextWriteTime = 0;
 	TimesliceType currentTimeBase = 0;
@@ -480,7 +480,7 @@ template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessValu
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> typename RandomTimeAccessValue<DataType, TimesliceType>::WriteInfo RandomTimeAccessValue<DataType, TimesliceType>::GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 	TimesliceType currentTimeBase = 0;
 	unsigned int currentIndex = 0;
 	WriteInfo writeInfo;
@@ -524,7 +524,7 @@ template<class DataType, class TimesliceType> typename RandomTimeAccessValue<Dat
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Commit()
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Flag all timeslices as committed
 	std::list<TimesliceEntry>::reverse_iterator i = timesliceList.rbegin();
@@ -538,7 +538,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Rollback()
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Erase non-committed memory writes
 	std::list<WriteEntry>::reverse_iterator i = writeList.rbegin();
@@ -570,7 +570,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AddTimeslice(TimesliceType timeslice)
 {
-	boost::mutex::scoped_lock lock(accessLock);
+	std::unique_lock<std::mutex> lock(accessLock);
 
 	//Add the new timeslice entry to the list
 	TimesliceEntry entry;

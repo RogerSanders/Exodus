@@ -7,9 +7,9 @@ class ISystemDeviceInterface
 {
 public:
 	//Enumerations
-	enum KeyCode;
-	enum AxisCode;
-	enum ScrollCode;
+	enum class KeyCode;
+	enum class AxisCode;
+	enum class ScrollCode;
 
 public:
 	//Constructors

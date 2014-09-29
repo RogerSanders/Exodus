@@ -6,7 +6,7 @@ class IClockSource
 {
 public:
 	//Enumerations
-	enum ClockType;
+	enum class ClockType;
 
 public:
 	//Constructors

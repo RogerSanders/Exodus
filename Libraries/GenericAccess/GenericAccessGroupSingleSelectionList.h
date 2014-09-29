@@ -6,7 +6,7 @@ class GenericAccessGroupSingleSelectionList :public IGenericAccessGroupSingleSel
 {
 public:
 	//Constructors
-	inline GenericAccessGroupSingleSelectionList(unsigned int acommandID, const std::wstring& aname);
+	template<class T> inline GenericAccessGroupSingleSelectionList(T adataID, const std::wstring& aname);
 	inline ~GenericAccessGroupSingleSelectionList();
 
 	//Interface version functions

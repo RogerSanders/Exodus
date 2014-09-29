@@ -70,20 +70,20 @@ public:
 		cpu->SetPC(location + GetInstructionSize());
 		if(op1.Negative())	//If op1 < 0
 		{
-			if(!cpu->ExceptionDisabled(M68000::EX_CHK_INSTRUCTION))
+			if(!cpu->ExceptionDisabled(M68000::Exceptions::CHKInstruction))
 			{
 				cpu->SetN(true);
 				cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());
-				exceptionTime = cpu->ProcessException(M68000::EX_CHK_INSTRUCTION);
+				exceptionTime = cpu->ProcessException(M68000::Exceptions::CHKInstruction);
 			}
 		}
 		else if(op2.Negative() || (op1.GetData() > op2.GetData()))	//If op2 > op1
 		{
-			if(!cpu->ExceptionDisabled(M68000::EX_CHK_INSTRUCTION))
+			if(!cpu->ExceptionDisabled(M68000::Exceptions::CHKInstruction))
 			{
 				cpu->SetN(false);
 				cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());
-				exceptionTime = cpu->ProcessException(M68000::EX_CHK_INSTRUCTION);
+				exceptionTime = cpu->ProcessException(M68000::Exceptions::CHKInstruction);
 			}
 		}
 		else

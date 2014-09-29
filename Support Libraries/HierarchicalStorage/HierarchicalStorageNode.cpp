@@ -4,12 +4,12 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 HierarchicalStorageNode::HierarchicalStorageNode()
-:parent(0), binaryDataPresent(false), inlineBinaryData(false), dataStream(Stream::IStream::TEXTENCODING_UTF16, Stream::IStream::NEWLINEENCODING_UNIX, Stream::IStream::BYTEORDER_BIGENDIAN, 0)
+:parent(0), binaryDataPresent(false), inlineBinaryData(false), dataStream(Stream::IStream::TextEncoding::UTF16, Stream::IStream::NewLineEncoding::Unix, Stream::IStream::ByteOrder::BigEndian, 0)
 {}
 
 //----------------------------------------------------------------------------------------
 HierarchicalStorageNode::HierarchicalStorageNode(const std::wstring& aname)
-:name(aname), parent(0), binaryDataPresent(false), inlineBinaryData(false), dataStream(Stream::IStream::TEXTENCODING_UTF16, Stream::IStream::NEWLINEENCODING_UNIX, Stream::IStream::BYTEORDER_BIGENDIAN, 0)
+:name(aname), parent(0), binaryDataPresent(false), inlineBinaryData(false), dataStream(Stream::IStream::TextEncoding::UTF16, Stream::IStream::NewLineEncoding::Unix, Stream::IStream::ByteOrder::BigEndian, 0)
 {}
 
 //----------------------------------------------------------------------------------------

@@ -34,23 +34,23 @@ public:
 		{
 		case 0:
 			//LD I,A		11101101 01000111
-			source.SetMode(EffectiveAddress::MODE_A);
-			target.SetMode(EffectiveAddress::MODE_I);
+			source.SetMode(EffectiveAddress::Mode::A);
+			target.SetMode(EffectiveAddress::Mode::I);
 			break;
 		case 1:
 			//LD R,A		11101101 01001111
-			source.SetMode(EffectiveAddress::MODE_A);
-			target.SetMode(EffectiveAddress::MODE_R);
+			source.SetMode(EffectiveAddress::Mode::A);
+			target.SetMode(EffectiveAddress::Mode::R);
 			break;
 		case 2:
 			//LD A,I		11101101 01010111
-			source.SetMode(EffectiveAddress::MODE_I);
-			target.SetMode(EffectiveAddress::MODE_A);
+			source.SetMode(EffectiveAddress::Mode::I);
+			target.SetMode(EffectiveAddress::Mode::A);
 			break;
 		case 3:
 			//LD A,R		11101101 01011111
-			source.SetMode(EffectiveAddress::MODE_R);
-			target.SetMode(EffectiveAddress::MODE_A);
+			source.SetMode(EffectiveAddress::Mode::R);
+			target.SetMode(EffectiveAddress::Mode::A);
 			break;
 		}
 		AddExecuteCycleCount(5);
@@ -69,7 +69,7 @@ public:
 		additionalTime += target.Write(cpu, location, result);
 
 		//Set the flag results
-		if(target.GetMode() == EffectiveAddress::MODE_A)
+		if(target.GetMode() == EffectiveAddress::Mode::A)
 		{
 			cpu->SetFlagS(result.MSB());
 			cpu->SetFlagZ(result.Zero());

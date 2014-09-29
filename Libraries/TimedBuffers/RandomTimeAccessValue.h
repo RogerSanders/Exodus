@@ -1,6 +1,6 @@
 #ifndef __RANDOMTIMEACCESSVALUE_H__
 #define __RANDOMTIMEACCESSVALUE_H__
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 #include <list>
 
 //Any object can be stored, saved, or loaded from this container, provided it meets the
@@ -61,7 +61,7 @@ public:
 	bool SaveState(IHierarchicalStorageNode& node) const;
 
 private:
-	mutable boost::mutex accessLock;
+	mutable std::mutex accessLock;
 	std::list<TimesliceEntry> timesliceList;
 	Timeslice latestTimeslice;
 	std::list<WriteEntry> writeList;

@@ -31,7 +31,7 @@ public:
 		target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//DJNZ e		00010000 eeeeeeee
-		source.SetMode(EffectiveAddress::MODE_B);
+		source.SetMode(EffectiveAddress::Mode::B);
 		target.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent);
 		AddExecuteCycleCount(8);
 

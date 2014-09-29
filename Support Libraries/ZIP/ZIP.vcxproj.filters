@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ZIPArchive">
+      <UniqueIdentifier>{f78456e1-f1eb-44a6-a8e2-86ce3d5df3b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ZIPFileEntry">
+      <UniqueIdentifier>{a0b3e7a0-0623-4e07-9b47-371c2eb7064a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ZIPFileHeaders">
+      <UniqueIdentifier>{b02eece8-a966-4f02-9f59-c5a6ab529506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Compression">
+      <UniqueIdentifier>{3c4d1f9d-b8bd-4cca-a431-d52bbe87382a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ZIPArchive.cpp">
+      <Filter>ZIPArchive</Filter>
+    </ClCompile>
+    <ClCompile Include="ZIPFileEntry.cpp">
+      <Filter>ZIPFileEntry</Filter>
+    </ClCompile>
+    <ClCompile Include="Deflate.cpp">
+      <Filter>Compression</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ZIPArchive.h">
+      <Filter>ZIPArchive</Filter>
+    </ClInclude>
+    <ClInclude Include="ZIPFileEntry.h">
+      <Filter>ZIPFileEntry</Filter>
+    </ClInclude>
+    <ClInclude Include="ZIPCentralFileHeader.h">
+      <Filter>ZIPFileHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ZIPEndOfCentralDirectory.h">
+      <Filter>ZIPFileHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ZIPLocalFileHeader.h">
+      <Filter>ZIPFileHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Deflate.h">
+      <Filter>Compression</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ZIPCentralFileHeader.inl">
+      <Filter>ZIPFileHeaders</Filter>
+    </None>
+    <None Include="ZIPEndOfCentralDirectory.inl">
+      <Filter>ZIPFileHeaders</Filter>
+    </None>
+    <None Include="ZIPLocalFileHeader.inl">
+      <Filter>ZIPFileHeaders</Filter>
+    </None>
+    <None Include="ZIP.pkg" />
+  </ItemGroup>
+</Project>

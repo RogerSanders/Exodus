@@ -16,13 +16,13 @@ template<class B> bool Stream<B>::ReadCharInternal(typename B::UnicodeCodePoint&
 {
 	switch(textEncoding)
 	{
-	case TEXTENCODING_ASCII:
+	case TextEncoding::ASCII:
 		return ReadCharInternalAsASCII(data, byteOrder, remainingCodeUnitsAvailable, stripCarriageReturn);
-	case TEXTENCODING_UTF8:
+	case TextEncoding::UTF8:
 		return ReadCharInternalAsUTF8(data, byteOrder, remainingCodeUnitsAvailable, stripCarriageReturn);
-	case TEXTENCODING_UTF16:
+	case TextEncoding::UTF16:
 		return ReadCharInternalAsUTF16(data, byteOrder, remainingCodeUnitsAvailable, stripCarriageReturn);
-	case TEXTENCODING_UTF32:
+	case TextEncoding::UTF32:
 		return ReadCharInternalAsUTF32(data, byteOrder, remainingCodeUnitsAvailable, stripCarriageReturn);
 	}
 	return false;
@@ -269,7 +269,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF32(typename B::UnicodeCod
 
 		//Read in the code point
 		unsigned int codePoint;
-		result &= ReadDataInternal(&codePoint, abyteOrder);
+		result &= ReadDataInternal(codePoint, abyteOrder);
 		--remainingCodeUnitsAvailable;
 
 		//If we failed to read in the code point, abort.
@@ -598,11 +598,11 @@ template<class B> template<class T> bool Stream<B>::ReadDataInternal(T& data, ty
 {
 	switch(abyteOrder)
 	{
-	case B::BYTEORDER_PLATFORM:
+	case B::ByteOrder::Platform:
 		return ReadBinaryNativeByteOrder(data);
-	case B::BYTEORDER_BIGENDIAN:
+	case B::ByteOrder::BigEndian:
 		return ReadDataInternalBigEndian(data);
-	case B::BYTEORDER_LITTLEENDIAN:
+	case B::ByteOrder::LittleEndian:
 		return ReadDataInternalLittleEndian(data);
 	}
 	return false;
@@ -613,11 +613,11 @@ template<class B> template<class T> bool Stream<B>::ReadDataInternal(T& data)
 {
 	switch(byteOrder)
 	{
-	case B::BYTEORDER_PLATFORM:
+	case B::ByteOrder::Platform:
 		return ReadBinaryNativeByteOrder(data);
-	case B::BYTEORDER_BIGENDIAN:
+	case B::ByteOrder::BigEndian:
 		return ReadDataInternalBigEndian(data);
-	case B::BYTEORDER_LITTLEENDIAN:
+	case B::ByteOrder::LittleEndian:
 		return ReadDataInternalLittleEndian(data);
 	}
 	return false;
@@ -648,11 +648,11 @@ template<class B> template<class T> bool Stream<B>::ReadDataInternal(T* data, ty
 {
 	switch(abyteOrder)
 	{
-	case B::BYTEORDER_PLATFORM:
+	case B::ByteOrder::Platform:
 		return ReadBinaryNativeByteOrder(data, length);
-	case B::BYTEORDER_BIGENDIAN:
+	case B::ByteOrder::BigEndian:
 		return ReadDataInternalBigEndian(data, length);
-	case B::BYTEORDER_LITTLEENDIAN:
+	case B::ByteOrder::LittleEndian:
 		return ReadDataInternalLittleEndian(data, length);
 	}
 	return false;
@@ -663,11 +663,11 @@ template<class B> template<class T> bool Stream<B>::ReadDataInternal(T* data, ty
 {
 	switch(byteOrder)
 	{
-	case B::BYTEORDER_PLATFORM:
+	case B::ByteOrder::Platform:
 		return ReadBinaryNativeByteOrder(data, length);
-	case B::BYTEORDER_BIGENDIAN:
+	case B::ByteOrder::BigEndian:
 		return ReadDataInternalBigEndian(data, length);
-	case B::BYTEORDER_LITTLEENDIAN:
+	case B::ByteOrder::LittleEndian:
 		return ReadDataInternalLittleEndian(data, length);
 	}
 	return false;
@@ -750,13 +750,13 @@ template<class B> bool Stream<B>::WriteCharInternal(const typename B::UnicodeCod
 {
 	switch(textEncoding)
 	{
-	case B::TEXTENCODING_ASCII:
+	case B::TextEncoding::ASCII:
 		return WriteCharInternalAsASCII(data, byteOrder, remainingCodeUnitsAvailable, insertCarriageReturn);
-	case B::TEXTENCODING_UTF8:
+	case B::TextEncoding::UTF8:
 		return WriteCharInternalAsUTF8(data, byteOrder, remainingCodeUnitsAvailable, insertCarriageReturn);
-	case B::TEXTENCODING_UTF16:
+	case B::TextEncoding::UTF16:
 		return WriteCharInternalAsUTF16(data, byteOrder, remainingCodeUnitsAvailable, insertCarriageReturn);
-	case B::TEXTENCODING_UTF32:
+	case B::TextEncoding::UTF32:
 		return WriteCharInternalAsUTF32(data, byteOrder, remainingCodeUnitsAvailable, insertCarriageReturn);
 	}
 	return false;
@@ -1547,11 +1547,11 @@ template<class B> template<class T> bool Stream<B>::WriteDataInternal(T data, ty
 {
 	switch(abyteOrder)
 	{
-	case B::BYTEORDER_PLATFORM:
+	case B::ByteOrder::Platform:
 		return WriteBinaryNativeByteOrder(data);
-	case B::BYTEORDER_BIGENDIAN:
+	case B::ByteOrder::BigEndian:
 		return WriteDataInternalBigEndian(data);
-	case B::BYTEORDER_LITTLEENDIAN:
+	case B::ByteOrder::LittleEndian:
 		return WriteDataInternalLittleEndian(data);
 	}
 	return false;
@@ -1562,11 +1562,11 @@ template<class B> template<class T> bool Stream<B>::WriteDataInternal(T data)
 {
 	switch(byteOrder)
 	{
-	case B::BYTEORDER_PLATFORM:
+	case B::ByteOrder::Platform:
 		return WriteBinaryNativeByteOrder(data);
-	case B::BYTEORDER_BIGENDIAN:
+	case B::ByteOrder::BigEndian:
 		return WriteDataInternalBigEndian(data);
-	case B::BYTEORDER_LITTLEENDIAN:
+	case B::ByteOrder::LittleEndian:
 		return WriteDataInternalLittleEndian(data);
 	}
 	return false;
@@ -1597,11 +1597,11 @@ template<class B> template<class T> bool Stream<B>::WriteDataInternal(const T* d
 {
 	switch(abyteOrder)
 	{
-	case B::BYTEORDER_PLATFORM:
+	case B::ByteOrder::Platform:
 		return WriteBinaryNativeByteOrder(data, length);
-	case B::BYTEORDER_BIGENDIAN:
+	case B::ByteOrder::BigEndian:
 		return WriteDataInternalBigEndian(data, length);
-	case B::BYTEORDER_LITTLEENDIAN:
+	case B::ByteOrder::LittleEndian:
 		return WriteDataInternalLittleEndian(data, length);
 	}
 	return false;
@@ -1612,11 +1612,11 @@ template<class B> template<class T> bool Stream<B>::WriteDataInternal(const T* d
 {
 	switch(byteOrder)
 	{
-	case B::BYTEORDER_PLATFORM:
+	case B::ByteOrder::Platform:
 		return WriteBinaryNativeByteOrder(data, length);
-	case B::BYTEORDER_BIGENDIAN:
+	case B::ByteOrder::BigEndian:
 		return WriteDataInternalBigEndian(data, length);
-	case B::BYTEORDER_LITTLEENDIAN:
+	case B::ByteOrder::LittleEndian:
 		return WriteDataInternalLittleEndian(data, length);
 	}
 	return false;

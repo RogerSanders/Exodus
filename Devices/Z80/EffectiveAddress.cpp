@@ -15,204 +15,204 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 	default:
 		DebugAssert(false);
 		break;
-	case MODE_A:
+	case Mode::A:
 		cpu->GetA(target);
 		break;
-	case MODE_B:
+	case Mode::B:
 		cpu->GetB(target);
 		break;
-	case MODE_C:
+	case Mode::C:
 		cpu->GetC(target);
 		break;
-	case MODE_D:
+	case Mode::D:
 		cpu->GetD(target);
 		break;
-	case MODE_E:
+	case Mode::E:
 		cpu->GetE(target);
 		break;
 
-	case MODE_AF:
+	case Mode::AF:
 		cpu->GetAF(target);
 		break;
-	case MODE_BC:
+	case Mode::BC:
 		cpu->GetBC(target);
 		break;
-	case MODE_DE:
+	case Mode::DE:
 		cpu->GetDE(target);
 		break;
 
-	case MODE_AF2:
+	case Mode::AF2:
 		cpu->GetAF2(target);
 		break;
-	case MODE_BC2:
+	case Mode::BC2:
 		cpu->GetBC2(target);
 		break;
-	case MODE_DE2:
+	case Mode::DE2:
 		cpu->GetDE2(target);
 		break;
 
-	case MODE_I:
+	case Mode::I:
 		cpu->GetI(target);
 		break;
-	case MODE_R:
+	case Mode::R:
 		cpu->GetR(target);
 		break;
-	case MODE_SP:
+	case Mode::SP:
 		cpu->GetSP(target);
 		break;
-	case MODE_PC:
+	case Mode::PC:
 		cpu->GetPC(target);
 		break;
-	case MODE_BC_INDIRECT:
+	case Mode::BCIndirect:
 		additionalTime = cpu->ReadMemory(cpu->GetBC(), target, false);
 		break;
-	case MODE_DE_INDIRECT:
+	case Mode::DEIndirect:
 		additionalTime = cpu->ReadMemory(cpu->GetDE(), target, false);
 		break;
-	case MODE_SP_INDIRECT:
+	case Mode::SPIndirect:
 		additionalTime = cpu->ReadMemory(cpu->GetSP(), target, false);
 		break;
-	case MODE_SP_PREDEC:
+	case Mode::SPPreDec:
 		cpu->SetSP(cpu->GetSP() - target.GetByteSize());
 		additionalTime = cpu->ReadMemory(cpu->GetSP(), target, false);
 		break;
-	case MODE_DE_POSTINC:
+	case Mode::DEPostInc:
 		additionalTime = cpu->ReadMemory(cpu->GetDE(), target, false);
 		cpu->SetDE(cpu->GetDE() + target.GetByteSize());
 		break;
-	case MODE_SP_POSTINC:
+	case Mode::SPPostInc:
 		additionalTime = cpu->ReadMemory(cpu->GetSP(), target, false);
 		cpu->SetSP(cpu->GetSP() + target.GetByteSize());
 		break;
-	case MODE_DE_POSTDEC:
+	case Mode::DEPostDec:
 		additionalTime = cpu->ReadMemory(cpu->GetDE(), target, false);
 		cpu->SetDE(cpu->GetDE() - target.GetByteSize());
 		break;
-	case MODE_ADDRESS_INDIRECT:
+	case Mode::AddressIndirect:
 		additionalTime = cpu->ReadMemory(address, target, false);
 		break;
-	case MODE_IMMEDIATE:
+	case Mode::Immediate:
 		target = data;
 		break;
 
-	case MODE_H:
+	case Mode::H:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			cpu->GetH(target);
 			break;
-		case INDEX_IX:
+		case IndexState::IX:
 			cpu->GetIXHigh(target);
 			break;
-		case INDEX_IY:
+		case IndexState::IY:
 			cpu->GetIYHigh(target);
 			break;
 		}
 		break;
-	case MODE_L:
+	case Mode::L:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			cpu->GetL(target);
 			break;
-		case INDEX_IX:
+		case IndexState::IX:
 			cpu->GetIXLow(target);
 			break;
-		case INDEX_IY:
+		case IndexState::IY:
 			cpu->GetIYLow(target);
 			break;
 		}
 		break;
-	case MODE_HL:
+	case Mode::HL:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			cpu->GetHL(target);
 			break;
-		case INDEX_IX:
+		case IndexState::IX:
 			cpu->GetIX(target);
 			break;
-		case INDEX_IY:
+		case IndexState::IY:
 			cpu->GetIY(target);
 			break;
 		}
 		break;
-	case MODE_HL2:
+	case Mode::HL2:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			cpu->GetHL2(target);
 			break;
 		}
 		break;
-	case MODE_HL_INDIRECT:
+	case Mode::HLIndirect:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			additionalTime = cpu->ReadMemory(cpu->GetHL(), target, false);
 			break;
-		case INDEX_IX:{
+		case IndexState::IX:{
 			Z80Word offset(GetIndexOffset().SignExtend(BITCOUNT_WORD));
 			offset += cpu->GetIX();
 			additionalTime = cpu->ReadMemory(offset, target, false);
 			break;}
-		case INDEX_IY:{
+		case IndexState::IY:{
 			Z80Word offset(GetIndexOffset().SignExtend(BITCOUNT_WORD));
 			offset += cpu->GetIY();
 			additionalTime = cpu->ReadMemory(offset, target, false);
 			break;}
 		}
 		break;
-	case MODE_HL_POSTINC:
+	case Mode::HLPostInc:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			additionalTime = cpu->ReadMemory(cpu->GetHL(), target, false);
 			cpu->SetHL(cpu->GetHL() + target.GetByteSize());
 			break;
-		case INDEX_IX:
+		case IndexState::IX:
 			additionalTime = cpu->ReadMemory(cpu->GetIX(), target, false);
 			cpu->SetIX(cpu->GetIX() + target.GetByteSize());
 			break;
-		case INDEX_IY:
+		case IndexState::IY:
 			additionalTime = cpu->ReadMemory(cpu->GetIY(), target, false);
 			cpu->SetIY(cpu->GetIY() + target.GetByteSize());
 			break;
 		}
 		break;
-	case MODE_HL_POSTDEC:
+	case Mode::HLPostDec:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			additionalTime = cpu->ReadMemory(cpu->GetHL(), target, false);
 			cpu->SetHL(cpu->GetHL() - target.GetByteSize());
 			break;
-		case INDEX_IX:
+		case IndexState::IX:
 			additionalTime = cpu->ReadMemory(cpu->GetIX(), target, false);
 			cpu->SetIX(cpu->GetIX() - target.GetByteSize());
 			break;
-		case INDEX_IY:
+		case IndexState::IY:
 			additionalTime = cpu->ReadMemory(cpu->GetIY(), target, false);
 			cpu->SetIY(cpu->GetIY() - target.GetByteSize());
 			break;
@@ -233,186 +233,186 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 	default:
 		DebugAssert(false);
 		break;
-	case MODE_A:
+	case Mode::A:
 		cpu->SetA(Z80Byte(target));
 		break;
-	case MODE_B:
+	case Mode::B:
 		cpu->SetB(Z80Byte(target));
 		break;
-	case MODE_C:
+	case Mode::C:
 		cpu->SetC(Z80Byte(target));
 		break;
-	case MODE_D:
+	case Mode::D:
 		cpu->SetD(Z80Byte(target));
 		break;
-	case MODE_E:
+	case Mode::E:
 		cpu->SetE(Z80Byte(target));
 		break;
 
-	case MODE_AF:
+	case Mode::AF:
 		cpu->SetAF(Z80Word(target));
 		break;
-	case MODE_BC:
+	case Mode::BC:
 		cpu->SetBC(Z80Word(target));
 		break;
-	case MODE_DE:
+	case Mode::DE:
 		cpu->SetDE(Z80Word(target));
 		break;
 
-	case MODE_AF2:
+	case Mode::AF2:
 		cpu->SetAF2(Z80Word(target));
 		break;
-	case MODE_BC2:
+	case Mode::BC2:
 		cpu->SetBC2(Z80Word(target));
 		break;
-	case MODE_DE2:
+	case Mode::DE2:
 		cpu->SetDE2(Z80Word(target));
 		break;
 
-	case MODE_I:
+	case Mode::I:
 		cpu->SetI(Z80Byte(target));
 		break;
-	case MODE_R:
+	case Mode::R:
 		cpu->SetR(Z80Byte(target));
 		break;
-	case MODE_SP:
+	case Mode::SP:
 		cpu->SetSP(Z80Word(target));
 		break;
-	case MODE_PC:
+	case Mode::PC:
 		cpu->SetPC(Z80Word(target));
 		break;
-	case MODE_BC_INDIRECT:
+	case Mode::BCIndirect:
 		additionalTime = cpu->WriteMemory(cpu->GetBC(), target, false);
 		break;
-	case MODE_DE_INDIRECT:
+	case Mode::DEIndirect:
 		additionalTime = cpu->WriteMemory(cpu->GetDE(), target, false);
 		break;
-	case MODE_SP_INDIRECT:
+	case Mode::SPIndirect:
 		additionalTime = cpu->WriteMemory(cpu->GetSP(), target, false);
 		break;
-	case MODE_SP_PREDEC:
+	case Mode::SPPreDec:
 		cpu->SetSP(cpu->GetSP() - target.GetByteSize());
 		additionalTime = cpu->WriteMemory(cpu->GetSP(), target, false);
 		break;
-	case MODE_DE_POSTINC:
+	case Mode::DEPostInc:
 		additionalTime = cpu->WriteMemory(cpu->GetDE(), target, false);
 		cpu->SetDE(cpu->GetDE() + target.GetByteSize());
 		break;
-	case MODE_SP_POSTINC:
+	case Mode::SPPostInc:
 		additionalTime = cpu->WriteMemory(cpu->GetSP(), target, false);
 		cpu->SetSP(cpu->GetSP() + target.GetByteSize());
 		break;
-	case MODE_DE_POSTDEC:
+	case Mode::DEPostDec:
 		additionalTime = cpu->WriteMemory(cpu->GetDE(), target, false);
 		cpu->SetDE(cpu->GetDE() - target.GetByteSize());
 		break;
-	case MODE_ADDRESS_INDIRECT:
+	case Mode::AddressIndirect:
 		additionalTime = cpu->WriteMemory(address, target, false);
 		break;
-	case MODE_IMMEDIATE:
+	case Mode::Immediate:
 		DebugAssert(false);
 		break;
 
-	case MODE_H:
+	case Mode::H:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			cpu->SetH(Z80Byte(target));
 			break;
-		case INDEX_IX:
+		case IndexState::IX:
 			cpu->SetIXHigh(Z80Byte(target));
 			break;
-		case INDEX_IY:
+		case IndexState::IY:
 			cpu->SetIYHigh(Z80Byte(target));
 			break;
 		}
 		break;
-	case MODE_L:
+	case Mode::L:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			cpu->SetL(Z80Byte(target));
 			break;
-		case INDEX_IX:
+		case IndexState::IX:
 			cpu->SetIXLow(Z80Byte(target));
 			break;
-		case INDEX_IY:
+		case IndexState::IY:
 			cpu->SetIYLow(Z80Byte(target));
 			break;
 		}
 		break;
-	case MODE_HL:
+	case Mode::HL:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			cpu->SetHL(Z80Word(target));
 			break;
-		case INDEX_IX:
+		case IndexState::IX:
 			cpu->SetIX(Z80Word(target));
 			break;
-		case INDEX_IY:
+		case IndexState::IY:
 			cpu->SetIY(Z80Word(target));
 			break;
 		}
 		break;
-	case MODE_HL2:
+	case Mode::HL2:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			cpu->SetHL2(Z80Word(target));
 			break;
 		}
 		break;
-	case MODE_HL_INDIRECT:
+	case Mode::HLIndirect:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			additionalTime = cpu->WriteMemory(cpu->GetHL(), target, false);
 			break;
-		case INDEX_IX:{
+		case IndexState::IX:{
 			Z80Word offset(GetIndexOffset().SignExtend(BITCOUNT_WORD));
 			offset += cpu->GetIX();
 			additionalTime = cpu->WriteMemory(offset, target, false);
 			break;}
-		case INDEX_IY:{
+		case IndexState::IY:{
 			Z80Word offset(GetIndexOffset().SignExtend(BITCOUNT_WORD));
 			offset += cpu->GetIY();
 			additionalTime = cpu->WriteMemory(offset, target, false);
 			break;}
 		}
 		break;
-	case MODE_HL_POSTINC:
+	case Mode::HLPostInc:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			additionalTime = cpu->WriteMemory(cpu->GetHL(), target, false);
 			cpu->SetHL(cpu->GetHL() + target.GetByteSize());
 			break;
-		case INDEX_IX:{
+		case IndexState::IX:{
 			Z80Word offset(GetIndexOffset().SignExtend(BITCOUNT_WORD));
 			offset += cpu->GetIX();
 			additionalTime = cpu->WriteMemory(offset, target, false);
 			cpu->SetIX(cpu->GetIX() + target.GetByteSize());
 			break;}
-		case INDEX_IY:{
+		case IndexState::IY:{
 			Z80Word offset(GetIndexOffset().SignExtend(BITCOUNT_WORD));
 			offset += cpu->GetIY();
 			additionalTime = cpu->WriteMemory(offset, target, false);
@@ -420,23 +420,23 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 			break;}
 		}
 		break;
-	case MODE_HL_POSTDEC:
+	case Mode::HLPostDec:
 		switch(indexState)
 		{
 		default:
 			DebugAssert(false);
 			break;
-		case INDEX_NONE:
+		case IndexState::None:
 			additionalTime = cpu->WriteMemory(cpu->GetHL(), target, false);
 			cpu->SetHL(cpu->GetHL() - target.GetByteSize());
 			break;
-		case INDEX_IX:{
+		case IndexState::IX:{
 			Z80Word offset(GetIndexOffset().SignExtend(BITCOUNT_WORD));
 			offset += cpu->GetIX();
 			additionalTime = cpu->WriteMemory(offset, target, false);
 			cpu->SetIX(cpu->GetIX() - target.GetByteSize());
 			break;}
-		case INDEX_IY:{
+		case IndexState::IY:{
 			Z80Word offset(GetIndexOffset().SignExtend(BITCOUNT_WORD));
 			offset += cpu->GetIY();
 			additionalTime = cpu->WriteMemory(offset, target, false);
@@ -456,33 +456,33 @@ std::wstring EffectiveAddress::Disassemble() const
 {
 	switch(mode)
 	{
-	case MODE_A:	return L"A";
-	case MODE_B:	return L"B";
-	case MODE_C:	return L"C";
-	case MODE_D:	return L"D";
-	case MODE_E:	return L"E";
+	case Mode::A:	return L"A";
+	case Mode::B:	return L"B";
+	case Mode::C:	return L"C";
+	case Mode::D:	return L"D";
+	case Mode::E:	return L"E";
 
-	case MODE_AF:	return L"AF";
-	case MODE_BC:	return L"BC";
-	case MODE_DE:	return L"DE";
+	case Mode::AF:	return L"AF";
+	case Mode::BC:	return L"BC";
+	case Mode::DE:	return L"DE";
 
-	case MODE_AF2:	return L"AF'";
-	case MODE_BC2:	return L"BC'";
-	case MODE_DE2:	return L"DE'";
-	case MODE_HL2:	return L"HL'";
+	case Mode::AF2:	return L"AF'";
+	case Mode::BC2:	return L"BC'";
+	case Mode::DE2:	return L"DE'";
+	case Mode::HL2:	return L"HL'";
 
-	case MODE_I:	return L"I";
-	case MODE_R:	return L"R";
-	case MODE_SP:	return L"SP";
-	case MODE_PC:	return L"PC";
-	case MODE_BC_INDIRECT:	return L"(BC)";
-	case MODE_DE_INDIRECT:	return L"(DE)";
-	case MODE_SP_INDIRECT:	return L"(SP)";
-	case MODE_ADDRESS_INDIRECT:{
+	case Mode::I:	return L"I";
+	case Mode::R:	return L"R";
+	case Mode::SP:	return L"SP";
+	case Mode::PC:	return L"PC";
+	case Mode::BCIndirect:	return L"(BC)";
+	case Mode::DEIndirect:	return L"(DE)";
+	case Mode::SPIndirect:	return L"(SP)";
+	case Mode::AddressIndirect:{
 		std::wstringstream stream;
 		stream << L'(' << std::setw(address.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << address.GetData() << L"h)";
 		return stream.str();}
-	case MODE_IMMEDIATE:{
+	case Mode::Immediate:{
 		std::wstringstream stream;
 		if(data.GetData() > 9)
 		{
@@ -495,37 +495,37 @@ std::wstring EffectiveAddress::Disassemble() const
 		return stream.str();}
 	}
 
-	if(indexState == INDEX_NONE)
+	if(indexState == IndexState::None)
 	{
 		switch(mode)
 		{
-		case MODE_H:	return L"H";
-		case MODE_L:	return L"L";
-		case MODE_HL:	return L"HL";
-		case MODE_HL_INDIRECT:	return L"(HL)";
+		case Mode::H:	return L"H";
+		case Mode::L:	return L"L";
+		case Mode::HL:	return L"HL";
+		case Mode::HLIndirect:	return L"(HL)";
 		}
 	}
-	else if(indexState == INDEX_IX)
+	else if(indexState == IndexState::IX)
 	{
 		switch(mode)
 		{
-		case MODE_H:	return L"IXH";
-		case MODE_L:	return L"IXL";
-		case MODE_HL:	return L"IX";
-		case MODE_HL_INDIRECT:{
+		case Mode::H:	return L"IXH";
+		case Mode::L:	return L"IXL";
+		case Mode::HL:	return L"IX";
+		case Mode::HLIndirect:{
 			std::wstringstream stream;
 			stream << L"(IX+" << std::setw(2) << std::setfill(L'0') << std::hex << std::uppercase << GetIndexOffset().GetData() << L"h)";
 			return stream.str();}
 		}
 	}
-	else if(indexState == INDEX_IY)
+	else if(indexState == IndexState::IY)
 	{
 		switch(mode)
 		{
-		case MODE_H:	return L"IYH";
-		case MODE_L:	return L"IYL";
-		case MODE_HL:	return L"IY";
-		case MODE_HL_INDIRECT:{
+		case Mode::H:	return L"IYH";
+		case Mode::L:	return L"IYL";
+		case Mode::HL:	return L"IY";
+		case Mode::HLIndirect:{
 			std::wstringstream stream;
 			stream << L"(IY+" << std::setw(2) << std::setfill(L'0') << std::hex << std::uppercase << GetIndexOffset().GetData() << L"h)";
 			return stream.str();}

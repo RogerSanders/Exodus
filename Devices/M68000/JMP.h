@@ -14,31 +14,31 @@ public:
 		unsigned int targetIndex = 0;
 		switch(targetMode)
 		{
-		case EffectiveAddress::ADDREG_INDIRECT:
+		case EffectiveAddress::Mode::AddRegIndirect:
 			targetIndex = 0;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_POSTINC:
+		case EffectiveAddress::Mode::AddRegIndirectPostInc:
 			targetIndex = 1;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_PREDEC:
+		case EffectiveAddress::Mode::AddRegIndirectPreDec:
 			targetIndex = 2;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_DISPLACE:
+		case EffectiveAddress::Mode::AddRegIndirectDisplace:
 			targetIndex = 3;
 			break;
-		case EffectiveAddress::ADDREG_INDIRECT_INDEX_8BIT:
+		case EffectiveAddress::Mode::AddRegIndirectIndex8Bit:
 			targetIndex = 4;
 			break;
-		case EffectiveAddress::ABS_WORD:
+		case EffectiveAddress::Mode::ABSWord:
 			targetIndex = 5;
 			break;
-		case EffectiveAddress::ABS_LONG:
+		case EffectiveAddress::Mode::ABSLong:
 			targetIndex = 6;
 			break;
-		case EffectiveAddress::PC_INDIRECT_DISPLACE:
+		case EffectiveAddress::Mode::PCIndirectDisplace:
 			targetIndex = 7;
 			break;
-		case EffectiveAddress::PC_INDIRECT_INDEX_8BIT:
+		case EffectiveAddress::Mode::PCIndirectIndex8Bit:
 			targetIndex = 8;
 			break;
 		}
@@ -100,7 +100,7 @@ public:
 		cpu->SetPC(address);
 
 		//Detect possible jump tables for active disassembly
-		if(cpu->ActiveDisassemblyEnabled() && ((target.GetAddressMode() == EffectiveAddress::ADDREG_INDIRECT_INDEX_8BIT) || (target.GetAddressMode() == EffectiveAddress::PC_INDIRECT_INDEX_8BIT)))
+		if(cpu->ActiveDisassemblyEnabled() && ((target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectIndex8Bit) || (target.GetAddressMode() == EffectiveAddress::Mode::PCIndirectIndex8Bit)))
 		{
 			M68000Long baseAddress;
 			target.GetAddressDisplacementTargetNoIndex(cpu, baseAddress);

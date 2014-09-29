@@ -2,19 +2,19 @@
 #define __OBSERVERSUBSCRIPTION_H__
 #include "IObserverCollection.h"
 #include <set>
-#include <boost/function.hpp>
-#include <boost/thread/mutex.hpp>
+#include <functional>
+#include <mutex>
 
 class ObserverSubscription :public IObserverSubscription
 {
 public:
 	//Constructors
 	inline ObserverSubscription();
-	inline ObserverSubscription(const boost::function<void()>& acallback);
+	inline ObserverSubscription(const std::function<void()>& acallback);
 	inline virtual ~ObserverSubscription();
 
 	//Callback binding functions
-	inline void SetBoundCallback(const boost::function<void()>& acallback);
+	inline void SetBoundCallback(const std::function<void()>& acallback);
 	inline void RemoveBoundCallback();
 
 	//Subscription functions
@@ -34,9 +34,9 @@ private:
 	inline ObserverSubscription& operator=(const ObserverSubscription& source) {}
 
 private:
-	mutable boost::mutex accessMutex;
+	mutable std::mutex accessMutex;
 	std::set<IObserverCollection*> linkedCollections;
-	boost::function<void()>* callback;
+	std::function<void()>* callback;
 };
 
 #include "ObserverSubscription.inl"

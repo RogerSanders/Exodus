@@ -96,27 +96,27 @@ LRESULT WC_DockPanel::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgWM_CREATE(wParam, lParam);
 	case WM_SIZE:
 		return msgWM_SIZE(wParam, lParam);
-	case DOCK_ADDCONTENTWINDOW:
+	case WindowMessages::AddContentWindow:
 		return msgDOCK_ADDCONTENTWINDOW(wParam, lParam);
-	case DOCK_REMOVECONTENTWINDOW:
+	case WindowMessages::RemoveContentWindow:
 		return msgDOCK_REMOVECONTENTWINDOW(wParam, lParam);
-	case DOCK_ADDDOCKEDWINDOW:
+	case WindowMessages::AddDockedWindow:
 		return msgDOCK_ADDDOCKEDWINDOW(wParam, lParam);
-	case DOCK_ADDDOCKEDWINDOWTOFRONT:
+	case WindowMessages::AddDockedWindowToFront:
 		return msgDOCK_ADDDOCKEDWINDOWTOFRONT(wParam, lParam);
-	case DOCK_REMOVEDOCKEDWINDOW:
+	case WindowMessages::RemoveDockedWindow:
 		return msgDOCK_REMOVEDOCKEDWINDOW(wParam, lParam);
-	case DOCK_GETDOCKEDWINDOWDESIREDWIDTH:
+	case WindowMessages::GetDockedWindowDesiredWidth:
 		return msgDOCK_GETDOCKEDWINDOWDESIREDWIDTH(wParam, lParam);
-	case DOCK_SETDOCKEDWINDOWDESIREDWIDTH:
+	case WindowMessages::SetDockedWindowDesiredWidth:
 		return msgDOCK_SETDOCKEDWINDOWDESIREDWIDTH(wParam, lParam);
-	case DOCK_GETDOCKEDWINDOWDESIREDHEIGHT:
+	case WindowMessages::GetDockedWindowDesiredHeight:
 		return msgDOCK_GETDOCKEDWINDOWDESIREDHEIGHT(wParam, lParam);
-	case DOCK_SETDOCKEDWINDOWDESIREDHEIGHT:
+	case WindowMessages::SetDockedWindowDesiredHeight:
 		return msgDOCK_SETDOCKEDWINDOWDESIREDHEIGHT(wParam, lParam);
-	case DOCK_GETCONTENTRECT:
+	case WindowMessages::GetContentRect:
 		return msgDOCK_GETCONTENTRECT(wParam, lParam);
-	case DOCK_CALCULATENEWDOCKEDWINDOWRECT:
+	case WindowMessages::CalculateNewDockedWindowRect:
 		return msgDOCK_CALCULATENEWDOCKEDWINDOWRECT(wParam, lParam);
 	}
 
@@ -600,7 +600,7 @@ void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, b
 {
 	//Calculate the new size of this docked window
 	updatedWindowSize = false;
-	if((entry.dockLocation == DOCKLOCATION_LEFT) || (entry.dockLocation == DOCKLOCATION_RIGHT))
+	if((entry.dockLocation == DockLocation::Left) || (entry.dockLocation == DockLocation::Right))
 	{
 		if((entry.windowHeight != remainingClientHeight) || (entry.windowWidth > remainingClientWidth) || (entry.windowWidth > entry.desiredWindowWidth) || ((entry.windowWidth < remainingClientWidth) && (entry.windowWidth < entry.desiredWindowWidth)))
 		{
@@ -609,7 +609,7 @@ void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, b
 			updatedWindowSize = true;
 		}
 	}
-	else if((entry.dockLocation == DOCKLOCATION_TOP) || (entry.dockLocation == DOCKLOCATION_BOTTOM))
+	else if((entry.dockLocation == DockLocation::Top) || (entry.dockLocation == DockLocation::Bottom))
 	{
 		if((entry.windowWidth != remainingClientWidth) || (entry.windowHeight > remainingClientHeight) || (entry.windowHeight > entry.desiredWindowHeight) || ((entry.windowHeight < remainingClientHeight) && (entry.windowHeight < entry.desiredWindowHeight)))
 		{
@@ -621,7 +621,7 @@ void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, b
 
 	//Calculate the new position of this docked window
 	updatedWindowPosition = false;
-	if((entry.dockLocation == DOCKLOCATION_LEFT) || (entry.dockLocation == DOCKLOCATION_TOP) || (entry.dockLocation == DOCKLOCATION_BOTTOM))
+	if((entry.dockLocation == DockLocation::Left) || (entry.dockLocation == DockLocation::Top) || (entry.dockLocation == DockLocation::Bottom))
 	{
 		if(entry.windowPosX != currentClientPosX)
 		{
@@ -629,7 +629,7 @@ void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, b
 			updatedWindowPosition = true;
 		}
 	}
-	else if(entry.dockLocation == DOCKLOCATION_RIGHT)
+	else if(entry.dockLocation == DockLocation::Right)
 	{
 		if(entry.windowPosX != ((currentClientPosX + remainingClientWidth) - entry.windowWidth))
 		{
@@ -637,7 +637,7 @@ void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, b
 			updatedWindowPosition = true;
 		}
 	}
-	if((entry.dockLocation == DOCKLOCATION_LEFT) || (entry.dockLocation == DOCKLOCATION_TOP) || (entry.dockLocation == DOCKLOCATION_RIGHT))
+	if((entry.dockLocation == DockLocation::Left) || (entry.dockLocation == DockLocation::Top) || (entry.dockLocation == DockLocation::Right))
 	{
 		if(entry.windowPosY != currentClientPosY)
 		{
@@ -645,7 +645,7 @@ void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, b
 			updatedWindowPosition = true;
 		}
 	}
-	else if(entry.dockLocation == DOCKLOCATION_BOTTOM)
+	else if(entry.dockLocation == DockLocation::Bottom)
 	{
 		if(entry.windowPosY != ((currentClientPosY + remainingClientHeight) - entry.windowHeight))
 		{
@@ -657,18 +657,18 @@ void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, b
 	//Update the current client position and remaining space within our control
 	switch(entry.dockLocation)
 	{
-	case DOCKLOCATION_LEFT:
+	case DockLocation::Left:
 		remainingClientWidth -= entry.windowWidth;
 		currentClientPosX += entry.windowWidth;
 		break;
-	case DOCKLOCATION_RIGHT:
+	case DockLocation::Right:
 		remainingClientWidth -= entry.windowWidth;
 		break;
-	case DOCKLOCATION_TOP:
+	case DockLocation::Top:
 		remainingClientHeight -= entry.windowHeight;
 		currentClientPosY += entry.windowHeight;
 		break;
-	case DOCKLOCATION_BOTTOM:
+	case DockLocation::Bottom:
 		remainingClientHeight -= entry.windowHeight;
 		break;
 	}

@@ -1,6 +1,6 @@
 #include "MenuHandlerBase.h"
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
+#include <thread>
+#include <functional>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -47,7 +47,7 @@ void MenuHandlerBase::ClearMenuItems()
 	}
 
 	//Wait for all the view close threads to terminate
-	boost::mutex::scoped_lock lock(deleteThreadMutex);
+	std::unique_lock<std::mutex> lock(deleteThreadMutex);
 	if(deleteThreadCount > 0)
 	{
 		allDeleteThreadsTerminated.wait(lock);
@@ -112,7 +112,8 @@ void MenuHandlerBase::HandleMenuItemSelect(int menuItemID)
 		{
 			//If this menu item opens a view, invoke a background thread to handle the
 			//menu item selection.
-			boost::thread backgroundWorkerThread(boost::bind(boost::mem_fn(&MenuHandlerBase::HandleViewMenuItemSelect), this, boost::ref(menuItem)));
+			std::thread backgroundWorkerThread(std::bind(std::mem_fn(&MenuHandlerBase::HandleViewMenuItemSelect), this, std::ref(menuItem)));
+			backgroundWorkerThread.detach();
 		}
 	}
 }
@@ -337,11 +338,12 @@ void MenuHandlerBase::HandleMenuItemSelectNonView(int menuItemID, IViewManager& 
 void MenuHandlerBase::DeleteViewOnClose(int menuItemID)
 {
 	//Increment the delete thread count
-	boost::mutex::scoped_lock lock(deleteThreadMutex);
+	std::unique_lock<std::mutex> lock(deleteThreadMutex);
 	++deleteThreadCount;
 
 	//Spawn a worker thread to handle the deletion of the view when it closes
-	boost::thread workerThread(boost::bind(boost::mem_fn(&MenuHandlerBase::DeleteViewHandler), this, menuItemID));
+	std::thread workerThread(std::bind(std::mem_fn(&MenuHandlerBase::DeleteViewHandler), this, menuItemID));
+	workerThread.detach();
 }
 
 //----------------------------------------------------------------------------------------
@@ -370,7 +372,7 @@ void MenuHandlerBase::DeleteViewHandler(int menuItemID)
 	}
 
 	//Decrement the delete thread count
-	boost::mutex::scoped_lock lock(deleteThreadMutex);
+	std::unique_lock<std::mutex> lock(deleteThreadMutex);
 	--deleteThreadCount;
 	if(deleteThreadCount <= 0)
 	{
