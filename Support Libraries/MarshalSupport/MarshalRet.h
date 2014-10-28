@@ -92,8 +92,8 @@ private:
 	RetData(const RetData& source) MARSHALSUPPORT_DELETEMETHOD;
 	RetData& operator=(const RetData& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	RetData(RetData&& source) = delete;
-	RetData& operator=(RetData&& source) = delete;
+	RetData(RetData&& source) MARSHALSUPPORT_DELETEMETHOD;
+	RetData& operator=(RetData&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:

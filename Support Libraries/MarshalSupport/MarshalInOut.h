@@ -75,8 +75,8 @@ private:
 	InOut(const InOut& sourceObject) MARSHALSUPPORT_DELETEMETHOD;
 	InOut& operator=(const InOut& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	InOut(InOut&& sourceObject) = delete;
-	InOut& operator=(InOut&& source) = delete;
+	InOut(InOut&& sourceObject) MARSHALSUPPORT_DELETEMETHOD;
+	InOut& operator=(InOut&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:

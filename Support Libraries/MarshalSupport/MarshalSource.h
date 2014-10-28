@@ -104,8 +104,8 @@ private:
 	MarshalSourceInternal(const MarshalSourceInternal& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSourceInternal& operator=(const MarshalSourceInternal& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	MarshalSourceInternal(MarshalSourceInternal&& source) = delete;
-	MarshalSourceInternal& operator=(MarshalSourceInternal&& source) = delete;
+	MarshalSourceInternal(MarshalSourceInternal&& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSourceInternal& operator=(MarshalSourceInternal&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:
@@ -139,8 +139,8 @@ private:
 	MarshalSource(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	MarshalSource(MarshalSource&& source) = delete;
-	MarshalSource& operator=(MarshalSource&& source) = delete;
+	MarshalSource(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSource& operator=(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 };
 
@@ -164,8 +164,8 @@ private:
 	MarshalSource(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	MarshalSource(MarshalSource&& source) = delete;
-	MarshalSource& operator=(MarshalSource&& source) = delete;
+	MarshalSource(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSource& operator=(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 };
 
@@ -198,8 +198,8 @@ private:
 	MarshalSource(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	MarshalSource(MarshalSource&& source) = delete;
-	MarshalSource& operator=(MarshalSource&& source) = delete;
+	MarshalSource(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSource& operator=(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:
@@ -241,8 +241,8 @@ private:
 	MarshalSource(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	MarshalSource(MarshalSource&& source) = delete;
-	MarshalSource& operator=(MarshalSource&& source) = delete;
+	MarshalSource(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSource& operator=(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:
@@ -290,8 +290,8 @@ private:
 	MarshalSource(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	MarshalSource(MarshalSource&& source) = delete;
-	MarshalSource& operator=(MarshalSource&& source) = delete;
+	MarshalSource(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSource& operator=(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:
@@ -323,10 +323,10 @@ protected:
 
 private:
 	//Disable copying and moving
-	MarshalSource(const MarshalSource& source) = delete;
-	MarshalSource& operator=(const MarshalSource& source) = delete;
-	MarshalSource(MarshalSource&& source) = delete;
-	MarshalSource& operator=(MarshalSource&& source) = delete;
+	MarshalSource(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSource& operator=(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSource(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSource& operator=(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
 
 private:
 	const std::array<ElementType, ArraySize>& _sourceObject;
@@ -367,8 +367,8 @@ private:
 	MarshalSource(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	MarshalSource(MarshalSource&& source) = delete;
-	MarshalSource& operator=(MarshalSource&& source) = delete;
+	MarshalSource(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
+	MarshalSource& operator=(MarshalSource&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:
