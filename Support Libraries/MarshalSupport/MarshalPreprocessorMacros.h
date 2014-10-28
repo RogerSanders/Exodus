@@ -5,13 +5,22 @@
 #ifndef MARSHALSUPPORT_CPP11SUPPORTED
 #if __cplusplus >= 201103L
 #define MARSHALSUPPORT_CPP11SUPPORTED
-#elif defined(_MSC_VER) && (_MSC_VER >= 1600)
+#elif defined(_MSC_VER) && (_MSC_VER >= 1600) //VS2010 - VS2012
 #define MARSHALSUPPORT_CPP11SUPPORTED
 #define MARSHALSUPPORT_NOCONSTEXPR
+#define MARSHALSUPPORT_NODELETE
+#elif defined(_MSC_VER) && (_MSC_VER >= 1800) //VS2013
+#define MARSHALSUPPORT_CPP11SUPPORTED
+#define MARSHALSUPPORT_NOCONSTEXPR
+#elif defined(_MSC_VER) && (_MSC_VER >= 1900) //VS 14 and higher
+//Note that although still in development at this time, CTP builds of Visual Studio "14"
+//support constexpr for non-member functions, which is sufficient for our current use to
+//consider constexpr supported by this compiler.
+#define MARSHALSUPPORT_CPP11SUPPORTED
 #endif
 #endif
 
-//Include the utility namespace for type traits if C++11 is supported
+//Include the utility header for std::forward and std::move if C++11 is supported
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 #include <utility>
 #endif
@@ -23,7 +32,7 @@
 #define MARSHALSUPPORT_CONSTEXPR
 #endif
 
-#ifdef MARSHALSUPPORT_CPP11SUPPORTED
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NODELETE)
 #define MARSHALSUPPORT_DELETEMETHOD = delete
 #else
 #define MARSHALSUPPORT_DELETEMETHOD

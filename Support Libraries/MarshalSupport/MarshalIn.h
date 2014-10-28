@@ -68,8 +68,8 @@ private:
 	In(const In& source) MARSHALSUPPORT_DELETEMETHOD;
 	In& operator=(const In& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	In(In&& source) = delete;
-	In& operator=(In&& source) = delete;
+	In(In&& source) MARSHALSUPPORT_DELETEMETHOD;
+	In& operator=(In&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:
@@ -135,8 +135,8 @@ private:
 	In(const In& source) MARSHALSUPPORT_DELETEMETHOD;
 	In& operator=(const In& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	In(In&& source) = delete;
-	In& operator=(In&& source) = delete;
+	In(In&& source) MARSHALSUPPORT_DELETEMETHOD;
+	In& operator=(In&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:

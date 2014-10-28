@@ -56,8 +56,8 @@ private:
 	Out(const Out& source) MARSHALSUPPORT_DELETEMETHOD;
 	Out& operator=(const Out& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	Out(Out&& source) = delete;
-	Out& operator=(Out&& source) = delete;
+	Out(Out&& source) MARSHALSUPPORT_DELETEMETHOD;
+	Out& operator=(Out&& source) MARSHALSUPPORT_DELETEMETHOD;
 #endif
 
 private:
