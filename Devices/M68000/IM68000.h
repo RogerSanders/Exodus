@@ -21,7 +21,7 @@ public:
 
 public:
 	//Interface version functions
-	static inline unsigned int ThisIM68000Version();
+	static inline unsigned int ThisIM68000Version() { return 1; }
 	virtual unsigned int GetIM68000Version() const = 0;
 
 	//CCR flags
@@ -88,16 +88,10 @@ public:
 	virtual void SetBreakOnAllExceptions(bool state) = 0;
 	virtual bool GetDisableAllExceptions() const = 0;
 	virtual void SetDisableAllExceptions(bool state) = 0;
-	inline std::list<ExceptionDebuggingEntry> GetExceptionDebugEntries() const;
-	inline void SetExceptionDebugEntries(const std::list<ExceptionDebuggingEntry>& state);
-	inline std::wstring GetExceptionName(Exceptions vectorNumber) const;
+	virtual MarshalSupport::Marshal::Ret<std::list<ExceptionDebuggingEntry>> GetExceptionDebugEntries() const = 0;
+	virtual void SetExceptionDebugEntries(const MarshalSupport::Marshal::In<std::list<ExceptionDebuggingEntry>>& state) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExceptionName(Exceptions vectorNumber) const = 0;
 	virtual void TriggerException(Exceptions vectorNumber) = 0;
-
-protected:
-	//Exception debugging functions
-	virtual void GetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<ExceptionDebuggingEntry>>& marshaller) const = 0;
-	virtual void SetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectSource<std::list<ExceptionDebuggingEntry>>& marshaller) = 0;
-	virtual void GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, Exceptions vectorNumber) const = 0;
 };
 
 #include "IM68000.inl"

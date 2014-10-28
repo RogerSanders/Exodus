@@ -61,25 +61,19 @@ void Breakpoint::SetBreakEvent(bool state)
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-void Breakpoint::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> Breakpoint::GetName() const
 {
-	marshaller.MarshalFrom(GetName());
+	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void Breakpoint::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void Breakpoint::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
 {
-	SetName(marshaller.MarshalTo());
+	name = aname;
 }
 
 //----------------------------------------------------------------------------------------
-void Breakpoint::GenerateNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GenerateName());
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring Breakpoint::GenerateName() const
+MarshalSupport::Marshal::Ret<std::wstring> Breakpoint::GenerateName() const
 {
 	std::wstring newName;
 	switch(locationCondition)

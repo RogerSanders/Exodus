@@ -62,20 +62,21 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="DeviceInfo.cpp">
+      <Filter>DeviceInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="ExodusInterface.cpp">
+      <Filter>ExodusInterface</Filter>
+    </ClCompile>
     <ClCompile Include="ViewStateChangeNotifier.cpp">
       <Filter>View System\ViewStateChangeNotifier</Filter>
     </ClCompile>
     <ClCompile Include="ViewManager.cpp">
       <Filter>View System\ViewManager</Filter>
     </ClCompile>
-    <ClCompile Include="ExodusInterface.cpp">
-      <Filter>ExodusInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="AboutView.cpp">
-      <Filter>ExodusInterface\AboutView</Filter>
-    </ClCompile>
-    <ClCompile Include="AboutViewPresenter.cpp">
-      <Filter>ExodusInterface\AboutView</Filter>
+    <ClCompile Include="SystemInfo.cpp">
+      <Filter>SystemInfo</Filter>
     </ClCompile>
     <ClCompile Include="SettingsView.cpp">
       <Filter>ExodusInterface\SettingsView</Filter>
@@ -92,6 +93,15 @@
     <ClCompile Include="MenuHandler.cpp">
       <Filter>ExodusInterface\MenuHandler</Filter>
     </ClCompile>
+    <ClCompile Include="AboutView.cpp">
+      <Filter>ExodusInterface\AboutView</Filter>
+    </ClCompile>
+    <ClCompile Include="AboutViewPresenter.cpp">
+      <Filter>ExodusInterface\AboutView</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtensionInfo.cpp">
+      <Filter>ExtensionInfo</Filter>
+    </ClCompile>
     <ClCompile Include="MenuSegment.cpp">
       <Filter>Menu System\MenuSegment</Filter>
     </ClCompile>
@@ -101,16 +111,6 @@
     <ClCompile Include="MenuSubmenu.cpp">
       <Filter>Menu System\MenuSubmenu</Filter>
     </ClCompile>
-    <ClCompile Include="DeviceInfo.cpp">
-      <Filter>DeviceInfo</Filter>
-    </ClCompile>
-    <ClCompile Include="ExtensionInfo.cpp">
-      <Filter>ExtensionInfo</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemInfo.cpp">
-      <Filter>SystemInfo</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ViewStateChangeNotifier.h">
@@ -172,15 +172,6 @@
     </None>
     <None Include="ExodusInterface.inl">
       <Filter>ExodusInterface</Filter>
-    </None>
-    <None Include="DeviceInfo.inl">
-      <Filter>DeviceInfo</Filter>
-    </None>
-    <None Include="ExtensionInfo.inl">
-      <Filter>ExtensionInfo</Filter>
-    </None>
-    <None Include="SystemInfo.inl">
-      <Filter>SystemInfo</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

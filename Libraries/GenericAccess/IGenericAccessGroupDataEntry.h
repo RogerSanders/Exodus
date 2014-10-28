@@ -8,21 +8,14 @@ class IGenericAccessGroupDataEntry :public IGenericAccessGroupEntry
 {
 public:
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessGroupDataEntryVersion();
+	static inline unsigned int ThisIGenericAccessGroupDataEntryVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessGroupDataEntryVersion() const = 0;
 
 	//Data info functions
 	virtual unsigned int GetDataID() const = 0;
-	inline std::wstring GetName() const;
-	inline std::wstring GetDescription() const;
-	inline std::wstring GetHelpFileLink() const;
-
-protected:
-	//Data info functions
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetDescriptionInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetHelpFileLinkInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDescription() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHelpFileLink() const = 0;
 };
 
-#include "IGenericAccessGroupDataEntry.inl"
 #endif

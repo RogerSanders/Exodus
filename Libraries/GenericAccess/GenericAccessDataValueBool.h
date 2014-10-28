@@ -17,11 +17,11 @@ public:
 
 	//Value read functions
 	virtual bool GetValue() const;
-	virtual std::wstring GetValueString() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetValueString() const;
 
 	//Value write functions
 	virtual bool SetValueBool(bool value);
-	virtual bool SetValueString(const std::wstring& value);
+	virtual bool SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value);
 
 	//Value limit functions
 	virtual void ApplyLimitSettingsToCurrentValue();

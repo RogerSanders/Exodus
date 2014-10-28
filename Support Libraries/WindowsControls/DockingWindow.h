@@ -101,14 +101,6 @@ public:
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-protected:
-	//Hosted content methods
-	virtual void AddHostedContentInternal(HWND contentWindow, const InteropSupport::ISTLObjectSource<std::wstring>& contentTitleMarshaller);
-	virtual void GetHostedContentTitleInternal(unsigned int contentEntryNo, const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-
-	//Child container methods
-	virtual void GetNestedChildDockingWindowListInternal(const InteropSupport::ISTLObjectTarget<std::list<IDockingWindow*>>& marshaller) const;
-
 private:
 	//Constants
 	static const wchar_t* tabTrayWindowClassName;
@@ -201,19 +193,19 @@ private:
 	virtual void AddChildContainer(IDockingWindow* childContainer, WC_DockPanel::DockLocation dockLocation, bool autoHide, bool forceTop);
 	virtual void RemoveChildContainer(IDockingWindow* childContainer);
 	virtual void UpdateAutoHideChildContainerContent(IDockingWindow* childContainer);
-	std::list<IDockingWindow*> GetNestedChildDockingWindowList() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<IDockingWindow*>> GetNestedChildDockingWindowList() const;
 	void ExpandHiddenDockPanel(IDockingWindow* targetDockedWindow, HWND targetContentWindow, int newWindowPosX, int newWindowPosY, int newWindowWidth, int newWindowHeight);
 	void CollapseHiddenDockPanel();
 
 	//Hosted content methods
-	void AddHostedContent(HWND contentWindow, const std::wstring& contentTitle);
+	virtual void AddHostedContent(HWND contentWindow, const MarshalSupport::Marshal::In<std::wstring>& contentTitle);
 	virtual void RemoveHostedContent(HWND contentWindow);
 	virtual unsigned int GetHostedContentCount() const;
 	virtual unsigned int GetSortedContentEntryNo(unsigned int sortedContentEntryIndex) const;
 	virtual bool GetHostedContentIndexFromWindow(HWND contentWindow, unsigned int& contentEntryNo) const;
 	unsigned int GetActiveContent() const;
 	virtual void SetActiveContent(unsigned int contentEntryNo);
-	std::wstring GetHostedContentTitle(unsigned int contentEntryNo) const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHostedContentTitle(unsigned int contentEntryNo) const;
 	void SetHostedContentTitle(unsigned int contentEntryNo, const std::wstring& newContentTitle);
 	virtual HWND GetHostedContentWindow(unsigned int contentEntryNo) const;
 	void SetHostedContentWindow(unsigned int contentEntryNo, HWND newContentWindow);

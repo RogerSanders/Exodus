@@ -29,19 +29,13 @@ GenericAccessDataValueFolderPath::DataType GenericAccessDataValueFolderPath::Get
 //----------------------------------------------------------------------------------------
 //Value read functions
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessDataValueFolderPath::GetValue() const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueFolderPath::GetValue() const
 {
 	return dataValue;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessDataValueFolderPath::GetValueInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetValue());
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring GenericAccessDataValueFolderPath::GetValueString() const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueFolderPath::GetValueString() const
 {
 	return GetValue();
 }
@@ -49,13 +43,13 @@ std::wstring GenericAccessDataValueFolderPath::GetValueString() const
 //----------------------------------------------------------------------------------------
 //Value write functions
 //----------------------------------------------------------------------------------------
-bool GenericAccessDataValueFolderPath::SetValueString(const std::wstring& value)
+bool GenericAccessDataValueFolderPath::SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value)
 {
 	return SetValueFolderPath(value);
 }
 
 //----------------------------------------------------------------------------------------
-bool GenericAccessDataValueFolderPath::SetValueFolderPath(const std::wstring& value)
+bool GenericAccessDataValueFolderPath::SetValueFolderPath(const MarshalSupport::Marshal::In<std::wstring>& value)
 {
 	dataValue = value;
 	ApplyLimitSettingsToCurrentValue();

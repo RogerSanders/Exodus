@@ -131,15 +131,15 @@ bool GenericAccessDataInfo::GetFilePathAllowScanningIntoArchives() const
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessDataInfo::GetFilePathExtensionFilterInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataInfo::GetFilePathExtensionFilter() const
 {
-	marshaller.MarshalFrom(GetFilePathExtensionFilter());
+	return filePathExtensionFilter;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessDataInfo::GetFilePathDefaultExtensionInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataInfo::GetFilePathDefaultExtension() const
 {
-	marshaller.MarshalFrom(GetFilePathDefaultExtension());
+	return filePathDefaultExtension;
 }
 
 //----------------------------------------------------------------------------------------

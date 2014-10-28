@@ -171,7 +171,7 @@ public:
 	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const;
 
 	//Breakpoint functions
-	inline std::list<IBreakpoint*> GetBreakpointList() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<IBreakpoint*>> GetBreakpointList() const;
 	virtual IBreakpoint* CreateBreakpoint();
 	virtual bool LockBreakpoint(IBreakpoint* breakpoint) const;
 	virtual void UnlockBreakpoint(IBreakpoint* breakpoint) const;
@@ -181,7 +181,7 @@ public:
 	inline void CheckExecution(unsigned int location) const;
 
 	//Watchpoint functions
-	inline std::list<IWatchpoint*> GetWatchpointList() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<IWatchpoint*>> GetWatchpointList() const;
 	virtual IWatchpoint* CreateWatchpoint();
 	virtual bool LockWatchpoint(IWatchpoint* watchpoint) const;
 	virtual void UnlockWatchpoint(IWatchpoint* watchpoint) const;
@@ -194,7 +194,7 @@ public:
 	//Call stack functions
 	virtual bool GetCallStackDisassemble() const;
 	virtual void SetCallStackDisassemble(bool state);
-	inline std::list<CallStackEntry> GetCallStack() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<CallStackEntry>> GetCallStack() const;
 	void PushCallStack(unsigned int sourceAddress, unsigned int targetAddress, unsigned int returnAddress, const std::wstring& entry, bool fixedDisassembly = false);
 	void PopCallStack(unsigned int returnAddress);
 	virtual void ClearCallStack();
@@ -206,7 +206,7 @@ public:
 	virtual void SetTraceDisassemble(bool state);
 	virtual unsigned int GetTraceLength() const;
 	virtual void SetTraceLength(unsigned int state);
-	inline std::list<TraceLogEntry> GetTraceLog() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const;
 	inline void RecordTrace(unsigned int pc);
 	virtual void ClearTraceLog();
 
@@ -282,9 +282,9 @@ public:
 	//Active disassembly analysis functions
 	virtual bool PerformActiveDisassemblyAnalysis();
 	virtual void ClearActiveDisassemblyAnalysis();
-	bool ActiveDisassemblyExportAnalysisToASMFile(const std::wstring& filePath) const;
-	bool ActiveDisassemblyExportAnalysisToTextFile(const std::wstring& filePath) const;
-	bool ActiveDisassemblyExportAnalysisToIDCFile(const std::wstring& filePath) const;
+	virtual bool ActiveDisassemblyExportAnalysisToASMFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const;
+	virtual bool ActiveDisassemblyExportAnalysisToTextFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const;
+	virtual bool ActiveDisassemblyExportAnalysisToIDCFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const;
 
 	//Active disassembly formatting functions
 	virtual bool GetLeadingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
@@ -310,24 +310,6 @@ public:
 
 	//Command execution functions
 	virtual bool ExecuteGenericCommand(unsigned int commandID, const DataContext* dataContext);
-
-protected:
-	//Breakpoint functions
-	virtual void GetBreakpointListInternal(const InteropSupport::ISTLObjectTarget<std::list<IBreakpoint*>>& marshaller) const;
-
-	//Watchpoint functions
-	virtual void GetWatchpointListInternal(const InteropSupport::ISTLObjectTarget<std::list<IWatchpoint*>>& marshaller) const;
-
-	//Call stack functions
-	virtual void GetCallStackInternal(const InteropSupport::ISTLObjectTarget<std::list<CallStackEntry>>& marshaller) const;
-
-	//Trace functions
-	virtual void GetTraceLogInternal(const InteropSupport::ISTLObjectTarget<std::list<TraceLogEntry>>& marshaller) const;
-
-	//Active disassembly analysis functions
-	virtual bool ActiveDisassemblyExportAnalysisToASMFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const;
-	virtual bool ActiveDisassemblyExportAnalysisToTextFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const;
-	virtual bool ActiveDisassemblyExportAnalysisToIDCFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const;
 
 private:
 	//Enumerations

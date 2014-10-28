@@ -26,21 +26,16 @@ public:
 
 	//Data info functions
 	virtual unsigned int GetDataID() const;
-	inline std::wstring GetName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
 	inline GenericAccessGroupDataEntry* SetName(const std::wstring& aname);
-	inline std::wstring GetDescription() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDescription() const;
 	inline GenericAccessGroupDataEntry* SetDescription(const std::wstring& adescription);
-	inline std::wstring GetHelpFileLink() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHelpFileLink() const;
 	inline GenericAccessGroupDataEntry* SetHelpFileLink(const std::wstring& ahelpFileLink);
 
 protected:
 	//Parent functions
 	virtual void SetParent(IGenericAccessGroup* aparent);
-
-	//Data info functions
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetDescriptionInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetHelpFileLinkInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	IGenericAccessGroup* parent;

@@ -30,114 +30,39 @@ enum class IGenericAccessDataValue::FloatDisplayMode
 };
 
 //----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
-unsigned int IGenericAccessDataValue::ThisIGenericAccessDataValueVersion()
-{
-	return 1;
-}
-
-//----------------------------------------------------------------------------------------
-//Value read functions
-//----------------------------------------------------------------------------------------
-std::wstring IGenericAccessDataValue::GetValueString() const
-{
-	std::wstring value;
-	GetValueStringInternal(InteropSupport::STLObjectTarget<std::wstring>(value));
-	return value;
-}
-
-//----------------------------------------------------------------------------------------
 //Value write functions
 //----------------------------------------------------------------------------------------
-template<class T> bool IGenericAccessDataValue::SetValue(const T& value)
-{
-	//##TODO## Enable our static assertion method below, and replace the missing semicolon
-	//on the return statement, once we have C++11 support.
-	//std::static_assert(false, L"IGenericAccessDataValue::SetValue called with an unsupported type!");
-	return false //;
-}
-
-//----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<bool>(const bool& value)
+bool IGenericAccessDataValue::SetValue(bool value)
 {
 	return SetValueBool(value);
 }
 
 //----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<volatile bool>(const volatile bool& value)
-{
-	return SetValueBool(value);
-}
-
-//----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<int>(const int& value)
+bool IGenericAccessDataValue::SetValue(int value)
 {
 	return SetValueInt(value);
 }
 
 //----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<volatile int>(const volatile int& value)
-{
-	return SetValueInt(value);
-}
-
-//----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<unsigned int>(const unsigned int& value)
+bool IGenericAccessDataValue::SetValue(unsigned int value)
 {
 	return SetValueUInt(value);
 }
 
 //----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<volatile unsigned int>(const volatile unsigned int& value)
-{
-	return SetValueUInt(value);
-}
-
-//----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<float>(const float& value)
+bool IGenericAccessDataValue::SetValue(float value)
 {
 	return SetValueFloat(value);
 }
 
 //----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<volatile float>(const volatile float& value)
-{
-	return SetValueFloat(value);
-}
-
-//----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<double>(const double& value)
+bool IGenericAccessDataValue::SetValue(double value)
 {
 	return SetValueDouble(value);
 }
 
 //----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<volatile double>(const volatile double& value)
+bool IGenericAccessDataValue::SetValue(const std::wstring& value)
 {
-	return SetValueDouble(value);
-}
-
-//----------------------------------------------------------------------------------------
-template<> bool IGenericAccessDataValue::SetValue<std::wstring>(const std::wstring& value)
-{
-	return SetValueStringInternal(InteropSupport::STLObjectSource<std::wstring>(value));
-}
-
-//----------------------------------------------------------------------------------------
-bool IGenericAccessDataValue::SetValueString(const std::wstring& value)
-{
-	return SetValueStringInternal(InteropSupport::STLObjectSource<std::wstring>(value));
-}
-
-//----------------------------------------------------------------------------------------
-bool IGenericAccessDataValue::SetValueFilePath(const std::wstring& value)
-{
-	return SetValueFilePathInternal(InteropSupport::STLObjectSource<std::wstring>(value));
-}
-
-//----------------------------------------------------------------------------------------
-bool IGenericAccessDataValue::SetValueFolderPath(const std::wstring& value)
-{
-	return SetValueFolderPathInternal(InteropSupport::STLObjectSource<std::wstring>(value));
+	return SetValueString(value);
 }

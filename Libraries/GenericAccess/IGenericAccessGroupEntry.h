@@ -1,6 +1,6 @@
 #ifndef __IGENERICACCESSGROUPENTRY_H__
 #define __IGENERICACCESSGROUPENTRY_H__
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "IGenericAccess.h"
 #include <string>
 class IGenericAccessGroup;
@@ -16,7 +16,7 @@ public:
 	virtual ~IGenericAccessGroupEntry() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessGroupEntryVersion();
+	static inline unsigned int ThisIGenericAccessGroupEntryVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessGroupEntryVersion() const = 0;
 
 	//Type functions

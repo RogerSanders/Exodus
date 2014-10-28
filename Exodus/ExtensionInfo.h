@@ -12,33 +12,20 @@ public:
 	//Getters
 	virtual AllocatorPointer GetAllocator() const;
 	virtual DestructorPointer GetDestructor() const;
-	inline std::wstring GetExtensionClassName() const;
-	inline std::wstring GetExtensionImplementationName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionClassName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionImplementationName() const;
 	virtual unsigned int GetExtensionVersionNo() const;
-	inline std::wstring GetExtensionCopyright() const;
-	inline std::wstring GetExtensionComments() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionCopyright() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionComments() const;
 
 	//Setters
-	inline void SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& aextensionClassName, const std::wstring& aextensionImplementationName, unsigned int aextensionVersionNo, const std::wstring& aextensionCopyright, const std::wstring& aextensionComments);
+	virtual void SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const MarshalSupport::Marshal::In<std::wstring>& aextensionClassName, const MarshalSupport::Marshal::In<std::wstring>& aextensionImplementationName, unsigned int aextensionVersionNo, const MarshalSupport::Marshal::In<std::wstring>& aextensionCopyright, const MarshalSupport::Marshal::In<std::wstring>& aextensionComments);
 	virtual void SetExtensionAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor);
-	inline void SetExtensionClassName(const std::wstring& aextensionClassName);
-	inline void SetExtensionImplementationName(const std::wstring& aextensionImplementationName);
+	virtual void SetExtensionClassName(const MarshalSupport::Marshal::In<std::wstring>& aextensionClassName);
+	virtual void SetExtensionImplementationName(const MarshalSupport::Marshal::In<std::wstring>& aextensionImplementationName);
 	virtual void SetExtensionVersionNo(unsigned int aextensionVersionNo);
-	inline void SetExtensionCopyright(const std::wstring& aextensionCopyright);
-	inline void SetExtensionComments(const std::wstring& aextensionComments);
-
-protected:
-	//Getters
-	virtual void GetExtensionClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetExtensionCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetExtensionCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-
-	//Setters
-	virtual void SetExtensionClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void SetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void SetExtensionCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void SetExtensionCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void SetExtensionCopyright(const MarshalSupport::Marshal::In<std::wstring>& aextensionCopyright);
+	virtual void SetExtensionComments(const MarshalSupport::Marshal::In<std::wstring>& aextensionComments);
 
 private:
 	AllocatorPointer Allocator;
@@ -50,5 +37,4 @@ private:
 	std::wstring comments;
 };
 
-#include "ExtensionInfo.inl"
 #endif

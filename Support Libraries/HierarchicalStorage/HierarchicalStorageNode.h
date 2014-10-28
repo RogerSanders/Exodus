@@ -17,8 +17,8 @@ public:
 	void Initialize();
 
 	//Name functions
-	inline std::wstring GetName() const;
-	inline void SetName(const std::wstring& aname);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
+	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname);
 
 	//Parent functions
 	virtual IHierarchicalStorageNode& GetParent() const;
@@ -27,59 +27,38 @@ public:
 	virtual bool IsEmpty() const;
 
 	//Child functions
-	using IHierarchicalStorageNode::CreateChild;
 	virtual IHierarchicalStorageNode& CreateChild();
-	IHierarchicalStorageNode& CreateChild(const std::wstring& aname);
+	virtual IHierarchicalStorageNode& CreateChild(const MarshalSupport::Marshal::In<std::wstring>& aname);
 	virtual void DeleteChild(IHierarchicalStorageNode& node);
-	std::list<IHierarchicalStorageNode*> GetChildList() const;
-	bool IsChildPresent(const std::wstring& name) const;
-	IHierarchicalStorageNode* GetChild(const std::wstring& name, const IHierarchicalStorageNode* searchAfterChildNode = 0) const;
+	virtual MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetChildList() const;
+	virtual bool IsChildPresent(const MarshalSupport::Marshal::In<std::wstring>& name) const;
+	virtual IHierarchicalStorageNode* GetChild(const MarshalSupport::Marshal::In<std::wstring>& name, const IHierarchicalStorageNode* searchAfterChildNode = 0) const;
 
 	//Attribute functions
 	using IHierarchicalStorageNode::CreateAttribute;
-	bool IsAttributePresent(const std::wstring& name) const;
-	IHierarchicalStorageAttribute* GetAttribute(const std::wstring& name) const;
-	IHierarchicalStorageAttribute& CreateAttribute(const std::wstring& name);
+	virtual bool IsAttributePresent(const MarshalSupport::Marshal::In<std::wstring>& name) const;
+	virtual IHierarchicalStorageAttribute* GetAttribute(const MarshalSupport::Marshal::In<std::wstring>& name) const;
+	virtual IHierarchicalStorageAttribute& CreateAttribute(const MarshalSupport::Marshal::In<std::wstring>& name);
 	virtual void DeleteAttribute(IHierarchicalStorageAttribute& attribute);
-	std::list<IHierarchicalStorageAttribute*> GetAttributeList() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageAttribute*>> GetAttributeList() const;
 
 	//Binary data functions
 	virtual bool GetBinaryDataPresent() const;
 	virtual void SetBinaryDataPresent(bool state);
-	inline std::wstring GetBinaryDataBufferName() const;
-	inline void SetBinaryDataBufferName(const std::wstring& aname);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetBinaryDataBufferName() const;
+	virtual void SetBinaryDataBufferName(const MarshalSupport::Marshal::In<std::wstring>& aname);
 	virtual Stream::IStream& GetBinaryDataBufferStream();
 	virtual bool GetInlineBinaryDataEnabled() const;
 	virtual void SetInlineBinaryDataEnabled(bool state);
 	void AddBinaryDataEntitiesToList(std::list<IHierarchicalStorageNode*>& binaryEntityList);
 
 protected:
-	//Name functions
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-
 	//Stream functions
 	virtual void ResetInternalStreamPosition() const;
 	virtual Stream::IStream& GetInternalStream() const;
 
-	//Child functions
-	virtual IHierarchicalStorageNode& CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
-	virtual void GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller) const;
-	virtual bool IsChildPresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
-	virtual IHierarchicalStorageNode* GetChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller, const IHierarchicalStorageNode* searchAfterChildNode) const;
-
-	//Attribute functions
-	virtual bool IsAttributePresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
-	virtual IHierarchicalStorageAttribute* GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const;
-	virtual IHierarchicalStorageAttribute& CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
-	virtual void GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageAttribute*>>& marshaller) const;
-
 	//Common data functions
 	virtual void ClearData();
-
-	//Binary data functions
-	virtual void GetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
 
 private:
 	//Parent functions
@@ -104,5 +83,4 @@ private:
 	mutable Stream::Buffer dataStream;
 };
 
-#include "HierarchicalStorageNode.inl"
 #endif

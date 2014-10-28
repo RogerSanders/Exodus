@@ -5,7 +5,7 @@ class IMemory
 {
 public:
 	//Interface version functions
-	static inline unsigned int ThisIMemoryVersion();
+	static inline unsigned int ThisIMemoryVersion() { return 1; }
 	virtual unsigned int GetIMemoryVersion() const = 0;
 
 	//Memory size functions
@@ -22,5 +22,4 @@ public:
 	virtual bool IsAddressLocked(unsigned int location) const = 0;
 };
 
-#include "IMemory.inl"
 #endif

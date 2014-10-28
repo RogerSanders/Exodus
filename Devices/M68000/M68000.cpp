@@ -377,7 +377,7 @@ void M68000::SuspendExecution()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool M68000::AddReference(const std::wstring& referenceName, IBusInterface* target)
+bool M68000::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	if(referenceName == L"BusInterface")
 	{
@@ -1285,7 +1285,7 @@ bool M68000::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int M68000::GetLineID(const std::wstring& lineName) const
+unsigned int M68000::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const
 {
 	if(lineName == L"RESET") //IO
 	{
@@ -1315,7 +1315,7 @@ unsigned int M68000::GetLineID(const std::wstring& lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring M68000::GetLineName(unsigned int lineID) const
+MarshalSupport::Marshal::Ret<std::wstring> M68000::GetLineName(unsigned int lineID) const
 {
 	switch((LineID)lineID)
 	{
@@ -1672,7 +1672,7 @@ void M68000::ApplyLineStateChange(LineID targetLine, const Data& lineData, std::
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int M68000::GetClockSourceID(const std::wstring& clockSourceName) const
+unsigned int M68000::GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const
 {
 	if(clockSourceName == L"CLK")
 	{
@@ -1682,7 +1682,7 @@ unsigned int M68000::GetClockSourceID(const std::wstring& clockSourceName) const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring M68000::GetClockSourceName(unsigned int clockSourceID) const
+MarshalSupport::Marshal::Ret<std::wstring> M68000::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch((ClockID)clockSourceID)
 	{
@@ -2225,7 +2225,7 @@ void M68000::WriteMemoryTransparent(const M68000Long& location, const Data& data
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int M68000::GetCELineID(const std::wstring& lineName, bool inputLine) const
+unsigned int M68000::GetCELineID(const MarshalSupport::Marshal::In<std::wstring>& lineName, bool inputLine) const
 {
 	if(lineName == L"LDS")
 	{
@@ -2664,26 +2664,14 @@ void M68000::SetDisableAllExceptions(bool state)
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::GetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<ExceptionDebuggingEntry>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetExceptionDebugEntries());
-}
-
-//----------------------------------------------------------------------------------------
-std::list<M68000::ExceptionDebuggingEntry> M68000::GetExceptionDebugEntries() const
+MarshalSupport::Marshal::Ret<std::list<M68000::ExceptionDebuggingEntry>> M68000::GetExceptionDebugEntries() const
 {
 	std::unique_lock<std::mutex> lock(debugMutex);
 	return exceptionList;
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::SetExceptionDebugEntriesInternal(const InteropSupport::ISTLObjectSource<std::list<ExceptionDebuggingEntry>>& marshaller)
-{
-	SetExceptionDebugEntries(marshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-void M68000::SetExceptionDebugEntries(const std::list<ExceptionDebuggingEntry>& state)
+void M68000::SetExceptionDebugEntries(const MarshalSupport::Marshal::In<std::list<ExceptionDebuggingEntry>>& state)
 {
 	std::unique_lock<std::mutex> lock(debugMutex);
 	exceptionList = state;
@@ -2691,13 +2679,7 @@ void M68000::SetExceptionDebugEntries(const std::list<ExceptionDebuggingEntry>& 
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::GetExceptionNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, Exceptions vectorNumber) const
-{
-	marshaller.MarshalFrom(GetExceptionName(vectorNumber));
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring M68000::GetExceptionName(Exceptions vectorNumber) const
+MarshalSupport::Marshal::Ret<std::wstring> M68000::GetExceptionName(Exceptions vectorNumber) const
 {
 	switch(vectorNumber)
 	{

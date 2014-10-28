@@ -6,7 +6,7 @@ class IGenericAccessDataValueUInt :public IGenericAccessDataValue
 {
 public:
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessDataValueUIntVersion();
+	static inline unsigned int ThisIGenericAccessDataValueUIntVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataValueUIntVersion() const = 0;
 
 	//Value read functions
@@ -26,5 +26,4 @@ public:
 	virtual void SetMaxValue(unsigned int state) = 0;
 };
 
-#include "IGenericAccessDataValueUInt.inl"
 #endif

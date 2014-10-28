@@ -13,7 +13,7 @@ public:
 	virtual ~IClockSource() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIClockSourceVersion();
+	static inline unsigned int ThisIClockSourceVersion() { return 1; }
 	virtual unsigned int GetIClockSourceVersion() const = 0;
 
 	//Clock type functions

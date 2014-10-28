@@ -137,11 +137,7 @@
     <ClInclude Include="ModuleSettingOptionInfo.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="IEmbeddedROMInfo.inl" />
-    <None Include="IModuleSettingInfo.inl" />
-    <None Include="IModuleSettingOptionInfo.inl" />
     <None Include="ISystemGUIInterface.inl" />
-    <None Include="ISystemInfo.inl" />
     <None Include="SystemInterface.pkg" />
   </ItemGroup>
   <ItemGroup>

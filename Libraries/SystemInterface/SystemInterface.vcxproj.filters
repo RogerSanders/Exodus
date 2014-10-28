@@ -53,20 +53,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ISystemInfo.inl">
-      <Filter>ISystemInfo</Filter>
-    </None>
     <None Include="ISystemGUIInterface.inl">
       <Filter>ISystemGUIInterface</Filter>
-    </None>
-    <None Include="IEmbeddedROMInfo.inl">
-      <Filter>IEmbeddedROMInfo</Filter>
-    </None>
-    <None Include="IModuleSettingInfo.inl">
-      <Filter>IModuleSettingInfo</Filter>
-    </None>
-    <None Include="IModuleSettingOptionInfo.inl">
-      <Filter>IModuleSettingOptionInfo</Filter>
     </None>
     <None Include="SystemInterface.pkg" />
   </ItemGroup>

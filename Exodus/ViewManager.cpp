@@ -522,7 +522,7 @@ HWND ViewManager::CreateNativeWindow(IView& view, IViewPresenter& viewPresenter,
 //----------------------------------------------------------------------------------------
 //Window management functions
 //----------------------------------------------------------------------------------------
-bool ViewManager::ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const std::wstring& windowTitle, IHierarchicalStorageNode* windowState)
+bool ViewManager::ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle, IHierarchicalStorageNode* windowState)
 {
 	//If window state has been specified for this window, it is being loaded as part of a
 	//layout restore operation. In this case, we pass the window and state information
@@ -550,12 +550,6 @@ bool ViewManager::ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter
 
 	//Return the result to the caller
 	return result;
-}
-
-//----------------------------------------------------------------------------------------
-bool ViewManager::ShowWindowFirstTimeInternal(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const InteropSupport::ISTLObjectSource<std::wstring>& windowTitleMarshaller, IHierarchicalStorageNode* windowState)
-{
-	return ShowWindowFirstTime(view, viewPresenter, windowHandle, windowTitleMarshaller.MarshalTo(), windowState);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1263,7 +1257,7 @@ void ViewManager::ResizeWindowToTargetClientSize(IView& view, IViewPresenter& vi
 //----------------------------------------------------------------------------------------
 //Window title functions
 //----------------------------------------------------------------------------------------
-void ViewManager::UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const std::wstring& windowTitle)
+void ViewManager::UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle)
 {
 	//Build a qualified title for this window
 	std::wstring qualifiedWindowTitle = BuildQualifiedWindowTitle(view, viewPresenter, windowHandle, windowTitle);
@@ -1276,7 +1270,7 @@ void ViewManager::UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, 
 		HWND dialogFrame = GetParentDialogWindowFrame(windowHandle);
 		if(dialogFrame != NULL)
 		{
-			SetWindowText(dialogFrame, windowTitle.c_str());
+			SetWindowText(dialogFrame, windowTitle.Get().c_str());
 		}
 	}
 	else if((viewType == IView::ViewType::Dockable) || (viewType == IView::ViewType::Document))
@@ -1303,12 +1297,6 @@ void ViewManager::UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, 
 	{
 		windowInfoSetIterator->second.windowTitle = qualifiedWindowTitle;
 	}
-}
-
-//----------------------------------------------------------------------------------------
-void ViewManager::UpdateWindowTitleInternal(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const InteropSupport::ISTLObjectSource<std::wstring>& windowTitleMarshaller)
-{
-	UpdateWindowTitle(view, viewPresenter, windowHandle, windowTitleMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------

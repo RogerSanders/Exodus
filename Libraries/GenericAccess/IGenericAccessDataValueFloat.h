@@ -6,7 +6,7 @@ class IGenericAccessDataValueFloat :public IGenericAccessDataValue
 {
 public:
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessDataValueFloatVersion();
+	static inline unsigned int ThisIGenericAccessDataValueFloatVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataValueFloatVersion() const = 0;
 
 	//Value read functions
@@ -27,5 +27,4 @@ public:
 	virtual void SetMaxValue(float state) = 0;
 };
 
-#include "IGenericAccessDataValueFloat.inl"
 #endif

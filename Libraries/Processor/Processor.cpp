@@ -353,9 +353,11 @@ bool Processor::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) co
 //----------------------------------------------------------------------------------------
 //Breakpoint functions
 //----------------------------------------------------------------------------------------
-void Processor::GetBreakpointListInternal(const InteropSupport::ISTLObjectTarget<std::list<IBreakpoint*>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<IBreakpoint*>> Processor::GetBreakpointList() const
 {
-	marshaller.MarshalFrom(GetBreakpointList());
+	std::unique_lock<std::mutex> lock(debugMutex);
+	std::list<IBreakpoint*> result(breakpoints.begin(), breakpoints.end());
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -581,9 +583,11 @@ void Processor::BreakpointCallback(Breakpoint* breakpoint) const
 //----------------------------------------------------------------------------------------
 //Watchpoint functions
 //----------------------------------------------------------------------------------------
-void Processor::GetWatchpointListInternal(const InteropSupport::ISTLObjectTarget<std::list<IWatchpoint*>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<IWatchpoint*>> Processor::GetWatchpointList() const
 {
-	marshaller.MarshalFrom(GetWatchpointList());
+	std::unique_lock<std::mutex> lock(debugMutex);
+	std::list<IWatchpoint*> result(watchpoints.begin(), watchpoints.end());
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -785,9 +789,10 @@ void Processor::SetCallStackDisassemble(bool state)
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::GetCallStackInternal(const InteropSupport::ISTLObjectTarget<std::list<CallStackEntry>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<Processor::CallStackEntry>> Processor::GetCallStack() const
 {
-	marshaller.MarshalFrom(GetCallStack());
+	std::unique_lock<std::mutex> lock(debugMutex);
+	return callStack;
 }
 
 //----------------------------------------------------------------------------------------
@@ -929,9 +934,10 @@ void Processor::SetTraceLength(unsigned int length)
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::GetTraceLogInternal(const InteropSupport::ISTLObjectTarget<std::list<TraceLogEntry>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<Processor::TraceLogEntry>> Processor::GetTraceLog() const
 {
-	marshaller.MarshalFrom(GetTraceLog());
+	std::unique_lock<std::mutex> lock(debugMutex);
+	return traceLog;
 }
 
 //----------------------------------------------------------------------------------------
@@ -3408,15 +3414,9 @@ std::wstring Processor::ActiveDisassemblyGenerateTextLabelForDataType(Disassembl
 }
 
 //----------------------------------------------------------------------------------------
-bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const std::wstring& filePath) const
+bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const
 {
 	return ActiveDisassemblyExportAnalysisToASMFile(*activeDisassemblyAnalysis, filePath);
-}
-
-//----------------------------------------------------------------------------------------
-bool Processor::ActiveDisassemblyExportAnalysisToASMFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const
-{
-	return ActiveDisassemblyExportAnalysisToASMFile(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -3840,15 +3840,9 @@ bool Processor::ActiveDisassemblyWriteDataArrayToASMFile(Stream::ViewText& asmFi
 }
 
 //----------------------------------------------------------------------------------------
-bool Processor::ActiveDisassemblyExportAnalysisToTextFile(const std::wstring& filePath) const
+bool Processor::ActiveDisassemblyExportAnalysisToTextFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const
 {
 	return ActiveDisassemblyExportAnalysisToTextFile(*activeDisassemblyAnalysis, filePath);
-}
-
-//----------------------------------------------------------------------------------------
-bool Processor::ActiveDisassemblyExportAnalysisToTextFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const
-{
-	return ActiveDisassemblyExportAnalysisToTextFile(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -3914,15 +3908,9 @@ bool Processor::ActiveDisassemblyExportAnalysisToTextFile(const ActiveDisassembl
 }
 
 //----------------------------------------------------------------------------------------
-bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const std::wstring& filePath) const
+bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const
 {
 	return ActiveDisassemblyExportAnalysisToIDCFile(*activeDisassemblyAnalysis, filePath);
-}
-
-//----------------------------------------------------------------------------------------
-bool Processor::ActiveDisassemblyExportAnalysisToIDCFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const
-{
-	return ActiveDisassemblyExportAnalysisToIDCFile(marshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -4620,7 +4608,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		bool result = false;
 		if(LockBreakpoint(breakpointDataContext.breakpoint))
 		{
-			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetName());
+			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetName().Get());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
 		}
 		return result;}

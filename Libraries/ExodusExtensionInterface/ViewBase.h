@@ -34,7 +34,7 @@ public:
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const;
 
 	//New window state
-	std::wstring GetViewDockingGroup() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewDockingGroup() const;
 	virtual bool IsViewInitiallyDocked() const;
 	virtual bool IsViewInitiallyCollapsed() const;
 	virtual DockPos GetViewInitialDockPosition() const;
@@ -44,9 +44,6 @@ public:
 	virtual bool CanResizeDialog() const;
 
 protected:
-	//New window state
-	virtual void GetViewDockingGroupInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-
 	//Helper functions
 	HINSTANCE GetAssemblyHandle() const;
 	//##TODO## Remove this

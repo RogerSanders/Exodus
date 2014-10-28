@@ -61,9 +61,9 @@ const IGenericAccess::DataContext* GenericAccessGroup::GetDataContext() const
 //----------------------------------------------------------------------------------------
 //Group info methods
 //----------------------------------------------------------------------------------------
-void GenericAccessGroup::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroup::GetName() const
 {
-	marshaller.MarshalFrom(GetName());
+	return name;
 }
 
 //----------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ unsigned int GenericAccessGroup::GetEntryCount() const
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroup::GetEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<IGenericAccessGroupEntry*>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroup::GetEntries() const
 {
-	marshaller.MarshalFrom(GetEntries());
+	return childEntries;
 }

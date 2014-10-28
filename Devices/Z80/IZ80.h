@@ -10,7 +10,7 @@ public:
 
 public:
 	//Interface version functions
-	static inline unsigned int ThisIZ80Version();
+	static inline unsigned int ThisIZ80Version() { return 1; }
 	virtual unsigned int GetIZ80Version() const = 0;
 
 	//Register functions

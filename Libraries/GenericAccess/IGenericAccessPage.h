@@ -1,6 +1,6 @@
 #ifndef __IGENERICACCESSPAGE_H__
 #define __IGENERICACCESSPAGE_H__
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "IGenericAccessGroup.h"
 #include <string>
 
@@ -11,19 +11,14 @@ public:
 	virtual ~IGenericAccessPage() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessPageVersion();
+	static inline unsigned int ThisIGenericAccessPageVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessPageVersion() const = 0;
 
 	//Page info functions
-	inline std::wstring GetName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
 
 	//Content functions
 	virtual const IGenericAccessGroup* GetContentRoot() const = 0;
-
-protected:
-	//Page info functions
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
-#include "IGenericAccessPage.inl"
 #endif

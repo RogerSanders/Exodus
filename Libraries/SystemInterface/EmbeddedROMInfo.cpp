@@ -18,27 +18,15 @@ unsigned int EmbeddedROMInfo::GetIEmbeddedROMInfoVersion() const
 //----------------------------------------------------------------------------------------
 //Getters
 //----------------------------------------------------------------------------------------
-std::wstring EmbeddedROMInfo::GetName() const
+MarshalSupport::Marshal::Ret<std::wstring> EmbeddedROMInfo::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetName());
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring EmbeddedROMInfo::GetDisplayName() const
+MarshalSupport::Marshal::Ret<std::wstring> EmbeddedROMInfo::GetDisplayName() const
 {
 	return name;
-}
-
-//----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::GetDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetDisplayName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -72,41 +60,23 @@ unsigned int EmbeddedROMInfo::GetROMEntryBitCount() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring EmbeddedROMInfo::GetFilePath() const
+MarshalSupport::Marshal::Ret<std::wstring> EmbeddedROMInfo::GetFilePath() const
 {
 	return filePath;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::GetFilePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetFilePath());
-}
-
-//----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetName(const std::wstring& aname)
+void EmbeddedROMInfo::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
 {
 	name = aname;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
-{
-	SetName(nameMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetDisplayName(const std::wstring& adisplayName)
+void EmbeddedROMInfo::SetDisplayName(const MarshalSupport::Marshal::In<std::wstring>& adisplayName)
 {
 	displayName = adisplayName;
-}
-
-//----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& displayNameMarshaller)
-{
-	SetDisplayName(displayNameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -140,13 +110,7 @@ void EmbeddedROMInfo::SetROMEntryBitCount(unsigned int aromEntryBitCount)
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetFilePath(const std::wstring& afilePath)
+void EmbeddedROMInfo::SetFilePath(const MarshalSupport::Marshal::In<std::wstring>& afilePath)
 {
 	filePath = afilePath;
-}
-
-//----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetFilePathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller)
-{
-	SetFilePath(filePathMarshaller.MarshalTo());
 }

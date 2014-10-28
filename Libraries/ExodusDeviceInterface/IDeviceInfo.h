@@ -1,5 +1,6 @@
 #ifndef __IDEVICEINFO_H__
 #define __IDEVICEINFO_H__
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 class IDevice;
 
@@ -15,40 +16,26 @@ public:
 	virtual ~IDeviceInfo() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIDeviceInfoVersion();
+	static inline unsigned int ThisIDeviceInfoVersion() { return 1; }
 	virtual unsigned int GetIDeviceInfoVersion() const = 0;
 
 	//Getters
 	virtual AllocatorPointer GetAllocator() const = 0;
 	virtual DestructorPointer GetDestructor() const = 0;
-	inline std::wstring GetDeviceClassName() const;
-	inline std::wstring GetDeviceImplementationName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDeviceClassName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDeviceImplementationName() const = 0;
 	virtual unsigned int GetDeviceVersionNo() const = 0;
-	inline std::wstring GetDeviceCopyright() const;
-	inline std::wstring GetDeviceComments() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDeviceCopyright() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDeviceComments() const = 0;
 
 	//Setters
-	inline void SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const std::wstring& adeviceClassName, const std::wstring& adeviceImplementationName, unsigned int adeviceVersionNo, const std::wstring& adeviceCopyright, const std::wstring& adeviceComments);
+	virtual void SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const MarshalSupport::Marshal::In<std::wstring>& adeviceClassName, const MarshalSupport::Marshal::In<std::wstring>& adeviceImplementationName, unsigned int adeviceVersionNo, const MarshalSupport::Marshal::In<std::wstring>& adeviceCopyright, const MarshalSupport::Marshal::In<std::wstring>& adeviceComments) = 0;
 	virtual void SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor) = 0;
-	inline void SetDeviceClassName(const std::wstring& adeviceClassName);
-	inline void SetDeviceImplementationName(const std::wstring& adeviceImplementationName);
+	virtual void SetDeviceClassName(const MarshalSupport::Marshal::In<std::wstring>& adeviceClassName) = 0;
+	virtual void SetDeviceImplementationName(const MarshalSupport::Marshal::In<std::wstring>& adeviceImplementationName) = 0;
 	virtual void SetDeviceVersionNo(unsigned int adeviceVersionNo) = 0;
-	inline void SetDeviceCopyright(const std::wstring& adeviceCopyright);
-	inline void SetDeviceComments(const std::wstring& adeviceComments);
-
-protected:
-	//Getters
-	virtual void GetDeviceClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetDeviceCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetDeviceCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-
-	//Setters
-	virtual void SetDeviceClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual void SetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual void SetDeviceCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual void SetDeviceCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual void SetDeviceCopyright(const MarshalSupport::Marshal::In<std::wstring>& adeviceCopyright) = 0;
+	virtual void SetDeviceComments(const MarshalSupport::Marshal::In<std::wstring>& adeviceComments) = 0;
 };
 
-#include "IDeviceInfo.inl"
 #endif

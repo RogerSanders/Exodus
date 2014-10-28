@@ -3700,7 +3700,7 @@ void DockingWindow::UpdateAutoHideChildContainerContent(IDockingWindow* childCon
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IDockingWindow*> DockingWindow::GetNestedChildDockingWindowList() const
+MarshalSupport::Marshal::Ret<std::list<IDockingWindow*>> DockingWindow::GetNestedChildDockingWindowList() const
 {
 	//Create a list object to hold our list of nested child windows
 	std::list<IDockingWindow*> dockingWindowList;
@@ -3730,12 +3730,6 @@ std::list<IDockingWindow*> DockingWindow::GetNestedChildDockingWindowList() cons
 
 	//Return the list of nested docking windows to the caller
 	return dockingWindowList;
-}
-
-//----------------------------------------------------------------------------------------
-void DockingWindow::GetNestedChildDockingWindowListInternal(const InteropSupport::ISTLObjectTarget<std::list<IDockingWindow*>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetNestedChildDockingWindowList());
 }
 
 //----------------------------------------------------------------------------------------
@@ -3788,7 +3782,7 @@ void DockingWindow::CollapseHiddenDockPanel()
 //----------------------------------------------------------------------------------------
 //Hosted content methods
 //----------------------------------------------------------------------------------------
-void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& contentTitle)
+void DockingWindow::AddHostedContent(HWND contentWindow, const MarshalSupport::Marshal::In<std::wstring>& contentTitle)
 {
 	//Create a new entry object for this hosted content window
 	ContentEntry entry;
@@ -3908,12 +3902,6 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 	{
 		parentDockingWindow->UpdateAutoHideChildContainerContent(this);
 	}
-}
-
-//----------------------------------------------------------------------------------------
-void DockingWindow::AddHostedContentInternal(HWND contentWindow, const InteropSupport::ISTLObjectSource<std::wstring>& contentTitleMarshaller)
-{
-	AddHostedContent(contentWindow, contentTitleMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -4104,16 +4092,10 @@ void DockingWindow::SetActiveContent(unsigned int contentEntryNo)
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring DockingWindow::GetHostedContentTitle(unsigned int contentEntryNo) const
+MarshalSupport::Marshal::Ret<std::wstring> DockingWindow::GetHostedContentTitle(unsigned int contentEntryNo) const
 {
 	//Return the title of the target content window to the caller
 	return hostedContent[contentEntryNo].contentTitle;
-}
-
-//----------------------------------------------------------------------------------------
-void DockingWindow::GetHostedContentTitleInternal(unsigned int contentEntryNo, const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetHostedContentTitle(contentEntryNo));
 }
 
 //----------------------------------------------------------------------------------------

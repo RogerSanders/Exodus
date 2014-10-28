@@ -17,12 +17,12 @@ public:
 
 	//Value read functions
 	virtual double GetValue() const;
-	virtual std::wstring GetValueString() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetValueString() const;
 
 	//Value write functions
 	virtual bool SetValueFloat(float value);
 	virtual bool SetValueDouble(double value);
-	virtual bool SetValueString(const std::wstring& value);
+	virtual bool SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value);
 
 	//Value display functions
 	virtual FloatDisplayMode GetDisplayMode() const;

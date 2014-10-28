@@ -1,7 +1,7 @@
 #ifndef __IVIEW_H__
 #define __IVIEW_H__
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 class IViewPresenter;
 class IUIManager;
@@ -20,7 +20,7 @@ public:
 	virtual ~IView() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIViewVersion();
+	static inline unsigned int ThisIViewVersion() { return 1; }
 	virtual unsigned int GetIViewVersion() const = 0;
 
 	//View management functions
@@ -35,7 +35,7 @@ public:
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const = 0;
 
 	//New window state
-	inline std::wstring GetViewDockingGroup() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewDockingGroup() const = 0;
 	virtual bool IsViewInitiallyDocked() const = 0;
 	virtual bool IsViewInitiallyCollapsed() const = 0;
 	virtual DockPos GetViewInitialDockPosition() const = 0;
@@ -43,10 +43,6 @@ public:
 	virtual DialogMode GetViewDialogMode() const = 0;
 	virtual DialogPos GetViewInitialDialogPosition() const = 0;
 	virtual bool CanResizeDialog() const = 0;
-
-protected:
-	//New window state
-	virtual void GetViewDockingGroupInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
 #include "IView.inl"

@@ -57,13 +57,13 @@ void Z80Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegme
 }
 
 //----------------------------------------------------------------------------------------
-bool Z80Menus::RestoreDeviceViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IDevice* targetDevice)
+bool Z80Menus::RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IDevice* targetDevice)
 {
 	return debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState);
 }
 
 //----------------------------------------------------------------------------------------
-bool Z80Menus::OpenDeviceView(const std::wstring& viewGroupName, const std::wstring& viewName, IDevice* targetDevice)
+bool Z80Menus::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
 {
 	return debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);
 }

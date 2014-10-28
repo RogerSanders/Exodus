@@ -40,7 +40,7 @@ int GenericAccessDataValueInt::GetValue() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessDataValueInt::GetValueString() const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueInt::GetValueString() const
 {
 	std::wstring result;
 	switch(displayMode)
@@ -78,7 +78,7 @@ bool GenericAccessDataValueInt::SetValueUInt(unsigned int value)
 }
 
 //----------------------------------------------------------------------------------------
-bool GenericAccessDataValueInt::SetValueString(const std::wstring& value)
+bool GenericAccessDataValueInt::SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value)
 {
 	//Calculate the default base to use for the specified number based on the specified
 	//display mode

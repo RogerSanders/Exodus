@@ -16,9 +16,6 @@
     <Filter Include="GenericAccessDataValue">
       <UniqueIdentifier>{9181dff2-f0d8-4c94-8b50-fd18084f1e11}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GenericAccessDataValue\IGenericAccessDataValueBool">
-      <UniqueIdentifier>{9cd0461b-1976-4084-894e-e3cf5645c4f4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GenericAccessDataValue\GenericAccessDataValueBase">
       <UniqueIdentifier>{44ddda27-a876-4589-a9e8-169f0084f9ef}</UniqueIdentifier>
     </Filter>
@@ -45,27 +42,6 @@
     </Filter>
     <Filter Include="GenericAccessDataValue\GenericAccessDataValueBool">
       <UniqueIdentifier>{743d88fe-bb10-41cc-b75c-e06b25de646c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GenericAccessDataValue\IGenericAccessDataValueInt">
-      <UniqueIdentifier>{92e9db67-43ab-4638-905b-5f0c3cd488d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GenericAccessDataValue\IGenericAccessDataValueUInt">
-      <UniqueIdentifier>{9559deff-9eb4-4b32-b0f0-7f345319874d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GenericAccessDataValue\IGenericAccessDataValueFloat">
-      <UniqueIdentifier>{85bdc365-a4f9-41e0-9288-2490309d916a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GenericAccessDataValue\IGenericAccessDataValueDouble">
-      <UniqueIdentifier>{50254cdc-dd99-4c76-9116-9faf472db69d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GenericAccessDataValue\IGenericAccessDataValueFilePath">
-      <UniqueIdentifier>{948268eb-92c6-44de-bbd3-3323289fbd21}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GenericAccessDataValue\IGenericAccessDataValueFolderPath">
-      <UniqueIdentifier>{5c3fc750-33ca-4cb0-ae9a-8a8f2ab0b67f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GenericAccessDataValue\IGenericAccessDataValueString">
-      <UniqueIdentifier>{d51bfd87-ae71-45dd-ac47-4552ca686387}</UniqueIdentifier>
     </Filter>
     <Filter Include="GenericAccessGroup">
       <UniqueIdentifier>{12531ac1-4d6c-473a-a779-0e6f608454da}</UniqueIdentifier>
@@ -115,6 +91,33 @@
     <Filter Include="IGenericAccessGroupSingleSelectionList">
       <UniqueIdentifier>{28f6c58b-1a03-4f68-a996-1d22fbe88c37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IGenericAccessDataValue\IGenericAccessDataValueBool">
+      <UniqueIdentifier>{9cd0461b-1976-4084-894e-e3cf5645c4f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGenericAccessDataValue\IGenericAccessDataValueDouble">
+      <UniqueIdentifier>{50254cdc-dd99-4c76-9116-9faf472db69d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGenericAccessDataValue\IGenericAccessDataValueFilePath">
+      <UniqueIdentifier>{948268eb-92c6-44de-bbd3-3323289fbd21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGenericAccessDataValue\IGenericAccessDataValueFloat">
+      <UniqueIdentifier>{85bdc365-a4f9-41e0-9288-2490309d916a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGenericAccessDataValue\IGenericAccessDataValueFolderPath">
+      <UniqueIdentifier>{5c3fc750-33ca-4cb0-ae9a-8a8f2ab0b67f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGenericAccessDataValue\IGenericAccessDataValueInt">
+      <UniqueIdentifier>{92e9db67-43ab-4638-905b-5f0c3cd488d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGenericAccessDataValue\IGenericAccessDataValueString">
+      <UniqueIdentifier>{d51bfd87-ae71-45dd-ac47-4552ca686387}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGenericAccessDataValue\IGenericAccessDataValueUInt">
+      <UniqueIdentifier>{9559deff-9eb4-4b32-b0f0-7f345319874d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGenericAccessDataValue\IGenericAccessDataValue">
+      <UniqueIdentifier>{0f67082a-d26b-48ef-8af4-280c81e3e60a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GenericAccessBase.h">
@@ -130,7 +133,7 @@
       <Filter>GenericAccessDataInfo</Filter>
     </ClInclude>
     <ClInclude Include="IGenericAccessDataValueBool.h">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueBool</Filter>
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValueBool</Filter>
     </ClInclude>
     <ClInclude Include="GenericAccessDataValueBase.h">
       <Filter>GenericAccessDataValue\GenericAccessDataValueBase</Filter>
@@ -160,25 +163,25 @@
       <Filter>GenericAccessDataValue\GenericAccessDataValueBool</Filter>
     </ClInclude>
     <ClInclude Include="IGenericAccessDataValueInt.h">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueInt</Filter>
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValueInt</Filter>
     </ClInclude>
     <ClInclude Include="IGenericAccessDataValueUInt.h">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueUInt</Filter>
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValueUInt</Filter>
     </ClInclude>
     <ClInclude Include="IGenericAccessDataValueFloat.h">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueFloat</Filter>
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValueFloat</Filter>
     </ClInclude>
     <ClInclude Include="IGenericAccessDataValueDouble.h">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueDouble</Filter>
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValueDouble</Filter>
     </ClInclude>
     <ClInclude Include="IGenericAccessDataValueFilePath.h">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueFilePath</Filter>
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValueFilePath</Filter>
     </ClInclude>
     <ClInclude Include="IGenericAccessDataValueFolderPath.h">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueFolderPath</Filter>
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValueFolderPath</Filter>
     </ClInclude>
     <ClInclude Include="IGenericAccessDataValueString.h">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueString</Filter>
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValueString</Filter>
     </ClInclude>
     <ClInclude Include="GenericAccessGroup.h">
       <Filter>GenericAccessGroup</Filter>
@@ -207,9 +210,6 @@
     <ClInclude Include="IGenericAccessDataInfo.h">
       <Filter>IGenericAccessDataInfo</Filter>
     </ClInclude>
-    <ClInclude Include="IGenericAccessDataValue.h">
-      <Filter>IGenericAccessDataValue</Filter>
-    </ClInclude>
     <ClInclude Include="IGenericAccessGroup.h">
       <Filter>IGenericAccessGroup</Filter>
     </ClInclude>
@@ -228,13 +228,13 @@
     <ClInclude Include="IGenericAccessGroupSingleSelectionList.h">
       <Filter>IGenericAccessGroupSingleSelectionList</Filter>
     </ClInclude>
+    <ClInclude Include="IGenericAccessDataValue.h">
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValue</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GenericAccessBase.inl">
       <Filter>GenericAccessBase</Filter>
-    </None>
-    <None Include="IGenericAccessPage.inl">
-      <Filter>IGenericAccessPage</Filter>
     </None>
     <None Include="GenericAccessCommandInfo.inl">
       <Filter>GenericAccessCommandInfo</Filter>
@@ -242,32 +242,8 @@
     <None Include="GenericAccessDataInfo.inl">
       <Filter>GenericAccessDataInfo</Filter>
     </None>
-    <None Include="IGenericAccessDataValueBool.inl">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueBool</Filter>
-    </None>
     <None Include="GenericAccessDataValueBase.inl">
       <Filter>GenericAccessDataValue\GenericAccessDataValueBase</Filter>
-    </None>
-    <None Include="IGenericAccessDataValueInt.inl">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueInt</Filter>
-    </None>
-    <None Include="IGenericAccessDataValueUInt.inl">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueUInt</Filter>
-    </None>
-    <None Include="IGenericAccessDataValueFloat.inl">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueFloat</Filter>
-    </None>
-    <None Include="IGenericAccessDataValueDouble.inl">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueDouble</Filter>
-    </None>
-    <None Include="IGenericAccessDataValueFilePath.inl">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueFilePath</Filter>
-    </None>
-    <None Include="IGenericAccessDataValueFolderPath.inl">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueFolderPath</Filter>
-    </None>
-    <None Include="IGenericAccessDataValueString.inl">
-      <Filter>GenericAccessDataValue\IGenericAccessDataValueString</Filter>
     </None>
     <None Include="GenericAccessGroup.inl">
       <Filter>GenericAccessGroup</Filter>
@@ -284,37 +260,19 @@
     <None Include="GenericAccessGroupSingleSelectionList.inl">
       <Filter>GenericAccessGroupSingleSelectionList</Filter>
     </None>
-    <None Include="IGenericAccess.inl">
-      <Filter>IGenericAccess</Filter>
-    </None>
-    <None Include="IGenericAccessCommandInfo.inl">
-      <Filter>IGenericAccessCommandInfo</Filter>
-    </None>
-    <None Include="IGenericAccessDataInfo.inl">
-      <Filter>IGenericAccessDataInfo</Filter>
-    </None>
-    <None Include="IGenericAccessDataValue.inl">
-      <Filter>IGenericAccessDataValue</Filter>
-    </None>
     <None Include="IGenericAccessGroup.inl">
       <Filter>IGenericAccessGroup</Filter>
     </None>
     <None Include="IGenericAccessGroupCollectionEntry.inl">
       <Filter>IGenericAccessGroupCollectionEntry</Filter>
     </None>
-    <None Include="IGenericAccessGroupCommandEntry.inl">
-      <Filter>IGenericAccessGroupCommandEntry</Filter>
-    </None>
-    <None Include="IGenericAccessGroupDataEntry.inl">
-      <Filter>IGenericAccessGroupDataEntry</Filter>
-    </None>
     <None Include="IGenericAccessGroupEntry.inl">
       <Filter>IGenericAccessGroupEntry</Filter>
     </None>
-    <None Include="IGenericAccessGroupSingleSelectionList.inl">
-      <Filter>IGenericAccessGroupSingleSelectionList</Filter>
-    </None>
     <None Include="GenericAccess.pkg" />
+    <None Include="IGenericAccessDataValue.inl">
+      <Filter>IGenericAccessDataValue\IGenericAccessDataValue</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GenericAccessCommandInfo.cpp">

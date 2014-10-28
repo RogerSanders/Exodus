@@ -25,7 +25,7 @@ public:
 
 public:
 	//Interface version functions
-	static inline unsigned int ThisIYM2612Version();
+	static inline unsigned int ThisIYM2612Version() { return 1; }
 	virtual unsigned int GetIYM2612Version() const = 0;
 
 	//Clock setting functions

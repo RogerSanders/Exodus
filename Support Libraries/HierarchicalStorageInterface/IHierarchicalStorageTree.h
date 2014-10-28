@@ -1,7 +1,7 @@
 #ifndef __IHIERARCHICALSTORAGETREE_H__
 #define __IHIERARCHICALSTORAGETREE_H__
 #include "StreamInterface/StreamInterface.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 #include <list>
 class IHierarchicalStorageNode;
@@ -26,18 +26,11 @@ public:
 	virtual void SetSeparateBinaryDataEnabled(bool state) = 0;
 
 	//Error handling functions
-	inline std::wstring GetErrorString() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetErrorString() const = 0;
 
 	//Node access functions
 	virtual IHierarchicalStorageNode& GetRootNode() const = 0;
-	inline std::list<IHierarchicalStorageNode*> GetBinaryDataNodeList();
-
-protected:
-	//Error handling functions
-	virtual void GetErrorStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-
-	//Node access functions
-	virtual void GetBinaryDataNodeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetBinaryDataNodeList() = 0;
 };
 
 #include "IHierarchicalStorageTree.inl"

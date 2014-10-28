@@ -16,7 +16,7 @@ public:
 	virtual Type GetType() const;
 
 	//Menu title functions
-	std::wstring GetMenuTitle() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetMenuTitle() const;
 
 	//Menu handler functions
 	virtual IMenuHandler& GetMenuHandler() const;
@@ -31,10 +31,6 @@ public:
 	//Checked state functions
 	virtual bool GetCheckedState() const;
 	virtual void SetCheckedState(bool acheckedState);
-
-protected:
-	//Menu title functions
-	virtual void GetMenuTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	std::wstring title;

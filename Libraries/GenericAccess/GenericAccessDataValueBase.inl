@@ -9,14 +9,6 @@ template<class B> unsigned int GenericAccessDataValueBase<B>::GetIGenericAccessD
 }
 
 //----------------------------------------------------------------------------------------
-//Value read functions
-//----------------------------------------------------------------------------------------
-template<class B> void GenericAccessDataValueBase<B>::GetValueStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetValueString());
-}
-
-//----------------------------------------------------------------------------------------
 //Value write functions
 //----------------------------------------------------------------------------------------
 template<class B> bool GenericAccessDataValueBase<B>::SetValueBool(bool value)
@@ -49,37 +41,19 @@ template<class B> bool GenericAccessDataValueBase<B>::SetValueDouble(double valu
 }
 
 //----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueString(const std::wstring& value)
+template<class B> bool GenericAccessDataValueBase<B>::SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueFilePath(const std::wstring& value)
+template<class B> bool GenericAccessDataValueBase<B>::SetValueFilePath(const MarshalSupport::Marshal::In<std::wstring>& value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueFolderPath(const std::wstring& value)
+template<class B> bool GenericAccessDataValueBase<B>::SetValueFolderPath(const MarshalSupport::Marshal::In<std::wstring>& value)
 {
 	return false;
-}
-
-//----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueStringInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
-{
-	return SetValueString(marshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueFilePathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
-{
-	return SetValueFilePath(marshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueFolderPathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
-{
-	return SetValueFolderPath(marshaller.MarshalTo());
 }

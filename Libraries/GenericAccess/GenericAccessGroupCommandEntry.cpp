@@ -68,19 +68,19 @@ unsigned int GenericAccessGroupCommandEntry::GetCommandID() const
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupCommandEntry::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetName() const
 {
-	marshaller.MarshalFrom(GetName());
+	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupCommandEntry::GetDescriptionInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetDescription() const
 {
-	marshaller.MarshalFrom(GetDescription());
+	return description;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupCommandEntry::GetHelpFileLinkInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetHelpFileLink() const
 {
-	marshaller.MarshalFrom(GetHelpFileLink());
+	return helpFileLink;
 }

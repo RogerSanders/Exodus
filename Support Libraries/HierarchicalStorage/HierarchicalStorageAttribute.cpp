@@ -14,15 +14,15 @@ HierarchicalStorageAttribute::HierarchicalStorageAttribute(const std::wstring& a
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageAttribute::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> HierarchicalStorageAttribute::GetName() const
 {
-	marshaller.MarshalFrom(GetName());
+	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageAttribute::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void HierarchicalStorageAttribute::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
 {
-	SetName(marshaller.MarshalTo());
+	name = aname;
 }
 
 //----------------------------------------------------------------------------------------

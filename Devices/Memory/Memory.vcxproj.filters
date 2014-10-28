@@ -210,9 +210,6 @@
     <None Include="TimedBufferTimeslice.inl">
       <Filter>TimedBuffer\TimedBufferTimeslice</Filter>
     </None>
-    <None Include="IMemory.inl">
-      <Filter>IMemory</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Memory.rc">

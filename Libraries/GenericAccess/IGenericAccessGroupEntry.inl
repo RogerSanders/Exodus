@@ -9,11 +9,3 @@ enum class IGenericAccessGroupEntry::GroupEntryType
 	SingleSelectionList,
 	Collection
 };
-
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
-unsigned int IGenericAccessGroupEntry::ThisIGenericAccessGroupEntryVersion()
-{
-	return 1;
-}

@@ -12,21 +12,12 @@ public:
 	virtual unsigned int GetIModuleSettingOptionInfoVersion() const;
 
 	//Getters
-	std::wstring GetName() const;
-	std::wstring GetDisplayName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDisplayName() const;
 
 	//Setters
-	void SetName(const std::wstring& aname);
-	void SetDisplayName(const std::wstring& adisplayName);
-
-protected:
-	//Getters
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-
-	//Setters
-	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
-	virtual void SetDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& displayNameMarshaller);
+	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname);
+	virtual void SetDisplayName(const MarshalSupport::Marshal::In<std::wstring>& adisplayName);
 
 private:
 	std::wstring name;

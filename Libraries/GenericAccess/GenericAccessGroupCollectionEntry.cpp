@@ -67,9 +67,9 @@ const IGenericAccess::DataContext* GenericAccessGroupCollectionEntry::GetDataCon
 //----------------------------------------------------------------------------------------
 //Group info functions
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupCollectionEntry::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupCollectionEntry::GetName() const
 {
-	marshaller.MarshalFrom(GetName());
+	return name;
 }
 
 //----------------------------------------------------------------------------------------
@@ -96,30 +96,30 @@ unsigned int GenericAccessGroupCollectionEntry::GetEntryCount() const
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupCollectionEntry::GetEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<IGenericAccessGroupEntry*>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroupCollectionEntry::GetEntries() const
 {
-	marshaller.MarshalFrom(GetEntries());
+	std::list<IGenericAccessGroupEntry*> entryList;
+	for(std::list<GenericAccessGroupCollectionEntry::CollectionEntry>::const_iterator i = entries.begin(); i != entries.end(); ++i)
+	{
+		entryList.push_back(i->value);
+	}
+	return entryList;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupCollectionEntry::GetCollectionEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<CollectionEntry>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<GenericAccessGroupCollectionEntry::CollectionEntry>> GenericAccessGroupCollectionEntry::GetCollectionEntries() const
 {
-	marshaller.MarshalFrom(GetCollectionEntries());
+	return entries;
 }
 
 //----------------------------------------------------------------------------------------
-IGenericAccessGroupEntry* GenericAccessGroupCollectionEntry::GetCollectionEntryInternal(const InteropSupport::ISTLObjectSource<std::wstring>& keyMarshaller) const
-{
-	return GetCollectionEntry(keyMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-IGenericAccessGroupEntry* GenericAccessGroupCollectionEntry::GetCollectionEntry(const std::wstring& key) const
+IGenericAccessGroupEntry* GenericAccessGroupCollectionEntry::GetCollectionEntry(const MarshalSupport::Marshal::In<std::wstring>& key) const
 {
 	//##TODO## Consider using a key map to make these lookups more efficient
+	std::wstring keyResolved = key.Get();
 	for(std::list<CollectionEntry>::const_iterator i = entries.begin(); i != entries.end(); ++i)
 	{
-		if(i->key->GetValueString() == key)
+		if(i->key->GetValueString() == keyResolved)
 		{
 			return i->value;
 		}

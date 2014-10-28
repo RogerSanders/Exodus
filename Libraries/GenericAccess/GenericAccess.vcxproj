@@ -176,25 +176,10 @@
     <None Include="GenericAccessGroupCommandEntry.inl" />
     <None Include="GenericAccessGroupDataEntry.inl" />
     <None Include="GenericAccessGroupSingleSelectionList.inl" />
-    <None Include="IGenericAccess.inl" />
-    <None Include="IGenericAccessCommandInfo.inl" />
-    <None Include="IGenericAccessDataInfo.inl" />
     <None Include="IGenericAccessDataValue.inl" />
-    <None Include="IGenericAccessDataValueBool.inl" />
-    <None Include="IGenericAccessDataValueDouble.inl" />
-    <None Include="IGenericAccessDataValueFilePath.inl" />
-    <None Include="IGenericAccessDataValueFloat.inl" />
-    <None Include="IGenericAccessDataValueFolderPath.inl" />
-    <None Include="IGenericAccessDataValueInt.inl" />
-    <None Include="IGenericAccessDataValueString.inl" />
-    <None Include="IGenericAccessDataValueUInt.inl" />
     <None Include="IGenericAccessGroup.inl" />
     <None Include="IGenericAccessGroupCollectionEntry.inl" />
-    <None Include="IGenericAccessGroupCommandEntry.inl" />
-    <None Include="IGenericAccessGroupDataEntry.inl" />
     <None Include="IGenericAccessGroupEntry.inl" />
-    <None Include="IGenericAccessGroupSingleSelectionList.inl" />
-    <None Include="IGenericAccessPage.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GenericAccessCommandInfo.cpp" />

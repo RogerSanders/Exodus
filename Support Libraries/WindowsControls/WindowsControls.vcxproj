@@ -160,7 +160,6 @@
   <ItemGroup>
     <None Include="DashboardWindow.inl" />
     <None Include="DockingWindow.inl" />
-    <None Include="IDockingWindow.inl" />
     <None Include="WC_DataGrid.inl" />
     <None Include="WC_DockPanel.inl" />
     <None Include="WC_HexEdit.inl" />

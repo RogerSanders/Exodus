@@ -65,35 +65,51 @@ LogEntry::EventLevel LogEntry::GetEventLevel() const
 }
 
 //----------------------------------------------------------------------------------------
-void LogEntry::GetTextInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetText() const
 {
-	marshaller.MarshalFrom(GetText());
+	return text.str();
 }
 
 //----------------------------------------------------------------------------------------
-void LogEntry::GetSourceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetSource() const
 {
-	marshaller.MarshalFrom(GetSource());
+	return source;
 }
 
 //----------------------------------------------------------------------------------------
-void LogEntry::GetEventLevelStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetEventLevelString() const
 {
-	marshaller.MarshalFrom(GetEventLevelString());
+	switch(eventLevel)
+	{
+	case EventLevel::Info:
+		return L"1 - Information";
+	case EventLevel::Debug:
+		return L"2 - Debug";
+	case EventLevel::Warning:
+		return L"3 - Warning";
+	case EventLevel::Error:
+		return L"4 - Error";
+	case EventLevel::Critical:
+		return L"5 - Critical";
+	default:
+		return L"";
+	}
 }
 
 //----------------------------------------------------------------------------------------
-void LogEntry::GetTimeStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetTimeString() const
 {
-	marshaller.MarshalFrom(GetTimeString());
+	std::wstringstream stream;
+	stream << std::setw(2) << std::setfill(L'0') << hour << L':' << minute << L':' << second << L'.' << millisecond;
+	return stream.str();
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void LogEntry::OverrideSourceTextInternal(const InteropSupport::ISTLObjectSource<std::wstring>& sourceMarshaller) const
+void LogEntry::OverrideSourceText(const MarshalSupport::Marshal::In<std::wstring>& asource) const
 {
-	sourceMarshaller.MarshalTo(source);
+	source = asource;
 }
 
 //----------------------------------------------------------------------------------------

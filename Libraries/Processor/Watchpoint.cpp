@@ -61,25 +61,19 @@ void Watchpoint::SetBreakEvent(bool state)
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-void Watchpoint::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> Watchpoint::GetName() const
 {
-	marshaller.MarshalFrom(GetName());
+	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void Watchpoint::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
 {
-	SetName(marshaller.MarshalTo());
+	name = aname;
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::GenerateNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GenerateName());
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring Watchpoint::GenerateName() const
+MarshalSupport::Marshal::Ret<std::wstring> Watchpoint::GenerateName() const
 {
 	std::wstring newName;
 	switch(locationCondition)

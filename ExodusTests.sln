@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support Libraries", "Support Libraries", "{3108E849-1BCB-4983-8BAD-3764C5D85DB8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MarshalSupportUnitTest", "Support Libraries\MarshalSupport\Tests\UnitTest\MarshalSupportUnitTest.vcxproj", "{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MarshalSupportUnitTestDLL", "Support Libraries\MarshalSupport\Tests\UnitTest\MarshalSupportUnitTestDLL.vcxproj", "{0F0579E0-8971-4CD9-BA21-E037F996C07D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8}.Debug|Win32.Build.0 = Debug|Win32
+		{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8}.Debug|x64.ActiveCfg = Debug|x64
+		{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8}.Debug|x64.Build.0 = Debug|x64
+		{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8}.Release|Win32.ActiveCfg = Release|Win32
+		{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8}.Release|Win32.Build.0 = Release|Win32
+		{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8}.Release|x64.ActiveCfg = Release|x64
+		{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8}.Release|x64.Build.0 = Release|x64
+		{0F0579E0-8971-4CD9-BA21-E037F996C07D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0F0579E0-8971-4CD9-BA21-E037F996C07D}.Debug|Win32.Build.0 = Debug|Win32
+		{0F0579E0-8971-4CD9-BA21-E037F996C07D}.Debug|x64.ActiveCfg = Debug|x64
+		{0F0579E0-8971-4CD9-BA21-E037F996C07D}.Debug|x64.Build.0 = Debug|x64
+		{0F0579E0-8971-4CD9-BA21-E037F996C07D}.Release|Win32.ActiveCfg = Release|Win32
+		{0F0579E0-8971-4CD9-BA21-E037F996C07D}.Release|Win32.Build.0 = Release|Win32
+		{0F0579E0-8971-4CD9-BA21-E037F996C07D}.Release|x64.ActiveCfg = Release|x64
+		{0F0579E0-8971-4CD9-BA21-E037F996C07D}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A51A0007-446F-4EDA-AC8E-E1BF3019FAA8} = {3108E849-1BCB-4983-8BAD-3764C5D85DB8}
+		{0F0579E0-8971-4CD9-BA21-E037F996C07D} = {3108E849-1BCB-4983-8BAD-3764C5D85DB8}
+	EndGlobalSection
+EndGlobal

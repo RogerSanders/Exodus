@@ -34,15 +34,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HierarchicalStorageAttribute.inl">
-      <Filter>HierarchicalStorageAttribute</Filter>
-    </None>
-    <None Include="HierarchicalStorageNode.inl">
-      <Filter>HierarchicalStorageNode</Filter>
-    </None>
-    <None Include="HierarchicalStorageTree.inl">
-      <Filter>HierarchicalStorageTree</Filter>
-    </None>
     <None Include="HierarchicalStorage.pkg" />
   </ItemGroup>
 </Project>

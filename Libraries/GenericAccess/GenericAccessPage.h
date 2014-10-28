@@ -13,15 +13,11 @@ public:
 	virtual unsigned int GetIGenericAccessPageVersion() const;
 
 	//Page info methods
-	std::wstring GetName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
 
 	//Content methods
 	virtual const IGenericAccessGroup* GetContentRoot() const;
 	GenericAccessPage* AddEntry(IGenericAccessGroupEntry* entry);
-
-protected:
-	//Page info methods
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	GenericAccessGroup contentRoot;

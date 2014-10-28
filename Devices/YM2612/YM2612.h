@@ -79,21 +79,20 @@ public:
 	void Reset(double accessTime);
 
 	//Reference functions
-	using Device::AddReference;
-	virtual bool AddReference(const std::wstring& referenceName, IBusInterface* target);
+	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual bool RemoveReference(IBusInterface* target);
 
 	//Line functions
-	virtual unsigned int GetLineID(const std::wstring& lineName) const;
-	virtual std::wstring GetLineName(unsigned int lineID) const;
+	virtual unsigned int GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
 
 	//Clock source functions
-	virtual unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
-	virtual std::wstring GetClockSourceName(unsigned int clockSourceID) const;
+	virtual unsigned int GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 

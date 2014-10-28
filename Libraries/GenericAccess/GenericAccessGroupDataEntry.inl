@@ -24,12 +24,6 @@ GenericAccessGroupDataEntry* GenericAccessGroupDataEntry::SetDataContext(const I
 //----------------------------------------------------------------------------------------
 //Data info functions
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessGroupDataEntry::GetName() const
-{
-	return name;
-}
-
-//----------------------------------------------------------------------------------------
 GenericAccessGroupDataEntry* GenericAccessGroupDataEntry::SetName(const std::wstring& aname)
 {
 	name = aname;
@@ -37,22 +31,10 @@ GenericAccessGroupDataEntry* GenericAccessGroupDataEntry::SetName(const std::wst
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessGroupDataEntry::GetDescription() const
-{
-	return description;
-}
-
-//----------------------------------------------------------------------------------------
 GenericAccessGroupDataEntry* GenericAccessGroupDataEntry::SetDescription(const std::wstring& adescription)
 {
 	description = adescription;
 	return this;
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring GenericAccessGroupDataEntry::GetHelpFileLink() const
-{
-	return helpFileLink;
 }
 
 //----------------------------------------------------------------------------------------

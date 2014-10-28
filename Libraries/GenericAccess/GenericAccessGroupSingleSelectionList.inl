@@ -31,12 +31,6 @@ GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::Se
 //----------------------------------------------------------------------------------------
 //List info functions
 //----------------------------------------------------------------------------------------
-std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>> GenericAccessGroupSingleSelectionList::GetSelectionList() const
-{
-	return selectionList;
-}
-
-//----------------------------------------------------------------------------------------
 GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetSelectionList(const std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>& aselectionList)
 {
 	selectionList = aselectionList;
@@ -62,12 +56,6 @@ GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::Se
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessGroupSingleSelectionList::GetName() const
-{
-	return name;
-}
-
-//----------------------------------------------------------------------------------------
 GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetName(const std::wstring& aname)
 {
 	name = aname;
@@ -75,22 +63,10 @@ GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::Se
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessGroupSingleSelectionList::GetDescription() const
-{
-	return description;
-}
-
-//----------------------------------------------------------------------------------------
 GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetDescription(const std::wstring& adescription)
 {
 	description = adescription;
 	return this;
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring GenericAccessGroupSingleSelectionList::GetHelpFileLink() const
-{
-	return helpFileLink;
 }
 
 //----------------------------------------------------------------------------------------

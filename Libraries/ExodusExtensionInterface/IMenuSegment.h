@@ -1,6 +1,6 @@
 #ifndef __IMENUSEGMENT_H__
 #define __IMENUSEGMENT_H__
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "IMenuItem.h"
 #include <string>
 #include <list>
@@ -23,11 +23,11 @@ public:
 	virtual ~IMenuSegment() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIMenuSegmentVersion();
+	static inline unsigned int ThisIMenuSegmentVersion() { return 1; }
 	virtual unsigned int GetIMenuSegmentVersion() const = 0;
 
 	//Menu title functions
-	inline std::wstring GetMenuSortTitle() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetMenuSortTitle() const = 0;
 
 	//Sort mode functions
 	virtual SortMode GetSortMode() const = 0;
@@ -37,28 +37,15 @@ public:
 
 	//Item management functions
 	virtual bool NoMenuItemsExist() const = 0;
-	inline std::list<IMenuItem*> GetMenuItems() const;
-	inline std::list<IMenuItem*> GetSortedMenuItems() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<IMenuItem*>> GetMenuItems() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::list<IMenuItem*>> GetSortedMenuItems() const = 0;
 
 	//Menu item creation and deletion
 	virtual IMenuSegment& AddMenuItemSegment(bool asurroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER) = 0;
-	inline IMenuSubmenu& AddMenuItemSubmenu(const std::wstring& title);
-	inline IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title);
+	virtual IMenuSubmenu& AddMenuItemSubmenu(const MarshalSupport::Marshal::In<std::wstring>& title) = 0;
+	virtual IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const MarshalSupport::Marshal::In<std::wstring>& title) = 0;
 	virtual void DeleteMenuItem(IMenuItem& menuItem) = 0;
 	virtual void DeleteAllMenuItems() = 0;
-
-protected:
-	//Menu title functions
-	virtual void GetMenuSortTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-
-	//Item management functions
-	virtual void GetMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const = 0;
-	virtual void GetSortedMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const = 0;
-
-	//Menu item creation and deletion
-	virtual IMenuSubmenu& AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller) = 0;
-	virtual IMenuSelectableOption& AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller) = 0;
 };
 
-#include "IMenuSegment.inl"
 #endif

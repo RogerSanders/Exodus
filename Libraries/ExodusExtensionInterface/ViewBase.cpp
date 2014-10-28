@@ -204,15 +204,9 @@ bool ViewBase::SaveViewState(IHierarchicalStorageNode& viewState) const
 //----------------------------------------------------------------------------------------
 //New window state
 //----------------------------------------------------------------------------------------
-std::wstring ViewBase::GetViewDockingGroup() const
+MarshalSupport::Marshal::Ret<std::wstring> ViewBase::GetViewDockingGroup() const
 {
 	return viewDockingGroup;
-}
-
-//----------------------------------------------------------------------------------------
-void ViewBase::GetViewDockingGroupInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetViewDockingGroup());
 }
 
 //----------------------------------------------------------------------------------------

@@ -15,7 +15,7 @@ public:
 	virtual ~IBusInterface() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIBusInterfaceVersion();
+	static inline unsigned int ThisIBusInterfaceVersion() { return 1; }
 	virtual unsigned int GetIBusInterfaceVersion() const = 0;
 
 	//Memory interface functions

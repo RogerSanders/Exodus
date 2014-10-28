@@ -88,7 +88,7 @@ void MDBusArbiter::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool MDBusArbiter::AddReference(const std::wstring& referenceName, IDevice* target)
+bool MDBusArbiter::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target)
 {
 	if(referenceName == L"BootROM")
 	{
@@ -102,7 +102,7 @@ bool MDBusArbiter::AddReference(const std::wstring& referenceName, IDevice* targ
 }
 
 //----------------------------------------------------------------------------------------
-bool MDBusArbiter::AddReference(const std::wstring& referenceName, IBusInterface* target)
+bool MDBusArbiter::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	if(referenceName == L"M68000Bus")
 	{
@@ -813,7 +813,7 @@ bool MDBusArbiter::WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data 
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int MDBusArbiter::GetCELineID(const std::wstring& lineName, bool inputLine) const
+unsigned int MDBusArbiter::GetCELineID(const MarshalSupport::Marshal::In<std::wstring>& lineName, bool inputLine) const
 {
 	if(lineName == L"R/W")
 	{
@@ -1046,7 +1046,7 @@ unsigned int MDBusArbiter::BuildCELineZ80(unsigned int targetAddress) const
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int MDBusArbiter::GetLineID(const std::wstring& lineName) const
+unsigned int MDBusArbiter::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const
 {
 	if(lineName == L"CART")
 	{
@@ -1108,7 +1108,7 @@ unsigned int MDBusArbiter::GetLineID(const std::wstring& lineName) const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring MDBusArbiter::GetLineName(unsigned int lineID) const
+MarshalSupport::Marshal::Ret<std::wstring> MDBusArbiter::GetLineName(unsigned int lineID) const
 {
 	switch((LineID)lineID)
 	{

@@ -57,13 +57,13 @@ void YM2612Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSe
 }
 
 //----------------------------------------------------------------------------------------
-bool YM2612Menus::RestoreDeviceViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IDevice* targetDevice)
+bool YM2612Menus::RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IDevice* targetDevice)
 {
 	return debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState);
 }
 
 //----------------------------------------------------------------------------------------
-bool YM2612Menus::OpenDeviceView(const std::wstring& viewGroupName, const std::wstring& viewName, IDevice* targetDevice)
+bool YM2612Menus::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
 {
 	return debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);
 }

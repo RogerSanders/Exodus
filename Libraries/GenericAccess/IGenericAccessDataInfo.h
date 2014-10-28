@@ -1,7 +1,7 @@
 #ifndef __IGENERICACCESSDATAINFO_H__
 #define __IGENERICACCESSDATAINFO_H__
 #include "IGenericAccessDataValue.h"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 
 class IGenericAccessDataInfo
@@ -15,7 +15,7 @@ public:
 	virtual ~IGenericAccessDataInfo() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessDataInfoVersion();
+	static inline unsigned int ThisIGenericAccessDataInfoVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataInfoVersion() const = 0;
 
 	//Data info functions
@@ -44,17 +44,11 @@ public:
 	//File path settings
 	virtual bool GetFilePathCreatingTarget() const = 0;
 	virtual bool GetFilePathAllowScanningIntoArchives() const = 0;
-	inline std::wstring GetFilePathExtensionFilter() const;
-	inline std::wstring GetFilePathDefaultExtension() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFilePathExtensionFilter() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFilePathDefaultExtension() const = 0;
 
 	//Folder path settings
 	virtual bool GetFolderPathCreatingTarget() const = 0;
-
-protected:
-	//File path settings
-	virtual void GetFilePathExtensionFilterInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetFilePathDefaultExtensionInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
-#include "IGenericAccessDataInfo.inl"
 #endif

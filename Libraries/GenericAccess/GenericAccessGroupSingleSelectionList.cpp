@@ -60,7 +60,7 @@ const IGenericAccess::DataContext* GenericAccessGroupSingleSelectionList::GetDat
 }
 
 //----------------------------------------------------------------------------------------
-//Data info functions
+//List info functions
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessGroupSingleSelectionList::GetDataID() const
 {
@@ -68,9 +68,9 @@ unsigned int GenericAccessGroupSingleSelectionList::GetDataID() const
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupSingleSelectionList::GetSelectionListInternal(const InteropSupport::ISTLObjectTarget<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GenericAccessGroupSingleSelectionList::GetSelectionList() const
 {
-	marshaller.MarshalFrom(GetSelectionList());
+	return selectionList;
 }
 
 //----------------------------------------------------------------------------------------
@@ -80,19 +80,19 @@ bool GenericAccessGroupSingleSelectionList::GetAllowNewItemEntry() const
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupSingleSelectionList::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupSingleSelectionList::GetName() const
 {
-	marshaller.MarshalFrom(GetName());
+	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupSingleSelectionList::GetDescriptionInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupSingleSelectionList::GetDescription() const
 {
-	marshaller.MarshalFrom(GetDescription());
+	return description;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupSingleSelectionList::GetHelpFileLinkInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupSingleSelectionList::GetHelpFileLink() const
 {
-	marshaller.MarshalFrom(GetHelpFileLink());
+	return helpFileLink;
 }

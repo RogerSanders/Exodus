@@ -16,51 +16,28 @@ public:
 	virtual void SetModuleID(unsigned int amoduleID);
 
 	//External information
-	inline std::wstring GetModuleFilePath() const;
-	inline void SetModuleFilePath(const std::wstring& amoduleFilePath);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleFilePath() const;
+	virtual void SetModuleFilePath(const MarshalSupport::Marshal::In<std::wstring>& amoduleFilePath);
 
 	//Required metadata
 	virtual bool GetIsProgramModule() const;
 	virtual void SetIsProgramModule(bool aprogramModule);
-	inline std::wstring GetSystemClassName() const;
-	inline void SetSystemClassName(const std::wstring& asystemClassName);
-	inline std::wstring GetClassName() const;
-	inline void SetClassName(const std::wstring& aclassName);
-	inline std::wstring GetInstanceName() const;
-	inline void SetInstanceName(const std::wstring& ainstanceName);
-	inline std::wstring GetDisplayName() const;
-	inline void SetDisplayName(const std::wstring& adisplayName);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemClassName() const;
+	virtual void SetSystemClassName(const MarshalSupport::Marshal::In<std::wstring>& asystemClassName);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleClassName() const;
+	virtual void SetModuleClassName(const MarshalSupport::Marshal::In<std::wstring>& aclassName);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleInstanceName() const;
+	virtual void SetModuleInstanceName(const MarshalSupport::Marshal::In<std::wstring>& ainstanceName);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleDisplayName() const;
+	virtual void SetModuleDisplayName(const MarshalSupport::Marshal::In<std::wstring>& adisplayName);
 
 	//Optional metadata
-	inline std::wstring GetProductionYear() const;
-	inline void SetProductionYear(const std::wstring& aproductionYear);
-	inline std::wstring GetManufacturerCode() const;
-	inline void SetManufacturerCode(const std::wstring& amanufacturerCode);
-	inline std::wstring GetManufacturerDisplayName() const;
-	inline void SetManufacturerDisplayName(const std::wstring& amanufacturerDisplayName);
-
-protected:
-	//External information
-	virtual void GetModuleFilePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetModuleFilePathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-
-	//Required metadata
-	virtual void GetSystemClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetSystemClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-
-	//Optional metadata
-	virtual void GetProductionYearInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetProductionYearInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetManufacturerCodeInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetManufacturerCodeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetManufacturerDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetManufacturerDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetProductionYear() const;
+	virtual void SetProductionYear(const MarshalSupport::Marshal::In<std::wstring>& aproductionYear);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetManufacturerCode() const;
+	virtual void SetManufacturerCode(const MarshalSupport::Marshal::In<std::wstring>& amanufacturerCode);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetManufacturerDisplayName() const;
+	virtual void SetManufacturerDisplayName(const MarshalSupport::Marshal::In<std::wstring>& amanufacturerDisplayName);
 
 private:
 	//Internal data
@@ -84,5 +61,4 @@ private:
 	std::wstring manufacturerDisplayName;
 };
 
-#include "LoadedModuleInfo.inl"
 #endif

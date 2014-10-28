@@ -1,7 +1,7 @@
 #ifndef __IHIERARCHICALSTORAGEATTRIBUTE_H__
 #define __IHIERARCHICALSTORAGEATTRIBUTE_H__
 #include "StreamInterface/StreamInterface.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 
 class IHierarchicalStorageAttribute
@@ -11,8 +11,8 @@ public:
 	virtual ~IHierarchicalStorageAttribute() = 0 {}
 
 	//Name functions
-	inline std::wstring GetName() const;
-	inline void SetName(const std::wstring& aname);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname) = 0;
 
 	//Value read functions
 	//##FIX## Why do we reset the stream position when extracting data, but not when
@@ -29,10 +29,6 @@ public:
 	template<class T> void InsertHexValue(const T& adata, unsigned int length);
 
 protected:
-	//Name functions
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-
 	//Stream functions
 	virtual void ResetInternalStreamPosition() const = 0;
 	virtual void EmptyInternalStream() = 0;

@@ -1,6 +1,6 @@
 #ifndef __ISYSTEMDEVICEINTERFACE_H__
 #define __ISYSTEMDEVICEINTERFACE_H__
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 
 class ISystemDeviceInterface
@@ -16,11 +16,11 @@ public:
 	virtual ~ISystemDeviceInterface() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisISystemDeviceInterfaceVersion();
+	static inline unsigned int ThisISystemDeviceInterfaceVersion() { return 1; }
 	virtual unsigned int GetISystemDeviceInterfaceVersion() const = 0;
 
 	//Path functions
-	inline std::wstring GetCapturePath() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetCapturePath() const = 0;
 
 	//Logging functions
 	virtual void WriteLogEvent(const ILogEntry& entry) const = 0;
@@ -41,10 +41,6 @@ public:
 	virtual void HandleInputKeyUp(KeyCode keyCode) = 0;
 	virtual void HandleInputAxisUpdate(AxisCode axisCode, float newValue) = 0;
 	virtual void HandleInputScrollUpdate(ScrollCode scrollCode, int scrollTicks) = 0;
-
-protected:
-	//Path functions
-	virtual void GetCapturePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
 #include "ISystemDeviceInterface.inl"

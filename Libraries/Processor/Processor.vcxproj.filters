@@ -94,12 +94,6 @@
     <None Include="IWatchpoint.inl">
       <Filter>IWatchpoint</Filter>
     </None>
-    <None Include="IOpcodeInfo.inl">
-      <Filter>IOpcodeInfo</Filter>
-    </None>
-    <None Include="OpcodeInfo.inl">
-      <Filter>OpcodeInfo</Filter>
-    </None>
     <None Include="Processor.pkg" />
   </ItemGroup>
 </Project>

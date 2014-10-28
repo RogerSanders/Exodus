@@ -1,7 +1,7 @@
 #ifndef __IMODULESETTINGOPTIONINFO_H__
 #define __IMODULESETTINGOPTIONINFO_H__
 #include <ExodusExtensionInterface/ExodusExtensionInterface.pkg>
-#include <InteropSupport/InteropSupport.pkg>
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 
 class IModuleSettingOptionInfo
@@ -11,26 +11,16 @@ public:
 	virtual ~IModuleSettingOptionInfo() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIModuleSettingOptionInfoVersion();
+	static inline unsigned int ThisIModuleSettingOptionInfoVersion() { return 1; }
 	virtual unsigned int GetIModuleSettingOptionInfoVersion() const = 0;
 
 	//Getters
-	inline std::wstring GetName() const;
-	inline std::wstring GetDisplayName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDisplayName() const = 0;
 
 	//Setters
-	inline void SetName(const std::wstring& name);
-	inline void SetDisplayName(const std::wstring& displayName);
-
-protected:
-	//Getters
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-
-	//Setters
-	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) = 0;
-	virtual void SetDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& displayNameMarshaller) = 0;
+	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& name) = 0;
+	virtual void SetDisplayName(const MarshalSupport::Marshal::In<std::wstring>& displayName) = 0;
 };
 
-#include "IModuleSettingOptionInfo.inl"
 #endif

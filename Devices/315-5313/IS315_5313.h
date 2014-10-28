@@ -3,7 +3,7 @@
 #include "GenericAccess/GenericAccess.pkg"
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "TimedBuffers/TimedBuffers.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <list>
 
 class IS315_5313 :public virtual IGenericAccess
@@ -36,7 +36,7 @@ public:
 
 public:
 	//Interface version functions
-	static inline unsigned int ThisIS315_5313Version();
+	static inline unsigned int ThisIS315_5313Version() { return 1; }
 	virtual unsigned int GetIS315_5313Version() const = 0;
 
 	//Device access functions
@@ -70,7 +70,7 @@ public:
 	virtual void CalculateEffectiveCellScrollSize(unsigned int hszState, unsigned int vszState, unsigned int& effectiveScrollWidth, unsigned int& effectiveScrollHeight) const = 0;
 	virtual DecodedPaletteColorEntry ReadDecodedPaletteColor(unsigned int paletteRow, unsigned int paletteIndex) const = 0;
 	virtual unsigned char ColorValueTo8BitValue(unsigned int colorValue, bool shadow, bool highlight) const = 0;
-	inline std::list<SpriteBoundaryLineEntry> GetSpriteBoundaryLines(unsigned int planeNo) const;
+	virtual MarshalSupport::Marshal::Ret<std::list<SpriteBoundaryLineEntry>> GetSpriteBoundaryLines(unsigned int planeNo) const = 0;
 
 	//Sprite list debugging functions
 	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int entryNo) const = 0;
@@ -348,10 +348,6 @@ public:
 	inline void RegSetFIFONextReadEntry(unsigned int adata);
 	inline unsigned int RegGetFIFONextWriteEntry() const;
 	inline void RegSetFIFONextWriteEntry(unsigned int adata);
-
-protected:
-	//Rendering functions
-	virtual void GetSpriteBoundaryLinesInternal(unsigned int planeNo, const InteropSupport::ISTLObjectTarget<std::list<SpriteBoundaryLineEntry>>& marshaller) const = 0;
 };
 
 #include "IS315_5313.inl"

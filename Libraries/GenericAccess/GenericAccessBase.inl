@@ -35,7 +35,7 @@ template<class B> unsigned int GenericAccessBase<B>::GetIGenericAccessVersion() 
 //----------------------------------------------------------------------------------------
 //Data info functions
 //----------------------------------------------------------------------------------------
-template<class B> std::set<unsigned int> GenericAccessBase<B>::GetGenericDataIDList() const
+template<class B> MarshalSupport::Marshal::Ret<std::set<unsigned int>> GenericAccessBase<B>::GetGenericDataIDList() const
 {
 	std::set<unsigned int> dataIDSet;
 	for(std::map<unsigned int, const IGenericAccessDataInfo*>::const_iterator i = genericDataList.begin(); i != genericDataList.end(); ++i)
@@ -43,12 +43,6 @@ template<class B> std::set<unsigned int> GenericAccessBase<B>::GetGenericDataIDL
 		dataIDSet.insert(i->first);
 	}
 	return dataIDSet;
-}
-
-//----------------------------------------------------------------------------------------
-template<class B> void GenericAccessBase<B>::GetGenericDataIDListInternal(const InteropSupport::ISTLObjectTarget<std::set<unsigned int>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetGenericDataIDList());
 }
 
 //----------------------------------------------------------------------------------------
@@ -87,7 +81,7 @@ template<class B> bool GenericAccessBase<B>::AddGenericDataInfo(const IGenericAc
 //----------------------------------------------------------------------------------------
 //Command info functions
 //----------------------------------------------------------------------------------------
-template<class B> std::set<unsigned int> GenericAccessBase<B>::GetGenericCommandIDList() const
+template<class B> MarshalSupport::Marshal::Ret<std::set<unsigned int>> GenericAccessBase<B>::GetGenericCommandIDList() const
 {
 	std::set<unsigned int> commandIDSet;
 	for(std::map<unsigned int, const IGenericAccessCommandInfo*>::const_iterator i = genericCommandList.begin(); i != genericCommandList.end(); ++i)
@@ -95,12 +89,6 @@ template<class B> std::set<unsigned int> GenericAccessBase<B>::GetGenericCommand
 		commandIDSet.insert(i->first);
 	}
 	return commandIDSet;
-}
-
-//----------------------------------------------------------------------------------------
-template<class B> void GenericAccessBase<B>::GetGenericCommandIDListInternal(const InteropSupport::ISTLObjectTarget<std::set<unsigned int>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetGenericCommandIDList());
 }
 
 //----------------------------------------------------------------------------------------
@@ -167,7 +155,7 @@ template<class B> bool GenericAccessBase<B>::AddGenericAccessPage(const IGeneric
 //----------------------------------------------------------------------------------------
 //Data read/write functions
 //----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID, const typename B::DataContext* dataContext, std::wstring& dataValue) const
+template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const MarshalSupport::Marshal::Out<std::wstring>& dataValue) const
 {
 	//Attempt to retrieve the target data info from the list
 	std::map<unsigned int, const IGenericAccessDataInfo*>::const_iterator dataListIterator = genericDataList.find(dataID);
@@ -252,7 +240,7 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 }
 
 //----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const std::wstring& dataValue)
+template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const MarshalSupport::Marshal::In<std::wstring>& dataValue)
 {
 	//Attempt to retrieve the target data info from the list
 	std::map<unsigned int, const IGenericAccessDataInfo*>::const_iterator dataListIterator = genericDataList.find(dataID);
@@ -366,21 +354,6 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 	}
 
 	return true;
-}
-
-//----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::ReadGenericDataInternal(unsigned int dataID, const typename B::DataContext* dataContext, const InteropSupport::ISTLObjectTarget<std::wstring>& dataValueMarshaller) const
-{
-	std::wstring dataValue;
-	bool result = ReadGenericData(dataID, dataContext, dataValue);
-	dataValueMarshaller.MarshalFrom(dataValue);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::WriteGenericDataInternal(unsigned int dataID, const typename B::DataContext* dataContext, const InteropSupport::ISTLObjectSource<std::wstring>& dataValueMarshaller)
-{
-	return WriteGenericData(dataID, dataContext, dataValueMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+    <Import Project="IncludeReferenceTests.props" />
+    <Import Project="IncludeReference.props" />
+    <Import Project="CompileWarningLevel.props" />
+    <Import Project="SymbolGeneration.props" />
+    <Import Project="DebugOptimization.props" />
+    <Import Project="IntermediateDirectoryTests.props" />
+    <Import Project="OutputDirectoryTests.props" />
+    <Import Project="ThirdDirectoryPathsTests.props" />
+    <Import Project="ThirdDirectoryPathsx86.props" />
+    <Import Project="RuntimeDebugDLL.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup />
+  <ItemGroup />
+</Project>

@@ -18,7 +18,7 @@ unsigned int GenericAccessPage::GetIGenericAccessPageVersion() const
 //----------------------------------------------------------------------------------------
 //Page info methods
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessPage::GetName() const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessPage::GetName() const
 {
 	return contentRoot.GetName();
 }
@@ -36,12 +36,4 @@ GenericAccessPage* GenericAccessPage::AddEntry(IGenericAccessGroupEntry* entry)
 {
 	contentRoot.AddEntry(entry);
 	return this;
-}
-
-//----------------------------------------------------------------------------------------
-//Page info methods
-//----------------------------------------------------------------------------------------
-void GenericAccessPage::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetName());
 }
