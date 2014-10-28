@@ -67,8 +67,8 @@ public:
 	virtual void Initialize();
 
 	//Clock source functions
-	virtual unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
-	virtual std::wstring GetClockSourceName(unsigned int clockSourceID) const;
+	virtual unsigned int GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 

@@ -89,9 +89,9 @@ public:
 	virtual void StopSystem();
 	virtual void RunSystem();
 	virtual void ExecuteDeviceStep();
-	inline std::wstring GetFullyQualifiedDeviceInstanceName() const;
-	inline std::wstring GetModuleDisplayName() const;
-	inline std::wstring GetModuleInstanceName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFullyQualifiedDeviceInstanceName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleDisplayName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleInstanceName() const;
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const;
@@ -113,12 +113,6 @@ public:
 	inline void RemoveDeviceDependency(DeviceContext* targetDevice);
 	inline const std::vector<DeviceDependency>& GetDeviceDependencyArray() const;
 	inline const std::vector<DeviceContext*>& GetDependentDeviceArray() const;
-
-protected:
-	//System message functions
-	virtual void GetFullyQualifiedDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetModuleDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetModuleInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	//Worker thread control

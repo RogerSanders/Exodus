@@ -289,7 +289,6 @@
     <ClInclude Include="TimedBufferTimeslice.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="IMemory.inl" />
     <None Include="RAMBase.inl" />
     <None Include="ROMBase.inl" />
     <None Include="TimedBufferTimeslice.inl" />
@@ -299,5 +298,5 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
-  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets"/>
+  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets" />
 </Project>

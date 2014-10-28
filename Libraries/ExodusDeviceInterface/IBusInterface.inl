@@ -100,11 +100,3 @@ struct IBusInterface::AccessResult
 //##TODO## Make sure we default accessContext to 0 for all functions that take it
 //##TODO## Add an assertedBitMask parameter to all the line-based communication functions
 //too, so they can finally support full tri-state line changes.
-
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
-unsigned int IBusInterface::ThisIBusInterfaceVersion()
-{
-	return 1;
-}

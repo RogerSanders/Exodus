@@ -1,6 +1,6 @@
 #ifndef __IBREAKPOINT_H__
 #define __IBREAKPOINT_H__
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 
 class IBreakpoint
@@ -14,7 +14,7 @@ public:
 	virtual ~IBreakpoint() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIBreakpointVersion();
+	static inline unsigned int ThisIBreakpointVersion() { return 1; }
 	virtual unsigned int GetIBreakpointVersion() const = 0;
 
 	//Breakpoint event triggers
@@ -26,9 +26,9 @@ public:
 	virtual void SetBreakEvent(bool state) = 0;
 
 	//Name functions
-	inline std::wstring GetName() const;
-	inline void SetName(const std::wstring& aname);
-	inline std::wstring GenerateName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GenerateName() const = 0;
 
 	//Location condition functions
 	virtual bool GetLocationConditionNot() const = 0;
@@ -50,12 +50,6 @@ public:
 	virtual void SetBreakOnCounter(bool state) = 0;
 	virtual unsigned int GetBreakCounter() const = 0;
 	virtual void SetBreakCounter(unsigned int abreakCounter) = 0;
-
-protected:
-	//Name functions
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual void GenerateNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
 #include "IBreakpoint.inl"

@@ -92,21 +92,26 @@ void DeviceContext::ExecuteDeviceStep()
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceContext::GetFullyQualifiedDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> DeviceContext::GetFullyQualifiedDeviceInstanceName() const
 {
-	marshaller.MarshalFrom(GetFullyQualifiedDeviceInstanceName());
+	std::wstring fullyQualifiedDeviceInstanceName = GetModuleInstanceName() + L"." + device.GetDeviceInstanceName();
+	return fullyQualifiedDeviceInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceContext::GetModuleDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> DeviceContext::GetModuleDisplayName() const
 {
-	marshaller.MarshalFrom(GetModuleDisplayName());
+	std::wstring moduleDisplayName;
+	systemObject.GetModuleDisplayName(device.GetDeviceModuleID(), moduleDisplayName);
+	return moduleDisplayName;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceContext::GetModuleInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> DeviceContext::GetModuleInstanceName() const
 {
-	marshaller.MarshalFrom(GetModuleInstanceName());
+	std::wstring moduleInstanceName;
+	systemObject.GetModuleInstanceName(device.GetDeviceModuleID(), moduleInstanceName);
+	return moduleInstanceName;
 }
 
 //----------------------------------------------------------------------------------------

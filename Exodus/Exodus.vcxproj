@@ -393,38 +393,28 @@
   <PropertyGroup>
     <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
   </PropertyGroup>
-  <ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile />
+    <ClCompile />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\Libraries\ExodusDeviceInterface\ExodusDeviceInterface.vcxproj">
       <Project>{db781392-9752-4607-b90c-614fa1670d47}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Libraries\ExodusExtensionInterface\ExodusExtensionInterface.vcxproj">
       <Project>{1a40c5a2-95ed-4a3f-be41-ad027d6e1c6c}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Support Libraries\HierarchicalStorage\HierarchicalStorage.vcxproj">
       <Project>{ecc567b9-0dd5-4130-9685-cb9b5c6bd96e}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Support Libraries\Image\Image.vcxproj">
       <Project>{7e84cdbb-e45f-4cce-8ae9-3a74deaa0881}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Support Libraries\ThreadLib\ThreadLib.vcxproj">
       <Project>{2615b12b-ba5f-4c84-97ee-81761c51be03}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Support Libraries\WindowsControls\WindowsControls.vcxproj">
       <Project>{952d92a9-1e79-420c-8a8a-c6f230e819b5}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Support Libraries\WindowsSupport\WindowsSupport.vcxproj">
       <Project>{5ac3cb2c-0a1a-4e29-8a07-2bded302611b}</Project>
@@ -433,13 +423,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Support Libraries\ZIP\ZIP.vcxproj">
       <Project>{aa212d36-1347-47ab-b658-7ce6ba7fa425}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\System\System.vcxproj">
       <Project>{ef94fca0-434c-4145-9ed7-e4dbeb168e16}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -486,10 +472,7 @@
     <ClInclude Include="ViewStateChangeNotifier.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DeviceInfo.inl" />
     <None Include="ExodusInterface.inl" />
-    <None Include="ExtensionInfo.inl" />
-    <None Include="SystemInfo.inl" />
     <None Include="ViewManager.inl" />
   </ItemGroup>
   <ItemGroup>

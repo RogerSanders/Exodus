@@ -1,6 +1,6 @@
 #ifndef __IGENERICACCESS_H__
 #define __IGENERICACCESS_H__
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "IGenericAccessDataInfo.h"
 #include "IGenericAccessCommandInfo.h"
 #include <set>
@@ -27,15 +27,15 @@ public:
 	virtual ~IGenericAccess() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessVersion();
+	static inline unsigned int ThisIGenericAccessVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessVersion() const = 0;
 
 	//Data info functions
-	inline std::set<unsigned int> GetGenericDataIDList() const;
+	virtual MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetGenericDataIDList() const = 0;
 	virtual const IGenericAccessDataInfo* GetGenericDataInfo(unsigned int dataID) const = 0;
 
 	//Command info functions
-	inline std::set<unsigned int> GetGenericCommandIDList() const;
+	virtual MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetGenericCommandIDList() const = 0;
 	virtual const IGenericAccessCommandInfo* GetGenericCommandInfo(unsigned int commandID) const = 0;
 
 	//Page info functions
@@ -45,8 +45,8 @@ public:
 	//Data read/write functions
 	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const = 0;
 	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) = 0;
-	inline bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, std::wstring& dataValue) const;
-	inline bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, const std::wstring& dataValue);
+	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, const MarshalSupport::Marshal::Out<std::wstring>& dataValue) const = 0;
+	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, const MarshalSupport::Marshal::In<std::wstring>& dataValue) = 0;
 	virtual bool ApplyGenericDataValueLimitSettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const = 0;
 	virtual bool ApplyGenericDataValueDisplaySettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const = 0;
 
@@ -56,18 +56,6 @@ public:
 
 	//Command execution functions
 	virtual bool ExecuteGenericCommand(unsigned int commandID, const DataContext* dataContext) = 0;
-
-protected:
-	//Data info functions
-	virtual void GetGenericDataIDListInternal(const InteropSupport::ISTLObjectTarget<std::set<unsigned int>>& marshaller) const = 0;
-
-	//Command info functions
-	virtual void GetGenericCommandIDListInternal(const InteropSupport::ISTLObjectTarget<std::set<unsigned int>>& marshaller) const = 0;
-
-	//Data read/write functions
-	virtual bool ReadGenericDataInternal(unsigned int dataID, const DataContext* dataContext, const InteropSupport::ISTLObjectTarget<std::wstring>& dataValueMarshaller) const = 0;
-	virtual bool WriteGenericDataInternal(unsigned int dataID, const DataContext* dataContext, const InteropSupport::ISTLObjectSource<std::wstring>& dataValueMarshaller) = 0;
 };
 
-#include "IGenericAccess.inl"
 #endif

@@ -13,24 +13,15 @@ public:
 	virtual AllocatorPointer GetAllocator() const;
 	virtual DestructorPointer GetDestructor() const;
 	virtual unsigned int GetSystemVersionNo() const;
-	inline std::wstring GetSystemCopyright() const;
-	inline std::wstring GetSystemComments() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemCopyright() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemComments() const;
 
 	//Setters
-	inline void SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const std::wstring& asystemCopyright, const std::wstring& asystemComments);
+	virtual void SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright, const MarshalSupport::Marshal::In<std::wstring>& asystemComments);
 	virtual void SetSystemAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor);
 	virtual void SetSystemVersionNo(unsigned int asystemVersionNo);
-	inline void SetSystemCopyright(const std::wstring& asystemCopyright);
-	inline void SetSystemComments(const std::wstring& asystemmComments);
-
-protected:
-	//Getters
-	virtual void GetSystemCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetSystemCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-
-	//Setters
-	virtual void SetSystemCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void SetSystemCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual void SetSystemCopyright(const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright);
+	virtual void SetSystemComments(const MarshalSupport::Marshal::In<std::wstring>& asystemmComments);
 
 private:
 	AllocatorPointer Allocator;
@@ -40,5 +31,4 @@ private:
 	std::wstring comments;
 };
 
-#include "SystemInfo.inl"
 #endif

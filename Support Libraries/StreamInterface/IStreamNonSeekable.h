@@ -18,6 +18,7 @@ public:
 	//Typedefs
 	typedef long long SizeType;
 
+public:
 	//Constructors
 	virtual ~IStreamNonSeekable() = 0 {}
 

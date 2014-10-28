@@ -43,15 +43,9 @@ MenuSubmenu::Type MenuSubmenu::GetType() const
 //----------------------------------------------------------------------------------------
 //Menu title functions
 //----------------------------------------------------------------------------------------
-std::wstring MenuSubmenu::GetMenuTitle() const
+MarshalSupport::Marshal::Ret<std::wstring> MenuSubmenu::GetMenuTitle() const
 {
 	return title;
-}
-
-//----------------------------------------------------------------------------------------
-void MenuSubmenu::GetMenuTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetMenuTitle());
 }
 
 //----------------------------------------------------------------------------------------
@@ -88,15 +82,9 @@ bool MenuSubmenu::NoMenuItemsExist() const
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IMenuItem*> MenuSubmenu::GetMenuItems() const
+MarshalSupport::Marshal::Ret<std::list<IMenuItem*>> MenuSubmenu::GetMenuItems() const
 {
 	return menuItems;
-}
-
-//----------------------------------------------------------------------------------------
-void MenuSubmenu::GetMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetMenuItems());
 }
 
 //----------------------------------------------------------------------------------------
@@ -110,7 +98,7 @@ IMenuSegment& MenuSubmenu::AddMenuItemSegment(bool asurroundWithSeparators, IMen
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenu(const std::wstring& title)
+IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenu(const MarshalSupport::Marshal::In<std::wstring>& title)
 {
 	IMenuSubmenu* newMenuItem = new MenuSubmenu(title);
 	menuItems.push_back(newMenuItem);
@@ -118,23 +106,11 @@ IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenu(const std::wstring& title)
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSubmenu::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title)
+IMenuSelectableOption& MenuSubmenu::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const MarshalSupport::Marshal::In<std::wstring>& title)
 {
 	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, title);
 	menuItems.push_back(newMenuItem);
 	return *newMenuItem;
-}
-
-//----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller)
-{
-	return AddMenuItemSubmenu(titleMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSubmenu::AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller)
-{
-	return AddMenuItemSelectableOption(menuHandler, menuItemID, titleMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------

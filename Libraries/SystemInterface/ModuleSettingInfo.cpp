@@ -18,27 +18,15 @@ unsigned int ModuleSettingInfo::GetIModuleSettingInfoVersion() const
 //----------------------------------------------------------------------------------------
 //Getters
 //----------------------------------------------------------------------------------------
-std::wstring ModuleSettingInfo::GetName() const
+MarshalSupport::Marshal::Ret<std::wstring> ModuleSettingInfo::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetName());
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring ModuleSettingInfo::GetDisplayName() const
+MarshalSupport::Marshal::Ret<std::wstring> ModuleSettingInfo::GetDisplayName() const
 {
 	return displayName;
-}
-
-//----------------------------------------------------------------------------------------
-void ModuleSettingInfo::GetDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetDisplayName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -74,27 +62,15 @@ bool ModuleSettingInfo::IsToggleSetting() const
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetName(const std::wstring& aname)
+void ModuleSettingInfo::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
 {
 	name = aname;
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
-{
-	SetName(nameMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetDisplayName(const std::wstring& adisplayName)
+void ModuleSettingInfo::SetDisplayName(const MarshalSupport::Marshal::In<std::wstring>& adisplayName)
 {
 	displayName = adisplayName;
-}
-
-//----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& displayNameMarshaller)
-{
-	SetDisplayName(displayNameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------

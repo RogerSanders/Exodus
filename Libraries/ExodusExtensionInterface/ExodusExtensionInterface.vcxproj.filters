@@ -169,59 +169,20 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ConnectorInfo.inl">
-      <Filter>Extension System\ConnectorInfo</Filter>
-    </None>
     <None Include="FileStreamReference.inl">
       <Filter>Extension System\FileStreamReference</Filter>
-    </None>
-    <None Include="IConnectorInfo.inl">
-      <Filter>Extension System\IConnectorInfo</Filter>
     </None>
     <None Include="IExtension.inl">
       <Filter>Extension System\IExtension</Filter>
     </None>
-    <None Include="IExtensionInfo.inl">
-      <Filter>Extension System\IExtensionInfo</Filter>
-    </None>
-    <None Include="IGUIExtensionInterface.inl">
-      <Filter>Extension System\IGUIExtensionInterface</Filter>
-    </None>
-    <None Include="ILoadedModuleInfo.inl">
-      <Filter>Extension System\ILoadedModuleInfo</Filter>
-    </None>
-    <None Include="ISystemExtensionInterface.inl">
-      <Filter>Extension System\ISystemExtensionInterface</Filter>
-    </None>
-    <None Include="LoadedModuleInfo.inl">
-      <Filter>Extension System\LoadedModuleInfo</Filter>
-    </None>
-    <None Include="IMenuHandler.inl">
-      <Filter>Menu System\IMenuHandler</Filter>
-    </None>
     <None Include="IMenuItem.inl">
       <Filter>Menu System\IMenuItem</Filter>
-    </None>
-    <None Include="IMenuSegment.inl">
-      <Filter>Menu System\IMenuSegment</Filter>
-    </None>
-    <None Include="IMenuSelectableOption.inl">
-      <Filter>Menu System\IMenuSelectableOption</Filter>
-    </None>
-    <None Include="IMenuSubmenu.inl">
-      <Filter>Menu System\IMenuSubmenu</Filter>
     </None>
     <None Include="MenuHandlerBase.inl">
       <Filter>Menu System\MenuHandlerBase</Filter>
     </None>
     <None Include="IView.inl">
       <Filter>View System\IView</Filter>
-    </None>
-    <None Include="IViewManager.inl">
-      <Filter>View System\IViewManager</Filter>
-    </None>
-    <None Include="IViewStateChangeNotifier.inl">
-      <Filter>View System\IViewStateChangeNotifier</Filter>
     </None>
     <None Include="IViewPresenter.inl">
       <Filter>View System\IViewPresenter</Filter>

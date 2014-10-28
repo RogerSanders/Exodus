@@ -30,12 +30,6 @@ GenericAccessGroup* GenericAccessGroup::SetDataContext(const IGenericAccess::Dat
 //----------------------------------------------------------------------------------------
 //Group info methods
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessGroup::GetName() const
-{
-	return name;
-}
-
-//----------------------------------------------------------------------------------------
 GenericAccessGroup* GenericAccessGroup::SetName(const std::wstring& aname)
 {
 	name = aname;
@@ -51,12 +45,6 @@ GenericAccessGroup* GenericAccessGroup::SetOpenByDefault(bool state)
 
 //----------------------------------------------------------------------------------------
 //Entry methods
-//----------------------------------------------------------------------------------------
-std::list<IGenericAccessGroupEntry*> GenericAccessGroup::GetEntries() const
-{
-	return childEntries;
-}
-
 //----------------------------------------------------------------------------------------
 GenericAccessGroup* GenericAccessGroup::AddEntry(IGenericAccessGroupEntry* entry)
 {

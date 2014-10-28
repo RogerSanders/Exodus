@@ -29,19 +29,13 @@ GenericAccessDataValueString::DataType GenericAccessDataValueString::GetType() c
 //----------------------------------------------------------------------------------------
 //Value read functions
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessDataValueString::GetValue() const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValue() const
 {
 	return dataValue;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessDataValueString::GetValueInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetValue());
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring GenericAccessDataValueString::GetValueString() const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValueString() const
 {
 	return dataValue;
 }
@@ -49,7 +43,7 @@ std::wstring GenericAccessDataValueString::GetValueString() const
 //----------------------------------------------------------------------------------------
 //Value write functions
 //----------------------------------------------------------------------------------------
-bool GenericAccessDataValueString::SetValueString(const std::wstring& value)
+bool GenericAccessDataValueString::SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value)
 {
 	dataValue = value;
 	ApplyLimitSettingsToCurrentValue();

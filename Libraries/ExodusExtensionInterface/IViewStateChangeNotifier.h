@@ -5,12 +5,11 @@ class IViewStateChangeNotifier
 {
 public:
 	//Interface version functions
-	static inline unsigned int ThisIViewStateChangeNotifierVersion();
+	static inline unsigned int ThisIViewStateChangeNotifierVersion() { return 1; }
 	virtual unsigned int GetIViewStateChangeNotifierVersion() const = 0;
 
 	//Notification functions
 	virtual void NotifyViewClosed() = 0;
 };
 
-#include "IViewStateChangeNotifier.inl"
 #endif

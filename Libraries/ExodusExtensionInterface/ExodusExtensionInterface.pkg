@@ -14,7 +14,7 @@
 #include "StreamInterface/StreamInterface.pkg"
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
 #include "CallbackSupport/CallbackSupport.pkg"
 

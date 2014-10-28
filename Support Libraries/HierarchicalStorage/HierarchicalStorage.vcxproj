@@ -145,9 +145,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="HierarchicalStorage.pkg" />
-    <None Include="HierarchicalStorageAttribute.inl" />
-    <None Include="HierarchicalStorageNode.inl" />
-    <None Include="HierarchicalStorageTree.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -40,7 +40,7 @@ double GenericAccessDataValueDouble::GetValue() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessDataValueDouble::GetValueString() const
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueDouble::GetValueString() const
 {
 	std::wstring result;
 	bool useScientificNotation = (displayMode == FloatDisplayMode::Scientific);
@@ -65,7 +65,7 @@ bool GenericAccessDataValueDouble::SetValueDouble(double value)
 }
 
 //----------------------------------------------------------------------------------------
-bool GenericAccessDataValueDouble::SetValueString(const std::wstring& value)
+bool GenericAccessDataValueDouble::SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value)
 {
 	double valueConverted;
 	if(!StringToDouble(value, valueConverted))

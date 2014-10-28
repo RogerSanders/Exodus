@@ -26,27 +26,21 @@ public:
 
 	//List info functions
 	virtual unsigned int GetDataID() const;
-	inline std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>> GetSelectionList() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GetSelectionList() const;
 	inline GenericAccessGroupSingleSelectionList* SetSelectionList(const std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>& aselectionList);
 	inline GenericAccessGroupSingleSelectionList* AddSelectionListEntry(const IGenericAccessDataValue* key, const IGenericAccessDataValue* value = 0);
 	virtual bool GetAllowNewItemEntry() const;
 	inline GenericAccessGroupSingleSelectionList*  SetAllowNewItemEntry(bool state);
-	inline std::wstring GetName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
 	inline GenericAccessGroupSingleSelectionList* SetName(const std::wstring& aname);
-	inline std::wstring GetDescription() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDescription() const;
 	inline GenericAccessGroupSingleSelectionList* SetDescription(const std::wstring& adescription);
-	inline std::wstring GetHelpFileLink() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHelpFileLink() const;
 	inline GenericAccessGroupSingleSelectionList* SetHelpFileLink(const std::wstring& ahelpFileLink);
 
 protected:
 	//Parent functions
 	virtual void SetParent(IGenericAccessGroup* aparent);
-
-	//List info functions
-	virtual void GetSelectionListInternal(const InteropSupport::ISTLObjectTarget<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>>& marshaller) const;
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetDescriptionInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetHelpFileLinkInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	IGenericAccessGroup* parent;

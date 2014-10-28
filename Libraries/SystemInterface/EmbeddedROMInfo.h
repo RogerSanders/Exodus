@@ -12,35 +12,24 @@ public:
 	virtual unsigned int GetIEmbeddedROMInfoVersion() const;
 
 	//Getters
-	std::wstring GetName() const;
-	std::wstring GetDisplayName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDisplayName() const;
 	virtual unsigned int GetModuleID() const;
 	virtual IDevice* GetTargetDevice() const;
 	virtual unsigned int GetTargetInterfaceNo() const;
 	virtual unsigned int GetROMRegionSize() const;
 	virtual unsigned int GetROMEntryBitCount() const;
-	std::wstring GetFilePath() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFilePath() const;
 
 	//Setters
-	void SetName(const std::wstring& aname);
-	void SetDisplayName(const std::wstring& adisplayName);
+	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname);
+	virtual void SetDisplayName(const MarshalSupport::Marshal::In<std::wstring>& adisplayName);
 	virtual void SetModuleID(unsigned int amoduleID);
 	virtual void SetTargetDevice(IDevice* atargetDevice);
 	virtual void SetTargetInterfaceNo(unsigned int atargetInterfaceNo);
 	virtual void SetROMRegionSize(unsigned int aromRegionSize);
 	virtual void SetROMEntryBitCount(unsigned int aromEntryBitCount);
-	void SetFilePath(const std::wstring& afilePath);
-
-protected:
-	//Getters
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetFilePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-
-	//Setters
-	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller);
-	virtual void SetDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& displayNameMarshaller);
-	virtual void SetFilePathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller);
+	virtual void SetFilePath(const MarshalSupport::Marshal::In<std::wstring>& afilePath);
 
 private:
 	std::wstring name;

@@ -21,10 +21,10 @@ public:
 	virtual void UnregisterModuleMenuHandler(unsigned int moduleID);
 	virtual void AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& menuSegment);
 	virtual void AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& menuSegment, unsigned int moduleID);
-	virtual bool RestoreSystemViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState);
-	virtual bool RestoreModuleViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID);
-	virtual bool OpenSystemView(const std::wstring& viewGroupName, const std::wstring& viewName);
-	virtual bool OpenModuleView(const std::wstring& viewGroupName, const std::wstring& viewName, unsigned int moduleID);
+	virtual bool RestoreSystemViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState);
+	virtual bool RestoreModuleViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID);
+	virtual bool OpenSystemView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName);
+	virtual bool OpenModuleView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, unsigned int moduleID);
 	void OpenLoggerDetailsView(const ISystemGUIInterface::SystemLogEntry& alogEntry);
 	void OpenInputMappingDetailsView(IDevice* targetDevice);
 	void CloseInputMappingDetailsView();

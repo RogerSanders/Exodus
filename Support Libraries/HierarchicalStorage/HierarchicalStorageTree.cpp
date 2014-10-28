@@ -201,7 +201,7 @@ void XMLCALL HierarchicalStorageTree::LoadStartElement(void *userData, const XML
 		tree->currentNodeDuringLoad = node;
 	}
 
-	node->SetName(aname);
+	node->SetName(std::wstring(aname));
 	while(*aatts != 0)
 	{
 		std::wstring name;
@@ -316,17 +316,19 @@ IHierarchicalStorageNode& HierarchicalStorageTree::GetRootNode() const
 //----------------------------------------------------------------------------------------
 //Error handling functions
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageTree::GetErrorStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> HierarchicalStorageTree::GetErrorString() const
 {
-	marshaller.MarshalFrom(GetErrorString());
+	return errorString;
 }
 
 //----------------------------------------------------------------------------------------
 //Node access functions
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageTree::GetBinaryDataNodeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller)
+MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalStorageTree::GetBinaryDataNodeList()
 {
-	marshaller.MarshalFrom(GetBinaryDataNodeList());
+	std::list<IHierarchicalStorageNode*> binaryEntityList;
+	root->AddBinaryDataEntitiesToList(binaryEntityList);
+	return binaryEntityList;
 }
 
 //----------------------------------------------------------------------------------------

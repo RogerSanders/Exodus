@@ -213,24 +213,6 @@ struct IS315_5313::SpriteBoundaryLineEntry
 };
 
 //----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
-unsigned int IS315_5313::ThisIS315_5313Version()
-{
-	return 1;
-}
-
-//----------------------------------------------------------------------------------------
-//Rendering functions
-//----------------------------------------------------------------------------------------
-std::list<IS315_5313::SpriteBoundaryLineEntry> IS315_5313::GetSpriteBoundaryLines(unsigned int planeNo) const
-{
-	std::list<IS315_5313::SpriteBoundaryLineEntry> result;
-	GetSpriteBoundaryLinesInternal(planeNo, InteropSupport::STLObjectTarget<std::list<IS315_5313::SpriteBoundaryLineEntry>>(result));
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
 //Debug output
 //----------------------------------------------------------------------------------------
 bool IS315_5313::GetOutputPortAccessDebugMessages() const

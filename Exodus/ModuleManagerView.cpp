@@ -74,7 +74,7 @@ INT_PTR ModuleManagerView::msgWM_USER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		if(systemInterface.GetLoadedModuleInfo(*i, moduleInfo))
 		{
 			std::wstringstream text;
-			text << moduleInfo.GetDisplayName() << " (" << moduleInfo.GetClassName() << ")";
+			text << moduleInfo.GetModuleDisplayName() << " (" << moduleInfo.GetModuleClassName() << ")";
 			LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_ADDSTRING, 0, (LPARAM)text.str().c_str());
 			SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)moduleInfo.GetModuleID());
 		}

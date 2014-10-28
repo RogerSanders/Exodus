@@ -1,7 +1,7 @@
 #ifndef __IGUIEXTENSIONINTERFACE_H__
 #define __IGUIEXTENSIONINTERFACE_H__
 #include "StreamInterface/StreamInterface.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "IViewManager.h"
 #include <string>
 #include <vector>
@@ -15,7 +15,7 @@ public:
 	virtual ~IGUIExtensionInterface() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIGUIExtensionInterfaceVersion();
+	static inline unsigned int ThisIGUIExtensionInterfaceVersion() { return 1; }
 	virtual unsigned int GetIGUIExtensionInterfaceVersion() const = 0;
 
 	//View manager functions
@@ -25,22 +25,27 @@ public:
 	virtual void* GetMainWindowHandle() const = 0;
 
 	//Module functions
-	inline bool CanModuleBeLoaded(const std::wstring& filePath) const;
-	inline bool LoadModuleFromFile(const std::wstring& filePath);
+	virtual bool CanModuleBeLoaded(const MarshalSupport::Marshal::In<std::wstring>& filePath) const = 0;
+	virtual bool LoadModuleFromFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) = 0;
 	virtual void UnloadModule(unsigned int moduleID) = 0;
 	virtual void UnloadAllModules() = 0;
 
 	//Global preference functions
 	//##TODO## Design a more extensible interface for working with preferences which
 	//doesn't rely on separate functions for each preference
-	inline std::wstring GetGlobalPreferencePathModules() const;
-	inline std::wstring GetGlobalPreferencePathSavestates() const;
-	inline std::wstring GetGlobalPreferencePathPersistentState() const;
-	inline std::wstring GetGlobalPreferencePathWorkspaces() const;
-	inline std::wstring GetGlobalPreferencePathCaptures() const;
-	inline std::wstring GetGlobalPreferencePathAssemblies() const;
-	inline std::wstring GetGlobalPreferenceInitialSystem() const;
-	inline std::wstring GetGlobalPreferenceInitialWorkspace() const;
+	//##TODO## Consider using a system built on our generic data access system in order to
+	//access preferences. We could request a preference using a generic value/string key
+	//pair. The string keys themselves could be listed in our interface and referenced by
+	//a named constant. This would be easily extensible and flexible, without the need for
+	//specific functions for individual preferences.
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathModules() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathSavestates() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathPersistentState() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathWorkspaces() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathCaptures() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathAssemblies() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferenceInitialSystem() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferenceInitialWorkspace() const = 0;
 	virtual bool GetGlobalPreferenceEnableThrottling() const = 0;
 	virtual bool GetGlobalPreferenceRunWhenProgramModuleLoaded() const = 0;
 	virtual bool GetGlobalPreferenceEnablePersistentState() const = 0;
@@ -48,39 +53,14 @@ public:
 	virtual bool GetGlobalPreferenceShowDebugConsole() const = 0;
 
 	//Assembly functions
-	inline bool LoadAssembly(const std::wstring& filePath);
+	virtual bool LoadAssembly(const MarshalSupport::Marshal::In<std::wstring>& filePath) = 0;
 
 	//File selection functions
-	inline bool SelectExistingFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, bool scanIntoArchives, std::wstring& selectedFilePath) const;
-	inline bool SelectNewFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, std::wstring& selectedFilePath) const;
-	inline std::vector<std::wstring> PathSplitElements(const std::wstring& path) const;
-	inline Stream::IStream* OpenExistingFileForRead(const std::wstring& path) const;
+	virtual bool SelectExistingFile(const MarshalSupport::Marshal::In<std::wstring>& selectionTypeString, const MarshalSupport::Marshal::In<std::wstring>& defaultExtension, const MarshalSupport::Marshal::In<std::wstring>& initialFilePath, const MarshalSupport::Marshal::In<std::wstring>& initialDirectory, bool scanIntoArchives, const MarshalSupport::Marshal::Out<std::wstring>& selectedFilePath) const = 0;
+	virtual bool SelectNewFile(const MarshalSupport::Marshal::In<std::wstring>& selectionTypeString, const MarshalSupport::Marshal::In<std::wstring>& defaultExtension, const MarshalSupport::Marshal::In<std::wstring>& initialFilePath, const MarshalSupport::Marshal::In<std::wstring>& initialDirectory, const MarshalSupport::Marshal::Out<std::wstring>& selectedFilePath) const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::vector<std::wstring>> PathSplitElements(const MarshalSupport::Marshal::In<std::wstring>& path) const = 0;
+	virtual Stream::IStream* OpenExistingFileForRead(const MarshalSupport::Marshal::In<std::wstring>& path) const = 0;
 	virtual void DeleteFileStream(Stream::IStream* stream) const = 0;
-
-protected:
-	//Module functions
-	virtual bool CanModuleBeLoadedInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller) const = 0;
-	virtual bool LoadModuleFromFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller) = 0;
-
-	//Global preference functions
-	virtual void GetGlobalPreferencePathModulesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetGlobalPreferencePathSavestatesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetGlobalPreferencePathPersistentStateInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetGlobalPreferencePathWorkspacesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetGlobalPreferencePathCapturesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetGlobalPreferencePathAssembliesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetGlobalPreferenceInitialSystemInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetGlobalPreferenceInitialWorkspaceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-
-	//Assembly functions
-	virtual bool LoadAssemblyInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller) = 0;
-
-	//File selection functions
-	virtual bool SelectExistingFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, bool scanIntoArchives, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const = 0;
-	virtual bool SelectNewFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const = 0;
-	virtual void PathSplitElementsInternal(const InteropSupport::ISTLObjectTarget<std::vector<std::wstring>>& marshaller, const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const = 0;
-	virtual Stream::IStream* OpenExistingFileForReadInternal(const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const = 0;
 };
 
-#include "IGUIExtensionInterface.inl"
 #endif

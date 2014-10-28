@@ -83,12 +83,6 @@
     <None Include="IDevice.inl">
       <Filter>IDevice</Filter>
     </None>
-    <None Include="IDeviceContext.inl">
-      <Filter>IDeviceContext</Filter>
-    </None>
-    <None Include="IDeviceInfo.inl">
-      <Filter>IDeviceInfo</Filter>
-    </None>
     <None Include="ILogEntry.inl">
       <Filter>ILogEntry</Filter>
     </None>

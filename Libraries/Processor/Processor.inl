@@ -190,14 +190,6 @@ double Processor::CalculateExecutionTime(unsigned int cycles) const
 //----------------------------------------------------------------------------------------
 //Breakpoint functions
 //----------------------------------------------------------------------------------------
-std::list<IBreakpoint*> Processor::GetBreakpointList() const
-{
-	std::unique_lock<std::mutex> lock(debugMutex);
-	std::list<IBreakpoint*> result(breakpoints.begin(), breakpoints.end());
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
 void Processor::CheckExecution(unsigned int location) const
 {
 	//Note that we split the internals of this method outside this inline wrapper function
@@ -214,14 +206,6 @@ void Processor::CheckExecution(unsigned int location) const
 
 //----------------------------------------------------------------------------------------
 //Watchpoint functions
-//----------------------------------------------------------------------------------------
-std::list<IWatchpoint*> Processor::GetWatchpointList() const
-{
-	std::unique_lock<std::mutex> lock(debugMutex);
-	std::list<IWatchpoint*> result(watchpoints.begin(), watchpoints.end());
-	return result;
-}
-
 //----------------------------------------------------------------------------------------
 void Processor::CheckMemoryRead(unsigned int location, unsigned int data) const
 {
@@ -253,23 +237,7 @@ void Processor::CheckMemoryWrite(unsigned int location, unsigned int data) const
 }
 
 //----------------------------------------------------------------------------------------
-//Call stack functions
-//----------------------------------------------------------------------------------------
-std::list<Processor::CallStackEntry> Processor::GetCallStack() const
-{
-	std::unique_lock<std::mutex> lock(debugMutex);
-	return callStack;
-}
-
-//----------------------------------------------------------------------------------------
 //Trace functions
-//----------------------------------------------------------------------------------------
-std::list<Processor::TraceLogEntry> Processor::GetTraceLog() const
-{
-	std::unique_lock<std::mutex> lock(debugMutex);
-	return traceLog;
-}
-
 //----------------------------------------------------------------------------------------
 void Processor::RecordTrace(unsigned int pc)
 {

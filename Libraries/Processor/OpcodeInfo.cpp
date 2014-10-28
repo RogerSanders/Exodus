@@ -1,6 +1,13 @@
 #include "OpcodeInfo.h"
 
 //----------------------------------------------------------------------------------------
+//Constructors
+//----------------------------------------------------------------------------------------
+OpcodeInfo::OpcodeInfo()
+:valid(false), opcodeSize(0)
+{}
+
+//----------------------------------------------------------------------------------------
 //Interface version functions
 //----------------------------------------------------------------------------------------
 unsigned int OpcodeInfo::GetIOpcodeInfoVersion() const
@@ -35,63 +42,63 @@ void OpcodeInfo::SetOpcodeSize(unsigned int state)
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::GetOpcodeNameDisassemblyInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> OpcodeInfo::GetOpcodeNameDisassembly() const
 {
-	marshaller.MarshalFrom(GetOpcodeNameDisassembly());
+	return disassemblyOpcode;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetOpcodeNameDisassemblyInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void OpcodeInfo::SetOpcodeNameDisassembly(const MarshalSupport::Marshal::In<std::wstring>& state)
 {
-	SetOpcodeNameDisassembly(marshaller.MarshalTo());
+	disassemblyOpcode = state;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::GetOpcodeArgumentsDisassemblyInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> OpcodeInfo::GetOpcodeArgumentsDisassembly() const
 {
-	marshaller.MarshalFrom(GetOpcodeArgumentsDisassembly());
+	return disassemblyArguments;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetOpcodeArgumentsDisassemblyInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void OpcodeInfo::SetOpcodeArgumentsDisassembly(const MarshalSupport::Marshal::In<std::wstring>& state)
 {
-	SetOpcodeArgumentsDisassembly(marshaller.MarshalTo());
+	disassemblyArguments = state;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::GetDisassemblyCommentInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> OpcodeInfo::GetDisassemblyComment() const
 {
-	marshaller.MarshalFrom(GetDisassemblyComment());
+	return disassemblyComment;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetDisassemblyCommentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void OpcodeInfo::SetDisassemblyComment(const MarshalSupport::Marshal::In<std::wstring>& state)
 {
-	SetDisassemblyComment(marshaller.MarshalTo());
+	disassemblyComment = state;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::GetLabelTargetLocationsInternal(const InteropSupport::ISTLObjectTarget<std::set<unsigned int>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::set<unsigned int>> OpcodeInfo::GetLabelTargetLocations() const
 {
-	marshaller.MarshalFrom(GetLabelTargetLocations());
+	return labelTargetLocations;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetLabelTargetLocationsInternal(const InteropSupport::ISTLObjectSource<std::set<unsigned int>>& marshaller)
+void OpcodeInfo::SetLabelTargetLocations(const MarshalSupport::Marshal::In<std::set<unsigned int>>& state)
 {
-	SetLabelTargetLocations(marshaller.MarshalTo());
+	labelTargetLocations = state;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::GetResultantPCLocationsInternal(const InteropSupport::ISTLObjectTarget<std::set<unsigned int>>& marshaller) const
+MarshalSupport::Marshal::Ret<std::set<unsigned int>> OpcodeInfo::GetResultantPCLocations() const
 {
-	marshaller.MarshalFrom(GetResultantPCLocations());
+	return resultantPCLocations;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetResultantPCLocationsInternal(const InteropSupport::ISTLObjectSource<std::set<unsigned int>>& marshaller)
+void OpcodeInfo::SetResultantPCLocations(const MarshalSupport::Marshal::In<std::set<unsigned int>>& state)
 {
-	SetResultantPCLocations(marshaller.MarshalTo());
+	resultantPCLocations = state;
 }
 
 //----------------------------------------------------------------------------------------

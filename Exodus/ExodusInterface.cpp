@@ -469,11 +469,11 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 		LoadedModuleInfo moduleInfo;
 		if(system->GetLoadedModuleInfo(*i, moduleInfo))
 		{
-			std::wstring moduleIdentifierString = moduleInfo.GetSystemClassName() + L"." + moduleInfo.GetClassName() + L"." + moduleInfo.GetInstanceName();
+			std::wstring moduleIdentifierString = moduleInfo.GetSystemClassName() + L"." + moduleInfo.GetModuleClassName() + L"." + moduleInfo.GetModuleInstanceName();
 			moduleIdentifierStrings.push_back(moduleIdentifierString);
 			if(moduleInfo.GetIsProgramModule())
 			{
-				loadedProgramModuleInstanceNames.push_back(moduleInfo.GetInstanceName());
+				loadedProgramModuleInstanceNames.push_back(moduleInfo.GetModuleInstanceName());
 			}
 		}
 	}
@@ -505,7 +505,7 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 				}
 
 				//Build a string describing the connector mapping
-				std::wstring connectorMappingString = L"(" + importingModuleInfo.GetSystemClassName() + L"." + importingModuleInfo.GetClassName() + L"." + importingModuleInfo.GetInstanceName() + L"." + connectorInfo.GetImportingModuleConnectorInstanceName() + L"@" + exportingModuleInfo.GetSystemClassName() + L"." + exportingModuleInfo.GetClassName() + L"." + exportingModuleInfo.GetInstanceName() + L"." + connectorInfo.GetExportingModuleConnectorInstanceName() + L")";
+				std::wstring connectorMappingString = L"(" + importingModuleInfo.GetSystemClassName() + L"." + importingModuleInfo.GetModuleClassName() + L"." + importingModuleInfo.GetModuleInstanceName() + L"." + connectorInfo.GetImportingModuleConnectorInstanceName() + L"@" + exportingModuleInfo.GetSystemClassName() + L"." + exportingModuleInfo.GetModuleClassName() + L"." + exportingModuleInfo.GetModuleInstanceName() + L"." + connectorInfo.GetExportingModuleConnectorInstanceName() + L")";
 
 				//Add the connector mapping string to the list of connector mappings
 				connectorMappingStrings.push_back(connectorMappingString);
@@ -859,7 +859,7 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 //----------------------------------------------------------------------------------------
 //Module functions
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::CanModuleBeLoaded(const std::wstring& filePath) const
+bool ExodusInterface::CanModuleBeLoaded(const MarshalSupport::Marshal::In<std::wstring>& filePath) const
 {
 	//Read the connector info for the module
 	ISystemGUIInterface::ConnectorImportList connectorsImported;
@@ -904,12 +904,6 @@ bool ExodusInterface::CanModuleBeLoaded(const std::wstring& filePath) const
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::CanModuleBeLoadedInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller) const
-{
-	return CanModuleBeLoaded(filePathMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
 bool ExodusInterface::LoadModule(const std::wstring& folder)
 {
 	//Select a module definition
@@ -924,13 +918,7 @@ bool ExodusInterface::LoadModule(const std::wstring& folder)
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadModuleFromFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller)
-{
-	return LoadModuleFromFile(filePathMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadModuleFromFile(const std::wstring& filePath)
+bool ExodusInterface::LoadModuleFromFile(const MarshalSupport::Marshal::In<std::wstring>& filePath)
 {
 	//Pause view event processing while the system load is in progress. We do this to
 	//ensure any views which are flagged to be displayed in the system definition don't
@@ -1261,51 +1249,57 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::GetGlobalPreferencePathModulesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetPreferenceDirectoryPath() const
 {
-	marshaller.MarshalFrom(GetGlobalPreferencePathModules());
+	return preferenceDirectoryPath;
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::GetGlobalPreferencePathSavestatesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathModules() const
 {
-	marshaller.MarshalFrom(GetGlobalPreferencePathSavestates());
+	return prefs.pathModules;
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::GetGlobalPreferencePathPersistentStateInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathSavestates() const
 {
-	marshaller.MarshalFrom(GetGlobalPreferencePathPersistentState());
+	return prefs.pathSavestates;
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::GetGlobalPreferencePathWorkspacesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathPersistentState() const
 {
-	marshaller.MarshalFrom(GetGlobalPreferencePathWorkspaces());
+	return prefs.pathPersistentState;
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::GetGlobalPreferencePathCapturesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathWorkspaces() const
 {
-	marshaller.MarshalFrom(GetGlobalPreferencePathCaptures());
+	return prefs.pathWorkspaces;
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::GetGlobalPreferencePathAssembliesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathCaptures() const
 {
-	marshaller.MarshalFrom(GetGlobalPreferencePathAssemblies());
+	return prefs.pathCaptures;
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::GetGlobalPreferenceInitialSystemInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathAssemblies() const
 {
-	marshaller.MarshalFrom(GetGlobalPreferenceInitialSystem());
+	return prefs.pathAssemblies;
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusInterface::GetGlobalPreferenceInitialWorkspaceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferenceInitialSystem() const
 {
-	marshaller.MarshalFrom(GetGlobalPreferenceInitialWorkspace());
+	return prefs.loadSystem;
+}
+
+//----------------------------------------------------------------------------------------
+MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferenceInitialWorkspace() const
+{
+	return prefs.loadWorkspace;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1336,6 +1330,192 @@ bool ExodusInterface::GetGlobalPreferenceLoadWorkspaceWithDebugState() const
 bool ExodusInterface::GetGlobalPreferenceShowDebugConsole() const
 {
 	return prefs.showDebugConsole;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathModules(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathModules = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathSavestates(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathSavestates = absolutePath;
+
+	//Update our savestate cell slots
+	UpdateSaveSlots();
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathPersistentState(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathPersistentState = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathWorkspaces(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathWorkspaces = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathCaptures(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathCaptures = absolutePath;
+	system->SetCapturePath(prefs.pathCaptures);
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferencePathAssemblies(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(preferenceDirectoryPath, state);
+	}
+
+	//Ensure the target directory exists
+	CreateDirectory(absolutePath, true);
+
+	//Apply the new preference setting
+	prefs.pathAssemblies = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceInitialSystem(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(!absolutePath.empty() && PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(prefs.pathModules, state);
+	}
+
+	//Apply the new preference setting
+	prefs.loadSystem = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceInitialWorkspace(const std::wstring& state)
+{
+	//Ensure the specified path is an absolute path
+	std::wstring absolutePath = state;
+	if(!absolutePath.empty() && PathIsRelativePath(state))
+	{
+		absolutePath = PathCombinePaths(prefs.pathWorkspaces, state);
+	}
+
+	//Apply the new preference setting
+	prefs.loadWorkspace = absolutePath;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceEnableThrottling(bool state)
+{
+	//Apply the new preference setting
+	prefs.enableThrottling = state;
+	system->SetThrottlingState(prefs.enableThrottling);
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceRunWhenProgramModuleLoaded(bool state)
+{
+	//Apply the new preference setting
+	prefs.runWhenProgramModuleLoaded = state;
+	system->SetRunWhenProgramModuleLoadedState(prefs.runWhenProgramModuleLoaded);
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceEnablePersistentState(bool state)
+{
+	//Apply the new preference setting
+	prefs.enablePersistentState = state;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceLoadWorkspaceWithDebugState(bool state)
+{
+	//Apply the new preference setting
+	prefs.loadWorkspaceWithDebugState = state;
+}
+
+//----------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreferenceShowDebugConsole(bool state)
+{
+	//Apply the new preference setting
+	prefs.showDebugConsole = state;
+	if(debugConsoleOpen != prefs.showDebugConsole)
+	{
+		if(!debugConsoleOpen)
+		{
+			//Create a debug command console
+			AllocConsole();
+			BindStdHandlesToConsole();
+		}
+		else
+		{
+			//Close the current debug command console
+			FreeConsole();
+		}
+		debugConsoleOpen = prefs.showDebugConsole;
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -1433,13 +1613,7 @@ bool ExodusInterface::LoadAssembliesFromFolderSynchronous(const std::wstring& fo
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadAssemblyInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller)
-{
-	return LoadAssembly(filePathMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadAssembly(const std::wstring& filePath)
+bool ExodusInterface::LoadAssembly(const MarshalSupport::Marshal::In<std::wstring>& filePath)
 {
 	//Attempt to load the target assembly and retrieve information on its plugin interface
 	PluginInfo pluginInfo;
@@ -1587,7 +1761,7 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 //----------------------------------------------------------------------------------------
 //File selection functions
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::SelectExistingFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, bool scanIntoArchives, std::wstring& selectedFilePath) const
+bool ExodusInterface::SelectExistingFile(const MarshalSupport::Marshal::In<std::wstring>& selectionTypeString, const MarshalSupport::Marshal::In<std::wstring>& defaultExtension, const MarshalSupport::Marshal::In<std::wstring>& initialFilePath, const MarshalSupport::Marshal::In<std::wstring>& initialDirectory, bool scanIntoArchives, const MarshalSupport::Marshal::Out<std::wstring>& selectedFilePath) const
 {
 	//Break the supplied selection type string down into individual type entries
 	std::list<FileSelectionType> selectionTypes = ParseSelectionTypeString(selectionTypeString);
@@ -1609,13 +1783,14 @@ bool ExodusInterface::SelectExistingFile(const std::wstring& selectionTypeString
 
 	//Attempt to select the target file until one is selected, or the selection process is
 	//aborted.
+	std::wstring selectedFilePathTemp;
 	bool fileSelected = false;
 	bool fileSelectionAborted = false;
 	while(!fileSelected && !fileSelectionAborted)
 	{
 		//Select a target file, using the first element in the supplied path as the
 		//initial target.
-		if(!::SelectExistingFile(mainWindowHandle, fullSelectionTypes, defaultExtension, initialPathFirstElement, initialDirectory, selectedFilePath))
+		if(!::SelectExistingFile(mainWindowHandle, fullSelectionTypes, defaultExtension, initialPathFirstElement, initialDirectory, selectedFilePathTemp))
 		{
 			fileSelectionAborted = true;
 			continue;
@@ -1628,26 +1803,27 @@ bool ExodusInterface::SelectExistingFile(const std::wstring& selectionTypeString
 		{
 			//##TODO## Add support for more compression archive formats
 			//##TODO## Make this comparison case insensitive
-			std::wstring selectedFileExtension = PathGetFileExtension(selectedFilePath);
+			std::wstring selectedFileExtension = PathGetFileExtension(selectedFilePathTemp);
 			if(selectedFileExtension == L"zip")
 			{
 				//Attempt to find a compatible file in this archive. Note that we pass the
 				//original selection types here, not the modified selection type list,
 				//since we only want to match types that were originally specified.
 				std::wstring relativePathWithinArchive;
-				if(!SelectExistingFileScanIntoArchive(selectionTypes, selectedFilePath, relativePathWithinArchive))
+				if(!SelectExistingFileScanIntoArchive(selectionTypes, selectedFilePathTemp, relativePathWithinArchive))
 				{
 					continue;
 				}
 
 				//Build the full path to the selected file within the archive
-				selectedFilePath = selectedFilePath + L'|' + relativePathWithinArchive;
+				selectedFilePathTemp = selectedFilePathTemp + L'|' + relativePathWithinArchive;
 			}
 		}
 
 		//Flag that a file has been selected
 		fileSelected = true;
 	}
+	selectedFilePath = selectedFilePathTemp;
 
 	return fileSelected;
 }
@@ -1778,7 +1954,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::SelectNewFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, std::wstring& selectedFilePath) const
+bool ExodusInterface::SelectNewFile(const MarshalSupport::Marshal::In<std::wstring>& selectionTypeString, const MarshalSupport::Marshal::In<std::wstring>& defaultExtension, const MarshalSupport::Marshal::In<std::wstring>& initialFilePath, const MarshalSupport::Marshal::In<std::wstring>& initialDirectory, const MarshalSupport::Marshal::Out<std::wstring>& selectedFilePath) const
 {
 	//Extract the first component from our combined path
 	std::vector<std::wstring> initialPathElements = PathSplitElements(initialFilePath);
@@ -1786,21 +1962,25 @@ bool ExodusInterface::SelectNewFile(const std::wstring& selectionTypeString, con
 
 	//Select a target file, using the first element in the supplied path as the initial
 	//target.
-	return ::SelectNewFile(mainWindowHandle, selectionTypeString, defaultExtension, initialPathFirstElement, initialDirectory, selectedFilePath);
+	std::wstring selectedFilePathTemp;
+	bool result = ::SelectNewFile(mainWindowHandle, selectionTypeString, defaultExtension, initialPathFirstElement, initialDirectory, selectedFilePathTemp);
+	selectedFilePath = selectedFilePathTemp;
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
-std::vector<std::wstring> ExodusInterface::PathSplitElements(const std::wstring& path) const
+MarshalSupport::Marshal::Ret<std::vector<std::wstring>> ExodusInterface::PathSplitElements(const MarshalSupport::Marshal::In<std::wstring>& path) const
 {
 	//##TODO## Format and comment this
+	std::wstring pathTemp = path;
 	const std::wstring elementSeparators = L"|";
 	std::vector<std::wstring> pathElements;
 	std::wstring::size_type currentPos = 0;
 	while(currentPos != std::wstring::npos)
 	{
-		std::wstring::size_type separatorPos = path.find_first_of(elementSeparators, currentPos);
+		std::wstring::size_type separatorPos = pathTemp.find_first_of(elementSeparators, currentPos);
 		std::wstring::size_type pathElementEndPos = (separatorPos != std::wstring::npos)? separatorPos - currentPos: std::wstring::npos;
-		std::wstring pathElement = path.substr(currentPos, pathElementEndPos);
+		std::wstring pathElement = pathTemp.substr(currentPos, pathElementEndPos);
 		pathElements.push_back(pathElement);
 		currentPos = (separatorPos != std::wstring::npos)? (separatorPos + 1): std::wstring::npos;
 	}
@@ -1808,7 +1988,7 @@ std::vector<std::wstring> ExodusInterface::PathSplitElements(const std::wstring&
 }
 
 //----------------------------------------------------------------------------------------
-Stream::IStream* ExodusInterface::OpenExistingFileForRead(const std::wstring& path) const
+Stream::IStream* ExodusInterface::OpenExistingFileForRead(const MarshalSupport::Marshal::In<std::wstring>& path) const
 {
 	//##TODO## Provide more comments
 	std::vector<std::wstring> pathElements = PathSplitElements(path);
@@ -1863,36 +2043,6 @@ Stream::IStream* ExodusInterface::OpenExistingFileForRead(const std::wstring& pa
 	}
 
 	return tempStream;
-}
-
-//----------------------------------------------------------------------------------------
-bool ExodusInterface::SelectExistingFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, bool scanIntoArchives, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const
-{
-	std::wstring selectedFilePath;
-	bool result = SelectExistingFile(selectionTypeStringMarshaller.MarshalTo(), defaultExtensionMarshaller.MarshalTo(), initialFilePathMarshaller.MarshalTo(), initialDirectoryMarshaller.MarshalTo(), scanIntoArchives, selectedFilePath);
-	selectedFilePathMarshaller.MarshalFrom(selectedFilePath);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-bool ExodusInterface::SelectNewFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const
-{
-	std::wstring selectedFilePath;
-	bool result = SelectNewFile(selectionTypeStringMarshaller.MarshalTo(), defaultExtensionMarshaller.MarshalTo(), initialFilePathMarshaller.MarshalTo(), initialDirectoryMarshaller.MarshalTo(), selectedFilePath);
-	selectedFilePathMarshaller.MarshalFrom(selectedFilePath);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-void ExodusInterface::PathSplitElementsInternal(const InteropSupport::ISTLObjectTarget<std::vector<std::wstring>>& marshaller, const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const
-{
-	marshaller.MarshalFrom(PathSplitElements(pathMarshaller.MarshalTo()));
-}
-
-//----------------------------------------------------------------------------------------
-Stream::IStream* ExodusInterface::OpenExistingFileForReadInternal(const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const
-{
-	return OpenExistingFileForRead(pathMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -2318,7 +2468,7 @@ INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPAR
 			if(state->system->GetLoadedModuleInfo(i->GetExportingModuleID(), moduleInfo))
 			{
 				std::wstringstream text;
-				text << moduleInfo.GetInstanceName() << L"." << i->GetExportingModuleConnectorInstanceName();
+				text << moduleInfo.GetModuleInstanceName() << L"." << i->GetExportingModuleConnectorInstanceName();
 				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_ADDSTRING, 0, (LPARAM)text.str().c_str());
 				SendMessage(GetDlgItem(hwnd, IDC_MAPCONNECTOR_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)&(*i));
 			}

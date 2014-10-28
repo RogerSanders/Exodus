@@ -152,8 +152,6 @@
     <None Include="IBusInterface.inl" />
     <None Include="IClockSource.inl" />
     <None Include="IDevice.inl" />
-    <None Include="IDeviceContext.inl" />
-    <None Include="IDeviceInfo.inl" />
     <None Include="ILogEntry.inl" />
     <None Include="ISystemDeviceInterface.inl" />
     <None Include="LogEntry.inl" />

@@ -171,26 +171,13 @@
     <ClInclude Include="ViewPresenterBase.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ConnectorInfo.inl" />
     <None Include="ExodusExtensionInterface.pkg" />
     <None Include="FileStreamReference.inl" />
-    <None Include="IConnectorInfo.inl" />
     <None Include="IExtension.inl" />
-    <None Include="IExtensionInfo.inl" />
-    <None Include="IGUIExtensionInterface.inl" />
-    <None Include="ILoadedModuleInfo.inl" />
-    <None Include="IMenuHandler.inl" />
     <None Include="IMenuItem.inl" />
-    <None Include="IMenuSegment.inl" />
-    <None Include="IMenuSelectableOption.inl" />
-    <None Include="IMenuSubmenu.inl" />
-    <None Include="ISystemExtensionInterface.inl" />
     <None Include="IUIManager.inl" />
     <None Include="IView.inl" />
-    <None Include="IViewManager.inl" />
     <None Include="IViewPresenter.inl" />
-    <None Include="IViewStateChangeNotifier.inl" />
-    <None Include="LoadedModuleInfo.inl" />
     <None Include="MenuHandlerBase.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

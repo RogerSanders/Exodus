@@ -133,14 +133,6 @@ struct IM68000::ExceptionDebuggingEntry
 };
 
 //----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
-unsigned int IM68000::ThisIM68000Version()
-{
-	return 1;
-}
-
-//----------------------------------------------------------------------------------------
 //CCR flags
 //----------------------------------------------------------------------------------------
 bool IM68000::GetX() const
@@ -528,28 +520,4 @@ unsigned int IM68000::GetOriginalValueD(unsigned int registerNo) const
 	RegisterDataContext dataContext(registerNo);
 	ReadGenericData((unsigned int)IM68000DataSource::RegisterOriginalValueD, &dataContext, data);
 	return data.GetValue();
-}
-
-//----------------------------------------------------------------------------------------
-//Exception debugging functions
-//----------------------------------------------------------------------------------------
-std::list<IM68000::ExceptionDebuggingEntry> IM68000::GetExceptionDebugEntries() const
-{
-	std::list<ExceptionDebuggingEntry> result;
-	GetExceptionDebugEntriesInternal(InteropSupport::STLObjectTarget<std::list<ExceptionDebuggingEntry>>(result));
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-void IM68000::SetExceptionDebugEntries(const std::list<ExceptionDebuggingEntry>& state)
-{
-	SetExceptionDebugEntriesInternal(InteropSupport::STLObjectSource<std::list<ExceptionDebuggingEntry>>(state));
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring IM68000::GetExceptionName(Exceptions vectorNumber) const
-{
-	std::wstring result;
-	GetExceptionNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result), vectorNumber);
-	return result;
 }

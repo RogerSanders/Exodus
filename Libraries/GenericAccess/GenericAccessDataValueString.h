@@ -16,11 +16,11 @@ public:
 	virtual DataType GetType() const;
 
 	//Value read functions
-	inline std::wstring GetValue() const;
-	virtual std::wstring GetValueString() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetValue() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetValueString() const;
 
 	//Value write functions
-	virtual bool SetValueString(const std::wstring& value);
+	virtual bool SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value);
 
 	//Value limit functions
 	virtual unsigned int GetMaxLength() const;
@@ -28,10 +28,6 @@ public:
 
 	//Value limit functions
 	virtual void ApplyLimitSettingsToCurrentValue();
-
-protected:
-	//Value read functions
-	virtual void GetValueInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	std::wstring dataValue;

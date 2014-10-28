@@ -1,6 +1,6 @@
 #ifndef __IGENERICACCESSCOMMANDINFO_H__
 #define __IGENERICACCESSCOMMANDINFO_H__
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 
 class IGenericAccessCommandInfo
@@ -14,7 +14,7 @@ public:
 	virtual ~IGenericAccessCommandInfo() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessCommandInfoVersion();
+	static inline unsigned int ThisIGenericAccessCommandInfoVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessCommandInfoVersion() const = 0;
 
 	//Command info functions
@@ -22,5 +22,4 @@ public:
 	virtual bool GetCanExecute() const = 0;
 };
 
-#include "IGenericAccessCommandInfo.inl"
 #endif

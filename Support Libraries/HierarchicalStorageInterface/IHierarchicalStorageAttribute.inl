@@ -1,20 +1,4 @@
 //----------------------------------------------------------------------------------------
-//Name functions
-//----------------------------------------------------------------------------------------
-std::wstring IHierarchicalStorageAttribute::GetName() const
-{
-	std::wstring result;
-	GetNameInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-void IHierarchicalStorageAttribute::SetName(const std::wstring& aname)
-{
-	SetNameInternal(InteropSupport::STLObjectSource<std::wstring>(aname));
-}
-
-//----------------------------------------------------------------------------------------
 //Value read functions
 //----------------------------------------------------------------------------------------
 std::wstring IHierarchicalStorageAttribute::GetValue() const

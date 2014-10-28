@@ -1,6 +1,6 @@
 #ifndef __IGENERICACCESSDATAVALUE_H__
 #define __IGENERICACCESSDATAVALUE_H__
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 
 class IGenericAccessDataValue
@@ -16,48 +16,33 @@ public:
 	virtual ~IGenericAccessDataValue() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessDataValueVersion();
+	static inline unsigned int ThisIGenericAccessDataValueVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataValueVersion() const = 0;
 
 	//Type functions
 	virtual DataType GetType() const = 0;
 
 	//Value read functions
-	inline std::wstring GetValueString() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetValueString() const = 0;
 
 	//Value write functions
-	template<class T> inline bool SetValue(const T& value);
-	template<> inline bool SetValue<bool>(const bool& value);
-	template<> inline bool SetValue<volatile bool>(const volatile bool& value);
-	template<> inline bool SetValue<int>(const int& value);
-	template<> inline bool SetValue<volatile int>(const volatile int& value);
-	template<> inline bool SetValue<unsigned int>(const unsigned int& value);
-	template<> inline bool SetValue<volatile unsigned int>(const volatile unsigned int& value);
-	template<> inline bool SetValue<float>(const float& value);
-	template<> inline bool SetValue<volatile float>(const volatile float& value);
-	template<> inline bool SetValue<double>(const double& value);
-	template<> inline bool SetValue<volatile double>(const volatile double& value);
-	template<> inline bool SetValue<std::wstring>(const std::wstring& value);
+	inline bool SetValue(bool value);
+	inline bool SetValue(int value);
+	inline bool SetValue(unsigned int value);
+	inline bool SetValue(float value);
+	inline bool SetValue(double value);
+	inline bool SetValue(const std::wstring& value);
 	virtual bool SetValueBool(bool value) = 0;
 	virtual bool SetValueInt(int value) = 0;
 	virtual bool SetValueUInt(unsigned int value) = 0;
 	virtual bool SetValueFloat(float value) = 0;
 	virtual bool SetValueDouble(double value) = 0;
-	inline bool SetValueString(const std::wstring& value);
-	inline bool SetValueFilePath(const std::wstring& value);
-	inline bool SetValueFolderPath(const std::wstring& value);
+	virtual bool SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value) = 0;
+	virtual bool SetValueFilePath(const MarshalSupport::Marshal::In<std::wstring>& value) = 0;
+	virtual bool SetValueFolderPath(const MarshalSupport::Marshal::In<std::wstring>& value) = 0;
 
 	//Value limit functions
 	virtual void ApplyLimitSettingsToCurrentValue() = 0;
-
-protected:
-	//Value read functions
-	virtual void GetValueStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-
-	//Value write functions
-	virtual bool SetValueStringInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual bool SetValueFilePathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual bool SetValueFolderPathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
 };
 
 #include "IGenericAccessDataValue.inl"

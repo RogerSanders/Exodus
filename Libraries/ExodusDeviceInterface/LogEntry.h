@@ -19,15 +19,16 @@ public:
 
 	//Getters
 	virtual EventLevel GetEventLevel() const;
-	inline std::wstring GetText() const;
-	inline std::wstring GetSource() const;
-	inline std::wstring GetEventLevelString() const;
-	inline std::wstring GetTimeString() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetText() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSource() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetEventLevelString() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetTimeString() const;
 
 	//Setters
 	inline void SetText(const std::wstring& atext);
 	inline void SetSource(const std::wstring& asource);
 	inline void SetEventLevel(EventLevel alevel);
+	virtual void OverrideSourceText(const MarshalSupport::Marshal::In<std::wstring>& asource) const;
 
 	//Version functions
 	virtual unsigned int GetInterfaceVersion() const;
@@ -35,16 +36,6 @@ public:
 	//Text-based stream functions
 	template<class T> inline LogEntry& operator>>(T& data);
 	template<class T> inline LogEntry& operator<<(const T& data);
-
-protected:
-	//Getters
-	virtual void GetTextInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetSourceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetEventLevelStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetTimeStringInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-
-	//Setters
-	virtual void OverrideSourceTextInternal(const InteropSupport::ISTLObjectSource<std::wstring>& sourceMarshaller) const;
 
 private:
 	EventLevel eventLevel;

@@ -85,9 +85,6 @@
     <None Include="DockingWindow.inl">
       <Filter>Controls\DockingWindow</Filter>
     </None>
-    <None Include="IDockingWindow.inl">
-      <Filter>Controls\DockingWindow</Filter>
-    </None>
     <None Include="DashboardWindow.inl">
       <Filter>Controls\DashboardWindow</Filter>
     </None>

@@ -38,15 +38,15 @@ void HierarchicalStorageNode::Initialize()
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageNode::GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> HierarchicalStorageNode::GetName() const
 {
-	marshaller.MarshalFrom(GetName());
+	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageNode::SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void HierarchicalStorageNode::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
 {
-	SetName(marshaller.MarshalTo());
+	name = aname;
 }
 
 //----------------------------------------------------------------------------------------
@@ -97,18 +97,12 @@ IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild()
 }
 
 //----------------------------------------------------------------------------------------
-IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild(const std::wstring& aname)
+IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild(const MarshalSupport::Marshal::In<std::wstring>& aname)
 {
 	HierarchicalStorageNode* child = new HierarchicalStorageNode(aname);
 	child->SetParent(this);
 	children.push_back(child);
 	return *child;
-}
-
-//----------------------------------------------------------------------------------------
-IHierarchicalStorageNode& HierarchicalStorageNode::CreateChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
-{
-	return CreateChild(nameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -127,7 +121,7 @@ void HierarchicalStorageNode::DeleteChild(IHierarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IHierarchicalStorageNode*> HierarchicalStorageNode::GetChildList() const
+MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalStorageNode::GetChildList() const
 {
 	std::list<IHierarchicalStorageNode*> childList;
 	for(size_t i = 0; i < children.size(); ++i)
@@ -138,18 +132,13 @@ std::list<IHierarchicalStorageNode*> HierarchicalStorageNode::GetChildList() con
 }
 
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageNode::GetChildListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageNode*>>& marshaller) const
+bool HierarchicalStorageNode::IsChildPresent(const MarshalSupport::Marshal::In<std::wstring>& name) const
 {
-	marshaller.MarshalFrom(GetChildList());
-}
-
-//----------------------------------------------------------------------------------------
-bool HierarchicalStorageNode::IsChildPresent(const std::wstring& name) const
-{
+	std::wstring nameResolved = name.Get();
 	for(ChildList::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
 		HierarchicalStorageNode* childNode = *i;
-		if(childNode->GetName() == name)
+		if(childNode->GetName() == nameResolved)
 		{
 			return true;
 		}
@@ -158,19 +147,14 @@ bool HierarchicalStorageNode::IsChildPresent(const std::wstring& name) const
 }
 
 //----------------------------------------------------------------------------------------
-bool HierarchicalStorageNode::IsChildPresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const
+IHierarchicalStorageNode* HierarchicalStorageNode::GetChild(const MarshalSupport::Marshal::In<std::wstring>& name, const IHierarchicalStorageNode* searchAfterChildNode) const
 {
-	return IsChildPresent(nameMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-IHierarchicalStorageNode* HierarchicalStorageNode::GetChild(const std::wstring& name, const IHierarchicalStorageNode* searchAfterChildNode) const
-{
+	std::wstring nameResolved = name.Get();
 	bool foundSearchStartNode = (searchAfterChildNode == 0);
 	for(ChildList::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
 		HierarchicalStorageNode* childNode = *i;
-		if(foundSearchStartNode && (childNode->GetName() == name))
+		if(foundSearchStartNode && (childNode->GetName() == nameResolved))
 		{
 			return childNode;
 		}
@@ -180,19 +164,14 @@ IHierarchicalStorageNode* HierarchicalStorageNode::GetChild(const std::wstring& 
 }
 
 //----------------------------------------------------------------------------------------
-IHierarchicalStorageNode* HierarchicalStorageNode::GetChildInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller, const IHierarchicalStorageNode* searchAfterChildNode) const
-{
-	return GetChild(nameMarshaller.MarshalTo(), searchAfterChildNode);
-}
-
-//----------------------------------------------------------------------------------------
 //Attribute functions
 //----------------------------------------------------------------------------------------
-bool HierarchicalStorageNode::IsAttributePresent(const std::wstring& name) const
+bool HierarchicalStorageNode::IsAttributePresent(const MarshalSupport::Marshal::In<std::wstring>& name) const
 {
+	std::wstring nameResolved = name.Get();
 	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
 	{
-		if(i->first == name)
+		if(i->first == nameResolved)
 		{
 			return true;
 		}
@@ -201,11 +180,12 @@ bool HierarchicalStorageNode::IsAttributePresent(const std::wstring& name) const
 }
 
 //----------------------------------------------------------------------------------------
-IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttribute(const std::wstring& name) const
+IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttribute(const MarshalSupport::Marshal::In<std::wstring>& name) const
 {
+	std::wstring nameResolved = name.Get();
 	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
 	{
-		if(i->first == name)
+		if(i->first == nameResolved)
 		{
 			return i->second;
 		}
@@ -214,7 +194,7 @@ IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttribute(const std::
 }
 
 //----------------------------------------------------------------------------------------
-IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttribute(const std::wstring& name)
+IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttribute(const MarshalSupport::Marshal::In<std::wstring>& name)
 {
 	IHierarchicalStorageAttribute* attribute = GetAttribute(name);
 	if(attribute == 0)
@@ -224,24 +204,6 @@ IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttribute(const st
 		attributes.push_back(AttributeListEntry(name, newAttribute));
 	}
 	return *attribute;
-}
-
-//----------------------------------------------------------------------------------------
-bool HierarchicalStorageNode::IsAttributePresentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const
-{
-	return IsAttributePresent(nameMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller) const
-{
-	return GetAttribute(nameMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttributeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& nameMarshaller)
-{
-	return CreateAttribute(nameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -259,7 +221,7 @@ void HierarchicalStorageNode::DeleteAttribute(IHierarchicalStorageAttribute& att
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IHierarchicalStorageAttribute*> HierarchicalStorageNode::GetAttributeList() const
+MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageAttribute*>> HierarchicalStorageNode::GetAttributeList() const
 {
 	std::list<IHierarchicalStorageAttribute*> attributeList;
 	for(size_t i = 0; i < attributes.size(); ++i)
@@ -267,12 +229,6 @@ std::list<IHierarchicalStorageAttribute*> HierarchicalStorageNode::GetAttributeL
 		attributeList.push_back(attributes[i].second);
 	}
 	return attributeList;
-}
-
-//----------------------------------------------------------------------------------------
-void HierarchicalStorageNode::GetAttributeListInternal(const InteropSupport::ISTLObjectTarget<std::list<IHierarchicalStorageAttribute*>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetAttributeList());
 }
 
 //----------------------------------------------------------------------------------------
@@ -301,15 +257,15 @@ void HierarchicalStorageNode::SetBinaryDataPresent(bool state)
 }
 
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageNode::GetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> HierarchicalStorageNode::GetBinaryDataBufferName() const
 {
-	marshaller.MarshalFrom(GetBinaryDataBufferName());
+	return binaryDataName.c_str();
 }
 
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageNode::SetBinaryDataBufferNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void HierarchicalStorageNode::SetBinaryDataBufferName(const MarshalSupport::Marshal::In<std::wstring>& aname)
 {
-	SetBinaryDataBufferName(marshaller.MarshalTo());
+	binaryDataName = aname;
 }
 
 //----------------------------------------------------------------------------------------

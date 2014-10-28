@@ -23,15 +23,15 @@ DeviceInfo::DestructorPointer DeviceInfo::GetDestructor() const
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::GetDeviceClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> DeviceInfo::GetDeviceClassName() const
 {
-	marshaller.MarshalFrom(GetDeviceClassName());
+	return className;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::GetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> DeviceInfo::GetDeviceImplementationName() const
 {
-	marshaller.MarshalFrom(GetDeviceImplementationName());
+	return implementationName;
 }
 
 //----------------------------------------------------------------------------------------
@@ -41,19 +41,30 @@ unsigned int DeviceInfo::GetDeviceVersionNo() const
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::GetDeviceCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> DeviceInfo::GetDeviceCopyright() const
 {
-	marshaller.MarshalFrom(GetDeviceCopyright());
+	return copyright;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::GetDeviceCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> DeviceInfo::GetDeviceComments() const
 {
-	marshaller.MarshalFrom(GetDeviceComments());
+	return comments;
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
+//----------------------------------------------------------------------------------------
+void DeviceInfo::SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const MarshalSupport::Marshal::In<std::wstring>& adeviceClassName, const MarshalSupport::Marshal::In<std::wstring>& adeviceImplementationName, unsigned int adeviceVersionNo, const MarshalSupport::Marshal::In<std::wstring>& adeviceCopyright, const MarshalSupport::Marshal::In<std::wstring>& adeviceComments)
+{
+	SetDeviceAllocators(aAllocator, aDestructor);
+	SetDeviceClassName(adeviceClassName);
+	SetDeviceImplementationName(adeviceImplementationName);
+	SetDeviceVersionNo(adeviceVersionNo);
+	SetDeviceCopyright(adeviceCopyright);
+	SetDeviceComments(adeviceComments);
+}
+
 //----------------------------------------------------------------------------------------
 void DeviceInfo::SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
 {
@@ -62,15 +73,15 @@ void DeviceInfo::SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPoin
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void DeviceInfo::SetDeviceClassName(const MarshalSupport::Marshal::In<std::wstring>& adeviceClassName)
 {
-	SetDeviceClassName(marshaller.MarshalTo());
+	className = adeviceClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void DeviceInfo::SetDeviceImplementationName(const MarshalSupport::Marshal::In<std::wstring>& adeviceImplementationName)
 {
-	SetDeviceImplementationName(marshaller.MarshalTo());
+	implementationName = adeviceImplementationName;
 }
 
 //----------------------------------------------------------------------------------------
@@ -80,13 +91,13 @@ void DeviceInfo::SetDeviceVersionNo(unsigned int adeviceVersionNo)
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void DeviceInfo::SetDeviceCopyright(const MarshalSupport::Marshal::In<std::wstring>& adeviceCopyright)
 {
-	SetDeviceCopyright(marshaller.MarshalTo());
+	copyright = adeviceCopyright;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void DeviceInfo::SetDeviceComments(const MarshalSupport::Marshal::In<std::wstring>& adeviceComments)
 {
-	SetDeviceComments(marshaller.MarshalTo());
+	comments = adeviceComments;
 }

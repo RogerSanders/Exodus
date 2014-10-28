@@ -1,7 +1,7 @@
 #ifndef __IDOCKINGWINDOW_H__
 #define __IDOCKINGWINDOW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "WC_DockPanel.h"
 
 //##TODO## Make this base interface common for docking windows and dashboard windows, so
@@ -43,18 +43,18 @@ public:
 	virtual void AddChildContainer(IDockingWindow* childContainer, WC_DockPanel::DockLocation dockLocation, bool autoHide, bool forceTop) = 0;
 	virtual void RemoveChildContainer(IDockingWindow* childContainer) = 0;
 	virtual void UpdateAutoHideChildContainerContent(IDockingWindow* childContainer) = 0;
-	inline std::list<IDockingWindow*> GetNestedChildDockingWindowList() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<IDockingWindow*>> GetNestedChildDockingWindowList() const = 0;
 
 	//Hosted content methods
 	//##FIX## Remove this method. This only requires changes to HitTestPlacementTargets.
-	inline void AddHostedContent(HWND contentWindow, const std::wstring& contentTitle);
+	virtual void AddHostedContent(HWND contentWindow, const MarshalSupport::Marshal::In<std::wstring>& contentTitle) = 0;
 	//##FIX## Remove this method. This won't require any logic changes.
 	virtual void RemoveHostedContent(HWND contentWindow) = 0;
 	virtual unsigned int GetHostedContentCount() const = 0;
 	virtual unsigned int GetSortedContentEntryNo(unsigned int sortedContentEntryIndex) const = 0;
 	virtual bool GetHostedContentIndexFromWindow(HWND contentWindow, unsigned int& contentEntryNo) const = 0;
 	virtual void SetActiveContent(unsigned int contentEntryNo) = 0;
-	inline std::wstring GetHostedContentTitle(unsigned int contentEntryNo) const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHostedContentTitle(unsigned int contentEntryNo) const = 0;
 	virtual HWND GetHostedContentWindow(unsigned int contentEntryNo) const = 0;
 
 	//Parent docking window methods
@@ -71,15 +71,6 @@ public:
 	//our own child windows.
 	virtual bool IsAutoHideEnabled() const = 0;
 	virtual void NotifyParentDestroyed() = 0;
-
-protected:
-	//Hosted content methods
-	virtual void AddHostedContentInternal(HWND contentWindow, const InteropSupport::ISTLObjectSource<std::wstring>& contentTitleMarshaller) = 0;
-	virtual void GetHostedContentTitleInternal(unsigned int contentEntryNo, const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-
-	//Child container methods
-	virtual void GetNestedChildDockingWindowListInternal(const InteropSupport::ISTLObjectTarget<std::list<IDockingWindow*>>& marshaller) const = 0;
 };
 
-#include "IDockingWindow.inl"
 #endif

@@ -23,15 +23,15 @@ ExtensionInfo::DestructorPointer ExtensionInfo::GetDestructor() const
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::GetExtensionClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionClassName() const
 {
-	marshaller.MarshalFrom(GetExtensionClassName());
+	return className;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::GetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionImplementationName() const
 {
-	marshaller.MarshalFrom(GetExtensionImplementationName());
+	return implementationName;
 }
 
 //----------------------------------------------------------------------------------------
@@ -41,19 +41,30 @@ unsigned int ExtensionInfo::GetExtensionVersionNo() const
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::GetExtensionCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionCopyright() const
 {
-	marshaller.MarshalFrom(GetExtensionCopyright());
+	return copyright;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::GetExtensionCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionComments() const
 {
-	marshaller.MarshalFrom(GetExtensionComments());
+	return comments;
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
+//----------------------------------------------------------------------------------------
+void ExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const MarshalSupport::Marshal::In<std::wstring>& aextensionClassName, const MarshalSupport::Marshal::In<std::wstring>& aextensionImplementationName, unsigned int aextensionVersionNo, const MarshalSupport::Marshal::In<std::wstring>& aextensionCopyright, const MarshalSupport::Marshal::In<std::wstring>& aextensionComments)
+{
+	SetExtensionAllocators(aAllocator, aDestructor);
+	SetExtensionClassName(aextensionClassName);
+	SetExtensionImplementationName(aextensionImplementationName);
+	SetExtensionVersionNo(aextensionVersionNo);
+	SetExtensionCopyright(aextensionCopyright);
+	SetExtensionComments(aextensionComments);
+}
+
 //----------------------------------------------------------------------------------------
 void ExtensionInfo::SetExtensionAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
 {
@@ -62,15 +73,15 @@ void ExtensionInfo::SetExtensionAllocators(AllocatorPointer aAllocator, Destruct
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void ExtensionInfo::SetExtensionClassName(const MarshalSupport::Marshal::In<std::wstring>& aextensionClassName)
 {
-	SetExtensionClassName(marshaller.MarshalTo());
+	className = aextensionClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionImplementationNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void ExtensionInfo::SetExtensionImplementationName(const MarshalSupport::Marshal::In<std::wstring>& aextensionImplementationName)
 {
-	SetExtensionImplementationName(marshaller.MarshalTo());
+	implementationName = aextensionImplementationName;
 }
 
 //----------------------------------------------------------------------------------------
@@ -80,13 +91,13 @@ void ExtensionInfo::SetExtensionVersionNo(unsigned int aextensionVersionNo)
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void ExtensionInfo::SetExtensionCopyright(const MarshalSupport::Marshal::In<std::wstring>& aextensionCopyright)
 {
-	SetExtensionCopyright(marshaller.MarshalTo());
+	copyright = aextensionCopyright;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void ExtensionInfo::SetExtensionComments(const MarshalSupport::Marshal::In<std::wstring>& aextensionComments)
 {
-	SetExtensionComments(marshaller.MarshalTo());
+	comments = aextensionComments;
 }

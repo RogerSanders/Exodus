@@ -18,7 +18,7 @@ public:
 
 public:
 	//Interface version functions
-	static inline unsigned int ThisISN76489Version();
+	static inline unsigned int ThisISN76489Version() { return 1; }
 	virtual unsigned int GetISN76489Version() const = 0;
 
 	//Raw register functions

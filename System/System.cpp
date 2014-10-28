@@ -14,6 +14,33 @@
 #include <iomanip>
 
 //----------------------------------------------------------------------------------------
+//Constructors
+//----------------------------------------------------------------------------------------
+System::System(IGUIExtensionInterface& aguiExtensionInterface)
+:guiExtensionInterface(aguiExtensionInterface), stopSystem(false), systemStopped(true), initialize(true), enableThrottling(true), runWhenProgramModuleLoaded(true), enablePersistentState(true)
+{
+	eventLogSize = 500;
+	eventLogLastModifiedToken = 0;
+
+	embeddedROMInfoLastModifiedToken = 0;
+
+	inputDeviceListLastModifiedToken = 0;
+
+	nextFreeModuleID = 0;
+	nextFreeConnectorID = 1000;
+	nextFreeLineGroupID = 2000;
+	nextFreeSystemLineID = 3000;
+	nextFreeSystemSettingID = 4000;
+	nextFreeEmbeddedROMID = 5000;
+}
+
+//----------------------------------------------------------------------------------------
+System::~System()
+{
+	UnloadAllModules();
+}
+
+//----------------------------------------------------------------------------------------
 //Interface version functions
 //----------------------------------------------------------------------------------------
 unsigned int System::GetISystemDeviceInterfaceVersion() const
@@ -36,7 +63,7 @@ unsigned int System::GetISystemGUIInterfaceVersion() const
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-bool System::LoadState(const std::wstring& filePath, FileType fileType, bool debuggerState)
+bool System::LoadState(const MarshalSupport::Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState)
 {
 	//Save running state and pause system
 	bool running = SystemRunning();
@@ -313,13 +340,7 @@ bool System::LoadState(const std::wstring& filePath, FileType fileType, bool deb
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller, FileType fileType, bool debuggerState)
-{
-	return LoadState(filePathMarshaller.MarshalTo(), fileType, debuggerState);
-}
-
-//----------------------------------------------------------------------------------------
-bool System::SaveState(const std::wstring& filePath, FileType fileType, bool debuggerState)
+bool System::SaveState(const MarshalSupport::Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState)
 {
 	//Save running state and pause system
 	bool running = SystemRunning();
@@ -577,12 +598,6 @@ bool System::SaveState(const std::wstring& filePath, FileType fileType, bool deb
 		RunSystem();
 	}
 	return true;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::SaveStateInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller, FileType fileType, bool debuggerState)
-{
-	return SaveState(filePathMarshaller.MarshalTo(), fileType, debuggerState);
 }
 
 //----------------------------------------------------------------------------------------
@@ -927,7 +942,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 }
 
 //----------------------------------------------------------------------------------------
-System::StateInfo System::GetStateInfo(const std::wstring& filePath, FileType fileType) const
+MarshalSupport::Marshal::Ret<System::StateInfo> System::GetStateInfo(const MarshalSupport::Marshal::In<std::wstring>& filePath, FileType fileType) const
 {
 	StateInfo stateInfo;
 	stateInfo.valid = false;
@@ -1010,13 +1025,6 @@ System::StateInfo System::GetStateInfo(const std::wstring& filePath, FileType fi
 }
 
 //----------------------------------------------------------------------------------------
-void System::GetStateInfoInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller, FileType fileType, const InteropSupport::ISTLObjectTarget<StateInfo>& marshaller) const
-{
-	StateInfo result = GetStateInfo(filePathMarshaller.MarshalTo(), fileType);
-	marshaller.MarshalFrom(result);
-}
-
-//----------------------------------------------------------------------------------------
 bool System::LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const
 {
 	//Validate the name of the node
@@ -1096,7 +1104,7 @@ bool System::LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelat
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, ModuleRelationshipMap& relationshipMap) const
+bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const MarshalSupport::Marshal::Out<ModuleRelationshipMap>& relationshipMap) const
 {
 	//Load the saved module relationship data
 	SavedRelationshipMap savedRelationshipData;
@@ -1128,7 +1136,7 @@ bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, ModuleR
 	//Examine each module referenced in the saved data, and try and find matching modules
 	//in the loaded module list. Store information on module associations in the
 	//relationshipMap.
-	relationshipMap.clear();
+	ModuleRelationshipMap relationshipMapTemp;
 	for(SavedRelationshipMap::const_iterator i = savedRelationshipData.begin(); i != savedRelationshipData.end(); ++i)
 	{
 		//Look for a loaded module which matches the saved module data
@@ -1149,7 +1157,7 @@ bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, ModuleR
 				moduleRelationship.savedModuleClassName = savedModuleInfo.className;
 				moduleRelationship.savedModuleInstanceName = savedModuleInfo.instanceName;
 				moduleRelationship.loadedModuleID = loadedModuleInfo.moduleID;
-				relationshipMap.insert(ModuleRelationshipEntry(moduleRelationship.savedModuleID, moduleRelationship));
+				relationshipMapTemp.insert(ModuleRelationshipEntry(moduleRelationship.savedModuleID, moduleRelationship));
 				foundMatchingModule = true;
 				continue;
 			}
@@ -1165,24 +1173,16 @@ bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, ModuleR
 			moduleRelationship.savedModuleID = savedModuleInfo.moduleID;
 			moduleRelationship.savedModuleClassName = savedModuleInfo.className;
 			moduleRelationship.savedModuleInstanceName = savedModuleInfo.instanceName;
-			relationshipMap.insert(ModuleRelationshipEntry(moduleRelationship.savedModuleID, moduleRelationship));
+			relationshipMapTemp.insert(ModuleRelationshipEntry(moduleRelationship.savedModuleID, moduleRelationship));
 		}
 	}
+	relationshipMap = relationshipMapTemp;
 
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModuleRelationshipsNodeInternal(IHierarchicalStorageNode& node, const InteropSupport::ISTLObjectTarget<ModuleRelationshipMap>& relationshipMapMarshaller) const
-{
-	ModuleRelationshipMap relationshipMap;
-	bool result = LoadModuleRelationshipsNode(node, relationshipMap);
-	relationshipMapMarshaller.MarshalFrom(relationshipMap);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-void System::SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool saveFilePathInfo, const std::wstring& relativePathBase) const
+void System::SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool saveFilePathInfo, const MarshalSupport::Marshal::In<std::wstring>& relativePathBase) const
 {
 	for(LoadedModuleInfoMap::const_iterator i = loadedModuleInfoMap.begin(); i != loadedModuleInfoMap.end(); ++i)
 	{
@@ -1212,12 +1212,6 @@ void System::SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool sa
 		SaveModuleRelationshipsExportConnectors(moduleNode, loadedModuleInfo.moduleID);
 		SaveModuleRelationshipsImportConnectors(moduleNode, loadedModuleInfo.moduleID);
 	}
-}
-
-//----------------------------------------------------------------------------------------
-void System::SaveModuleRelationshipsNodeInternal(IHierarchicalStorageNode& node, bool saveFilePathInfo, const InteropSupport::ISTLObjectSource<std::wstring>& relativePathBaseMarshaller) const
-{
-	SaveModuleRelationshipsNode(node, saveFilePathInfo, relativePathBaseMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -1330,7 +1324,7 @@ void System::WriteLogEvent(const ILogEntry& entry) const
 }
 
 //----------------------------------------------------------------------------------------
-std::vector<System::SystemLogEntry> System::GetEventLog() const
+MarshalSupport::Marshal::Ret<std::vector<System::SystemLogEntry>> System::GetEventLog() const
 {
 	std::unique_lock<std::mutex> lock(eventLogMutex);
 	std::vector<SystemLogEntry> eventLogCopy(log.size());
@@ -1340,12 +1334,6 @@ std::vector<System::SystemLogEntry> System::GetEventLog() const
 		eventLogCopy[eventLogCopyIndex++] = *i;
 	}
 	return eventLogCopy;
-}
-
-//----------------------------------------------------------------------------------------
-void System::GetEventLogInternal(const InteropSupport::ISTLObjectTarget<std::vector<SystemLogEntry>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetEventLog());
 }
 
 //----------------------------------------------------------------------------------------
@@ -1385,7 +1373,7 @@ void System::SetEventLogSize(unsigned int alogSize)
 //----------------------------------------------------------------------------------------
 //Embedded ROM functions
 //----------------------------------------------------------------------------------------
-std::list<unsigned int> System::GetEmbeddedROMIDs() const
+MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetEmbeddedROMIDs() const
 {
 	std::unique_lock<std::mutex> lock(embeddedROMMutex);
 	std::list<unsigned int> embeddedROMIDList;
@@ -1394,12 +1382,6 @@ std::list<unsigned int> System::GetEmbeddedROMIDs() const
 		embeddedROMIDList.push_back(i->first);
 	}
 	return embeddedROMIDList;
-}
-
-//----------------------------------------------------------------------------------------
-void System::GetEmbeddedROMIDsInternal(const InteropSupport::ISTLObjectTarget<std::list<unsigned int>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetEmbeddedROMIDs());
 }
 
 //----------------------------------------------------------------------------------------
@@ -1435,7 +1417,7 @@ bool System::GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& em
 
 
 //----------------------------------------------------------------------------------------
-bool System::SetEmbeddedROMPath(unsigned int embeddedROMID, const std::wstring& filePath)
+bool System::SetEmbeddedROMPath(unsigned int embeddedROMID, const MarshalSupport::Marshal::In<std::wstring>& filePath)
 {
 	//Attempt to locate the target embedded ROM entry
 	std::unique_lock<std::mutex> lock(embeddedROMMutex);
@@ -1455,12 +1437,6 @@ bool System::SetEmbeddedROMPath(unsigned int embeddedROMID, const std::wstring& 
 	//Reload the embedded ROM data for the target entry
 	ReloadEmbeddedROMData(targetEmbeddedROMInfo);
 	return true;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::SetEmbeddedROMPathInternal(unsigned int embeddedROMID, const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller)
-{
-	return SetEmbeddedROMPath(embeddedROMID, filePathMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -1515,7 +1491,7 @@ bool System::ReloadEmbeddedROMData(const EmbeddedROMInfoInternal& targetEmbedded
 //----------------------------------------------------------------------------------------
 //Module setting functions
 //----------------------------------------------------------------------------------------
-std::list<unsigned int> System::GetModuleSettingIDs(unsigned int moduleID) const
+MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetModuleSettingIDs(unsigned int moduleID) const
 {
 	std::unique_lock<std::mutex> lock(moduleSettingMutex);
 	std::list<unsigned int> moduleSettingIDList;
@@ -1525,12 +1501,6 @@ std::list<unsigned int> System::GetModuleSettingIDs(unsigned int moduleID) const
 		moduleSettingIDList = moduleSettingsIterator->second;
 	}
 	return moduleSettingIDList;
-}
-
-//----------------------------------------------------------------------------------------
-void System::GetModuleSettingIDsInternal(unsigned int moduleID, const InteropSupport::ISTLObjectTarget<std::list<unsigned int>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetModuleSettingIDs(moduleID));
 }
 
 //----------------------------------------------------------------------------------------
@@ -1759,15 +1729,15 @@ void System::ModuleSettingActiveOptionChangeNotifyDeregister(unsigned int module
 //----------------------------------------------------------------------------------------
 //Path functions
 //----------------------------------------------------------------------------------------
-void System::GetCapturePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> System::GetCapturePath() const
 {
-	marshaller.MarshalFrom(GetCapturePath());
+	return capturePath;
 }
 
 //----------------------------------------------------------------------------------------
-void System::SetCapturePathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller)
+void System::SetCapturePath(const MarshalSupport::Marshal::In<std::wstring>& apath)
 {
-	SetCapturePath(pathMarshaller.MarshalTo());
+	capturePath = apath;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2506,14 +2476,14 @@ void System::SignalSystemStopped()
 bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHandle)
 {
 	//Make sure a valid device class name has been supplied
-	if(entry.GetDeviceClassName().empty())
+	if(entry.GetDeviceClassName().Get().empty())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device. No device class name was supplied."));
 		return false;
 	}
 
 	//Make sure a valid device implementation name has been supplied
-	if(entry.GetDeviceImplementationName().empty())
+	if(entry.GetDeviceImplementationName().Get().empty())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device. No device implementation name was supplied."));
 		return false;
@@ -2579,7 +2549,7 @@ bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHan
 }
 
 //----------------------------------------------------------------------------------------
-void System::UnregisterDevice(const std::wstring& deviceName)
+void System::UnregisterDevice(const MarshalSupport::Marshal::In<std::wstring>& deviceName)
 {
 	DeviceLibraryList::iterator i = deviceLibrary.find(deviceName);
 	if(i != deviceLibrary.end())
@@ -2589,25 +2559,19 @@ void System::UnregisterDevice(const std::wstring& deviceName)
 }
 
 //----------------------------------------------------------------------------------------
-void System::UnregisterDeviceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& deviceNameMarshaller)
-{
-	UnregisterDevice(deviceNameMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
 //Extension registration
 //----------------------------------------------------------------------------------------
 bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assemblyHandle)
 {
 	//Make sure a valid extension class name has been supplied
-	if(entry.GetExtensionClassName().empty())
+	if(entry.GetExtensionClassName().Get().empty())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension. No extension class name was supplied."));
 		return false;
 	}
 
 	//Make sure a valid extension implementation name has been supplied
-	if(entry.GetExtensionImplementationName().empty())
+	if(entry.GetExtensionImplementationName().Get().empty())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension. No extension implementation name was supplied."));
 		return false;
@@ -2673,19 +2637,13 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 }
 
 //----------------------------------------------------------------------------------------
-void System::UnregisterExtension(const std::wstring& extensionName)
+void System::UnregisterExtension(const MarshalSupport::Marshal::In<std::wstring>& extensionName)
 {
 	ExtensionLibraryList::iterator i = extensionLibrary.find(extensionName);
 	if(i != extensionLibrary.end())
 	{
 		extensionLibrary.erase(i);
 	}
-}
-
-//----------------------------------------------------------------------------------------
-void System::UnregisterExtensionInternal(const InteropSupport::ISTLObjectSource<std::wstring>& extensionNameMarshaller)
-{
-	UnregisterExtension(extensionNameMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -2891,65 +2849,13 @@ void System::UnloadExtension(IExtension* aextension)
 //----------------------------------------------------------------------------------------
 //Module loading and unloading
 //----------------------------------------------------------------------------------------
-bool System::GetModuleDisplayName(unsigned int moduleID, std::wstring& moduleDisplayName) const
-{
-	LoadedModuleInfoMap::const_iterator loadedModuleIterator = loadedModuleInfoMap.find(moduleID);
-	if(loadedModuleIterator == loadedModuleInfoMap.end())
-	{
-		return false;
-	}
-	const LoadedModuleInfoInternal& loadedModuleInfo = loadedModuleIterator->second;
-
-	moduleDisplayName = loadedModuleInfo.displayName;
-	return true;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::GetModuleDisplayNameInternal(unsigned int moduleID, const InteropSupport::ISTLObjectTarget<std::wstring>& moduleDisplayNameMarshaller) const
-{
-	std::wstring moduleDisplayName;
-	bool result = GetModuleDisplayName(moduleID, moduleDisplayName);
-	moduleDisplayNameMarshaller.MarshalFrom(moduleDisplayName);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::GetModuleInstanceName(unsigned int moduleID, std::wstring& moduleInstanceName) const
-{
-	LoadedModuleInfoMap::const_iterator loadedModuleIterator = loadedModuleInfoMap.find(moduleID);
-	if(loadedModuleIterator == loadedModuleInfoMap.end())
-	{
-		return false;
-	}
-	const LoadedModuleInfoInternal& loadedModuleInfo = loadedModuleIterator->second;
-
-	moduleInstanceName = loadedModuleInfo.instanceName;
-	return true;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::GetModuleInstanceNameInternal(unsigned int moduleID, const InteropSupport::ISTLObjectTarget<std::wstring>& moduleInstanceNameMarshaller) const
-{
-	std::wstring moduleInstanceName;
-	bool result = GetModuleInstanceName(moduleID, moduleInstanceName);
-	moduleInstanceNameMarshaller.MarshalFrom(moduleInstanceName);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-void System::LoadModuleSynchronous(const std::wstring& filePath, const ConnectorMappingList& connectorMappings)
+void System::LoadModuleSynchronous(const MarshalSupport::Marshal::In<std::wstring>& filePath, const MarshalSupport::Marshal::In<ConnectorMappingList>& connectorMappings)
 {
 	loadSystemComplete = false;
 	loadSystemProgress = 0;
 	loadSystemAbort = false;
-	std::thread workerThread(std::bind(std::mem_fn(&System::LoadModule), this, filePath, connectorMappings));
+	std::thread workerThread(std::bind(std::mem_fn(&System::LoadModule), this, filePath.Get(), connectorMappings.Get()));
 	workerThread.detach();
-}
-
-//----------------------------------------------------------------------------------------
-void System::LoadModuleSynchronousInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller, const InteropSupport::ISTLObjectSource<ConnectorMappingList>& connectorMappingsMarshaller)
-{
-	LoadModuleSynchronous(filePathMarshaller.MarshalTo(), connectorMappingsMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -2983,7 +2889,7 @@ bool System::LoadModuleSynchronousAborted() const
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList& connectorMappings)
+bool System::LoadModule(const MarshalSupport::Marshal::In<std::wstring>& filePath, const MarshalSupport::Marshal::In<ConnectorMappingList>& connectorMappings)
 {
 	std::unique_lock<std::mutex> lock(moduleLoadMutex);
 
@@ -3300,12 +3206,6 @@ bool System::LoadModule(const std::wstring& filePath, const ConnectorMappingList
 
 	//Return the system load result
 	return loadSystemResult;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::LoadModuleInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller, const InteropSupport::ISTLObjectSource<ConnectorMappingList>& connectorMappingsMarshaller)
-{
-	return LoadModule(filePathMarshaller.MarshalTo(), connectorMappingsMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -4174,7 +4074,7 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 }
 
 //----------------------------------------------------------------------------------------
-bool System::SaveSystem(const std::wstring& filePath)
+bool System::SaveSystem(const MarshalSupport::Marshal::In<std::wstring>& filePath)
 {
 	//Save running state and pause system
 	bool running = SystemRunning();
@@ -4318,12 +4218,6 @@ bool System::SaveSystem(const std::wstring& filePath)
 		RunSystem();
 	}
 	return true;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::SaveSystemInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller)
-{
-	return SaveSystem(filePathMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------
@@ -8169,7 +8063,7 @@ void System::UnloadAllModules()
 }
 
 //----------------------------------------------------------------------------------------
-bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring& systemClassName, ConnectorImportList& connectorsImported, ConnectorExportList& connectorsExported) const
+bool System::ReadModuleConnectorInfo(const MarshalSupport::Marshal::In<std::wstring>& filePath, const MarshalSupport::Marshal::Out<std::wstring>& systemClassName, const MarshalSupport::Marshal::Out<ConnectorImportList>& connectorsImported, const MarshalSupport::Marshal::Out<ConnectorExportList>& connectorsExported) const
 {
 	//Open the target file
 	FileStreamReference streamReference(guiExtensionInterface);
@@ -8210,6 +8104,8 @@ bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring&
 	systemClassName = systemClassNameAttribute->GetValue();
 
 	//Extract connector definitions
+	ConnectorImportList connectorsImportedTemp;
+	ConnectorExportList connectorsExportedTemp;
 	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
 	for(std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); !loadSystemAbort && (i != childList.end()); ++i)
 	{
@@ -8225,7 +8121,7 @@ bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring&
 				ConnectorDefinitionExport connectorDefinition;
 				connectorDefinition.className = connectorClassName;
 				connectorDefinition.instanceName = connectorInstanceName;
-				connectorsExported.push_back(connectorDefinition);
+				connectorsExportedTemp.push_back(connectorDefinition);
 			}
 		}
 		else if(elementName == L"System.ImportConnector")
@@ -8239,29 +8135,18 @@ bool System::ReadModuleConnectorInfo(const std::wstring& filePath, std::wstring&
 				ConnectorDefinitionImport connectorDefinition;
 				connectorDefinition.className = connectorClassName;
 				connectorDefinition.instanceName = connectorInstanceName;
-				connectorsImported.push_back(connectorDefinition);
+				connectorsImportedTemp.push_back(connectorDefinition);
 			}
 		}
 	}
+	connectorsImported = connectorsImportedTemp;
+	connectorsExported = connectorsExportedTemp;
 
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-bool System::ReadModuleConnectorInfoInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller, const InteropSupport::ISTLObjectTarget<std::wstring>& systemClassNameMarshaller, const InteropSupport::ISTLObjectTarget<ConnectorImportList>& connectorsImportedMarshaller, const InteropSupport::ISTLObjectTarget<ConnectorExportList>& connectorsExportedMarshaller) const
-{
-	std::wstring systemClassName;
-	ConnectorImportList connectorsImported;
-	ConnectorExportList connectorsExported;
-	bool result = ReadModuleConnectorInfo(filePathMarshaller.MarshalTo(), systemClassName, connectorsImported, connectorsExported);
-	systemClassNameMarshaller.MarshalFrom(systemClassName);
-	connectorsImportedMarshaller.MarshalFrom(connectorsImported);
-	connectorsExportedMarshaller.MarshalFrom(connectorsExported);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring System::LoadModuleSynchronousCurrentModuleName() const
+MarshalSupport::Marshal::Ret<std::wstring> System::LoadModuleSynchronousCurrentModuleName() const
 {
 	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	std::wstring moduleName;
@@ -8270,14 +8155,6 @@ std::wstring System::LoadModuleSynchronousCurrentModuleName() const
 		moduleName = *loadSystemCurrentModuleNameStack.rbegin();
 	}
 	return moduleName;
-}
-
-//----------------------------------------------------------------------------------------
-void System::LoadModuleSynchronousCurrentModuleNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	std::wstring moduleName;
-	moduleName = LoadModuleSynchronousCurrentModuleName();
-	marshaller.MarshalFrom(moduleName);
 }
 
 //----------------------------------------------------------------------------------------
@@ -8295,7 +8172,7 @@ void System::PopLoadModuleCurrentModuleName()
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring System::UnloadModuleSynchronousCurrentModuleName() const
+MarshalSupport::Marshal::Ret<std::wstring> System::UnloadModuleSynchronousCurrentModuleName() const
 {
 	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	std::wstring moduleName;
@@ -8304,14 +8181,6 @@ std::wstring System::UnloadModuleSynchronousCurrentModuleName() const
 		moduleName = *unloadSystemCurrentModuleNameStack.rbegin();
 	}
 	return moduleName;
-}
-
-//----------------------------------------------------------------------------------------
-void System::UnloadModuleSynchronousCurrentModuleNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	std::wstring moduleName;
-	moduleName = UnloadModuleSynchronousCurrentModuleName();
-	marshaller.MarshalFrom(moduleName);
 }
 
 //----------------------------------------------------------------------------------------
@@ -8331,9 +8200,14 @@ void System::PopUnloadModuleCurrentModuleName()
 //----------------------------------------------------------------------------------------
 //Loaded module info functions
 //----------------------------------------------------------------------------------------
-void System::GetLoadedModuleIDsInternal(const InteropSupport::ISTLObjectTarget<std::list<unsigned int >>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetLoadedModuleIDs() const
 {
-	marshaller.MarshalFrom(GetLoadedModuleIDs());
+	std::list<unsigned int> idList;
+	for(LoadedModuleInfoMap::const_iterator i = loadedModuleInfoMap.begin(); i != loadedModuleInfoMap.end(); ++i)
+	{
+		idList.push_back(i->first);
+	}
+	return idList;
 }
 
 //----------------------------------------------------------------------------------------
@@ -8350,12 +8224,40 @@ bool System::GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& modul
 	moduleInfo.SetModuleFilePath(loadedModuleInfo.filePath);
 	moduleInfo.SetIsProgramModule(loadedModuleInfo.programModule);
 	moduleInfo.SetSystemClassName(loadedModuleInfo.systemClassName);
-	moduleInfo.SetClassName(loadedModuleInfo.className);
-	moduleInfo.SetInstanceName(loadedModuleInfo.instanceName);
-	moduleInfo.SetDisplayName(loadedModuleInfo.displayName);
+	moduleInfo.SetModuleClassName(loadedModuleInfo.className);
+	moduleInfo.SetModuleInstanceName(loadedModuleInfo.instanceName);
+	moduleInfo.SetModuleDisplayName(loadedModuleInfo.displayName);
 	moduleInfo.SetProductionYear(loadedModuleInfo.productionYear);
 	moduleInfo.SetManufacturerCode(loadedModuleInfo.manufacturerCode);
 	moduleInfo.SetManufacturerDisplayName(loadedModuleInfo.manufacturerDisplayName);
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::GetModuleDisplayName(unsigned int moduleID, const MarshalSupport::Marshal::Out<std::wstring>& moduleDisplayName) const
+{
+	LoadedModuleInfoMap::const_iterator loadedModuleIterator = loadedModuleInfoMap.find(moduleID);
+	if(loadedModuleIterator == loadedModuleInfoMap.end())
+	{
+		return false;
+	}
+	const LoadedModuleInfoInternal& loadedModuleInfo = loadedModuleIterator->second;
+
+	moduleDisplayName = loadedModuleInfo.displayName;
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::GetModuleInstanceName(unsigned int moduleID, const MarshalSupport::Marshal::Out<std::wstring>& moduleInstanceName) const
+{
+	LoadedModuleInfoMap::const_iterator loadedModuleIterator = loadedModuleInfoMap.find(moduleID);
+	if(loadedModuleIterator == loadedModuleInfoMap.end())
+	{
+		return false;
+	}
+	const LoadedModuleInfoInternal& loadedModuleInfo = loadedModuleIterator->second;
+
+	moduleInstanceName = loadedModuleInfo.instanceName;
 	return true;
 }
 
@@ -8374,9 +8276,14 @@ void System::LoadedModulesChangeNotifyDeregister(IObserverSubscription& observer
 //----------------------------------------------------------------------------------------
 //Connector info functions
 //----------------------------------------------------------------------------------------
-void System::GetConnectorIDsInternal(const InteropSupport::ISTLObjectTarget<std::list<unsigned int >>& marshaller) const
+MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetConnectorIDs() const
 {
-	marshaller.MarshalFrom(GetConnectorIDs());
+	std::list<unsigned int> idList;
+	for(ConnectorDetailsMap::const_iterator i = connectorDetailsMap.begin(); i != connectorDetailsMap.end(); ++i)
+	{
+		idList.push_back(i->first);
+	}
+	return idList;
 }
 
 //----------------------------------------------------------------------------------------
@@ -8408,7 +8315,7 @@ bool System::GetConnectorInfo(unsigned int connectorID, IConnectorInfo& connecto
 //----------------------------------------------------------------------------------------
 //Loaded device info functions
 //----------------------------------------------------------------------------------------
-std::list<IDevice*> System::GetLoadedDevices() const
+MarshalSupport::Marshal::Ret<std::list<IDevice*>> System::GetLoadedDevices() const
 {
 	//##TODO## Consider thread safety for all functions exposed over the system extension
 	//interface
@@ -8422,13 +8329,7 @@ std::list<IDevice*> System::GetLoadedDevices() const
 }
 
 //----------------------------------------------------------------------------------------
-void System::GetLoadedDevicesInternal(const InteropSupport::ISTLObjectTarget<std::list<IDevice*>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetLoadedDevices());
-}
-
-//----------------------------------------------------------------------------------------
-bool System::GetDeviceDisplayName(IDevice* device, std::wstring& deviceDisplayName) const
+bool System::GetDeviceDisplayName(IDevice* device, const MarshalSupport::Marshal::Out<std::wstring>& deviceDisplayName) const
 {
 	//Ensure the specified target device is one of the currently loaded devices
 	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
@@ -8455,16 +8356,7 @@ bool System::GetDeviceDisplayName(IDevice* device, std::wstring& deviceDisplayNa
 }
 
 //----------------------------------------------------------------------------------------
-bool System::GetDeviceDisplayNameInternal(IDevice* device, const InteropSupport::ISTLObjectTarget<std::wstring>& deviceDisplayNameMarshaller) const
-{
-	std::wstring deviceDisplayName;
-	bool result = GetDeviceDisplayName(device, deviceDisplayName);
-	deviceDisplayNameMarshaller.MarshalFrom(deviceDisplayName);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::GetDeviceInstanceName(IDevice* device, std::wstring& deviceInstanceName) const
+bool System::GetDeviceInstanceName(IDevice* device, const MarshalSupport::Marshal::Out<std::wstring>& deviceInstanceName) const
 {
 	//Ensure the specified target device is one of the currently loaded devices
 	bool foundTargetDevice = false;
@@ -8490,16 +8382,7 @@ bool System::GetDeviceInstanceName(IDevice* device, std::wstring& deviceInstance
 }
 
 //----------------------------------------------------------------------------------------
-bool System::GetDeviceInstanceNameInternal(IDevice* device, const InteropSupport::ISTLObjectTarget<std::wstring>& deviceInstanceNameMarshaller) const
-{
-	std::wstring deviceInstanceName;
-	bool result = GetDeviceInstanceName(device, deviceInstanceName);
-	deviceInstanceNameMarshaller.MarshalFrom(deviceInstanceName);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, std::wstring& fullyQualifiedDeviceDisplayName) const
+bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, const MarshalSupport::Marshal::Out<std::wstring>& fullyQualifiedDeviceDisplayName) const
 {
 	//Ensure the specified target device is one of the currently loaded devices
 	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
@@ -8564,36 +8447,28 @@ bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, std::wstring& f
 	}
 
 	//Generate the fully qualified device display name, and return it to the caller.
-	fullyQualifiedDeviceDisplayName = loadedDeviceInfo.displayName;
+	std::wstring fullyQualifiedDeviceDisplayNameTemp = loadedDeviceInfo.displayName;
 	if(!connectorsToQualify.empty())
 	{
-		fullyQualifiedDeviceDisplayName += L" {";
+		fullyQualifiedDeviceDisplayNameTemp += L" {";
 		bool firstConnector = true;
 		for(std::list<const ConnectorInfoInternal*>::const_iterator connectorListIterator = connectorsToQualify.begin(); connectorListIterator != connectorsToQualify.end(); ++connectorListIterator)
 		{
 			const ConnectorInfoInternal& connectorDetails = *(*connectorListIterator);
-			fullyQualifiedDeviceDisplayName += (!firstConnector? L", ": L"") + connectorDetails.exportingModuleConnectorInstanceName;
+			fullyQualifiedDeviceDisplayNameTemp += (!firstConnector? L", ": L"") + connectorDetails.exportingModuleConnectorInstanceName;
 			firstConnector = false;
 		}
-		fullyQualifiedDeviceDisplayName += L"}";
+		fullyQualifiedDeviceDisplayNameTemp += L"}";
 	}
+	fullyQualifiedDeviceDisplayName = fullyQualifiedDeviceDisplayNameTemp;
 
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-bool System::GetFullyQualifiedDeviceDisplayNameInternal(IDevice* device, const InteropSupport::ISTLObjectTarget<std::wstring>& fullyQualifiedDeviceDisplayNameMarshaller) const
-{
-	std::wstring fullyQualifiedDeviceDisplayName;
-	bool result = GetFullyQualifiedDeviceDisplayName(device, fullyQualifiedDeviceDisplayName);
-	fullyQualifiedDeviceDisplayNameMarshaller.MarshalFrom(fullyQualifiedDeviceDisplayName);
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
 //Loaded extension info functions
 //----------------------------------------------------------------------------------------
-std::list<IExtension*> System::GetLoadedExtensions() const
+MarshalSupport::Marshal::Ret<std::list<IExtension*>> System::GetLoadedExtensions() const
 {
 	//##TODO## Consider thread safety for all functions exposed over the system extension
 	//interface
@@ -8610,130 +8485,125 @@ std::list<IExtension*> System::GetLoadedExtensions() const
 }
 
 //----------------------------------------------------------------------------------------
-void System::GetLoadedExtensionsInternal(const InteropSupport::ISTLObjectTarget<std::list<IExtension*>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetLoadedExtensions());
-}
-
-//----------------------------------------------------------------------------------------
 //Input functions
 //----------------------------------------------------------------------------------------
-System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
+System::KeyCode System::GetKeyCodeID(const MarshalSupport::Marshal::In<std::wstring>& keyCodeName) const
 {
 	//Control keys
-	if(keyCodeName == L"Esc")             return ISystemDeviceInterface::KeyCode::Escape;
-	else if(keyCodeName == L"Tab")        return ISystemDeviceInterface::KeyCode::Tab;
-	else if(keyCodeName == L"Enter")      return ISystemDeviceInterface::KeyCode::Enter;
-	else if(keyCodeName == L"Space")      return ISystemDeviceInterface::KeyCode::Space;
-	else if(keyCodeName == L"Backspace")  return ISystemDeviceInterface::KeyCode::Backspace;
-	else if(keyCodeName == L"Insert")     return ISystemDeviceInterface::KeyCode::Insert;
-	else if(keyCodeName == L"Delete")     return ISystemDeviceInterface::KeyCode::Delete;
-	else if(keyCodeName == L"PgUp")       return ISystemDeviceInterface::KeyCode::PageUp;
-	else if(keyCodeName == L"PgDn")       return ISystemDeviceInterface::KeyCode::PageDown;
-	else if(keyCodeName == L"Home")       return ISystemDeviceInterface::KeyCode::Home;
-	else if(keyCodeName == L"End")        return ISystemDeviceInterface::KeyCode::End;
-	else if(keyCodeName == L"Up")         return ISystemDeviceInterface::KeyCode::Up;
-	else if(keyCodeName == L"Down")       return ISystemDeviceInterface::KeyCode::Down;
-	else if(keyCodeName == L"Left")       return ISystemDeviceInterface::KeyCode::Left;
-	else if(keyCodeName == L"Right")      return ISystemDeviceInterface::KeyCode::Right;
-	else if(keyCodeName == L"Print")      return ISystemDeviceInterface::KeyCode::PrintScreen;
-	else if(keyCodeName == L"Pause")      return ISystemDeviceInterface::KeyCode::Pause;
-	else if(keyCodeName == L"NumLock")    return ISystemDeviceInterface::KeyCode::NumLock;
-	else if(keyCodeName == L"CapsLock")   return ISystemDeviceInterface::KeyCode::CapsLock;
-	else if(keyCodeName == L"ScrollLock") return ISystemDeviceInterface::KeyCode::ScrollLock;
-	else if(keyCodeName == L"LeftWin")    return ISystemDeviceInterface::KeyCode::LeftWindows;
-	else if(keyCodeName == L"RightWin")   return ISystemDeviceInterface::KeyCode::RightWindows;
-	else if(keyCodeName == L"Menu")       return ISystemDeviceInterface::KeyCode::Menu;
+	std::wstring keyCodeNameTemp = keyCodeName.Get();
+	if(keyCodeNameTemp == L"Esc")             return ISystemDeviceInterface::KeyCode::Escape;
+	else if(keyCodeNameTemp == L"Tab")        return ISystemDeviceInterface::KeyCode::Tab;
+	else if(keyCodeNameTemp == L"Enter")      return ISystemDeviceInterface::KeyCode::Enter;
+	else if(keyCodeNameTemp == L"Space")      return ISystemDeviceInterface::KeyCode::Space;
+	else if(keyCodeNameTemp == L"Backspace")  return ISystemDeviceInterface::KeyCode::Backspace;
+	else if(keyCodeNameTemp == L"Insert")     return ISystemDeviceInterface::KeyCode::Insert;
+	else if(keyCodeNameTemp == L"Delete")     return ISystemDeviceInterface::KeyCode::Delete;
+	else if(keyCodeNameTemp == L"PgUp")       return ISystemDeviceInterface::KeyCode::PageUp;
+	else if(keyCodeNameTemp == L"PgDn")       return ISystemDeviceInterface::KeyCode::PageDown;
+	else if(keyCodeNameTemp == L"Home")       return ISystemDeviceInterface::KeyCode::Home;
+	else if(keyCodeNameTemp == L"End")        return ISystemDeviceInterface::KeyCode::End;
+	else if(keyCodeNameTemp == L"Up")         return ISystemDeviceInterface::KeyCode::Up;
+	else if(keyCodeNameTemp == L"Down")       return ISystemDeviceInterface::KeyCode::Down;
+	else if(keyCodeNameTemp == L"Left")       return ISystemDeviceInterface::KeyCode::Left;
+	else if(keyCodeNameTemp == L"Right")      return ISystemDeviceInterface::KeyCode::Right;
+	else if(keyCodeNameTemp == L"Print")      return ISystemDeviceInterface::KeyCode::PrintScreen;
+	else if(keyCodeNameTemp == L"Pause")      return ISystemDeviceInterface::KeyCode::Pause;
+	else if(keyCodeNameTemp == L"NumLock")    return ISystemDeviceInterface::KeyCode::NumLock;
+	else if(keyCodeNameTemp == L"CapsLock")   return ISystemDeviceInterface::KeyCode::CapsLock;
+	else if(keyCodeNameTemp == L"ScrollLock") return ISystemDeviceInterface::KeyCode::ScrollLock;
+	else if(keyCodeNameTemp == L"LeftWin")    return ISystemDeviceInterface::KeyCode::LeftWindows;
+	else if(keyCodeNameTemp == L"RightWin")   return ISystemDeviceInterface::KeyCode::RightWindows;
+	else if(keyCodeNameTemp == L"Menu")       return ISystemDeviceInterface::KeyCode::Menu;
 	//Modifier keys
-	else if(keyCodeName == L"Ctrl")       return ISystemDeviceInterface::KeyCode::Ctrl;
-	else if(keyCodeName == L"Alt")        return ISystemDeviceInterface::KeyCode::Alt;
-	else if(keyCodeName == L"Shift")      return ISystemDeviceInterface::KeyCode::Shift;
+	else if(keyCodeNameTemp == L"Ctrl")       return ISystemDeviceInterface::KeyCode::Ctrl;
+	else if(keyCodeNameTemp == L"Alt")        return ISystemDeviceInterface::KeyCode::Alt;
+	else if(keyCodeNameTemp == L"Shift")      return ISystemDeviceInterface::KeyCode::Shift;
 	//Function keys
-	else if(keyCodeName == L"F1")         return ISystemDeviceInterface::KeyCode::F1;
-	else if(keyCodeName == L"F2")         return ISystemDeviceInterface::KeyCode::F2;
-	else if(keyCodeName == L"F3")         return ISystemDeviceInterface::KeyCode::F3;
-	else if(keyCodeName == L"F4")         return ISystemDeviceInterface::KeyCode::F4;
-	else if(keyCodeName == L"F5")         return ISystemDeviceInterface::KeyCode::F5;
-	else if(keyCodeName == L"F6")         return ISystemDeviceInterface::KeyCode::F6;
-	else if(keyCodeName == L"F7")         return ISystemDeviceInterface::KeyCode::F7;
-	else if(keyCodeName == L"F8")         return ISystemDeviceInterface::KeyCode::F8;
-	else if(keyCodeName == L"F9")         return ISystemDeviceInterface::KeyCode::F9;
-	else if(keyCodeName == L"F10")        return ISystemDeviceInterface::KeyCode::F10;
-	else if(keyCodeName == L"F11")        return ISystemDeviceInterface::KeyCode::F11;
-	else if(keyCodeName == L"F12")        return ISystemDeviceInterface::KeyCode::F12;
+	else if(keyCodeNameTemp == L"F1")         return ISystemDeviceInterface::KeyCode::F1;
+	else if(keyCodeNameTemp == L"F2")         return ISystemDeviceInterface::KeyCode::F2;
+	else if(keyCodeNameTemp == L"F3")         return ISystemDeviceInterface::KeyCode::F3;
+	else if(keyCodeNameTemp == L"F4")         return ISystemDeviceInterface::KeyCode::F4;
+	else if(keyCodeNameTemp == L"F5")         return ISystemDeviceInterface::KeyCode::F5;
+	else if(keyCodeNameTemp == L"F6")         return ISystemDeviceInterface::KeyCode::F6;
+	else if(keyCodeNameTemp == L"F7")         return ISystemDeviceInterface::KeyCode::F7;
+	else if(keyCodeNameTemp == L"F8")         return ISystemDeviceInterface::KeyCode::F8;
+	else if(keyCodeNameTemp == L"F9")         return ISystemDeviceInterface::KeyCode::F9;
+	else if(keyCodeNameTemp == L"F10")        return ISystemDeviceInterface::KeyCode::F10;
+	else if(keyCodeNameTemp == L"F11")        return ISystemDeviceInterface::KeyCode::F11;
+	else if(keyCodeNameTemp == L"F12")        return ISystemDeviceInterface::KeyCode::F12;
 	//Numbers
-	else if(keyCodeName == L"0")          return ISystemDeviceInterface::KeyCode::Number0;
-	else if(keyCodeName == L"1")          return ISystemDeviceInterface::KeyCode::Number1;
-	else if(keyCodeName == L"2")          return ISystemDeviceInterface::KeyCode::Number2;
-	else if(keyCodeName == L"3")          return ISystemDeviceInterface::KeyCode::Number3;
-	else if(keyCodeName == L"4")          return ISystemDeviceInterface::KeyCode::Number4;
-	else if(keyCodeName == L"5")          return ISystemDeviceInterface::KeyCode::Number5;
-	else if(keyCodeName == L"6")          return ISystemDeviceInterface::KeyCode::Number6;
-	else if(keyCodeName == L"7")          return ISystemDeviceInterface::KeyCode::Number7;
-	else if(keyCodeName == L"8")          return ISystemDeviceInterface::KeyCode::Number8;
-	else if(keyCodeName == L"9")          return ISystemDeviceInterface::KeyCode::Number9;
+	else if(keyCodeNameTemp == L"0")          return ISystemDeviceInterface::KeyCode::Number0;
+	else if(keyCodeNameTemp == L"1")          return ISystemDeviceInterface::KeyCode::Number1;
+	else if(keyCodeNameTemp == L"2")          return ISystemDeviceInterface::KeyCode::Number2;
+	else if(keyCodeNameTemp == L"3")          return ISystemDeviceInterface::KeyCode::Number3;
+	else if(keyCodeNameTemp == L"4")          return ISystemDeviceInterface::KeyCode::Number4;
+	else if(keyCodeNameTemp == L"5")          return ISystemDeviceInterface::KeyCode::Number5;
+	else if(keyCodeNameTemp == L"6")          return ISystemDeviceInterface::KeyCode::Number6;
+	else if(keyCodeNameTemp == L"7")          return ISystemDeviceInterface::KeyCode::Number7;
+	else if(keyCodeNameTemp == L"8")          return ISystemDeviceInterface::KeyCode::Number8;
+	else if(keyCodeNameTemp == L"9")          return ISystemDeviceInterface::KeyCode::Number9;
 	//Letters
-	else if(keyCodeName == L"A")          return ISystemDeviceInterface::KeyCode::A;
-	else if(keyCodeName == L"B")          return ISystemDeviceInterface::KeyCode::B;
-	else if(keyCodeName == L"C")          return ISystemDeviceInterface::KeyCode::C;
-	else if(keyCodeName == L"D")          return ISystemDeviceInterface::KeyCode::D;
-	else if(keyCodeName == L"E")          return ISystemDeviceInterface::KeyCode::E;
-	else if(keyCodeName == L"F")          return ISystemDeviceInterface::KeyCode::F;
-	else if(keyCodeName == L"G")          return ISystemDeviceInterface::KeyCode::G;
-	else if(keyCodeName == L"H")          return ISystemDeviceInterface::KeyCode::H;
-	else if(keyCodeName == L"I")          return ISystemDeviceInterface::KeyCode::I;
-	else if(keyCodeName == L"J")          return ISystemDeviceInterface::KeyCode::J;
-	else if(keyCodeName == L"K")          return ISystemDeviceInterface::KeyCode::K;
-	else if(keyCodeName == L"L")          return ISystemDeviceInterface::KeyCode::L;
-	else if(keyCodeName == L"M")          return ISystemDeviceInterface::KeyCode::M;
-	else if(keyCodeName == L"N")          return ISystemDeviceInterface::KeyCode::N;
-	else if(keyCodeName == L"O")          return ISystemDeviceInterface::KeyCode::O;
-	else if(keyCodeName == L"P")          return ISystemDeviceInterface::KeyCode::P;
-	else if(keyCodeName == L"Q")          return ISystemDeviceInterface::KeyCode::Q;
-	else if(keyCodeName == L"R")          return ISystemDeviceInterface::KeyCode::R;
-	else if(keyCodeName == L"S")          return ISystemDeviceInterface::KeyCode::S;
-	else if(keyCodeName == L"T")          return ISystemDeviceInterface::KeyCode::T;
-	else if(keyCodeName == L"U")          return ISystemDeviceInterface::KeyCode::U;
-	else if(keyCodeName == L"V")          return ISystemDeviceInterface::KeyCode::V;
-	else if(keyCodeName == L"W")          return ISystemDeviceInterface::KeyCode::W;
-	else if(keyCodeName == L"X")          return ISystemDeviceInterface::KeyCode::X;
-	else if(keyCodeName == L"Y")          return ISystemDeviceInterface::KeyCode::Y;
-	else if(keyCodeName == L"Z")          return ISystemDeviceInterface::KeyCode::Z;
+	else if(keyCodeNameTemp == L"A")          return ISystemDeviceInterface::KeyCode::A;
+	else if(keyCodeNameTemp == L"B")          return ISystemDeviceInterface::KeyCode::B;
+	else if(keyCodeNameTemp == L"C")          return ISystemDeviceInterface::KeyCode::C;
+	else if(keyCodeNameTemp == L"D")          return ISystemDeviceInterface::KeyCode::D;
+	else if(keyCodeNameTemp == L"E")          return ISystemDeviceInterface::KeyCode::E;
+	else if(keyCodeNameTemp == L"F")          return ISystemDeviceInterface::KeyCode::F;
+	else if(keyCodeNameTemp == L"G")          return ISystemDeviceInterface::KeyCode::G;
+	else if(keyCodeNameTemp == L"H")          return ISystemDeviceInterface::KeyCode::H;
+	else if(keyCodeNameTemp == L"I")          return ISystemDeviceInterface::KeyCode::I;
+	else if(keyCodeNameTemp == L"J")          return ISystemDeviceInterface::KeyCode::J;
+	else if(keyCodeNameTemp == L"K")          return ISystemDeviceInterface::KeyCode::K;
+	else if(keyCodeNameTemp == L"L")          return ISystemDeviceInterface::KeyCode::L;
+	else if(keyCodeNameTemp == L"M")          return ISystemDeviceInterface::KeyCode::M;
+	else if(keyCodeNameTemp == L"N")          return ISystemDeviceInterface::KeyCode::N;
+	else if(keyCodeNameTemp == L"O")          return ISystemDeviceInterface::KeyCode::O;
+	else if(keyCodeNameTemp == L"P")          return ISystemDeviceInterface::KeyCode::P;
+	else if(keyCodeNameTemp == L"Q")          return ISystemDeviceInterface::KeyCode::Q;
+	else if(keyCodeNameTemp == L"R")          return ISystemDeviceInterface::KeyCode::R;
+	else if(keyCodeNameTemp == L"S")          return ISystemDeviceInterface::KeyCode::S;
+	else if(keyCodeNameTemp == L"T")          return ISystemDeviceInterface::KeyCode::T;
+	else if(keyCodeNameTemp == L"U")          return ISystemDeviceInterface::KeyCode::U;
+	else if(keyCodeNameTemp == L"V")          return ISystemDeviceInterface::KeyCode::V;
+	else if(keyCodeNameTemp == L"W")          return ISystemDeviceInterface::KeyCode::W;
+	else if(keyCodeNameTemp == L"X")          return ISystemDeviceInterface::KeyCode::X;
+	else if(keyCodeNameTemp == L"Y")          return ISystemDeviceInterface::KeyCode::Y;
+	else if(keyCodeNameTemp == L"Z")          return ISystemDeviceInterface::KeyCode::Z;
 	//Symbol keys
-	else if(keyCodeName == L"OEM1")       return ISystemDeviceInterface::KeyCode::OEM1;
-	else if(keyCodeName == L"OEMPlus")    return ISystemDeviceInterface::KeyCode::OEMPLUS;
-	else if(keyCodeName == L"OEMComma")   return ISystemDeviceInterface::KeyCode::OEMCOMMA;
-	else if(keyCodeName == L"OEMMinus")   return ISystemDeviceInterface::KeyCode::OEMMINUS;
-	else if(keyCodeName == L"OEMPeriod")  return ISystemDeviceInterface::KeyCode::OEMPERIOD;
-	else if(keyCodeName == L"OEM2")       return ISystemDeviceInterface::KeyCode::OEM2;
-	else if(keyCodeName == L"OEM3")       return ISystemDeviceInterface::KeyCode::OEM3;
-	else if(keyCodeName == L"OEM4")       return ISystemDeviceInterface::KeyCode::OEM4;
-	else if(keyCodeName == L"OEM5")       return ISystemDeviceInterface::KeyCode::OEM5;
-	else if(keyCodeName == L"OEM6")       return ISystemDeviceInterface::KeyCode::OEM6;
-	else if(keyCodeName == L"OEM7")       return ISystemDeviceInterface::KeyCode::OEM7;
-	else if(keyCodeName == L"OEM8")       return ISystemDeviceInterface::KeyCode::OEM8;
-	else if(keyCodeName == L"OEMAX")      return ISystemDeviceInterface::KeyCode::OEMAX;
-	else if(keyCodeName == L"OEM102")     return ISystemDeviceInterface::KeyCode::OEM102;
+	else if(keyCodeNameTemp == L"OEM1")       return ISystemDeviceInterface::KeyCode::OEM1;
+	else if(keyCodeNameTemp == L"OEMPlus")    return ISystemDeviceInterface::KeyCode::OEMPLUS;
+	else if(keyCodeNameTemp == L"OEMComma")   return ISystemDeviceInterface::KeyCode::OEMCOMMA;
+	else if(keyCodeNameTemp == L"OEMMinus")   return ISystemDeviceInterface::KeyCode::OEMMINUS;
+	else if(keyCodeNameTemp == L"OEMPeriod")  return ISystemDeviceInterface::KeyCode::OEMPERIOD;
+	else if(keyCodeNameTemp == L"OEM2")       return ISystemDeviceInterface::KeyCode::OEM2;
+	else if(keyCodeNameTemp == L"OEM3")       return ISystemDeviceInterface::KeyCode::OEM3;
+	else if(keyCodeNameTemp == L"OEM4")       return ISystemDeviceInterface::KeyCode::OEM4;
+	else if(keyCodeNameTemp == L"OEM5")       return ISystemDeviceInterface::KeyCode::OEM5;
+	else if(keyCodeNameTemp == L"OEM6")       return ISystemDeviceInterface::KeyCode::OEM6;
+	else if(keyCodeNameTemp == L"OEM7")       return ISystemDeviceInterface::KeyCode::OEM7;
+	else if(keyCodeNameTemp == L"OEM8")       return ISystemDeviceInterface::KeyCode::OEM8;
+	else if(keyCodeNameTemp == L"OEMAX")      return ISystemDeviceInterface::KeyCode::OEMAX;
+	else if(keyCodeNameTemp == L"OEM102")     return ISystemDeviceInterface::KeyCode::OEM102;
 	//Numpad keys
-	else if(keyCodeName == L"Numpad0")    return ISystemDeviceInterface::KeyCode::NUMPAD0;
-	else if(keyCodeName == L"Numpad1")    return ISystemDeviceInterface::KeyCode::NUMPAD1;
-	else if(keyCodeName == L"Numpad2")    return ISystemDeviceInterface::KeyCode::NUMPAD2;
-	else if(keyCodeName == L"Numpad3")    return ISystemDeviceInterface::KeyCode::NUMPAD3;
-	else if(keyCodeName == L"Numpad4")    return ISystemDeviceInterface::KeyCode::NUMPAD4;
-	else if(keyCodeName == L"Numpad5")    return ISystemDeviceInterface::KeyCode::NUMPAD5;
-	else if(keyCodeName == L"Numpad6")    return ISystemDeviceInterface::KeyCode::NUMPAD6;
-	else if(keyCodeName == L"Numpad7")    return ISystemDeviceInterface::KeyCode::NUMPAD7;
-	else if(keyCodeName == L"Numpad8")    return ISystemDeviceInterface::KeyCode::NUMPAD8;
-	else if(keyCodeName == L"Numpad9")    return ISystemDeviceInterface::KeyCode::NUMPAD9;
-	else if(keyCodeName == L"Numpad*")    return ISystemDeviceInterface::KeyCode::NUMPADMULTIPLY;
-	else if(keyCodeName == L"Numpad/")    return ISystemDeviceInterface::KeyCode::NUMPADDIVIDE;
-	else if(keyCodeName == L"Numpad-")    return ISystemDeviceInterface::KeyCode::NUMPADSUBTRACT;
-	else if(keyCodeName == L"Numpad+")    return ISystemDeviceInterface::KeyCode::NUMPADADD;
-	else if(keyCodeName == L"Numpad.")    return ISystemDeviceInterface::KeyCode::NUMPADDECIMAL;
+	else if(keyCodeNameTemp == L"Numpad0")    return ISystemDeviceInterface::KeyCode::NUMPAD0;
+	else if(keyCodeNameTemp == L"Numpad1")    return ISystemDeviceInterface::KeyCode::NUMPAD1;
+	else if(keyCodeNameTemp == L"Numpad2")    return ISystemDeviceInterface::KeyCode::NUMPAD2;
+	else if(keyCodeNameTemp == L"Numpad3")    return ISystemDeviceInterface::KeyCode::NUMPAD3;
+	else if(keyCodeNameTemp == L"Numpad4")    return ISystemDeviceInterface::KeyCode::NUMPAD4;
+	else if(keyCodeNameTemp == L"Numpad5")    return ISystemDeviceInterface::KeyCode::NUMPAD5;
+	else if(keyCodeNameTemp == L"Numpad6")    return ISystemDeviceInterface::KeyCode::NUMPAD6;
+	else if(keyCodeNameTemp == L"Numpad7")    return ISystemDeviceInterface::KeyCode::NUMPAD7;
+	else if(keyCodeNameTemp == L"Numpad8")    return ISystemDeviceInterface::KeyCode::NUMPAD8;
+	else if(keyCodeNameTemp == L"Numpad9")    return ISystemDeviceInterface::KeyCode::NUMPAD9;
+	else if(keyCodeNameTemp == L"Numpad*")    return ISystemDeviceInterface::KeyCode::NUMPADMULTIPLY;
+	else if(keyCodeNameTemp == L"Numpad/")    return ISystemDeviceInterface::KeyCode::NUMPADDIVIDE;
+	else if(keyCodeNameTemp == L"Numpad-")    return ISystemDeviceInterface::KeyCode::NUMPADSUBTRACT;
+	else if(keyCodeNameTemp == L"Numpad+")    return ISystemDeviceInterface::KeyCode::NUMPADADD;
+	else if(keyCodeNameTemp == L"Numpad.")    return ISystemDeviceInterface::KeyCode::NUMPADDECIMAL;
 	//Joysticks
-	else if(keyCodeName.compare(0, 3, L"Joy") == 0)
+	else if(keyCodeNameTemp.compare(0, 3, L"Joy") == 0)
 	{
-		if(keyCodeName.find(L"Btn") != std::wstring::npos)
+		if(keyCodeNameTemp.find(L"Btn") != std::wstring::npos)
 		{
 			//Extract the joystick and button numbers from the string
 			std::wstring joystickText = L"Joy";
@@ -8741,7 +8611,7 @@ System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 			unsigned int joystickNo;
 			unsigned int buttonNo;
 			std::wstringstream keyCodeStream;
-			keyCodeStream.str(keyCodeName);
+			keyCodeStream.str(keyCodeNameTemp);
 			keyCodeStream.read(&joystickText[0], 3);
 			keyCodeStream >> joystickNo;
 			keyCodeStream.read(&buttonText[0], 3);
@@ -8764,7 +8634,7 @@ System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 			//Return the corresponding key code for the target joystick button
 			return (KeyCode)((unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00BUTTON00 + (joystickNo * maxJoystickButtonCount) + buttonNo);
 		}
-		else if(keyCodeName.find(L"Axis") != std::wstring::npos)
+		else if(keyCodeNameTemp.find(L"Axis") != std::wstring::npos)
 		{
 			//Extract the joystick and axis numbers, and the axis direction, from the
 			//string.
@@ -8774,7 +8644,7 @@ System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 			unsigned int joystickNo;
 			unsigned int axisNo;
 			std::wstringstream keyCodeStream;
-			keyCodeStream.str(keyCodeName);
+			keyCodeStream.str(keyCodeNameTemp);
 			keyCodeStream.read(&joystickText[0], 3);
 			keyCodeStream >> joystickNo;
 			keyCodeStream.read(&axisText[0], 4);
@@ -8810,13 +8680,7 @@ System::KeyCode System::GetKeyCodeID(const std::wstring& keyCodeName) const
 }
 
 //----------------------------------------------------------------------------------------
-System::KeyCode System::GetKeyCodeIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& keyCodeNameMarshaller) const
-{
-	return GetKeyCodeID(keyCodeNameMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring System::GetKeyCodeName(KeyCode keyCode) const
+MarshalSupport::Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 {
 	switch(keyCode)
 	{
@@ -8966,12 +8830,6 @@ std::wstring System::GetKeyCodeName(KeyCode keyCode) const
 	}
 
 	return L"None";
-}
-
-//----------------------------------------------------------------------------------------
-void System::GetKeyCodeNameInternal(KeyCode keyCode, const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetKeyCodeName(keyCode));
 }
 
 //----------------------------------------------------------------------------------------
@@ -9411,7 +9269,7 @@ unsigned int System::GetInputDeviceListLastModifiedToken() const
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IDevice*> System::GetInputDeviceList() const
+MarshalSupport::Marshal::Ret<std::list<IDevice*>> System::GetInputDeviceList() const
 {
 	std::unique_lock<std::mutex> lock(inputMutex);
 	std::set<IDevice*> inputDeviceSet;
@@ -9425,13 +9283,7 @@ std::list<IDevice*> System::GetInputDeviceList() const
 }
 
 //----------------------------------------------------------------------------------------
-void System::GetInputDeviceListInternal(const InteropSupport::ISTLObjectTarget<std::list<IDevice*>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetInputDeviceList());
-}
-
-//----------------------------------------------------------------------------------------
-std::list<unsigned int> System::GetDeviceKeyCodeList(IDevice* targetDevice) const
+MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetDeviceKeyCodeList(IDevice* targetDevice) const
 {
 	std::unique_lock<std::mutex> lock(inputMutex);
 	std::list<unsigned int> deviceKeyCodeList;
@@ -9447,13 +9299,7 @@ std::list<unsigned int> System::GetDeviceKeyCodeList(IDevice* targetDevice) cons
 }
 
 //----------------------------------------------------------------------------------------
-void System::GetDeviceKeyCodeListInternal(IDevice* targetDevice, const InteropSupport::ISTLObjectTarget<std::list<unsigned int>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetDeviceKeyCodeList(targetDevice));
-}
-
-//----------------------------------------------------------------------------------------
-std::list<System::KeyCode> System::GetDeviceKeyCodePreferredDefaultMappingList(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
+MarshalSupport::Marshal::Ret<std::list<System::KeyCode>> System::GetDeviceKeyCodePreferredDefaultMappingList(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
 {
 	std::unique_lock<std::mutex> lock(inputMutex);
 	std::list<KeyCode> preferredDefaultMappingList;
@@ -9472,12 +9318,6 @@ std::list<System::KeyCode> System::GetDeviceKeyCodePreferredDefaultMappingList(I
 		++inputRegistrationListIterator;
 	}
 	return preferredDefaultMappingList;
-}
-
-//----------------------------------------------------------------------------------------
-void System::GetDeviceKeyCodePreferredDefaultMappingListInternal(IDevice* targetDevice, unsigned int deviceKeyCode, const InteropSupport::ISTLObjectTarget<std::list<KeyCode>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetDeviceKeyCodePreferredDefaultMappingList(targetDevice, deviceKeyCode));
 }
 
 //----------------------------------------------------------------------------------------

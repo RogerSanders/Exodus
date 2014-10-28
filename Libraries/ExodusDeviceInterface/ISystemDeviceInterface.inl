@@ -159,21 +159,3 @@ enum class ISystemDeviceInterface::ScrollCode
 
 	EndOfList
 };
-
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
-unsigned int ISystemDeviceInterface::ThisISystemDeviceInterfaceVersion()
-{
-	return 1;
-}
-
-//----------------------------------------------------------------------------------------
-//Path functions
-//----------------------------------------------------------------------------------------
-std::wstring ISystemDeviceInterface::GetCapturePath() const
-{
-	std::wstring result;
-	GetCapturePathInternal(InteropSupport::STLObjectTarget<std::wstring>(result));
-	return result;
-}

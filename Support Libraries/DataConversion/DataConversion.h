@@ -19,8 +19,8 @@
 //compatibility layers for specific platforms, IE, an interpretation layer for Intel or
 //Motorola assembly numeric encoding. These strings could be passed through this kind of
 //compatibility layer before processing, IE, by stripping off the platform specific base
-//identifier, and feeding the modified string along with the detect base into our generic
-//routines here.
+//identifier, and feeding the modified string along with the detected base into our
+//generic routines here.
 inline char HexNybbleToChar(unsigned int nybble);
 inline wchar_t HexNybbleToWChar(unsigned int nybble);
 inline unsigned int HexCharToNybble(char nybble);

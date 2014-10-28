@@ -6,7 +6,7 @@ class OpcodeInfo :public IOpcodeInfo
 {
 public:
 	//Constructors
-	inline OpcodeInfo();
+	OpcodeInfo();
 
 	//Interface version functions
 	virtual unsigned int GetIOpcodeInfoVersion() const;
@@ -16,31 +16,18 @@ public:
 	virtual void SetIsValidOpcode(bool state);
 	virtual unsigned int GetOpcodeSize() const;
 	virtual void SetOpcodeSize(unsigned int state);
-	inline std::wstring GetOpcodeNameDisassembly() const;
-	inline void SetOpcodeNameDisassembly(const std::wstring& state);
-	inline std::wstring GetOpcodeArgumentsDisassembly() const;
-	inline void SetOpcodeArgumentsDisassembly(const std::wstring& state);
-	inline std::wstring GetDisassemblyComment() const;
-	inline void SetDisassemblyComment(const std::wstring& state);
-	inline std::set<unsigned int> GetLabelTargetLocations() const;
-	inline void SetLabelTargetLocations(const std::set<unsigned int>& state);
-	inline std::set<unsigned int> GetResultantPCLocations() const;
-	inline void SetResultantPCLocations(const std::set<unsigned int>& state);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetOpcodeNameDisassembly() const;
+	virtual void SetOpcodeNameDisassembly(const MarshalSupport::Marshal::In<std::wstring>& state);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetOpcodeArgumentsDisassembly() const;
+	virtual void SetOpcodeArgumentsDisassembly(const MarshalSupport::Marshal::In<std::wstring>& state);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDisassemblyComment() const;
+	virtual void SetDisassemblyComment(const MarshalSupport::Marshal::In<std::wstring>& state);
+	virtual MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetLabelTargetLocations() const;
+	virtual void SetLabelTargetLocations(const MarshalSupport::Marshal::In<std::set<unsigned int>>& state);
+	virtual MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetResultantPCLocations() const;
+	virtual void SetResultantPCLocations(const MarshalSupport::Marshal::In<std::set<unsigned int>>& state);
 	virtual bool GetHasUndeterminedResultantPCLocation() const;
 	virtual void SetHasUndeterminedResultantPCLocation(bool state);
-
-protected:
-	//Opcode info functions
-	virtual void GetOpcodeNameDisassemblyInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetOpcodeNameDisassemblyInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetOpcodeArgumentsDisassemblyInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetOpcodeArgumentsDisassemblyInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetDisassemblyCommentInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetDisassemblyCommentInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetLabelTargetLocationsInternal(const InteropSupport::ISTLObjectTarget<std::set<unsigned int>>& marshaller) const;
-	virtual void SetLabelTargetLocationsInternal(const InteropSupport::ISTLObjectSource<std::set<unsigned int>>& marshaller);
-	virtual void GetResultantPCLocationsInternal(const InteropSupport::ISTLObjectTarget<std::set<unsigned int>>& marshaller) const;
-	virtual void SetResultantPCLocationsInternal(const InteropSupport::ISTLObjectSource<std::set<unsigned int>>& marshaller);
 
 private:
 	bool valid;
@@ -53,5 +40,4 @@ private:
 	bool undeterminedResultantPCLocation;
 };
 
-#include "OpcodeInfo.inl"
 #endif

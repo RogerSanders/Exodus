@@ -3,7 +3,7 @@
 #include "IBusInterface.h"
 #include "IClockSource.h"
 #include "ImageInterface/ImageInterface.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include <string>
 #include <list>
@@ -24,7 +24,7 @@ public:
 	virtual ~IDevice() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIDeviceVersion();
+	static inline unsigned int ThisIDeviceVersion() { return 1; }
 	virtual unsigned int GetIDeviceVersion() const = 0;
 
 	//Initialization functions
@@ -36,10 +36,10 @@ public:
 	virtual void Initialize() = 0;
 
 	//Reference functions
-	inline bool AddReference(const std::wstring& referenceName, IDevice* target);
-	inline bool AddReference(const std::wstring& referenceName, IExtension* target);
-	inline bool AddReference(const std::wstring& referenceName, IBusInterface* target);
-	inline bool AddReference(const std::wstring& referenceName, IClockSource* target);
+	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target) = 0;
+	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IExtension* target) = 0;
+	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target) = 0;
+	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IClockSource* target) = 0;
 	virtual bool RemoveReference(IDevice* target) = 0;
 	virtual bool RemoveReference(IExtension* target) = 0;
 	virtual bool RemoveReference(IBusInterface* target) = 0;
@@ -89,11 +89,11 @@ public:
 	//followed by the imported connector name surrounded in braces.
 	//##TODO## Remove all these name functions from the device interface entirely, and
 	//only store this data and allow retrieval of it through the system interface.
-	inline std::wstring GetDeviceClassName() const;
-	inline std::wstring GetDeviceInstanceName() const;
-	inline std::wstring GetFullyQualifiedDeviceInstanceName() const;
-	inline std::wstring GetModuleDisplayName() const;
-	inline std::wstring GetModuleInstanceName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDeviceClassName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDeviceInstanceName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFullyQualifiedDeviceInstanceName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleDisplayName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleInstanceName() const = 0;
 	virtual unsigned int GetDeviceModuleID() const = 0;
 
 	//Savestate functions
@@ -108,7 +108,7 @@ public:
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const = 0;
 
 	//CE line state functions
-	inline unsigned int GetCELineID(const std::wstring& lineName, bool inputLine) const;
+	virtual unsigned int GetCELineID(const MarshalSupport::Marshal::In<std::wstring>& lineName, bool inputLine) const = 0;
 	virtual void SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber) = 0;
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber) = 0;
 	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const = 0;
@@ -129,8 +129,8 @@ public:
 	virtual void TransparentWritePort(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) = 0;
 
 	//Line functions
-	inline unsigned int GetLineID(const std::wstring& lineName) const;
-	inline std::wstring GetLineName(unsigned int lineID) const;
+	virtual unsigned int GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const = 0;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const = 0;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData) = 0;
@@ -140,45 +140,16 @@ public:
 	virtual void NegateCurrentOutputLineState() const = 0;
 
 	//Clock source functions
-	inline unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
-	inline std::wstring GetClockSourceName(unsigned int clockSourceID) const;
+	virtual unsigned int GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const = 0;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate) = 0;
 
 	//Input functions
-	inline unsigned int GetKeyCodeID(const std::wstring& keyCodeName) const;
-	inline std::wstring GetKeyCodeName(unsigned int keyCodeID) const;
+	virtual unsigned int GetKeyCodeID(const MarshalSupport::Marshal::In<std::wstring>& keyCodeName) const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetKeyCodeName(unsigned int keyCodeID) const = 0;
 	virtual void HandleInputKeyDown(unsigned int keyCodeID) = 0;
 	virtual void HandleInputKeyUp(unsigned int keyCodeID) = 0;
-
-protected:
-	//Reference functions
-	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IDevice* target) = 0;
-	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IExtension* target) = 0;
-	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IBusInterface* target) = 0;
-	virtual bool AddReferenceInternal(const InteropSupport::ISTLObjectSource<std::wstring>& referenceNameMarshaller, IClockSource* target) = 0;
-
-	//Name functions
-	virtual void GetDeviceClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetFullyQualifiedDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetModuleDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetModuleInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-
-	//CE line state functions
-	virtual unsigned int GetCELineIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& lineNameMarshaller, bool inputLine) const = 0;
-
-	//Line functions
-	virtual unsigned int GetLineIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& lineNameMarshaller) const = 0;
-	virtual void GetLineNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int lineID) const = 0;
-
-	//Clock source functions
-	virtual unsigned int GetClockSourceIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& clockSourceNameMarshaller) const = 0;
-	virtual void GetClockSourceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int clockSourceID) const = 0;
-
-	//Input functions
-	virtual unsigned int GetKeyCodeIDInternal(const InteropSupport::ISTLObjectSource<std::wstring>& keyCodeNameMarshaller) const = 0;
-	virtual void GetKeyCodeNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller, unsigned int keyCodeID) const = 0;
 };
 
 #include "IDevice.inl"

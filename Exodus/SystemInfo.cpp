@@ -29,19 +29,28 @@ unsigned int SystemInfo::GetSystemVersionNo() const
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::GetSystemCopyrightInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> SystemInfo::GetSystemCopyright() const
 {
-	marshaller.MarshalFrom(GetSystemCopyright());
+	return copyright;
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::GetSystemCommentsInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
+MarshalSupport::Marshal::Ret<std::wstring> SystemInfo::GetSystemComments() const
 {
-	marshaller.MarshalFrom(GetSystemComments());
+	return comments;
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
+//----------------------------------------------------------------------------------------
+void SystemInfo::SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright, const MarshalSupport::Marshal::In<std::wstring>& asystemComments)
+{
+	SetSystemAllocators(aAllocator, aDestructor);
+	SetSystemVersionNo(asystemVersionNo);
+	SetSystemCopyright(asystemCopyright);
+	SetSystemComments(asystemComments);
+}
+
 //----------------------------------------------------------------------------------------
 void SystemInfo::SetSystemAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
 {
@@ -56,13 +65,13 @@ void SystemInfo::SetSystemVersionNo(unsigned int asystemVersionNo)
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemCopyrightInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void SystemInfo::SetSystemCopyright(const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright)
 {
-	SetSystemCopyright(marshaller.MarshalTo());
+	copyright = asystemCopyright;
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemCommentsInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller)
+void SystemInfo::SetSystemComments(const MarshalSupport::Marshal::In<std::wstring>& asystemComments)
 {
-	SetSystemComments(marshaller.MarshalTo());
+	comments = asystemComments;
 }

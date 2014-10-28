@@ -28,9 +28,9 @@ public:
 	virtual void SetBreakEvent(bool state);
 
 	//Name functions
-	inline std::wstring GetName() const;
-	inline void SetName(const std::wstring& aname);
-	std::wstring GenerateName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
+	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GenerateName() const;
 
 	//Location condition functions
 	virtual bool GetLocationConditionNot() const;
@@ -60,12 +60,6 @@ public:
 	//Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
-
-protected:
-	//Name functions
-	virtual void GetNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GenerateNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	//Bus sizes

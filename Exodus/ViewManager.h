@@ -11,7 +11,7 @@
 #include <condition_variable>
 #include <list>
 
-class ViewManager :public IViewManagerNotifierInterface, public IUIManager
+class ViewManager :public IUIManager, public IViewManagerNotifierInterface
 {
 public:
 	//Constructors
@@ -46,7 +46,7 @@ public:
 	virtual HWND CreateNativeWindow(IView& view, IViewPresenter& viewPresenter, HINSTANCE assemblyHandle, WNDPROC windowProcedure, DWORD windowStyle, DWORD extendedWindowStyle);
 
 	//Window management functions
-	bool ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const std::wstring& windowTitle, IHierarchicalStorageNode* windowState = 0);
+	virtual bool ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle, IHierarchicalStorageNode* windowState = 0);
 	virtual void CloseWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle);
 	virtual void ShowWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle);
 	virtual void HideWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle);
@@ -61,7 +61,7 @@ public:
 	virtual void ResizeWindowToTargetClientSize(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, unsigned int windowClientWidth, unsigned int windowClientHeight);
 
 	//Window title functions
-	void UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const std::wstring& windowTitle);
+	virtual void UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle);
 
 	//View closing helper functions
 	void CloseViewsForSystem();
@@ -78,13 +78,6 @@ public:
 
 	//Child window selection functions
 	std::list<HWND> GetOpenFloatingWindows() const;
-
-protected:
-	//Window management functions
-	virtual bool ShowWindowFirstTimeInternal(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const InteropSupport::ISTLObjectSource<std::wstring>& windowTitleMarshaller, IHierarchicalStorageNode* windowState);
-
-	//Window title functions
-	virtual void UpdateWindowTitleInternal(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const InteropSupport::ISTLObjectSource<std::wstring>& windowTitleMarshaller);
 
 private:
 	//Constants

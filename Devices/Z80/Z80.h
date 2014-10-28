@@ -65,7 +65,7 @@ public:
 
 	//Reference functions
 	using Processor::AddReference;
-	virtual bool AddReference(const std::wstring& referenceName, IBusInterface* target);
+	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual bool RemoveReference(IBusInterface* target);
 
 	//Suspend functions
@@ -79,8 +79,8 @@ public:
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
 
 	//Line functions
-	virtual unsigned int GetLineID(const std::wstring& lineName) const;
-	virtual std::wstring GetLineName(unsigned int lineID) const;
+	virtual unsigned int GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
@@ -90,8 +90,8 @@ public:
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, std::unique_lock<std::mutex>& lock);
 
 	//Clock source functions
-	virtual unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
-	virtual std::wstring GetClockSourceName(unsigned int clockSourceID) const;
+	virtual unsigned int GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 	void ApplyClockStateChange(unsigned int targetClock, double clockRate);
@@ -255,7 +255,7 @@ public:
 	double WriteMemory(const Z80Word& location, const Data& data, bool transparent) const;
 
 	//CE line state functions
-	virtual unsigned int GetCELineID(const std::wstring& lineName, bool inputLine) const;
+	virtual unsigned int GetCELineID(const MarshalSupport::Marshal::In<std::wstring>& lineName, bool inputLine) const;
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
 	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const;

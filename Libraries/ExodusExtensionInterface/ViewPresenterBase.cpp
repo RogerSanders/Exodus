@@ -153,27 +153,15 @@ ViewPresenterBase::ViewTarget ViewPresenterBase::GetViewTarget() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ViewPresenterBase::GetViewTargetDeviceInstanceName() const
+MarshalSupport::Marshal::Ret<std::wstring> ViewPresenterBase::GetViewTargetDeviceInstanceName() const
 {
 	return viewTargetDeviceInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
-void ViewPresenterBase::GetViewTargetDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetViewTargetDeviceInstanceName());
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring ViewPresenterBase::GetViewTargetExtensionInstanceName() const
+MarshalSupport::Marshal::Ret<std::wstring> ViewPresenterBase::GetViewTargetExtensionInstanceName() const
 {
 	return viewTargetExtensionInstanceName;
-}
-
-//----------------------------------------------------------------------------------------
-void ViewPresenterBase::GetViewTargetExtensionInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetViewTargetExtensionInstanceName());
 }
 
 //----------------------------------------------------------------------------------------
@@ -207,27 +195,15 @@ int ViewPresenterBase::GetViewID() const
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ViewPresenterBase::GetViewGroupName() const
+MarshalSupport::Marshal::Ret<std::wstring> ViewPresenterBase::GetViewGroupName() const
 {
 	return viewGroupName;
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ViewPresenterBase::GetViewName() const
+MarshalSupport::Marshal::Ret<std::wstring> ViewPresenterBase::GetViewName() const
 {
 	return viewName;
-}
-
-//----------------------------------------------------------------------------------------
-void ViewPresenterBase::GetViewGroupNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetViewGroupName());
-}
-
-//----------------------------------------------------------------------------------------
-void ViewPresenterBase::GetViewNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetViewName());
 }
 
 //----------------------------------------------------------------------------------------

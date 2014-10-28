@@ -487,7 +487,7 @@ void S315_5313::SuspendExecution()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool S315_5313::AddReference(const std::wstring& referenceName, IDevice* target)
+bool S315_5313::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target)
 {
 	bool result = true;
 	externalReferenceLock.ObtainWriteLock();
@@ -536,7 +536,7 @@ bool S315_5313::AddReference(const std::wstring& referenceName, IDevice* target)
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::AddReference(const std::wstring& referenceName, IBusInterface* target)
+bool S315_5313::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	bool result = true;
 	externalReferenceLock.ObtainWriteLock();
@@ -553,7 +553,7 @@ bool S315_5313::AddReference(const std::wstring& referenceName, IBusInterface* t
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::AddReference(const std::wstring& referenceName, IClockSource* target)
+bool S315_5313::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IClockSource* target)
 {
 	bool result = false;
 	externalReferenceLock.ObtainWriteLock();

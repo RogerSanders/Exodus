@@ -1,6 +1,6 @@
 #ifndef __ILOADEDMODULEINFO_H__
 #define __ILOADEDMODULEINFO_H__
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
 
 class ILoadedModuleInfo
@@ -10,7 +10,7 @@ public:
 	virtual ~ILoadedModuleInfo() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisILoadedModuleInfoVersion();
+	static inline unsigned int ThisILoadedModuleInfoVersion() { return 1; }
 	virtual unsigned int GetILoadedModuleInfoVersion() const = 0;
 
 	//Internal data
@@ -18,52 +18,28 @@ public:
 	virtual void SetModuleID(unsigned int amoduleID) = 0;
 
 	//External information
-	inline std::wstring GetModuleFilePath() const;
-	inline void SetModuleFilePath(const std::wstring& amoduleFilePath);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleFilePath() const = 0;
+	virtual void SetModuleFilePath(const MarshalSupport::Marshal::In<std::wstring>& amoduleFilePath) = 0;
 
 	//Required metadata
 	virtual bool GetIsProgramModule() const = 0;
 	virtual void SetIsProgramModule(bool aprogramModule) = 0;
-	inline std::wstring GetSystemClassName() const;
-	inline void SetSystemClassName(const std::wstring& asystemClassName);
-	inline std::wstring GetClassName() const;
-	inline void SetClassName(const std::wstring& aclassName);
-	inline std::wstring GetInstanceName() const;
-	inline void SetInstanceName(const std::wstring& ainstanceName);
-	inline std::wstring GetDisplayName() const;
-	inline void SetDisplayName(const std::wstring& adisplayName);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemClassName() const = 0;
+	virtual void SetSystemClassName(const MarshalSupport::Marshal::In<std::wstring>& asystemClassName) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleClassName() const = 0;
+	virtual void SetModuleClassName(const MarshalSupport::Marshal::In<std::wstring>& aclassName) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleInstanceName() const = 0;
+	virtual void SetModuleInstanceName(const MarshalSupport::Marshal::In<std::wstring>& ainstanceName) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleDisplayName() const = 0;
+	virtual void SetModuleDisplayName(const MarshalSupport::Marshal::In<std::wstring>& adisplayName) = 0;
 
 	//Optional metadata
-	inline std::wstring GetProductionYear() const;
-	inline void SetProductionYear(const std::wstring& aproductionYear);
-	inline std::wstring GetManufacturerCode() const;
-	inline void SetManufacturerCode(const std::wstring& amanufacturerCode);
-	inline std::wstring GetManufacturerDisplayName() const;
-	inline void SetManufacturerDisplayName(const std::wstring& amanufacturerDisplayName);
-
-protected:
-	//External information
-	virtual void GetModuleFilePathInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetModuleFilePathInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-
-	//Required metadata
-	virtual void GetSystemClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetSystemClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual void GetClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual void GetInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual void GetDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-
-	//Optional metadata
-	virtual void GetProductionYearInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetProductionYearInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual void GetManufacturerCodeInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetManufacturerCodeInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
-	virtual void GetManufacturerDisplayNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void SetManufacturerDisplayNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetProductionYear() const = 0;
+	virtual void SetProductionYear(const MarshalSupport::Marshal::In<std::wstring>& aproductionYear) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetManufacturerCode() const = 0;
+	virtual void SetManufacturerCode(const MarshalSupport::Marshal::In<std::wstring>& amanufacturerCode) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetManufacturerDisplayName() const = 0;
+	virtual void SetManufacturerDisplayName(const MarshalSupport::Marshal::In<std::wstring>& amanufacturerDisplayName) = 0;
 };
 
-#include "ILoadedModuleInfo.inl"
 #endif

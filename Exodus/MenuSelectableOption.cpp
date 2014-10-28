@@ -32,15 +32,9 @@ MenuSelectableOption::Type MenuSelectableOption::GetType() const
 //----------------------------------------------------------------------------------------
 //Menu title functions
 //----------------------------------------------------------------------------------------
-std::wstring MenuSelectableOption::GetMenuTitle() const
+MarshalSupport::Marshal::Ret<std::wstring> MenuSelectableOption::GetMenuTitle() const
 {
 	return title;
-}
-
-//----------------------------------------------------------------------------------------
-void MenuSelectableOption::GetMenuTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetMenuTitle());
 }
 
 //----------------------------------------------------------------------------------------

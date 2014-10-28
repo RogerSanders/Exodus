@@ -104,7 +104,7 @@ void ExodusSystemMenus::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& 
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusSystemMenus::RestoreSystemViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState)
+bool ExodusSystemMenus::RestoreSystemViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState)
 {
 	bool result = false;
 	result |= debugMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState);
@@ -114,14 +114,14 @@ bool ExodusSystemMenus::RestoreSystemViewState(const std::wstring& viewGroupName
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusSystemMenus::RestoreModuleViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID)
+bool ExodusSystemMenus::RestoreModuleViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID)
 {
 	//Nothing to do here, since our current module option menu handler has no views.
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusSystemMenus::OpenSystemView(const std::wstring& viewGroupName, const std::wstring& viewName)
+bool ExodusSystemMenus::OpenSystemView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName)
 {
 	bool result = false;
 	result |= debugMenuHandler->OpenView(viewGroupName, viewName);
@@ -131,7 +131,7 @@ bool ExodusSystemMenus::OpenSystemView(const std::wstring& viewGroupName, const 
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusSystemMenus::OpenModuleView(const std::wstring& viewGroupName, const std::wstring& viewName, unsigned int moduleID)
+bool ExodusSystemMenus::OpenModuleView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, unsigned int moduleID)
 {
 	//Nothing to do here, since our current module option menu handler has no views.
 	return false;

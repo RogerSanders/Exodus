@@ -73,8 +73,8 @@ public:
 	virtual IDevice* GetDevice();
 
 	//Line functions
-	virtual unsigned int GetLineID(const std::wstring& lineName) const;
-	virtual std::wstring GetLineName(unsigned int lineID) const;
+	virtual unsigned int GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
@@ -83,8 +83,8 @@ public:
 	virtual void NegateCurrentOutputLineState() const;
 
 	//Clock source functions
-	virtual unsigned int GetClockSourceID(const std::wstring& clockSourceName) const;
-	virtual std::wstring GetClockSourceName(unsigned int clockSourceID) const;
+	virtual unsigned int GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 
@@ -97,10 +97,9 @@ public:
 	virtual void SuspendExecution();
 
 	//Reference functions
-	using Device::AddReference;
-	virtual bool AddReference(const std::wstring& referenceName, IDevice* target);
-	virtual bool AddReference(const std::wstring& referenceName, IBusInterface* target);
-	virtual bool AddReference(const std::wstring& referenceName, IClockSource* target);
+	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target);
+	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
+	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IClockSource* target);
 	virtual bool RemoveReference(IDevice* target);
 	virtual bool RemoveReference(IBusInterface* target);
 	virtual bool RemoveReference(IClockSource* target);
@@ -123,7 +122,7 @@ public:
 	virtual void ExecuteCommit();
 
 	//CE line state functions
-	virtual unsigned int GetCELineID(const std::wstring& lineName, bool inputLine) const;
+	virtual unsigned int GetCELineID(const MarshalSupport::Marshal::In<std::wstring>& lineName, bool inputLine) const;
 	virtual void SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
@@ -259,8 +258,7 @@ private:
 	virtual void CalculateEffectiveCellScrollSize(unsigned int hszState, unsigned int vszState, unsigned int& effectiveScrollWidth, unsigned int& effectiveScrollHeight) const;
 	virtual DecodedPaletteColorEntry ReadDecodedPaletteColor(unsigned int paletteRow, unsigned int paletteIndex) const;
 	virtual unsigned char ColorValueTo8BitValue(unsigned int colorValue, bool shadow, bool highlight) const;
-	std::list<SpriteBoundaryLineEntry> GetSpriteBoundaryLines(unsigned int planeNo) const;
-	virtual void GetSpriteBoundaryLinesInternal(unsigned int planeNo, const InteropSupport::ISTLObjectTarget<std::list<SpriteBoundaryLineEntry>>& marshaller) const;
+	virtual MarshalSupport::Marshal::Ret<std::list<SpriteBoundaryLineEntry>> GetSpriteBoundaryLines(unsigned int planeNo) const;
 
 	//Sprite list debugging functions
 	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int entryNo) const;

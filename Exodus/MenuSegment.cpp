@@ -44,7 +44,7 @@ MenuSegment::Type MenuSegment::GetType() const
 //----------------------------------------------------------------------------------------
 //Menu title functions
 //----------------------------------------------------------------------------------------
-std::wstring MenuSegment::GetMenuSortTitle() const
+MarshalSupport::Marshal::Ret<std::wstring> MenuSegment::GetMenuSortTitle() const
 {
 	//If we have no child menu items, return an empty string.
 	if(menuItems.empty())
@@ -68,12 +68,6 @@ std::wstring MenuSegment::GetMenuSortTitle() const
 		break;
 	}
 	return firstChildMenuItemTitle;
-}
-
-//----------------------------------------------------------------------------------------
-void MenuSegment::GetMenuSortTitleInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const
-{
-	marshaller.MarshalFrom(GetMenuSortTitle());
 }
 
 //----------------------------------------------------------------------------------------
@@ -101,19 +95,13 @@ bool MenuSegment::NoMenuItemsExist() const
 }
 
 //----------------------------------------------------------------------------------------
-std::list<IMenuItem*> MenuSegment::GetMenuItems() const
+MarshalSupport::Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetMenuItems() const
 {
 	return menuItems;
 }
 
 //----------------------------------------------------------------------------------------
-void MenuSegment::GetMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetMenuItems());
-}
-
-//----------------------------------------------------------------------------------------
-std::list<IMenuItem*> MenuSegment::GetSortedMenuItems() const
+MarshalSupport::Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetSortedMenuItems() const
 {
 	//If the menu items in this segment are sorted based on the order items were added,
 	//return the actual menu item list directly here, and abort any further processing.
@@ -155,12 +143,6 @@ std::list<IMenuItem*> MenuSegment::GetSortedMenuItems() const
 }
 
 //----------------------------------------------------------------------------------------
-void MenuSegment::GetSortedMenuItemsInternal(const InteropSupport::ISTLObjectTarget<std::list<IMenuItem*>>& marshaller) const
-{
-	marshaller.MarshalFrom(GetSortedMenuItems());
-}
-
-//----------------------------------------------------------------------------------------
 //Menu item creation functions
 //----------------------------------------------------------------------------------------
 IMenuSegment& MenuSegment::AddMenuItemSegment(bool asurroundWithSeparators, IMenuSegment::SortMode sortMode)
@@ -171,7 +153,7 @@ IMenuSegment& MenuSegment::AddMenuItemSegment(bool asurroundWithSeparators, IMen
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const std::wstring& title)
+IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const MarshalSupport::Marshal::In<std::wstring>& title)
 {
 	IMenuSubmenu* newMenuItem = new MenuSubmenu(title);
 	menuItems.push_back(newMenuItem);
@@ -179,23 +161,11 @@ IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const std::wstring& title)
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title)
+IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const MarshalSupport::Marshal::In<std::wstring>& title)
 {
 	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, title);
 	menuItems.push_back(newMenuItem);
 	return *newMenuItem;
-}
-
-//----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSegment::AddMenuItemSubmenuInternal(const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller)
-{
-	return AddMenuItemSubmenu(titleMarshaller.MarshalTo());
-}
-
-//----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOptionInternal(IMenuHandler& menuHandler, int menuItemID, const InteropSupport::ISTLObjectSource<std::wstring>& titleMarshaller)
-{
-	return AddMenuItemSelectableOption(menuHandler, menuItemID, titleMarshaller.MarshalTo());
 }
 
 //----------------------------------------------------------------------------------------

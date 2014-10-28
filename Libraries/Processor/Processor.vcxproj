@@ -173,10 +173,8 @@
   <ItemGroup>
     <None Include="Breakpoint.inl" />
     <None Include="IBreakpoint.inl" />
-    <None Include="IOpcodeInfo.inl" />
     <None Include="IProcessor.inl" />
     <None Include="IWatchpoint.inl" />
-    <None Include="OpcodeInfo.inl" />
     <None Include="OpcodeTable.inl" />
     <None Include="Processor.inl" />
     <None Include="Processor.pkg" />

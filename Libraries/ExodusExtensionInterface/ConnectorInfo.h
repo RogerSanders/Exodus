@@ -18,33 +18,20 @@ public:
 	//Exporting module info
 	virtual unsigned int GetExportingModuleID() const;
 	virtual void SetExportingModuleID(unsigned int aexportingModuleID);
-	inline std::wstring GetConnectorClassName() const;
-	inline void SetConnectorClassName(const std::wstring& aconnectorClassName);
-	inline std::wstring GetExportingModuleConnectorInstanceName() const;
-	inline void SetExportingModuleConnectorInstanceName(const std::wstring& aexportingModuleConnectorInstanceName);
-	inline std::wstring GetSystemClassName() const;
-	inline void SetSystemClassName(const std::wstring& asystemClassName);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetConnectorClassName() const;
+	virtual void SetConnectorClassName(const MarshalSupport::Marshal::In<std::wstring>& aconnectorClassName);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExportingModuleConnectorInstanceName() const;
+	virtual void SetExportingModuleConnectorInstanceName(const MarshalSupport::Marshal::In<std::wstring>& aexportingModuleConnectorInstanceName);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemClassName() const;
+	virtual void SetSystemClassName(const MarshalSupport::Marshal::In<std::wstring>& asystemClassName);
 
 	//Importing module info
 	virtual bool GetIsConnectorUsed() const;
 	virtual void SetIsConnectorUsed(bool aconnectorUser);
 	virtual unsigned int GetImportingModuleID() const;
 	virtual void SetImportingModuleID(unsigned int aimportingModuleID);
-	inline std::wstring GetImportingModuleConnectorInstanceName() const;
-	inline void SetImportingModuleConnectorInstanceName(const std::wstring& aimportingModuleConnectorInstanceName);
-
-protected:
-	//Exporting module info
-	virtual void GetConnectorClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetConnectorClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetExportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetExportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-	virtual void GetSystemClassNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetSystemClassNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
-
-	//Importing module info
-	virtual void GetImportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void SetImportingModuleConnectorInstanceNameInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller);
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetImportingModuleConnectorInstanceName() const;
+	virtual void SetImportingModuleConnectorInstanceName(const MarshalSupport::Marshal::In<std::wstring>& aimportingModuleConnectorInstanceName);
 
 private:
 	//Internal data
@@ -62,5 +49,4 @@ private:
 	std::wstring importingModuleConnectorInstanceName;
 };
 
-#include "ConnectorInfo.inl"
 #endif

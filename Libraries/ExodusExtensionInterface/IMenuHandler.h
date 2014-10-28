@@ -8,12 +8,11 @@ public:
 	virtual ~IMenuHandler() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIMenuHandlerVersion();
+	static inline unsigned int ThisIMenuHandlerVersion() { return 1; }
 	virtual unsigned int GetIMenuHandlerVersion() const = 0;
 
 	//Menu item handler functions
 	virtual void HandleMenuItemSelect(int menuItemID) = 0;
 };
 
-#include "IMenuHandler.inl"
 #endif

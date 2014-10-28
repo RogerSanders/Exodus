@@ -34,8 +34,8 @@ public:
 
 	//View target functions
 	virtual ViewTarget GetViewTarget() const;
-	std::wstring GetViewTargetDeviceInstanceName() const;
-	std::wstring GetViewTargetExtensionInstanceName() const;
+	MarshalSupport::Marshal::Ret<std::wstring> GetViewTargetDeviceInstanceName() const;
+	MarshalSupport::Marshal::Ret<std::wstring> GetViewTargetExtensionInstanceName() const;
 	virtual bool GetViewTargetGlobalExtension() const;
 	virtual unsigned int GetViewTargetModuleID() const;
 
@@ -45,8 +45,8 @@ public:
 
 	//State functions
 	virtual int GetViewID() const;
-	std::wstring GetViewGroupName() const;
-	std::wstring GetViewName() const;
+	MarshalSupport::Marshal::Ret<std::wstring> GetViewGroupName() const;
+	MarshalSupport::Marshal::Ret<std::wstring> GetViewName() const;
 	virtual bool LoadViewState(IHierarchicalStorageNode& viewState);
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const;
 
@@ -54,14 +54,6 @@ protected:
 	//View management functions
 	bool IsViewOpen() const;
 	IView* GetOpenView() const;
-
-	//View target functions
-	virtual void GetViewTargetDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetViewTargetExtensionInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-
-	//State functions
-	virtual void GetViewGroupNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetViewNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
 
 private:
 	bool viewOpen;

@@ -2,7 +2,7 @@
 #define __IPROCESSOR_H__
 #include "GenericAccess/GenericAccess.pkg"
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "IBreakpoint.h"
 #include "IWatchpoint.h"
 #include "IOpcodeInfo.h"
@@ -26,7 +26,7 @@ public:
 	virtual ~IProcessor() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIProcessorVersion();
+	static inline unsigned int ThisIProcessorVersion() { return 1; }
 	virtual unsigned int GetIProcessorVersion() const = 0;
 
 	//Device access functions
@@ -64,14 +64,14 @@ public:
 	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const = 0;
 
 	//Breakpoint functions
-	inline std::list<IBreakpoint*> GetBreakpointList() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<IBreakpoint*>> GetBreakpointList() const = 0;
 	virtual IBreakpoint* CreateBreakpoint() = 0;
 	virtual bool LockBreakpoint(IBreakpoint* breakpoint) const = 0;
 	virtual void UnlockBreakpoint(IBreakpoint* breakpoint) const = 0;
 	virtual void DeleteBreakpoint(IBreakpoint* breakpoint) = 0;
 
 	//Watchpoint functions
-	inline std::list<IWatchpoint*> GetWatchpointList() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<IWatchpoint*>> GetWatchpointList() const = 0;
 	virtual IWatchpoint* CreateWatchpoint() = 0;
 	virtual bool LockWatchpoint(IWatchpoint* watchpoint) const = 0;
 	virtual void UnlockWatchpoint(IWatchpoint* watchpoint) const = 0;
@@ -80,7 +80,7 @@ public:
 	//Call stack functions
 	virtual bool GetCallStackDisassemble() const = 0;
 	virtual void SetCallStackDisassemble(bool state) = 0;
-	inline std::list<CallStackEntry> GetCallStack() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<CallStackEntry>> GetCallStack() const = 0;
 	virtual void ClearCallStack() = 0;
 
 	//Trace functions
@@ -90,7 +90,7 @@ public:
 	virtual void SetTraceDisassemble(bool state) = 0;
 	virtual unsigned int GetTraceLength() const = 0;
 	virtual void SetTraceLength(unsigned int state) = 0;
-	inline std::list<TraceLogEntry> GetTraceLog() const;
+	virtual MarshalSupport::Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const = 0;
 	virtual void ClearTraceLog() = 0;
 
 	//Active disassembly info functions
@@ -162,27 +162,9 @@ public:
 	//Active disassembly analysis functions
 	virtual bool PerformActiveDisassemblyAnalysis() = 0;
 	virtual void ClearActiveDisassemblyAnalysis() = 0;
-	inline bool ActiveDisassemblyExportAnalysisToASMFile(const std::wstring& filePath) const;
-	inline bool ActiveDisassemblyExportAnalysisToTextFile(const std::wstring& filePath) const;
-	inline bool ActiveDisassemblyExportAnalysisToIDCFile(const std::wstring& filePath) const;
-
-protected:
-	//Breakpoint functions
-	virtual void GetBreakpointListInternal(const InteropSupport::ISTLObjectTarget<std::list<IBreakpoint*>>& marshaller) const = 0;
-
-	//Watchpoint functions
-	virtual void GetWatchpointListInternal(const InteropSupport::ISTLObjectTarget<std::list<IWatchpoint*>>& marshaller) const = 0;
-
-	//Call stack functions
-	virtual void GetCallStackInternal(const InteropSupport::ISTLObjectTarget<std::list<CallStackEntry>>& marshaller) const = 0;
-
-	//Trace functions
-	virtual void GetTraceLogInternal(const InteropSupport::ISTLObjectTarget<std::list<TraceLogEntry>>& marshaller) const = 0;
-
-	//Active disassembly analysis functions
-	virtual bool ActiveDisassemblyExportAnalysisToASMFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const = 0;
-	virtual bool ActiveDisassemblyExportAnalysisToTextFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const = 0;
-	virtual bool ActiveDisassemblyExportAnalysisToIDCFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& marshaller) const = 0;
+	virtual bool ActiveDisassemblyExportAnalysisToASMFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const = 0;
+	virtual bool ActiveDisassemblyExportAnalysisToTextFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const = 0;
+	virtual bool ActiveDisassemblyExportAnalysisToIDCFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const = 0;
 };
 
 #include "IProcessor.inl"

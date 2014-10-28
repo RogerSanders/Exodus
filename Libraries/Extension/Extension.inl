@@ -24,17 +24,3 @@ IViewManager& Extension::GetViewManager() const
 {
 	return guiInterface->GetViewManager();
 }
-
-//----------------------------------------------------------------------------------------
-//Name functions
-//----------------------------------------------------------------------------------------
-std::wstring Extension::GetExtensionClassName() const
-{
-	return className;
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring Extension::GetExtensionInstanceName() const
-{
-	return instanceName;
-}

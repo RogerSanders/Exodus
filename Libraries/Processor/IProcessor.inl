@@ -1,3 +1,12 @@
+//Disable warning about the presence of virtual functions without a virtual destructor.
+//Our structures below use virtual functions to create code barriers between assemblies so
+//that they can be marshalled, but they are never derived from, so a virtual destructor is
+//not required.
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4265)
+#endif
+
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
@@ -33,7 +42,7 @@ enum class IProcessor::IProcessorCommand
 //----------------------------------------------------------------------------------------
 //Structures
 //----------------------------------------------------------------------------------------
-struct IProcessor::CallStackEntry :protected InteropSupport::IMarshallingObject
+struct IProcessor::CallStackEntry
 {
 public:
 	//Constructors
@@ -42,23 +51,19 @@ public:
 	CallStackEntry(unsigned int asourceAddress, unsigned int atargetAddress, unsigned int areturnAddress, const std::wstring& adisassembly)
 	:sourceAddress(asourceAddress), targetAddress(atargetAddress), returnAddress(areturnAddress), disassembly(adisassembly)
 	{}
-
-protected:
-	//Marshalling methods
-	virtual void MarshalFromSource(const IMarshallingObject& source)
+	CallStackEntry(MarshalSupport::marshal_object_t, const CallStackEntry& source)
 	{
-		const CallStackEntry& sourceResolved = static_cast<const CallStackEntry&>(source);
-		sourceResolved.MarshalToTarget(sourceAddress, targetAddress, returnAddress, InteropSupport::STLObjectTarget<std::wstring>(disassembly));
+		source.MarshalToTarget(sourceAddress, targetAddress, returnAddress, disassembly);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(unsigned int& sourceAddressMarshaller, unsigned int& targetAddressMarshaller, unsigned int& returnAddressMarshaller, const InteropSupport::ISTLObjectTarget<std::wstring>& disassemblyMarshaller) const
+	virtual void MarshalToTarget(unsigned int& sourceAddressMarshaller, unsigned int& targetAddressMarshaller, unsigned int& returnAddressMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& disassemblyMarshaller) const
 	{
 		sourceAddressMarshaller = sourceAddress;
 		targetAddressMarshaller = targetAddress;
 		returnAddressMarshaller = returnAddress;
-		disassemblyMarshaller.MarshalFrom(disassembly);
+		disassemblyMarshaller = disassembly;
 	}
 
 public:
@@ -69,28 +74,24 @@ public:
 };
 
 //----------------------------------------------------------------------------------------
-struct IProcessor::TraceLogEntry :protected InteropSupport::IMarshallingObject
+struct IProcessor::TraceLogEntry
 {
 public:
 	//Constructors
 	explicit TraceLogEntry(unsigned int aaddress = 0)
 	:address(aaddress)
 	{}
-
-protected:
-	//Marshalling methods
-	virtual void MarshalFromSource(const IMarshallingObject& source)
+	TraceLogEntry(MarshalSupport::marshal_object_t, const TraceLogEntry& source)
 	{
-		const TraceLogEntry& sourceResolved = static_cast<const TraceLogEntry&>(source);
-		sourceResolved.MarshalToTarget(address, InteropSupport::STLObjectTarget<std::wstring>(disassembly));
+		source.MarshalToTarget(address, disassembly);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(unsigned int& addressMarshaller, const InteropSupport::ISTLObjectTarget<std::wstring>& disassemblyMarshaller) const
+	virtual void MarshalToTarget(unsigned int& addressMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& disassemblyMarshaller) const
 	{
 		addressMarshaller = address;
-		disassemblyMarshaller.MarshalFrom(disassembly);
+		disassemblyMarshaller = disassembly;
 	}
 
 public:
@@ -108,70 +109,7 @@ struct IProcessor::BreakpointDataContext :public IGenericAccess::DataContext
 	IBreakpoint* breakpoint;
 };
 
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
-unsigned int IProcessor::ThisIProcessorVersion()
-{
-	return 1;
-}
-
-//----------------------------------------------------------------------------------------
-//Breakpoint functions
-//----------------------------------------------------------------------------------------
-std::list<IBreakpoint*> IProcessor::GetBreakpointList() const
-{
-	std::list<IBreakpoint*> result;
-	GetBreakpointListInternal(InteropSupport::STLObjectTarget<std::list<IBreakpoint*>>(result));
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-//Watchpoint functions
-//----------------------------------------------------------------------------------------
-std::list<IWatchpoint*> IProcessor::GetWatchpointList() const
-{
-	std::list<IWatchpoint*> result;
-	GetWatchpointListInternal(InteropSupport::STLObjectTarget<std::list<IWatchpoint*>>(result));
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-//Call stack functions
-//----------------------------------------------------------------------------------------
-std::list<IProcessor::CallStackEntry> IProcessor::GetCallStack() const
-{
-	std::list<CallStackEntry> result(0);
-	GetCallStackInternal(InteropSupport::STLObjectTarget<std::list<CallStackEntry>>(result));
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-//Trace functions
-//----------------------------------------------------------------------------------------
-std::list<IProcessor::TraceLogEntry> IProcessor::GetTraceLog() const
-{
-	std::list<TraceLogEntry> result(0);
-	GetTraceLogInternal(InteropSupport::STLObjectTarget<std::list<TraceLogEntry>>(result));
-	return result;
-}
-
-//----------------------------------------------------------------------------------------
-//Active disassembly analysis functions
-//----------------------------------------------------------------------------------------
-bool IProcessor::ActiveDisassemblyExportAnalysisToASMFile(const std::wstring& filePath) const
-{
-	return ActiveDisassemblyExportAnalysisToASMFileInternal(InteropSupport::STLObjectSource<std::wstring>(filePath));
-}
-
-//----------------------------------------------------------------------------------------
-bool IProcessor::ActiveDisassemblyExportAnalysisToTextFile(const std::wstring& filePath) const
-{
-	return ActiveDisassemblyExportAnalysisToTextFileInternal(InteropSupport::STLObjectSource<std::wstring>(filePath));
-}
-
-//----------------------------------------------------------------------------------------
-bool IProcessor::ActiveDisassemblyExportAnalysisToIDCFile(const std::wstring& filePath) const
-{
-	return ActiveDisassemblyExportAnalysisToIDCFileInternal(InteropSupport::STLObjectSource<std::wstring>(filePath));
-}
+//Restore the disabled warnings
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif

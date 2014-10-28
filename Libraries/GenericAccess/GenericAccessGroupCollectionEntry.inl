@@ -31,12 +31,6 @@ GenericAccessGroupCollectionEntry* GenericAccessGroupCollectionEntry::SetDataCon
 //----------------------------------------------------------------------------------------
 //Collection info functions
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessGroupCollectionEntry::GetName() const
-{
-	return name;
-}
-
-//----------------------------------------------------------------------------------------
 GenericAccessGroupCollectionEntry* GenericAccessGroupCollectionEntry::SetName(const std::wstring& aname)
 {
 	name = aname;
@@ -57,23 +51,6 @@ GenericAccessGroupCollectionEntry* GenericAccessGroupCollectionEntry::SetKeyData
 {
 	keyDataType = akeyDataType;
 	return this;
-}
-
-//----------------------------------------------------------------------------------------
-std::list<IGenericAccessGroupEntry*> GenericAccessGroupCollectionEntry::GetEntries() const
-{
-	std::list<IGenericAccessGroupEntry*> entryList;
-	for(std::list<GenericAccessGroupCollectionEntry::CollectionEntry>::const_iterator i = entries.begin(); i != entries.end(); ++i)
-	{
-		entryList.push_back(i->value);
-	}
-	return entryList;
-}
-
-//----------------------------------------------------------------------------------------
-std::list<GenericAccessGroupCollectionEntry::CollectionEntry> GenericAccessGroupCollectionEntry::GetCollectionEntries() const
-{
-	return entries;
 }
 
 //----------------------------------------------------------------------------------------

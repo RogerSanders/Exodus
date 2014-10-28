@@ -13,13 +13,13 @@ public:
 
 public:
 	//Interface version functions
-	static inline unsigned int ThisIGenericAccessGroupCollectionEntryVersion();
+	static inline unsigned int ThisIGenericAccessGroupCollectionEntryVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessGroupCollectionEntryVersion() const = 0;
 
 	//Collection entry functions
 	virtual IGenericAccessDataValue::DataType GetKeyDataType() const = 0;
-	inline std::list<CollectionEntry> GetCollectionEntries() const;
-	inline IGenericAccessGroupEntry* GetCollectionEntry(const std::wstring& key) const;
+	virtual MarshalSupport::Marshal::Ret<std::list<CollectionEntry>> GetCollectionEntries() const = 0;
+	virtual IGenericAccessGroupEntry* GetCollectionEntry(const MarshalSupport::Marshal::In<std::wstring>& key) const = 0;
 	virtual IGenericAccessGroupEntry* GetCollectionEntry(const IGenericAccessDataValue& key) const = 0;
 
 	//Modification functions
@@ -28,11 +28,6 @@ public:
 	virtual void ReleaseReadLock() const = 0;
 	virtual void ObtainWriteLock() const = 0;
 	virtual void ReleaseWriteLock() const = 0;
-
-protected:
-	//Collection entry functions
-	virtual void GetCollectionEntriesInternal(const InteropSupport::ISTLObjectTarget<std::list<CollectionEntry>>& marshaller) const = 0;
-	virtual IGenericAccessGroupEntry* GetCollectionEntryInternal(const InteropSupport::ISTLObjectSource<std::wstring>& keyMarshaller) const = 0;
 };
 
 #include "IGenericAccessGroupCollectionEntry.inl"

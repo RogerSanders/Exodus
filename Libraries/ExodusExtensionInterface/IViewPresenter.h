@@ -1,7 +1,7 @@
 #ifndef __IVIEWPRESENTER_H__
 #define __IVIEWPRESENTER_H__
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
-#include "InteropSupport/InteropSupport.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
 #include "IViewStateChangeNotifier.h"
 #include "AssemblyHandle.h"
 #include <string>
@@ -19,7 +19,7 @@ public:
 	virtual ~IViewPresenter() = 0 {}
 
 	//Interface version functions
-	static inline unsigned int ThisIViewPresenterVersion();
+	static inline unsigned int ThisIViewPresenterVersion() { return 1; }
 	virtual unsigned int GetIViewPresenterVersion() const = 0;
 
 	//Assembly handle functions
@@ -35,26 +35,17 @@ public:
 
 	//View target functions
 	virtual ViewTarget GetViewTarget() const = 0;
-	inline std::wstring GetViewTargetDeviceInstanceName() const;
-	inline std::wstring GetViewTargetExtensionInstanceName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewTargetDeviceInstanceName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewTargetExtensionInstanceName() const = 0;
 	virtual bool GetViewTargetGlobalExtension() const = 0;
 	virtual unsigned int GetViewTargetModuleID() const = 0;
 
 	//State functions
 	virtual int GetViewID() const = 0;
-	inline std::wstring GetViewGroupName() const;
-	inline std::wstring GetViewName() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewGroupName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewName() const = 0;
 	virtual bool LoadViewState(IHierarchicalStorageNode& viewState) = 0;
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const = 0;
-
-protected:
-	//View target functions
-	virtual void GetViewTargetDeviceInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetViewTargetExtensionInstanceNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-
-	//State functions
-	virtual void GetViewGroupNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
-	virtual void GetViewNameInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const = 0;
 };
 
 #include "IViewPresenter.inl"

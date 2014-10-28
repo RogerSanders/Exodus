@@ -81,7 +81,7 @@ void S315_5313Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& men
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313Menus::RestoreDeviceViewState(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IDevice* targetDevice)
+bool S315_5313Menus::RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IDevice* targetDevice)
 {
 	bool result = false;
 	result |= debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState);
@@ -90,7 +90,7 @@ bool S315_5313Menus::RestoreDeviceViewState(const std::wstring& viewGroupName, c
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313Menus::OpenDeviceView(const std::wstring& viewGroupName, const std::wstring& viewName, IDevice* targetDevice)
+bool S315_5313Menus::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
 {
 	bool result = false;
 	result |= debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);

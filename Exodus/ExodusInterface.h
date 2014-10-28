@@ -108,9 +108,9 @@ public:
 	bool SaveWorkspaceToFile(const std::wstring& filePath);
 
 	//Module functions
-	bool CanModuleBeLoaded(const std::wstring& filePath) const;
+	virtual bool CanModuleBeLoaded(const MarshalSupport::Marshal::In<std::wstring>& filePath) const;
 	bool LoadModule(const std::wstring& folder);
-	bool LoadModuleFromFile(const std::wstring& filePath);
+	virtual bool LoadModuleFromFile(const MarshalSupport::Marshal::In<std::wstring>& filePath);
 	bool SaveSystem(const std::wstring& folder);
 	bool SaveSystemToFile(const std::wstring& filePath);
 	virtual void UnloadModule(unsigned int moduleID);
@@ -119,45 +119,45 @@ public:
 	//Global preference functions
 	bool LoadPrefs(const std::wstring& filePath);
 	void SavePrefs(const std::wstring& filePath);
-	inline std::wstring GetPreferenceDirectoryPath() const;
-	inline std::wstring GetGlobalPreferencePathModules() const;
-	inline std::wstring GetGlobalPreferencePathSavestates() const;
-	inline std::wstring GetGlobalPreferencePathPersistentState() const;
-	inline std::wstring GetGlobalPreferencePathWorkspaces() const;
-	inline std::wstring GetGlobalPreferencePathCaptures() const;
-	inline std::wstring GetGlobalPreferencePathAssemblies() const;
-	inline std::wstring GetGlobalPreferenceInitialSystem() const;
-	inline std::wstring GetGlobalPreferenceInitialWorkspace() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetPreferenceDirectoryPath() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathModules() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathSavestates() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathPersistentState() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathWorkspaces() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathCaptures() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferencePathAssemblies() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferenceInitialSystem() const;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetGlobalPreferenceInitialWorkspace() const;
 	virtual bool GetGlobalPreferenceEnableThrottling() const;
 	virtual bool GetGlobalPreferenceRunWhenProgramModuleLoaded() const;
 	virtual bool GetGlobalPreferenceEnablePersistentState() const;
 	virtual bool GetGlobalPreferenceLoadWorkspaceWithDebugState() const;
 	virtual bool GetGlobalPreferenceShowDebugConsole() const;
-	inline void SetGlobalPreferencePathModules(const std::wstring& state);
-	inline void SetGlobalPreferencePathSavestates(const std::wstring& state);
-	inline void SetGlobalPreferencePathPersistentState(const std::wstring& state);
-	inline void SetGlobalPreferencePathWorkspaces(const std::wstring& state);
-	inline void SetGlobalPreferencePathCaptures(const std::wstring& state);
-	inline void SetGlobalPreferencePathAssemblies(const std::wstring& state);
-	inline void SetGlobalPreferenceInitialSystem(const std::wstring& state);
-	inline void SetGlobalPreferenceInitialWorkspace(const std::wstring& state);
-	inline void SetGlobalPreferenceEnableThrottling(bool state);
-	inline void SetGlobalPreferenceRunWhenProgramModuleLoaded(bool state);
-	inline void SetGlobalPreferenceEnablePersistentState(bool state);
-	inline void SetGlobalPreferenceLoadWorkspaceWithDebugState(bool state);
-	inline void SetGlobalPreferenceShowDebugConsole(bool state);
+	void SetGlobalPreferencePathModules(const std::wstring& state);
+	void SetGlobalPreferencePathSavestates(const std::wstring& state);
+	void SetGlobalPreferencePathPersistentState(const std::wstring& state);
+	void SetGlobalPreferencePathWorkspaces(const std::wstring& state);
+	void SetGlobalPreferencePathCaptures(const std::wstring& state);
+	void SetGlobalPreferencePathAssemblies(const std::wstring& state);
+	void SetGlobalPreferenceInitialSystem(const std::wstring& state);
+	void SetGlobalPreferenceInitialWorkspace(const std::wstring& state);
+	void SetGlobalPreferenceEnableThrottling(bool state);
+	void SetGlobalPreferenceRunWhenProgramModuleLoaded(bool state);
+	void SetGlobalPreferenceEnablePersistentState(bool state);
+	void SetGlobalPreferenceLoadWorkspaceWithDebugState(bool state);
+	void SetGlobalPreferenceShowDebugConsole(bool state);
 
 	//Assembly functions
 	bool LoadAssembliesFromFolder(const std::wstring& folder);
 	bool LoadAssembliesFromFolderSynchronous(const std::wstring& folder);
-	bool LoadAssembly(const std::wstring& filePath);
+	virtual bool LoadAssembly(const MarshalSupport::Marshal::In<std::wstring>& filePath);
 	bool LoadAssemblyInfo(const std::wstring& filePath, PluginInfo& pluginInfo);
 
 	//File selection functions
-	virtual bool SelectExistingFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, bool scanIntoArchives, std::wstring& selectedFilePath) const;
-	virtual bool SelectNewFile(const std::wstring& selectionTypeString, const std::wstring& defaultExtension, const std::wstring& initialFilePath, const std::wstring& initialDirectory, std::wstring& selectedFilePath) const;
-	virtual std::vector<std::wstring> PathSplitElements(const std::wstring& path) const;
-	virtual Stream::IStream* OpenExistingFileForRead(const std::wstring& path) const;
+	virtual bool SelectExistingFile(const MarshalSupport::Marshal::In<std::wstring>& selectionTypeString, const MarshalSupport::Marshal::In<std::wstring>& defaultExtension, const MarshalSupport::Marshal::In<std::wstring>& initialFilePath, const MarshalSupport::Marshal::In<std::wstring>& initialDirectory, bool scanIntoArchives, const MarshalSupport::Marshal::Out<std::wstring>& selectedFilePath) const;
+	virtual bool SelectNewFile(const MarshalSupport::Marshal::In<std::wstring>& selectionTypeString, const MarshalSupport::Marshal::In<std::wstring>& defaultExtension, const MarshalSupport::Marshal::In<std::wstring>& initialFilePath, const MarshalSupport::Marshal::In<std::wstring>& initialDirectory, const MarshalSupport::Marshal::Out<std::wstring>& selectedFilePath) const;
+	virtual MarshalSupport::Marshal::Ret<std::vector<std::wstring>> PathSplitElements(const MarshalSupport::Marshal::In<std::wstring>& path) const;
+	virtual Stream::IStream* OpenExistingFileForRead(const MarshalSupport::Marshal::In<std::wstring>& path) const;
 	virtual void DeleteFileStream(Stream::IStream* stream) const;
 
 	//Device functions
@@ -165,30 +165,6 @@ public:
 
 	//Extension functions
 	std::list<RegisteredExtensionInfo> GetRegisteredExtensions() const;
-
-protected:
-	//Module functions
-	virtual bool CanModuleBeLoadedInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller) const;
-	virtual bool LoadModuleFromFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller);
-
-	//Global preference functions
-	virtual void GetGlobalPreferencePathModulesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetGlobalPreferencePathSavestatesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetGlobalPreferencePathPersistentStateInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetGlobalPreferencePathWorkspacesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetGlobalPreferencePathCapturesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetGlobalPreferencePathAssembliesInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetGlobalPreferenceInitialSystemInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-	virtual void GetGlobalPreferenceInitialWorkspaceInternal(const InteropSupport::ISTLObjectTarget<std::wstring>& marshaller) const;
-
-	//Assembly functions
-	virtual bool LoadAssemblyInternal(const InteropSupport::ISTLObjectSource<std::wstring>& filePathMarshaller);
-
-	//File selection functions
-	virtual bool SelectExistingFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, bool scanIntoArchives, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const;
-	virtual bool SelectNewFileInternal(const InteropSupport::ISTLObjectSource<std::wstring>& selectionTypeStringMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& defaultExtensionMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialFilePathMarshaller, const InteropSupport::ISTLObjectSource<std::wstring>& initialDirectoryMarshaller, const InteropSupport::ISTLObjectTarget<std::wstring>& selectedFilePathMarshaller) const;
-	virtual void PathSplitElementsInternal(const InteropSupport::ISTLObjectTarget<std::vector<std::wstring>>& marshaller, const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const;
-	virtual Stream::IStream* OpenExistingFileForReadInternal(const InteropSupport::ISTLObjectSource<std::wstring>& pathMarshaller) const;
 
 private:
 	//Structures

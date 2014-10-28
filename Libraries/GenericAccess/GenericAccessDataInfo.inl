@@ -176,18 +176,6 @@ GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathAllowScanningIntoArchiv
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring GenericAccessDataInfo::GetFilePathExtensionFilter() const
-{
-	return filePathExtensionFilter;
-}
-
-//----------------------------------------------------------------------------------------
-std::wstring GenericAccessDataInfo::GetFilePathDefaultExtension() const
-{
-	return filePathDefaultExtension;
-}
-
-//----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathExtensionFilter(const std::wstring& afilePathExtensionFilter)
 {
 	filePathExtensionFilter = afilePathExtensionFilter;
