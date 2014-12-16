@@ -405,6 +405,10 @@ LRESULT CALLBACK ViewBase::WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wpa
 	case WM_DESTROY:
 		if(state != 0)
 		{
+			//Notify the UI manager that the window has been destroyed. Note that we need
+			//to do this for any window that the UI manager created for us.
+			state->uiManager.NotifyWindowDestroyed(*state, state->viewPresenter, hwnd);
+
 			//Pass this message on to the member window procedure function
 			LRESULT result = state->WndProcWindow(hwnd, msg, wparam, lparam);
 
