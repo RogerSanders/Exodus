@@ -562,12 +562,17 @@ bool ViewManager::ShowDialogWindowFirstTime(IView& view, IViewPresenter& viewPre
 	RegisterDialogFrameWindowClass(viewManagerAssemblyHandle);
 
 	//Determine the window style settings to use for the dialog window frame
+	IView::DialogMode dialogMode = view.GetViewDialogMode();
 	DWORD dialogWindowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_POPUP;
 	if(view.CanResizeDialog())
 	{
 		dialogWindowStyle |= WS_SIZEBOX | WS_MAXIMIZEBOX;
 	}
-	DWORD dialogWindowExtendedStyle = 0;
+	//Note that we set the toolwindow style for modeless dialogs only. We do this because
+	//if we set this style for a modal dialog, the application disappears from the alt+tab
+	//window list while the modal dialog is active, since tool windows are excluded from
+	//the alt+tab list.
+	DWORD dialogWindowExtendedStyle = (dialogMode == IView::DialogMode::Modeless)? WS_EX_TOOLWINDOW: 0;
 
 	//Calculate the size to use for the dialog frame in order for it to allow the hosted
 	//window to be fully visible
@@ -582,7 +587,6 @@ bool ViewManager::ShowDialogWindowFirstTime(IView& view, IViewPresenter& viewPre
 	//dialog frame window procedure.
 	LPVOID createWindowParam = 0;
 	std::list<HWND> disabledWindowList;
-	IView::DialogMode dialogMode = view.GetViewDialogMode();
 	IView::DialogPos initialDialogPos = view.GetViewInitialDialogPosition();
 	if(dialogMode == IView::DialogMode::Modal)
 	{
