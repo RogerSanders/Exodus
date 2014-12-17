@@ -102,10 +102,9 @@ ISystemGUIInterface* ExodusInterface::GetSystemInterface() const
 //----------------------------------------------------------------------------------------
 HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 {
-	//Calculate the dimensions of the main window. We calculate a window size that
-	//achieves a client region height of 0.
-	unsigned int width = DPIScaleWidth(800);
-	unsigned int height = 0;
+	//Calculate the default dimensions of the main window.
+	unsigned int width = DPIScaleWidth(1024);
+	unsigned int height = DPIScaleWidth(768);
 	RECT clientRect;
 	clientRect.left = 0;
 	clientRect.top = 0;
