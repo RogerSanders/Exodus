@@ -562,12 +562,12 @@ bool ViewManager::ShowDialogWindowFirstTime(IView& view, IViewPresenter& viewPre
 	RegisterDialogFrameWindowClass(viewManagerAssemblyHandle);
 
 	//Determine the window style settings to use for the dialog window frame
-	DWORD dialogWindowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+	DWORD dialogWindowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_POPUP;
 	if(view.CanResizeDialog())
 	{
 		dialogWindowStyle |= WS_SIZEBOX | WS_MAXIMIZEBOX;
 	}
-	DWORD dialogWindowExtendedStyle = WS_EX_TOOLWINDOW;
+	DWORD dialogWindowExtendedStyle = 0;
 
 	//Calculate the size to use for the dialog frame in order for it to allow the hosted
 	//window to be fully visible
@@ -919,16 +919,23 @@ void ViewManager::CloseWindow(IView& view, IViewPresenter& viewPresenter, HWND w
 	switch(viewType)
 	{
 	case IView::ViewType::Dialog:{
-		//Destroy the window and its parent dialog frame
+		//Attempt to close the window and its parent dialog frame. Note that in order to
+		//activate the correct window in response to closing a modal dialog, we need to
+		//re-enable the parent window before destroying the dialog, so we need the close
+		//handler to run for the dialog frame at this point rather than directly calling
+		//the DestroyWindow function.
 		HWND dialogFrame = GetParentDialogWindowFrame(windowHandle);
 		if(dialogFrame != NULL)
 		{
-			DestroyWindow(dialogFrame);
+			SendMessage(dialogFrame, WM_CLOSE, 0, 0);
 		}
 		break;}
 	case IView::ViewType::Dockable:
 	case IView::ViewType::Document:{
 		//Remove this window from any current docking parent
+		//##FIX## We should go through the normal window close message system here, giving
+		//the view a chance to cancel the close request, and we should return a boolean
+		//value indicating the result of the close attempt.
 		HWND parentDockingWindow = GetParentDockingWindow(windowHandle);
 		if(parentDockingWindow != NULL)
 		{
