@@ -89,8 +89,8 @@ LRESULT EventLogView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddColumn, 0, (LPARAM)&(const WC_LayoutGrid::AddColumnParams&)WC_LayoutGrid::AddColumnParams(WC_LayoutGrid::SizeMode::Proportional));
 
 	//Add each child control to the layout grid
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(hwndNestedDialog, 0, 0, WC_LayoutGrid::WindowSizeMode::Fixed, WC_LayoutGrid::WindowSizeMode::Fixed));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(hwndEventLogGrid, 0, 1, WC_LayoutGrid::WindowSizeMode::Proportional, WC_LayoutGrid::WindowSizeMode::Proportional));
+	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(hwndNestedDialog, 0, 0).SetSizeMode(WC_LayoutGrid::WindowSizeMode::Fixed));
+	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(hwndEventLogGrid, 0, 1));
 
 	//Start the event log refresh timer
 	SetTimer(hwnd, 1, 100, NULL);

@@ -597,8 +597,8 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 		}
 
 		//Calculate the vertical position of this window
-		int startRowPosY = rows[windowInfo.rowNo].currentPosY + windowInfo.paddingTop;
-		int newWindowPosY = startRowPosY + (int)((double)(combinedRowHeight - newWindowSizeY) * windowInfo.verticalAlignmentDisplacement);
+		int startRowPosY = rows[windowInfo.rowNo].currentPosY;
+		int newWindowPosY = (startRowPosY + windowInfo.paddingTop) + (int)((double)((combinedRowHeight - (windowInfo.paddingTop + windowInfo.paddingBottom)) - newWindowSizeY) * windowInfo.verticalAlignmentDisplacement);
 
 		//Calculate the new width of this window
 		int newWindowSizeX = 0;
@@ -627,8 +627,8 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 		}
 
 		//Calculate the horizontal position of this window
-		int startColumnPosX = columns[windowInfo.columnNo].currentPosX + windowInfo.paddingLeft;
-		int newWindowPosX = startColumnPosX + (int)((double)(combinedColumnWidth - newWindowSizeX) * windowInfo.horizontalAlignmentDisplacement);
+		int startColumnPosX = columns[windowInfo.columnNo].currentPosX;
+		int newWindowPosX = (startColumnPosX + windowInfo.paddingLeft) + (int)((double)((combinedColumnWidth - (windowInfo.paddingLeft + windowInfo.paddingRight)) - newWindowSizeX) * windowInfo.horizontalAlignmentDisplacement);
 
 		//If the size or position of this docked window has changed, add it to the update
 		//session.
