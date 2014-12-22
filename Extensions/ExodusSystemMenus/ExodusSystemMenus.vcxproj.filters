@@ -22,12 +22,6 @@
     <Filter Include="ExodusSystemMenus\InputMappingView">
       <UniqueIdentifier>{2e243585-9d96-44cb-8ba5-5142c1a3ff07}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ExodusSystemMenus\LoggerDetailsView">
-      <UniqueIdentifier>{b25c6c36-1adb-4d78-b48f-c37180ab4a8f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ExodusSystemMenus\LoggerView">
-      <UniqueIdentifier>{981958a4-b426-436b-874d-98c0128aac08}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ExodusSystemMenus\SettingsMenuHandler">
       <UniqueIdentifier>{f4b07cfe-8449-4b00-ab35-b500a1d6a94f}</UniqueIdentifier>
     </Filter>
@@ -36,6 +30,9 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{6b484d77-6487-42ee-9aab-fd98eacbe588}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExodusSystemMenus\EventLogView">
+      <UniqueIdentifier>{0a1ffd4f-6387-4c74-a25f-264bf7da53f2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -72,18 +69,6 @@
     <ClCompile Include="InputMappingViewPresenter.cpp">
       <Filter>ExodusSystemMenus\InputMappingView</Filter>
     </ClCompile>
-    <ClCompile Include="LoggerDetailsView.cpp">
-      <Filter>ExodusSystemMenus\LoggerDetailsView</Filter>
-    </ClCompile>
-    <ClCompile Include="LoggerDetailsViewPresenter.cpp">
-      <Filter>ExodusSystemMenus\LoggerDetailsView</Filter>
-    </ClCompile>
-    <ClCompile Include="LoggerView.cpp">
-      <Filter>ExodusSystemMenus\LoggerView</Filter>
-    </ClCompile>
-    <ClCompile Include="LoggerViewPresenter.cpp">
-      <Filter>ExodusSystemMenus\LoggerView</Filter>
-    </ClCompile>
     <ClCompile Include="SettingsMenuHandler.cpp">
       <Filter>ExodusSystemMenus\SettingsMenuHandler</Filter>
     </ClCompile>
@@ -91,6 +76,12 @@
       <Filter>ExodusSystemMenus\SystemMenuHandler</Filter>
     </ClCompile>
     <ClCompile Include="interface.cpp" />
+    <ClCompile Include="EventLogView.cpp">
+      <Filter>ExodusSystemMenus\EventLogView</Filter>
+    </ClCompile>
+    <ClCompile Include="EventLogViewPresenter.cpp">
+      <Filter>ExodusSystemMenus\EventLogView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExodusSystemMenus.h">
@@ -126,18 +117,6 @@
     <ClInclude Include="InputMappingViewPresenter.h">
       <Filter>ExodusSystemMenus\InputMappingView</Filter>
     </ClInclude>
-    <ClInclude Include="LoggerDetailsView.h">
-      <Filter>ExodusSystemMenus\LoggerDetailsView</Filter>
-    </ClInclude>
-    <ClInclude Include="LoggerDetailsViewPresenter.h">
-      <Filter>ExodusSystemMenus\LoggerDetailsView</Filter>
-    </ClInclude>
-    <ClInclude Include="LoggerView.h">
-      <Filter>ExodusSystemMenus\LoggerView</Filter>
-    </ClInclude>
-    <ClInclude Include="LoggerViewPresenter.h">
-      <Filter>ExodusSystemMenus\LoggerView</Filter>
-    </ClInclude>
     <ClInclude Include="SettingsMenuHandler.h">
       <Filter>ExodusSystemMenus\SettingsMenuHandler</Filter>
     </ClInclude>
@@ -148,6 +127,12 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="interface.h" />
+    <ClInclude Include="EventLogView.h">
+      <Filter>ExodusSystemMenus\EventLogView</Filter>
+    </ClInclude>
+    <ClInclude Include="EventLogViewPresenter.h">
+      <Filter>ExodusSystemMenus\EventLogView</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ExodusSystemMenus.rc">

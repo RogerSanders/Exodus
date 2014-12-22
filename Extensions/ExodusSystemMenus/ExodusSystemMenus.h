@@ -25,7 +25,6 @@ public:
 	virtual bool RestoreModuleViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID);
 	virtual bool OpenSystemView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName);
 	virtual bool OpenModuleView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, unsigned int moduleID);
-	void OpenLoggerDetailsView(const ISystemGUIInterface::SystemLogEntry& alogEntry);
 	void OpenInputMappingDetailsView(IDevice* targetDevice);
 	void CloseInputMappingDetailsView();
 

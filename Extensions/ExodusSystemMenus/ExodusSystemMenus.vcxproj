@@ -343,6 +343,9 @@
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\..\Support Libraries\WindowsControls\WindowsControls.vcxproj">
+      <Project>{952d92a9-1e79-420c-8a8a-c6f230e819b5}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugMenuHandler.cpp" />
@@ -350,16 +353,14 @@
     <ClCompile Include="DeviceControlViewPresenter.cpp" />
     <ClCompile Include="EmbeddedROMView.cpp" />
     <ClCompile Include="EmbeddedROMViewPresenter.cpp" />
+    <ClCompile Include="EventLogView.cpp" />
+    <ClCompile Include="EventLogViewPresenter.cpp" />
     <ClCompile Include="ExodusSystemMenus.cpp" />
     <ClCompile Include="InputMappingDetailsView.cpp" />
     <ClCompile Include="InputMappingDetailsViewPresenter.cpp" />
     <ClCompile Include="InputMappingView.cpp" />
     <ClCompile Include="InputMappingViewPresenter.cpp" />
     <ClCompile Include="interface.cpp" />
-    <ClCompile Include="LoggerDetailsView.cpp" />
-    <ClCompile Include="LoggerDetailsViewPresenter.cpp" />
-    <ClCompile Include="LoggerView.cpp" />
-    <ClCompile Include="LoggerViewPresenter.cpp" />
     <ClCompile Include="ModuleOptionMenuHandler.cpp" />
     <ClCompile Include="SettingsMenuHandler.cpp" />
     <ClCompile Include="SystemMenuHandler.cpp" />
@@ -370,16 +371,14 @@
     <ClInclude Include="DeviceControlViewPresenter.h" />
     <ClInclude Include="EmbeddedROMView.h" />
     <ClInclude Include="EmbeddedROMViewPresenter.h" />
+    <ClInclude Include="EventLogView.h" />
+    <ClInclude Include="EventLogViewPresenter.h" />
     <ClInclude Include="ExodusSystemMenus.h" />
     <ClInclude Include="InputMappingDetailsView.h" />
     <ClInclude Include="InputMappingDetailsViewPresenter.h" />
     <ClInclude Include="InputMappingView.h" />
     <ClInclude Include="InputMappingViewPresenter.h" />
     <ClInclude Include="interface.h" />
-    <ClInclude Include="LoggerDetailsView.h" />
-    <ClInclude Include="LoggerDetailsViewPresenter.h" />
-    <ClInclude Include="LoggerView.h" />
-    <ClInclude Include="LoggerViewPresenter.h" />
     <ClInclude Include="ModuleOptionMenuHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SettingsMenuHandler.h" />
@@ -393,5 +392,5 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
-  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets"/>
+  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets" />
 </Project>

@@ -9,15 +9,11 @@ public:
 	//Enumerations
 	enum MenuItem
 	{
-		MENUITEM_LOGGER,
-		MENUITEM_LOGGERDETAILS,
+		MENUITEM_EVENTLOG
 	};
 
 	//Constructors
 	SystemMenuHandler(ExodusSystemMenus& aowner, ISystemGUIInterface& amodel);
-
-	//Window functions
-	void OpenLoggerDetailsView(const ISystemGUIInterface::SystemLogEntry& alogEntry);
 
 protected:
 	//Management functions

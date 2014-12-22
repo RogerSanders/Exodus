@@ -4727,7 +4727,7 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 bool S315_5313::GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const
 {
 	std::unique_lock<std::mutex> lock(registerLockMutex);
-	switch(dataID)
+	switch((IS315_5313DataSource)dataID)
 	{
 	case IS315_5313DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
@@ -4821,7 +4821,7 @@ bool S315_5313::GetGenericDataLocked(unsigned int dataID, const DataContext* dat
 //----------------------------------------------------------------------------------------
 bool S315_5313::SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state)
 {
-	switch(dataID)
+	switch((IS315_5313DataSource)dataID)
 	{
 	case IS315_5313DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);

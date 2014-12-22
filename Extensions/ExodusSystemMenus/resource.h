@@ -2,17 +2,22 @@
 // Microsoft Visual C++ generated include file.
 // Used by ExodusSystemMenus.rc
 //
+#define IDD_EVENTLOG_CONTROL            102
 #define IDD_M68000_DEBUG                108
-#define IDD_LOGGER                      127
 #define IDD_DEVICECONTROL               128
-#define IDD_LOGGER_DETAILS              132
 #define IDD_DIALOG1                     140
 #define IDI_FOLDER                      151
 #define IDD_INPUTMAPPING                168
 #define IDD_INPUTMAPPING_DETAILS        169
 #define IDD_EMBEDDEDROM                 170
 #define IDD_SELECTCOMPRESSEDFILE        173
-#define IDC_LOGGER_LIST                 1317
+#define IDC_EVENTLOG_SAVE               1001
+#define IDC_EVENTLOG_CLEAR              1002
+#define IDC_EVENTLOG_SHOW_5             1003
+#define IDC_EVENTLOG_SHOW_1             1004
+#define IDC_EVENTLOG_SHOW_2             1005
+#define IDC_EVENTLOG_SHOW_3             1006
+#define IDC_EVENTLOG_SHOW_4             1007
 #define IDC_DEVICECONTROL_DEVICE_ENABLED 1320
 #define IDC_BUTTON1                     1321
 #define IDC_CHECK7                      1321
@@ -35,11 +40,9 @@
 #define IDC_MODULEUNLOADER_REFRESH      1323
 #define IDC_MODULEMANAGER_LOAD          1323
 #define IDC_INPUTMAPPING_DETAILS_RESTOREDEFAULTS 1323
-#define IDC_LOGGER_DETAILS_TIME         1324
 #define IDC_SETTINGS_PATHADDONS         1324
 #define IDC_DEVICECONTROL_LIST          1324
 #define IDC_BUTTON3                     1325
-#define IDC_LOGGER_DETAILS_LEVEL        1325
 #define IDC_SETTINGS_PATHSAVESTATES     1325
 #define IDC_DEVICECONTROL_DEVICE_INITIALIZE 1325
 #define IDC_BUTTON4                     1326
@@ -53,32 +56,22 @@
 #define IDC_SETTINGS_LOADSYSTEM         1329
 #define IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT 1329
 #define IDC_SETTINGS_LOADSYSTEMCHANGE   1330
-#define IDC_LOGGER_SHOW_1               1331
 #define IDC_EDIT5                       1331
 #define IDC_SETTINGS_PATHCAPTURES       1331
-#define IDC_LOGGER_DETAILS_SOURCE       1332
-#define IDC_LOGGER_SHOW_2               1332
 #define IDC_EDIT6                       1332
 #define IDC_SETTINGS_PATHCAPTURESCHANGE 1332
-#define IDC_LOGGER_DETAILS_DESCRIPTION  1333
-#define IDC_LOGGER_SHOW_3               1333
 #define IDC_VDP_SPRITELIST_DETAILS_COMPLETE 1333
 #define IDC_SETTINGS_LOADWORKSPACE      1333
-#define IDC_LOGGER_SHOW_4               1334
 #define IDC_EDIT7                       1334
 #define IDC_SETTINGS_LOADWORKSPACECHANGE 1334
-#define IDC_LOGGER_SHOW_5               1335
 #define IDC_EDIT8                       1335
 #define IDC_SETTINGS_PATHASSEMBLIES     1335
 #define IDC_LOGGER_SHOW_6               1336
 #define IDC_SETTINGS_PATHASSEMBLIESCHANGE 1336
-#define IDC_LOGGER_CLEAR                1337
 #define IDC_SETTINGS_PATHDEBUGSESSIONS  1337
 #define IDC_SETTINGS_PATHPERSISTENTSTATE 1337
-#define IDC_LOGGER_SAVE                 1338
 #define IDC_SETTINGS_PATHDEBUGSESSIONSCHANGE 1338
 #define IDC_SETTINGS_PATHSAVESTATESCHANGE2 1338
-#define IDC_LOGGER_LISTSIZE             1339
 #define IDC_MEMORY_DATA_LABEL_LINE2     1369
 #define IDC_LOADSYSTEM_PROGRESS         1384
 #define IDC_LOADMODULE_PROGRESS         1384
@@ -204,9 +197,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        102
+#define _APS_NEXT_RESOURCE_VALUE        103
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
