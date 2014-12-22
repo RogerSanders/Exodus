@@ -249,31 +249,31 @@ LRESULT DockingWindow::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam
 		return msgWM_SETFONT(wParam, lParam);
 	case WM_BOUNCE:
 		return msgWM_BOUNCE(wParam, lParam);
-	case WindowMessages::AddContentWindow:
+	case (unsigned int)WindowMessages::AddContentWindow:
 		return msgDOCKWIN_ADDCONTENTWINDOW(wParam, lParam);
-	case WindowMessages::RemoveContentWindow:
+	case (unsigned int)WindowMessages::RemoveContentWindow:
 		return msgDOCKWIN_REMOVECONTENTWINDOW(wParam, lParam);
-	case WindowMessages::ModifyContentWindow:
+	case (unsigned int)WindowMessages::ModifyContentWindow:
 		return msgDOCKWIN_MODIFYCONTENTWINDOW(wParam, lParam);
-	case WindowMessages::AddDockedWindow:
+	case (unsigned int)WindowMessages::AddDockedWindow:
 		return msgDOCKWIN_ADDDOCKEDWINDOW(wParam, lParam);
-	case WindowMessages::RemoveDockedWindow:
+	case (unsigned int)WindowMessages::RemoveDockedWindow:
 		return msgDOCKWIN_REMOVEDOCKEDWINDOW(wParam, lParam);
-	case WindowMessages::GetContentWindowIndexFromHandle:
+	case (unsigned int)WindowMessages::GetContentWindowIndexFromHandle:
 		return msgDOCKWIN_GETCONTENTWINDOWINDEXFROMHANDLE(wParam, lParam);
-	case WindowMessages::GetDockedWindowIndexFromHandle:
+	case (unsigned int)WindowMessages::GetDockedWindowIndexFromHandle:
 		return msgDOCKWIN_GETDOCKEDWINDOWINDEXFROMHANDLE(wParam, lParam);
-	case WindowMessages::GetContentWindowCount:
+	case (unsigned int)WindowMessages::GetContentWindowCount:
 		return msgDOCKWIN_GETCONTENTWINDOWCOUNT(wParam, lParam);
-	case WindowMessages::GetContentWindowInfo:
+	case (unsigned int)WindowMessages::GetContentWindowInfo:
 		return msgDOCKWIN_GETCONTENTWINDOWINFO(wParam, lParam);
-	case WindowMessages::GetDockedWindowCount:
+	case (unsigned int)WindowMessages::GetDockedWindowCount:
 		return msgDOCKWIN_GETDOCKEDWINDOWCOUNT(wParam, lParam);
-	case WindowMessages::GetDockedWindowInfo:
+	case (unsigned int)WindowMessages::GetDockedWindowInfo:
 		return msgDOCKWIN_GETDOCKEDWINDOWINFO(wParam, lParam);
-	case WindowMessages::GetActiveContentWindow:
+	case (unsigned int)WindowMessages::GetActiveContentWindow:
 		return msgDOCKWIN_GETACTIVECONTENTWINDOW(wParam, lParam);
-	case WindowMessages::SetActiveContentWindow:
+	case (unsigned int)WindowMessages::SetActiveContentWindow:
 		return msgDOCKWIN_SETACTIVECONTENTWINDOW(wParam, lParam);
 	}
 

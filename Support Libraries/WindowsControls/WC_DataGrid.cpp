@@ -352,37 +352,37 @@ LRESULT WC_DataGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CTLCOLORSTATIC:
 		return msgWM_CTLCOLORSTATIC(wParam, lParam);
 
-	case WindowMessages::SetManualScrolling:
+	case (unsigned int)WindowMessages::SetManualScrolling:
 		return msgGRID_SETMANUALSCROLLING(wParam, lParam);
-	case WindowMessages::SetDataAreaFont:
+	case (unsigned int)WindowMessages::SetDataAreaFont:
 		return msgGRID_SETDATAAREAFONT(wParam, lParam);
-	case WindowMessages::InsertColumn:
+	case (unsigned int)WindowMessages::InsertColumn:
 		return msgGRID_INSERTCOLUMN(wParam, lParam);
-	case WindowMessages::DeleteColumn:
+	case (unsigned int)WindowMessages::DeleteColumn:
 		return msgGRID_DELETECOLUMN(wParam, lParam);
-	case WindowMessages::InsertRows:
+	case (unsigned int)WindowMessages::InsertRows:
 		return msgGRID_INSERTROWS(wParam, lParam);
-	case WindowMessages::DeleteRows:
+	case (unsigned int)WindowMessages::DeleteRows:
 		return msgGRID_DELETEROWS(wParam, lParam);
-	case WindowMessages::SetColumnInfo:
+	case (unsigned int)WindowMessages::SetColumnInfo:
 		return msgGRID_SETCOLUMNINFO(wParam, lParam);
-	case WindowMessages::GetColumnInfo:
+	case (unsigned int)WindowMessages::GetColumnInfo:
 		return msgGRID_GETCOLUMNINFO(wParam, lParam);
-	case WindowMessages::SetCellInfo:
+	case (unsigned int)WindowMessages::SetCellInfo:
 		return msgGRID_SETCELLINFO(wParam, lParam);
-	case WindowMessages::UpdateCellText:
+	case (unsigned int)WindowMessages::UpdateCellText:
 		return msgGRID_UPDATECELLTEXT(wParam, lParam);
-	case WindowMessages::UpdateColumnText:
+	case (unsigned int)WindowMessages::UpdateColumnText:
 		return msgGRID_UPDATECOLUMNTEXT(wParam, lParam);
-	case WindowMessages::SetControlColor:
+	case (unsigned int)WindowMessages::SetControlColor:
 		return msgGRID_SETCONTROLCOLOR(wParam, lParam);
-	case WindowMessages::SetRowColor:
+	case (unsigned int)WindowMessages::SetRowColor:
 		return msgGRID_SETROWCOLOR(wParam, lParam);
-	case WindowMessages::SetCellColor:
+	case (unsigned int)WindowMessages::SetCellColor:
 		return msgGRID_SETCELLCOLOR(wParam, lParam);
-	case WindowMessages::GetRowCount:
+	case (unsigned int)WindowMessages::GetRowCount:
 		return msgGRID_GETROWCOUNT(wParam, lParam);
-	case WindowMessages::SetVScrollInfo:
+	case (unsigned int)WindowMessages::SetVScrollInfo:
 		return msgGRID_SETVSCROLLINFO(wParam, lParam);
 	}
 
@@ -517,7 +517,7 @@ LRESULT WC_DataGrid::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 {
 	//We handle the WM_ERASEBKGND message here and return 0 to prevent the background
 	//being erased by the default window procedure. Returning zero here will leave the
-	//existing window content intact, and instead leave an erase pending for our WM_PAIN
+	//existing window content intact, and instead leave an erase pending for our WM_PAINT
 	//message handler to process, which is what we want. Without processing this message,
 	//there's a noticeable flicker when redrawing the control where the background is
 	//erased before the WM_PAINT message is issued, such as when the control is resized.
@@ -3235,6 +3235,9 @@ LRESULT WC_DataGrid::msgGRID_INSERTROWS(WPARAM wParam, LPARAM lParam)
 		selectedRowNo += info.rowCount;
 	}
 
+	//Recalculate all automatically sized column widths
+	RecalculateColumnWidths();
+
 	//If automatic scroll management is enabled, recalculate the new scroll settings based
 	//on the new window size.
 	if(autoScrollingManagement)
@@ -3336,6 +3339,9 @@ LRESULT WC_DataGrid::msgGRID_DELETEROWS(WPARAM wParam, LPARAM lParam)
 			selectedRowNo -= info.rowCount;
 		}
 	}
+
+	//Recalculate all automatically sized column widths
+	RecalculateColumnWidths();
 
 	//If automatic scroll management is enabled, recalculate the new scroll settings based
 	//on the new window size.

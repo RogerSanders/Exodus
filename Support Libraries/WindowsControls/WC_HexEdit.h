@@ -38,8 +38,8 @@ public:
 	static const wchar_t* windowClassName;
 
 	//Message numbers
-	enum class WindowMessages;
-	enum class WindowNotifications;
+	enum class WindowMessages :unsigned int;
+	enum class WindowNotifications :unsigned int;
 
 	//Message parameter structures
 	struct Hex_UpdateWindowData;
@@ -64,7 +64,7 @@ public:
 
 private:
 	//Context menu numbers
-	enum class MenuItem;
+	enum class MenuItem :unsigned int;
 
 private:
 	//Drag selection functions

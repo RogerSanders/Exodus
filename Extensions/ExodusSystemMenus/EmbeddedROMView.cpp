@@ -40,7 +40,7 @@ INT_PTR EmbeddedROMView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARA
 INT_PTR EmbeddedROMView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Set the folder icon on the browse button
-	HANDLE folderIconHandle = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_FOLDER), IMAGE_ICON, 0, 0, LR_SHARED);
+	HANDLE folderIconHandle = LoadImage(GetAssemblyHandle(), MAKEINTRESOURCE(IDI_FOLDER), IMAGE_ICON, 0, 0, LR_SHARED);
 	SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_BROWSE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 
 	SetTimer(hwnd, 1, 200, NULL);

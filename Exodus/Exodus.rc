@@ -8,29 +8,28 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "afxres.h"
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_ABOUT DIALOGEX 0, 0, 249, 320
+IDD_ABOUT DIALOGEX 0, 0, 249, 243
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
 EXSTYLE WS_EX_TOOLWINDOW
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,99,299,50,14
+    DEFPUSHBUTTON   "OK",IDOK,99,222,50,14
     CTEXT           "Exodus Emulation Platform",IDC_STATIC,7,6,235,11
     RTEXT           "Version:",IDC_STATIC,64,19,27,8
     RTEXT           "Copyright:",IDC_STATIC,56,30,35,8
@@ -39,13 +38,12 @@ BEGIN
     LTEXT           "",IDC_ABOUT_COPYRIGHT,96,30,146,8
     CONTROL         "<a href=""http://www.exodusemulator.com"">http://www.exodusemulator.com</a>",IDC_ABOUT_URL,
                     "SysLink",WS_TABSTOP,96,42,146,8
-    LTEXT           "Third Party Libraries:",IDC_STATIC,9,223,68,8
-    LTEXT           "Loaded Devices:",IDC_STATIC,11,62,54,8
-    LISTBOX         IDC_ABOUT_THIRDLIBRARIES_LIST,7,232,235,61,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Loaded Devices:",IDC_LOADEDDEVICESTEXT,11,62,54,8
     ICON            "",IDC_ABOUT_LOGO,15,20,21,20,WS_GROUP
-    LTEXT           "Loaded Extensions:",IDC_STATIC,10,142,64,8
+    LTEXT           "Loaded Extensions:",IDC_LOADEDEXTENSIONSTEXT,10,142,64,8
     LTEXT           "This item is a placeholder for a grid",IDC_ABOUT_DEVICELIST_PLACEHOLDER,7,71,235,68,NOT WS_VISIBLE | WS_BORDER
     LTEXT           "This item is a placeholder for a grid",IDC_ABOUT_EXTENSIONLIST_PLACEHOLDER,7,151,235,68,NOT WS_VISIBLE | WS_BORDER
+    PUSHBUTTON      "BorderMeasure",IDC_BORDERMEASURE,7,7,50,14,NOT WS_VISIBLE
 END
 
 IDD_LOGGER DIALOGEX 0, 0, 388, 182
@@ -260,7 +258,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUT, DIALOG
     BEGIN
@@ -268,7 +266,7 @@ BEGIN
         RIGHTMARGIN, 242
         VERTGUIDE, 82
         TOPMARGIN, 7
-        BOTTOMMARGIN, 313
+        BOTTOMMARGIN, 236
     END
 
     IDD_LOGGER, DIALOG
@@ -383,7 +381,7 @@ END
 // Menu
 //
 
-IDR_MAINMENU MENU 
+IDR_MAINMENU MENU
 BEGIN
     POPUP "File"
     BEGIN
@@ -499,7 +497,7 @@ IDI_FOLDER              ICON                    "Resources\\folder.ico"
 // Accelerator
 //
 
-IDR_ACCELERATORS ACCELERATORS 
+IDR_ACCELERATORS ACCELERATORS
 BEGIN
     VK_F6,          ID_FILE_DECREMENTSAVESLOT, VIRTKEY, NOINVERT
     VK_F4,          ID_FILE_HARDRESET,      VIRTKEY, NOINVERT
@@ -532,7 +530,7 @@ BEGIN
     VK_F9,          ID_SYSTEM_TOGGLETHROTTLE, VIRTKEY, NOINVERT
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -540,10 +538,8 @@ END
 // English (Australia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -558,12 +554,14 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""afxres.h\0"
+    "#include ""afxres.h""\r\n"
+    "\0"
 END
 
 3 TEXTINCLUDE 
 BEGIN
-    "\r\0"
+    "\r\n"
+    "\0"
 END
 
 #endif    // APSTUDIO_INVOKED

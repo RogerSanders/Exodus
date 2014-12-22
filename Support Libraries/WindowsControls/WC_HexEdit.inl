@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------
 //Message numbers
 //----------------------------------------------------------------------------------------
-enum class WC_HexEdit::WindowMessages
+enum class WC_HexEdit::WindowMessages :unsigned int
 {
 	WMBase = WM_USER + 0x100,
 	SetWindowSize,
@@ -15,7 +15,7 @@ enum class WC_HexEdit::WindowMessages
 };
 
 //----------------------------------------------------------------------------------------
-enum class WC_HexEdit::WindowNotifications
+enum class WC_HexEdit::WindowNotifications :unsigned int
 {
 	ReadData = 100,
 	WriteData,
@@ -28,7 +28,7 @@ enum class WC_HexEdit::WindowNotifications
 //----------------------------------------------------------------------------------------
 //Context menu numbers
 //----------------------------------------------------------------------------------------
-enum class WC_HexEdit::MenuItem
+enum class WC_HexEdit::MenuItem :unsigned int
 {
 	Copy = 0x100,
 	Paste,

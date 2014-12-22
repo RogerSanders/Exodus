@@ -30,8 +30,8 @@ public:
 	static const wchar_t* windowClassName;
 
 	//Enumerations
-	enum class WindowMessages;
-	enum class WindowNotifications;
+	enum class WindowMessages :unsigned int;
+	enum class WindowNotifications :unsigned int;
 	enum class CellControlType;
 	enum class TextEllipsisMode;
 	enum class ColumnSizeMode;
