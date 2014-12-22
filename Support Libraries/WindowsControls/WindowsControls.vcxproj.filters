@@ -22,6 +22,9 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{4430b72e-23b5-42a9-a237-ed0d5e3e3a18}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Controls\WC_LayoutGrid">
+      <UniqueIdentifier>{587a62f2-12eb-43a3-b75a-e5ff9e2cef63}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WC_DataGrid.cpp">
@@ -38,6 +41,9 @@
     </ClCompile>
     <ClCompile Include="DashboardWindow.cpp">
       <Filter>Controls\DashboardWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="WC_LayoutGrid.cpp">
+      <Filter>Controls\WC_LayoutGrid</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +77,9 @@
     <ClInclude Include="Resources\AutoHideCursor_Up.cur.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="WC_LayoutGrid.h">
+      <Filter>Controls\WC_LayoutGrid</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="WC_DataGrid.inl">
@@ -89,5 +98,8 @@
       <Filter>Controls\DashboardWindow</Filter>
     </None>
     <None Include="WindowsControls.pkg" />
+    <None Include="WC_LayoutGrid.inl">
+      <Filter>Controls\WC_LayoutGrid</Filter>
+    </None>
   </ItemGroup>
 </Project>

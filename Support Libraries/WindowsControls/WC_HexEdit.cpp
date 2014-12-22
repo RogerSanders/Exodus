@@ -977,21 +977,21 @@ LRESULT WC_HexEdit::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PRINTCLIENT:
 		return msgWM_PRINTCLIENT(wParam, lParam);
 
-	case WindowMessages::SetWindowSize:
+	case (unsigned int)WindowMessages::SetWindowSize:
 		return msgHEX_SETWINDOWSIZE(wParam, lParam);
-	case WindowMessages::SetWindowPos:
+	case (unsigned int)WindowMessages::SetWindowPos:
 		return msgHEX_SETWINDOWPOS(wParam, lParam);
-	case WindowMessages::SetWindowAddressOffset:
+	case (unsigned int)WindowMessages::SetWindowAddressOffset:
 		return msgHEX_SETWINDOWADDRESSOFFSET(wParam, lParam);
-	case WindowMessages::SetWindowAddressWidth:
+	case (unsigned int)WindowMessages::SetWindowAddressWidth:
 		return msgHEX_SETWINDOWADDRESSWIDTH(wParam, lParam);
-	case WindowMessages::GetWindowSize:
+	case (unsigned int)WindowMessages::GetWindowSize:
 		return msgHEX_GETWINDOWSIZE(wParam, lParam);
-	case WindowMessages::GetWindowPos:
+	case (unsigned int)WindowMessages::GetWindowPos:
 		return msgHEX_GETWINDOWPOS(wParam, lParam);
-	case WindowMessages::UpdateWindowData:
+	case (unsigned int)WindowMessages::UpdateWindowData:
 		return msgHEX_UPDATEWINDOWDATA(wParam, lParam);
-	case WindowMessages::SetMarkingInfo:
+	case (unsigned int)WindowMessages::SetMarkingInfo:
 		return msgHEX_SETMARKINGINFO(wParam, lParam);
 	}
 
@@ -1636,7 +1636,7 @@ LRESULT WC_HexEdit::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 {
 	//We handle the WM_ERASEBKGND message here and return 0 to prevent the background
 	//being erased by the default window procedure. Returning zero here will leave the
-	//existing window content intact, and instead leave an erase pending for our WM_PAIN
+	//existing window content intact, and instead leave an erase pending for our WM_PAINT
 	//message handler to process, which is what we want. Without processing this message,
 	//there's a noticeable flicker when redrawing the control where the background is
 	//erased before the WM_PAINT message is issued, such as when the control is resized.

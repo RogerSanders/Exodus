@@ -72,6 +72,7 @@
 #define IDC_LOGGER_DETAILS_LEVEL        1325
 #define IDC_SETTINGS_PATHSAVESTATES     1325
 #define IDC_DEVICECONTROL_DEVICE_INITIALIZE 1325
+#define IDC_BORDERMEASURE               1325
 #define IDC_BUTTON4                     1326
 #define IDC_SETTINGS_PATHWORKSPACES     1326
 #define IDC_BUTTON5                     1327
@@ -163,6 +164,9 @@
 #define IDC_LOADPLUGIN_PROGRESS         1472
 #define IDC_LOADPLUGIN_CANCEL           1473
 #define IDC_LOADPLUGIN_PLUGINTEXT       1474
+#define IDC_LOADEDDEVICESTEXT           1475
+#define IDC_LOADEDEXTENSIONSTEXT        1476
+#define IDC_SLIDER1                     1477
 #define IDC_YM2612_REGISTERS_AB2        1558
 #define IDC_YM2612_REGISTERS_104        32782
 #define IDC_YM2612_DEBUGGER_1           32821
@@ -245,7 +249,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        175
 #define _APS_NEXT_COMMAND_VALUE         40117
-#define _APS_NEXT_CONTROL_VALUE         1475
+#define _APS_NEXT_CONTROL_VALUE         1478
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

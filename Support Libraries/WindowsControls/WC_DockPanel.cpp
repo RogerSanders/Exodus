@@ -96,27 +96,27 @@ LRESULT WC_DockPanel::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgWM_CREATE(wParam, lParam);
 	case WM_SIZE:
 		return msgWM_SIZE(wParam, lParam);
-	case WindowMessages::AddContentWindow:
+	case (unsigned int)WindowMessages::AddContentWindow:
 		return msgDOCK_ADDCONTENTWINDOW(wParam, lParam);
-	case WindowMessages::RemoveContentWindow:
+	case (unsigned int)WindowMessages::RemoveContentWindow:
 		return msgDOCK_REMOVECONTENTWINDOW(wParam, lParam);
-	case WindowMessages::AddDockedWindow:
+	case (unsigned int)WindowMessages::AddDockedWindow:
 		return msgDOCK_ADDDOCKEDWINDOW(wParam, lParam);
-	case WindowMessages::AddDockedWindowToFront:
+	case (unsigned int)WindowMessages::AddDockedWindowToFront:
 		return msgDOCK_ADDDOCKEDWINDOWTOFRONT(wParam, lParam);
-	case WindowMessages::RemoveDockedWindow:
+	case (unsigned int)WindowMessages::RemoveDockedWindow:
 		return msgDOCK_REMOVEDOCKEDWINDOW(wParam, lParam);
-	case WindowMessages::GetDockedWindowDesiredWidth:
+	case (unsigned int)WindowMessages::GetDockedWindowDesiredWidth:
 		return msgDOCK_GETDOCKEDWINDOWDESIREDWIDTH(wParam, lParam);
-	case WindowMessages::SetDockedWindowDesiredWidth:
+	case (unsigned int)WindowMessages::SetDockedWindowDesiredWidth:
 		return msgDOCK_SETDOCKEDWINDOWDESIREDWIDTH(wParam, lParam);
-	case WindowMessages::GetDockedWindowDesiredHeight:
+	case (unsigned int)WindowMessages::GetDockedWindowDesiredHeight:
 		return msgDOCK_GETDOCKEDWINDOWDESIREDHEIGHT(wParam, lParam);
-	case WindowMessages::SetDockedWindowDesiredHeight:
+	case (unsigned int)WindowMessages::SetDockedWindowDesiredHeight:
 		return msgDOCK_SETDOCKEDWINDOWDESIREDHEIGHT(wParam, lParam);
-	case WindowMessages::GetContentRect:
+	case (unsigned int)WindowMessages::GetContentRect:
 		return msgDOCK_GETCONTENTRECT(wParam, lParam);
-	case WindowMessages::CalculateNewDockedWindowRect:
+	case (unsigned int)WindowMessages::CalculateNewDockedWindowRect:
 		return msgDOCK_CALCULATENEWDOCKEDWINDOWRECT(wParam, lParam);
 	}
 
@@ -329,7 +329,7 @@ void WC_DockPanel::RemoveDockedWindow(HWND dockedWindow)
 	int currentDockedWindowPosX = rect.left;
 	int currentDockedWindowPosY = rect.top;
 
-	//Remove this new docked window as a child window of our control
+	//Remove this docked window as a child window of our control
 	SetWindowParent(dockedWindow, NULL);
 
 	//Resize the docked window to its specified desired width and height, and position it

@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum class DockingWindow::WindowMessages
+enum class DockingWindow::WindowMessages :unsigned int
 {
 	WMBase = WM_USER + 0x100,
 	AddContentWindow,

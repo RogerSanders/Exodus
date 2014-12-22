@@ -144,6 +144,7 @@
     <ClCompile Include="WC_DataGrid.cpp" />
     <ClCompile Include="WC_DockPanel.cpp" />
     <ClCompile Include="WC_HexEdit.cpp" />
+    <ClCompile Include="WC_LayoutGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DashboardWindow.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="WC_DataGrid.h" />
     <ClInclude Include="WC_DockPanel.h" />
     <ClInclude Include="WC_HexEdit.h" />
+    <ClInclude Include="WC_LayoutGrid.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DashboardWindow.inl" />
@@ -163,6 +165,7 @@
     <None Include="WC_DataGrid.inl" />
     <None Include="WC_DockPanel.inl" />
     <None Include="WC_HexEdit.inl" />
+    <None Include="WC_LayoutGrid.inl" />
     <None Include="WindowsControls.pkg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

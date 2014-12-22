@@ -1,16 +1,7 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum class WC_DockPanel::DockLocation
-{
-	Left,
-	Right,
-	Top,
-	Bottom
-};
-
-//----------------------------------------------------------------------------------------
-enum class WC_DockPanel::WindowMessages
+enum class WC_DockPanel::WindowMessages :unsigned int
 {
 	WMBase = WM_USER + 0x100,
 	AddContentWindow,
@@ -24,6 +15,15 @@ enum class WC_DockPanel::WindowMessages
 	SetDockedWindowDesiredHeight,
 	GetContentRect,
 	CalculateNewDockedWindowRect
+};
+
+//----------------------------------------------------------------------------------------
+enum class WC_DockPanel::DockLocation
+{
+	Left,
+	Right,
+	Top,
+	Bottom
 };
 
 //----------------------------------------------------------------------------------------

@@ -175,10 +175,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Exodus.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <Xml Include="manifest.xml" />
     <Xml Include="manifestx64.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Exodus.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

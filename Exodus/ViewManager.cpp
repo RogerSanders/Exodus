@@ -503,7 +503,8 @@ HWND ViewManager::CreateNativeWindow(IView& view, IViewPresenter& viewPresenter,
 	//activated, and even if the created window doesn't have the WS_VISIBLE style set, the
 	//currently activated window is still deactivated. We create the window as a child
 	//window here to avoid that behaviour.
-	windowStyle |= WS_CHILD | WS_CLIPCHILDREN;
+	windowStyle |= WS_CHILD;
+	windowStyle |= ((extendedWindowStyle & WS_EX_COMPOSITED) == 0)? WS_CLIPCHILDREN: 0;
 	windowStyle &= ~((DWORD)WS_VISIBLE);
 	HWND hwnd = CreateWindowEx(extendedWindowStyle, className.c_str(), L"", windowStyle, 0, 0, 0, 0, mainWindow, NULL, assemblyHandle, (LPVOID)&view);
 	if(hwnd == NULL)

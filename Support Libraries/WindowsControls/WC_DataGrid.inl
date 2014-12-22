@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
-enum class WC_DataGrid::WindowMessages
+enum class WC_DataGrid::WindowMessages :unsigned int
 {
 	WMBase = WM_USER + 0x100,
 	SetManualScrolling,
@@ -23,7 +23,7 @@ enum class WC_DataGrid::WindowMessages
 };
 
 //----------------------------------------------------------------------------------------
-enum class WC_DataGrid::WindowNotifications
+enum class WC_DataGrid::WindowNotifications :unsigned int
 {
 	NewRowCount = 0x100,
 	ShiftRowsUp,
@@ -90,6 +90,10 @@ struct WC_DataGrid::Grid_InsertColumn
 //----------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_InsertRows
 {
+	Grid_InsertRows(unsigned int atargetRowNo = 0, unsigned int arowCount = 0)
+	:targetRowNo(atargetRowNo), rowCount(arowCount)
+	{}
+
 	unsigned int targetRowNo;
 	unsigned int rowCount;
 	std::vector<std::map<unsigned int, std::wstring>> rowData;
@@ -98,6 +102,10 @@ struct WC_DataGrid::Grid_InsertRows
 //----------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_DeleteRows
 {
+	Grid_DeleteRows(unsigned int atargetRowNo = 0, unsigned int arowCount = 0)
+	:targetRowNo(atargetRowNo), rowCount(arowCount)
+	{}
+
 	unsigned int targetRowNo;
 	unsigned int rowCount;
 };

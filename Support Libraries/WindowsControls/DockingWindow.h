@@ -78,7 +78,7 @@ public:
 	static const wchar_t* windowClassName;
 
 	//Enumerations
-	enum class WindowMessages;
+	enum class WindowMessages :unsigned int;
 	enum class ContentWindowInfo :unsigned int;
 	enum class DockedWindowInfo :unsigned int;
 
