@@ -76,11 +76,59 @@ struct WC_LayoutGrid::AddColumnParams
 //----------------------------------------------------------------------------------------
 struct WC_LayoutGrid::AddWindowParams
 {
-	AddWindowParams(HWND awindowHandle, int arowNo = 0, int acolumnNo = 0, WindowSizeMode ahorizontalSizeMode = WindowSizeMode::Proportional, WindowSizeMode averticalSizeMode = WindowSizeMode::Proportional, HorizontalAlignment ahorizontalAlignment = HorizontalAlignment::Left, VerticalAlignment averticalAlignment = VerticalAlignment::Top, int arowSpan = 1, int acolumnSpan = 1)
-	:windowHandle(awindowHandle), rowNo(arowNo), columnNo(acolumnNo), rowSpan(arowSpan), columnSpan(acolumnSpan), horizontalSizeMode(ahorizontalSizeMode), verticalSizeMode(averticalSizeMode), rowProportionStart(1.0), rowProportionEnd(1.0), columnProportionStart(1.0), columnProportionEnd(1.0), paddingLeft(0), paddingRight(0), paddingTop(0), paddingBottom(0), minWidth(-1), minHeight(-1), maxWidth(-1), maxHeight(-1)
+	AddWindowParams(HWND awindowHandle, int arowNo = 0, int acolumnNo = 0)
+	:windowHandle(awindowHandle), rowNo(arowNo), columnNo(acolumnNo), rowSpan(1), columnSpan(1), horizontalSizeMode(WindowSizeMode::Proportional), verticalSizeMode(WindowSizeMode::Proportional), horizontalAlignmentDisplacement(0.0), verticalAlignmentDisplacement(0.0), rowProportionStart(1.0), rowProportionEnd(1.0), columnProportionStart(1.0), columnProportionEnd(1.0), paddingLeft(0), paddingRight(0), paddingTop(0), paddingBottom(0), minWidth(-1), minHeight(-1), maxWidth(-1), maxHeight(-1)
+	{}
+
+	AddWindowParams& SetSpan(int arowSpan, int acolumnSpan)
+	{
+		rowSpan = arowSpan;
+		columnSpan = acolumnSpan;
+		return *this;
+	}
+	AddWindowParams& SetSizeMode(WindowSizeMode ahorizontalAndVerticalSizeMode)
+	{
+		horizontalSizeMode = ahorizontalAndVerticalSizeMode;
+		verticalSizeMode = ahorizontalAndVerticalSizeMode;
+		return *this;
+	}
+	AddWindowParams& SetSizeMode(WindowSizeMode ahorizontalSizeMode, WindowSizeMode averticalSizeMode)
+	{
+		horizontalSizeMode = ahorizontalSizeMode;
+		verticalSizeMode = averticalSizeMode;
+		return *this;
+	}
+	AddWindowParams& SetAlignment(HorizontalAlignment ahorizontalAlignment, VerticalAlignment averticalAlignment)
 	{
 		horizontalAlignmentDisplacement = (ahorizontalAlignment == HorizontalAlignment::Right)? 1.0: ((ahorizontalAlignment == HorizontalAlignment::Centre)? 0.5: 0.0);
 		verticalAlignmentDisplacement = (averticalAlignment == VerticalAlignment::Bottom)? 1.0: ((averticalAlignment == VerticalAlignment::Centre)? 0.5: 0.0);
+		return *this;
+	}
+	AddWindowParams& SetAlignment(double ahorizontalAlignmentDisplacement, double averticalAlignmentDisplacement)
+	{
+		horizontalAlignmentDisplacement = ahorizontalAlignmentDisplacement;
+		verticalAlignmentDisplacement = averticalAlignmentDisplacement;
+		return *this;
+	}
+	AddWindowParams& SetPadding(int apaddingLeft, int apaddingRight, int apaddingTop, int apaddingBottom)
+	{
+		paddingLeft = apaddingLeft;
+		paddingRight = apaddingRight;
+		paddingTop = apaddingTop;
+		paddingBottom = apaddingBottom;
+		return *this;
+	}
+	AddWindowParams& SetMinSize(int aminWidth, int aminHeight)
+	{
+		minWidth = aminWidth;
+		minHeight = aminHeight;
+		return *this;
+	}
+	AddWindowParams& SetMaxSize(int amaxWidth, int amaxHeight)
+	{
+		maxWidth = amaxWidth;
+		maxHeight = amaxHeight;
+		return *this;
 	}
 
 	HWND windowHandle;
@@ -109,11 +157,41 @@ struct WC_LayoutGrid::AddWindowParams
 //----------------------------------------------------------------------------------------
 struct WC_LayoutGrid::UpdateWindowSizesParams
 {
-	UpdateWindowSizesParams(HWND awindowHandle, HorizontalAlignment ahorizontalAlignment = HorizontalAlignment::Left, VerticalAlignment averticalAlignment = VerticalAlignment::Top, int apaddingLeft = 0, int apaddingRight = 0, int apaddingTop = 0, int apaddingBottom = 0, int aminWidth = -1, int aminHeight = -1, int amaxWidth = -1, int amaxHeight = -1)
-	:windowHandle(awindowHandle), paddingLeft(apaddingLeft), paddingRight(apaddingRight), paddingTop(apaddingTop), paddingBottom(apaddingBottom), minWidth(aminWidth), minHeight(aminHeight), maxWidth(amaxWidth), maxHeight(amaxHeight)
+	UpdateWindowSizesParams(HWND awindowHandle)
+	:windowHandle(awindowHandle), horizontalAlignmentDisplacement(0.0), verticalAlignmentDisplacement(0.0), paddingLeft(0), paddingRight(0), paddingTop(0), paddingBottom(0), minWidth(-1), minHeight(-1), maxWidth(-1), maxHeight(-1)
+	{}
+
+	UpdateWindowSizesParams& SetAlignment(HorizontalAlignment ahorizontalAlignment, VerticalAlignment averticalAlignment)
 	{
 		horizontalAlignmentDisplacement = (ahorizontalAlignment == HorizontalAlignment::Right)? 1.0: ((ahorizontalAlignment == HorizontalAlignment::Centre)? 0.5: 0.0);
 		verticalAlignmentDisplacement = (averticalAlignment == VerticalAlignment::Bottom)? 1.0: ((averticalAlignment == VerticalAlignment::Centre)? 0.5: 0.0);
+		return *this;
+	}
+	UpdateWindowSizesParams& SetAlignment(double ahorizontalAlignmentDisplacement, double averticalAlignmentDisplacement)
+	{
+		horizontalAlignmentDisplacement = ahorizontalAlignmentDisplacement;
+		verticalAlignmentDisplacement = averticalAlignmentDisplacement;
+		return *this;
+	}
+	UpdateWindowSizesParams& SetPadding(int apaddingLeft, int apaddingRight, int apaddingTop, int apaddingBottom)
+	{
+		paddingLeft = apaddingLeft;
+		paddingRight = apaddingRight;
+		paddingTop = apaddingTop;
+		paddingBottom = apaddingBottom;
+		return *this;
+	}
+	UpdateWindowSizesParams& SetMinSize(int aminWidth, int aminHeight)
+	{
+		minWidth = aminWidth;
+		minHeight = aminHeight;
+		return *this;
+	}
+	UpdateWindowSizesParams& SetMaxSize(int amaxWidth, int amaxHeight)
+	{
+		maxWidth = amaxWidth;
+		maxHeight = amaxHeight;
+		return *this;
 	}
 
 	HWND windowHandle;
