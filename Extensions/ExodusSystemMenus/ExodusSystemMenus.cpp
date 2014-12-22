@@ -138,12 +138,6 @@ bool ExodusSystemMenus::OpenModuleView(const MarshalSupport::Marshal::In<std::ws
 }
 
 //----------------------------------------------------------------------------------------
-void ExodusSystemMenus::OpenLoggerDetailsView(const ISystemGUIInterface::SystemLogEntry& alogEntry)
-{
-	systemMenuHandler->OpenLoggerDetailsView(alogEntry);
-}
-
-//----------------------------------------------------------------------------------------
 void ExodusSystemMenus::OpenInputMappingDetailsView(IDevice* targetDevice)
 {
 	settingsMenuHandler->OpenInputMappingDetailsView(targetDevice);

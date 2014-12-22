@@ -13,40 +13,16 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
-
-IDD_LOGGER DIALOGEX 0, 0, 388, 182
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_CLIPSIBLINGS | WS_SYSMENU
-EXSTYLE WS_EX_TOOLWINDOW
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    LISTBOX         IDC_LOGGER_LIST,7,17,374,123,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Clear",IDC_LOGGER_CLEAR,18,152,38,13
-    CONTROL         "1 - Information",IDC_LOGGER_SHOW_1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,191,151,64,10
-    CONTROL         "3 - Warning",IDC_LOGGER_SHOW_3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,257,151,53,10
-    CONTROL         "4 - Error",IDC_LOGGER_SHOW_4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,257,162,43,10
-    CONTROL         "5 - Critical",IDC_LOGGER_SHOW_5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,317,151,48,10
-    GROUPBOX        "Level Filters",IDC_STATIC,184,141,196,34
-    LTEXT           "Time",IDC_STATIC,10,8,16,8
-    LTEXT           "Source",IDC_STATIC,122,8,23,8
-    LTEXT           "Level",IDC_STATIC,59,8,18,8
-    LTEXT           "Description",IDC_STATIC,191,8,36,8
-    PUSHBUTTON      "Save",IDC_LOGGER_SAVE,63,152,38,13
-    EDITTEXT        IDC_LOGGER_LISTSIZE,133,157,38,12,ES_AUTOHSCROLL
-    LTEXT           "Max log size",IDC_STATIC,134,148,40,8
-    CONTROL         "2 - Debug",IDC_LOGGER_SHOW_2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,191,162,47,10
-END
 
 IDD_DEVICECONTROL DIALOGEX 0, 0, 163, 182
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_CLIPSIBLINGS | WS_SYSMENU
@@ -66,21 +42,6 @@ BEGIN
     EDITTEXT        IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT,119,160,30,12,ES_AUTOHSCROLL | ES_NUMBER
     LTEXT           "Step Count",IDC_STATIC,116,111,37,8
     LTEXT           "Execution Time (ns)",IDC_STATIC,119,144,32,16
-END
-
-IDD_LOGGER_DETAILS DIALOGEX 0, 0, 215, 153
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
-EXSTYLE WS_EX_TOOLWINDOW
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    RTEXT           "Source",IDC_STATIC,20,37,22,8
-    EDITTEXT        IDC_LOGGER_DETAILS_SOURCE,43,35,111,12,ES_AUTOHSCROLL | ES_READONLY
-    EDITTEXT        IDC_LOGGER_DETAILS_DESCRIPTION,7,59,201,86,ES_MULTILINE | ES_READONLY | WS_VSCROLL
-    LTEXT           "Description",IDC_STATIC,8,50,36,8
-    RTEXT           "Time",IDC_STATIC,20,9,22,8
-    EDITTEXT        IDC_LOGGER_DETAILS_TIME,43,7,56,12,ES_AUTOHSCROLL | ES_READONLY
-    RTEXT           "Level",IDC_STATIC,19,23,22,8
-    EDITTEXT        IDC_LOGGER_DETAILS_LEVEL,43,21,111,12,ES_AUTOHSCROLL | ES_READONLY
 END
 
 IDD_INPUTMAPPING DIALOGEX 0, 0, 206, 100
@@ -124,6 +85,22 @@ BEGIN
     PUSHBUTTON      "Reload",IDC_EMBEDDEDROM_RELOAD,65,123,34,12
 END
 
+IDD_EVENTLOG_CONTROL DIALOGEX 0, 0, 85, 123
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "1 - Information",IDC_EVENTLOG_SHOW_1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,16,64,10
+    CONTROL         "3 - Warning",IDC_EVENTLOG_SHOW_3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,36,53,10
+    CONTROL         "4 - Error",IDC_EVENTLOG_SHOW_4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,47,43,10
+    CONTROL         "5 - Critical",IDC_EVENTLOG_SHOW_5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,57,48,10
+    GROUPBOX        "Level Filters",IDC_STATIC,7,7,70,67
+    CONTROL         "2 - Debug",IDC_EVENTLOG_SHOW_2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,26,47,10
+    PUSHBUTTON      "Clear",IDC_EVENTLOG_CLEAR,24,85,38,13
+    PUSHBUTTON      "Save",IDC_EVENTLOG_SAVE,24,99,38,13
+    GROUPBOX        "Log Actions",IDC_STATIC,7,74,69,42
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -131,30 +108,14 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
-    IDD_LOGGER, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 381
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 175
-    END
-
     IDD_DEVICECONTROL, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 156
         TOPMARGIN, 7
         BOTTOMMARGIN, 175
-    END
-
-    IDD_LOGGER_DETAILS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 208
-        TOPMARGIN, 6
-        BOTTOMMARGIN, 146
     END
 
     IDD_INPUTMAPPING, DIALOG
@@ -179,6 +140,14 @@ BEGIN
         RIGHTMARGIN, 199
         TOPMARGIN, 7
         BOTTOMMARGIN, 135
+    END
+
+    IDD_EVENTLOG_CONTROL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 78
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 116
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -231,7 +200,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_FOLDER              ICON                    "folder.ico"
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -239,10 +208,8 @@ IDI_FOLDER              ICON                    "folder.ico"
 // English (Australia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////

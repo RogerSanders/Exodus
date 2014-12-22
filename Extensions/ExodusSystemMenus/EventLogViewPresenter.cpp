@@ -1,18 +1,18 @@
-#include "LoggerViewPresenter.h"
-#include "LoggerView.h"
+#include "EventLogViewPresenter.h"
+#include "EventLogView.h"
 #include "Stream/Stream.pkg"
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-LoggerViewPresenter::LoggerViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusSystemMenus& aowner, ISystemGUIInterface& amodel)
+EventLogViewPresenter::EventLogViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusSystemMenus& aowner, ISystemGUIInterface& amodel)
 :ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID), owner(aowner), model(amodel)
 {}
 
 //----------------------------------------------------------------------------------------
 //View title functions
 //----------------------------------------------------------------------------------------
-std::wstring LoggerViewPresenter::GetUnqualifiedViewTitle()
+std::wstring EventLogViewPresenter::GetUnqualifiedViewTitle()
 {
 	return L"Event Log";
 }
@@ -20,29 +20,21 @@ std::wstring LoggerViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 //View creation and deletion
 //----------------------------------------------------------------------------------------
-IView* LoggerViewPresenter::CreateView(IUIManager& uiManager)
+IView* EventLogViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new LoggerView(uiManager, *this, model);
+	return new EventLogView(uiManager, *this, model);
 }
 
 //----------------------------------------------------------------------------------------
-void LoggerViewPresenter::DeleteView(IView* aview)
+void EventLogViewPresenter::DeleteView(IView* aview)
 {
 	delete aview;
 }
 
 //----------------------------------------------------------------------------------------
-//Window functions
-//----------------------------------------------------------------------------------------
-void LoggerViewPresenter::OpenLoggerDetailsView(const ISystemGUIInterface::SystemLogEntry& alogEntry)
-{
-	owner.OpenLoggerDetailsView(alogEntry);
-}
-
-//----------------------------------------------------------------------------------------
 //Log functions
 //----------------------------------------------------------------------------------------
-void LoggerViewPresenter::SaveEventLog(const std::vector<ISystemGUIInterface::SystemLogEntry>& eventLog, const std::wstring& filePath)
+void EventLogViewPresenter::SaveEventLog(const std::vector<ISystemGUIInterface::SystemLogEntry>& eventLog, const std::wstring& filePath)
 {
 	Stream::File target;
 	if(target.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
