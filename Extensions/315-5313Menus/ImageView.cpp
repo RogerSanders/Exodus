@@ -28,6 +28,7 @@ ImageView::ImageView(IUIManager& auiManager, ImageViewPresenter& apresenter, IS3
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
 	switch(msg)
 	{
 	case WM_CREATE:
@@ -38,8 +39,6 @@ LRESULT ImageView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 		return msgWM_SIZE(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
-	case WM_PARENTNOTIFY:
-		return msgWM_PARENTNOTIFY(hwnd, wparam, lparam);
 	}
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
@@ -159,27 +158,6 @@ LRESULT ImageView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	{
 		videoShowStatusBarCached = model.GetVideoShowStatusBar();
 		SendMessage(hwnd, WM_SIZE, 0, 0);
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-LRESULT ImageView::msgWM_PARENTNOTIFY(HWND hwnd, WPARAM wParam, LPARAM lParam)
-{
-	switch(LOWORD(wParam))
-	{
-	case WM_LBUTTONDOWN:{
-		//If the user has clicked on a child window within our window region, ensure that
-		//the child window gets focus.
-		POINT mousePos;
-		mousePos.x = (short)LOWORD(lParam);
-		mousePos.y = (short)HIWORD(lParam);
-		HWND targetWindow = ChildWindowFromPoint(hwnd, mousePos);
-		if(targetWindow != NULL)
-		{
-			SetFocus(targetWindow);
-		}
-		break;}
 	}
 	return 0;
 }

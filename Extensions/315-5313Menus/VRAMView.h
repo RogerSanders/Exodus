@@ -13,13 +13,23 @@ public:
 
 protected:
 	//Member window procedure
-	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
 	//Event handlers
-	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_ERASEBKGND(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
+	//Control dialog window procedure
+	static INT_PTR CALLBACK WndProcControlDialogStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+	INT_PTR WndProcControlDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+	//Control dialog event handlers
+	INT_PTR msgControlDialogWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam);
+	INT_PTR msgControlDialogWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 	//Render window procedure
 	static LRESULT CALLBACK WndProcRenderStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -28,9 +38,13 @@ private:
 	//Render window event handlers
 	LRESULT msgRenderWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_MOUSELEAVE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
+	//Render window helper methods
+	bool UpdateRenderWindowSizeIfRequired();
 
 	//Details dialog window procedure
 	static INT_PTR CALLBACK WndProcDetailsStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -51,12 +65,12 @@ private:
 	};
 	enum SelectedPalette
 	{
-		PALETTE_LINE1	= 0,
-		PALETTE_LINE2	= 1,
-		PALETTE_LINE3	= 2,
-		PALETTE_LINE4	= 3,
-		PALETTE_LOWHIGH	= 4,
-		PALETTE_HIGHLOW	= 5
+		PALETTE_LINE1   = 0,
+		PALETTE_LINE2   = 1,
+		PALETTE_LINE3   = 2,
+		PALETTE_LINE4   = 3,
+		PALETTE_LOWHIGH = 4,
+		PALETTE_HIGHLOW = 5
 	};
 
 	//Structures
@@ -78,11 +92,21 @@ private:
 	bool shadow;
 	bool highlight;
 	unsigned char* buffer;
+	bool initializedDialog;
+	std::wstring previousText;
+	unsigned int currentControlFocus;
+
+	HWND hwndLayoutGrid;
+	HWND hwndControlDialog;
 	HWND hwndRender;
 	HWND hwndDetails;
 	HWND hwndDetails16;
 	bool detailsBlock16;
 	bool detailsVisible;
+	unsigned int blocksPerRenderRowSetting;
+	unsigned int blocksPerRenderRow;
+	unsigned int blockMagnificationFactorSetting;
+	unsigned int blockMagnificationFactor;
 
 	BlockSize blockSize;
 	SelectedPalette selectedPalette;

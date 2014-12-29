@@ -306,6 +306,31 @@ void ViewBase::WndProcDialogImplementSaveFieldWhenLostFocus(HWND hwnd, UINT msg,
 }
 
 //----------------------------------------------------------------------------------------
+void ViewBase::WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	switch(msg)
+	{
+	case WM_PARENTNOTIFY:
+		switch(LOWORD(wparam))
+		{
+		case WM_LBUTTONDOWN:{
+			//If the user has clicked on a child window within our window region, ensure that
+			//the child window gets focus.
+			POINT mousePos;
+			mousePos.x = (short)LOWORD(lparam);
+			mousePos.y = (short)HIWORD(lparam);
+			HWND targetWindow = ChildWindowFromPoint(hwnd, mousePos);
+			if(targetWindow != NULL)
+			{
+				SetFocus(targetWindow);
+			}
+			break;}
+		}
+		break;
+	}
+}
+
+//----------------------------------------------------------------------------------------
 //Static window procedure
 //----------------------------------------------------------------------------------------
 INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)

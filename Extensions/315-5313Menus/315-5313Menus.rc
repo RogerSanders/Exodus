@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1026,6 +1024,30 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,94,38,58,14
 END
 
+IDD_VRAMPATTERN_CONTROL DIALOGEX 0, 0, 158, 112
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Palette Selection",IDC_STATIC,7,3,144,57
+    CONTROL         "Palette Line 1",IDC_VDP_VRAM_PALETTE1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,11,12,59,10
+    CONTROL         "Palette Line 2",IDC_VDP_VRAM_PALETTE2,"Button",BS_AUTORADIOBUTTON,11,23,59,10
+    CONTROL         "Palette Line 3",IDC_VDP_VRAM_PALETTE3,"Button",BS_AUTORADIOBUTTON,11,33,59,10
+    CONTROL         "Palette Line 4",IDC_VDP_VRAM_PALETTE4,"Button",BS_AUTORADIOBUTTON,11,44,59,10
+    CONTROL         "Greyscale low-high",IDC_VDP_VRAM_LOWHIGH,"Button",BS_AUTORADIOBUTTON,73,13,74,10
+    CONTROL         "Greyscale high-low",IDC_VDP_VRAM_HIGHLOW,"Button",BS_AUTORADIOBUTTON,73,24,73,10
+    CONTROL         "Shadow",IDC_VDP_VRAM_SHADOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,73,34,41,10
+    CONTROL         "Highlight",IDC_VDP_VRAM_HIGHLIGHT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,73,45,43,10
+    GROUPBOX        "Block Size",IDC_STATIC,7,61,40,44
+    CONTROL         "Auto",IDC_VDP_VRAM_BLOCKAUTO,"Button",BS_AUTORADIOBUTTON | WS_GROUP,11,70,31,10
+    CONTROL         "8x8",IDC_VDP_VRAM_BLOCK8X8,"Button",BS_AUTORADIOBUTTON,11,81,28,10
+    CONTROL         "8x16",IDC_VDP_VRAM_BLOCK8X16,"Button",BS_AUTORADIOBUTTON,11,92,32,10
+    EDITTEXT        IDC_VDP_VRAM_BLOCKSPERROW,109,72,25,14,ES_AUTOHSCROLL
+    LTEXT           "Blocks per row",IDC_STATIC,57,74,47,8
+    GROUPBOX        "Display Settings",IDC_STATIC,51,61,100,44
+    EDITTEXT        IDC_VDP_VRAM_MAGINIFICATION,109,87,25,14,ES_AUTOHSCROLL
+    LTEXT           "Magnification",IDC_STATIC,57,89,43,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1033,7 +1055,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_VDP_LAYERREMOVAL, DIALOG
     BEGIN
@@ -1138,6 +1160,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 333
     END
+
+    IDD_VRAMPATTERN_CONTROL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 151
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 105
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -1180,7 +1210,7 @@ BEGIN
     END
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -1188,10 +1218,8 @@ END
 // English (Australia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////

@@ -19,6 +19,7 @@ MemoryEditorView::MemoryEditorView(IUIManager& auiManager, MemoryEditorViewPrese
 //----------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
 	switch(msg)
 	{
 	case WM_CREATE:

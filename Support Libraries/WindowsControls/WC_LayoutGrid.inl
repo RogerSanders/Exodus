@@ -8,7 +8,8 @@ enum class WC_LayoutGrid::WindowMessages :unsigned int
 	AddColumn,
 	AddWindow,
 	RemoveWindow,
-	UpdateWindowSizes
+	UpdateWindowSizes,
+	RecalculateSizes
 };
 
 //----------------------------------------------------------------------------------------

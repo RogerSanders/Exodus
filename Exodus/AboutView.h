@@ -29,7 +29,6 @@ private:
 
 	//Panel dialog event handlers
 	INT_PTR msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	INT_PTR msgPanelWM_PARENTNOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam);
 	INT_PTR msgPanelWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam);
 	INT_PTR msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam);
 

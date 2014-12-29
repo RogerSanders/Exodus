@@ -784,7 +784,7 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 		DockingWindow::RegisterWindowClass(viewManagerAssemblyHandle);
 
 		//Create a docking window to host this content window
-		DWORD dockingWindowStyle = WS_SIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION;
+		DWORD dockingWindowStyle = WS_SIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_POPUP;
 		DWORD dockingWindowExtendedStyle = WS_EX_TOOLWINDOW;
 		dockingWindow = CreateWindowEx(dockingWindowExtendedStyle, DockingWindow::windowClassName, L"", dockingWindowStyle, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mainWindow, NULL, viewManagerAssemblyHandle, NULL);
 
@@ -1050,49 +1050,19 @@ HWND ViewManager::GetParentDialogWindowFrame(HWND windowHandle) const
 //----------------------------------------------------------------------------------------
 bool ViewManager::IsDockingWindow(HWND windowHandle)
 {
-	//Retrieve the class name of the target window
-	size_t windowClassNameLength = wcslen(DockingWindow::windowClassName);
-	size_t classNameBufferSize = windowClassNameLength + 2;
-	std::vector<wchar_t> classNameBuffer(classNameBufferSize);
-	int getClassNameReturn = GetClassName(windowHandle, &classNameBuffer[0], (int)classNameBufferSize);
-	if(getClassNameReturn == 0)
-	{
-		return false;
-	}
-
-	//Ensure the class name of the target window matches our window class name
-	int stringCompareReturn = wcscmp(DockingWindow::windowClassName, &classNameBuffer[0]);
-	if(stringCompareReturn != 0)
-	{
-		return false;
-	}
-
-	//Return true, since we've confirmed the target window is in fact a docking window.
-	return true;
+	//If the class name of the target window matches the docking window class name, return
+	//true, otherwise return false.
+	std::wstring windowClassName = GetClassName(windowHandle);
+	return (windowClassName == DockingWindow::windowClassName);
 }
 
 //----------------------------------------------------------------------------------------
 bool ViewManager::IsDialogFrame(HWND windowHandle)
 {
-	//Retrieve the class name of the target window
-	size_t windowClassNameLength = wcslen(dialogFrameWindowClassName);
-	size_t classNameBufferSize = windowClassNameLength + 2;
-	std::vector<wchar_t> classNameBuffer(classNameBufferSize);
-	int getClassNameReturn = GetClassName(windowHandle, &classNameBuffer[0], (int)classNameBufferSize);
-	if(getClassNameReturn == 0)
-	{
-		return false;
-	}
-
-	//Ensure the class name of the target window matches our window class name
-	int stringCompareReturn = wcscmp(dialogFrameWindowClassName, &classNameBuffer[0]);
-	if(stringCompareReturn != 0)
-	{
-		return false;
-	}
-
-	//Return true, since we've confirmed the target window is in fact a docking window.
-	return true;
+	//If the class name of the target window matches the the dialog frame window class,
+	//return true, otherwise return false.
+	std::wstring windowClassName = GetClassName(windowHandle);
+	return (windowClassName == dialogFrameWindowClassName);
 }
 
 //----------------------------------------------------------------------------------------
@@ -2059,7 +2029,7 @@ HWND ViewManager::LoadDialogWindowFrameFromViewLayout(IHierarchicalStorageNode& 
 	RegisterDialogFrameWindowClass(viewManagerAssemblyHandle);
 
 	//Determine the window style settings to use for the dialog window frame
-	DWORD dialogWindowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+	DWORD dialogWindowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_POPUP;
 	if(resizable)
 	{
 		dialogWindowStyle |= WS_SIZEBOX | WS_MAXIMIZEBOX;
@@ -2112,7 +2082,7 @@ HWND ViewManager::LoadDockingWindowFrameFromViewLayout(HWND parentDockingWindow,
 	DockingWindow::RegisterWindowClass(viewManagerAssemblyHandle);
 
 	//Create the docking window
-	DWORD dockingWindowStyle = WS_SIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION;
+	DWORD dockingWindowStyle = WS_SIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_POPUP;
 	DWORD dockingWindowExtendedStyle = WS_EX_TOOLWINDOW;
 	HWND dockingWindow = CreateWindowEx(dockingWindowExtendedStyle, DockingWindow::windowClassName, L"", dockingWindowStyle, 0, 0, 0, 0, mainWindow, NULL, viewManagerAssemblyHandle, NULL);
 
@@ -3068,26 +3038,13 @@ std::list<HWND> ViewManager::GetOpenFloatingDockingWindows() const
 	std::list<HWND> floatingWindowList = GetOpenFloatingWindows();
 	for(std::list<HWND>::const_iterator i = floatingWindowList.begin(); i != floatingWindowList.end(); ++i)
 	{
-		//Retrieve the class name of the target window
+		//If the window class name of the target window matches the docking window class,
+		//add this window to the list of docking windows.
 		HWND windowHandle = *i;
-		size_t windowClassNameLength = wcslen(DockingWindow::windowClassName);
-		size_t classNameBufferSize = windowClassNameLength + 2;
-		std::vector<wchar_t> classNameBuffer(classNameBufferSize);
-		int getClassNameReturn = GetClassName(windowHandle, &classNameBuffer[0], (int)classNameBufferSize);
-		if(getClassNameReturn == 0)
+		if(GetClassName(windowHandle) == DockingWindow::windowClassName)
 		{
-			continue;
+			dockingWindowList.push_back(windowHandle);
 		}
-
-		//Ensure the class name of the target window matches the docking window class name
-		int stringCompareReturn = wcscmp(DockingWindow::windowClassName, &classNameBuffer[0]);
-		if(stringCompareReturn != 0)
-		{
-			continue;
-		}
-
-		//Add this window to the list of docking windows
-		dockingWindowList.push_back(windowHandle);
 	}
 
 	//Return the docking window list to the caller

@@ -1132,7 +1132,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 					//Flag that the left mouse button is no longer down, and release the
 					//mouse capture. We do this because we're about to undock the target
 					//content item from our frame and initiate a move operation on it, but
-					//it can't recieve mouse input until we release the mouse capture.
+					//it can't receive mouse input until we release the mouse capture.
 					leftMouseButtonDown = false;
 					ReleaseCapture();
 
@@ -1143,7 +1143,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 					ContentEntry contentEntry = hostedContent[tabIndexToHostedContentNo[dragTabIndex]];
 
 					//Determine the window style of our separated docking window
-					DWORD separatedDockingWindowStyle = WS_SIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION;
+					DWORD separatedDockingWindowStyle = WS_SIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_POPUP;
 					DWORD separatedDockingWindowStyleEX = WS_EX_TOOLWINDOW;
 
 					//Calculate the width and height of our separated docking window
@@ -2650,19 +2650,8 @@ LRESULT DockingWindow::msgPlacementShadowWM_PAINT(HWND placementShadowHwnd, WPAR
 //----------------------------------------------------------------------------------------
 IDockingWindow* DockingWindow::GetDockingWindowFromHWND(HWND hwnd)
 {
-	//Retrieve the class name of the target window
-	size_t windowClassNameLength = wcslen(windowClassName);
-	size_t classNameBufferSize = windowClassNameLength + 2;
-	std::vector<wchar_t> classNameBuffer(classNameBufferSize);
-	int getClassNameReturn = GetClassName(hwnd, &classNameBuffer[0], (int)classNameBufferSize);
-	if(getClassNameReturn == 0)
-	{
-		return 0;
-	}
-
 	//Ensure the class name of the target window matches our window class name
-	int stringCompareReturn = wcscmp(windowClassName, &classNameBuffer[0]);
-	if(stringCompareReturn != 0)
+	if(GetClassName(hwnd) != windowClassName)
 	{
 		return 0;
 	}
@@ -3789,6 +3778,18 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const MarshalSupport::M
 	entry.tabIndex = 0;
 	entry.contentWindow = contentWindow;
 	entry.contentTitle = contentTitle;
+
+	//Subclass any child edit controls to fix the focus issue outlined in KB230587. This
+	//bug affects us because we use the native window caption bar for docked windows.
+	std::list<HWND> descendantWindows = GetDescendantWindows(contentWindow);
+	for(std::list<HWND>::const_iterator i = descendantWindows.begin(); i != descendantWindows.end(); ++i)
+	{
+		HWND childWindow = *i;
+		if(GetClassName(childWindow) == WC_EDIT)
+		{
+			SetWindowSubclass(childWindow, EditBoxFocusFixSubclassProc, 0, 0);
+		}
+	}
 
 	//Add the target content window
 	if(hostedContent.empty())

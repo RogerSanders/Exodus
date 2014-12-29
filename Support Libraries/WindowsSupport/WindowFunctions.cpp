@@ -640,6 +640,28 @@ void SetOwnerWindow(HWND targetWindow, HWND newOwnerWindow)
 }
 
 //----------------------------------------------------------------------------------------
+//General window helper functions
+//----------------------------------------------------------------------------------------
+std::wstring GetClassName(HWND targetWindow)
+{
+	//Retrieve the class name of the target window. Note that according to MSDN, the
+	//maximum supported length of a window class name is 256. Since the GetClassName
+	//function doesn't give us an easy way to determine the actual length of the string,
+	//we use a buffer of this maximum size in order to retrieve the window class name
+	//without truncation.
+	static const unsigned int classNameBufferSize = 256+1;
+	wchar_t classNameBuffer[classNameBufferSize];
+	int getClassNameReturn = GetClassName(targetWindow, &classNameBuffer[0], (int)classNameBufferSize);
+	if(getClassNameReturn == 0)
+	{
+		return L"";
+	}
+
+	//Return the class name as a string
+	return classNameBuffer;
+}
+
+//----------------------------------------------------------------------------------------
 //Control text helper functions
 //----------------------------------------------------------------------------------------
 void UpdateDlgItemBin(HWND hwnd, int controlID, unsigned int data)
@@ -943,7 +965,7 @@ INT_PTR SafeDialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTe
 }
 
 //----------------------------------------------------------------------------------------
-//Owned dialog window enumeration
+//Window enumeration
 //----------------------------------------------------------------------------------------
 struct EnumThreadWindowsCallbackParams
 {
@@ -965,6 +987,14 @@ BOOL CALLBACK EnumThreadWindowsCallback(HWND hwnd, LPARAM lParam)
 }
 
 //----------------------------------------------------------------------------------------
+BOOL CALLBACK EnumDescendantWindowsCallback(HWND hwnd, LPARAM lParam)
+{
+	std::list<HWND>& descendantWindows = *((std::list<HWND>*)lParam);
+	descendantWindows.push_back(hwnd);
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
 std::list<HWND> GetOwnedDialogWindows(HWND ownerWindow)
 {
 	//Return the list of all windows which are owned by the target window
@@ -973,6 +1003,15 @@ std::list<HWND> GetOwnedDialogWindows(HWND ownerWindow)
 	DWORD ownerWindowThreadID = GetWindowThreadProcessId(ownerWindow, NULL);
 	EnumThreadWindows(ownerWindowThreadID, EnumThreadWindowsCallback, (LPARAM)&params);
 	return params.windowList;
+}
+
+//----------------------------------------------------------------------------------------
+std::list<HWND> GetDescendantWindows(HWND targetWindow)
+{
+	//Return the list of all descendant windows under the target window
+	std::list<HWND> descendantWindows;
+	EnumChildWindows(targetWindow, EnumDescendantWindowsCallback, (LPARAM)&descendantWindows);
+	return descendantWindows;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1159,6 +1198,149 @@ LRESULT CALLBACK BounceBackSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
 	return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
+//----------------------------------------------------------------------------------------
+//Edit control extensions
+//----------------------------------------------------------------------------------------
+LRESULT CALLBACK EditBoxFocusFixSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+	//##HACK##
+	//There is a bug in the Windows edit control, which is acknowledged by Microsoft and
+	//documented under KB230587. This bug is described in the following article:
+	//http://support.microsoft.com/kb/230587/en-us
+	//Unfortunately this bug will never be fixed, and we need to apply a workaround for it
+	//here. The problem is that due to poor implementation, if an edit control has an
+	//ancestor parent window that is a child window (has the WS_CHILD window style), and
+	//has a caption bar (has the WS_CAPTION window style), the edit control ignores mouse
+	//input events targeted at it. We work around this problem by detecting messages which
+	//would be affected, and temporarily removing the WS_CAPTION window style from any
+	//parent windows which are themselves child windows, and restoring the style after the
+	//message is processed by the edit control, with some extra effort to prevent control
+	//redraw artifacts as much as we can.
+	//
+	//This is an imperfect solution, and OpenGL child windows will still exhibit
+	//flickering on redraw. It is possible that visual artifacts or flickering could occur
+	//on different versions of Windows or with certain child windows. Ideally the root of
+	//the problem would be fixed, and Microsoft would patch their code to only examine the
+	//enabled state of non-child captioned parent windows, but that's never going to
+	//happen. This bug has been known for well over a decade.
+	//
+	//For future reference, some more detail about this problem is as follows:
+	//-The offending code is contained within comctl32.dll
+	//-The offending function is named Edit_IsAncestorActive, according to the debug
+	// symbols file provided by Microsoft.
+	//-The Edit_IsAncestorActive function is called in two places, both from the
+	// Edit_WndProc function, one from the WM_CONTEXTMENU handler, and another from the
+	// WM_LBUTTONDOWN handler.
+	//-The approximate code for the offending function from a disassembly analysis is as
+	// follows:
+	//	bool Edit_IsAncestorActive(HWND targetWindow)
+	//	{
+	//		bool result = true;
+	//		HWND ancestorWindow = targetWindow;
+	//		while(ancestorWindow != NULL)
+	//		{
+	//			//Undocumented value of -1 used as index, unknown internal data structure
+	//			//returned.
+	//			unsigned char* unknownData = (unsigned char*)GetWindowLongPtr(v1, -1);
+	//			if((*((unsigned int*)(unknownData + 4)) & 0x200) == 0)
+	//			{
+	//				break;
+	//			}
+	//			if((*((unsigned int*)(unknownData + 12)) & WS_CHILD) == 0)
+	//			{
+	//				break;
+	//			}
+	//			if((*unknownData & 8) != 0) //If the window has a caption?
+	//			{
+	//				result = (((*unknownData >> 6) & 0x01) != 0); //Return the enabled state of the caption?
+	//				break;
+	//			}
+	//			ancestorWindow = GetParent(ancestorWindow);
+	//		}
+	//		return result;
+	//	}
+
+	//If this message is one of the messages affected by the disabled captioned parent
+	//window bug, process the message and implement our workaround.
+	if((uMsg == WM_CONTEXTMENU) || (uMsg == WM_LBUTTONDOWN))
+	{
+		//Build a list of parent windows which have the caption window style, and are
+		//child windows themselves.
+		std::list<HWND> parentChildWindowsWithCaption;
+		HWND parentWindow = GetAncestor(hwnd, GA_PARENT);
+		while(parentWindow != NULL)
+		{
+			DWORD parentWindowStyle = (DWORD)GetWindowLongPtr(parentWindow, GWL_STYLE);
+			if(((parentWindowStyle & WS_CAPTION) != 0) && ((parentWindowStyle & WS_CHILD) != 0))
+			{
+				parentChildWindowsWithCaption.push_back(parentWindow);
+			}
+			parentWindow = GetAncestor(parentWindow, GA_PARENT);
+		}
+
+		//If the window which has focus before processing this mouse event is different to
+		//the target window, and it is an edit control too, flag it for redrawing.
+		HWND previousFocusWindow = GetFocus();
+		bool redrawPreviousFocusWindow = GetClassName(previousFocusWindow) == WC_EDIT;//((previousFocusWindow != hwnd) && (GetClassName(previousFocusWindow) == WC_EDIT));
+
+		//Remove the WS_CAPTION window style from any parent windows which contain it, to
+		//allow the edit control to process this mouse message properly.
+		for(std::list<HWND>::const_iterator i = parentChildWindowsWithCaption.begin(); i != parentChildWindowsWithCaption.end(); ++i)
+		{
+			//Disable redrawing on the parent caption window. We do this because we're
+			//about to change the border style, which will prompt a redraw of the client
+			//and non-client region of the window. We want to disable redrawing to prevent
+			//noticeable flicker as the style changes, since we're about to change it back
+			//again almost immediately.
+			HWND parentCaptionWindow = *i;
+			SendMessage(parentCaptionWindow, WM_SETREDRAW, FALSE, NULL);
+
+			//Remove the caption window style. This allows edit controls to process mouse
+			//events properly.
+			LONG_PTR currentWindowStyle = GetWindowLongPtr(parentCaptionWindow, GWL_STYLE);
+			LONG_PTR newWindowStyle = (currentWindowStyle & ~WS_CAPTION);
+			SetWindowLongPtr(parentCaptionWindow, GWL_STYLE, newWindowStyle);
+		}
+
+		//Allow the default window procedure to process this message
+		LRESULT result = DefSubclassProc(hwnd, uMsg, wParam, lParam);
+
+		//Restore the window style for any affected parent windows
+		for(std::list<HWND>::const_iterator i = parentChildWindowsWithCaption.begin(); i != parentChildWindowsWithCaption.end(); ++i)
+		{
+			//Restore the caption window style
+			HWND parentCaptionWindow = *i;
+			LONG_PTR currentWindowStyle = GetWindowLongPtr(parentCaptionWindow, GWL_STYLE);
+			LONG_PTR newWindowStyle = (currentWindowStyle | WS_CAPTION);
+			SetWindowLongPtr(parentCaptionWindow, GWL_STYLE, newWindowStyle);
+
+			//Now that we've changed the border style, call SetWindowPos to ensure the
+			//change is applied. If the change wasn't inadvertently triggered during the
+			//edit control message processing, this should have no real effect, since the
+			//frame has been restored to what it was before, but if the frame change has
+			//been applied, we need to ensure it is restored correctly.
+			SetWindowPos(parentCaptionWindow, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+
+			//Re-enable redrawing on the parent caption window
+			SendMessage(parentCaptionWindow, WM_SETREDRAW, TRUE, NULL);
+		}
+
+		//Redraw the previous window to have focus, if requested.
+		if(redrawPreviousFocusWindow)
+		{
+			RedrawWindow(previousFocusWindow, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+		}
+
+		//Return the result returned by the default window procedure
+		return result;
+	}
+
+	//If this message is unaffected by the bug, process it normally.
+	return DefSubclassProc(hwnd, uMsg, wParam, lParam);
+}
+
+//----------------------------------------------------------------------------------------
+//Static control extensions
 //----------------------------------------------------------------------------------------
 LRESULT CALLBACK ResizableStaticControlSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {

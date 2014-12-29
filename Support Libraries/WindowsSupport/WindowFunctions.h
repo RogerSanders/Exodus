@@ -92,6 +92,9 @@ HWND GetFirstOwnerWindow(HWND targetWindow);
 HWND GetFirstOwnerWindowOrTopLevelParent(HWND targetWindow);
 void SetOwnerWindow(HWND targetWindow, HWND newOwnerWindow);
 
+//General window helper functions
+std::wstring GetClassName(HWND targetWindow);
+
 //Control text helper functions
 void UpdateDlgItemBin(HWND hwnd, int controlID, unsigned int data);
 unsigned int GetDlgItemBin(HWND hwnd, int controlID);
@@ -113,8 +116,9 @@ INT_PTR SafeDialogBoxParam(HINSTANCE hInstance, LPCWSTR lpTemplateName, HWND hWn
 INT_PTR SafeDialogBoxIndirect(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate, HWND hWndParent, DLGPROC lpDialogFunc);
 INT_PTR SafeDialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam);
 
-//Owned dialog window enumeration
+//Window enumeration
 std::list<HWND> GetOwnedDialogWindows(HWND ownerWindow);
+std::list<HWND> GetDescendantWindows(HWND targetWindow);
 
 //Tooltip functions
 HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int maxWidth = 300);
@@ -142,6 +146,9 @@ struct BounceMessage
 	bool caught;
 };
 LRESULT CALLBACK BounceBackSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
+
+//Edit control extensions
+LRESULT CALLBACK EditBoxFocusFixSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
 //Static control extensions
 LRESULT CALLBACK ResizableStaticControlSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);

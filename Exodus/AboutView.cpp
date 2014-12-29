@@ -277,12 +277,11 @@ INT_PTR CALLBACK AboutView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wpara
 INT_PTR AboutView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
+	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
 	switch(msg)
 	{
 	case WM_INITDIALOG:
 		return msgPanelWM_INITDIALOG(hwnd, wparam, lparam);
-	case WM_PARENTNOTIFY:
-		return msgPanelWM_PARENTNOTIFY(hwnd, wparam, lparam);
 	case WM_NOTIFY:
 		return msgPanelWM_NOTIFY(hwnd, wparam, lparam);
 	case WM_COMMAND:
@@ -337,27 +336,6 @@ INT_PTR AboutView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam
 		}
 	}
 
-	return TRUE;
-}
-
-//----------------------------------------------------------------------------------------
-INT_PTR AboutView::msgPanelWM_PARENTNOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	switch(LOWORD(wparam))
-	{
-	case WM_LBUTTONDOWN:{
-		//If the user has clicked on a child window within our window region, ensure that
-		//the child window gets focus.
-		POINT mousePos;
-		mousePos.x = (short)LOWORD(lparam);
-		mousePos.y = (short)HIWORD(lparam);
-		HWND targetWindow = ChildWindowFromPoint(hwnd, mousePos);
-		if(targetWindow != NULL)
-		{
-			SetFocus(targetWindow);
-		}
-		break;}
-	}
 	return TRUE;
 }
 
