@@ -120,6 +120,8 @@ LRESULT WC_LayoutGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam
 		return msgWM_COMMAND(wParam, lParam);
 	case WM_NOTIFY:
 		return msgWM_NOTIFY(wParam, lParam);
+	case WM_BOUNCE:
+		return msgWM_BOUNCE(wParam, lParam);
 	case (unsigned int)WindowMessages::AddRow:
 		return msgGRID_ADDROW(wParam, lParam);
 	case (unsigned int)WindowMessages::AddColumn:
@@ -130,6 +132,8 @@ LRESULT WC_LayoutGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam
 		return msgGRID_REMOVEWINDOW(wParam, lParam);
 	case (unsigned int)WindowMessages::UpdateWindowSizes:
 		return msgGRID_UPDATEWINDOWSIZES(wParam, lParam);
+	case(unsigned int)WindowMessages::RecalculateSizes:
+		return msgGRID_RECALCULATESIZES(wParam, lParam);
 	}
 
 	return DefWindowProc(hwnd, message, wParam, lParam);
@@ -186,6 +190,28 @@ LRESULT WC_LayoutGrid::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 {
 	//Forward this message directly to the parent window
 	return SendMessage(GetAncestor(hwnd, GA_PARENT), WM_NOTIFY, wParam, lParam);
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_LayoutGrid::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
+{
+	BounceMessage* bounceMessage = (BounceMessage*)lParam;
+	if(bounceMessage->uMsg == WM_SIZE)
+	{
+		//If the size of a hosted window has changed, update the size of all child windows.
+		std::map<HWND, HostedWindowInfo>::const_iterator hostedWindowsIterator = hostedWindows.find(bounceMessage->hwnd);
+		if(hostedWindowsIterator != hostedWindows.end())
+		{
+			const HostedWindowInfo& windowInfo = hostedWindowsIterator->second;
+			RECT rect;
+			GetClientRect(windowInfo.windowHandle, &rect);
+			if((windowInfo.currentSizeX  != rect.right) || (windowInfo.currentSizeY != rect.bottom))
+			{
+				UpdateChildWindowSizes();
+			}
+		}
+	}
+	return 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -264,6 +290,13 @@ LRESULT WC_LayoutGrid::msgGRID_UPDATEWINDOWSIZES(WPARAM wParam, LPARAM lParam)
 }
 
 //----------------------------------------------------------------------------------------
+LRESULT WC_LayoutGrid::msgGRID_RECALCULATESIZES(WPARAM wParam, LPARAM lParam)
+{
+	UpdateChildWindowSizes();
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
 //Cell methods
 //----------------------------------------------------------------------------------------
 void WC_LayoutGrid::AddRow(int minHeight, int maxHeight, SizeMode sizeMode, double proportionalRatio)
@@ -336,8 +369,11 @@ void WC_LayoutGrid::AddWindow(const HostedWindowInfo& windowInfo)
 	//Record information on this new hosted window
 	hostedWindows[windowInfo.windowHandle] = windowInfo;
 
-	//Set this new docked window as a child window of our control
+	//Set the target window as a child window of our control
 	SetWindowParent(windowInfo.windowHandle, hwnd);
+
+	//Subclass the target window so we can intercept size change events
+	SetWindowSubclass(windowInfo.windowHandle, BounceBackSubclassProc, 0, 0);
 
 	//Refresh the position and size of each hosted control
 	UpdateChildWindowSizes();
@@ -552,6 +588,7 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 		ColumnInfo& columnInfo = columns[*i];
 		double proportionForRow = columnInfo.proportionalRatio / summedColumnProportion;
 		int newColumnWidth = (int)std::ceil(proportionForRow * (double)initialRemainingControlWidth);
+		newColumnWidth = ((columnInfo.minWidth >= 0) && (newColumnWidth < columnInfo.minWidth))? columnInfo.minWidth: (((columnInfo.maxWidth >= 0) && (newColumnWidth > columnInfo.maxWidth))? columnInfo.maxWidth: newColumnWidth);
 		columnInfo.currentWidth = newColumnWidth;
 	}
 

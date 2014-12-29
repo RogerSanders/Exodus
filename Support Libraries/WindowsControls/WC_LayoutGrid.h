@@ -47,11 +47,13 @@ private:
 	LRESULT msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_COMMAND(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_NOTIFY(WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_BOUNCE(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_ADDROW(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_ADDCOLUMN(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_ADDWINDOW(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_REMOVEWINDOW(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_UPDATEWINDOWSIZES(WPARAM wParam, LPARAM lParam);
+	LRESULT msgGRID_RECALCULATESIZES(WPARAM wParam, LPARAM lParam);
 
 	//Cell methods
 	void AddRow(int minHeight, int maxHeight, SizeMode sizeMode, double proportionalRatio);

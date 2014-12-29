@@ -54,7 +54,8 @@ protected:
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 	//Window procedure helper functions
-	void WndProcDialogImplementSaveFieldWhenLostFocus(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
+	void WndProcDialogImplementSaveFieldWhenLostFocus(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+	void WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
 	//Static window procedure

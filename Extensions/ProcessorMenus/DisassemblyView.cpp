@@ -33,6 +33,7 @@ DisassemblyView::DisassemblyView(IUIManager& auiManager, DisassemblyViewPresente
 //----------------------------------------------------------------------------------------
 LRESULT DisassemblyView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
 	switch(msg)
 	{
 	case WM_CREATE:
@@ -41,8 +42,6 @@ LRESULT DisassemblyView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARA
 		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
-	case WM_PARENTNOTIFY:
-		return msgWM_PARENTNOTIFY(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
 	case WM_SIZE:
@@ -230,27 +229,6 @@ LRESULT DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Update the disassembly
 	UpdateDisassembly();
 
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-LRESULT DisassemblyView::msgWM_PARENTNOTIFY(HWND hwnd, WPARAM wParam, LPARAM lParam)
-{
-	switch(LOWORD(wParam))
-	{
-	case WM_LBUTTONDOWN:{
-		//If the user has clicked on a child window within our window region, ensure that
-		//the child window gets focus.
-		POINT mousePos;
-		mousePos.x = (short)LOWORD(lParam);
-		mousePos.y = (short)HIWORD(lParam);
-		HWND targetWindow = ChildWindowFromPoint(hwnd, mousePos);
-		if(targetWindow != NULL)
-		{
-			SetFocus(targetWindow);
-		}
-		break;}
-	}
 	return 0;
 }
 
