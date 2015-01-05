@@ -164,51 +164,55 @@ LRESULT DashboardWindow::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	int newClientWidth = rect.right;
 	int newClientHeight = rect.bottom;
 
-	//Calculate the change in width and height
-	int widthDelta = newClientWidth - controlWidth;
-	int heightDelta = newClientHeight - controlHeight;
-
-	//Update the stored width and height of the control
-	controlWidth = newClientWidth;
-	controlHeight = newClientHeight;
-
-	//Begin a session for processing this batch of window size changes. Processing all the
-	//window size and position changes in a single operation in this manner gives the best
-	//performance and appearance.
-	HDWP deferWindowPosSession = BeginDeferWindowPos((int)regions.size());
-
-	//Resize the regions which are anchored to the bottom or right edges of the window
-	for(std::list<ContentRegion*>::iterator i = regions.begin(); i != regions.end(); ++i)
+	//If this control has changed in size, process the size change event.
+	if((controlWidth != newClientWidth) || (controlHeight != newClientHeight))
 	{
-		//Ensure this content region is anchored to the right and/or bottom edge of the
-		//window
-		ContentRegion& region = *(*i);
-		if((region.rightDivider != 0) && (region.bottomDivider != 0))
+		//Calculate the change in width and height
+		int widthDelta = newClientWidth - controlWidth;
+		int heightDelta = newClientHeight - controlHeight;
+
+		//Update the stored width and height of the control
+		controlWidth = newClientWidth;
+		controlHeight = newClientHeight;
+
+		//Begin a session for processing this batch of window size changes. Processing all
+		//the window size and position changes in a single operation in this manner gives
+		//the best performance and appearance.
+		HDWP deferWindowPosSession = BeginDeferWindowPos((int)regions.size());
+
+		//Resize the regions which are anchored to the bottom or right edges of the window
+		for(std::list<ContentRegion*>::iterator i = regions.begin(); i != regions.end(); ++i)
 		{
-			continue;
+			//Ensure this content region is anchored to the right and/or bottom edge of
+			//the window
+			ContentRegion& region = *(*i);
+			if((region.rightDivider != 0) && (region.bottomDivider != 0))
+			{
+				continue;
+			}
+
+			//Calculate the new width and height of the content region
+			if(region.rightDivider != 0)
+			{
+				region.width -= widthDelta;
+				region.width = (region.width < 0)? 0: region.width;
+			}
+			if(region.bottomDivider != 0)
+			{
+				region.height -= heightDelta;
+				region.height = (region.height < 0)? 0: region.height;
+			}
+
+			//Add this region to the window size update session
+			DeferWindowPos(deferWindowPosSession, region.boundWindow, NULL, 0, 0, region.width, region.height, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 		}
 
-		//Calculate the new width and height of the content region
-		if(region.rightDivider != 0)
-		{
-			region.width -= widthDelta;
-			region.width = (region.width < 0)? 0: region.width;
-		}
-		if(region.bottomDivider != 0)
-		{
-			region.height -= heightDelta;
-			region.height = (region.height < 0)? 0: region.height;
-		}
+		//Process all the window size changes involved in this update
+		EndDeferWindowPos(deferWindowPosSession);
 
-		//Add this region to the window size update session
-		DeferWindowPos(deferWindowPosSession, region.boundWindow, NULL, 0, 0, region.width, region.height, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+		//Update our cached divider locations using the new region sizes
+		UpdateCachedLocations();
 	}
-
-	//Process all the window size changes involved in this update
-	EndDeferWindowPos(deferWindowPosSession);
-
-	//Update our cached divider locations using the new region sizes
-	UpdateCachedLocations();
 
 	return 0;
 }

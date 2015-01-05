@@ -331,7 +331,126 @@ void ViewBase::WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UI
 }
 
 //----------------------------------------------------------------------------------------
-//Static window procedure
+//Child window functions
+//----------------------------------------------------------------------------------------
+HWND ViewBase::CreateChildDialog(HWND aparentWindow, void* aassemblyHandle, LPCWSTR atemplateName, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& dlgProcHandler)
+{
+	return CreateDialogParam((HINSTANCE)aassemblyHandle, atemplateName, aparentWindow, WndProcChildDialog, (LPARAM)&dlgProcHandler);
+}
+
+//----------------------------------------------------------------------------------------
+HWND ViewBase::CreateChildWindow(DWORD awindowStyle, DWORD aextendedWindowStyle, unsigned int aposX, unsigned int aposY, unsigned int awidth, unsigned int aheight, HWND aparentWindow, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& wndProcHandler)
+{
+	//Register the child window class
+	static const std::wstring childWindowClassName = L"ViewBaseChildWindow";
+	WNDCLASSEX wc;
+	wc.cbSize        = sizeof(WNDCLASSEX);
+	wc.style         = 0;
+	wc.lpfnWndProc   = WndProcChildWindow;
+	wc.cbClsExtra    = 0;
+	wc.cbWndExtra    = 0;
+	wc.hInstance     = GetAssemblyHandle();
+	wc.hIcon         = NULL;
+	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.lpszMenuName  = NULL;
+	wc.lpszClassName = childWindowClassName.c_str();
+	wc.hIconSm       = NULL;
+	RegisterClassEx(&wc);
+
+	//Create the child window
+	return CreateWindowEx(aextendedWindowStyle, childWindowClassName.c_str(), L"", awindowStyle, aposX, aposY, awidth, aheight, aparentWindow, NULL, GetAssemblyHandle(), (LPVOID)&wndProcHandler);
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR CALLBACK ViewBase::WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	//Obtain the object pointer
+	std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>* windowProcedureMethod = (std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+	//Process the message
+	switch(msg)
+	{
+	case WM_INITDIALOG:
+		//Set the object pointer
+		windowProcedureMethod = new std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>(*(std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>*)lparam);
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(windowProcedureMethod));
+
+		//Pass this message on to the member window procedure function
+		if(windowProcedureMethod != 0)
+		{
+			return (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
+		}
+		break;
+	case WM_DESTROY:
+		if(windowProcedureMethod != 0)
+		{
+			//Pass this message on to the member window procedure function
+			INT_PTR result = (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
+
+			//Discard the object pointer
+			delete windowProcedureMethod;
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
+		}
+		break;
+	}
+
+	//Pass this message on to the member window procedure function
+	INT_PTR result = FALSE;
+	if(windowProcedureMethod != 0)
+	{
+		result = (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
+	}
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT CALLBACK ViewBase::WndProcChildWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	//Obtain the object pointer
+	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>* windowProcedureMethod = (std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+	//Process the message
+	switch(msg)
+	{
+	case WM_CREATE:
+		//Set the object pointer
+		windowProcedureMethod = new std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>(*(std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>*)((CREATESTRUCT*)lparam)->lpCreateParams);
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(windowProcedureMethod));
+
+		//Pass this message on to the member window procedure function
+		if(windowProcedureMethod != 0)
+		{
+			return (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
+		}
+		break;
+	case WM_DESTROY:
+		if(windowProcedureMethod != 0)
+		{
+			//Pass this message on to the member window procedure function
+			LRESULT result = (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
+
+			//Discard the object pointer
+			delete windowProcedureMethod;
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
+		}
+		break;
+	}
+
+	//Pass this message on to the member window procedure function
+	if(windowProcedureMethod != 0)
+	{
+		return (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
+	}
+	return DefWindowProc(hwnd, msg, wparam, lparam);
+}
+
 //----------------------------------------------------------------------------------------
 INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {

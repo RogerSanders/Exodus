@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{a0639ada-bc9c-46b5-aee8-058da2239a19}</UniqueIdentifier>
-    </Filter>
     <Filter Include="View System">
       <UniqueIdentifier>{81642209-4c1a-4d3a-bd88-e13b7b55e53e}</UniqueIdentifier>
     </Filter>
@@ -51,6 +48,9 @@
     </Filter>
     <Filter Include="SystemInfo">
       <UniqueIdentifier>{8141a6f6-9520-4ef4-b34c-9849b8f625d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{a0639ada-bc9c-46b5-aee8-058da2239a19}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

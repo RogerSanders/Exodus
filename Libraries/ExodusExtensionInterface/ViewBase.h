@@ -5,6 +5,7 @@
 #include "IViewPresenter.h"
 #include "IUIManager.h"
 #include <string>
+#include <functional>
 
 class ViewBase :public IView
 {
@@ -52,6 +53,12 @@ protected:
 	//Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+	//Child window functions
+	HWND CreateChildDialog(HWND aparentWindow, void* aassemblyHandle, LPCWSTR atemplateName, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& dlgProcHandler);
+	HWND CreateChildWindow(DWORD awindowStyle, DWORD aextendedWindowStyle, unsigned int aposX, unsigned int aposY, unsigned int awidth, unsigned int aheight, HWND aparentWindow, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& wndProcHandler);
+	static INT_PTR CALLBACK WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+	static LRESULT CALLBACK WndProcChildWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 	//Window procedure helper functions
 	void WndProcDialogImplementSaveFieldWhenLostFocus(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);

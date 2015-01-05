@@ -96,6 +96,16 @@ LRESULT WC_DockPanel::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgWM_CREATE(wParam, lParam);
 	case WM_SIZE:
 		return msgWM_SIZE(wParam, lParam);
+	case WM_ERASEBKGND:
+		return msgWM_ERASEBKGND(wParam, lParam);
+	case WM_NCHITTEST:
+		return msgWM_NCHITTEST(wParam, lParam);
+	case WM_COMMAND:
+		return msgWM_COMMAND(wParam, lParam);
+	case WM_NOTIFY:
+		return msgWM_NOTIFY(wParam, lParam);
+	case WM_BOUNCE:
+		return msgWM_BOUNCE(wParam, lParam);
 	case (unsigned int)WindowMessages::AddContentWindow:
 		return msgDOCK_ADDCONTENTWINDOW(wParam, lParam);
 	case (unsigned int)WindowMessages::RemoveContentWindow:
@@ -147,8 +157,50 @@ LRESULT WC_DockPanel::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	int newClientHeight = rect.bottom;
 
 	//Handle this size changed event
-	HandleSizeChanged(newClientWidth, newClientHeight);
+	if((currentControlWidth != newClientWidth) || (currentControlHeight != newClientHeight))
+	{
+		HandleSizeChanged(newClientWidth, newClientHeight);
+	}
 	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_DockPanel::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
+{
+	//Since we want this control to essentially have a transparent background, we don't
+	//perform any operation when a background erase is requested. Note that this requires
+	//the containing window to use the WS_EX_COMPOSITED style, and for our control to use
+	//the WS_EX_TRANSPARENT style, in order to get the result we want.
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_DockPanel::msgWM_NCHITTEST(WPARAM wParam, LPARAM lParam)
+{
+	//Make this control transparent in the client area for hit testing
+	LRESULT result = DefWindowProc(hwnd, WM_NCHITTEST, wParam, lParam);
+	return (result == HTCLIENT)? HTTRANSPARENT: result;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_DockPanel::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
+{
+	//Forward this message directly to the parent window
+	return SendMessage(GetAncestor(hwnd, GA_PARENT), WM_COMMAND, wParam, lParam);
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_DockPanel::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
+{
+	//Forward this message directly to the parent window
+	return SendMessage(GetAncestor(hwnd, GA_PARENT), WM_NOTIFY, wParam, lParam);
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_DockPanel::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
+{
+	//Forward this message directly to the parent window
+	return SendMessage(GetAncestor(hwnd, GA_PARENT), WM_BOUNCE, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------
