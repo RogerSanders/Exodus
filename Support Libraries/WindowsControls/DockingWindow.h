@@ -228,6 +228,10 @@ private:
 	HWND tabDockPanel;
 	HWND dockPanel;
 
+	//Size info
+	int currentControlWidth;
+	int currentControlHeight;
+
 	//Font info
 	HFONT controlFont;
 	HFONT controlFontVertical;

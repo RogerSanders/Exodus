@@ -42,6 +42,8 @@
 #include "WC_HexEdit.h"
 #include "WC_DockPanel.h"
 #include "WC_LayoutGrid.h"
+#include "WC_StackPanel.h"
+#include "WC_ScrollViewer.h"
 #include "DockingWindow.h"
 #include "DashboardWindow.h"
 #endif

@@ -115,9 +115,9 @@ private:
 	HCURSOR cursorSizeAll;
 
 	//Window metrics
-	unsigned int dividerSize;
-	unsigned int controlWidth;
-	unsigned int controlHeight;
+	int dividerSize;
+	int controlWidth;
+	int controlHeight;
 
 	//Region and divider info
 	std::list<DividerContentEntry> topLevelDividersFromTop;

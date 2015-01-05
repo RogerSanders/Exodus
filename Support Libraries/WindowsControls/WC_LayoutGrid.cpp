@@ -116,6 +116,8 @@ LRESULT WC_LayoutGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam
 		return msgWM_SIZE(wParam, lParam);
 	case WM_ERASEBKGND:
 		return msgWM_ERASEBKGND(wParam, lParam);
+	case WM_NCHITTEST:
+		return msgWM_NCHITTEST(wParam, lParam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(wParam, lParam);
 	case WM_NOTIFY:
@@ -163,19 +165,29 @@ LRESULT WC_LayoutGrid::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	int newClientHeight = (int)(rect.bottom - rect.top);
 
 	//Handle this size changed event
-	HandleSizeChanged(newClientWidth, newClientHeight);
+	if((currentControlWidth != newClientWidth) || (currentControlHeight != newClientHeight))
+	{
+		HandleSizeChanged(newClientWidth, newClientHeight);
+	}
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT WC_LayoutGrid::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 {
-	//Since we want the grid control to essentially have a transparent background, we
-	//don't perform any operation when a background erase is requested. Note that this
-	//requires the containing window to use the WS_EX_COMPOSITED style, and for our layout
-	//grid control itself to use the WS_EX_TRANSPARENT style, in order to get the result
-	//we want.
+	//Since we want this control to essentially have a transparent background, we don't
+	//perform any operation when a background erase is requested. Note that this requires
+	//the containing window to use the WS_EX_COMPOSITED style, and for our control to use
+	//the WS_EX_TRANSPARENT style, in order to get the result we want.
 	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_LayoutGrid::msgWM_NCHITTEST(WPARAM wParam, LPARAM lParam)
+{
+	//Make this control transparent in the client area for hit testing
+	LRESULT result = DefWindowProc(hwnd, WM_NCHITTEST, wParam, lParam);
+	return (result == HTCLIENT)? HTTRANSPARENT: result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -198,20 +210,23 @@ LRESULT WC_LayoutGrid::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 	BounceMessage* bounceMessage = (BounceMessage*)lParam;
 	if(bounceMessage->uMsg == WM_SIZE)
 	{
-		//If the size of a hosted window has changed, update the size of all child windows.
-		std::map<HWND, HostedWindowInfo>::const_iterator hostedWindowsIterator = hostedWindows.find(bounceMessage->hwnd);
+		//If the size of a hosted window has changed, update the size of all child
+		//windows.
+		std::map<HWND, HostedWindowInfo>::iterator hostedWindowsIterator = hostedWindows.find(bounceMessage->hwnd);
 		if(hostedWindowsIterator != hostedWindows.end())
 		{
-			const HostedWindowInfo& windowInfo = hostedWindowsIterator->second;
+			HostedWindowInfo& windowInfo = hostedWindowsIterator->second;
 			RECT rect;
 			GetClientRect(windowInfo.windowHandle, &rect);
 			if((windowInfo.currentSizeX  != rect.right) || (windowInfo.currentSizeY != rect.bottom))
 			{
+				windowInfo.currentSizeX = rect.right;
+				windowInfo.currentSizeY = rect.bottom;
 				UpdateChildWindowSizes();
 			}
 		}
 	}
-	return 0;
+	return SendMessage(GetAncestor(hwnd, GA_PARENT), WM_BOUNCE, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------

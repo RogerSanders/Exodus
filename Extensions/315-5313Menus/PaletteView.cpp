@@ -1,3 +1,6 @@
+#include <Stream/Stream.pkg>
+#include <random>
+#include <cstdint>
 #include "PaletteView.h"
 #include "resource.h"
 
@@ -7,15 +10,17 @@
 PaletteView::PaletteView(IUIManager& auiManager, PaletteViewPresenter& apresenter, IS315_5313& amodel)
 :ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
 {
-	unsigned int paletteSquareSizeX = DPIScaleWidth(15);
-	unsigned int paletteSquareSizeY = DPIScaleHeight(15);
-	unsigned int paletteRows = 4;
-	unsigned int paletteColumns = 16;
-	int width = paletteSquareSizeX * paletteColumns;
-	int height = paletteSquareSizeY * paletteRows;
+	//Set the window settings for this view
+	static const unsigned int paletteRows = 4;
+	static const unsigned int paletteColumns = 16;
+	static const unsigned int paletteSquareDesiredSize = 15;
+	int width = DPIScaleWidth(paletteSquareDesiredSize) * paletteColumns;
+	int height = DPIScaleHeight(paletteSquareDesiredSize) * paletteRows;
+	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, width, height);
+	SetDockableViewType(false);
 
-	glrc = NULL;
-	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, DPIReverseScaleWidth(width), DPIReverseScaleHeight(height));
+	//Set the format for our palette image
+	paletteImage.SetImageFormat(paletteColumns, paletteRows, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
 }
 
 //----------------------------------------------------------------------------------------
@@ -27,8 +32,8 @@ LRESULT PaletteView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lp
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
-	case WM_DESTROY:
-		return msgWM_DESTROY(hwnd, wparam, lparam);
+	case WM_PAINT:
+		return msgWM_PAINT(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	}
@@ -40,98 +45,115 @@ LRESULT PaletteView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lp
 //----------------------------------------------------------------------------------------
 LRESULT PaletteView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//##FIX## Make this dialog resizable. We should maintain aspect ratio, but scale to
-	//fill the available space.
-	//OpenGL Initialization code
-	unsigned int paletteSquareSizeX = DPIScaleWidth(15);
-	unsigned int paletteSquareSizeY = DPIScaleHeight(15);
-	unsigned int paletteRows = 4;
-	unsigned int paletteColumns = 16;
-	int width = paletteSquareSizeX * paletteColumns;
-	int height = paletteSquareSizeY * paletteRows;
-	glrc = CreateOpenGLWindow(hwnd);
-	if(glrc != NULL)
-	{
-		glViewport(0, 0, width, height);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0.0, (float)width, (float)height, 0.0, -1.0, 1.0);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}
-
-	SetTimer(hwnd, 1, 100, NULL);
-
+	SetTimer(hwnd, 1, 1000/30, NULL);
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT PaletteView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT PaletteView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(glrc != NULL)
+	//Begin the paint operation
+	PAINTSTRUCT paintInfo;
+	HDC hdc = BeginPaint(hwnd, &paintInfo);
+
+	//Obtain the current width and height of the client region of the window
+	RECT rect;
+	GetClientRect(hwnd, &rect);
+	int clientWidth = rect.right;
+	int clientHeight = rect.bottom;
+
+	//Build a set of palette columns with an extra pixel in their width
+	static const unsigned int paletteColumns = 16;
+	std::minstd_rand widthExtraPixelDistributionGenerator;
+	std::set<unsigned int> widthExtraPixelFoundEntrySet;
+	for(unsigned int paletteEntry = 0; paletteEntry < (clientWidth % paletteColumns); ++paletteEntry)
 	{
-		wglDeleteContext(glrc);
+		unsigned int nextEntry;
+		do
+		{
+			nextEntry = (unsigned int)widthExtraPixelDistributionGenerator() % paletteColumns;
+		}
+		while(widthExtraPixelFoundEntrySet.find(nextEntry) != widthExtraPixelFoundEntrySet.end());
+		widthExtraPixelFoundEntrySet.insert(nextEntry);
 	}
 
-	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
+	//Build a set of palette rows with an extra pixel in their height
+	static const unsigned int paletteRows = 4;
+	std::minstd_rand heightExtraPixelDistributionGenerator;
+	std::set<unsigned int> heightExtraPixelFoundEntrySet;
+	for(unsigned int paletteLine = 0; paletteLine < (clientHeight % paletteRows); ++paletteLine)
+	{
+		unsigned int nextEntry;
+		do
+		{
+			nextEntry = (unsigned int)heightExtraPixelDistributionGenerator() % paletteRows;
+		}
+		while(heightExtraPixelFoundEntrySet.find(nextEntry) != heightExtraPixelFoundEntrySet.end());
+		heightExtraPixelFoundEntrySet.insert(nextEntry);
+	}
+
+	//Draw each entry in the palette
+	unsigned int nextCellPosY = 0;
+	for(unsigned int paletteLine = 0; paletteLine < paletteRows; ++paletteLine)
+	{
+		//Calculate the height of this palette row in the window
+		unsigned int cellHeight = (clientHeight / paletteRows) + ((heightExtraPixelFoundEntrySet.find(paletteLine) != heightExtraPixelFoundEntrySet.end())? 1: 0);
+
+		unsigned int nextCellPosX = 0;
+		for(unsigned int paletteEntry = 0; paletteEntry < paletteColumns; ++paletteEntry)
+		{
+			//Calculate the width of this palette entry in the window
+			unsigned int cellWidth = (clientWidth / paletteColumns) + ((widthExtraPixelFoundEntrySet.find(paletteEntry) != widthExtraPixelFoundEntrySet.end())? 1: 0);
+
+			//Retrieve the colour of this palette entry
+			unsigned char r, g, b;
+			paletteImage.ReadPixelData(paletteEntry, paletteLine, 0, r);
+			paletteImage.ReadPixelData(paletteEntry, paletteLine, 1, g);
+			paletteImage.ReadPixelData(paletteEntry, paletteLine, 2, b);
+
+			//Populate the rectangle with the coordinates of this palette entry in the
+			//window
+			rect.left = (int)nextCellPosX;
+			rect.right = rect.left + (int)cellWidth;
+			rect.top = (int)nextCellPosY;
+			rect.bottom = rect.top + (int)cellHeight;
+
+			//Draw the rectangle for this palette entry
+			HBRUSH brush = CreateSolidBrush(RGB(r, g, b));
+			FillRect(hdc, &rect, brush);
+			DeleteObject(brush);
+
+			//Advance to the next horizontal cell position
+			nextCellPosX += cellWidth;
+		}
+
+		//Advance to the next vertical cell position
+		nextCellPosY += cellHeight;
+	}
+
+	//Complete the paint operation
+	EndPaint(hwnd, &paintInfo);
+	return 0;
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT PaletteView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	HDC hdc = GetDC(hwnd);
-	if(hdc != NULL)
+	//Retrieve the latest colour values for the palette
+	unsigned int paletteRows = 4;
+	unsigned int paletteColumns = 16;
+	for(unsigned int paletteLine = 0; paletteLine < paletteRows; ++paletteLine)
 	{
-		if((glrc != NULL) && (wglMakeCurrent(hdc, glrc) != FALSE))
+		for(unsigned int paletteEntry = 0; paletteEntry < paletteColumns; ++paletteEntry)
 		{
-			UpdatePalette();
-			SwapBuffers(hdc);
-			wglMakeCurrent(NULL, NULL);
+			IS315_5313::DecodedPaletteColorEntry color = model.ReadDecodedPaletteColor(paletteLine, paletteEntry);
+			paletteImage.WritePixelData(paletteEntry, paletteLine, 0, model.ColorValueTo8BitValue(color.r, false, false));
+			paletteImage.WritePixelData(paletteEntry, paletteLine, 1, model.ColorValueTo8BitValue(color.g, false, false));
+			paletteImage.WritePixelData(paletteEntry, paletteLine, 2, model.ColorValueTo8BitValue(color.b, false, false));
 		}
-		ReleaseDC(hwnd, hdc);
 	}
 
+	//Invalidate the window to trigger a redraw operation
+	InvalidateRect(hwnd, NULL, FALSE);
 	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-//Palette update functions
-//----------------------------------------------------------------------------------------
-void PaletteView::UpdatePalette()
-{
-	model.LockExternalBuffers();
-
-	ITimedBufferInt* cramBuffer = model.GetCRAMBuffer();
-	if(cramBuffer != 0)
-	{
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
-		unsigned int paletteSquareSizeX = DPIScaleWidth(15);
-		unsigned int paletteSquareSizeY = DPIScaleHeight(15);
-		float paletteX = 0.0;
-		float paletteY = 0.0;
-		for(unsigned int paletteLine = 0; paletteLine < 4; ++paletteLine)
-		{
-			for(unsigned int paletteEntry = 0; paletteEntry < 16; ++paletteEntry)
-			{
-				Data paletteData(16);
-				paletteData.SetByteFromBottomUp(1, cramBuffer->ReadLatest(((paletteLine * 16) + paletteEntry) * 2));
-				paletteData.SetByteFromBottomUp(0, cramBuffer->ReadLatest((((paletteLine * 16) + paletteEntry) * 2) + 1));
-				float r = (float)paletteData.GetDataSegment(1, 3) / 7;
-				float g = (float)paletteData.GetDataSegment(5, 3) / 7;
-				float b = (float)paletteData.GetDataSegment(9, 3) / 7;
-				glColor3f(r, g, b);
-				glBegin(GL_POLYGON);
-				glVertex3f(paletteX + (paletteEntry * paletteSquareSizeX), paletteY + (paletteLine * paletteSquareSizeY), 0.0);
-				glVertex3f(paletteX + (paletteEntry * paletteSquareSizeX) + paletteSquareSizeX, paletteY + (paletteLine * paletteSquareSizeY), 0.0);
-				glVertex3f(paletteX + (paletteEntry * paletteSquareSizeX) + paletteSquareSizeX, paletteY + (paletteLine * paletteSquareSizeY) + paletteSquareSizeY, 0.0);
-				glVertex3f(paletteX + (paletteEntry * paletteSquareSizeX), paletteY + (paletteLine * paletteSquareSizeY) + paletteSquareSizeY, 0.0);
-				glEnd();
-			}
-		}
-		glFlush();
-	}
-
-	model.UnlockExternalBuffers();
 }

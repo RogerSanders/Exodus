@@ -29,6 +29,10 @@ DockingWindow::DockingWindow(HINSTANCE amoduleHandle, HWND ahwnd)
 	tabDockPanel = NULL;
 	dockPanel = NULL;
 
+	//Size info
+	currentControlWidth = 0;
+	currentControlHeight = 0;
+
 	//Font info
 	controlFont = NULL;
 	controlFontVertical = NULL;
@@ -440,7 +444,10 @@ LRESULT DockingWindow::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	int newClientHeight = rect.bottom;
 
 	//Handle this size changed event
-	HandleSizeChanged(newClientWidth, newClientHeight);
+	if((currentControlWidth != newClientWidth) || (currentControlHeight != newClientHeight))
+	{
+		HandleSizeChanged(newClientWidth, newClientHeight);
+	}
 
 	return 0;
 }
@@ -4256,8 +4263,12 @@ void DockingWindow::NotifyParentDestroyed()
 //----------------------------------------------------------------------------------------
 void DockingWindow::HandleSizeChanged(int newWidth, int newHeight)
 {
+	//Save the new client window dimensions
+	currentControlWidth = newWidth;
+	currentControlHeight = newHeight;
+
 	//Resize the contained tab dock panel control. This will resize the tab docking
 	//regions for autohide child panels, and the contained dock panel for visible docked
 	//child panels.
-	SetWindowPos(tabDockPanel, NULL, 0, 0, newWidth, newHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOMOVE);
+	SetWindowPos(tabDockPanel, NULL, 0, 0, currentControlWidth, currentControlHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOMOVE);
 }

@@ -258,8 +258,6 @@ LRESULT ImageView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 		//Set our texture settings
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
@@ -504,6 +502,12 @@ void ImageView::UpdateImage()
 	//If this frame was the odd field in an interlaced display, offset the row number by
 	//0.5.
 	double rowScreenOffset = model.GetImageBufferOddInterlaceFrame(displayingImageBufferPlane)? 0.5: 0.0;
+
+	//Set the current filter mode for our pixels based on whether smoothing is enabled or
+	//not
+	int textureFilterMode = (model.GetVideoEnableLineSmoothing())? GL_LINEAR: GL_NEAREST;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilterMode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilterMode);
 
 	//Render each line of the output image, using hardware resampling to scale the line
 	//width to match the output surface width.

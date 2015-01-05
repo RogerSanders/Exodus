@@ -25,6 +25,12 @@
     <Filter Include="Controls\WC_LayoutGrid">
       <UniqueIdentifier>{587a62f2-12eb-43a3-b75a-e5ff9e2cef63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Controls\WC_ScrollViewer">
+      <UniqueIdentifier>{d5096189-3c26-4f08-bdf7-87051095bfd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Controls\WC_StackPanel">
+      <UniqueIdentifier>{9babd6bb-9a2a-499e-b427-d404900fbad0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WC_DataGrid.cpp">
@@ -44,6 +50,12 @@
     </ClCompile>
     <ClCompile Include="WC_LayoutGrid.cpp">
       <Filter>Controls\WC_LayoutGrid</Filter>
+    </ClCompile>
+    <ClCompile Include="WC_ScrollViewer.cpp">
+      <Filter>Controls\WC_ScrollViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="WC_StackPanel.cpp">
+      <Filter>Controls\WC_StackPanel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -80,6 +92,12 @@
     <ClInclude Include="WC_LayoutGrid.h">
       <Filter>Controls\WC_LayoutGrid</Filter>
     </ClInclude>
+    <ClInclude Include="WC_ScrollViewer.h">
+      <Filter>Controls\WC_ScrollViewer</Filter>
+    </ClInclude>
+    <ClInclude Include="WC_StackPanel.h">
+      <Filter>Controls\WC_StackPanel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="WC_DataGrid.inl">
@@ -100,6 +118,12 @@
     <None Include="WindowsControls.pkg" />
     <None Include="WC_LayoutGrid.inl">
       <Filter>Controls\WC_LayoutGrid</Filter>
+    </None>
+    <None Include="WC_ScrollViewer.inl">
+      <Filter>Controls\WC_ScrollViewer</Filter>
+    </None>
+    <None Include="WC_StackPanel.inl">
+      <Filter>Controls\WC_StackPanel</Filter>
     </None>
   </ItemGroup>
 </Project>

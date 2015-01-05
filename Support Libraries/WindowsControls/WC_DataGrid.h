@@ -186,12 +186,12 @@ private:
 
 private:
 	//Window metrics
-	unsigned int controlWidth;
-	unsigned int controlHeight;
-	unsigned int headerWidth;
-	unsigned int headerHeight;
-	unsigned int headerPosX;
-	unsigned int headerPosY;
+	int controlWidth;
+	int controlHeight;
+	int headerWidth;
+	int headerHeight;
+	int headerPosX;
+	int headerPosY;
 	unsigned int visibleRows;
 	unsigned int fullyVisibleRows;
 
@@ -239,9 +239,9 @@ private:
 	std::map<unsigned int, std::map<unsigned int, CustomColorData>> cellCustomColorData;
 
 	//Font metrics
-	unsigned int fontWidth;
-	unsigned int fontHeight;
-	unsigned int marginSize;
+	int fontWidth;
+	int fontHeight;
+	int marginSize;
 
 	//Selection info
 	bool rowSelected;

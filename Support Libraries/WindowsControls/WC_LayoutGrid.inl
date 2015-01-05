@@ -111,6 +111,22 @@ struct WC_LayoutGrid::AddWindowParams
 		verticalAlignmentDisplacement = averticalAlignmentDisplacement;
 		return *this;
 	}
+	AddWindowParams& SetPadding(int apadding)
+	{
+		paddingLeft = apadding;
+		paddingRight = apadding;
+		paddingTop = apadding;
+		paddingBottom = apadding;
+		return *this;
+	}
+	AddWindowParams& SetPadding(int apaddingHorizontal, int apaddingVertical)
+	{
+		paddingLeft = apaddingHorizontal;
+		paddingRight = apaddingHorizontal;
+		paddingTop = apaddingVertical;
+		paddingBottom = apaddingVertical;
+		return *this;
+	}
 	AddWindowParams& SetPadding(int apaddingLeft, int apaddingRight, int apaddingTop, int apaddingBottom)
 	{
 		paddingLeft = apaddingLeft;

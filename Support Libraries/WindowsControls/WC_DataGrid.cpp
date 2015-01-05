@@ -437,26 +437,34 @@ LRESULT WC_DataGrid::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	//Calculate the dimensions of the drawable surface of this control
 	RECT rect;
 	GetClientRect(hwnd, &rect);
-	controlWidth = rect.right;
-	controlHeight = rect.bottom;
+	int newClientWidth = rect.right;
+	int newClientHeight = rect.bottom;
 
-	//Update the header position and size
-	WINDOWPOS headerPos;
-	HDLAYOUT headerLayout;
-	headerLayout.prc = &rect;
-	headerLayout.pwpos = &headerPos;
-	SendMessage(hwndHeader, HDM_LAYOUT, 0, (LPARAM)&headerLayout);
-	headerWidth = headerPos.cx;
-	headerHeight = headerPos.cy;
-	headerPosX = headerPos.x;
-	headerPosY = headerPos.y;
-	MoveWindow(hwndHeader, (int)headerPosX - currentScrollHOffset, headerPosY, (int)headerWidth + currentScrollHOffset, headerHeight, TRUE);
+	//If this control has changed in size, process the size change event.
+	if((controlWidth != newClientWidth) || (controlHeight != newClientHeight))
+	{
+		//Update the stored width and height of the control
+		controlWidth = newClientWidth;
+		controlHeight = newClientHeight;
 
-	//Update size information based on the new control width and height
-	UpdateWindowSize();
+		//Update the header position and size
+		WINDOWPOS headerPos;
+		HDLAYOUT headerLayout;
+		headerLayout.prc = &rect;
+		headerLayout.pwpos = &headerPos;
+		SendMessage(hwndHeader, HDM_LAYOUT, 0, (LPARAM)&headerLayout);
+		headerWidth = headerPos.cx;
+		headerHeight = headerPos.cy;
+		headerPosX = headerPos.x;
+		headerPosY = headerPos.y;
+		MoveWindow(hwndHeader, headerPosX - currentScrollHOffset, headerPosY, headerWidth + currentScrollHOffset, headerHeight, TRUE);
 
-	//Recalculate all automatically sized column widths
-	RecalculateColumnWidths();
+		//Update size information based on the new control width and height
+		UpdateWindowSize();
+
+		//Recalculate all automatically sized column widths
+		RecalculateColumnWidths();
+	}
 
 	return 0;
 }
@@ -559,7 +567,7 @@ LRESULT WC_DataGrid::msgWM_PAINT(WPARAM wParam, LPARAM lParam)
 	//header always extends all the way across the top of our control, even when we pass
 	//the end of the last column.
 	int totalHeaderWidth = (int)GetTotalRowWidth();
-	int overRenderWidth = (int)controlWidth - (totalHeaderWidth - currentScrollHOffset);
+	int overRenderWidth = controlWidth - (totalHeaderWidth - currentScrollHOffset);
 	if(overRenderWidth < 0)
 	{
 		overRenderWidth = 0;
@@ -576,7 +584,7 @@ LRESULT WC_DataGrid::msgWM_PAINT(WPARAM wParam, LPARAM lParam)
 	SendMessage(hwndHeader, WM_PRINTCLIENT, (WPARAM)hdcBitmap, PRF_CLIENT | PRF_NONCLIENT | PRF_CHILDREN);
 
 	//Transfer the final bitmap for the control into the screen buffer
-	BitBlt(hdcControl, (int)headerPosX, (int)headerPosY, (int)headerWidth  + overRenderWidth, (int)headerHeight, hdcBitmap, currentScrollHOffset, 0, SRCCOPY);
+	BitBlt(hdcControl, headerPosX, headerPosY, headerWidth  + overRenderWidth, headerHeight, hdcBitmap, currentScrollHOffset, 0, SRCCOPY);
 
 	//Clean up the allocated handles
 	SelectObject(hdcBitmap, hbitmapOriginal);
@@ -604,8 +612,8 @@ void WC_DataGrid::UpdateChildControls()
 	//Update child control info for each cell
 	std::set<HWND> drawnChildControls;
 	std::set<HWND> drawPendingChildControls;
-	int gridContentStartPosX = (int)headerPosX;
-	int gridContentStartPosY = (int)(headerPosY + headerHeight);
+	int gridContentStartPosX = headerPosX;
+	int gridContentStartPosY = headerPosY + headerHeight;
 	for(unsigned int row = 0; row < visibleRows; ++row)
 	{
 		//Determine the index of this row into our data arrays
@@ -613,7 +621,7 @@ void WC_DataGrid::UpdateChildControls()
 
 		//Update child control info for each column in this row
 		int columnStartPosX = gridContentStartPosX - currentScrollHOffset;
-		int columnStartPosY = gridContentStartPosY + (int)(row * (fontHeight + (marginSize * 2)));
+		int columnStartPosY = gridContentStartPosY + ((int)row * (fontHeight + (marginSize * 2)));
 		int columnEndPosY = columnStartPosY + fontHeight + (marginSize * 2);
 		for(ColumnSortIndexIterator i = columnSortIndex.begin(); i != columnSortIndex.end(); ++i)
 		{
@@ -692,7 +700,7 @@ void WC_DataGrid::UpdateChildControls()
 				{
 					if(cellControlInfo.treeEntryIndentLevel > 0)
 					{
-						newControlPosX += ((cellControlInfo.treeEntryIndentLevel - 1) * fontHeight) + marginSize;
+						newControlPosX += (((int)cellControlInfo.treeEntryIndentLevel - 1) * fontHeight) + marginSize;
 						newControlWidth = fontHeight;
 					}
 					else
@@ -828,8 +836,8 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 
 	//Draw the columns
 	bool foundActiveEditCell = false;
-	int gridContentStartPosX = (int)headerPosX;
-	int gridContentStartPosY = (int)(headerPosY + headerHeight);
+	int gridContentStartPosX = headerPosX;
+	int gridContentStartPosY = headerPosY + headerHeight;
 	for(unsigned int row = 0; row < visibleRows; ++row)
 	{
 		//Determine the index of this row into our data arrays
@@ -861,7 +869,7 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 
 		//Draw each column in this row
 		int columnStartPosX = gridContentStartPosX - currentScrollHOffset;
-		int columnStartPosY = gridContentStartPosY + (int)(row * (fontHeight + (marginSize * 2)));
+		int columnStartPosY = gridContentStartPosY + ((int)row * (fontHeight + (marginSize * 2)));
 		int columnEndPosY = columnStartPosY + fontHeight + (marginSize * 2);
 		for(ColumnSortIndexIterator i = columnSortIndex.begin(); i != columnSortIndex.end(); ++i)
 		{
@@ -1527,14 +1535,14 @@ unsigned int WC_DataGrid::GetTotalRowWidth() const
 void WC_DataGrid::UpdateWindowSize()
 {
 	//Calculate the maximum number of rows which can be shown within the control
-	unsigned int textAreaHeight = controlHeight - headerHeight;
+	int textAreaHeight = controlHeight - headerHeight;
 	if(controlHeight < headerHeight)
 	{
 		textAreaHeight = 0;
 	}
-	unsigned int rowHeight = fontHeight + (marginSize * 2);
-	unsigned int newVisibleRows = (textAreaHeight + (rowHeight - 1)) / rowHeight;
-	unsigned int newFullyVisibleRows = textAreaHeight / rowHeight;
+	int rowHeight = fontHeight + (marginSize * 2);
+	unsigned int newVisibleRows = (unsigned int)((textAreaHeight + (rowHeight - 1)) / rowHeight);
+	unsigned int newFullyVisibleRows = (unsigned int)(textAreaHeight / rowHeight);
 
 	//If we're not using automatic scroll management, and more rows need to be shown after
 	//the resize, update the data buffer sizes for each column.
@@ -1635,9 +1643,9 @@ void WC_DataGrid::UpdateScrollbarSettings(int newScrollHOffset, int newScrollVOf
 	unsigned int totalRowWidth = GetTotalRowWidth();
 
 	//Clamp the new horizontal scroll offset to the upper and lower boundaries
-	if((newScrollHOffset + (int)controlWidth) > (int)totalRowWidth)
+	if((newScrollHOffset + controlWidth) > (int)totalRowWidth)
 	{
-		newScrollHOffset = (int)totalRowWidth - (int)controlWidth;
+		newScrollHOffset = (int)totalRowWidth - controlWidth;
 	}
 	if(newScrollHOffset < 0)
 	{
@@ -1651,7 +1659,7 @@ void WC_DataGrid::UpdateScrollbarSettings(int newScrollHOffset, int newScrollVOf
 		currentScrollHOffset = newScrollHOffset;
 
 		//Reposition the header control to handle horizontal scrolling
-		MoveWindow(hwndHeader, (int)headerPosX - currentScrollHOffset, headerPosY, (int)headerWidth + currentScrollHOffset, headerHeight, TRUE);
+		MoveWindow(hwndHeader, headerPosX - currentScrollHOffset, headerPosY, headerWidth + currentScrollHOffset, headerHeight, TRUE);
 
 		//Apply the latest horizontal scrollbar settings
 		SCROLLINFO hscrollInfo;
@@ -1659,7 +1667,7 @@ void WC_DataGrid::UpdateScrollbarSettings(int newScrollHOffset, int newScrollVOf
 		hscrollInfo.nMin = 0;
 		hscrollInfo.nMax = (int)totalRowWidth - 1;
 		hscrollInfo.nPos = (int)currentScrollHOffset;
-		hscrollInfo.nPage = (int)controlWidth;
+		hscrollInfo.nPage = controlWidth;
 		hscrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
 		SetScrollInfo(hwnd, SB_HORZ, &hscrollInfo, TRUE);
 
@@ -1716,7 +1724,7 @@ void WC_DataGrid::RecalculateColumnWidths()
 {
 	//Calculate the size of all columns with a non-proportional size, and build a list of
 	//all the proportional columns and the sum total of all proportional width weightings.
-	unsigned int fixedColumnWidths = 0;
+	int fixedColumnWidths = 0;
 	std::list<ColumnData*> proportionalColumnSet;
 	float proportionalColumnWidthWeightingSum = 0;
 	for(std::list<ColumnData>::iterator i = columnData.begin(); i != columnData.end(); ++i)
@@ -1775,7 +1783,7 @@ void WC_DataGrid::RecalculateColumnWidths()
 					case CellControlType::TreeEntry:
 						if(cellControlInfo.treeEntryIndentLevel > 0)
 						{
-							totalCellContentWidth += (cellControlInfo.treeEntryIndentLevel * fontHeight) + marginSize;
+							totalCellContentWidth += ((int)cellControlInfo.treeEntryIndentLevel * fontHeight) + marginSize;
 						}
 						break;
 					}
@@ -1830,7 +1838,7 @@ void WC_DataGrid::RecalculateColumnWidths()
 		}
 
 		//Add the width of this column to the sum of fixed column widths
-		fixedColumnWidths += column.actualWidth;
+		fixedColumnWidths += (int)column.actualWidth;
 	}
 
 	//Update the size of each proportional column
@@ -2238,16 +2246,16 @@ LRESULT WC_DataGrid::msgWM_HSCROLL(WPARAM wParam, LPARAM lParam)
 		hscrollNew = 0;
 		break;}
 	case SB_RIGHT:{
-		hscrollNew = (int)totalRowWidth - (int)controlWidth;
+		hscrollNew = (int)totalRowWidth - controlWidth;
 		break;}
 	case SB_PAGELEFT:{
-		hscrollNew -= (int)controlWidth;
+		hscrollNew -= controlWidth;
 		break;}
 	case SB_LINELEFT:{
 		hscrollNew -= 8;
 		break;}
 	case SB_PAGERIGHT:{
-		hscrollNew += (int)controlWidth;
+		hscrollNew += controlWidth;
 		break;}
 	case SB_LINERIGHT:{
 		hscrollNew += 8;
@@ -2657,7 +2665,7 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	unsigned int newSelectedRowNo = (!autoScrollingManagement)? newSelectedVisibleRowNo: (vscrollCurrent + newSelectedVisibleRowNo);
 	if((newSelectedVisibleRowNo >= 0) && (newSelectedRowNo < largestColumnDataArraySize))
 	{
-		columnStartPosY = (int)(headerPosY + headerHeight) + (int)(newSelectedVisibleRowNo * (fontHeight + (marginSize * 2)));
+		columnStartPosY = (headerPosY + headerHeight) + (newSelectedVisibleRowNo * (fontHeight + (marginSize * 2)));
 		columnEndPosY = columnStartPosY + fontHeight + (marginSize * 2);
 		newSelectedRowSelectionOffsetY = (cursorPosY - columnStartPosY);
 		foundSelectedRow = true;

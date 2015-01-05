@@ -2,6 +2,7 @@
 #define __PALETTEVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "Image/Image.pkg"
 #include "PaletteViewPresenter.h"
 #include "315-5313/IS315_5313.h"
 
@@ -18,16 +19,13 @@ protected:
 private:
 	//Event handlers
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
-	LRESULT msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_PAINT(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
-
-	//Palette update functions
-	void UpdatePalette();
 
 private:
 	PaletteViewPresenter& presenter;
 	IS315_5313& model;
-	HGLRC glrc;
+	Image paletteImage;
 };
 
 #endif
