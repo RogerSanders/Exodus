@@ -87,7 +87,7 @@ DWORD WINAPI CreateWindowThreadFunction(LPVOID aparams);
 void WindowsMessageLoop(HWND hwnd);
 
 //Parent and owner window functions
-void SetWindowParent(HWND targetWindow, HWND newParent);
+HWND SetWindowParent(HWND targetWindow, HWND newParent);
 HWND GetFirstOwnerWindow(HWND targetWindow);
 HWND GetFirstOwnerWindowOrTopLevelParent(HWND targetWindow);
 void SetOwnerWindow(HWND targetWindow, HWND newOwnerWindow);

@@ -489,7 +489,7 @@ void WindowsMessageLoop(HWND hwnd)
 //----------------------------------------------------------------------------------------
 //Parent and owner window functions
 //----------------------------------------------------------------------------------------
-void SetWindowParent(HWND targetWindow, HWND newParent)
+HWND SetWindowParent(HWND targetWindow, HWND newParent)
 {
 	//Check if we have an existing parent window. Note that we need to use the GetAncestor
 	//function here rather than GetParent, as GetParent returns the owner window instead
@@ -555,6 +555,9 @@ void SetWindowParent(HWND targetWindow, HWND newParent)
 	//##FIX## According to MSDN docs under the SetParent function:
 	//"When you change the parent of a window, you should synchronize the UISTATE of both
 	// windows. For more information, see WM_CHANGEUISTATE and WM_UPDATEUISTATE."
+
+	//Return the existing parent of the target window
+	return (hasExistingParent)? existingParent: NULL;
 }
 
 //----------------------------------------------------------------------------------------
