@@ -251,6 +251,8 @@ LRESULT DockingWindow::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam
 		return msgWM_GETFONT(wParam, lParam);
 	case WM_SETFONT:
 		return msgWM_SETFONT(wParam, lParam);
+	case WM_PAINT:
+		return msgWM_PAINT(wParam, lParam);
 	case WM_BOUNCE:
 		return msgWM_BOUNCE(wParam, lParam);
 	case (unsigned int)WindowMessages::AddContentWindow:
@@ -896,6 +898,21 @@ LRESULT DockingWindow::msgWM_SETFONT(WPARAM wParam, LPARAM lParam)
 	//Update window sizes now that the size of docked tab elements may have changed
 	UpdateAutoHideWindowTabSizes();
 
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT DockingWindow::msgWM_PAINT(WPARAM wParam, LPARAM lParam)
+{
+	PAINTSTRUCT paintInfo;
+	HDC hdc = BeginPaint(hwnd, &paintInfo);
+
+	//Fill the window with the background colour
+	RECT rect;
+	GetClientRect(hwnd, &rect);
+	FillRect(hdc, &rect, GetSysColorBrush(COLOR_WINDOW));
+
+	EndPaint(hwnd, &paintInfo);
 	return 0;
 }
 
@@ -3799,7 +3816,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const MarshalSupport::M
 	}
 
 	//Add the target content window
-	if(hostedContent.empty())
+	if(hostedContent.empty() && !AlwaysShowContentWindowTabs())
 	{
 		//Add this entry object to the list of hosted content entries
 		tabIndexToHostedContentNo[entry.tabIndex] = hostedContent.size();
@@ -3813,16 +3830,9 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const MarshalSupport::M
 	}
 	else
 	{
-		bool createNewTabControl = hostedContent.size() == 1;
+		bool createNewTabControl = (contentTabControl == NULL);
 		if(createNewTabControl)
 		{
-			//Hide the existing content window
-			ContentEntry& existingContentEntry = *hostedContent.begin();
-			ShowWindow(existingContentEntry.contentWindow, SW_HIDE);
-
-			//Remove the content window from our internal docking panel
-			SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveContentWindow, 0, (LPARAM)existingContentEntry.contentWindow);
-
 			//Create a new tab control to manage the content
 			contentTabControl = CreateWindowEx(0, WC_TABCONTROL, L"", WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 0, 0, 0, 0, hwnd, NULL, moduleHandle, NULL);
 
@@ -3838,37 +3848,48 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const MarshalSupport::M
 			//Set no tab as currently active in the tab control
 			currentSelectedTabIndex = -1;
 
-			//Remove the existing content entry from the tab index to content number map
-			size_t existingContentIndex = tabIndexToHostedContentNo[existingContentEntry.tabIndex];
-			tabIndexToHostedContentNo.erase(existingContentEntry.tabIndex);
+			if(!hostedContent.empty())
+			{
+				//Hide the existing content window
+				ContentEntry& existingContentEntry = *hostedContent.begin();
+				ShowWindow(existingContentEntry.contentWindow, SW_HIDE);
 
-			//Insert the existing content item into the content tab control
-			TCITEM tabControlItem;
-			tabControlItem.mask = TCIF_PARAM | TCIF_TEXT;
-			tabControlItem.lParam = (LPARAM)existingContentEntry.contentWindow;
-			tabControlItem.pszText = (LPWSTR)existingContentEntry.contentTitle.c_str();
-			existingContentEntry.tabIndex = (int)SendMessage(contentTabControl, TCM_INSERTITEM, 9999, (LPARAM)&tabControlItem);
+				//Remove the content window from our internal docking panel
+				SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveContentWindow, 0, (LPARAM)existingContentEntry.contentWindow);
 
-			//Add the existing content entry back into the tab index to content number map
-			//with the new tab index number. We preserve and reuse the original content
-			//index number here just for some paranoid safety against future changes, even
-			//though with the current logic it should always be 0.
-			tabIndexToHostedContentNo[existingContentEntry.tabIndex] = existingContentIndex;
+				//Remove the existing content entry from the tab index to content number
+				//map
+				size_t existingContentIndex = tabIndexToHostedContentNo[existingContentEntry.tabIndex];
+				tabIndexToHostedContentNo.erase(existingContentEntry.tabIndex);
 
-			//Clear the current selection in the content tab control. Without this, the
-			//tab control seems to always latch the first tab item added as the currently
-			//active tab item, which will cause problems if we query it in a message
-			//handler before we set it properly. We clear it here to ensure we're always
-			//in sync with the selected tab index.
-			SendMessage(contentTabControl, TCM_SETCURSEL, (WPARAM)-1, 0);
+				//Insert the existing content item into the content tab control
+				TCITEM tabControlItem;
+				tabControlItem.mask = TCIF_PARAM | TCIF_TEXT;
+				tabControlItem.lParam = (LPARAM)existingContentEntry.contentWindow;
+				tabControlItem.pszText = (LPWSTR)existingContentEntry.contentTitle.c_str();
+				existingContentEntry.tabIndex = (int)SendMessage(contentTabControl, TCM_INSERTITEM, 9999, (LPARAM)&tabControlItem);
 
-			//Set the existing content item as a child window of the tab control
-			SetWindowParent(existingContentEntry.contentWindow, contentTabControl);
+				//Add the existing content entry back into the tab index to content number
+				//map with the new tab index number. We preserve and reuse the original
+				//content index number here just for some paranoid safety against future
+				//changes, even though with the current logic it should always be 0.
+				tabIndexToHostedContentNo[existingContentEntry.tabIndex] = existingContentIndex;
 
-			//Hide the existing content window now that we've added it to our tab control.
-			//We're going to set the newly added content item as the active tab item, so
-			//we don't want the existing content window still visible.
-			ShowWindow(existingContentEntry.contentWindow, SW_HIDE);
+				//Clear the current selection in the content tab control. Without this,
+				//the tab control seems to always latch the first tab item added as the
+				//currently active tab item, which will cause problems if we query it in a
+				//message handler before we set it properly. We clear it here to ensure
+				//we're always in sync with the selected tab index.
+				SendMessage(contentTabControl, TCM_SETCURSEL, (WPARAM)-1, 0);
+
+				//Set the existing content item as a child window of the tab control
+				SetWindowParent(existingContentEntry.contentWindow, contentTabControl);
+
+				//Hide the existing content window now that we've added it to our tab
+				//control. We're going to set the newly added content item as the active
+				//tab item, so we don't want the existing content window still visible.
+				ShowWindow(existingContentEntry.contentWindow, SW_HIDE);
+			}
 		}
 
 		//Hide the specified content window until we finish assigning its parent and
@@ -3939,7 +3960,7 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 	tabIndexToHostedContentNo.erase(entry.tabIndex);
 
 	//Remove the target content window
-	if(hostedContent.size() > 1)
+	if((hostedContent.size() > 1) || (AlwaysShowContentWindowTabs() && (hostedContent.size() == 1)))
 	{
 		//Remove the content window from our tab control
 		SendMessage(contentTabControl, TCM_DELETEITEM, entry.tabIndex, 0);
@@ -4002,6 +4023,22 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 
 		//Update the title of our docking window to match the content title
 		SetWindowText(hwnd, remainingContentEntry.contentTitle.c_str());
+	}
+	else if(AlwaysShowContentWindowTabs())
+	{
+		//Remove the specified window as a child window of the tab control
+		SetWindowParent(entry.contentWindow, NULL);
+
+		//Remove the tab control from our internal docking panel
+		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveContentWindow, 0, (LPARAM)contentTabControl);
+
+		//Destroy the content tab control window now that no items are going to be
+		//displayed in the content region
+		DestroyWindow(contentTabControl);
+		contentTabControl = NULL;
+
+		//Clear the title of our docking window now that there's no hosted content
+		SetWindowText(hwnd, L"");
 	}
 	else
 	{
@@ -4116,7 +4153,7 @@ void DockingWindow::SetHostedContentTitle(unsigned int contentEntryNo, const std
 	//If we're currently displaying a tab control for our hosted content items, update the
 	//text for the tab item for the target content entry now that the title has been
 	//modified.
-	if(hostedContent.size() > 1)
+	if(contentTabControl != NULL)
 	{
 		TCITEM tabControlItem;
 		tabControlItem.mask = TCIF_TEXT;
@@ -4165,7 +4202,7 @@ void DockingWindow::SetHostedContentWindow(unsigned int contentEntryNo, HWND new
 
 	//Replace the target content window in the main docking window or the docked tab
 	//control as required
-	if(hostedContent.size() > 1)
+	if(contentTabControl != NULL)
 	{
 		//Set the new content window as a child window of the tab control
 		SetWindowParent(newContentWindow, contentTabControl);
@@ -4203,6 +4240,15 @@ void DockingWindow::SetHostedContentWindow(unsigned int contentEntryNo, HWND new
 	{
 		parentDockingWindow->UpdateAutoHideChildContainerContent(this);
 	}
+}
+
+//----------------------------------------------------------------------------------------
+bool DockingWindow::AlwaysShowContentWindowTabs() const
+{
+	//If this docking window is a child window, and it doesn't have a parent docking
+	//window, indicate that content window tabs should always be shown. This allows all
+	//content windows to be removed by the user from a docking region.
+	return (((unsigned int)GetWindowLongPtr(hwnd, GWL_STYLE) & WS_CHILD) != 0) && (parentDockingWindow == NULL);
 }
 
 //----------------------------------------------------------------------------------------

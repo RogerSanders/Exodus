@@ -132,6 +132,7 @@ private:
 	LRESULT msgWM_SETCURSOR(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_GETFONT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SETFONT(WPARAM wParam, LPARAM lParam);
+	LRESULT msgWM_PAINT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_BOUNCE(WPARAM wParam, LPARAM lParam);
 	LRESULT msgDOCKWIN_ADDCONTENTWINDOW(WPARAM wParam, LPARAM lParam);
 	LRESULT msgDOCKWIN_REMOVECONTENTWINDOW(WPARAM wParam, LPARAM lParam);
@@ -209,6 +210,7 @@ private:
 	void SetHostedContentTitle(unsigned int contentEntryNo, const std::wstring& newContentTitle);
 	virtual HWND GetHostedContentWindow(unsigned int contentEntryNo) const;
 	void SetHostedContentWindow(unsigned int contentEntryNo, HWND newContentWindow);
+	bool AlwaysShowContentWindowTabs() const;
 
 	//Parent docking window methods
 	virtual IDockingWindow* GetParentDockingWindow() const;

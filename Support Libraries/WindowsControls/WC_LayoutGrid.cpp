@@ -175,11 +175,17 @@ LRESULT WC_LayoutGrid::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_LayoutGrid::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 {
-	//Since we want this control to essentially have a transparent background, we don't
-	//perform any operation when a background erase is requested. Note that this requires
-	//the containing window to use the WS_EX_COMPOSITED style, and for our control to use
-	//the WS_EX_TRANSPARENT style, in order to get the result we want.
-	return TRUE;
+	//If the WS_EX_TRANSPARENT window style has been applied to our control, since we want
+	//this control to essentially have a transparent background, we don't perform any
+	//operation when a background erase is requested. Note that this requires the
+	//containing window to use the WS_EX_COMPOSITED style in order to achieve the desired
+	//effect. If the WS_EX_TRANSPARENT style has not been specified, we pass this message
+	//on to DefWindowProc.
+	if(((unsigned int)GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) != 0)
+	{
+		return TRUE;
+	}
+	return DefWindowProc(hwnd, WM_ERASEBKGND, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------
