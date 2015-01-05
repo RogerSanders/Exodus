@@ -1,3 +1,4 @@
+#include <WindowsSupport/WindowsSupport.pkg>
 #include "ImageView.h"
 #include "resource.h"
 
@@ -8,8 +9,10 @@ ImageView::ImageView(IUIManager& auiManager, ImageViewPresenter& apresenter, IS3
 :ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
 {
 	glrc = NULL;
+	hwndChildGroup = NULL;
 	hwndOpenGL = NULL;
 	hwndStatusBar = NULL;
+	savedParent = NULL;
 	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, 420, 313);
 	SetDockableViewType(true, DockPos::Center);
 	videoFixedAspectRatioCached = model.GetVideoFixedAspectRatio();
@@ -37,6 +40,8 @@ LRESULT ImageView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_SIZE:
 		return msgWM_SIZE(hwnd, wparam, lparam);
+	case WM_NCHITTEST:
+		return msgWM_NCHITTEST(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	}
@@ -54,31 +59,14 @@ LRESULT ImageView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 	InitCommonControlsEx(&iccex);
 
+	//Create the render window
+	hwndChildGroup = CreateChildWindow(WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, 0, hwnd, std::bind(&ImageView::WndProcChildGroup, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+
 	//Create the status bar window
-	hwndStatusBar = CreateWindowEx(0, STATUSCLASSNAME, NULL, WS_CHILD | SBARS_SIZEGRIP, 0, 0, 0, 0, hwnd, NULL, GetAssemblyHandle(), NULL);
-	ShowWindow(hwndStatusBar, SW_SHOWNORMAL);
-	UpdateWindow(hwndStatusBar);
+	hwndStatusBar = CreateWindowEx(0, STATUSCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, 0, 0, 0, 0, hwndChildGroup, NULL, GetAssemblyHandle(), NULL);
 
-	//Create the OpenGL window class
-	WNDCLASSEX wc;
-	wc.cbSize        = sizeof(WNDCLASSEX);
-	wc.style         = 0;
-	wc.lpfnWndProc   = WndProcRenderStatic;
-	wc.cbClsExtra    = 0;
-	wc.cbWndExtra    = 0;
-	wc.hInstance     = GetAssemblyHandle();
-	wc.hIcon         = NULL;
-	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = L"OpenGL Render Window";
-	wc.hIconSm       = NULL;
-	RegisterClassEx(&wc);
-
-	//Create the OpenGL window
-	hwndOpenGL = CreateWindowEx(0, L"OpenGL Render Window", L"OpenGL Render Window", WS_CHILD, 0, 0, 0, 0, hwnd, NULL, GetAssemblyHandle(), this);
-	ShowWindow(hwndOpenGL, SW_SHOWNORMAL);
-	UpdateWindow(hwndOpenGL);
+	//Create the render window
+	hwndOpenGL = CreateChildWindow(WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, 0, hwndChildGroup, std::bind(&ImageView::WndProcRender, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
 	//Start a timer to respond to image window settings changes
 	SetTimer(hwnd, 1, 250, NULL);
@@ -109,7 +97,63 @@ LRESULT ImageView::msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	RECT clientRect;
 	GetClientRect(hwnd, &clientRect);
 	int windowWidth = clientRect.right - clientRect.left;
-	int WindowHeight = clientRect.bottom - clientRect.top;
+	int windowHeight = clientRect.bottom - clientRect.top;
+
+	//Set the new window position and size for the OpenGL window
+	SetWindowPos(hwndChildGroup, NULL, 0, 0, windowWidth, windowHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT ImageView::msgWM_NCHITTEST(HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	//Make this control transparent in the client area for hit testing
+	LRESULT result = DefWindowProc(hwnd, WM_NCHITTEST, wParam, lParam);
+	return (result == HTCLIENT)? HTTRANSPARENT: result;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT ImageView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	//Refresh the status bar visibility setting
+	if(videoShowStatusBarCached != model.GetVideoShowStatusBar())
+	{
+		videoShowStatusBarCached = model.GetVideoShowStatusBar();
+		SendMessage(hwnd, WM_SIZE, 0, 0);
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+//Child window procedure
+//----------------------------------------------------------------------------------------
+LRESULT ImageView::WndProcChildGroup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	switch(msg)
+	{
+	case WM_SIZE:
+		return msgChildWM_SIZE(hwnd, wparam, lparam);
+	case WM_KEYUP:
+		return msgChildWM_KEYUP(hwnd, wparam, lparam);
+	case WM_KEYDOWN:
+		return msgChildWM_KEYDOWN(hwnd, wparam, lparam);
+	case WM_SYSKEYDOWN:
+		return msgChildWM_SYSKEYDOWN(hwnd, wparam, lparam);
+	}
+	return DefWindowProc(hwnd, msg, wparam, lparam);
+}
+
+//----------------------------------------------------------------------------------------
+//Child event handlers
+//----------------------------------------------------------------------------------------
+LRESULT ImageView::msgChildWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	//Obtain the current size of the client area of the window
+	RECT clientRect;
+	GetClientRect(hwnd, &clientRect);
+	int windowWidth = clientRect.right - clientRect.left;
+	int windowHeight = clientRect.bottom - clientRect.top;
 
 	//Set the visibility state of the status bar
 	ShowWindow(hwndStatusBar, videoShowStatusBarCached? SW_SHOWNOACTIVATE: SW_HIDE);
@@ -140,7 +184,7 @@ LRESULT ImageView::msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 
 	//Calculate the position and size of the OpenGL window
 	int openGLWindowSizeX = windowWidth;
-	int openGLWindowSizeY = WindowHeight - statusBarHeight;
+	int openGLWindowSizeY = windowHeight - statusBarHeight;
 	int openGLWindowPosX = 0;
 	int openGLWindowPosY = 0;
 
@@ -151,62 +195,46 @@ LRESULT ImageView::msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 }
 
 //----------------------------------------------------------------------------------------
-LRESULT ImageView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT ImageView::msgChildWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Refresh the status bar visibility setting
-	if(videoShowStatusBarCached != model.GetVideoShowStatusBar())
+	ISystemDeviceInterface::KeyCode keyCode;
+	if(presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
 	{
-		videoShowStatusBarCached = model.GetVideoShowStatusBar();
-		SendMessage(hwnd, WM_SIZE, 0, 0);
+		presenter.GetSystemInterface().HandleInputKeyUp(keyCode);
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT ImageView::msgChildWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	if(fullScreenMode && (wparam == VK_ESCAPE))
+	{
+		SetFullScreen(hwnd, false);
+	}
+	else
+	{
+		ISystemDeviceInterface::KeyCode keyCode;
+		if(presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
+		{
+			presenter.GetSystemInterface().HandleInputKeyDown(keyCode);
+		}
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT ImageView::msgChildWM_SYSKEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	if(wparam == VK_RETURN)
+	{
+		SetFullScreen(hwnd, !fullScreenMode);
 	}
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
 //OpenGL window procedure
-//----------------------------------------------------------------------------------------
-LRESULT CALLBACK ImageView::WndProcRenderStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
-{
-	//Obtain the object pointer
-	ImageView* state = (ImageView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-
-	//Process the message
-	switch(msg)
-	{
-	case WM_CREATE:
-		//Set the object pointer
-		state = (ImageView*)((CREATESTRUCT*)lparam)->lpCreateParams;
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
-
-		//Pass this message on to the member window procedure function
-		if(state != 0)
-		{
-			return state->WndProcRender(hwnd, msg, wparam, lparam);
-		}
-		break;
-	case WM_DESTROY:
-		if(state != 0)
-		{
-			//Pass this message on to the member window procedure function
-			LRESULT result = state->WndProcRender(hwnd, msg, wparam, lparam);
-
-			//Discard the object pointer
-			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
-
-			//Return the result from processing the message
-			return result;
-		}
-		break;
-	}
-
-	//Pass this message on to the member window procedure function
-	if(state != 0)
-	{
-		return state->WndProcRender(hwnd, msg, wparam, lparam);
-	}
-	return DefWindowProc(hwnd, msg, wparam, lparam);
-}
-
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -220,12 +248,6 @@ LRESULT ImageView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 		return msgRenderWM_SIZE(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgRenderWM_TIMER(hwnd, wparam, lparam);
-	case WM_KEYUP:
-		return msgRenderWM_KEYUP(hwnd, wparam, lparam);
-	case WM_KEYDOWN:
-		return msgRenderWM_KEYDOWN(hwnd, wparam, lparam);
-	case WM_SYSKEYDOWN:
-		return msgRenderWM_SYSKEYDOWN(hwnd, wparam, lparam);
 	}
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
@@ -377,45 +399,6 @@ LRESULT ImageView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	case 2:
 		++renderPosHighlightColorIndex;
 		break;
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-LRESULT ImageView::msgRenderWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	ISystemDeviceInterface::KeyCode keyCode;
-	if(presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
-	{
-		presenter.GetSystemInterface().HandleInputKeyUp(keyCode);
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-LRESULT ImageView::msgRenderWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	if(fullScreenMode && (wparam == VK_ESCAPE))
-	{
-		SetFullScreen(GetParent(hwnd), false);
-	}
-	else
-	{
-		ISystemDeviceInterface::KeyCode keyCode;
-		if(presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
-		{
-			presenter.GetSystemInterface().HandleInputKeyDown(keyCode);
-		}
-	}
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-LRESULT ImageView::msgRenderWM_SYSKEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
-{
-	if(wparam == VK_RETURN)
-	{
-		SetFullScreen(GetParent(hwnd), !fullScreenMode);
 	}
 	return 0;
 }
@@ -722,42 +705,41 @@ void ImageView::SetFullScreen(HWND hwnd, bool fullScreenModeNew)
 	//Set the fullscreen mode to the requested state
 	if(fullScreenModeNew)
 	{
-		//Save the current window style flags, position, and size.
-		fullScreenSavedWindowStyle = GetWindowLong(hwnd, GWL_STYLE);
-		fullScreenSavedWindowStyleEx = GetWindowLong(hwnd, GWL_EXSTYLE);
-		GetWindowRect(hwnd, &fullScreenSavedWindowRect);
-
-		//Strip any window style flags which we don't want set in fullscreen mode
-		LONG modifiedWindowStyle = fullScreenSavedWindowStyle & ~(WS_CAPTION | WS_THICKFRAME);
-		LONG modifiedWindowStyleEx = fullScreenSavedWindowStyleEx & ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
-		SetWindowLong(hwnd, GWL_STYLE, modifiedWindowStyle);
-		SetWindowLong(hwnd, GWL_EXSTYLE, modifiedWindowStyleEx);
-
 		//Obtain the position and dimensions of the monitor closest to the image window
 		MONITORINFO monitorInfo;
 		monitorInfo.cbSize = sizeof(monitorInfo);
 		GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), &monitorInfo);
 
+		//Save the width and height of our image window before entering fullscreen mode
+		RECT rect;
+		GetClientRect(hwnd, &rect);
+		savedWindowWidth = rect.right - rect.left;
+		savedWindowHeight = rect.bottom - rect.top;
+
+		//Make our image window into a top-level window, and save the previous parent
+		//window.
+		savedParent = SetWindowParent(hwnd, NULL);
+
 		//Set the position and dimensions of the image window based on the position and
-		//dimensions of the monitor info
+		//dimensions of the monitor
 		int newWindowPosX = monitorInfo.rcMonitor.left;
 		int newWindowPosY = monitorInfo.rcMonitor.top;
 		int newWindowSizeX = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
 		int newWindowSizeY = monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
-		SetWindowPos(hwnd, NULL, newWindowPosX, newWindowPosY, newWindowSizeX, newWindowSizeY, SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+		SetWindowPos(hwnd, NULL, newWindowPosX, newWindowPosY, newWindowSizeX, newWindowSizeY, SWP_NOZORDER);
 	}
 	else
 	{
-		//Restore the original window style flags
-		SetWindowLong(hwnd, GWL_STYLE, fullScreenSavedWindowStyle);
-		SetWindowLong(hwnd, GWL_EXSTYLE, fullScreenSavedWindowStyleEx);
+		//Restore the saved parent window of the image window
+		SetWindowParent(hwnd, savedParent);
 
-		//Restore the original window size and position
-		int newWindowPosX = fullScreenSavedWindowRect.left;
-		int newWindowPosY = fullScreenSavedWindowRect.top;
-		int newWindowSizeX = fullScreenSavedWindowRect.right - fullScreenSavedWindowRect.left;
-		int newWindowSizeY = fullScreenSavedWindowRect.bottom - fullScreenSavedWindowRect.top;
-		SetWindowPos(hwnd, NULL, newWindowPosX, newWindowPosY, newWindowSizeX, newWindowSizeY, SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+		//Ensure that the parent window is correctly set as the foreground window, and
+		//that our image window retains focus.
+		SetForegroundWindow(GetAncestor(savedParent, GA_ROOT));
+		SetFocus(hwnd);
+
+		//Restore the image window size and position
+		SetWindowPos(hwnd, NULL, 0, 0, savedWindowWidth, savedWindowHeight, SWP_NOZORDER | SWP_NOMOVE);
 	}
 
 	//Record the new full screen mode state
