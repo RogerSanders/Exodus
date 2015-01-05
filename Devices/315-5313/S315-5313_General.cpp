@@ -123,6 +123,7 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	videoSingleBuffering = false;
 	videoFixedAspectRatio = true;
 	videoShowStatusBar = true;
+	videoEnableLineSmoothing = true;
 	videoShowBoundaryActiveImage = false;
 	videoShowBoundaryActionSafe = false;
 	videoShowBoundaryTitleSafe = false;
@@ -3636,9 +3637,10 @@ void S315_5313::LoadSettingsState(IHierarchicalStorageNode& node)
 			if(nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
-				if(registerName == L"VideoSingleBuffering")			videoSingleBuffering = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoFixedAspectRatio")	videoFixedAspectRatio = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoShowStatusBar")		videoShowStatusBar = (*i)->ExtractData<bool>();
+				if(registerName == L"VideoSingleBuffering")          videoSingleBuffering = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoFixedAspectRatio")    videoFixedAspectRatio = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoShowStatusBar")       videoShowStatusBar = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoEnableLineSmoothing") videoEnableLineSmoothing = (*i)->ExtractData<bool>();
 			}
 		}
 	}
@@ -3652,6 +3654,7 @@ void S315_5313::SaveSettingsState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", videoSingleBuffering).CreateAttribute(L"name", L"VideoSingleBuffering");
 	node.CreateChild(L"Register", videoFixedAspectRatio).CreateAttribute(L"name", L"VideoFixedAspectRatio");
 	node.CreateChild(L"Register", videoShowStatusBar).CreateAttribute(L"name", L"VideoShowStatusBar");
+	node.CreateChild(L"Register", videoEnableLineSmoothing).CreateAttribute(L"name", L"VideoEnableLineSmoothing");
 
 	Device::SaveSettingsState(node);
 }
@@ -3968,6 +3971,8 @@ bool S315_5313::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		return dataValue.SetValue(videoFixedAspectRatio);
 	case IS315_5313DataSource::SettingsVideoShowStatusBar:
 		return dataValue.SetValue(videoShowStatusBar);
+	case IS315_5313DataSource::SettingsVideoEnableLineSmoothing:
+		return dataValue.SetValue(videoEnableLineSmoothing);
 	case IS315_5313DataSource::SettingsCurrentRenderPosOnScreen:
 		return dataValue.SetValue(currentRenderPosOnScreen);
 	case IS315_5313DataSource::SettingsCurrentRenderPosScreenX:
@@ -4646,6 +4651,11 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		videoShowStatusBar = dataValueAsBool.GetValue();
+		return true;}
+	case IS315_5313DataSource::SettingsVideoEnableLineSmoothing:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoEnableLineSmoothing = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsCurrentRenderPosOnScreen:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;

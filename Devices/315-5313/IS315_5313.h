@@ -97,6 +97,8 @@ public:
 	inline void SetVideoFixedAspectRatio(bool adata);
 	inline bool GetVideoShowStatusBar() const;
 	inline void SetVideoShowStatusBar(bool adata);
+	inline bool GetVideoEnableLineSmoothing() const;
+	inline void SetVideoEnableLineSmoothing(bool adata);
 	inline bool GetCurrentRenderPosOnScreen() const;
 	inline void SetCurrentRenderPosOnScreen(bool adata);
 	inline unsigned int GetCurrentRenderPosScreenX() const;

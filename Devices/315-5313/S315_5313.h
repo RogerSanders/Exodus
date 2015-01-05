@@ -535,6 +535,7 @@ private:
 	volatile bool videoSingleBuffering;
 	volatile bool videoFixedAspectRatio;
 	volatile bool videoShowStatusBar;
+	volatile bool videoEnableLineSmoothing;
 	volatile bool currentRenderPosOnScreen;
 	volatile unsigned int currentRenderPosScreenX;
 	volatile unsigned int currentRenderPosScreenY;

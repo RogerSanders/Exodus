@@ -117,6 +117,7 @@ enum class IS315_5313::IS315_5313DataSource
 	SettingsVideoSingleBuffering,
 	SettingsVideoFixedAspectRatio,
 	SettingsVideoShowStatusBar,
+	SettingsVideoEnableLineSmoothing,
 	SettingsCurrentRenderPosOnScreen,
 	SettingsCurrentRenderPosScreenX,
 	SettingsCurrentRenderPosScreenY,
@@ -362,6 +363,21 @@ void IS315_5313::SetVideoShowStatusBar(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoShowStatusBar, 0, data);
+}
+
+//----------------------------------------------------------------------------------------
+bool IS315_5313::GetVideoEnableLineSmoothing() const
+{
+	GenericAccessDataValueBool data;
+	ReadGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLineSmoothing, 0, data);
+	return data.GetValue();
+}
+
+//----------------------------------------------------------------------------------------
+void IS315_5313::SetVideoEnableLineSmoothing(bool adata)
+{
+	GenericAccessDataValueBool data(adata);
+	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLineSmoothing, 0, data);
 }
 
 //----------------------------------------------------------------------------------------

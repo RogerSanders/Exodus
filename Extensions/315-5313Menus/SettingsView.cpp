@@ -35,6 +35,7 @@ INT_PTR SettingsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	CheckDlgButton(hwnd, IDC_S315_5313_SETTINGS_VIDEOSINGLEBUFFERING, model.GetVideoSingleBuffering()? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_SETTINGS_VIDEOFIXEDASPECTRATIO, model.GetVideoFixedAspectRatio()? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_SETTINGS_SHOWSTATUSBAR, model.GetVideoShowStatusBar()? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_SETTINGS_ENABLELINESMOOTHING, model.GetVideoEnableLineSmoothing()? BST_CHECKED: BST_UNCHECKED);
 
 	return TRUE;
 }
@@ -54,6 +55,9 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			break;
 		case IDC_S315_5313_SETTINGS_SHOWSTATUSBAR:
 			model.SetVideoShowStatusBar(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
+			break;
+		case IDC_S315_5313_SETTINGS_ENABLELINESMOOTHING:
+			model.SetVideoEnableLineSmoothing(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;
 		}
 	}
