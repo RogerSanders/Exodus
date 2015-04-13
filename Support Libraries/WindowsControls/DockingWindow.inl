@@ -65,11 +65,11 @@ struct DockingWindow::ModifyContentWindowParams
 struct DockingWindow::AddDockedWindowParams
 {
 	AddDockedWindowParams()
-	:hwnd(NULL), dockLocation(WC_DockPanel::DockLocation::Left), forceToTopOfDockingOrder(false), autoHide(false)
+	:hwnd(NULL), dockLocation(WindowEdge::Left), forceToTopOfDockingOrder(false), autoHide(false)
 	{}
 
 	HWND hwnd;
-	WC_DockPanel::DockLocation dockLocation;
+	WindowEdge dockLocation;
 	bool forceToTopOfDockingOrder;
 	bool autoHide;
 };
@@ -95,7 +95,7 @@ struct DockingWindow::GetDockedWindowInfo
 	{}
 
 	HWND hwnd;
-	WC_DockPanel::DockLocation dockLocation;
+	WindowEdge dockLocation;
 	bool autoHide;
 	int desiredWidth;
 	int desiredHeight;
@@ -105,16 +105,22 @@ struct DockingWindow::GetDockedWindowInfo
 struct DockingWindow::ChildContainerEntry
 {
 	IDockingWindow* childContainer;
-	WC_DockPanel::DockLocation dockLocation;
+	WindowEdge dockLocation;
 	bool autoHide;
 };
 
 //----------------------------------------------------------------------------------------
 struct DockingWindow::ContentEntry
 {
+	ContentEntry()
+	:contentWindow(NULL), tabIndex(-1), removedWindowStyles(0), contentWindowAsDockingWindow(0)
+	{}
+
 	HWND contentWindow;
 	std::wstring contentTitle;
 	int tabIndex;
+	DWORD removedWindowStyles;
+	IDockingWindow* contentWindowAsDockingWindow;
 };
 
 //----------------------------------------------------------------------------------------
@@ -151,7 +157,7 @@ struct DockingWindow::AutoHideDockInfo
 
 	HWND dockWindow;
 	int tabRowCount;
-	WC_DockPanel::DockLocation dockLocation;
+	WindowEdge dockLocation;
 	std::list<AutoHideDockTabGroup> dockTabGroups;
 };
 
@@ -172,4 +178,28 @@ struct DockingWindow::TabRenderInfo
 	int borderPosY;
 	int borderWidth;
 	int borderHeight;
+};
+
+//----------------------------------------------------------------------------------------
+struct DockingWindow::DockingWindowDropTargetInfo :public IDockingWindowDropTargetInfo
+{
+public:
+	//Constructors
+	virtual void Destroy()
+	{
+		delete this;
+	}
+
+	//Info functions
+	virtual HWND GetOwningDockingWindow()
+	{
+		return owningDockingWindow;
+	}
+
+public:
+	bool dockLocationIsContentRegion;
+	WindowEdge dockLocation;
+	bool forceTop;
+	bool autoHide;
+	HWND owningDockingWindow;
 };

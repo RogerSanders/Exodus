@@ -24,7 +24,6 @@
 #include "../Devices/SN76489/interface.h"
 #endif
 
-
 //----------------------------------------------------------------------------------------
 //WinMain function
 //----------------------------------------------------------------------------------------
@@ -111,8 +110,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			if(TranslateAccelerator(hwnd, acceleratorTable, &msg) == 0)
 			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+				HWND activeDialogWindowHandle = exodusInterface.GetCurrentActiveDialogWindowHandle();
+				if((activeDialogWindowHandle == NULL) || (IsDialogMessage(activeDialogWindowHandle, &msg) == 0))
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
 			}
 		}
 	}

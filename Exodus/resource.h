@@ -25,6 +25,7 @@
 #define IDD_EMBEDDEDROM                 170
 #define IDD_SELECTCOMPRESSEDFILE        173
 #define IDD_LOADPLUGIN                  174
+#define IDD_CREATEDASHBOARD             175
 #define IDC_FRAMESKIP                   1062
 #define IDC_LAYERALOW3                  1062
 #define IDC_LAYERALOW4                  1065
@@ -167,6 +168,9 @@
 #define IDC_LOADEDDEVICESTEXT           1475
 #define IDC_LOADEDEXTENSIONSTEXT        1476
 #define IDC_SLIDER1                     1477
+#define IDC_CREATEDASHBOARD_NAME        1478
+#define IDC_CREATEDASHBOARD_CANCEL      1480
+#define IDC_CREATEDASHBOARD_OK          1481
 #define IDC_YM2612_REGISTERS_AB2        1558
 #define IDC_YM2612_REGISTERS_104        32782
 #define IDC_YM2612_DEBUGGER_1           32821
@@ -241,15 +245,16 @@
 #define ID_SETTINGS_PREFERENCES         40113
 #define ID_SETTINGS_PLATFORMSETTINGS    40114
 #define ID_SETTINGS_DEBUGCONSOLE        40116
+#define ID_WINDOW_CREATEDASHBOARD       40118
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        175
-#define _APS_NEXT_COMMAND_VALUE         40117
-#define _APS_NEXT_CONTROL_VALUE         1478
+#define _APS_NEXT_RESOURCE_VALUE        176
+#define _APS_NEXT_COMMAND_VALUE         40121
+#define _APS_NEXT_CONTROL_VALUE         1482
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

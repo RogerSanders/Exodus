@@ -111,8 +111,8 @@ public:
 	virtual bool SaveBMPImage(Stream::IStream& stream);
 
 	//Win32 DIB functions (Device-Independent Bitmap)
-	virtual bool LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo);
-	virtual bool SaveDIBImage(Stream::IStream& stream, BITMAPINFO& bitmapInfo);
+	virtual bool LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmapHeader);
+	virtual bool SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader);
 
 	//Resampling functions
 	virtual void ResampleNearest(unsigned int newWidth, unsigned int newHeight);
@@ -121,6 +121,11 @@ public:
 	virtual void ResampleBilinear(const IImage& oldImage, unsigned int newWidth, unsigned int newHeight);
 	//virtual void ResampleBicubic(unsigned int newWidth, unsigned int newHeight);
 	//virtual void ResampleBicubic(Image& newImage, unsigned int newWidth, unsigned int newHeight);
+
+public:
+	//BMP structures
+	struct BITMAPV2INFOHEADER;
+	struct BITMAPV3INFOHEADER;
 
 private:
 	//PCX structures

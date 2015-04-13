@@ -2,54 +2,41 @@
 #define __IDOCKINGWINDOW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "MarshalSupport/MarshalSupport.pkg"
-#include "WC_DockPanel.h"
+#include "IDockingWindowDropTargetInfo.h"
 
-//##TODO## Make this base interface common for docking windows and dashboard windows, so
-//they can be docked within each other. This is achievable without too much effort.
 class IDockingWindow
 {
+public:
+	//Enumerations
+	enum class WindowEdge;
+
 public:
 	//Constructors
 	virtual ~IDockingWindow() = 0 {}
 
 	//Window handle methods
 	virtual HWND GetWindowHandle() const = 0;
-	//##FIX## Eliminate this method, as it isn't compatible with a dashboard parent.
-	virtual HWND GetDockPanelWindowHandle() const = 0;
 
 	//Placement content methods
-	virtual void HidePlacementTargets() = 0;
-	virtual void ShowPlacementTargets(bool allowCenterDocking) = 0;
-	virtual void UpdatePlacementShadow(int cursorPosX, int cursorPosY, int dockWindowWidth, int dockWindowHeight) = 0;
-	//##FIX## This method isn't very extensible or compatible with a dashboard parent.
-	//Consider an alternate method and use of this method which will allow a dashboard
-	//window to return information on how and where to dock the target window when it is
-	//dropped at the given location. Note that as part of this, the target window will
-	//need to completely decide what happens to the dropped window when the event is
-	//processed.
-	virtual bool HitTestPlacementTargets(int cursorPosX, int cursorPosY, bool& dockLocationIsContentRegion, WC_DockPanel::DockLocation& dockLocation, bool& forceTop) const = 0;
-
-	//Tab control update methods
-	virtual void AllDockTabsHitTest(int cursorPosX, int cursorPosY) = 0;
+	virtual void HideDropTargets(IDockingWindow* callingDockingWindow) = 0;
+	virtual void ShowDropTargets(IDockingWindow* callingDockingWindow, int dockWindowWidth, int dockWindowHeight, int cursorPosX, int cursorPosY) = 0;
+	virtual bool HitTestDropTargets(IDockingWindow* callingDockingWindow, int cursorPosX, int cursorPosY, IDockingWindowDropTargetInfo*& dropTargetInfo) const = 0;
 
 	//Child container methods
-	//##FIX## Replace this method with something else which doesn't require the container
-	//being docked to be aware of how the new parent docking window performs docking. This
-	//only requires us to replace the HitTestPlacementTargets method above with something
-	//else, provide a method for a child to request its parent container explicitly to
-	//toggle auto-hide mode rather than undocking and redocking it, and the
-	//DOCKWIN_ADDDOCKEDWINDOW message to get the target window to add the child window,
-	//rather than the child request it be added to the parent.
-	virtual void AddChildContainer(IDockingWindow* childContainer, WC_DockPanel::DockLocation dockLocation, bool autoHide, bool forceTop) = 0;
+	virtual void AddChildContainer(IDockingWindow* childContainer, const IDockingWindowDropTargetInfo* dropTargetInfo) = 0;
 	virtual void RemoveChildContainer(IDockingWindow* childContainer) = 0;
-	virtual void UpdateAutoHideChildContainerContent(IDockingWindow* childContainer) = 0;
+	virtual void NotifyChildContainerContentChanged(IDockingWindow* childContainer) = 0;
+	virtual bool HasNestedChildDockingWindows() const = 0;
 	virtual MarshalSupport::Marshal::Ret<std::list<IDockingWindow*>> GetNestedChildDockingWindowList() const = 0;
+	virtual bool CanResizeChildContainerWindowEdge(IDockingWindow* childContainer, WindowEdge windowEdge) const = 0;
+	virtual void UpdateDesiredChildContainerSize(IDockingWindow* childContainer, int desiredWidth, int desiredHeight) = 0;
+	virtual HCURSOR ParentOverrideCursorForChildContainer(IDockingWindow* childContainer, int cursorPosX, int cursorPosY) const = 0;
+	virtual bool ParentBorderClickForChildContainer(IDockingWindow* childContainer, int cursorPosX, int cursorPosY) = 0;
 
 	//Hosted content methods
-	//##FIX## Remove this method. This only requires changes to HitTestPlacementTargets.
-	virtual void AddHostedContent(HWND contentWindow, const MarshalSupport::Marshal::In<std::wstring>& contentTitle) = 0;
-	//##FIX## Remove this method. This won't require any logic changes.
-	virtual void RemoveHostedContent(HWND contentWindow) = 0;
+	//##TODO## Replace these functions with a simpler set of more generic functions, whose
+	//purpose is to expose the idea of panes within a docking window, and allow them to be
+	//enumerated and activated.
 	virtual unsigned int GetHostedContentCount() const = 0;
 	virtual unsigned int GetSortedContentEntryNo(unsigned int sortedContentEntryIndex) const = 0;
 	virtual bool GetHostedContentIndexFromWindow(HWND contentWindow, unsigned int& contentEntryNo) const = 0;
@@ -59,18 +46,9 @@ public:
 
 	//Parent docking window methods
 	virtual IDockingWindow* GetParentDockingWindow() const = 0;
-	//##FIX## Remove this method. This will only require changes to the
-	//WindowMessages::DOCKWIN_ADDDOCKEDWINDOW message as above.
-	virtual void DockToNewParent(IDockingWindow* parentContainer, WC_DockPanel::DockLocation dockLocation, bool autoHide, bool forceTop) = 0;
-	//##FIX## Remove this method. Won't require any additional work.
-	virtual void UndockFromParent() = 0;
-	//##FIX## Remove this method. Will only require a parent docking window to retrieve
-	//the known child dock location itself, rather than asking the child container for it.
-	virtual WC_DockPanel::DockLocation GetDockLocation() const = 0;
-	//##FIX## Remove this method. Only requires that we remember the auto hide state for
-	//our own child windows.
-	virtual bool IsAutoHideEnabled() const = 0;
-	virtual void NotifyParentDestroyed() = 0;
+	virtual void NotifyAddedToParent(IDockingWindow* newParentDockingWindow) = 0;
+	virtual void NotifyRemovedFromParent() = 0;
 };
 
+#include "IDockingWindow.inl"
 #endif

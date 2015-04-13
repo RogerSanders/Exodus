@@ -60,8 +60,11 @@ template<class T> T DPIReverseScaleHeight(T pixelHeight);
 void BindStdHandlesToConsole();
 
 //Environment variable functions
-std::wstring GetEnvironmentVariableString(std::wstring variableName);
-void SetEnvironmentVariableString(std::wstring variableName, std::wstring value);
+bool IsEnvironmentVariableDefined(const std::wstring& name);
+std::wstring GetEnvironmentVariableString(const std::wstring& name);
+void SetEnvironmentVariableString(const std::wstring& name, const std::wstring& value);
+void RemoveEnvironmentVariable(const std::wstring& name);
+std::map<std::wstring, std::wstring> GetEnvironmentVariableList();
 
 //Window creation helpers
 HWND CreateWindowThread(HINSTANCE hInstance, const std::wstring& windowName, WNDPROC wndproc, unsigned int width, unsigned int height, LPVOID params);
@@ -106,6 +109,8 @@ void UpdateDlgItemDouble(HWND hwnd, int controlID, double data);
 double GetDlgItemDouble(HWND hwnd, int controlID);
 void UpdateDlgItemString(HWND hwnd, int controlID, const std::wstring& data);
 std::wstring GetDlgItemString(HWND hwnd, int controlID);
+void SetWindowText(HWND hwnd, const std::wstring& data);
+std::wstring GetWindowText(HWND hwnd);
 
 //Modal window functions
 std::list<HWND> DisableAllEnabledDialogWindows(HWND ownerWindow);

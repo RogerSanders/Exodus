@@ -1,31 +1,31 @@
-#include "SettingsViewPresenter.h"
-#include "SettingsView.h"
+#include "ModuleManagerViewPresenter.h"
+#include "ModuleManagerView.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SettingsViewPresenter::SettingsViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusInterface& aowner, ExodusInterface& amodel)
+ModuleManagerViewPresenter::ModuleManagerViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusInterface& aowner, ExodusInterface& amodel)
 :ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID), owner(aowner), model(amodel)
 {}
 
 //----------------------------------------------------------------------------------------
 //View title functions
 //----------------------------------------------------------------------------------------
-std::wstring SettingsViewPresenter::GetUnqualifiedViewTitle()
+std::wstring ModuleManagerViewPresenter::GetUnqualifiedViewTitle()
 {
-	return L"About";
+	return L"Module Manager";
 }
 
 //----------------------------------------------------------------------------------------
 //View creation and deletion
 //----------------------------------------------------------------------------------------
-IView* SettingsViewPresenter::CreateView(IUIManager& uiManager)
+IView* ModuleManagerViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new SettingsView(uiManager, *this, model);
+	return new ModuleManagerView(uiManager, *this, model);
 }
 
 //----------------------------------------------------------------------------------------
-void SettingsViewPresenter::DeleteView(IView* aview)
+void ModuleManagerViewPresenter::DeleteView(IView* aview)
 {
 	delete aview;
 }

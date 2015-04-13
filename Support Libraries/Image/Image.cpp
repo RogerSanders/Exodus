@@ -1621,7 +1621,11 @@ void Image::PNGFlushData(png_structp pngStruct)
 bool Image::LoadBMPImage(Stream::IStream& stream)
 {
 	//Read and validate the "BM" file type marker from the file header. If this marker is
-	//not present, abort any further processing.
+	//not present, abort any further processing. Note that the Windows 1.X bitmap format,
+	//documented by WIN1XHEADER, has a value of '0' for the type field, and encodes the
+	//bitmap size and image format directly, and is followed directly by the raw bitmap
+	//data. We don't support this format currently. As of Windows 2.X onwards, the file
+	//header is the BITMAPFILEHEADER structure, with the same file type marker.
 	BITMAPFILEHEADER fileHeader;
 	WORD fileHeader_bfType;
 	stream.ReadData(fileHeader_bfType);
@@ -1649,32 +1653,44 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 	fileHeader.bfOffBits = fileHeader_bfOffBits;
 	bitmapFileOffset += sizeof(fileHeader);
 
-	//Load the bitmap V3 info header
+	//Load the bitmap info header. Note that the BITMAPCOREHEADER structure is the same as
+	//WIN2XBITMAPHEADER, which is used for the Windows 2.X bitmap format.
 	bool rgbTripleColorTable = false;
 	BITMAPINFOHEADER infoHeader;
 	stream.ReadData(infoHeader.biSize);
-	if(infoHeader.biSize == sizeof(BITMAPCOREHEADER))
+	if(infoHeader.biSize < sizeof(BITMAPCOREHEADER))
 	{
-		//Load the bitmap V1 info header
-		BITMAPCOREHEADER v1InfoHeader;
-		stream.ReadData(v1InfoHeader.bcWidth);
-		stream.ReadData(v1InfoHeader.bcHeight);
-		stream.ReadData(v1InfoHeader.bcPlanes);
-		stream.ReadData(v1InfoHeader.bcBitCount);
+		//The BITMAPCOREHEADER structure is a common base structure for all bitmap header
+		//formats for Windows 2.X onwards. If the recorded size of the info header is less
+		//than the size of this structure, this is an unknown and unsupported header
+		//format, so we abort any further processing.
+		return false;
+	}
+	else if(infoHeader.biSize == sizeof(BITMAPCOREHEADER))
+	{
+		//Load the Windows 2.X bitmap info header
+		BITMAPCOREHEADER v2XInfoHeader;
+		stream.ReadData(v2XInfoHeader.bcWidth);
+		stream.ReadData(v2XInfoHeader.bcHeight);
+		stream.ReadData(v2XInfoHeader.bcPlanes);
+		stream.ReadData(v2XInfoHeader.bcBitCount);
 
-		//Note that in a V1 header, the width and height are unsigned. You can't specify
+		//Note that in a 2.X header, the width and height are unsigned. You can't specify
 		//a top-down bitmap by giving a negative height value. Images are always stored
 		//bottom-up.
-		infoHeader.biWidth = (unsigned)v1InfoHeader.bcWidth;
-		infoHeader.biHeight = (unsigned)v1InfoHeader.bcHeight;
-		infoHeader.biPlanes = v1InfoHeader.bcPlanes;
-		infoHeader.biBitCount = v1InfoHeader.bcBitCount;
+		//##NOTE## New detailed documentation directly contradicts this claim, so we've
+		//changed our loading code to treat the width and height as signed in this case.
+		infoHeader.biWidth = v2XInfoHeader.bcWidth;//(unsigned)v2XInfoHeader.bcWidth;
+		infoHeader.biHeight = v2XInfoHeader.bcHeight;//(unsigned)v2XInfoHeader.bcHeight;
+		infoHeader.biPlanes = v2XInfoHeader.bcPlanes;
+		infoHeader.biBitCount = v2XInfoHeader.bcBitCount;
 
 		//Validate the number of bits per pixel
 		switch(infoHeader.biBitCount)
 		{
 		default:
-			//This V1 image uses an invalid number of bits per pixel. Abort any further
+			//The Windows 2.X API considered 1, 4, 8, and 24 to be the only legal values
+			//for this value. If another value has been specified, abort any further
 			//processing.
 			return false;
 		case 1:
@@ -1697,23 +1713,16 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 		infoHeader.biClrUsed = 0;
 		infoHeader.biClrImportant = 0;
 
-		//Since this is a V1 header, the colour table is stored using RGBTRIPLE objects
-		//rather than RGBQUAD objects. We set a flag here so we know how to decode the
-		//colour table later on.
+		//Since this is a 2.X header, the colour table is stored using RGBTRIPLE objects
+		//rather than RGBQUAD objects. This is also documented as the WIN2XPALETTEELEMENT
+		//structure. We set a flag here so we know how to decode the colour table later
+		//on.
 		rgbTripleColorTable = true;
-	}
-	else if(infoHeader.biSize < sizeof(infoHeader))
-	{
-		//If the recorded size of the info header doesn't match the V1 header, and is
-		//less than the V3 header, this is an unknown and unsupported header format,
-		//possibly a V2 header. Abort any further processing.
-		//##FIX## The V2 header is actually larger than the V3 header
-		return false;
 	}
 	else
 	{
-		//If the header size is greater than or equal to the V3 info header, process it
-		//as a V3 header.
+		//If the header size is greater than or equal to the Windows 3.X bitmap info
+		//header, process it as a 3.X bitmap info header.
 		stream.ReadData(infoHeader.biWidth);
 		stream.ReadData(infoHeader.biHeight);
 		stream.ReadData(infoHeader.biPlanes);
@@ -1747,7 +1756,7 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 
 	//Build the BITMAPINFO structure
 	unsigned int sourceColorTableSize = fileHeader.bfOffBits - bitmapFileOffset;
-	unsigned int newColorTableSize = rgbTripleColorTable? sourceColorTableSize + (sourceColorTableSize / 3): sourceColorTableSize;
+	unsigned int newColorTableSize = (rgbTripleColorTable)? (sourceColorTableSize + (sourceColorTableSize / 3)): sourceColorTableSize;
 	//Note that we allocate a bit more memory than we actually need here. By doing things
 	//this way, we're not assuming anything about memory alignment, since we allow the
 	//structure of the BITMAPINFO structure to determine where the colour table begins.
@@ -1788,7 +1797,7 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 	}
 
 	//Pass the decoded BMP data onto the LoadDIBImage function
-	bool result = LoadDIBImage(stream, *bitmapInfo);
+	bool result = LoadDIBImage(stream, (BITMAPINFOHEADER*)bitmapInfo);
 
 	//Delete the memory allocated to the BITMAPINFO structure
 	delete[] (unsigned char*)bitmapInfo;
@@ -1818,10 +1827,12 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 	unsigned int dataBufferSize = imageWidth * imageHeight * (lineByteCount + linePaddingByteCount);
 
 	//Save the DIB data to a pixel buffer, and obtain the bitmap info header.
+	bool hasAlphaChannel = (pixelFormat == PIXELFORMAT_MA) || (pixelFormat == PIXELFORMAT_RGBA);
 	Stream::Buffer dataBuffer(dataBufferSize);
 	Stream::IStream::SizeType startPos = dataBuffer.GetStreamPos();
-	BITMAPINFO bitmapInfo;
-	bool saveDIBDataReturn = SaveDIBImage(dataBuffer, bitmapInfo);
+	BITMAPV3INFOHEADER bitmapHeader;
+	bitmapHeader.biSize = (hasAlphaChannel)? sizeof(BITMAPV3INFOHEADER): sizeof(BITMAPINFOHEADER);
+	bool saveDIBDataReturn = SaveDIBImage(dataBuffer, (BITMAPINFOHEADER*)&bitmapHeader);
 	if(!saveDIBDataReturn)
 	{
 		return false;
@@ -1829,7 +1840,7 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 	Stream::IStream::SizeType endPos = dataBuffer.GetStreamPos();
 
 	//Calculate the totals and offsets we need to write to the file
-	unsigned int pixelDataOffset = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+	unsigned int pixelDataOffset = sizeof(BITMAPFILEHEADER) + bitmapHeader.biSize;
 	unsigned int pixelDataSize = (unsigned int)(endPos - startPos);
 	unsigned int fileSize = pixelDataOffset + pixelDataSize;
 
@@ -1848,22 +1859,25 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 	stream.WriteData(fileHeader.bfReserved2);
 	stream.WriteData(fileHeader.bfOffBits);
 
-	//Write the bitmap info header to the file. Note that our code here assumes there are
-	//no bit masks, and no entries in the colour palette. This is currently true, since
-	//we always write trivial 24-bit RGB image data, but we should modify this code to be
-	//able to handle any possible bitmap data, so that future enhancements to SaveDIBImage
-	//don't require changes to be made here.
-	stream.WriteData(bitmapInfo.bmiHeader.biSize);
-	stream.WriteData(bitmapInfo.bmiHeader.biWidth);
-	stream.WriteData(bitmapInfo.bmiHeader.biHeight);
-	stream.WriteData(bitmapInfo.bmiHeader.biPlanes);
-	stream.WriteData(bitmapInfo.bmiHeader.biBitCount);
-	stream.WriteData(bitmapInfo.bmiHeader.biCompression);
-	stream.WriteData(bitmapInfo.bmiHeader.biSizeImage);
-	stream.WriteData(bitmapInfo.bmiHeader.biXPelsPerMeter);
-	stream.WriteData(bitmapInfo.bmiHeader.biYPelsPerMeter);
-	stream.WriteData(bitmapInfo.bmiHeader.biClrUsed);
-	stream.WriteData(bitmapInfo.bmiHeader.biClrImportant);
+	//Write the bitmap info header to the file
+	stream.WriteData(bitmapHeader.biSize);
+	stream.WriteData(bitmapHeader.biWidth);
+	stream.WriteData(bitmapHeader.biHeight);
+	stream.WriteData(bitmapHeader.biPlanes);
+	stream.WriteData(bitmapHeader.biBitCount);
+	stream.WriteData(bitmapHeader.biCompression);
+	stream.WriteData(bitmapHeader.biSizeImage);
+	stream.WriteData(bitmapHeader.biXPelsPerMeter);
+	stream.WriteData(bitmapHeader.biYPelsPerMeter);
+	stream.WriteData(bitmapHeader.biClrUsed);
+	stream.WriteData(bitmapHeader.biClrImportant);
+	if(bitmapHeader.biSize >= sizeof(BITMAPV3INFOHEADER))
+	{
+		stream.WriteData(bitmapHeader.biRedMask);
+		stream.WriteData(bitmapHeader.biGreenMask);
+		stream.WriteData(bitmapHeader.biBlueMask);
+		stream.WriteData(bitmapHeader.biAlphaMask);
+	}
 
 	//Write the pixel data to the file
 	for(unsigned int i = 0; i < pixelDataSize; ++i)
@@ -1879,21 +1893,21 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 //----------------------------------------------------------------------------------------
 //Win32 DIB functions (Device-Independent Bitmap)
 //----------------------------------------------------------------------------------------
-bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
+bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmapHeader)
 {
 	//Read the image dimensions. Also check if the image is stored as a bottom-up image
 	//or a top-down image. A top-down image is indicated by a negative value for height.
 	bool imageBottomUp = true;
-	unsigned int newImageWidth = (unsigned int)bitmapInfo.bmiHeader.biWidth;
-	unsigned int newImageHeight = (unsigned int)bitmapInfo.bmiHeader.biHeight;
-	if(bitmapInfo.bmiHeader.biHeight < 0)
+	unsigned int newImageWidth = (unsigned int)bitmapHeader->biWidth;
+	unsigned int newImageHeight = (unsigned int)bitmapHeader->biHeight;
+	if(bitmapHeader->biHeight < 0)
 	{
 		imageBottomUp = false;
-		newImageHeight = (unsigned int)(-bitmapInfo.bmiHeader.biHeight);
+		newImageHeight = (unsigned int)(-bitmapHeader->biHeight);
 	}
 
 	//Verify the number of planes in the bitmap
-	if(bitmapInfo.bmiHeader.biPlanes != 1)
+	if(bitmapHeader->biPlanes != 1)
 	{
 		//If the header specifies more than 1 plane, we don't know how to decode the
 		//image. Abort any further processing.
@@ -1903,13 +1917,25 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 	//Determine the pixel data format, and work out how to decode the pixel data.
 	PixelFormat newPixelFormat;
 	bool useBitmasks = false;
+	bool containsAlphaChannel = false;
+	if(bitmapHeader->biSize >= sizeof(BITMAPV3INFOHEADER))
+	{
+		const BITMAPV3INFOHEADER* bitmapHeaderV3 = (const BITMAPV3INFOHEADER*)bitmapHeader;
+		useBitmasks = (bitmapHeaderV3->biRedMask != 0) || (bitmapHeaderV3->biGreenMask != 0) || (bitmapHeaderV3->biBlueMask != 0) || (bitmapHeaderV3->biAlphaMask != 0);
+		containsAlphaChannel = (bitmapHeaderV3->biAlphaMask != 0);
+	}
+	else if(bitmapHeader->biSize >= sizeof(BITMAPV2INFOHEADER))
+	{
+		const BITMAPV2INFOHEADER* bitmapHeaderV2 = (const BITMAPV2INFOHEADER*)bitmapHeader;
+		useBitmasks = (bitmapHeaderV2->biRedMask != 0) || (bitmapHeaderV2->biGreenMask != 0) || (bitmapHeaderV2->biBlueMask != 0);
+	}
 	bool rle4Used = false;
 	bool rle8Used = false;
-	switch(bitmapInfo.bmiHeader.biCompression)
+	switch(bitmapHeader->biCompression)
 	{
 	case BI_RGB:
-		//The image uses literal RGB values
-		newPixelFormat = PIXELFORMAT_RGB;
+		//The image uses literal RGB values, with an optional alpha channel.
+		newPixelFormat = (containsAlphaChannel)? PIXELFORMAT_RGBA: PIXELFORMAT_RGB;
 		break;
 	case BI_RLE8:
 		//The image uses RLE8 compression
@@ -1924,6 +1950,7 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 		newPixelFormat = PIXELFORMAT_RGB;
 		useBitmasks = true;
 		break;
+	//Note that Windows CE defined BI_ALPHABITFIELDS using the same value as BI_JPEG
 	case BI_JPEG:
 	case BI_PNG:
 		//JPEG and PNG compression are not currently supported in a DIB structure. Abort
@@ -1935,19 +1962,19 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 	}
 
 	DataFormat newDataFormat;
-	unsigned int bitsPerPixel = bitmapInfo.bmiHeader.biBitCount;
+	unsigned int bitsPerPixel = bitmapHeader->biBitCount;
 	switch(bitsPerPixel)
 	{
 	default:
 		//This image contains an unsupported number of bits per pixel. Abort any further
 		//processing.
 		return false;
-	case 1:
-	case 4:
-	case 8:
-	case 16:
-	case 24:
-	case 32:
+	case 1:  //Windows 2.X onwards
+	case 4:  //Windows 2.X onwards
+	case 8:  //Windows 2.X onwards
+	case 16: //Windows 95 (4.X) onwards
+	case 24: //Windows 2.X onwards
+	case 32: //Windows 95 (4.X) onwards
 		//The number of bits per pixel in this bitmap is a supported number. Proceed with
 		//image decoding.
 		break;
@@ -1962,7 +1989,7 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 	if((rle4Used && (bitsPerPixel == 4)) || (rle8Used && (bitsPerPixel == 8)))
 	{
 		//This is a compressed bitmap. Proceed with image decoding.
-		RGBQUAD* colorTable = (RGBQUAD*)((unsigned char*)(&bitmapInfo.bmiHeader) + bitmapInfo.bmiHeader.biSize);
+		RGBQUAD* colorTable = (RGBQUAD*)((unsigned char*)&bitmapHeader + bitmapHeader->biSize);
 		unsigned int xpos = 0;
 		unsigned int ypos = 0;
 		unsigned int writeYPos = imageBottomUp? ((imageHeight - 1) - ypos): ypos;
@@ -2120,8 +2147,8 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 		//Decode the pixel data
 		for(unsigned int ypos = 0; ypos < imageHeight; ++ypos)
 		{
-			//Calculate the current ypos to write this row to. If the image is stored bottom
-			//up in the stream, we need to read it bottom up as well.
+			//Calculate the current ypos to write this row to. If the image is stored
+			//bottom up in the stream, we need to read it bottom up as well.
 			unsigned int writeYPos = imageBottomUp? ((imageHeight - 1) - ypos): ypos;
 
 			unsigned char dataBuffer;
@@ -2130,20 +2157,22 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 				unsigned int r = 0;
 				unsigned int g = 0;
 				unsigned int b = 0;
+				unsigned int a = 0;
 				unsigned int rBitCount = 0;
 				unsigned int gBitCount = 0;
 				unsigned int bBitCount = 0;
+				unsigned int aBitCount = 0;
 
 				if((bitsPerPixel == 1) || (bitsPerPixel == 4) || (bitsPerPixel == 8))
 				{
-					//This is a palletized image. Decode the colour values using the colour
-					//table.
+					//This is a palletized image. Decode the colour values using the
+					//colour table.
 					rBitCount = 8;
 					gBitCount = 8;
 					bBitCount = 8;
 
 					//Extract the palette index for this pixel
-					RGBQUAD* colorTable = (RGBQUAD*)((unsigned char*)(&bitmapInfo.bmiHeader) + bitmapInfo.bmiHeader.biSize);
+					RGBQUAD* colorTable = (RGBQUAD*)((unsigned char*)&bitmapHeader + bitmapHeader->biSize);
 					unsigned int dataBufferBitCount = 8;
 					unsigned int entryBitCount = bitsPerPixel;
 					unsigned int entryBitMask = (1 << entryBitCount) - 1;
@@ -2151,8 +2180,8 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 					unsigned int currentEntryInDataBuffer = xpos % entriesInDataBuffer;
 					if(currentEntryInDataBuffer == 0)
 					{
-						//If we're decoding the first entry in a new buffer, we need to read
-						//a new data block from the stream.
+						//If we're decoding the first entry in a new buffer, we need to
+						//read a new data block from the stream.
 						stream.ReadData(dataBuffer);
 					}
 					unsigned int dataEntry = (dataBuffer >> (dataBufferBitCount - ((currentEntryInDataBuffer + 1) * entryBitCount))) & entryBitMask;
@@ -2162,90 +2191,103 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 					g = (unsigned int)colorTable[dataEntry].rgbGreen;
 					b = (unsigned int)colorTable[dataEntry].rgbBlue;
 				}
-				else if(bitsPerPixel == 16)
+				else
 				{
-					//The image data contains literal RGB values, with up to 16 bits per
-					//pixel. Default bit masks are given below to decode the pixel data.
-					unsigned int rMask = 0x7C00;
-					unsigned int gMask = 0x03E0;
-					unsigned int bMask = 0x001F;
+					//The image data contains literal RGB values. Default bit masks are
+					//given below to decode the pixel data.
+					unsigned int rMask;
+					unsigned int gMask;
+					unsigned int bMask;
+					unsigned int aMask;
+					if(bitsPerPixel == 16)
+					{
+						rMask = 0x7C00u << (32 - bitsPerPixel);
+						gMask = 0x03E0u << (32 - bitsPerPixel);
+						bMask = 0x001Fu << (32 - bitsPerPixel);
+						aMask = 0x0000u << (32 - bitsPerPixel);
+					}
+					else if(bitsPerPixel == 24)
+					{
+						rMask = 0xFF0000u << 8;
+						gMask = 0x00FF00u << 8;
+						bMask = 0x0000FFu << 8;
+						aMask = 0x000000u << 8;
+					}
+					else if(bitsPerPixel == 32)
+					{
+						rMask = 0xFF000000u;
+						gMask = 0x00FF0000u;
+						bMask = 0x0000FF00u;
+						aMask = 0x00000000u;
+					}
 					if(useBitmasks)
 					{
-						//If custom bitmasks have been provided to define how to decode the
-						//data, read the bitmasks in.
-						DWORD* maskTable = (DWORD*)((unsigned char*)(&bitmapInfo.bmiHeader) + bitmapInfo.bmiHeader.biSize);
+						//If custom bitmasks have been provided to define how to decode
+						//the data, read the bitmasks in.
+						DWORD* maskTable = (DWORD*)((unsigned char*)&bitmapHeader + sizeof(BITMAPINFOHEADER));
 						rMask = (unsigned int)maskTable[0];
 						gMask = (unsigned int)maskTable[1];
 						bMask = (unsigned int)maskTable[2];
+						if(containsAlphaChannel)
+						{
+							aMask = (unsigned int)maskTable[3];
+						}
 					}
-					//Based on the bitmasks, calculate the actual number of bits per colour
-					//channel.
+
+					//Based on the bitmasks, calculate the actual number of bits per
+					//colour channel.
 					rBitCount = GetSetBitCount(rMask);
 					gBitCount = GetSetBitCount(gMask);
 					bBitCount = GetSetBitCount(bMask);
-
-					//Read a data entry in, and extract the individual RGB values based on
-					//the bitmasks.
-					WORD rawData;
-					stream.ReadData(rawData);
-					r = (unsigned char)MaskData((unsigned int)rawData, rMask);
-					g = (unsigned char)MaskData((unsigned int)rawData, gMask);
-					b = (unsigned char)MaskData((unsigned int)rawData, bMask);
-				}
-				else if(bitsPerPixel == 24)
-				{
-					//The image data contains literal RGB values, with 24 bits per pixel.
-					rBitCount = 8;
-					gBitCount = 8;
-					bBitCount = 8;
-
-					//Read in the RGB values. Note that the data is actually stored in the
-					//order BGR in the stream.
-					unsigned char rData;
-					unsigned char gData;
-					unsigned char bData;
-					stream.ReadData(bData);
-					stream.ReadData(gData);
-					stream.ReadData(rData);
-					r = rData;
-					g = gData;
-					b = bData;
-				}
-				else if(bitsPerPixel == 32)
-				{
-					//The image data contains literal RGB values, with up to 32 bits per
-					//pixel. Default bit masks are given below to decode the pixel data.
-					unsigned int rMask = 0x00FF0000;
-					unsigned int gMask = 0x0000FF00;
-					unsigned int bMask = 0x000000FF;
-					if(useBitmasks)
+					if(containsAlphaChannel)
 					{
-						//If custom bitmasks have been provided to define how to decode the
-						//data, read the bitmasks in.
-						DWORD* maskTable = (DWORD*)((unsigned char*)(&bitmapInfo.bmiHeader) + bitmapInfo.bmiHeader.biSize);
-						rMask = (unsigned int)maskTable[0];
-						gMask = (unsigned int)maskTable[1];
-						bMask = (unsigned int)maskTable[2];
+						aBitCount = GetSetBitCount(aMask);
 					}
-					//Based on the bitmasks, calculate the actual number of bits per colour
-					//channel.
-					rBitCount = GetSetBitCount(rMask);
-					gBitCount = GetSetBitCount(gMask);
-					bBitCount = GetSetBitCount(bMask);
 
 					//Read a data entry in, and extract the individual RGB values based on
 					//the bitmasks.
-					DWORD rawData;
-					stream.ReadData(rawData);
-					r = MaskData((unsigned int)rawData, rMask);
-					g = MaskData((unsigned int)rawData, gMask);
-					b = MaskData((unsigned int)rawData, bMask);
+					unsigned int rawData = 0;
+					if(bitsPerPixel == 16)
+					{
+						unsigned short rawDataAsShort;
+						stream.ReadData(rawDataAsShort);
+						rawData = rawDataAsShort;
+					}
+					else if(bitsPerPixel == 24)
+					{
+						//Note that the data is actually stored in the order BGR in the
+						//stream.
+						unsigned char rData;
+						unsigned char gData;
+						unsigned char bData;
+						stream.ReadData(bData);
+						stream.ReadData(gData);
+						stream.ReadData(rData);
+						rawData |= (unsigned int)rData << 16;
+						rawData |= (unsigned int)gData << 8;
+						rawData |= (unsigned int)bData << 0;
+					}
+					else if(bitsPerPixel == 32)
+					{
+						stream.ReadData(rawData);
+					}
+					r = MaskData(rawData, rMask >> (32 - bitsPerPixel));
+					g = MaskData(rawData, gMask >> (32 - bitsPerPixel));
+					b = MaskData(rawData, bMask >> (32 - bitsPerPixel));
+					if(containsAlphaChannel)
+					{
+						a = MaskData(rawData, aMask >> (32 - bitsPerPixel));
+					}
 				}
 
 				//Write the extracted pixel data to the image
 				WritePixelDataInternal(xpos, writeYPos, 0, r, rBitCount);
 				WritePixelDataInternal(xpos, writeYPos, 1, g, gBitCount);
 				WritePixelDataInternal(xpos, writeYPos, 2, b, bBitCount);
+				if(containsAlphaChannel)
+				{
+					WritePixelDataInternal(xpos, writeYPos, 3, a, aBitCount);
+				}
 			}
 
 			//The data is padded out to DWORD boundaries. We extract the padding here and
@@ -2262,7 +2304,7 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo)
 }
 
 //----------------------------------------------------------------------------------------
-bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFO& bitmapInfo)
+bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader)
 {
 	//Ensure the current image is valid before proceeding
 	if(!ImageValid())
@@ -2271,7 +2313,8 @@ bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFO& bitmapInfo)
 	}
 
 	//Calculate the data format for the DIB image
-	unsigned int bitsPerPixel = 24;
+	bool hasAlphaChannel = (pixelFormat == PIXELFORMAT_MA) || (pixelFormat == PIXELFORMAT_RGBA);
+	unsigned int bitsPerPixel = (hasAlphaChannel)? 32: 24;
 	unsigned int bytesPerPixel = ((bitsPerPixel + 7) / 8);
 	unsigned int lineByteCount = imageWidth * bytesPerPixel;
 	bool imageBottomUp = true;
@@ -2285,17 +2328,31 @@ bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFO& bitmapInfo)
 	}
 
 	//Populate the header information for the DIB image
-	bitmapInfo.bmiHeader.biSize = (DWORD)sizeof(bitmapInfo.bmiHeader);
-	bitmapInfo.bmiHeader.biWidth = (LONG)imageWidth;
-	bitmapInfo.bmiHeader.biHeight = imageBottomUp? (LONG)imageHeight: -((LONG)imageHeight);
-	bitmapInfo.bmiHeader.biPlanes = 1;
-	bitmapInfo.bmiHeader.biBitCount = (WORD)bitsPerPixel;
-	bitmapInfo.bmiHeader.biCompression = BI_RGB;
-	bitmapInfo.bmiHeader.biSizeImage = (DWORD)(imageHeight * (lineByteCount + linePaddingByteCount));
-	bitmapInfo.bmiHeader.biXPelsPerMeter = 0;
-	bitmapInfo.bmiHeader.biYPelsPerMeter = 0;
-	bitmapInfo.bmiHeader.biClrUsed = 0;
-	bitmapInfo.bmiHeader.biClrImportant = 0;
+	DWORD bitmapHeaderSize = bitmapHeader->biSize;
+	ZeroMemory(bitmapHeader, bitmapHeaderSize);
+	bitmapHeader->biSize = bitmapHeaderSize;
+	bitmapHeader->biWidth = (LONG)imageWidth;
+	bitmapHeader->biHeight = imageBottomUp? (LONG)imageHeight: -((LONG)imageHeight);
+	bitmapHeader->biPlanes = 1;
+	bitmapHeader->biBitCount = (WORD)bitsPerPixel;
+	bitmapHeader->biCompression = BI_RGB;
+	bitmapHeader->biSizeImage = (DWORD)(imageHeight * (lineByteCount + linePaddingByteCount));
+	bitmapHeader->biXPelsPerMeter = 0;
+	bitmapHeader->biYPelsPerMeter = 0;
+	bitmapHeader->biClrUsed = 0;
+	bitmapHeader->biClrImportant = 0;
+	if(bitmapHeader->biSize >= sizeof(BITMAPV2INFOHEADER))
+	{
+		BITMAPV2INFOHEADER* bitmapHeaderV2 = (BITMAPV2INFOHEADER*)bitmapHeader;
+		bitmapHeaderV2->biRedMask   = (hasAlphaChannel)? 0x00FF0000u: 0xFF0000u;
+		bitmapHeaderV2->biGreenMask = (hasAlphaChannel)? 0x0000FF00u: 0x00FF00u;
+		bitmapHeaderV2->biBlueMask  = (hasAlphaChannel)? 0x000000FFu: 0x0000FFu;
+	}
+	if(bitmapHeader->biSize >= sizeof(BITMAPV3INFOHEADER))
+	{
+		BITMAPV3INFOHEADER* bitmapHeaderV3 = (BITMAPV3INFOHEADER*)bitmapHeader;
+		bitmapHeaderV3->biAlphaMask = (hasAlphaChannel)? 0xFF000000u: 0x000000u;
+	}
 
 	//Build a DIB bitmap using RGB encoding from the current image data
 	for(unsigned int ypos = 0; ypos < imageHeight; ++ypos)
@@ -2306,12 +2363,18 @@ bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFO& bitmapInfo)
 			//Save the pixel data. Note that alpha values are discarded.
 			if((pixelFormat == PIXELFORMAT_M) || (pixelFormat == PIXELFORMAT_MA))
 			{
-				unsigned char data;
-				ReadPixelDataInternal(xpos, readYPos, 0, data);
+				unsigned char m;
+				ReadPixelDataInternal(xpos, readYPos, 0, m);
 				//We convert the monochrome image to an RGB image here
-				stream.WriteData(data);
-				stream.WriteData(data);
-				stream.WriteData(data);
+				stream.WriteData(m);
+				stream.WriteData(m);
+				stream.WriteData(m);
+				if(hasAlphaChannel)
+				{
+					unsigned char a;
+					ReadPixelDataInternal(xpos, readYPos, 1, a);
+					stream.WriteData(a);
+				}
 			}
 			else if((pixelFormat == PIXELFORMAT_RGB) || (pixelFormat == PIXELFORMAT_RGBA))
 			{
@@ -2326,6 +2389,12 @@ bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFO& bitmapInfo)
 				stream.WriteData(b);
 				stream.WriteData(g);
 				stream.WriteData(r);
+				if(hasAlphaChannel)
+				{
+					unsigned char a;
+					ReadPixelDataInternal(xpos, readYPos, 3, a);
+					stream.WriteData(a);
+				}
 			}
 		}
 

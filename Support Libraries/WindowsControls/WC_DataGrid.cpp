@@ -1086,19 +1086,19 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 
 						//Calculate the rendered size of the text string component that
 						//precedes the caret position
-						int preceedingStringSizeBeforeCaret = 0;
+						int precedingStringSizeBeforeCaret = 0;
 						if(selectedCharacterNoWithinString > 0)
 						{
-							SIZE preceedingStringSizeBeforeCaretAsSize;
-							BOOL getTextExtentPoint32Return = GetTextExtentPoint32(hdc, cellDataRaw, selectedCharacterNoWithinString, &preceedingStringSizeBeforeCaretAsSize);
+							SIZE precedingStringSizeBeforeCaretAsSize;
+							BOOL getTextExtentPoint32Return = GetTextExtentPoint32(hdc, cellDataRaw, selectedCharacterNoWithinString, &precedingStringSizeBeforeCaretAsSize);
 							if(getTextExtentPoint32Return != 0)
 							{
-								preceedingStringSizeBeforeCaret = (int)preceedingStringSizeBeforeCaretAsSize.cx;
+								precedingStringSizeBeforeCaret = (int)precedingStringSizeBeforeCaretAsSize.cx;
 							}
 						}
 
 						//Position the caret at the required location
-						SetCaretPos((textStartPosX + preceedingStringSizeBeforeCaret) - editCellHorizontalPixelOffset, textStartPosY);
+						SetCaretPos((textStartPosX + precedingStringSizeBeforeCaret) - editCellHorizontalPixelOffset, textStartPosY);
 					}
 
 					//If drag select is active, hide the caret if it is currently visible,

@@ -11,6 +11,10 @@ GenericDataView::GenericDataView(IUIManager& auiManager, GenericDataViewPresente
 :ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), page(apage)
 {
 	SetWindowSettings(page->GetName(), 0, 0, 500, 300);
+	//##TODO## Allow the device to give a hint here to assist in picking an appropriate
+	//docking group. At the very least, a hint about whether it should be a vertical or a
+	//horizontal window would be useful.
+	SetDockableViewType(true, DockPos::Right, false, L"Exodus.RegisterGroup");
 }
 
 //----------------------------------------------------------------------------------------

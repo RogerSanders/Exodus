@@ -70,6 +70,21 @@ public:
 		return _sourceReference.MarshalToWithoutMove();
 	}
 
+protected:
+	//This protected constructor is never actually used by anything, nor should it ever
+	//be. The only purpose of this constructor is to introduce a path by which the
+	//_sourceReference and _targetReference members could be initialized with a value of
+	//anything other than the addresses of the _source and _target members. Since this
+	//type could be derived from elsewhere, and this constructor could be called by a
+	//derived type, and we explicitly set the value of _sourceReference and
+	//_targetReference here to an externally provided value, the optimizer cannot assume
+	//what the contents of these members could be based on the other provided
+	//constructors, making it impossible to optimize away virtual function calls within
+	//the referenced object.
+	inline InOut(bool, T& target, const T& source)
+	:_sourceReference(source), _targetReference(target), _source(source), _target(target)
+	{ }
+
 private:
 	//Disable copying and moving
 	InOut(const InOut& sourceObject) MARSHALSUPPORT_DELETEMETHOD;

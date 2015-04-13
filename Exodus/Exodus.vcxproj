@@ -435,6 +435,8 @@
   <ItemGroup>
     <ClCompile Include="AboutView.cpp" />
     <ClCompile Include="AboutViewPresenter.cpp" />
+    <ClCompile Include="CreateDashboardView.cpp" />
+    <ClCompile Include="CreateDashboardViewPresenter.cpp" />
     <ClCompile Include="DeviceInfo.cpp" />
     <ClCompile Include="ExodusInterface.cpp" />
     <ClCompile Include="ExtensionInfo.cpp" />
@@ -454,6 +456,8 @@
   <ItemGroup>
     <ClInclude Include="AboutView.h" />
     <ClInclude Include="AboutViewPresenter.h" />
+    <ClInclude Include="CreateDashboardView.h" />
+    <ClInclude Include="CreateDashboardViewPresenter.h" />
     <ClInclude Include="DeviceInfo.h" />
     <ClInclude Include="ExodusInterface.h" />
     <ClInclude Include="ExtensionInfo.h" />

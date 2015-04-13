@@ -251,6 +251,16 @@ BEGIN
     LTEXT           "",IDC_LOADPLUGIN_PLUGINTEXT,10,34,194,8
 END
 
+IDD_CREATEDASHBOARD DIALOGEX 0, 0, 203, 49
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDC_CREATEDASHBOARD_OK,47,28,50,14
+    PUSHBUTTON      "Cancel",IDC_CREATEDASHBOARD_CANCEL,101,28,50,14
+    EDITTEXT        IDC_CREATEDASHBOARD_NAME,68,7,128,14,ES_AUTOHSCROLL
+    LTEXT           "Dashboard Name",IDC_STATIC,7,9,56,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -372,6 +382,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 62
     END
+
+    IDD_CREATEDASHBOARD, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 196
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 42
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -383,7 +401,7 @@ END
 
 IDR_MAINMENU MENU
 BEGIN
-    POPUP "File"
+    POPUP "&File"
     BEGIN
         MENUITEM "Dynamic Placeholder",         ID_FILE_DYNAMICPLACEHOLDER
         MENUITEM "Load System/Module\tCtrl+O",  ID_FILE_LOADMODULE
@@ -419,26 +437,30 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
-    POPUP "System"
+    POPUP "&System"
     BEGIN
-        MENUITEM "Pause System\tF2",            ID_FILE_PAUSESYSTEM
-        MENUITEM "Run System\tF3",              ID_FILE_RUNSYSTEM
-        MENUITEM "Hard Reset\tF4",              ID_FILE_HARDRESET
-        MENUITEM "Toggle Throttle\tF9",         ID_SYSTEM_TOGGLETHROTTLE
+        MENUITEM "&Pause System\tF2",           ID_FILE_PAUSESYSTEM
+        MENUITEM "&Run System\tF3",             ID_FILE_RUNSYSTEM
+        MENUITEM "&Hard Reset\tF4",             ID_FILE_HARDRESET
+        MENUITEM "Toggle &Throttle\tF9",        ID_SYSTEM_TOGGLETHROTTLE
         MENUITEM "Dynamic Placeholder",         ID_SYSTEM_DYNAMICPLACEHOLDER
     END
-    POPUP "Settings"
+    POPUP "Se&ttings"
     BEGIN
         MENUITEM "Platform Settings",           ID_SETTINGS_PLATFORMSETTINGS
         MENUITEM "Dynamic Placeholder",         ID_SETTINGS_DYNAMICPLACEHOLDER
     END
-    POPUP "Debug"
+    POPUP "&Debug"
     BEGIN
         MENUITEM "Dynamic Placeholder",         ID_Menu40105
     END
-    POPUP "Help"
+    POPUP "&Window"
     BEGIN
-        MENUITEM "About",                       ID_HELP_ABOUT
+        MENUITEM "Create &Dashboard",           ID_WINDOW_CREATEDASHBOARD
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About",                      ID_HELP_ABOUT
     END
 END
 

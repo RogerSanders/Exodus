@@ -374,7 +374,8 @@ LRESULT VRAMView::msgRenderWM_PAINT(HWND hwnd, WPARAM wParam, LPARAM lParam)
 
 	Stream::Buffer ddbData(0);
 	BITMAPINFO bitmapInfo;
-	vramImage.SaveDIBImage(ddbData, bitmapInfo);
+	bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
+	vramImage.SaveDIBImage(ddbData, &bitmapInfo.bmiHeader);
 
 	unsigned int imageWidth = (unsigned int)bitmapInfo.bmiHeader.biWidth;
 	unsigned int imageHeight = (unsigned int)bitmapInfo.bmiHeader.biHeight;

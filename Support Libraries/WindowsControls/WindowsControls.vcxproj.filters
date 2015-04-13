@@ -31,6 +31,9 @@
     <Filter Include="Controls\WC_StackPanel">
       <UniqueIdentifier>{9babd6bb-9a2a-499e-b427-d404900fbad0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Controls\IDockingWindow">
+      <UniqueIdentifier>{673148f2-b8da-4300-96db-9c56919d8350}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WC_DataGrid.cpp">
@@ -71,9 +74,6 @@
     <ClInclude Include="DockingWindow.h">
       <Filter>Controls\DockingWindow</Filter>
     </ClInclude>
-    <ClInclude Include="IDockingWindow.h">
-      <Filter>Controls\DockingWindow</Filter>
-    </ClInclude>
     <ClInclude Include="DashboardWindow.h">
       <Filter>Controls\DashboardWindow</Filter>
     </ClInclude>
@@ -97,6 +97,12 @@
     </ClInclude>
     <ClInclude Include="WC_StackPanel.h">
       <Filter>Controls\WC_StackPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="IDockingWindow.h">
+      <Filter>Controls\IDockingWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="IDockingWindowDropTargetInfo.h">
+      <Filter>Controls\IDockingWindow</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -124,6 +130,9 @@
     </None>
     <None Include="WC_StackPanel.inl">
       <Filter>Controls\WC_StackPanel</Filter>
+    </None>
+    <None Include="IDockingWindow.inl">
+      <Filter>Controls\IDockingWindow</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -5,60 +5,6 @@
 #include <vector>
 #include <map>
 
-//##TODO## Add an option to create a named docking window, which has a specific given
-//title that doesn't change, and only lists a single tab when in autohide mode.
-//##TODO## Make the tab control for content windows optional, and support a kind of grid
-//layout as an alternative which allows each content window to be positioned next to each
-//other, with all windows visible at once. This would be most useful for allowing content
-//windows to be "stacked" vertically or horizontally, to make groups of docked windows
-//aligned to the edge of the main window which show each window on the same level, rather
-//than having them nested within each other. We may only allow windows to be stacked
-//either horizontally or vertically, but ideally we can position them freely in either
-//direction, having one content window span the full height next to three other windows
-//stacked on each other, for example.
-//##TODO## More on the above, we could create a "free-form" docking window mode, where
-//there is no content region, only docking windows, and we use a different kind of layout
-//method instead of the nested dockpanel control. In this mode, all hosted windows must be
-//contained within docking windows, and the free form docking window must be named. It
-//will also be perfectly valid to have such a named free form docking window without any
-//hosted content, and windows can simply be dragged in or out as desired. With a free form
-//docking window, the docking window being dragged can potentially be placed anywhere
-//relative to the currently present docked windows. If there are no hosted windows, it
-//will simply take up all the available space in the window. If there is one window
-//present, it can be placed to any side of the window. If there are two windows present,
-//it can be placed to any side of either window, and so forth.
-//##TODO## Thinking more about the free form docking window mode, what that really
-//involves is dock panels within dock panels. Each window that is docked has a dock panel
-//wrapped around it. The first added window will create the first dock panel. From there,
-//each panel that is docked will in fact be docked within a docking region target from the
-//docking panel of the first docked window. We'll implement this by making docked windows
-//aware that their docking parent is in free form docking mode, and changing the behaviour
-//of the docking placement targets so that rather than docking the dragged window inside
-//the docking window that's being targeted, it will instead dock into the dock panel
-//around it. The inner dock placement targets will simply add to the end of the dock panel
-//list for that dock window as normal. The outer dock placement targets will add to the
-//start of the dock panel list for the root docked element in the free form docking
-//window, allowing docked windows to be pushed to the very outside edges of the free from
-//dock window by dragging the window over any hosted docked window.
-//##NOTE## There seems to be precedent for the free-form docking concept. The term "anchor
-//docking" has been seen to describe a solution to this kind of docking framework, as
-//opposed to "align docking", which is what we have with a dockpanel. See the following
-//article:
-//http://wiki.freepascal.org/Anchor_Docking
-//Note that this article also highlights some cases where a dockpanel cannot produce a
-//layout that's possible with free-form docking.
-//##NOTE## It's not clear how the anchor docking system is implemented, but it seems that
-//the splitters between windows are the "active" layout elements in this system, with the
-//windows themselves being placed in the free space blocked out by the parent window and
-//the splitter positions. Splitters must run between either a window edge or a splitter.
-//You could work out this layout system by tracking the intersection targets at each end
-//of each splitter, and processing them in a well defined order to number the free spaces
-//that appear in the split window region. Windows are then associated with a numbered
-//region. When doing a layout pass, the position and size of each numbered region is
-//calculated, with the contained windows resized and repositioned as necessary if the
-//region changes position or size. There is still a considerable amount of layout work to
-//do when a new splitter is introduced, but it's a flat layout algorithm, with no window
-//reparenting or creation/deletion necessary.
 //##TODO## Consider eliminating the use of the common controls tab control for the content
 //window tabs, and drawing the tabs ourselves. This will allow us to stack the tabs on
 //multiple rows rather than have them go into an overflow area, but without changing the
@@ -71,6 +17,10 @@
 //width if possible though, with tabs being shifted to the right to accommodate it, but
 //the tab list never being scrolled to the left automatically. We could also add a close
 //button on each tab itself if desired, like in web browsers.
+//##FIX## We need a way to handle infinite nesting of docking windows within docking
+//windows, where the placement targets can directly overlap. Perhaps some kind of ancestor
+//navigator windows that appear in drop target mode? I'm not sure what the best way to
+//handle this problem is.
 class DockingWindow :public IDockingWindow
 {
 public:
@@ -114,6 +64,7 @@ private:
 	struct AutoHideDockTabGroup;
 	struct AutoHideDockInfo;
 	struct TabRenderInfo;
+	struct DockingWindowDropTargetInfo;
 
 private:
 	//Message handlers
@@ -176,31 +127,35 @@ private:
 
 	//Window handle methods
 	virtual HWND GetWindowHandle() const;
-	virtual HWND GetDockPanelWindowHandle() const;
 
 	//Placement content methods
-	virtual void HidePlacementTargets();
-	virtual void ShowPlacementTargets(bool allowCenterDocking);
-	virtual void UpdatePlacementShadow(int cursorPosX, int cursorPosY, int dockWindowWidth, int dockWindowHeight);
-	virtual bool HitTestPlacementTargets(int cursorPosX, int cursorPosY, bool& dockLocationIsContentRegion, WC_DockPanel::DockLocation& dockLocation, bool& forceTop) const;
+	virtual void HideDropTargets(IDockingWindow* callingDockingWindow);
+	void HideDropTargets(IDockingWindow* callingDockingWindow, bool hideChildWindowDropTargets);
+	void ShowDropTargets(bool allowCenterDocking);
+	virtual void ShowDropTargets(IDockingWindow* callingDockingWindow, int dockWindowWidth, int dockWindowHeight, int cursorPosX, int cursorPosY);
+	virtual bool HitTestDropTargets(IDockingWindow* callingDockingWindow, int cursorPosX, int cursorPosY, IDockingWindowDropTargetInfo*& dropTargetInfo) const;
 
 	//Tab control update methods
 	void HandleContentTabChanged(int newTabIndex);
 	void TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY);
-	virtual void AllDockTabsHitTest(int cursorPosX, int cursorPosY);
 	void UpdateAutoHideWindowTabSizes();
 
 	//Child container methods
-	virtual void AddChildContainer(IDockingWindow* childContainer, WC_DockPanel::DockLocation dockLocation, bool autoHide, bool forceTop);
+	virtual void AddChildContainer(IDockingWindow* childContainer, const IDockingWindowDropTargetInfo* dropTargetInfo);
 	virtual void RemoveChildContainer(IDockingWindow* childContainer);
-	virtual void UpdateAutoHideChildContainerContent(IDockingWindow* childContainer);
+	virtual void NotifyChildContainerContentChanged(IDockingWindow* childContainer);
+	virtual bool HasNestedChildDockingWindows() const;
 	virtual MarshalSupport::Marshal::Ret<std::list<IDockingWindow*>> GetNestedChildDockingWindowList() const;
-	void ExpandHiddenDockPanel(IDockingWindow* targetDockedWindow, HWND targetContentWindow, int newWindowPosX, int newWindowPosY, int newWindowWidth, int newWindowHeight);
+	virtual bool CanResizeChildContainerWindowEdge(IDockingWindow* childContainer, WindowEdge windowEdge) const;
+	virtual void UpdateDesiredChildContainerSize(IDockingWindow* childContainer, int desiredWidth, int desiredHeight);
+	virtual HCURSOR ParentOverrideCursorForChildContainer(IDockingWindow* childContainer, int cursorPosX, int cursorPosY) const;
+	virtual bool ParentBorderClickForChildContainer(IDockingWindow* childContainer, int cursorPosX, int cursorPosY);
+	void ExpandHiddenDockPanel(IDockingWindow* childContainer, HWND targetContentWindow, int newWindowPosX, int newWindowPosY, int newWindowWidth, int newWindowHeight);
 	void CollapseHiddenDockPanel();
 
 	//Hosted content methods
-	virtual void AddHostedContent(HWND contentWindow, const MarshalSupport::Marshal::In<std::wstring>& contentTitle);
-	virtual void RemoveHostedContent(HWND contentWindow);
+	void AddHostedContent(HWND contentWindow, const std::wstring& contentTitle);
+	void RemoveHostedContent(HWND contentWindow);
 	virtual unsigned int GetHostedContentCount() const;
 	virtual unsigned int GetSortedContentEntryNo(unsigned int sortedContentEntryIndex) const;
 	virtual bool GetHostedContentIndexFromWindow(HWND contentWindow, unsigned int& contentEntryNo) const;
@@ -214,11 +169,8 @@ private:
 
 	//Parent docking window methods
 	virtual IDockingWindow* GetParentDockingWindow() const;
-	virtual void DockToNewParent(IDockingWindow* parentContainer, WC_DockPanel::DockLocation dockLocation, bool autoHide, bool forceTop);
-	virtual void UndockFromParent();
-	virtual WC_DockPanel::DockLocation GetDockLocation() const;
-	virtual bool IsAutoHideEnabled() const;
-	virtual void NotifyParentDestroyed();
+	virtual void NotifyAddedToParent(IDockingWindow* newParentDockingWindow);
+	virtual void NotifyRemovedFromParent();
 
 	//Sizing methods
 	void HandleSizeChanged(int newWidth, int newHeight);
@@ -242,8 +194,6 @@ private:
 
 	//Parent docking window info
 	IDockingWindow* parentDockingWindow;
-	bool autoHideDockedWindow;
-	WC_DockPanel::DockLocation currentDockLocation;
 
 	//Child content info
 	std::list<ChildContainerEntry> childContainers;
@@ -255,9 +205,9 @@ private:
 	int dockingPanelTabGroupSeparatorSize;
 
 	//Autohide child containers
-	std::map<WC_DockPanel::DockLocation, AutoHideDockInfo> autoHideDocks;
-	std::map<WC_DockPanel::DockLocation, HCURSOR> enableAutoHideCursor;
-	std::map<WC_DockPanel::DockLocation, HCURSOR> disableAutoHideCursor;
+	std::map<WindowEdge, AutoHideDockInfo> autoHideDocks;
+	std::map<WindowEdge, HCURSOR> enableAutoHideCursor;
+	std::map<WindowEdge, HCURSOR> disableAutoHideCursor;
 	bool autoHidePanelVisible;
 	IDockingWindow* currentAutoHidePanel;
 	HWND currentAutoHidePanelContent;
@@ -283,8 +233,10 @@ private:
 	int tabDeadZoneEndX;
 
 	//Placement target info
-	std::map<WC_DockPanel::DockLocation, HWND> placementTargets;
-	std::map<WC_DockPanel::DockLocation, HWND> placementTargetsForceTop;
+	std::map<WindowEdge, HWND> placementTargets;
+	std::map<WindowEdge, HWND> placementTargetsForceTop;
+	IDockingWindow* placementTargetsChildDockingWindow;
+	bool placementTargetsVisible;
 	bool placementTargetCenterEnabled;
 	HWND placementTargetCenter;
 	bool placementShadowVisible;
