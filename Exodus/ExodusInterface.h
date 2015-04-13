@@ -83,10 +83,12 @@ public:
 
 	//View manager functions
 	virtual IViewManager& GetViewManager() const;
+	HWND CreateDashboard(const std::wstring& dashboardTitle) const;
 
 	//Window functions
 	AssemblyHandle GetAssemblyHandle() const;
 	virtual void* GetMainWindowHandle() const;
+	HWND GetCurrentActiveDialogWindowHandle() const;
 
 	//Savestate functions
 	void LoadState(const std::wstring& folder, bool debuggerState);

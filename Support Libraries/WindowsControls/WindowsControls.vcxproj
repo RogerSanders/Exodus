@@ -152,6 +152,7 @@
     <ClInclude Include="DashboardWindow.h" />
     <ClInclude Include="DockingWindow.h" />
     <ClInclude Include="IDockingWindow.h" />
+    <ClInclude Include="IDockingWindowDropTargetInfo.h" />
     <ClInclude Include="Resources\AutoHideCursor_Down.cur.h" />
     <ClInclude Include="Resources\AutoHideCursor_Left.cur.h" />
     <ClInclude Include="Resources\AutoHideCursor_Right.cur.h" />
@@ -166,6 +167,7 @@
   <ItemGroup>
     <None Include="DashboardWindow.inl" />
     <None Include="DockingWindow.inl" />
+    <None Include="IDockingWindow.inl" />
     <None Include="WC_DataGrid.inl" />
     <None Include="WC_DockPanel.inl" />
     <None Include="WC_HexEdit.inl" />

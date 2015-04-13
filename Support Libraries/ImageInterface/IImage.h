@@ -3,6 +3,14 @@
 #include "StreamInterface/StreamInterface.pkg"
 #include "WindowsSupport/WindowsSupport.pkg"
 
+//##TODO## Separate file loading routines to a separate library, so that an Image object
+//can be created and worked with in code without requiring all third party image libraries
+//to be linked in.
+//##TODO## Strongly consider renaming this "Image" class to "Canvas", and create a
+//namespace and new library name for it, such as "ImageSupport".
+//##TODO## Create a "Pen" class which has a data format and a list of plane numbers and
+//associated data, and create drawing functions such as "Point", "Line", "Square", etc,
+//which are designed to use the specified pen(s) to draw shapes on our canvas.
 class IImage
 {
 public:
@@ -75,8 +83,8 @@ public:
 	virtual bool SaveBMPImage(Stream::IStream& stream) = 0;
 
 	//Win32 DIB functions (Device-Independent Bitmap)
-	virtual bool LoadDIBImage(Stream::IStream& stream, const BITMAPINFO& bitmapInfo) = 0;
-	virtual bool SaveDIBImage(Stream::IStream& stream, BITMAPINFO& bitmapInfo) = 0;
+	virtual bool LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmapHeader) = 0;
+	virtual bool SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader) = 0;
 
 	//Resampling functions
 	virtual void ResampleNearest(unsigned int newWidth, unsigned int newHeight) = 0;

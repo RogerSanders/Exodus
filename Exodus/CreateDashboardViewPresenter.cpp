@@ -1,31 +1,31 @@
-#include "SettingsViewPresenter.h"
-#include "SettingsView.h"
+#include "CreateDashboardViewPresenter.h"
+#include "CreateDashboardView.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SettingsViewPresenter::SettingsViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusInterface& aowner, ExodusInterface& amodel)
+CreateDashboardViewPresenter::CreateDashboardViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusInterface& aowner, ExodusInterface& amodel)
 :ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID), owner(aowner), model(amodel)
 {}
 
 //----------------------------------------------------------------------------------------
 //View title functions
 //----------------------------------------------------------------------------------------
-std::wstring SettingsViewPresenter::GetUnqualifiedViewTitle()
+std::wstring CreateDashboardViewPresenter::GetUnqualifiedViewTitle()
 {
-	return L"About";
+	return L"Create Dashboard";
 }
 
 //----------------------------------------------------------------------------------------
 //View creation and deletion
 //----------------------------------------------------------------------------------------
-IView* SettingsViewPresenter::CreateView(IUIManager& uiManager)
+IView* CreateDashboardViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new SettingsView(uiManager, *this, model);
+	return new CreateDashboardView(uiManager, *this, model);
 }
 
 //----------------------------------------------------------------------------------------
-void SettingsViewPresenter::DeleteView(IView* aview)
+void CreateDashboardViewPresenter::DeleteView(IView* aview)
 {
 	delete aview;
 }

@@ -44,6 +44,10 @@ public:
 
 	//Window title functions
 	virtual void UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle) = 0;
+
+	//Dialog management functions
+	virtual void NotifyDialogActivated(HWND dialogWindow) = 0;
+	virtual void NotifyDialogDeactivated(HWND dialogWindow) = 0;
 };
 
 #include "IUIManager.inl"

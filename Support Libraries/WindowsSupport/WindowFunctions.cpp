@@ -257,27 +257,82 @@ void BindStdHandlesToConsole()
 //----------------------------------------------------------------------------------------
 //Environment variable functions
 //----------------------------------------------------------------------------------------
-std::wstring GetEnvironmentVariableString(std::wstring variableName)
+bool IsEnvironmentVariableDefined(const std::wstring& name)
 {
-	std::wstring minidumpPath;
-	DWORD getEnvironmentVariableReturn;
-	getEnvironmentVariableReturn = GetEnvironmentVariable(variableName.c_str(), 0, 0);
-	if(getEnvironmentVariableReturn != 0)
-	{
-		std::vector<wchar_t> buffer(getEnvironmentVariableReturn);
-		getEnvironmentVariableReturn = GetEnvironmentVariable(variableName.c_str(), &buffer[0], (DWORD)buffer.size());
-		if(getEnvironmentVariableReturn != 0)
-		{
-			minidumpPath = &buffer[0];
-		}
-	}
-	return minidumpPath;
+	return (GetEnvironmentVariable(name.c_str(), 0, 0) != 0);
 }
 
 //----------------------------------------------------------------------------------------
-void SetEnvironmentVariableString(std::wstring variableName, std::wstring value)
+std::wstring GetEnvironmentVariableString(const std::wstring& name)
 {
-	SetEnvironmentVariable(&variableName[0], &value[0]);
+	//Attempt to retrieve the value of the specified environment variable, until we
+	//succeed in retrieving the value, or a call to GetEnvironmentVariable fails. This
+	//slightly paranoid code is designed to fully handle concurrency, so that attempting
+	//to read and write to the same environment variable simultaneously from different
+	//threads will not cause unexpected failures in this function, even if the length of
+	//the value changes between successive calls to GetEnvironmentVariable.
+	size_t currentBufferSize = MAX_PATH;
+	bool valueBufferTooSmall;
+	std::wstring value(currentBufferSize, L' ');
+	do
+	{
+		//Attempt to retrieve the value of the specified environment variable, or the
+		//length of the buffer required to store the value if the buffer is not currently
+		//large enough.
+		DWORD getEnvironmentVariableReturn = GetEnvironmentVariable(name.c_str(), &value[0], (DWORD)currentBufferSize);
+
+		// Determine if the value string was too small to receive the value of the
+		// specified environment variable
+		valueBufferTooSmall = (getEnvironmentVariableReturn >= currentBufferSize);
+
+		//Resize the value string to the required size. If GetEnvironmentVariable
+		//returned 0 indicating failure, we resize the value to an empty string, which is
+		//what we want. If the buffer wasn't large enough and GetEnvironmentVariable
+		//returned the new required buffer size, which includes the null terminator, we
+		//resize the value string to the required size to hold the value here. If the
+		//buffer was large enough and GetEnvironmentVariable stored the value in the
+		//buffer, the return value is the number of characters written to the buffer, not
+		//including the null terminator, in which case, we resize the string to the
+		//correct size for the written value here.
+		currentBufferSize = (size_t)getEnvironmentVariableReturn;
+		value.resize(currentBufferSize);
+	}
+	while (valueBufferTooSmall);
+
+	//Return the value to the caller
+	return value;
+}
+
+//----------------------------------------------------------------------------------------
+void SetEnvironmentVariableString(const std::wstring& name, const std::wstring& value)
+{
+	SetEnvironmentVariable(name.c_str(), value.c_str());
+}
+
+//----------------------------------------------------------------------------------------
+void RemoveEnvironmentVariable(const std::wstring& name)
+{
+	SetEnvironmentVariable(name.c_str(), NULL);
+}
+
+//----------------------------------------------------------------------------------------
+std::map<std::wstring, std::wstring> GetEnvironmentVariableList()
+{
+	std::map<std::wstring, std::wstring> result;
+	const wchar_t* envBlockSearchPos = GetEnvironmentStrings();
+	while(*envBlockSearchPos != L'\0')
+	{
+		std::wstring envBlockEntry = envBlockSearchPos;
+		std::wstring::size_type assignmentPos = envBlockEntry.find_first_of(L'=');
+		if(assignmentPos != std::wstring::npos)
+		{
+			std::wstring name = envBlockEntry.substr(0, assignmentPos);
+			std::wstring value = envBlockEntry.substr(assignmentPos + 1);
+			result[name] = value;
+		}
+		envBlockSearchPos += envBlockEntry.length() + 1;
+	}
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -838,6 +893,25 @@ std::wstring GetDlgItemString(HWND hwnd, int controlID)
 }
 
 //----------------------------------------------------------------------------------------
+void SetWindowText(HWND hwnd, const std::wstring& data)
+{
+	SetWindowText(hwnd, data.c_str());
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring GetWindowText(HWND hwnd)
+{
+	int windowTextLength = GetWindowTextLength(hwnd);
+	std::vector<wchar_t> windowTextBuffer(windowTextLength + 1);
+	if(GetWindowText(hwnd, &windowTextBuffer[0], (int)windowTextBuffer.size()) == 0)
+	{
+		windowTextBuffer[0] = L'\0';
+	}
+	std::wstring windowText = &windowTextBuffer[0];
+	return windowText;
+}
+
+//----------------------------------------------------------------------------------------
 //Modal window functions
 //----------------------------------------------------------------------------------------
 std::list<HWND> DisableAllEnabledDialogWindows(HWND ownerWindow)
@@ -1284,7 +1358,7 @@ LRESULT CALLBACK EditBoxFocusFixSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam
 		//If the window which has focus before processing this mouse event is different to
 		//the target window, and it is an edit control too, flag it for redrawing.
 		HWND previousFocusWindow = GetFocus();
-		bool redrawPreviousFocusWindow = GetClassName(previousFocusWindow) == WC_EDIT;//((previousFocusWindow != hwnd) && (GetClassName(previousFocusWindow) == WC_EDIT));
+		bool redrawPreviousFocusWindow = ((previousFocusWindow != hwnd) && (GetClassName(previousFocusWindow) == WC_EDIT));
 
 		//Remove the WS_CAPTION window style from any parent windows which contain it, to
 		//allow the edit control to process this mouse message properly.

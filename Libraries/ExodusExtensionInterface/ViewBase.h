@@ -65,6 +65,14 @@ protected:
 	void WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
+	//Structures
+	struct ChildDialogState
+	{
+		ViewBase* view;
+		std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)> windowProcedureMethod;
+	};
+
+private:
 	//Static window procedure
 	static INT_PTR CALLBACK WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	static LRESULT CALLBACK WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);

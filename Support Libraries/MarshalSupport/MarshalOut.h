@@ -14,7 +14,7 @@ class Out
 {
 public:
 	//Constructors
-	inline Out<T>(T& target)
+	inline Out(T& target)
 	:_targetReference(_target), _target(target)
 	{ }
 	inline Out(const InOut<T>& target)
@@ -50,6 +50,20 @@ public:
 		return *this;
 	}
 #endif
+
+protected:
+	//This protected constructor is never actually used by anything, nor should it ever
+	//be. The only purpose of this constructor is to introduce a path by which the
+	//_targetReference member could be initialized with a value of anything other than the
+	//address of the _target member. Since this type could be derived from elsewhere, and
+	//this constructor could be called by a derived type, and we explicitly set the value
+	//of _targetReference here to an externally provided value, the optimizer cannot
+	//assume what the contents of the _targetReference member could be based on the other
+	//provided constructors, making it impossible to optimize away virtual function calls
+	//within the referenced object.
+	inline Out(bool, T& target)
+	:_targetReference(target), _target(target)
+	{ }
 
 private:
 	//Disable copying and moving

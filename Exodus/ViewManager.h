@@ -63,6 +63,11 @@ public:
 	//Window title functions
 	virtual void UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle);
 
+	//Dialog management functions
+	virtual void NotifyDialogActivated(HWND dialogWindow);
+	virtual void NotifyDialogDeactivated(HWND dialogWindow);
+	HWND GetActiveDialogWindow() const;
+
 	//View closing helper functions
 	void CloseViewsForSystem();
 	void CloseViewsForModule(unsigned int moduleID);
@@ -95,6 +100,7 @@ private:
 	struct OpenWindowInfo;
 	struct InvokeUIParams;
 	struct Region2D;
+	struct DialogWindowFrameState;
 
 private:
 	//Class registration
@@ -121,6 +127,7 @@ private:
 	HWND GetParentDockingWindow(HWND windowHandle) const;
 	HWND GetParentDialogWindowFrame(HWND windowHandle) const;
 	static bool IsDockingWindow(HWND windowHandle);
+	static bool IsDashboardWindow(HWND windowHandle);
 	static bool IsDialogFrame(HWND windowHandle);
 
 	//Window state functions
@@ -132,15 +139,23 @@ private:
 	//Layout functions
 	void LoadMainWindowStateFromViewLayout(IHierarchicalStorageNode& mainWindowState, std::map<unsigned int, PlaceholderWindowInfo>& placeholderWindows);
 	HWND LoadDialogWindowFrameFromViewLayout(IHierarchicalStorageNode& dialogWindowState, std::map<unsigned int, PlaceholderWindowInfo>& placeholderWindows) const;
-	HWND LoadDockingWindowFrameFromViewLayout(HWND parentDockingWindow, IHierarchicalStorageNode& dockingWindowState) const;
+	HWND LoadDockingWindowFrameFromViewLayout(IHierarchicalStorageNode& dockingWindowState) const;
+	HWND LoadDashboardWindowFrameFromViewLayout(IHierarchicalStorageNode& dashboardWindowState) const;
+	void BindLoadedWindowFrameWithNoParent(HWND loadedWindow, IHierarchicalStorageNode& windowState) const;
+	void BindLoadedWindowFrameWithDockingParent(HWND loadedWindow, IHierarchicalStorageNode& windowState, HWND parentDockingWindow) const;
+	void BindLoadedWindowFrameWithDashboardParent(HWND loadedWindow, IHierarchicalStorageNode& windowState, HWND parentDockingWindow) const;
 	void CreateDockingWindowChildrenFromViewLayout(HWND dockingWindow, IHierarchicalStorageNode& dockingWindowState, std::map<unsigned int, PlaceholderWindowInfo>& placeholderWindows) const;
+	void CreateDashboardWindowChildrenFromViewLayout(HWND dashboardWindow, IHierarchicalStorageNode& dashboardWindowState, std::map<unsigned int, PlaceholderWindowInfo>& placeholderWindows) const;
 	void SaveDialogWindowFrameStateToViewLayout(HWND dialogWindow, IHierarchicalStorageNode& dialogWindowState, std::map<HWND, unsigned int>& windowHandleToID, unsigned int& nextWindowID) const;
 	void SaveDockingWindowFrameStateToViewLayout(HWND dockingWindow, IHierarchicalStorageNode& dockedWindowState, std::map<HWND, unsigned int>& windowHandleToID, unsigned int& nextWindowID) const;
+	void SaveDashboardWindowFrameStateToViewLayout(HWND dashboardWindow, IHierarchicalStorageNode& dashboardWindowState, std::map<HWND, unsigned int>& windowHandleToID, unsigned int& nextWindowID) const;
 	void BuildExistingWindowsToCloseList(std::list<HWND>& existingWindowsToClose) const;
-	void CloseExistingWindows(const std::list<HWND>& existingWindowsToClose);
-	static WC_DockPanel::DockLocation StringToDockLocation(const std::wstring& dockLocationAsString);
-	static std::wstring DockLocationToString(WC_DockPanel::DockLocation dockLocation);
-	static WC_DockPanel::DockLocation ViewDockLocationToDockPanelDockLocation(IView::DockPos viewDockLocation);
+	void CloseWindows(const std::list<HWND>& existingWindowsToClose) const;
+	void DestroyUnusedPlaceholderWindows(const std::map<unsigned int, PlaceholderWindowInfo>& placeholderWindowInfo) const;
+	void BuildCurrentlyOpenDashboardWindowList(std::list<HWND>& dashboardWindowList) const;
+	static IDockingWindow::WindowEdge StringToDockingWindowEdge(const std::wstring& dockLocationAsString);
+	static std::wstring DockingWindowEdgeToString(IDockingWindow::WindowEdge dockLocation);
+	static IDockingWindow::WindowEdge ViewDockLocationToDockingWindowEdge(IView::DockPos viewDockLocation);
 	static IView::ViewType StringToViewType(const std::wstring& viewTypeAsString);
 	static std::wstring ViewTypeToString(IView::ViewType viewType);
 
@@ -171,6 +186,7 @@ private:
 	HWND mainWindow;
 	HWND mainDockingWindow;
 	HWND messageWindow;
+	HWND activeDialogWindow;
 
 	//UI thread invocation
 	mutable std::mutex invokeMutex;

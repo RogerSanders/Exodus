@@ -439,6 +439,14 @@ IViewManager& ExodusInterface::GetViewManager() const
 }
 
 //----------------------------------------------------------------------------------------
+HWND ExodusInterface::CreateDashboard(const std::wstring& dashboardTitle) const
+{
+	DashboardWindow::RegisterWindowClass((HINSTANCE)GetAssemblyHandle());
+	HWND hwndDashboard = CreateWindowEx(WS_EX_TOOLWINDOW, DashboardWindow::windowClassName, dashboardTitle.c_str(), WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_SIZEBOX | WS_MAXIMIZEBOX | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, mainWindowHandle, NULL, (HINSTANCE)GetAssemblyHandle(), NULL);
+	return hwndDashboard;
+}
+
+//----------------------------------------------------------------------------------------
 //Window functions
 //----------------------------------------------------------------------------------------
 AssemblyHandle ExodusInterface::GetAssemblyHandle() const
@@ -451,6 +459,12 @@ AssemblyHandle ExodusInterface::GetAssemblyHandle() const
 void* ExodusInterface::GetMainWindowHandle() const
 {
 	return mainWindowHandle;
+}
+
+//----------------------------------------------------------------------------------------
+HWND ExodusInterface::GetCurrentActiveDialogWindowHandle() const
+{
+	return viewManager->GetActiveDialogWindow();
 }
 
 //----------------------------------------------------------------------------------------
@@ -2871,6 +2885,9 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 				}
 			}
 			break;}
+		case ID_WINDOW_CREATEDASHBOARD:
+			state->menuHandler->HandleMenuItemSelect(MenuHandler::MENUITEM_CREATEDASHBOARD);
+			break;
 		default:{
 			//##TODO## Comment this and clean it up
 			ExodusInterface::NewMenuList::iterator newMenuItem = state->newMenuList.find(menuID);
@@ -3186,7 +3203,8 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 
 				Stream::Buffer ddbData(0);
 				BITMAPINFO bitmapInfo;
-				if(state->resizedImage.SaveDIBImage(ddbData, bitmapInfo))
+				bitmapInfo.bmiHeader.biSize = sizeof(bitmapInfo.bmiHeader);
+				if(state->resizedImage.SaveDIBImage(ddbData, &bitmapInfo.bmiHeader))
 				{
 					state->hbitmap = CreateCompatibleBitmap(hdc, state->bitmapWidth, state->bitmapHeight);
 					SetDIBits(hdc, state->hbitmap, 0, state->bitmapHeight, ddbData.GetRawBuffer(), &bitmapInfo, 0);
@@ -3635,13 +3653,7 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 
 			//Retrieve the title of the target window
 			HWND windowHandle = state->topLevelWindowList[i];
-			int windowTitleLength = GetWindowTextLength(windowHandle);
-			std::vector<wchar_t> windowTitleBuffer(windowTitleLength + 1);
-			if(GetWindowText(windowHandle, &windowTitleBuffer[0], (int)windowTitleBuffer.size()) == 0)
-			{
-				windowTitleBuffer[0] = L'\0';
-			}
-			std::wstring windowTitle = &windowTitleBuffer[0];
+			std::wstring windowTitle = GetWindowText(windowHandle);
 
 			//Write the name of the window this cell corresponds to
 			RECT textRect;

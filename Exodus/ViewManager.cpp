@@ -10,7 +10,7 @@ const wchar_t* ViewManager::dialogFrameWindowClassName = L"EX_DialogFrame";
 //Constructors
 //----------------------------------------------------------------------------------------
 ViewManager::ViewManager(HINSTANCE aviewManagerAssemblyHandle, HWND amainWindow, HWND amainDockingWindow, ISystemGUIInterface& asystem)
-:viewManagerAssemblyHandle(aviewManagerAssemblyHandle), mainWindow(amainWindow), mainDockingWindow(amainDockingWindow), system(asystem), messageWindow(NULL), eventProcessingPaused(false), pendingUIThreadInvoke(false)
+:viewManagerAssemblyHandle(aviewManagerAssemblyHandle), mainWindow(amainWindow), mainDockingWindow(amainDockingWindow), system(asystem), messageWindow(NULL), activeDialogWindow(NULL), eventProcessingPaused(false), pendingUIThreadInvoke(false)
 {
 	//Retrieve the current thread ID, and save it as the UI thread ID.
 	uithreadID = GetCurrentThreadId();
@@ -586,30 +586,27 @@ bool ViewManager::ShowDialogWindowFirstTime(IView& view, IViewPresenter& viewPre
 	//If this is a modal dialog window, disable the main window and all other windows
 	//owned by the main window, and build a list of disabled windows to pass on to the
 	//dialog frame window procedure.
-	LPVOID createWindowParam = 0;
-	std::list<HWND> disabledWindowList;
-	IView::DialogPos initialDialogPos = view.GetViewInitialDialogPosition();
+	DialogWindowFrameState createParams;
+	createParams.viewManager = this;
 	if(dialogMode == IView::DialogMode::Modal)
 	{
 		//Disable all other currently enabled top-level owned windows of the main window
-		disabledWindowList = DisableAllEnabledDialogWindows(mainWindow);
+		createParams.disabledWindowList = DisableAllEnabledDialogWindows(mainWindow);
 
 		//Disable the main window itself
 		if(EnableWindow(mainWindow, FALSE) == 0)
 		{
-			disabledWindowList.push_back(mainWindow);
+			createParams.disabledWindowList.push_back(mainWindow);
 		}
-
-		//Build the argument to pass to the dialog frame window procedure
-		createWindowParam = (LPVOID)&disabledWindowList;
 	}
 
 	//Create the dialog frame to use for this dialog
-	HWND dialogWindowFrame = CreateWindowEx(dialogWindowExtendedStyle, dialogFrameWindowClassName, qualifiedWindowTitle.c_str(), dialogWindowStyle, CW_USEDEFAULT, CW_USEDEFAULT, dialogFrameWidth, dialogFrameHeight, mainWindow, NULL, viewManagerAssemblyHandle, createWindowParam);
+	HWND dialogWindowFrame = CreateWindowEx(dialogWindowExtendedStyle, dialogFrameWindowClassName, qualifiedWindowTitle.c_str(), dialogWindowStyle, CW_USEDEFAULT, CW_USEDEFAULT, dialogFrameWidth, dialogFrameHeight, mainWindow, NULL, viewManagerAssemblyHandle, (LPVOID)&createParams);
 
 	//Calculate the screen position for the dialog window
 	int dialogFramePosX;
 	int dialogFramePosY;
+	IView::DialogPos initialDialogPos = view.GetViewInitialDialogPosition();
 	if((initialDialogPos == IView::DialogPos::Center) || (dialogMode == IView::DialogMode::Modal))
 	{
 		//Calculate the position and size of the main window
@@ -749,7 +746,7 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 			//If we're docking to any target other than the center, search the list of
 			//currently docked child windows in the main docking window for the first
 			//window that's docked at the target location.
-			WC_DockPanel::DockLocation initialDockPosAsDockPanelDockLocation = ViewDockLocationToDockPanelDockLocation(initialDockPos);
+			IDockingWindow::WindowEdge initialDockPosAsDockPanelDockLocation = ViewDockLocationToDockingWindowEdge(initialDockPos);
 			unsigned int currentDockedWindowNo = 0;
 			unsigned int dockedWindowCount = (unsigned int)SendMessage(mainDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowCount, 0, 0);
 			while((dockingWindow == NULL) && (currentDockedWindowNo < dockedWindowCount))
@@ -784,7 +781,7 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 		DockingWindow::RegisterWindowClass(viewManagerAssemblyHandle);
 
 		//Create a docking window to host this content window
-		DWORD dockingWindowStyle = WS_SIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_POPUP;
+		DWORD dockingWindowStyle = WS_SIZEBOX | WS_MAXIMIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_POPUP;
 		DWORD dockingWindowExtendedStyle = WS_EX_TOOLWINDOW;
 		dockingWindow = CreateWindowEx(dockingWindowExtendedStyle, DockingWindow::windowClassName, L"", dockingWindowStyle, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mainWindow, NULL, viewManagerAssemblyHandle, NULL);
 
@@ -813,7 +810,7 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 		if(viewInitiallyDocked)
 		{
 			//Determine the initial docking location for this new docking window
-			WC_DockPanel::DockLocation dockPanelDockPos = ViewDockLocationToDockPanelDockLocation(initialDockPos);
+			IDockingWindow::WindowEdge dockPanelDockPos = ViewDockLocationToDockingWindowEdge(initialDockPos);
 
 			//Add the new docking window to the main docking window
 			DockingWindow::AddDockedWindowParams addDockedWindowParams;
@@ -1054,6 +1051,15 @@ bool ViewManager::IsDockingWindow(HWND windowHandle)
 	//true, otherwise return false.
 	std::wstring windowClassName = GetClassName(windowHandle);
 	return (windowClassName == DockingWindow::windowClassName);
+}
+
+//----------------------------------------------------------------------------------------
+bool ViewManager::IsDashboardWindow(HWND windowHandle)
+{
+	//If the class name of the target window matches the dashboard window class name,
+	//return true, otherwise return false.
+	std::wstring windowClassName = GetClassName(windowHandle);
+	return (windowClassName == DashboardWindow::windowClassName);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1377,6 +1383,29 @@ std::wstring ViewManager::BuildQualifiedWindowTitle(IView& view, IViewPresenter&
 }
 
 //----------------------------------------------------------------------------------------
+//Dialog management functions
+//----------------------------------------------------------------------------------------
+void ViewManager::NotifyDialogActivated(HWND dialogWindow)
+{
+	activeDialogWindow = dialogWindow;
+}
+
+//----------------------------------------------------------------------------------------
+void ViewManager::NotifyDialogDeactivated(HWND dialogWindow)
+{
+	if(activeDialogWindow == dialogWindow)
+	{
+		activeDialogWindow = NULL;
+	}
+}
+
+//----------------------------------------------------------------------------------------
+HWND ViewManager::GetActiveDialogWindow() const
+{
+	return activeDialogWindow;
+}
+
+//----------------------------------------------------------------------------------------
 //View closing helper functions
 //----------------------------------------------------------------------------------------
 void ViewManager::CloseViewsForSystem()
@@ -1517,6 +1546,10 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 		existingViewSet.insert(i->first);
 	}
 	lock.unlock();
+
+	//Build a list of all currently open dashboard windows to close
+	std::list<HWND> dashboardWindowList;
+	InvokeOnUIThread(std::bind(std::mem_fn(&ViewManager::BuildCurrentlyOpenDashboardWindowList), this, std::ref(dashboardWindowList)));
 
 	//Build a list of all currently open docking which need to be closed after the layout
 	//load operation is complete. Since we don't attempt to reuse docking or dialog
@@ -1690,18 +1723,16 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 		}
 	}
 
+	//Destroy any previously open dashboard windows
+	InvokeOnUIThread(std::bind(std::mem_fn(&ViewManager::CloseWindows), this, std::ref(dashboardWindowList)));
+
 	//Delete any created placeholder windows which were not used in this load operation.
 	//Note that this can occur with incomplete or malformed workspace files.
-	for(std::map<unsigned int, PlaceholderWindowInfo>::const_iterator i = placeholderWindowsForViewLayout.begin(); i != placeholderWindowsForViewLayout.end(); ++i)
-	{
-		const PlaceholderWindowInfo& placeholderWindowInfo = i->second;
-		SendMessage(placeholderWindowInfo.parentWindowFrame, (UINT)DockingWindow::WindowMessages::RemoveContentWindow, 0, (LPARAM)placeholderWindowInfo.placeholderContentWindow);
-		DestroyWindow(placeholderWindowInfo.placeholderContentWindow);
-	}
+	InvokeOnUIThread(std::bind(std::mem_fn(&ViewManager::DestroyUnusedPlaceholderWindows), this, std::ref(placeholderWindowsForViewLayout)));
 	placeholderWindowsForViewLayout.clear();
 
 	//Destroy any existing windows which are no longer being used
-	InvokeOnUIThread(std::bind(std::mem_fn(&ViewManager::CloseExistingWindows), this, std::ref(existingDockingWindowsToClose)));
+	InvokeOnUIThread(std::bind(std::mem_fn(&ViewManager::CloseWindows), this, std::ref(existingDockingWindowsToClose)));
 
 	return true;
 }
@@ -1796,8 +1827,9 @@ bool ViewManager::SaveViewLayout(IHierarchicalStorageNode& viewLayout) const
 		//Determine the type of the target window
 		HWND hwnd = *i;
 		bool isDockingWindow = IsDockingWindow(hwnd);
+		bool isDashboardWindow = IsDockingWindow(hwnd);
 		bool isDialogFrame = IsDialogFrame(hwnd);
-		if(!isDockingWindow && !isDialogFrame)
+		if(!isDockingWindow && !isDashboardWindow && !isDialogFrame)
 		{
 			continue;
 		}
@@ -1846,6 +1878,15 @@ bool ViewManager::SaveViewLayout(IHierarchicalStorageNode& viewLayout) const
 			windowFrameNode.CreateAttribute(L"SizeX", windowWidth);
 			windowFrameNode.CreateAttribute(L"SizeY", windowHeight);
 			SaveDockingWindowFrameStateToViewLayout(hwnd, windowFrameNode, windowHandleToIDForViewLayout, nextWindowID);
+		}
+		else if(isDashboardWindow)
+		{
+			IHierarchicalStorageNode& windowFrameNode = floatingWindowsNode.CreateChild(L"DashboardWindowFrame");
+			windowFrameNode.CreateAttribute(L"PosX", windowPosX);
+			windowFrameNode.CreateAttribute(L"PosY", windowPosY);
+			windowFrameNode.CreateAttribute(L"SizeX", windowWidth);
+			windowFrameNode.CreateAttribute(L"SizeY", windowHeight);
+			SaveDashboardWindowFrameStateToViewLayout(hwnd, windowFrameNode, windowHandleToIDForViewLayout, nextWindowID);
 		}
 		else if(isDialogFrame)
 		{
@@ -1987,7 +2028,10 @@ void ViewManager::LoadMainWindowStateFromViewLayout(IHierarchicalStorageNode& ma
 			else if(floatingWindowNodeName == L"DockingWindowFrame")
 			{
 				//Create this floating docking window
-				HWND floatingDockingWindow = LoadDockingWindowFrameFromViewLayout(NULL, *floatingWindowNode);
+				HWND floatingDockingWindow = LoadDockingWindowFrameFromViewLayout(*floatingWindowNode);
+
+				//Show the floating docking window
+				BindLoadedWindowFrameWithNoParent(floatingDockingWindow, *floatingWindowNode);
 
 				//Load all children of the created floating docking window
 				CreateDockingWindowChildrenFromViewLayout(floatingDockingWindow, *floatingWindowNode, placeholderWindows);
@@ -2076,13 +2120,13 @@ HWND ViewManager::LoadDialogWindowFrameFromViewLayout(IHierarchicalStorageNode& 
 }
 
 //----------------------------------------------------------------------------------------
-HWND ViewManager::LoadDockingWindowFrameFromViewLayout(HWND parentDockingWindow, IHierarchicalStorageNode& dockingWindowState) const
+HWND ViewManager::LoadDockingWindowFrameFromViewLayout(IHierarchicalStorageNode& dockingWindowState) const
 {
 	//Ensure the docking window class is registered
 	DockingWindow::RegisterWindowClass(viewManagerAssemblyHandle);
 
 	//Create the docking window
-	DWORD dockingWindowStyle = WS_SIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_POPUP;
+	DWORD dockingWindowStyle = WS_SIZEBOX | WS_MAXIMIZEBOX | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW | WS_CAPTION | WS_POPUP;
 	DWORD dockingWindowExtendedStyle = WS_EX_TOOLWINDOW;
 	HWND dockingWindow = CreateWindowEx(dockingWindowExtendedStyle, DockingWindow::windowClassName, L"", dockingWindowStyle, 0, 0, 0, 0, mainWindow, NULL, viewManagerAssemblyHandle, NULL);
 
@@ -2091,96 +2135,173 @@ HWND ViewManager::LoadDockingWindowFrameFromViewLayout(HWND parentDockingWindow,
 	HFONT dockingWindowFont = (HFONT)SendMessage(mainDockingWindow, WM_GETFONT, 0, 0);
 	SendMessage(dockingWindow, WM_SETFONT, (WPARAM)dockingWindowFont, (LPARAM)TRUE);
 
-	//If this new docking window has a target parent docking window, dock it into the
-	//parent, otherwise position and size this docking window as a top-level docking
-	//window.
-	if(parentDockingWindow == NULL)
-	{
-		//Extract any provided attributes for this floating docking window
-		IHierarchicalStorageAttribute* posXAttribute = dockingWindowState.GetAttribute(L"PosX");
-		IHierarchicalStorageAttribute* posYAttribute = dockingWindowState.GetAttribute(L"PosY");
-		IHierarchicalStorageAttribute* sizeXAttribute = dockingWindowState.GetAttribute(L"SizeX");
-		IHierarchicalStorageAttribute* sizeYAttribute = dockingWindowState.GetAttribute(L"SizeY");
-		int posX = (posXAttribute != 0)? posXAttribute->ExtractValue<int>(): 0;
-		int posY = (posYAttribute != 0)? posYAttribute->ExtractValue<int>(): 0;
-		int sizeX = (sizeXAttribute != 0)? sizeXAttribute->ExtractValue<int>(): 0;
-		int sizeY = (sizeYAttribute != 0)? sizeYAttribute->ExtractValue<int>(): 0;
-
-		//Adjust the view position and size to convert from DPI-independent values
-		posX = DPIScaleWidth(posX);
-		posY = DPIScaleHeight(posY);
-		sizeX = DPIScaleWidth(sizeX);
-		sizeY = DPIScaleHeight(sizeY);
-
-		//Retrieve any hidden border sizes around the docking window
-		int borderLeft;
-		int borderRight;
-		int borderTop;
-		int borderBottom;
-		GetHiddenBorderDimensions(dockingWindow, borderLeft, borderRight, borderTop, borderBottom);
-
-		//Convert the view position from coordinates relative to the main window, into
-		//screen coordinates.
-		POINT windowPos;
-		windowPos.x = posX - borderLeft;
-		windowPos.y = posY - borderTop;
-		ClientToScreen(mainWindow, &windowPos);
-		int finalWindowPosX = (int)windowPos.x;
-		int finalWindowPosY = (int)windowPos.y;
-
-		//Calculate the total window size to use in order to achieve a client region
-		//within the docking window of the specified size
-		RECT clientRect;
-		clientRect.left = 0;
-		clientRect.top = 0;
-		clientRect.right = sizeX;
-		clientRect.bottom = sizeY;
-		AdjustWindowRectEx(&clientRect, dockingWindowStyle, FALSE, dockingWindowExtendedStyle);
-		int adjustedWindowWidth = clientRect.right - clientRect.left;
-		int adjustedWindowHeight = clientRect.bottom - clientRect.top;
-
-		//Position and size the floating docking window
-		SetWindowPos(dockingWindow, NULL, finalWindowPosX, finalWindowPosY, adjustedWindowWidth, adjustedWindowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOREPOSITION);
-
-		//Show the docking window
-		SetWindowPos(dockingWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-	}
-	else
-	{
-		//Extract any provided attributes for this docked window
-		IHierarchicalStorageAttribute* dockPosAttribute = dockingWindowState.GetAttribute(L"DockPos");
-		IHierarchicalStorageAttribute* autoHideAttribute = dockingWindowState.GetAttribute(L"AutoHide");
-		IHierarchicalStorageAttribute* desiredWidthAttribute = dockingWindowState.GetAttribute(L"DesiredWidth");
-		IHierarchicalStorageAttribute* desiredHeightAttribute = dockingWindowState.GetAttribute(L"DesiredHeight");
-		WC_DockPanel::DockLocation dockLocation = (dockPosAttribute != 0)? StringToDockLocation(dockPosAttribute->GetValue()): WC_DockPanel::DockLocation::Left;
-		bool autoHide = (autoHideAttribute != 0)? autoHideAttribute->ExtractValue<bool>(): false;
-		int desiredWidth = (desiredWidthAttribute != 0)? desiredWidthAttribute->ExtractValue<int>(): 200;
-		int desiredHeight = (desiredHeightAttribute != 0)? desiredHeightAttribute->ExtractValue<int>(): 200;
-
-		//Convert the child docking window size from a DPI-independent value
-		desiredWidth = DPIScaleWidth(desiredWidth);
-		desiredHeight = DPIScaleHeight(desiredHeight);
-
-		//Resize the child docking window to the desired size
-		SetWindowPos(dockingWindow, NULL, 0, 0, desiredWidth, desiredHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOREPOSITION | SWP_NOMOVE);
-
-		//Add the docking window to the parent docking window
-		DockingWindow::AddDockedWindowParams addDockedWindowParams;
-		addDockedWindowParams.hwnd = dockingWindow;
-		addDockedWindowParams.dockLocation = dockLocation;
-		addDockedWindowParams.forceToTopOfDockingOrder = false;
-		addDockedWindowParams.autoHide = autoHide;
-		SendMessage(parentDockingWindow, (UINT)DockingWindow::WindowMessages::AddDockedWindow, 0, (LPARAM)&addDockedWindowParams);
-
-		//Show the docking window if required
-		if(!autoHide)
-		{
-			SetWindowPos(dockingWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-		}
-	}
-
 	//Return the created docking window to the caller
 	return dockingWindow;
+}
+
+//----------------------------------------------------------------------------------------
+HWND ViewManager::LoadDashboardWindowFrameFromViewLayout(IHierarchicalStorageNode& dashboardWindowState) const
+{
+	//Ensure the dashboard window class is registered
+	DashboardWindow::RegisterWindowClass(viewManagerAssemblyHandle);
+
+	//Save the title of the dashboard window
+	std::wstring dashboardTitle;
+	IHierarchicalStorageAttribute* titleAttribute = dashboardWindowState.GetAttribute(L"Title");
+	if(titleAttribute != 0)
+	{
+		dashboardTitle = titleAttribute->GetValue();
+	}
+
+	//Create the dashboard window
+	DWORD dashboardWindowStyle = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_SIZEBOX | WS_MAXIMIZEBOX | WS_CLIPCHILDREN;
+	DWORD dashboardWindowExtendedStyle = WS_EX_TOOLWINDOW;
+	HWND dashboardWindow = CreateWindowEx(dashboardWindowExtendedStyle, DashboardWindow::windowClassName, dashboardTitle.c_str(), dashboardWindowStyle, 0, 0, 0, 0, mainWindow, NULL, viewManagerAssemblyHandle, NULL);
+
+	//Set the font for our new dashboard window based on the current font for the main
+	//docking window
+	HFONT dashboardWindowFont = (HFONT)SendMessage(mainDockingWindow, WM_GETFONT, 0, 0);
+	SendMessage(dashboardWindow, WM_SETFONT, (WPARAM)dashboardWindowFont, (LPARAM)TRUE);
+
+	//Restore the region layout, with no windows assigned to each region.
+	std::list<DashboardWindow::DividerListEntry> dividerList;
+	IHierarchicalStorageNode* regionLayoutNode = dashboardWindowState.GetChild(L"RegionLayout");
+	if(regionLayoutNode != 0)
+	{
+		IHierarchicalStorageNode* dividerListNode = regionLayoutNode->GetChild(L"DividerList");
+		if(dividerListNode != 0)
+		{
+			IHierarchicalStorageNode* dividerListEntryNode = dividerListNode->GetChild(L"DividerListEntry");
+			while(dividerListEntryNode != 0)
+			{
+				IHierarchicalStorageAttribute* dividerIDAttribute = dividerListEntryNode->GetAttribute(L"DividerID");
+				IHierarchicalStorageAttribute* parentDividerIDAttribute = dividerListEntryNode->GetAttribute(L"ParentDividerID");
+				IHierarchicalStorageAttribute* dividerDistanceAlongParentAttribute = dividerListEntryNode->GetAttribute(L"DistanceAlongParent");
+				if((dividerIDAttribute != 0) && (parentDividerIDAttribute != 0) && (dividerDistanceAlongParentAttribute != 0))
+				{
+					DashboardWindow::DividerListEntry entry;
+					dividerIDAttribute->ExtractValue(entry.dividerID);
+					parentDividerIDAttribute->ExtractValue(entry.parentDividerID);
+					dividerDistanceAlongParentAttribute->ExtractValue(entry.dividerDistanceAlongParent);
+					//##FIX## We don't know whether this is a horizontal or vertical
+					//dimension for DPI conversion purposes
+					entry.dividerDistanceAlongParent = DPIScaleWidth(entry.dividerDistanceAlongParent);
+					dividerList.push_back(entry);
+				}
+				dividerListEntryNode = dividerListNode->GetChild(L"DividerListEntry", dividerListEntryNode);
+			}
+		}
+	}
+	SendMessage(dashboardWindow, (UINT)DashboardWindow::WindowMessages::LoadLayoutFromDividerList, 0, (LPARAM)&dividerList);
+
+	//Return the created dashboard window to the caller
+	return dashboardWindow;
+}
+
+//----------------------------------------------------------------------------------------
+void ViewManager::BindLoadedWindowFrameWithNoParent(HWND loadedWindow, IHierarchicalStorageNode& windowState) const
+{
+	//Extract any provided attributes for this floating window
+	IHierarchicalStorageAttribute* posXAttribute = windowState.GetAttribute(L"PosX");
+	IHierarchicalStorageAttribute* posYAttribute = windowState.GetAttribute(L"PosY");
+	IHierarchicalStorageAttribute* sizeXAttribute = windowState.GetAttribute(L"SizeX");
+	IHierarchicalStorageAttribute* sizeYAttribute = windowState.GetAttribute(L"SizeY");
+	int posX = (posXAttribute != 0)? posXAttribute->ExtractValue<int>(): 0;
+	int posY = (posYAttribute != 0)? posYAttribute->ExtractValue<int>(): 0;
+	int sizeX = (sizeXAttribute != 0)? sizeXAttribute->ExtractValue<int>(): 0;
+	int sizeY = (sizeYAttribute != 0)? sizeYAttribute->ExtractValue<int>(): 0;
+
+	//Adjust the view position and size to convert from DPI-independent values
+	posX = DPIScaleWidth(posX);
+	posY = DPIScaleHeight(posY);
+	sizeX = DPIScaleWidth(sizeX);
+	sizeY = DPIScaleHeight(sizeY);
+
+	//Retrieve any hidden border sizes around the floating window
+	int borderLeft;
+	int borderRight;
+	int borderTop;
+	int borderBottom;
+	GetHiddenBorderDimensions(loadedWindow, borderLeft, borderRight, borderTop, borderBottom);
+
+	//Convert the view position from coordinates relative to the main window, into
+	//screen coordinates.
+	POINT windowPos;
+	windowPos.x = posX - borderLeft;
+	windowPos.y = posY - borderTop;
+	ClientToScreen(mainWindow, &windowPos);
+	int finalWindowPosX = (int)windowPos.x;
+	int finalWindowPosY = (int)windowPos.y;
+
+	//Retrieve the window style settings for the floating window
+	unsigned int windowStyle = (unsigned int)GetWindowLongPtr(loadedWindow, GWL_STYLE);
+	unsigned int extendedWindowStyle = (unsigned int)GetWindowLongPtr(loadedWindow, GWL_EXSTYLE);
+
+	//Calculate the total window size to use in order to achieve a client region
+	//within the dashboard window of the specified size
+	RECT clientRect;
+	clientRect.left = 0;
+	clientRect.top = 0;
+	clientRect.right = sizeX;
+	clientRect.bottom = sizeY;
+	AdjustWindowRectEx(&clientRect, windowStyle, FALSE, extendedWindowStyle);
+	int adjustedWindowWidth = clientRect.right - clientRect.left;
+	int adjustedWindowHeight = clientRect.bottom - clientRect.top;
+
+	//Position and size the floating dashboard window
+	SetWindowPos(loadedWindow, NULL, finalWindowPosX, finalWindowPosY, adjustedWindowWidth, adjustedWindowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOREPOSITION);
+
+	//Show the dashboard window
+	SetWindowPos(loadedWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+}
+
+//----------------------------------------------------------------------------------------
+void ViewManager::BindLoadedWindowFrameWithDockingParent(HWND loadedWindow, IHierarchicalStorageNode& windowState, HWND parentDockingWindow) const
+{
+	//Extract any provided attributes for this docked window
+	IHierarchicalStorageAttribute* dockPosAttribute = windowState.GetAttribute(L"DockPos");
+	IHierarchicalStorageAttribute* autoHideAttribute = windowState.GetAttribute(L"AutoHide");
+	IHierarchicalStorageAttribute* desiredWidthAttribute = windowState.GetAttribute(L"DesiredWidth");
+	IHierarchicalStorageAttribute* desiredHeightAttribute = windowState.GetAttribute(L"DesiredHeight");
+	IDockingWindow::WindowEdge dockLocation = (dockPosAttribute != 0)? StringToDockingWindowEdge(dockPosAttribute->GetValue()): IDockingWindow::WindowEdge::Left;
+	bool autoHide = (autoHideAttribute != 0)? autoHideAttribute->ExtractValue<bool>(): false;
+	int desiredWidth = (desiredWidthAttribute != 0)? desiredWidthAttribute->ExtractValue<int>(): 200;
+	int desiredHeight = (desiredHeightAttribute != 0)? desiredHeightAttribute->ExtractValue<int>(): 200;
+
+	//Convert the child docking window size from a DPI-independent value
+	desiredWidth = DPIScaleWidth(desiredWidth);
+	desiredHeight = DPIScaleHeight(desiredHeight);
+
+	//Resize the child docking window to the desired size
+	SetWindowPos(loadedWindow, NULL, 0, 0, desiredWidth, desiredHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOREPOSITION | SWP_NOMOVE);
+
+	//Add the loaded window to the parent docking window
+	DockingWindow::AddDockedWindowParams addDockedWindowParams;
+	addDockedWindowParams.hwnd = loadedWindow;
+	addDockedWindowParams.dockLocation = dockLocation;
+	addDockedWindowParams.forceToTopOfDockingOrder = false;
+	addDockedWindowParams.autoHide = autoHide;
+	SendMessage(parentDockingWindow, (UINT)DockingWindow::WindowMessages::AddDockedWindow, 0, (LPARAM)&addDockedWindowParams);
+
+	//Show the window if required
+	if(!autoHide)
+	{
+		SetWindowPos(loadedWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void ViewManager::BindLoadedWindowFrameWithDashboardParent(HWND loadedWindow, IHierarchicalStorageNode& windowState, HWND parentDockingWindow) const
+{
+	//Extract any provided attributes for this docked window
+	IHierarchicalStorageAttribute* regionNoAttribute = windowState.GetAttribute(L"RegionNo");
+	int regionNo = (regionNoAttribute != 0)? regionNoAttribute->ExtractValue<int>(): 0;
+
+	//Add the loaded window to the parent dashboard window
+	SendMessage(parentDockingWindow, (UINT)DashboardWindow::WindowMessages::SetRegionWindow, (WPARAM)regionNo, (LPARAM)loadedWindow);
+
+	//Show the window if required
+	SetWindowPos(loadedWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
 //----------------------------------------------------------------------------------------
@@ -2194,57 +2315,149 @@ void ViewManager::CreateDockingWindowChildrenFromViewLayout(HWND dockingWindow, 
 	bool dockingWindowHasChildContent = (SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::GetContentWindowCount, 0, 0) != 0);
 
 	//Create placeholders for each content window in this docking window
-	IHierarchicalStorageNode* hostedWindowNode = dockingWindowState.GetChild(L"HostedWindow");
-	while(hostedWindowNode != 0)
+	IHierarchicalStorageNode* hostedContentWindowsNode = dockingWindowState.GetChild(L"HostedContentWindows");
+	if(hostedContentWindowsNode != 0)
 	{
-		//Create a placeholder window for this docked window
-		IHierarchicalStorageAttribute* windowIDAttribute = hostedWindowNode->GetAttribute(L"WindowID");
-		IHierarchicalStorageAttribute* viewTypeAttribute = hostedWindowNode->GetAttribute(L"ViewType");
-		if((windowIDAttribute != 0) && (viewTypeAttribute != 0))
+		std::list<IHierarchicalStorageNode*> childNodeList = hostedContentWindowsNode->GetChildList();
+		for(std::list<IHierarchicalStorageNode*>::const_iterator i = childNodeList.begin(); i != childNodeList.end(); ++i)
 		{
-			//Extract the view type for the placeholder window
-			IView::ViewType viewType = StringToViewType(viewTypeAttribute->GetValue());
+			IHierarchicalStorageNode& hostedWindowNode = *(*i);
+			if(hostedWindowNode.GetName() == L"HostedWindow")
+			{
+				//Create a placeholder window for this docked window
+				IHierarchicalStorageAttribute* windowIDAttribute = hostedWindowNode.GetAttribute(L"WindowID");
+				IHierarchicalStorageAttribute* viewTypeAttribute = hostedWindowNode.GetAttribute(L"ViewType");
+				if((windowIDAttribute != 0) && (viewTypeAttribute != 0))
+				{
+					//Extract the view type for the placeholder window
+					IView::ViewType viewType = StringToViewType(viewTypeAttribute->GetValue());
 
-			//Create the placeholder window
-			unsigned int windowID = windowIDAttribute->ExtractHexValue<unsigned int>();
-			HWND placeholderWindow = CreateWindowEx(0, WC_STATIC, L"", 0, 0, 0, 0, 0, NULL, NULL, viewManagerAssemblyHandle, NULL);
+					//Create the placeholder window
+					unsigned int windowID = windowIDAttribute->ExtractHexValue<unsigned int>();
+					HWND placeholderWindow = CreateWindowEx(0, WC_STATIC, L"", 0, 0, 0, 0, 0, NULL, NULL, viewManagerAssemblyHandle, NULL);
 
-			//Add this placeholder window as a content window of the docking window
-			DockingWindow::AddContentWindowParams addContentWindowParams;
-			addContentWindowParams.hwnd = placeholderWindow;
-			addContentWindowParams.windowTitle = L"";
-			SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::AddContentWindow, 0, (LPARAM)&addContentWindowParams);
+					//Add this placeholder window as a content window of the docking
+					//window
+					DockingWindow::AddContentWindowParams addContentWindowParams;
+					addContentWindowParams.hwnd = placeholderWindow;
+					addContentWindowParams.windowTitle = L"";
+					SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::AddContentWindow, 0, (LPARAM)&addContentWindowParams);
 
-			//Record information on this created placeholder window
-			PlaceholderWindowInfo placeholderWindowInfo;
-			placeholderWindowInfo.placeholderContentWindow = placeholderWindow;
-			placeholderWindowInfo.parentWindowFrame = dockingWindow;
-			placeholderWindowInfo.makeContentVisible = !dockingWindowHasChildContent;
-			placeholderWindowInfo.selectedContentWindow = (windowID == selectedContentWindowID);
-			placeholderWindowInfo.viewType = viewType;
-			placeholderWindows[windowID] = placeholderWindowInfo;
+					//Record information on this created placeholder window
+					PlaceholderWindowInfo placeholderWindowInfo;
+					placeholderWindowInfo.placeholderContentWindow = placeholderWindow;
+					placeholderWindowInfo.parentWindowFrame = dockingWindow;
+					placeholderWindowInfo.makeContentVisible = !dockingWindowHasChildContent;
+					placeholderWindowInfo.selectedContentWindow = (windowID == selectedContentWindowID);
+					placeholderWindowInfo.viewType = viewType;
+					placeholderWindows[windowID] = placeholderWindowInfo;
 
-			//Since the docking window now has at least one hosted content window, flag
-			//that it has child content.
-			dockingWindowHasChildContent = true;
+					//Since the docking window now has at least one hosted content window,
+					//flag that it has child content.
+					dockingWindowHasChildContent = true;
+				}
+			}
+			else if(hostedWindowNode.GetName() == L"DashboardWindowFrame")
+			{
+				//Create this child docking window
+				HWND childDashboardWindow = LoadDashboardWindowFrameFromViewLayout(hostedWindowNode);
+
+				//Attach the child docking window as a child of this docking window
+				BindLoadedWindowFrameWithDockingParent(childDashboardWindow, hostedWindowNode, dockingWindow);
+
+				//Load all children of the created child docking window
+				CreateDashboardWindowChildrenFromViewLayout(childDashboardWindow, hostedWindowNode, placeholderWindows);
+
+				//Add this dashboard window as a content window of the docking window
+				std::wstring dashboardTitle = GetWindowText(childDashboardWindow);
+				DockingWindow::AddContentWindowParams addContentWindowParams;
+				addContentWindowParams.hwnd = childDashboardWindow;
+				addContentWindowParams.windowTitle = dashboardTitle.c_str();
+				SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::AddContentWindow, 0, (LPARAM)&addContentWindowParams);
+
+				//Since the docking window now has at least one hosted content window,
+				//flag that it has child content.
+				dockingWindowHasChildContent = true;
+			}
 		}
-
-		//Advance to the next HostedWindow child node
-		hostedWindowNode = dockingWindowState.GetChild(L"HostedWindow", hostedWindowNode);
 	}
 
 	//Restore each child docking window of this docking window
-	IHierarchicalStorageNode* childDockedWindowNode = dockingWindowState.GetChild(L"DockingWindowFrame");
-	while(childDockedWindowNode != 0)
+	IHierarchicalStorageNode* hostedDockingWindowsNode = dockingWindowState.GetChild(L"HostedDockingWindows");
+	if(hostedDockingWindowsNode != 0)
 	{
-		//Create this child docking window
-		HWND childDockingWindow = LoadDockingWindowFrameFromViewLayout(dockingWindow, *childDockedWindowNode);
+		std::list<IHierarchicalStorageNode*> childNodeList = hostedDockingWindowsNode->GetChildList();
+		for(std::list<IHierarchicalStorageNode*>::const_iterator i = childNodeList.begin(); i != childNodeList.end(); ++i)
+		{
+			IHierarchicalStorageNode& hostedDockingWindowNode = *(*i);
+			if(hostedDockingWindowNode.GetName() == L"DockingWindowFrame")
+			{
+				//Create this child docking window
+				HWND childDockingWindow = LoadDockingWindowFrameFromViewLayout(hostedDockingWindowNode);
 
-		//Load all children of the created child docking window
-		CreateDockingWindowChildrenFromViewLayout(childDockingWindow, *childDockedWindowNode, placeholderWindows);
+				//Attach the child docking window as a child of this docking window
+				BindLoadedWindowFrameWithDockingParent(childDockingWindow, hostedDockingWindowNode, dockingWindow);
 
-		//Advance to the next DockedWindowState child node
-		childDockedWindowNode = dockingWindowState.GetChild(L"DockingWindowFrame", childDockedWindowNode);
+				//Load all children of the created child docking window
+				CreateDockingWindowChildrenFromViewLayout(childDockingWindow, hostedDockingWindowNode, placeholderWindows);
+			}
+			else if(hostedDockingWindowNode.GetName() == L"DashboardWindowFrame")
+			{
+				//Create this child docking window
+				HWND childDashboardWindow = LoadDashboardWindowFrameFromViewLayout(hostedDockingWindowNode);
+
+				//Attach the child docking window as a child of this docking window
+				BindLoadedWindowFrameWithDockingParent(childDashboardWindow, hostedDockingWindowNode, dockingWindow);
+
+				//Load all children of the created child docking window
+				CreateDashboardWindowChildrenFromViewLayout(childDashboardWindow, hostedDockingWindowNode, placeholderWindows);
+			}
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void ViewManager::CreateDashboardWindowChildrenFromViewLayout(HWND dashboardWindow, IHierarchicalStorageNode& dashboardWindowState, std::map<unsigned int, PlaceholderWindowInfo>& placeholderWindows) const
+{
+	//Create placeholders for each content window in this dashboard window
+	IHierarchicalStorageNode* hostedContentWindowsNode = dashboardWindowState.GetChild(L"HostedDockingWindows");
+	if(hostedContentWindowsNode != 0)
+	{
+		std::list<IHierarchicalStorageNode*> childNodeList = hostedContentWindowsNode->GetChildList();
+		for(std::list<IHierarchicalStorageNode*>::const_iterator i = childNodeList.begin(); i != childNodeList.end(); ++i)
+		{
+			IHierarchicalStorageNode& hostedWindowNode = *(*i);
+			if(hostedWindowNode.GetName() == L"DockingWindowFrame")
+			{
+				IHierarchicalStorageAttribute* regionNoAttribute = hostedWindowNode.GetAttribute(L"RegionNo");
+				if(regionNoAttribute != 0)
+				{
+					//Create this child docking window
+					HWND childDockingWindow = LoadDockingWindowFrameFromViewLayout(hostedWindowNode);
+
+					//Attach the child docking window as a child of this docking window
+					BindLoadedWindowFrameWithDashboardParent(childDockingWindow, hostedWindowNode, dashboardWindow);
+
+					//Load all children of the created child docking window
+					CreateDockingWindowChildrenFromViewLayout(childDockingWindow, hostedWindowNode, placeholderWindows);
+				}
+			}
+			else if(hostedWindowNode.GetName() == L"DashboardWindowFrame")
+			{
+				IHierarchicalStorageAttribute* regionNoAttribute = hostedWindowNode.GetAttribute(L"RegionNo");
+				if(regionNoAttribute != 0)
+				{
+					//Create this child dashboard window
+					HWND childDashboardWindow = LoadDashboardWindowFrameFromViewLayout(hostedWindowNode);
+
+					//Attach the child dashboard window as a child of this docking window
+					BindLoadedWindowFrameWithDashboardParent(childDashboardWindow, hostedWindowNode, dashboardWindow);
+
+					//Load all children of the created child dashboard window
+					CreateDashboardWindowChildrenFromViewLayout(childDashboardWindow, hostedWindowNode, placeholderWindows);
+				}
+			}
+		}
 	}
 }
 
@@ -2306,12 +2519,29 @@ void ViewManager::SaveDockingWindowFrameStateToViewLayout(HWND dockingWindow, IH
 
 	//Save information on each hosted content window in the target docking window, and
 	//attempt to retrieve the window ID of the currently selected content window.
+	IHierarchicalStorageNode* hostedContentWindowsNode = 0;
 	bool activeHostedWindowIDDefined = false;
 	unsigned int activeHostedWindowID;
 	for(std::map<int, DockingWindow::GetContentWindowInfo>::const_iterator i = contentWindowInfoList.begin(); i != contentWindowInfoList.end(); ++i)
 	{
-		//Attempt to retrieve information on this open window
+		//Create a node for these hosted content windows if it doesn't exist yet
+		if(hostedContentWindowsNode == 0)
+		{
+			hostedContentWindowsNode = &dockedWindowState.CreateChild(L"HostedContentWindows");
+		}
+
+		//If this hosted content window is a dashboard window, save info on the dashboard,
+		//and advance to the next content window.
 		const DockingWindow::GetContentWindowInfo& contentWindowInfo = i->second;
+		if(IsDashboardWindow(contentWindowInfo.hwnd))
+		{
+			IHierarchicalStorageNode& childDockedWindowNode = hostedContentWindowsNode->CreateChild(L"DashboardWindowFrame");
+			childDockedWindowNode.CreateAttribute(L"DockedAsContent", true);
+			SaveDashboardWindowFrameStateToViewLayout(contentWindowInfo.hwnd, childDockedWindowNode, windowHandleToID, nextWindowID);
+			continue;
+		}
+
+		//Attempt to retrieve information on this open window
 		std::map<HWND, OpenWindowInfo>::const_iterator windowInfoIterator = windowInfoSet.find(contentWindowInfo.hwnd);
 		if(windowInfoIterator == windowInfoSet.end())
 		{
@@ -2341,7 +2571,7 @@ void ViewManager::SaveDockingWindowFrameStateToViewLayout(HWND dockingWindow, IH
 		//change with revisions of the extension defining the view, or even with what
 		//language is currently selected in future versions of the platform.
 		IView::ViewType viewType = windowInfo.view.GetViewType();
-		IHierarchicalStorageNode& hostedWindowState = dockedWindowState.CreateChild(L"HostedWindow");
+		IHierarchicalStorageNode& hostedWindowState = hostedContentWindowsNode->CreateChild(L"HostedWindow");
 		hostedWindowState.CreateAttribute(L"WindowID", windowID);
 		hostedWindowState.CreateAttribute(L"ViewType", ViewTypeToString(viewType));
 		hostedWindowState.CreateAttribute(L"WindowTitle", std::wstring(contentWindowInfo.windowTitle));
@@ -2355,19 +2585,92 @@ void ViewManager::SaveDockingWindowFrameStateToViewLayout(HWND dockingWindow, IH
 	}
 
 	//Save information on each child docking window in the target docking window
+	IHierarchicalStorageNode* hostedDockingWindowsNode = 0;
 	unsigned int dockedWindowCount = (unsigned int)SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowCount, 0, 0);
 	for(unsigned int dockedWindowNo = 0; dockedWindowNo < dockedWindowCount; ++dockedWindowNo)
 	{
+		//Create a node for these docked windows if it doesn't exist yet
+		if(hostedDockingWindowsNode == 0)
+		{
+			hostedDockingWindowsNode = &dockedWindowState.CreateChild(L"HostedDockingWindows");
+		}
+
+		//Save info on this docked window
 		DockingWindow::GetDockedWindowInfo getDockedWindowInfo;
 		if(SendMessage(dockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowInfo, (WPARAM)dockedWindowNo, (LPARAM)&getDockedWindowInfo) == 0)
 		{
-			IHierarchicalStorageNode& childDockedWindowNode = dockedWindowState.CreateChild(L"DockingWindowFrame");
-			childDockedWindowNode.CreateAttribute(L"DockPos", DockLocationToString(getDockedWindowInfo.dockLocation));
-			childDockedWindowNode.CreateAttribute(L"AutoHide", getDockedWindowInfo.autoHide);
-			childDockedWindowNode.CreateAttribute(L"DesiredWidth", DPIReverseScaleWidth(getDockedWindowInfo.desiredWidth));
-			childDockedWindowNode.CreateAttribute(L"DesiredHeight", DPIReverseScaleHeight(getDockedWindowInfo.desiredHeight));
-			SaveDockingWindowFrameStateToViewLayout(getDockedWindowInfo.hwnd, childDockedWindowNode, windowHandleToID, nextWindowID);
+			if(IsDockingWindow(getDockedWindowInfo.hwnd))
+			{
+				IHierarchicalStorageNode& childDockedWindowNode = hostedDockingWindowsNode->CreateChild(L"DockingWindowFrame");
+				childDockedWindowNode.CreateAttribute(L"DockPos", DockingWindowEdgeToString(getDockedWindowInfo.dockLocation));
+				childDockedWindowNode.CreateAttribute(L"AutoHide", getDockedWindowInfo.autoHide);
+				childDockedWindowNode.CreateAttribute(L"DesiredWidth", DPIReverseScaleWidth(getDockedWindowInfo.desiredWidth));
+				childDockedWindowNode.CreateAttribute(L"DesiredHeight", DPIReverseScaleHeight(getDockedWindowInfo.desiredHeight));
+				SaveDockingWindowFrameStateToViewLayout(getDockedWindowInfo.hwnd, childDockedWindowNode, windowHandleToID, nextWindowID);
+			}
+			else if(IsDashboardWindow(getDockedWindowInfo.hwnd))
+			{
+				IHierarchicalStorageNode& childDockedWindowNode = hostedDockingWindowsNode->CreateChild(L"DashboardWindowFrame");
+				childDockedWindowNode.CreateAttribute(L"DockPos", DockingWindowEdgeToString(getDockedWindowInfo.dockLocation));
+				childDockedWindowNode.CreateAttribute(L"AutoHide", getDockedWindowInfo.autoHide);
+				childDockedWindowNode.CreateAttribute(L"DesiredWidth", DPIReverseScaleWidth(getDockedWindowInfo.desiredWidth));
+				childDockedWindowNode.CreateAttribute(L"DesiredHeight", DPIReverseScaleHeight(getDockedWindowInfo.desiredHeight));
+				SaveDashboardWindowFrameStateToViewLayout(getDockedWindowInfo.hwnd, childDockedWindowNode, windowHandleToID, nextWindowID);
+			}
 		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+void ViewManager::SaveDashboardWindowFrameStateToViewLayout(HWND dashboardWindow, IHierarchicalStorageNode& dashboardWindowState, std::map<HWND, unsigned int>& windowHandleToID, unsigned int& nextWindowID) const
+{
+	//Save the title of the dashboard window
+	dashboardWindowState.CreateAttribute(L"Title", GetWindowText(dashboardWindow));
+
+	//Save information on each child docking window in the target docking window
+	IHierarchicalStorageNode* hostedDockingWindowsNode = 0;
+	unsigned int regionCount = (unsigned int)SendMessage(dashboardWindow, (UINT)DashboardWindow::WindowMessages::GetRegionCount, 0, 0);
+	for(unsigned int regionNo = 0; regionNo < regionCount; ++regionNo)
+	{
+		//Create a node for these docked windows if it doesn't exist yet
+		if(hostedDockingWindowsNode == 0)
+		{
+			hostedDockingWindowsNode = &dashboardWindowState.CreateChild(L"HostedDockingWindows");
+		}
+
+		//Save info on this docked window
+		HWND dockedWindow = (HWND)SendMessage(dashboardWindow, (UINT)DashboardWindow::WindowMessages::GetRegionWindow, (WPARAM)regionNo, 0);
+		if(dockedWindow != NULL)
+		{
+			if(IsDockingWindow(dockedWindow))
+			{
+				IHierarchicalStorageNode& childDockedWindowNode = hostedDockingWindowsNode->CreateChild(L"DockingWindowFrame");
+				childDockedWindowNode.CreateAttribute(L"RegionNo", regionNo);
+				SaveDockingWindowFrameStateToViewLayout(dockedWindow, childDockedWindowNode, windowHandleToID, nextWindowID);
+			}
+			else if(IsDashboardWindow(dockedWindow))
+			{
+				IHierarchicalStorageNode& childDockedWindowNode = hostedDockingWindowsNode->CreateChild(L"DashboardWindowFrame");
+				childDockedWindowNode.CreateAttribute(L"RegionNo", regionNo);
+				SaveDashboardWindowFrameStateToViewLayout(dockedWindow, childDockedWindowNode, windowHandleToID, nextWindowID);
+			}
+		}
+	}
+
+	//Save info on the region layout for the dashboard window
+	IHierarchicalStorageNode& regionLayoutNode = dashboardWindowState.CreateChild(L"RegionLayout");
+	IHierarchicalStorageNode& dividerListNode = regionLayoutNode.CreateChild(L"DividerList");
+	std::list<DashboardWindow::DividerListEntry> dividerList;
+	SendMessage(dashboardWindow, (UINT)DashboardWindow::WindowMessages::SaveLayoutToDividerList, 0, (LPARAM)&dividerList);
+	for(std::list<DashboardWindow::DividerListEntry>::const_iterator i = dividerList.begin(); i != dividerList.end(); ++i)
+	{
+		const DashboardWindow::DividerListEntry& entry = *i;
+		IHierarchicalStorageNode& dividerListEntryNode = dividerListNode.CreateChild(L"DividerListEntry");
+		dividerListEntryNode.CreateAttribute(L"DividerID", entry.dividerID);
+		dividerListEntryNode.CreateAttribute(L"ParentDividerID", entry.parentDividerID);
+		//##FIX## We don't know whether this is a horizontal or vertical dimension for DPI
+		//conversion purposes
+		dividerListEntryNode.CreateAttribute(L"DistanceAlongParent", DPIReverseScaleWidth(entry.dividerDistanceAlongParent));
 	}
 }
 
@@ -2387,7 +2690,7 @@ void ViewManager::BuildExistingWindowsToCloseList(std::list<HWND>& existingWindo
 }
 
 //----------------------------------------------------------------------------------------
-void ViewManager::CloseExistingWindows(const std::list<HWND>& existingWindowsToClose)
+void ViewManager::CloseWindows(const std::list<HWND>& existingWindowsToClose) const
 {
 	for(std::list<HWND>::const_iterator i = existingWindowsToClose.begin(); i != existingWindowsToClose.end(); ++i)
 	{
@@ -2396,58 +2699,95 @@ void ViewManager::CloseExistingWindows(const std::list<HWND>& existingWindowsToC
 }
 
 //----------------------------------------------------------------------------------------
-WC_DockPanel::DockLocation ViewManager::StringToDockLocation(const std::wstring& dockLocationAsString)
+void ViewManager::DestroyUnusedPlaceholderWindows(const std::map<unsigned int, PlaceholderWindowInfo>& placeholderWindowInfo) const
 {
-	if(dockLocationAsString == L"Left")
+	for(std::map<unsigned int, PlaceholderWindowInfo>::const_iterator i = placeholderWindowInfo.begin(); i != placeholderWindowInfo.end(); ++i)
 	{
-		return WC_DockPanel::DockLocation::Left;
+		const PlaceholderWindowInfo& placeholderWindowInfo = i->second;
+		SendMessage(placeholderWindowInfo.parentWindowFrame, (UINT)DockingWindow::WindowMessages::RemoveContentWindow, 0, (LPARAM)placeholderWindowInfo.placeholderContentWindow);
+		DestroyWindow(placeholderWindowInfo.placeholderContentWindow);
 	}
-	else if(dockLocationAsString == L"Right")
-	{
-		return WC_DockPanel::DockLocation::Right;
-	}
-	else if(dockLocationAsString == L"Top")
-	{
-		return WC_DockPanel::DockLocation::Top;
-	}
-	else if(dockLocationAsString == L"Bottom")
-	{
-		return WC_DockPanel::DockLocation::Bottom;
-	}
-	return WC_DockPanel::DockLocation::Left;
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring ViewManager::DockLocationToString(WC_DockPanel::DockLocation dockLocation)
+void ViewManager::BuildCurrentlyOpenDashboardWindowList(std::list<HWND>& dashboardWindowList) const
+{
+	//Build a list of all top-level windows, and all descendants of the main window, to
+	//perform a search for currently open dashboard windows. Since we don't track open
+	//dashboard windows currently, we need to look for them in this manner. Note that we
+	//don't need to look into descendant windows of any windows apart from the main
+	//window, as we expect all other floating window frames to be re-created due to the
+	//layout load operation.
+	std::list<HWND> dashboardWindowSearchList;
+	EnumThreadWindows(GetCurrentThreadId(), EnumWindowsProc, (LPARAM)&dashboardWindowSearchList);
+	EnumChildWindows(mainWindow, EnumWindowsProc, (LPARAM)&dashboardWindowSearchList);
+
+	//Locate all dashboard windows in the list of windows to search
+	for(std::list<HWND>::const_iterator i = dashboardWindowSearchList.begin(); i != dashboardWindowSearchList.end(); ++i)
+	{
+		//If the window class name of the target window matches the dashboard window
+		//class, add it to the list of dashboard windows.
+		HWND windowHandle = *i;
+		if(GetClassName(windowHandle) == DashboardWindow::windowClassName)
+		{
+			dashboardWindowList.push_back(windowHandle);
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------
+IDockingWindow::WindowEdge ViewManager::StringToDockingWindowEdge(const std::wstring& dockLocationAsString)
+{
+	if(dockLocationAsString == L"Left")
+	{
+		return IDockingWindow::WindowEdge::Left;
+	}
+	else if(dockLocationAsString == L"Right")
+	{
+		return IDockingWindow::WindowEdge::Right;
+	}
+	else if(dockLocationAsString == L"Top")
+	{
+		return IDockingWindow::WindowEdge::Top;
+	}
+	else if(dockLocationAsString == L"Bottom")
+	{
+		return IDockingWindow::WindowEdge::Bottom;
+	}
+	return IDockingWindow::WindowEdge::Left;
+}
+
+//----------------------------------------------------------------------------------------
+std::wstring ViewManager::DockingWindowEdgeToString(IDockingWindow::WindowEdge dockLocation)
 {
 	switch(dockLocation)
 	{
-	case WC_DockPanel::DockLocation::Left:
+	case IDockingWindow::WindowEdge::Left:
 		return L"Left";
-	case WC_DockPanel::DockLocation::Right:
+	case IDockingWindow::WindowEdge::Right:
 		return L"Right";
-	case WC_DockPanel::DockLocation::Top:
+	case IDockingWindow::WindowEdge::Top:
 		return L"Top";
-	case WC_DockPanel::DockLocation::Bottom:
+	case IDockingWindow::WindowEdge::Bottom:
 		return L"Bottom";
 	}
 	return L"Unknown";
 }
 
 //----------------------------------------------------------------------------------------
-WC_DockPanel::DockLocation ViewManager::ViewDockLocationToDockPanelDockLocation(IView::DockPos viewDockLocation)
+IDockingWindow::WindowEdge ViewManager::ViewDockLocationToDockingWindowEdge(IView::DockPos viewDockLocation)
 {
 	switch(viewDockLocation)
 	{
 	default:
 	case IView::DockPos::Left:
-		return WC_DockPanel::DockLocation::Left;
+		return IDockingWindow::WindowEdge::Left;
 	case IView::DockPos::Right:
-		return WC_DockPanel::DockLocation::Right;
+		return IDockingWindow::WindowEdge::Right;
 	case IView::DockPos::Top:
-		return WC_DockPanel::DockLocation::Top;
+		return IDockingWindow::WindowEdge::Top;
 	case IView::DockPos::Bottom:
-		return WC_DockPanel::DockLocation::Bottom;
+		return IDockingWindow::WindowEdge::Bottom;
 	}
 }
 
@@ -3007,10 +3347,10 @@ std::list<HWND> ViewManager::GetOpenFloatingWindows() const
 	//Build a list of all top-level windows that are currently open and visible, sorted in
 	//Z-order.
 	std::list<HWND> activeWindowList;
-	for(std::list<HWND>::const_iterator windowIterator = windowList.begin(); windowIterator != windowList.end(); ++windowIterator)
+	for(std::list<HWND>::const_iterator i = windowList.begin(); i != windowList.end(); ++i)
 	{
 		//If the target window is the main window, skip it.
-		HWND window = *windowIterator;
+		HWND window = *i;
 		if(window == mainWindow)
 		{
 			continue;
@@ -3130,10 +3470,11 @@ LRESULT CALLBACK ViewManager::WndProcDialogWindowFrame(HWND hwnd, UINT msg, WPAR
 	case WM_CREATE:{
 		//If any windows have been disabled for the lifetime of this dialog, copy the list
 		//of disabled windows, and associate it with this window.
-		std::list<HWND>* disabledWindowList = (std::list<HWND>*)((CREATESTRUCT*)lparam)->lpCreateParams;
-		if(disabledWindowList != NULL)
+		DialogWindowFrameState* inputState = (DialogWindowFrameState*)((CREATESTRUCT*)lparam)->lpCreateParams;
+		if(inputState != NULL)
 		{
-			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(new std::list<HWND>(*disabledWindowList)));
+			DialogWindowFrameState* state = new DialogWindowFrameState(*inputState);
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)state);
 		}
 		break;}
 	case WM_SIZE:{
@@ -3141,8 +3482,8 @@ LRESULT CALLBACK ViewManager::WndProcDialogWindowFrame(HWND hwnd, UINT msg, WPAR
 		HWND hostedWindow = GetWindow(hwnd, GW_CHILD);
 		if(hostedWindow != NULL)
 		{
-			int hostedWindowWidth = (int)LOWORD(lparam);
-			int hostedWindowHeight = (int)HIWORD(lparam);
+			int hostedWindowWidth = (int)(short)LOWORD(lparam);
+			int hostedWindowHeight = (int)(short)HIWORD(lparam);
 			SetWindowPos(hostedWindow, NULL, 0, 0, hostedWindowWidth, hostedWindowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOMOVE);
 		}
 		break;}
@@ -3159,12 +3500,33 @@ LRESULT CALLBACK ViewManager::WndProcDialogWindowFrame(HWND hwnd, UINT msg, WPAR
 		//directly called, so in order to ensure we never have our dialog close without
 		//the main window being re-enabled, we ensure that all windows have been
 		//re-enabled when a WM_DESTROY message is received too.
-		std::list<HWND>* disabledWindowList = (std::list<HWND>*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(disabledWindowList != 0)
+		DialogWindowFrameState* state = (DialogWindowFrameState*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+		if(state != 0)
 		{
-			EnableDialogWindows(*disabledWindowList);
-			delete disabledWindowList;
-			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+			EnableDialogWindows(state->disabledWindowList);
+			state->disabledWindowList.clear();
+			if(msg == WM_DESTROY)
+			{
+				delete state;
+				SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+			}
+		}
+		break;}
+	case WM_ACTIVATE:{
+		//Notify the UI manager of changes to the activation state of this dialog, so that
+		//special dialog messages such as tab key presses can be correctly processed.
+		DialogWindowFrameState* state = (DialogWindowFrameState*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+		if(state != 0)
+		{
+			HWND hostedWindow = GetWindow(hwnd, GW_CHILD);
+			if(LOWORD(wparam) == WA_ACTIVE)
+			{
+				state->viewManager->NotifyDialogActivated(hostedWindow);
+			}
+			else if(LOWORD(wparam) == WA_INACTIVE)
+			{
+				state->viewManager->NotifyDialogDeactivated(hostedWindow);
+			}
 		}
 		break;}
 	}

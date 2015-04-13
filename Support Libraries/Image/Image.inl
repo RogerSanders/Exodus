@@ -124,51 +124,6 @@ private:
 };
 
 //----------------------------------------------------------------------------------------
-//TGA structures
-//----------------------------------------------------------------------------------------
-struct Image::TGAFileHeader
-{
-	//Field 1 - ID Length
-	unsigned char idLength;
-	//Field 2 - Color Map Type
-	unsigned char colorMapType;
-	//Field 3 - Image Type
-	unsigned char imageType;
-	//Field 4 - Color Map Specification
-	unsigned short colorMapFirstEntry;
-	unsigned short colorMapLength;
-	unsigned char colorMapBitsPerEntry;
-	//Field 5 - Image Specification
-	unsigned short imageOriginX;
-	unsigned short imageOriginY;
-	unsigned short imageWidth;
-	unsigned short imageHeight;
-	unsigned char bitsPerPixel;
-	unsigned char imageDescriptor;
-};
-
-//----------------------------------------------------------------------------------------
-struct Image::TGAColorMapEntry
-{
-	unsigned int r;
-	unsigned int g;
-	unsigned int b;
-	unsigned int a;
-};
-
-//----------------------------------------------------------------------------------------
-enum class Image::TGAImageType
-{
-	None = 0,
-	Palette = 1,
-	RGB = 2,
-	Monchrome = 3,
-	RLEPalette = 9,
-	RLERGB = 10,
-	RLEMonochrome = 11
-};
-
-//----------------------------------------------------------------------------------------
 //JPG structures
 //----------------------------------------------------------------------------------------
 struct Image::JPGStreamSourceManager
@@ -309,6 +264,94 @@ private:
 	jpeg_destination_mgr pub;
 	Stream::IStream& stream;
 	std::vector<unsigned char> buffer;
+};
+
+//----------------------------------------------------------------------------------------
+//TGA structures
+//----------------------------------------------------------------------------------------
+struct Image::TGAFileHeader
+{
+	//Field 1 - ID Length
+	unsigned char idLength;
+	//Field 2 - Color Map Type
+	unsigned char colorMapType;
+	//Field 3 - Image Type
+	unsigned char imageType;
+	//Field 4 - Color Map Specification
+	unsigned short colorMapFirstEntry;
+	unsigned short colorMapLength;
+	unsigned char colorMapBitsPerEntry;
+	//Field 5 - Image Specification
+	unsigned short imageOriginX;
+	unsigned short imageOriginY;
+	unsigned short imageWidth;
+	unsigned short imageHeight;
+	unsigned char bitsPerPixel;
+	unsigned char imageDescriptor;
+};
+
+//----------------------------------------------------------------------------------------
+struct Image::TGAColorMapEntry
+{
+	unsigned int r;
+	unsigned int g;
+	unsigned int b;
+	unsigned int a;
+};
+
+//----------------------------------------------------------------------------------------
+enum class Image::TGAImageType
+{
+	None = 0,
+	Palette = 1,
+	RGB = 2,
+	Monchrome = 3,
+	RLEPalette = 9,
+	RLERGB = 10,
+	RLEMonochrome = 11
+};
+
+//----------------------------------------------------------------------------------------
+//BMP structures
+//----------------------------------------------------------------------------------------
+struct Image::BITMAPV2INFOHEADER
+{
+	DWORD biSize;
+	LONG  biWidth;
+	LONG  biHeight;
+	WORD  biPlanes;
+	WORD  biBitCount;
+	DWORD biCompression;
+	DWORD biSizeImage;
+	LONG  biXPelsPerMeter;
+	LONG  biYPelsPerMeter;
+	DWORD biClrUsed;
+	DWORD biClrImportant;
+	/* new for V2 */
+	DWORD biRedMask;
+	DWORD biGreenMask;
+	DWORD biBlueMask;
+};
+
+//----------------------------------------------------------------------------------------
+struct Image::BITMAPV3INFOHEADER
+{
+	DWORD biSize;
+	LONG  biWidth;
+	LONG  biHeight;
+	WORD  biPlanes;
+	WORD  biBitCount;
+	DWORD biCompression;
+	DWORD biSizeImage;
+	LONG  biXPelsPerMeter;
+	LONG  biYPelsPerMeter;
+	DWORD biClrUsed;
+	DWORD biClrImportant;
+	DWORD biRedMask;
+	DWORD biGreenMask;
+	DWORD biBlueMask;
+	/* new for V3 */
+	DWORD biAlphaMask;
 };
 
 //----------------------------------------------------------------------------------------

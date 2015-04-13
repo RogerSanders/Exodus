@@ -63,9 +63,10 @@ struct ViewManager::WorkspaceViewEntryDetails
 struct ViewManager::PlaceholderWindowInfo
 {
 	PlaceholderWindowInfo()
-	:placeholderContentWindow(NULL), parentWindowFrame(NULL), makeContentVisible(false), selectedContentWindow(false), viewType(IView::ViewType::Dockable)
+	:parentIsDashboardWindow(false), placeholderContentWindow(NULL), parentWindowFrame(NULL), makeContentVisible(false), selectedContentWindow(false), viewType(IView::ViewType::Dockable)
 	{}
 
+	bool parentIsDashboardWindow;
 	HWND placeholderContentWindow;
 	HWND parentWindowFrame;
 	bool makeContentVisible;
@@ -110,4 +111,15 @@ struct ViewManager::Region2D
 	long posy;
 	long sizex;
 	long sizey;
+};
+
+//----------------------------------------------------------------------------------------
+struct ViewManager::DialogWindowFrameState
+{
+	DialogWindowFrameState()
+	:viewManager(0)
+	{}
+
+	std::list<HWND> disabledWindowList;
+	ViewManager* viewManager;
 };

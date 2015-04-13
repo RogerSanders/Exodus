@@ -52,6 +52,9 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{a0639ada-bc9c-46b5-aee8-058da2239a19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ExodusInterface\CreateDashboardView">
+      <UniqueIdentifier>{d210f6bd-d200-464a-951f-86a1d624c3e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\folder.ico">
@@ -111,6 +114,12 @@
     <ClCompile Include="MenuSubmenu.cpp">
       <Filter>Menu System\MenuSubmenu</Filter>
     </ClCompile>
+    <ClCompile Include="CreateDashboardView.cpp">
+      <Filter>ExodusInterface\CreateDashboardView</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateDashboardViewPresenter.cpp">
+      <Filter>ExodusInterface\CreateDashboardView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ViewStateChangeNotifier.h">
@@ -165,6 +174,12 @@
       <Filter>SystemInfo</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="CreateDashboardView.h">
+      <Filter>ExodusInterface\CreateDashboardView</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateDashboardViewPresenter.h">
+      <Filter>ExodusInterface\CreateDashboardView</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ViewManager.inl">

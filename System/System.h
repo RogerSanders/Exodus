@@ -504,9 +504,6 @@ private:
 
 	//Module settings
 	mutable unsigned int nextFreeSystemSettingID;
-	//##FIX## In order to fix compilation, we need to make our SystemSettingInfo objects
-	//allocated on the heap, and store pointers to them in our maps, with explicit
-	//deletion.
 	SystemSettingsMap systemSettings;
 	std::set<SystemSettingInfo*> systemSettingsObjects;
 	ModuleSystemSettingMap moduleSettings;

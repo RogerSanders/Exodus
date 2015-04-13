@@ -320,7 +320,7 @@ void ViewBase::WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UI
 			mousePos.x = (short)LOWORD(lparam);
 			mousePos.y = (short)HIWORD(lparam);
 			HWND targetWindow = ChildWindowFromPoint(hwnd, mousePos);
-			if(targetWindow != NULL)
+			if((targetWindow != NULL) && (targetWindow != hwnd))
 			{
 				SetFocus(targetWindow);
 			}
@@ -335,7 +335,10 @@ void ViewBase::WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UI
 //----------------------------------------------------------------------------------------
 HWND ViewBase::CreateChildDialog(HWND aparentWindow, void* aassemblyHandle, LPCWSTR atemplateName, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& dlgProcHandler)
 {
-	return CreateDialogParam((HINSTANCE)aassemblyHandle, atemplateName, aparentWindow, WndProcChildDialog, (LPARAM)&dlgProcHandler);
+	ChildDialogState state;
+	state.view = this;
+	state.windowProcedureMethod = dlgProcHandler;
+	return CreateDialogParam((HINSTANCE)aassemblyHandle, atemplateName, aparentWindow, WndProcChildDialog, (LPARAM)&state);
 }
 
 //----------------------------------------------------------------------------------------
@@ -365,44 +368,55 @@ HWND ViewBase::CreateChildWindow(DWORD awindowStyle, DWORD aextendedWindowStyle,
 //----------------------------------------------------------------------------------------
 INT_PTR CALLBACK ViewBase::WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	//Obtain the object pointer
-	std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>* windowProcedureMethod = (std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	//Obtain the state object
+	ChildDialogState* state = (ChildDialogState*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
 	switch(msg)
 	{
 	case WM_INITDIALOG:
 		//Set the object pointer
-		windowProcedureMethod = new std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>(*(std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>*)lparam);
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(windowProcedureMethod));
+		state = new ChildDialogState(*(ChildDialogState*)lparam);
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)state);
 
 		//Pass this message on to the member window procedure function
-		if(windowProcedureMethod != 0)
-		{
-			return (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
-		}
-		break;
+		return state->windowProcedureMethod(hwnd, msg, wparam, lparam);
 	case WM_DESTROY:
-		if(windowProcedureMethod != 0)
+		if(state != 0)
 		{
 			//Pass this message on to the member window procedure function
-			INT_PTR result = (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
+			INT_PTR result = state->windowProcedureMethod(hwnd, msg, wparam, lparam);
 
-			//Discard the object pointer
-			delete windowProcedureMethod;
+			//Destroy the state object
+			delete state;
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
 
 			//Return the result from processing the message
 			return result;
 		}
 		break;
+	case WM_ACTIVATE:{
+		//Notify the UI manager of changes to the activation state of this dialog, so that
+		//special dialog messages such as tab key presses can be correctly processed.
+		if(state != 0)
+		{
+			if(LOWORD(wparam) == WA_ACTIVE)
+			{
+				state->view->uiManager.NotifyDialogActivated(hwnd);
+			}
+			else if(LOWORD(wparam) == WA_INACTIVE)
+			{
+				state->view->uiManager.NotifyDialogDeactivated(hwnd);
+			}
+		}
+		break;}
 	}
 
 	//Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
-	if(windowProcedureMethod != 0)
+	if(state != 0)
 	{
-		result = (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
+		result = state->windowProcedureMethod(hwnd, msg, wparam, lparam);
 	}
 	return result;
 }
