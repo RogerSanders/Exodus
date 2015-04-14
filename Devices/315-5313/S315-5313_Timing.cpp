@@ -1124,16 +1124,12 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 		hcounterIncrementStepsUntilVCounterIncrement = (hscanSettings.hcounterStepsPerIteration - hcounterCurrent) + hscanSettings.vcounterIncrementPoint;
 	}
 
-	//Advance the hcounter to its final position
+	//Advance the hcounter and vcounter to their final positions
 	hcounterCurrent = (hcounterCurrent + pixelClockSteps) % hscanSettings.hcounterStepsPerIteration;
-
-	//Advance the vcounter to its final position. Note that since we repeatedly advance up
-	//to the odd flag toggle point above, the vcounter can at most be incremented once
-	//more in order to reach the target. We assume this fact here to avoid an expensive
-	//division operation.
 	if(hcounterIncrementStepsUntilVCounterIncrement <= pixelClockSteps)
 	{
-		vcounterCurrent = ((vcounterCurrent + 1) < vcounterStepsPerIteration)? vcounterCurrent + 1: 0;
+		unsigned int vcounterIncrementSteps = ((pixelClockSteps - hcounterIncrementStepsUntilVCounterIncrement) / hscanSettings.hcounterStepsPerIteration) + 1;
+		vcounterCurrent = (vcounterCurrent + vcounterIncrementSteps) % vcounterStepsPerIteration;
 	}
 
 	//Convert the final hcounter and vcounter values from linear values back to internal
