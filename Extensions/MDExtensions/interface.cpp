@@ -34,7 +34,7 @@ extern "C" __declspec(dllexport) bool GetExtensionEntry(unsigned int entryNo, IE
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetExtensionSettings(GetMegaDriveROMLoader, DeleteMegaDriveROMLoader, L"Loaders.MegaDriveROM", L"MegaDriveROMLoader", 1, copyrightText, commentsText);
+		entry.SetExtensionSettings(GetMegaDriveROMLoader, DeleteMegaDriveROMLoader, L"Loaders.MegaDriveROM", L"MegaDriveROMLoader", 1, copyrightText, commentsText, true);
 		return true;
 	}
 	return false;

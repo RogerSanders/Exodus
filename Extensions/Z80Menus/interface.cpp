@@ -34,7 +34,7 @@ extern "C" __declspec(dllexport) bool GetExtensionEntry(unsigned int entryNo, IE
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetExtensionSettings(GetZ80Menus, DeleteZ80Menus, L"Processor.Z80.Menus", L"Z80Menus", 1, copyrightText, commentsText);
+		entry.SetExtensionSettings(GetZ80Menus, DeleteZ80Menus, L"Processor.Z80.Menus", L"Z80Menus", 1, copyrightText, commentsText, true);
 		return true;
 	}
 	return false;

@@ -34,7 +34,7 @@ extern "C" __declspec(dllexport) bool GetExtensionEntry(unsigned int entryNo, IE
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetExtensionSettings(GetGenericAccessMenus, DeleteGenericAccessMenus, L"Menus", L"GenericAccessMenus", 1, copyrightText, commentsText);
+		entry.SetExtensionSettings(GetGenericAccessMenus, DeleteGenericAccessMenus, L"Menus", L"GenericAccessMenus", 1, copyrightText, commentsText, true);
 		return true;
 	}
 	return false;

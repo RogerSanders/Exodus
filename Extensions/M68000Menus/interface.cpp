@@ -34,7 +34,7 @@ extern "C" __declspec(dllexport) bool GetExtensionEntry(unsigned int entryNo, IE
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetExtensionSettings(GetM68000Menus, DeleteM68000Menus, L"Processor.68000.Menus", L"M68000Menus", 1, copyrightText, commentsText);
+		entry.SetExtensionSettings(GetM68000Menus, DeleteM68000Menus, L"Processor.68000.Menus", L"M68000Menus", 1, copyrightText, commentsText, true);
 		return true;
 	}
 	return false;

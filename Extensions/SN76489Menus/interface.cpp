@@ -34,7 +34,7 @@ extern "C" __declspec(dllexport) bool GetExtensionEntry(unsigned int entryNo, IE
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetExtensionSettings(GetSN76489Menus, DeleteSN76489Menus, L"Audio.SN76489.Menus", L"SN76489Menus", 1, copyrightText, commentsText);
+		entry.SetExtensionSettings(GetSN76489Menus, DeleteSN76489Menus, L"Audio.SN76489.Menus", L"SN76489Menus", 1, copyrightText, commentsText, true);
 		return true;
 	}
 	return false;

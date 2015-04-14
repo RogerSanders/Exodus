@@ -40,7 +40,7 @@ struct System::DeviceLibraryEntry
 struct System::ExtensionLibraryEntry
 {
 	ExtensionLibraryEntry()
-	:Allocator(0), Destructor(0), assemblyHandle(0), versionNo(0)
+	:Allocator(0), Destructor(0), assemblyHandle(0), versionNo(0), persistentGlobalExtension(false)
 	{}
 
 	IExtensionInfo::AllocatorPointer Allocator;
@@ -50,6 +50,7 @@ struct System::ExtensionLibraryEntry
 	unsigned int versionNo;
 	std::wstring copyright;
 	std::wstring comments;
+	bool persistentGlobalExtension;
 	AssemblyHandle assemblyHandle;
 };
 
@@ -100,6 +101,7 @@ struct System::LoadedGlobalExtensionInfo
 {
 	IExtension* extension;
 	std::wstring name;
+	bool globalExtension;
 	std::set<unsigned int> moduleIDs;
 	std::set<IExtension*> menuHandlers;
 };
