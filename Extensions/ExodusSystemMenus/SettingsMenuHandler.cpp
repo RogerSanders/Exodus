@@ -44,9 +44,10 @@ void SettingsMenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* view
 //----------------------------------------------------------------------------------------
 void SettingsMenuHandler::OpenInputMappingDetailsView(IDevice* targetDevice)
 {
-	IViewPresenter* viewPresenter = GetViewIfOpen(MENUITEM_INPUTMAPPINGDETAILS);
-	if(viewPresenter != 0)
+	std::set<IViewPresenter*> viewPresenters = GetOpenViewPresenters(MENUITEM_INPUTMAPPINGDETAILS);
+	if(!viewPresenters.empty())
 	{
+		IViewPresenter* viewPresenter = *viewPresenters.begin();
 		InputMappingDetailsViewPresenter* inputMappingDetailsViewPresenter = dynamic_cast<InputMappingDetailsViewPresenter*>(viewPresenter);
 		if(inputMappingDetailsViewPresenter != 0)
 		{
@@ -55,7 +56,7 @@ void SettingsMenuHandler::OpenInputMappingDetailsView(IDevice* targetDevice)
 	}
 	else
 	{
-		viewPresenter = new InputMappingDetailsViewPresenter(GetMenuHandlerName(), GetMenuItemName(MENUITEM_INPUTMAPPINGDETAILS), MENUITEM_INPUTMAPPINGDETAILS, owner, model, targetDevice);
+		IViewPresenter* viewPresenter = new InputMappingDetailsViewPresenter(GetMenuHandlerName(), GetMenuItemName(MENUITEM_INPUTMAPPINGDETAILS), MENUITEM_INPUTMAPPINGDETAILS, owner, model, targetDevice);
 		if(!AddCreatedView(MENUITEM_INPUTMAPPINGDETAILS, viewPresenter))
 		{
 			delete viewPresenter;
@@ -66,9 +67,10 @@ void SettingsMenuHandler::OpenInputMappingDetailsView(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void SettingsMenuHandler::CloseInputMappingDetailsView()
 {
-	IViewPresenter* viewPresenter = GetViewIfOpen(MENUITEM_INPUTMAPPINGDETAILS);
-	if(viewPresenter != 0)
+	std::set<IViewPresenter*> viewPresenters = GetOpenViewPresenters(MENUITEM_INPUTMAPPINGDETAILS);
+	if(!viewPresenters.empty())
 	{
+		IViewPresenter* viewPresenter = *viewPresenters.begin();
 		viewPresenter->CloseView();
 	}
 }

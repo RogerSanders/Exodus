@@ -17,7 +17,7 @@ void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) co
 	for(unsigned int i = 0; i < pageCount; ++i)
 	{
 		const IGenericAccessPage* page = model.GetGenericAccessPage(i);
-		menuItems.push_back(MenuItemDefinition((int)i, page->GetName(), page->GetName(), true));
+		menuItems.push_back(MenuItemDefinition((int)i, page->GetName(), page->GetName(), true, true));
 	}
 }
 

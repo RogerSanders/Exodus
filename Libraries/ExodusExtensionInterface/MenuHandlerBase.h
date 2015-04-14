@@ -8,11 +8,11 @@
 #include "IMenuSubmenu.h"
 #include <map>
 #include <list>
+#include <set>
 #include <string>
 #include <mutex>
 #include <condition_variable>
 
-//##TODO## Add support for views which can be open multiple times
 //##TODO## Add support for menu items which are not just selectable items, IE, submenus or
 //separators.
 class MenuHandlerBase :public IMenuHandler
@@ -32,7 +32,7 @@ public:
 
 	//Menu item handler functions
 	virtual void HandleMenuItemSelect(int menuItemID);
-	bool RestoreMenuViewOpen(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState);
+	bool RestoreMenuViewOpen(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter);
 	bool OpenView(const std::wstring& viewGroupName, const std::wstring& viewName);
 
 protected:
@@ -43,7 +43,7 @@ protected:
 	//Management functions
 	std::wstring GetMenuHandlerName() const;
 	std::wstring GetMenuItemName(int menuItemID) const;
-	IViewPresenter* GetViewIfOpen(int menuItemID);
+	std::set<IViewPresenter*> GetOpenViewPresenters(int menuItemID) const;
 	bool AddCreatedView(int menuItemID, IViewPresenter* viewPresenter);
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const = 0;
 	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName) = 0;
@@ -56,8 +56,8 @@ private:
 
 private:
 	//View management
-	void DeleteViewOnClose(int menuItemID);
-	void DeleteViewHandler(int menuItemID);
+	void DeleteViewOnClose(int menuItemID, IViewPresenter* viewPresenter);
+	void DeleteViewHandler(int menuItemID, IViewPresenter* viewPresenter);
 
 	//Menu item handler functions
 	void HandleViewMenuItemSelect(MenuItemInternal& menuItem);

@@ -13,7 +13,7 @@ SystemMenuHandler::SystemMenuHandler(ExodusSystemMenus& aowner, ISystemGUIInterf
 //----------------------------------------------------------------------------------------
 void SystemMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_EVENTLOG, L"EventLog", EventLogViewPresenter::GetUnqualifiedViewTitle(), true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_EVENTLOG, L"EventLog", EventLogViewPresenter::GetUnqualifiedViewTitle(), true, true));
 }
 
 //----------------------------------------------------------------------------------------

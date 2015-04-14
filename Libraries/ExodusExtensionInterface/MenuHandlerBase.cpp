@@ -30,7 +30,7 @@ void MenuHandlerBase::LoadMenuItems()
 	{
 		//Add the menu item to our internal structures
 		menuItemOrder.push_back(i->menuItemID);
-		menuItems.insert(MenuItemsEntry(i->menuItemID, MenuItemInternal(i->menuItemID, i->menuItemName, i->menuItemTitle, i->menuItemOpensView, i->hiddenMenuItem)));
+		menuItems.insert(MenuItemsEntry(i->menuItemID, MenuItemInternal(*i)));
 	}
 }
 
@@ -38,11 +38,12 @@ void MenuHandlerBase::LoadMenuItems()
 void MenuHandlerBase::ClearMenuItems()
 {
 	//Ensure that all the views are closed
-	for(MenuItems::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	for(MenuItems::const_iterator menuItemIterator = menuItems.begin(); menuItemIterator != menuItems.end(); ++menuItemIterator)
 	{
-		if(i->second.viewPresenter != 0)
+		const MenuItemInternal& menuItem = menuItemIterator->second;
+		for(std::set<IViewPresenter*>::const_iterator i = menuItem.viewPresenters.begin(); i != menuItem.viewPresenters.end(); ++i)
 		{
-			viewManager.CloseView(*i->second.viewPresenter, true);
+			viewManager.CloseView(*(*i), true);
 		}
 	}
 
@@ -79,12 +80,11 @@ void MenuHandlerBase::AddMenuItems(IMenuSegment& menuSegment)
 		MenuItems::iterator menuItemIterator = menuItems.find(*i);
 		if(menuItemIterator != menuItems.end())
 		{
-			MenuItemInternal& menuItem = menuItemIterator->second;
-
 			//If the item isn't hidden from the menu, add it to the menu structure.
-			if(!menuItem.hiddenMenuItem)
+			MenuItemInternal& menuItem = menuItemIterator->second;
+			if(!menuItem.itemDefinition.hiddenMenuItem)
 			{
-				menuSegment.AddMenuItemSelectableOption(*this, menuItem.menuItemID, menuItem.menuItemTitle);
+				menuSegment.AddMenuItemSelectableOption(*this, menuItem.itemDefinition.menuItemID, menuItem.itemDefinition.menuItemTitle);
 			}
 		}
 	}
@@ -99,10 +99,9 @@ void MenuHandlerBase::HandleMenuItemSelect(int menuItemID)
 	MenuItems::iterator menuItemIterator = menuItems.find(menuItemID);
 	if(menuItemIterator != menuItems.end())
 	{
-		MenuItemInternal& menuItem = menuItemIterator->second;
-
 		//Check if this menu item opens a view
-		if(!menuItem.menuItemOpensView)
+		MenuItemInternal& menuItem = menuItemIterator->second;
+		if(!menuItem.itemDefinition.menuItemOpensView)
 		{
 			//If this menu item doesn't open a view, pass the selection event on to the
 			//derived class.
@@ -121,36 +120,36 @@ void MenuHandlerBase::HandleMenuItemSelect(int menuItemID)
 //----------------------------------------------------------------------------------------
 void MenuHandlerBase::HandleViewMenuItemSelect(MenuItemInternal& menuItem)
 {
-	//Check if the view is currently open, and either activate it or open it depending on
-	//its open state.
-	IViewPresenter* viewPresenter = menuItem.viewPresenter;
-	if(viewPresenter == 0)
+	//Either activate or open the view as required in response to this selection event
+	if(!menuItem.itemDefinition.allowOpenViewMultipleTimes && !menuItem.viewPresenters.empty())
 	{
-		//If the view isn't currently open, create and open the view.
-		viewPresenter = CreateViewForItem(menuItem.menuItemID, menuItem.menuItemName);
-		if(viewPresenter != 0)
-		{
-			menuItem.viewPresenter = viewPresenter;
-			if(!viewManager.OpenView(*viewPresenter, false))
-			{
-				menuItem.viewPresenter = 0;
-				DeleteViewForItem(menuItem.menuItemID, viewPresenter);
-			}
-			else
-			{
-				DeleteViewOnClose(menuItem.menuItemID);
-			}
-		}
+		//If the view is currently open, and it isn't allowed to be opened multiple times,
+		//activate it.
+		viewManager.ActivateView(*(*menuItem.viewPresenters.begin()));
 	}
 	else
 	{
-		//If the view is currently open, activate it.
-		viewManager.ActivateView(*viewPresenter);
+		//If the view isn't currently open, or multiple instances are allow, create and
+		//open the view.
+		IViewPresenter* viewPresenter = CreateViewForItem(menuItem.itemDefinition.menuItemID, menuItem.itemDefinition.menuItemName);
+		if(viewPresenter != 0)
+		{
+			menuItem.viewPresenters.insert(viewPresenter);
+			if(!viewManager.OpenView(*viewPresenter, false))
+			{
+				menuItem.viewPresenters.erase(viewPresenter);
+				DeleteViewForItem(menuItem.itemDefinition.menuItemID, viewPresenter);
+			}
+			else
+			{
+				DeleteViewOnClose(menuItem.itemDefinition.menuItemID, viewPresenter);
+			}
+		}
 	}
 }
 
 //----------------------------------------------------------------------------------------
-bool MenuHandlerBase::RestoreMenuViewOpen(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState)
+bool MenuHandlerBase::RestoreMenuViewOpen(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter)
 {
 	//Ensure the menu handler name matches
 	if(menuHandlerName != viewGroupName)
@@ -159,15 +158,14 @@ bool MenuHandlerBase::RestoreMenuViewOpen(const std::wstring& viewGroupName, con
 	}
 
 	//Attempt to retrieve the target menu item
-	MenuItemInternal* menuItem = 0;
 	bool foundMenuItem = false;
 	MenuItems::iterator menuItemIterator = menuItems.begin();
 	while(!foundMenuItem && (menuItemIterator != menuItems.end()))
 	{
-		if(menuItemIterator->second.menuItemName == viewName)
+		if(menuItemIterator->second.itemDefinition.menuItemName == viewName)
 		{
-			menuItem = &menuItemIterator->second;
 			foundMenuItem = true;
+			continue;
 		}
 		++menuItemIterator;
 	}
@@ -175,40 +173,56 @@ bool MenuHandlerBase::RestoreMenuViewOpen(const std::wstring& viewGroupName, con
 	{
 		return false;
 	}
+	MenuItemInternal& menuItem = menuItemIterator->second;
 
 	//Ensure this menu item opens a view
-	if(!menuItem->menuItemOpensView)
+	if(!menuItem.itemDefinition.menuItemOpensView)
 	{
 		return false;
 	}
 
 	//Restore the state for this view, opening the view if it is currently closed.
 	bool result = false;
-	IViewPresenter* viewPresenter = menuItem->viewPresenter;
-	if(viewPresenter == 0)
+	if(!menuItem.itemDefinition.allowOpenViewMultipleTimes && !menuItem.viewPresenters.empty())
 	{
-		//If the view isn't currently open, create and open the view, restoring the
+		//If the view is currently open, and only one instance is allowed, restore the
 		//view state.
-		viewPresenter = CreateViewForItem(menuItem->menuItemID, menuItem->menuItemName);
-		if(viewPresenter != 0)
+		IViewPresenter* viewPresenter = *menuItem.viewPresenters.begin();
+		result = viewPresenter->LoadViewState(viewState);
+
+		//Return the view presenter used for the restore operation to the caller if
+		//requested
+		if(restoredViewPresenter != 0)
 		{
-			menuItem->viewPresenter = viewPresenter;
-			if(!viewManager.OpenView(*viewPresenter, viewState, false))
-			{
-				menuItem->viewPresenter = 0;
-				DeleteViewForItem(menuItem->menuItemID, viewPresenter);
-			}
-			else
-			{
-				DeleteViewOnClose(menuItem->menuItemID);
-				result = viewManager.WaitUntilViewOpened(*menuItem->viewPresenter);
-			}
+			*restoredViewPresenter = viewPresenter;
 		}
 	}
 	else
 	{
-		//If the view is currently open, restore the view state.
-		result = viewPresenter->LoadViewState(viewState);
+		//If the view isn't currently open, or multiple instances are allowed, create and
+		//open the view, restoring the view state.
+		IViewPresenter* viewPresenter = CreateViewForItem(menuItem.itemDefinition.menuItemID, menuItem.itemDefinition.menuItemName);
+		if(viewPresenter != 0)
+		{
+			menuItem.viewPresenters.insert(viewPresenter);
+			if(!viewManager.OpenView(*viewPresenter, viewState, false))
+			{
+				menuItem.viewPresenters.erase(viewPresenter);
+				DeleteViewForItem(menuItem.itemDefinition.menuItemID, viewPresenter);
+			}
+			else
+			{
+				DeleteViewOnClose(menuItem.itemDefinition.menuItemID, viewPresenter);
+				result = viewManager.WaitUntilViewOpened(*viewPresenter);
+			}
+		}
+
+		//Return the view presenter used for the restore operation to the caller if
+		//requested
+		if(result && (restoredViewPresenter != 0))
+		{
+			*restoredViewPresenter = viewPresenter;
+		}
 	}
 	return result;
 }
@@ -223,15 +237,14 @@ bool MenuHandlerBase::OpenView(const std::wstring& viewGroupName, const std::wst
 	}
 
 	//Attempt to retrieve the target menu item
-	const MenuItemInternal* menuItem = 0;
 	bool foundMenuItem = false;
 	MenuItems::const_iterator menuItemIterator = menuItems.begin();
 	while(!foundMenuItem && (menuItemIterator != menuItems.end()))
 	{
-		if(menuItemIterator->second.menuItemName == viewName)
+		if(menuItemIterator->second.itemDefinition.menuItemName == viewName)
 		{
-			menuItem = &menuItemIterator->second;
 			foundMenuItem = true;
+			continue;
 		}
 		++menuItemIterator;
 	}
@@ -239,9 +252,10 @@ bool MenuHandlerBase::OpenView(const std::wstring& viewGroupName, const std::wst
 	{
 		return false;
 	}
+	const MenuItemInternal& menuItem = menuItemIterator->second;
 
 	//Handle the menu item selection as normal
-	HandleMenuItemSelect(menuItem->menuItemID);
+	HandleMenuItemSelect(menuItem.itemDefinition.menuItemID);
 	return true;
 }
 
@@ -264,68 +278,57 @@ std::wstring MenuHandlerBase::GetMenuItemName(int menuItemID) const
 	{
 		//Return the name of the menu item
 		const MenuItemInternal& menuItem = menuItemIterator->second;
-		menuItemName = menuItem.menuItemName;
+		menuItemName = menuItem.itemDefinition.menuItemName;
 	}
 
 	return menuItemName;
 }
 
 //----------------------------------------------------------------------------------------
-IViewPresenter* MenuHandlerBase::GetViewIfOpen(int menuItemID)
+std::set<IViewPresenter*> MenuHandlerBase::GetOpenViewPresenters(int menuItemID) const
 {
-	IViewPresenter* viewPresenter = 0;
-
 	//Attempt to locate the menu item
 	MenuItems::const_iterator menuItemIterator = menuItems.find(menuItemID);
 	if(menuItemIterator != menuItems.end())
 	{
-		const MenuItemInternal& menuItem = menuItemIterator->second;
-
 		//Check if this menu item opens a view
-		if(menuItem.menuItemOpensView)
+		const MenuItemInternal& menuItem = menuItemIterator->second;
+		if(menuItem.itemDefinition.menuItemOpensView)
 		{
-			//Return the view for the menu item
-			viewPresenter = menuItem.viewPresenter;
+			//Return the open views for the menu item
+			return menuItem.viewPresenters;
 		}
 	}
-
-	return viewPresenter;
+	std::set<IViewPresenter*> emptyViewPresenterSet;
+	return emptyViewPresenterSet;
 }
 
 //----------------------------------------------------------------------------------------
 bool MenuHandlerBase::AddCreatedView(int menuItemID, IViewPresenter* viewPresenter)
 {
-	bool result = false;
-
 	//Attempt to locate the menu item
 	MenuItems::iterator menuItemIterator = menuItems.find(menuItemID);
 	if(menuItemIterator != menuItems.end())
 	{
-		MenuItemInternal& menuItem = menuItemIterator->second;
-
 		//Check if this menu item opens a view
-		if(menuItem.menuItemOpensView)
+		MenuItemInternal& menuItem = menuItemIterator->second;
+		if(menuItem.itemDefinition.menuItemOpensView)
 		{
-			//Ensure the view isn't currently open
-			if(menuItem.viewPresenter == 0)
+			menuItem.viewPresenters.insert(viewPresenter);
+			if(!viewManager.OpenView(*viewPresenter, false))
 			{
-				menuItem.viewPresenter = viewPresenter;
-				if(!viewManager.OpenView(*viewPresenter, false))
-				{
-					menuItem.viewPresenter = 0;
-				}
-				else
-				{
-					//Note that this is safe, since we're guaranteed that this
-					//function is not called in the context of the UI thread.
-					DeleteViewOnClose(menuItemID);
-					result = true;
-				}
+				menuItem.viewPresenters.erase(viewPresenter);
+			}
+			else
+			{
+				//Note that this is safe, since we're guaranteed that this
+				//function is not called in the context of the UI thread.
+				DeleteViewOnClose(menuItemID, viewPresenter);
+				return true;
 			}
 		}
 	}
-
-	return result;
+	return false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -335,40 +338,30 @@ void MenuHandlerBase::HandleMenuItemSelectNonView(int menuItemID, IViewManager& 
 //----------------------------------------------------------------------------------------
 //View management
 //----------------------------------------------------------------------------------------
-void MenuHandlerBase::DeleteViewOnClose(int menuItemID)
+void MenuHandlerBase::DeleteViewOnClose(int menuItemID, IViewPresenter* viewPresenter)
 {
 	//Increment the delete thread count
 	std::unique_lock<std::mutex> lock(deleteThreadMutex);
 	++deleteThreadCount;
 
 	//Spawn a worker thread to handle the deletion of the view when it closes
-	std::thread workerThread(std::bind(std::mem_fn(&MenuHandlerBase::DeleteViewHandler), this, menuItemID));
+	std::thread workerThread(std::bind(std::mem_fn(&MenuHandlerBase::DeleteViewHandler), this, menuItemID, viewPresenter));
 	workerThread.detach();
 }
 
 //----------------------------------------------------------------------------------------
-void MenuHandlerBase::DeleteViewHandler(int menuItemID)
+void MenuHandlerBase::DeleteViewHandler(int menuItemID, IViewPresenter* viewPresenter)
 {
 	//Attempt to locate the menu item
 	MenuItems::iterator menuItemIterator = menuItems.find(menuItemID);
 	if(menuItemIterator != menuItems.end())
 	{
+		//If the view is currently open, wait for it to close, and delete it
+		//afterwards.
 		MenuItemInternal& menuItem = menuItemIterator->second;
-
-		//Check if this menu item opens a view
-		if(menuItem.menuItemOpensView)
-		{
-			//Check if the view is currently open
-			IViewPresenter* viewPresenter = menuItem.viewPresenter;
-			if(viewPresenter != 0)
-			{
-				//If the view is currently open, wait for it to close, and delete it
-				//afterwards.
-				viewManager.WaitUntilViewClosed(*viewPresenter);
-				menuItem.viewPresenter = 0;
-				DeleteViewForItem(menuItem.menuItemID, viewPresenter);
-			}
-		}
+		viewManager.WaitUntilViewClosed(*viewPresenter);
+		menuItem.viewPresenters.erase(viewPresenter);
+		DeleteViewForItem(menuItem.itemDefinition.menuItemID, viewPresenter);
 	}
 
 	//Decrement the delete thread count

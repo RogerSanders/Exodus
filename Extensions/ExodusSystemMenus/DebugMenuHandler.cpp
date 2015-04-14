@@ -13,7 +13,7 @@ DebugMenuHandler::DebugMenuHandler(ExodusSystemMenus& aowner, ISystemGUIInterfac
 //----------------------------------------------------------------------------------------
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_DEVICECONTROL, L"DeviceControl", DeviceControlViewPresenter::GetUnqualifiedViewTitle(), true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_DEVICECONTROL, L"DeviceControl", DeviceControlViewPresenter::GetUnqualifiedViewTitle(), true, true));
 }
 
 //----------------------------------------------------------------------------------------

@@ -45,21 +45,6 @@ struct ViewManager::ViewOperation
 };
 
 //----------------------------------------------------------------------------------------
-struct ViewManager::WorkspaceViewEntryDetails
-{
-	WorkspaceViewEntryDetails(const std::wstring& aviewGroupName, const std::wstring& aviewName, IViewPresenter::ViewTarget aviewTarget, unsigned int amoduleID = 0, const std::wstring& ainstanceName = L"", bool aglobalExtension = false)
-	:viewGroupName(aviewGroupName), viewName(aviewName), viewTarget(aviewTarget), instanceName(ainstanceName), globalExtension(aglobalExtension), moduleID(amoduleID)
-	{}
-
-	std::wstring viewGroupName;
-	std::wstring viewName;
-	IViewPresenter::ViewTarget viewTarget;
-	unsigned int moduleID;
-	std::wstring instanceName;
-	bool globalExtension;
-};
-
-//----------------------------------------------------------------------------------------
 struct ViewManager::PlaceholderWindowInfo
 {
 	PlaceholderWindowInfo()
