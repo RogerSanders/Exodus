@@ -282,6 +282,8 @@ LRESULT DockingWindow::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam
 		return msgDOCKWIN_GETACTIVECONTENTWINDOW(wParam, lParam);
 	case (unsigned int)WindowMessages::SetActiveContentWindow:
 		return msgDOCKWIN_SETACTIVECONTENTWINDOW(wParam, lParam);
+	case (unsigned int)WindowMessages::PerformTabHitTest:
+		return msgDOCKWIN_PERFORMTABHITTEST(wParam, lParam);
 	}
 
 	return DefWindowProc(hwnd, message, wParam, lParam);
@@ -1687,6 +1689,63 @@ LRESULT DockingWindow::msgDOCKWIN_SETACTIVECONTENTWINDOW(WPARAM wParam, LPARAM l
 }
 
 //----------------------------------------------------------------------------------------
+LRESULT DockingWindow::msgDOCKWIN_PERFORMTABHITTEST(WPARAM wParam, LPARAM lParam)
+{
+	//Extract the cursor position for this message relative to the screen
+	int cursorScreenPosX = (short)LOWORD(lParam);
+	int cursorScreenPosY = (short)HIWORD(lParam);
+
+	//Perform hit testing to see if any tab is under the cursor
+	for(std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = autoHideDocks.begin(); i != autoHideDocks.end(); ++i)
+	{
+		//Calculate the width and height of this tab tray
+		const AutoHideDockInfo& autoHideDockInfo = i->second;
+		RECT rect;
+		GetClientRect(autoHideDockInfo.dockWindow, &rect);
+		int tabTrayWidth = rect.right - rect.left;
+		int tabTrayHeight = rect.bottom - rect.top;
+
+		//Calculate the cursor position in client coordinates for the target tab tray
+		POINT point;
+		point.x = cursorScreenPosX;
+		point.y = cursorScreenPosY;
+		ScreenToClient(autoHideDockInfo.dockWindow, &point);
+		int cursorPosX = point.x;
+		int cursorPosY = point.y;
+
+		//Snap the supplied cursor position to allow for a border frame on the attached
+		//edge of the tab tray. This extended hit region allows our tabs to activate even
+		//if the parent window is a maximized window surrounded by a thin border, and the
+		//mouse is all the way towards the edge of the screen.
+		int tabExtendedHitAdditionalBorderMarginX = GetSystemMetrics(SM_CXFIXEDFRAME);
+		int tabExtendedHitAdditionalBorderMarginY = GetSystemMetrics(SM_CYFIXEDFRAME);
+		switch(autoHideDockInfo.dockLocation)
+		{
+		case IDockingWindow::WindowEdge::Left:
+			cursorPosX = ((cursorPosX < 0) && ((cursorPosX + tabExtendedHitAdditionalBorderMarginX) >= 0))? 0: cursorPosX;
+			break;
+		case IDockingWindow::WindowEdge::Right:
+			cursorPosX = ((cursorPosX >= tabTrayWidth) && ((cursorPosX - tabExtendedHitAdditionalBorderMarginX) < tabTrayWidth))? (tabTrayWidth - 1): cursorPosX;
+			break;
+		case IDockingWindow::WindowEdge::Top:
+			cursorPosY = ((cursorPosY < 0) && ((cursorPosY + tabExtendedHitAdditionalBorderMarginY) >= 0))? 0: cursorPosY;
+			break;
+		case IDockingWindow::WindowEdge::Bottom:
+			cursorPosY = ((cursorPosY >= tabTrayHeight) && ((cursorPosY - tabExtendedHitAdditionalBorderMarginY) < tabTrayHeight))? (tabTrayHeight - 1): cursorPosY;
+			break;
+		}
+
+		//If the snapped cursor position is within the hit region for the target tab tray,
+		//perform tab hit testing for the target tab tray.
+		if((cursorPosX >= 0) && (cursorPosX < tabTrayWidth) && (cursorPosY >= 0) && (cursorPosY < tabTrayHeight))
+		{
+			TabHitTest(i->second.dockWindow, cursorPosX, cursorPosY);
+		}
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
 //Tab tray message handlers
 //----------------------------------------------------------------------------------------
 LRESULT CALLBACK DockingWindow::TabTrayWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -1790,11 +1849,12 @@ LRESULT DockingWindow::msgTabTrayWM_TIMER(HWND tabTrayHwnd, WPARAM wParam, LPARA
 	//hide.
 	RECT rect;
 	GetWindowRect(currentAutoHidePanel->GetWindowHandle(), &rect);
-	int dockPanelBorderGraceSize = 10;
-	int dockPanelGraceRegionPosX = (rect.left - dockPanelBorderGraceSize);
-	int dockPanelGraceRegionPosY = (rect.top - dockPanelBorderGraceSize);
-	int dockPanelGraceRegionWidth = (rect.right - rect.left) + (2 * dockPanelBorderGraceSize);
-	int dockPanelGraceRegionHeight = (rect.bottom - rect.top) + (2 * dockPanelBorderGraceSize);
+	int dockPanelBorderGraceWidth = DPIScaleWidth(20);
+	int dockPanelBorderGraceHeight = DPIScaleWidth(20);
+	int dockPanelGraceRegionPosX = (rect.left - dockPanelBorderGraceWidth);
+	int dockPanelGraceRegionPosY = (rect.top - dockPanelBorderGraceHeight);
+	int dockPanelGraceRegionWidth = (rect.right - rect.left) + (2 * dockPanelBorderGraceWidth);
+	int dockPanelGraceRegionHeight = (rect.bottom - rect.top) + (2 * dockPanelBorderGraceHeight);
 	if((cursorPosX >= dockPanelGraceRegionPosX) && (cursorPosX < (dockPanelGraceRegionPosX + dockPanelGraceRegionWidth)) && (cursorPosY >= dockPanelGraceRegionPosY) && (cursorPosY < (dockPanelGraceRegionPosY + dockPanelGraceRegionHeight)))
 	{
 		return 0;
@@ -3470,26 +3530,41 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 					targetContentWindow = dockTab.contentWindow;
 
 					//Calculate the position and size of the extended hit region for the
-					//tab of the autohide dock panel currently being shown
+					//tab of the autohide dock panel currently being shown. Note that we
+					//also add in a leading extended hit region towards the edge of the
+					//window. This is done to handle the case where a window is maximized,
+					//and the docking window is a child of that window. In this case,
+					//there is a thin border around each edge of the window and the edge
+					//of the screen. This was measured at 2 pixels on Windows 8.1,
+					//corresponding with the SM_CXEDGE and SM_CYEDGE values. We went with
+					//the larger border sizes of SM_CXFIXEDFRAME and SM_CYFIXEDFRAME here,
+					//which were measured at 3 pixels, because it seems undocumented as to
+					//which border size should represent this border for a maximized
+					//window, and the fixed frame metrics sound like they are the ones we
+					//would have expected to be used. It's not really a problem having a
+					//larger size than is required here, so we're using the larger border
+					//dimensions at this time.
+					int tabExtendedHitAdditionalBorderMarginX = GetSystemMetrics(SM_CXFIXEDFRAME);
+					int tabExtendedHitAdditionalBorderMarginY = GetSystemMetrics(SM_CYFIXEDFRAME);
 					if(dockInfo.dockLocation == WindowEdge::Left)
 					{
-						targetTabExtendedHitRegionWidth = dockTab.tabWidth + dockingPanelTabMarginSize;
-						targetTabExtendedHitRegionX = tabTrayPosX + dockTab.tabPosX;
+						targetTabExtendedHitRegionWidth = dockTab.tabWidth + dockingPanelTabMarginSize + tabExtendedHitAdditionalBorderMarginX;
+						targetTabExtendedHitRegionX = (tabTrayPosX - tabExtendedHitAdditionalBorderMarginX);
 					}
 					else if(dockInfo.dockLocation == WindowEdge::Right)
 					{
-						targetTabExtendedHitRegionWidth = dockTab.tabWidth + dockingPanelTabMarginSize;
-						targetTabExtendedHitRegionX = tabTrayPosX + (dockTab.tabPosX - dockingPanelTabMarginSize);
+						targetTabExtendedHitRegionWidth = dockTab.tabWidth + dockingPanelTabMarginSize + tabExtendedHitAdditionalBorderMarginX;
+						targetTabExtendedHitRegionX = tabTrayPosX;
 					}
 					else if(dockInfo.dockLocation == WindowEdge::Top)
 					{
-						targetTabExtendedHitRegionHeight = dockTab.tabHeight + dockingPanelTabMarginSize;
-						targetTabExtendedHitRegionY = tabTrayPosY + dockTab.tabPosY;
+						targetTabExtendedHitRegionHeight = dockTab.tabHeight + dockingPanelTabMarginSize + tabExtendedHitAdditionalBorderMarginY;
+						targetTabExtendedHitRegionY = (tabTrayPosY - tabExtendedHitAdditionalBorderMarginY);
 					}
 					else if(dockInfo.dockLocation == WindowEdge::Bottom)
 					{
-						targetTabExtendedHitRegionHeight = dockTab.tabHeight + dockingPanelTabMarginSize;
-						targetTabExtendedHitRegionY = tabTrayPosY + (dockTab.tabPosY - dockingPanelTabMarginSize);
+						targetTabExtendedHitRegionHeight = dockTab.tabHeight + dockingPanelTabMarginSize + tabExtendedHitAdditionalBorderMarginY;
+						targetTabExtendedHitRegionY = tabTrayPosY;
 					}
 				}
 			}
