@@ -37,7 +37,14 @@ System::System(IGUIExtensionInterface& aguiExtensionInterface)
 //----------------------------------------------------------------------------------------
 System::~System()
 {
+	//Unload all currently loaded modules
 	UnloadAllModules();
+
+	//Unload all persistent global extensions
+	while(globalExtensionInfoList.empty())
+	{
+		UnloadExtension(globalExtensionInfoList.begin()->second.extension);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -2627,11 +2634,27 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 	listEntry.versionNo = entry.GetExtensionVersionNo();
 	listEntry.copyright = entry.GetExtensionCopyright();
 	listEntry.comments = entry.GetExtensionComments();
+	listEntry.persistentGlobalExtension = entry.GetIsPersistentGlobalExtension();
 	listEntry.assemblyHandle = assemblyHandle;
 	extensionLibrary.insert(ExtensionLibraryListEntry(entry.GetExtensionImplementationName(), listEntry));
 
 	//Log the extension registration
 	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Successfully registered extension " + entry.GetExtensionImplementationName() + L"."));
+
+	//If the registered extension is marked as a persistent global extension, attempt to
+	//create an instance of it now.
+	if(listEntry.persistentGlobalExtension)
+	{
+		//Log the creation attempt
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Creating instance of registered persistent global extension " + entry.GetExtensionImplementationName() + L"."));
+
+		//Attempt to create an instance of the persistent global extension, and log an
+		//error if the attempt fails.
+		if(!LoadPersistentGlobalExtension(listEntry.implementationName))
+		{
+			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to create instance of persistent global extension " + entry.GetExtensionImplementationName() + L"!"));
+		}
+	}
 
 	return true;
 }
@@ -2778,6 +2801,62 @@ IExtension* System::CreateExtension(const std::wstring& extensionName, const std
 		extension->SetAssemblyHandle(extensionLibraryIterator->second.assemblyHandle);
 	}
 	return extension;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
+{
+	//Create the new extension object
+	IExtension* extension = CreateGlobalExtension(extensionName);
+	if(extension == 0)
+	{
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"LoadPersistentGlobalExtension failed for " + extensionName + L"!"));
+		return false;
+	}
+
+	//Bind to the system interface
+	if(!extension->BindToSystemInterface(this))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToSystemInterface failed for  " + extensionName + L"!"));
+		DestroyExtension(extensionName, extension);
+		return false;
+	}
+
+	//Bind to the GUI interface
+	if(!extension->BindToGUIInterface(&guiExtensionInterface))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToGUIInterface failed for  " + extensionName + L"!"));
+		DestroyExtension(extensionName, extension);
+		return false;
+	}
+
+	//Construct the extension object
+	HierarchicalStorageNode node;
+	if(!extension->Construct(node))
+	{
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Construct failed for " + extensionName + L"!"));
+		DestroyExtension(extensionName, extension);
+		return false;
+	}
+
+	//Call BuildExtension() to perform any other required post-creation initialzation for
+	//the extension.
+	if(!extension->BuildExtension())
+	{
+		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BuildExtension failed for " + extensionName + L"!"));
+		DestroyExtension(extensionName, extension);
+		return false;
+	}
+
+	//Record information on the loaded persistent global extension
+	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
+	LoadedGlobalExtensionInfo extensionInfo;
+	extensionInfo.extension = extension;
+	extensionInfo.name = extensionName;
+	extensionInfo.globalExtension = true;
+	globalExtensionInfoList.insert(LoadedGlobalExtensionInfoListEntry(extensionInfo.name, extensionInfo));
+
+	return true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -4461,27 +4540,28 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 	while(nextGlobalExtensionEntry != globalExtensionInfoList.end())
 	{
 		LoadedGlobalExtensionInfoList::iterator currentElement = nextGlobalExtensionEntry;
+		LoadedGlobalExtensionInfo& extensionInfo = currentElement->second;
 		++nextGlobalExtensionEntry;
 
 		//Remove this module from the list of referencing modules for this global
 		//extension
-		currentElement->second.moduleIDs.erase(moduleID);
+		extensionInfo.moduleIDs.erase(moduleID);
 
 		//If the global extension is no longer referenced by any modules, remove it.
-		if(currentElement->second.moduleIDs.empty())
+		if(!extensionInfo.globalExtension && extensionInfo.moduleIDs.empty())
 		{
 			//Remove any references to this extension, IE, through ReferenceExtension.
 			for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
 			{
-				i->device->RemoveReference(currentElement->second.extension);
+				i->device->RemoveReference(extensionInfo.extension);
 			}
 			for(LoadedExtensionInfoList::const_iterator i = loadedExtensionInfoList.begin(); i != loadedExtensionInfoList.end(); ++i)
 			{
-				i->extension->RemoveReference(currentElement->second.extension);
+				i->extension->RemoveReference(extensionInfo.extension);
 			}
 
 			//Delete the extension
-			UnloadExtension(currentElement->second.extension);
+			UnloadExtension(extensionInfo.extension);
 			globalExtensionInfoList.erase(currentElement);
 		}
 	}
@@ -5212,6 +5292,7 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 	LoadedGlobalExtensionInfo extensionInfo;
 	extensionInfo.extension = extension;
 	extensionInfo.name = extensionName;
+	extensionInfo.globalExtension = false;
 	extensionInfo.moduleIDs.insert(moduleID);
 	globalExtensionInfoList.insert(LoadedGlobalExtensionInfoListEntry(extensionInfo.name, extensionInfo));
 

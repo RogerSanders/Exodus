@@ -1,6 +1,13 @@
 #include "ExtensionInfo.h"
 
 //----------------------------------------------------------------------------------------
+//Constructors
+//----------------------------------------------------------------------------------------
+ExtensionInfo::ExtensionInfo()
+:persistentGlobalExtension(false)
+{}
+
+//----------------------------------------------------------------------------------------
 //Interface version functions
 //----------------------------------------------------------------------------------------
 unsigned int ExtensionInfo::GetIExtensionInfoVersion() const
@@ -53,9 +60,15 @@ MarshalSupport::Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionComments()
 }
 
 //----------------------------------------------------------------------------------------
+bool ExtensionInfo::GetIsPersistentGlobalExtension() const
+{
+	return persistentGlobalExtension;
+}
+
+//----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const MarshalSupport::Marshal::In<std::wstring>& aextensionClassName, const MarshalSupport::Marshal::In<std::wstring>& aextensionImplementationName, unsigned int aextensionVersionNo, const MarshalSupport::Marshal::In<std::wstring>& aextensionCopyright, const MarshalSupport::Marshal::In<std::wstring>& aextensionComments)
+void ExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const MarshalSupport::Marshal::In<std::wstring>& aextensionClassName, const MarshalSupport::Marshal::In<std::wstring>& aextensionImplementationName, unsigned int aextensionVersionNo, const MarshalSupport::Marshal::In<std::wstring>& aextensionCopyright, const MarshalSupport::Marshal::In<std::wstring>& aextensionComments, bool apersistentGlobalExtension)
 {
 	SetExtensionAllocators(aAllocator, aDestructor);
 	SetExtensionClassName(aextensionClassName);
@@ -63,6 +76,7 @@ void ExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, Destructor
 	SetExtensionVersionNo(aextensionVersionNo);
 	SetExtensionCopyright(aextensionCopyright);
 	SetExtensionComments(aextensionComments);
+	SetIsPersistentGlobalExtension(apersistentGlobalExtension);
 }
 
 //----------------------------------------------------------------------------------------
@@ -100,4 +114,10 @@ void ExtensionInfo::SetExtensionCopyright(const MarshalSupport::Marshal::In<std:
 void ExtensionInfo::SetExtensionComments(const MarshalSupport::Marshal::In<std::wstring>& aextensionComments)
 {
 	comments = aextensionComments;
+}
+
+//----------------------------------------------------------------------------------------
+void ExtensionInfo::SetIsPersistentGlobalExtension(bool state)
+{
+	persistentGlobalExtension = state;
 }

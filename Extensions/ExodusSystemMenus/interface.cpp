@@ -34,7 +34,7 @@ extern "C" __declspec(dllexport) bool GetExtensionEntry(unsigned int entryNo, IE
 	switch(entryNo)
 	{
 	case 0:
-		entry.SetExtensionSettings(GetExodusSystemMenus, DeleteExodusSystemMenus, L"System.Menus", L"ExodusSystemMenus", 1, copyrightText, commentsText);
+		entry.SetExtensionSettings(GetExodusSystemMenus, DeleteExodusSystemMenus, L"System.Menus", L"ExodusSystemMenus", 1, copyrightText, commentsText, true);
 		return true;
 	}
 	return false;

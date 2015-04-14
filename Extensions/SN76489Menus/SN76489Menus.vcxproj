@@ -272,7 +272,6 @@
     <ClInclude Include="SN76489Menus.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\Exodus\Resources\folder.ico" />
     <Image Include="folder.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -280,5 +279,5 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
-  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets"/>
+  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets" />
 </Project>

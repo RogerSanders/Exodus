@@ -47,7 +47,6 @@ public:
 	virtual bool RemoveReference(IClockSource* target) = 0;
 
 	//Name functions
-	//##TODO## Add a way here to determine if this is a global extension
 	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionClassName() const = 0;
 	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionInstanceName() const = 0;
 	virtual unsigned int GetExtensionModuleID() const = 0;

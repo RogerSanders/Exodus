@@ -389,6 +389,7 @@ private:
 	//Extension creation and deletion
 	IExtension* CreateGlobalExtension(const std::wstring& extensionName) const;
 	IExtension* CreateExtension(const std::wstring& extensionName, const std::wstring& instanceName, unsigned int moduleID) const;
+	bool LoadPersistentGlobalExtension(const std::wstring& extensionName);
 	void DestroyExtension(const std::wstring& extensionName, IExtension* extension) const;
 	void UnloadExtension(IExtension* aextension);
 

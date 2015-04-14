@@ -21,18 +21,6 @@
 	<Device DeviceName="TimedBufferIntDevice" InstanceName="VDP - VSRAM" MemoryEntryCount="0x50" KeepLatestBufferCopy="True" RepeatData="1" BinaryDataPresent="1">07FF</Device>
 	<Device DeviceName="TimedBufferIntDevice" InstanceName="VDP - SpriteCache" MemoryEntryCount="0x140" />
 
-	<!-- Menu Handlers -->
-	<!-- ##TODO## Implement support for global extensions that load automatically, so we can remove these entries here. -->
-	<GlobalExtension ExtensionName="ExodusSystemMenus" />
-	<GlobalExtension ExtensionName="S315-5313Menus" />
-	<GlobalExtension ExtensionName="ProcessorMenus" />
-	<GlobalExtension ExtensionName="M68000Menus" />
-	<GlobalExtension ExtensionName="MemoryMenus" />
-	<GlobalExtension ExtensionName="YM2612Menus" />
-	<GlobalExtension ExtensionName="SN76489Menus" />
-	<GlobalExtension ExtensionName="Z80Menus" />
-	<GlobalExtension ExtensionName="GenericAccessMenus" />
-
 	<!-- Bus Objects -->
 	<BusInterface Name="M68kBus" AddressBusWidth="24" DataBusWidth="16" />
 	<BusInterface Name="Z80Bus" AddressBusWidth="16" DataBusWidth="8" />

@@ -81,7 +81,6 @@
     <Image Include="folder.ico">
       <Filter>Resources</Filter>
     </Image>
-    <Image Include="..\..\Exodus\Resources\folder.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SN76489Menus.rc">
