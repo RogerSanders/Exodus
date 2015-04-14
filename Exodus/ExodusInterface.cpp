@@ -2749,6 +2749,22 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 	case WM_USER+3: //Initialize platform
 		state->InitializeSystem();
 		break;
+	case WM_NCHITTEST:{
+		//If a hit test reports the current cursor position as in the border region, the
+		//cursor may be against the edge of the window while in a maximized state, as
+		//Windows appears to provide a thin border in this case. This causes problems with
+		//our child docking window, as tabs for docked containers in auto hide mode won't
+		//trigger if the cursor is against the edge of the screen. We explicitly perform
+		//a hit test operation here to handle this case, so that tabs will trigger if the
+		//mouse is within the extended hit region for a tab. The docking window hit test
+		//functions provide an extended hit region which allows for the presence of this
+		//border when performing the hit testing.
+		LRESULT result = DefWindowProc(hwnd, WM_NCHITTEST, wParam, lParam);
+		if(result == HTBORDER)
+		{
+			SendMessage(state->mainDockingWindowHandle, (UINT)DockingWindow::WindowMessages::PerformTabHitTest, 0, lParam);
+		}
+		return result;}
 	case WM_COMMAND:{
 		if(state == 0)
 		{

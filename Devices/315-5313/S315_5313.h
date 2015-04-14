@@ -46,6 +46,8 @@ References:
 -Sega Master System VDP Documentation (msvdp.txt), Charles MacDonald, 12/11/2002
 -315-5313 Information (vdppin.txt), Charles MacDonald, 2008
 -TMS9918A/TMS9928A/TMS9929A Video Display Processors, Texas Instruments, 1982
+-http://gendev.spritesmind.net/forum/viewtopic.php?t=666
+-http://mamedev.emulab.it/haze/2006/08/09/mirror-mirror/
 \*--------------------------------------------------------------------------------------*/
 #include "IS315_5313.h"
 #ifndef __S315_5313_H__
@@ -701,15 +703,6 @@ private:
 	unsigned int bvsramReadCacheIndex;
 	Data vsramLastRenderReadCache;
 	Data bvsramLastRenderReadCache;
-
-	//##TODO## Sprite buffer registers
-	//We know from this: http://gendev.spritesmind.net/forum/viewtopic.php?t=666&postdays=0&postorder=asc&highlight=fifo&start=0
-	//And this: http://mamedev.emulab.it/haze/2006/08/09/mirror-mirror/
-	//That the sprite table is partially buffered internally. We need to implement that
-	//sprite buffer here, and snoop on VRAM writes to update it, just like the real VDP
-	//does.
-	//##TODO## We know from testing that the sprite table cache simply caches the first
-	//4 bytes of each 8-byte sprite entry. Implement that here as a simple data buffer.
 
 	//Update state
 	double currentTimesliceLength; //The length of the current timeslice, as passed to NotifyUpcomingTimeslice().

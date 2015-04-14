@@ -16,7 +16,8 @@ enum class DockingWindow::WindowMessages :unsigned int
 	GetDockedWindowCount,
 	GetDockedWindowInfo,
 	GetActiveContentWindow,
-	SetActiveContentWindow
+	SetActiveContentWindow,
+	PerformTabHitTest
 };
 
 //----------------------------------------------------------------------------------------
