@@ -95,7 +95,6 @@ private:
 	//Structures
 	struct ViewInfo;
 	struct ViewOperation;
-	struct WorkspaceViewEntryDetails;
 	struct PlaceholderWindowInfo;
 	struct OpenWindowInfo;
 	struct InvokeUIParams;

@@ -138,11 +138,11 @@ public:
 	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu) const = 0;
 	virtual void BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const = 0;
 	virtual void BuildDebugMenu(IMenuSubmenu& menuSubmenu) const = 0;
-	virtual bool RestoreViewStateForSystem(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState) const = 0;
-	virtual bool RestoreViewStateForModule(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID) const = 0;
-	virtual bool RestoreViewStateForDevice(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& deviceInstanceName) const = 0;
-	virtual bool RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const = 0;
-	virtual bool RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const = 0;
+	virtual bool RestoreViewStateForSystem(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter) const = 0;
+	virtual bool RestoreViewStateForModule(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID) const = 0;
+	virtual bool RestoreViewStateForDevice(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& deviceInstanceName) const = 0;
+	virtual bool RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const = 0;
+	virtual bool RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const = 0;
 };
 
 #include "ISystemGUIInterface.inl"

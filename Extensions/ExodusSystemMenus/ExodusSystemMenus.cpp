@@ -104,17 +104,17 @@ void ExodusSystemMenus::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& 
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusSystemMenus::RestoreSystemViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState)
+bool ExodusSystemMenus::RestoreSystemViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter)
 {
 	bool result = false;
-	result |= debugMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState);
-	result |= settingsMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState);
-	result |= systemMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState);
+	result |= debugMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
+	result |= settingsMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
+	result |= systemMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
 	return result;
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusSystemMenus::RestoreModuleViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID)
+bool ExodusSystemMenus::RestoreModuleViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID)
 {
 	//Nothing to do here, since our current module option menu handler has no views.
 	return false;

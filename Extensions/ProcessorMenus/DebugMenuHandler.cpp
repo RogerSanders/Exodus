@@ -25,7 +25,7 @@ void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) co
 	}
 	menuItems.push_back(MenuItemDefinition(MENUITEM_BREAKPOINTS, L"Breakpoints", BreakpointViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_CALLSTACK, L"CallStack", CallStackViewPresenter::GetUnqualifiedViewTitle(), true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_DISASSEMBLY, L"Disassembly", DisassemblyViewPresenter::GetUnqualifiedViewTitle(), true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_DISASSEMBLY, L"Disassembly", DisassemblyViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_CONTROL, L"ProcessorControl", ControlViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_TRACE, L"Trace", TraceViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_WATCHPOINTS, L"Watchpoints", WatchpointViewPresenter::GetUnqualifiedViewTitle(), true));

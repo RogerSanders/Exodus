@@ -3,28 +3,25 @@
 //----------------------------------------------------------------------------------------
 struct MenuHandlerBase::MenuItemDefinition
 {
-	MenuItemDefinition(int amenuItemID, const std::wstring& amenuItemName, const std::wstring& amenuItemTitle, bool amenuItemOpensView, bool ahiddenMenuItem = false)
-	:menuItemID(amenuItemID), menuItemName(amenuItemName), menuItemTitle(amenuItemTitle), menuItemOpensView(amenuItemOpensView), hiddenMenuItem(ahiddenMenuItem)
+	MenuItemDefinition(int amenuItemID, const std::wstring& amenuItemName, const std::wstring& amenuItemTitle, bool amenuItemOpensView, bool aallowOpenViewMultipleTimes = false, bool ahiddenMenuItem = false)
+	:menuItemID(amenuItemID), menuItemName(amenuItemName), menuItemTitle(amenuItemTitle), menuItemOpensView(amenuItemOpensView), allowOpenViewMultipleTimes(aallowOpenViewMultipleTimes), hiddenMenuItem(ahiddenMenuItem)
 	{}
 
 	int menuItemID;
 	std::wstring menuItemName;
 	std::wstring menuItemTitle;
 	bool menuItemOpensView;
+	bool allowOpenViewMultipleTimes;
 	bool hiddenMenuItem;
 };
 
 //----------------------------------------------------------------------------------------
 struct MenuHandlerBase::MenuItemInternal
 {
-	MenuItemInternal(int amenuItemID, const std::wstring& amenuItemName, const std::wstring& amenuItemTitle, bool amenuItemOpensView, bool ahiddenMenuItem)
-	:viewPresenter(0), menuItemID(amenuItemID), menuItemName(amenuItemName), menuItemTitle(amenuItemTitle), menuItemOpensView(amenuItemOpensView), hiddenMenuItem(ahiddenMenuItem)
+	MenuItemInternal(MenuItemDefinition aitemDefinition)
+	:itemDefinition(aitemDefinition)
 	{}
 
-	IViewPresenter* viewPresenter;
-	int menuItemID;
-	std::wstring menuItemName;
-	std::wstring menuItemTitle;
-	bool menuItemOpensView;
-	bool hiddenMenuItem;
+	std::set<IViewPresenter*> viewPresenters;
+	MenuItemDefinition itemDefinition;
 };

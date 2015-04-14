@@ -50,9 +50,10 @@ void DebugMenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* viewPre
 //----------------------------------------------------------------------------------------
 void DebugMenuHandler::OpenOperatorView(unsigned int achannelNo, unsigned int aoperatorNo)
 {
-	IViewPresenter* viewPresenter = GetViewIfOpen(MENUITEM_OPERATOR);
-	if(viewPresenter != 0)
+	std::set<IViewPresenter*> viewPresenters = GetOpenViewPresenters(MENUITEM_OPERATOR);
+	if(!viewPresenters.empty())
 	{
+		IViewPresenter* viewPresenter = *viewPresenters.begin();
 		OperatorViewPresenter* operatorViewPresenter = dynamic_cast<OperatorViewPresenter*>(viewPresenter);
 		if(operatorViewPresenter != 0)
 		{
@@ -61,7 +62,7 @@ void DebugMenuHandler::OpenOperatorView(unsigned int achannelNo, unsigned int ao
 	}
 	else
 	{
-		viewPresenter = new OperatorViewPresenter(GetMenuHandlerName(), GetMenuItemName(MENUITEM_OPERATOR), MENUITEM_OPERATOR, owner, modelInstanceKey, model, achannelNo, aoperatorNo);
+		IViewPresenter* viewPresenter = new OperatorViewPresenter(GetMenuHandlerName(), GetMenuItemName(MENUITEM_OPERATOR), MENUITEM_OPERATOR, owner, modelInstanceKey, model, achannelNo, aoperatorNo);
 		if(!AddCreatedView(MENUITEM_OPERATOR, viewPresenter))
 		{
 			delete viewPresenter;

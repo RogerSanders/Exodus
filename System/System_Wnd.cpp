@@ -199,20 +199,20 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForSystem(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState) const
+bool System::RestoreViewStateForSystem(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();
 	bool result = false;
 	for(std::set<IExtension*>::const_iterator i = systemMenuHandlers.begin(); i != systemMenuHandlers.end(); ++i)
 	{
-		result |= (*i)->RestoreSystemViewState(viewGroupNameCached, viewNameCached, viewState);
+		result |= (*i)->RestoreSystemViewState(viewGroupNameCached, viewNameCached, viewState, restoredViewPresenter);
 	}
 	return result;
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForModule(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID) const
+bool System::RestoreViewStateForModule(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();
@@ -223,14 +223,14 @@ bool System::RestoreViewStateForModule(const MarshalSupport::Marshal::In<std::ws
 		const LoadedModuleInfoInternal& loadedModuleInfo = loadedModuleInfoIterator->second;
 		for(std::set<IExtension*>::const_iterator menuHandlerIterator = loadedModuleInfo.menuHandlers.begin(); menuHandlerIterator != loadedModuleInfo.menuHandlers.end(); ++menuHandlerIterator)
 		{
-			result |= (*menuHandlerIterator)->RestoreModuleViewState(viewGroupNameCached, viewNameCached, viewState, moduleID);
+			result |= (*menuHandlerIterator)->RestoreModuleViewState(viewGroupNameCached, viewNameCached, viewState, restoredViewPresenter, moduleID);
 		}
 	}
 	return result;
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForDevice(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& deviceInstanceName) const
+bool System::RestoreViewStateForDevice(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& deviceInstanceName) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();
@@ -245,7 +245,7 @@ bool System::RestoreViewStateForDevice(const MarshalSupport::Marshal::In<std::ws
 			foundDevice = true;
 			for(std::set<IExtension*>::const_iterator menuHandlerIterator = loadedDeviceIterator->menuHandlers.begin(); menuHandlerIterator != loadedDeviceIterator->menuHandlers.end(); ++menuHandlerIterator)
 			{
-				result |= (*menuHandlerIterator)->RestoreDeviceViewState(viewGroupNameCached, viewNameCached, viewState, loadedDeviceIterator->device);
+				result |= (*menuHandlerIterator)->RestoreDeviceViewState(viewGroupNameCached, viewNameCached, viewState, restoredViewPresenter, loadedDeviceIterator->device);
 			}
 		}
 		++loadedDeviceIterator;
@@ -254,7 +254,7 @@ bool System::RestoreViewStateForDevice(const MarshalSupport::Marshal::In<std::ws
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const
+bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();
@@ -270,7 +270,7 @@ bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std:
 			foundDevice = true;
 			for(std::set<IExtension*>::const_iterator menuHandlerIterator = loadedGlobalExtensionInfo.menuHandlers.begin(); menuHandlerIterator != loadedGlobalExtensionInfo.menuHandlers.end(); ++menuHandlerIterator)
 			{
-				result |= (*menuHandlerIterator)->RestoreExtensionViewState(viewGroupNameCached, viewNameCached, viewState, loadedGlobalExtensionInfo.extension);
+				result |= (*menuHandlerIterator)->RestoreExtensionViewState(viewGroupNameCached, viewNameCached, viewState, restoredViewPresenter, loadedGlobalExtensionInfo.extension);
 			}
 		}
 		++loadedGlobalExtensionIterator;
@@ -279,7 +279,7 @@ bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std:
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const
+bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();
@@ -294,7 +294,7 @@ bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std:
 			foundDevice = true;
 			for(std::set<IExtension*>::const_iterator menuHandlerIterator = loadedExtensionIterator->menuHandlers.begin(); menuHandlerIterator != loadedExtensionIterator->menuHandlers.end(); ++menuHandlerIterator)
 			{
-				result |= (*menuHandlerIterator)->RestoreExtensionViewState(viewGroupNameCached, viewNameCached, viewState, loadedExtensionIterator->extension);
+				result |= (*menuHandlerIterator)->RestoreExtensionViewState(viewGroupNameCached, viewNameCached, viewState, restoredViewPresenter, loadedExtensionIterator->extension);
 			}
 		}
 		++loadedExtensionIterator;

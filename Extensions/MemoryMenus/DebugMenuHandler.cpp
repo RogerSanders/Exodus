@@ -13,7 +13,7 @@ DebugMenuHandler::DebugMenuHandler(MemoryMenus& aowner, const IDevice& amodelIns
 //----------------------------------------------------------------------------------------
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_MEMORYEDITOR, L"MemoryEditor", MemoryEditorViewPresenter::GetUnqualifiedViewTitle(), true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_MEMORYEDITOR, L"MemoryEditor", MemoryEditorViewPresenter::GetUnqualifiedViewTitle(), true, true));
 }
 
 //----------------------------------------------------------------------------------------

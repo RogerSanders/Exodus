@@ -1570,7 +1570,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 	//Iterate through each valid window entry in the file, and open matching windows with
 	//the specified properties. Z-Order is based on the order the windows are listed in
 	//the file.
-	std::list<WorkspaceViewEntryDetails> loadedWorkspaceViewInfo;
+	std::set<IViewPresenter*> loadedWorkspaceViewSet;
 	IHierarchicalStorageNode* viewPresenterStateNode = viewLayout.GetChild(L"ViewPresenterState");
 	while(viewPresenterStateNode != 0)
 	{
@@ -1586,12 +1586,14 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 			std::wstring viewName = viewNameAttribute->GetValue();
 
 			//Restore the view
+			IViewPresenter* restoredViewPresenter;
 			if(target == L"System")
 			{
-				if(system.RestoreViewStateForSystem(viewGroupName, viewName, *viewPresenterStateNode))
+				if(system.RestoreViewStateForSystem(viewGroupName, viewName, *viewPresenterStateNode, &restoredViewPresenter))
 				{
-					//If the view state was restored, save info about this view.
-					loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::System));
+					//If the view state was restored, add the used view to the loaded view
+					//set.
+					loadedWorkspaceViewSet.insert(restoredViewPresenter);
 				}
 			}
 			else if(target == L"Module")
@@ -1609,11 +1611,11 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 						{
 							//If we found a matching loaded module for the saved data,
 							//attempt to restore the view state.
-							if(system.RestoreViewStateForModule(viewGroupName, viewName, *viewPresenterStateNode, moduleRelationship.loadedModuleID))
+							if(system.RestoreViewStateForModule(viewGroupName, viewName, *viewPresenterStateNode, &restoredViewPresenter, moduleRelationship.loadedModuleID))
 							{
-								//If the view state was restored, save info about this
-								//view.
-								loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::Module, moduleRelationship.loadedModuleID));
+								//If the view state was restored, add the used view to the
+								//loaded view set.
+								loadedWorkspaceViewSet.insert(restoredViewPresenter);
 							}
 						}
 					}
@@ -1636,11 +1638,11 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 						{
 							//If we found a matching loaded module for the saved data,
 							//attempt to restore the view state.
-							if(system.RestoreViewStateForDevice(viewGroupName, viewName, *viewPresenterStateNode, moduleRelationship.loadedModuleID, deviceInstanceName))
+							if(system.RestoreViewStateForDevice(viewGroupName, viewName, *viewPresenterStateNode, &restoredViewPresenter, moduleRelationship.loadedModuleID, deviceInstanceName))
 							{
-								//If the view state was restored, save info about this
-								//view.
-								loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::Device, moduleRelationship.loadedModuleID, deviceInstanceName));
+								//If the view state was restored, add the used view to the
+								//loaded view set.
+								loadedWorkspaceViewSet.insert(restoredViewPresenter);
 							}
 						}
 					}
@@ -1654,10 +1656,11 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 				{
 					//Attempt to restore the view state
 					std::wstring extensionInstanceName = extensionInstanceNameAttribute->GetValue();
-					if(system.RestoreViewStateForExtension(viewGroupName, viewName, *viewPresenterStateNode, extensionInstanceName))
+					if(system.RestoreViewStateForExtension(viewGroupName, viewName, *viewPresenterStateNode, &restoredViewPresenter, extensionInstanceName))
 					{
-						//If the view state was restored, save info about this view.
-						loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::Extension, 0, extensionInstanceName, true));
+						//If the view state was restored, add the used view to the loaded
+						//view set.
+						loadedWorkspaceViewSet.insert(restoredViewPresenter);
 					}
 				}
 				else if((extensionInstanceNameAttribute != 0) && (moduleIDAttribute != 0))
@@ -1673,11 +1676,11 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 						{
 							//If we found a matching loaded module for the saved data,
 							//attempt to restore the view state.
-							if(system.RestoreViewStateForExtension(viewGroupName, viewName, *viewPresenterStateNode, moduleRelationship.loadedModuleID, extensionInstanceName))
+							if(system.RestoreViewStateForExtension(viewGroupName, viewName, *viewPresenterStateNode, &restoredViewPresenter, moduleRelationship.loadedModuleID, extensionInstanceName))
 							{
-								//If the view state was restored, save info about this
-								//view.
-								loadedWorkspaceViewInfo.push_back(WorkspaceViewEntryDetails(viewGroupName, viewName, IViewPresenter::ViewTarget::Extension, moduleRelationship.loadedModuleID, extensionInstanceName));
+								//If the view state was restored, add the used view to the
+								//loaded view set.
+								loadedWorkspaceViewSet.insert(restoredViewPresenter);
 							}
 						}
 					}
@@ -1690,37 +1693,11 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 	}
 
 	//Close any views which were not referenced in the workspace file
-	for(std::set<IViewPresenter*>::const_iterator existingViewSetIterator = existingViewSet.begin(); existingViewSetIterator != existingViewSet.end(); ++existingViewSetIterator)
+	std::set<IViewPresenter*> existingViewsToClose;
+	std::set_difference(existingViewSet.begin(), existingViewSet.end(), loadedWorkspaceViewSet.begin(), loadedWorkspaceViewSet.end(), std::inserter(existingViewsToClose, existingViewsToClose.end()));
+	for(std::set<IViewPresenter*>::const_iterator i = existingViewsToClose.begin(); i != existingViewsToClose.end(); ++i)
 	{
-		IViewPresenter& existingView = *(*existingViewSetIterator);
-		bool viewReferenced = false;
-		std::list<WorkspaceViewEntryDetails>::const_iterator loadedViewDetails = loadedWorkspaceViewInfo.begin();
-		while(!viewReferenced && (loadedViewDetails != loadedWorkspaceViewInfo.end()))
-		{
-			if((existingView.GetViewGroupName() == loadedViewDetails->viewGroupName) && (existingView.GetViewName() == loadedViewDetails->viewName))
-			{
-				switch(loadedViewDetails->viewTarget)
-				{
-				case IViewPresenter::ViewTarget::System:
-					viewReferenced = true;
-					break;
-				case IViewPresenter::ViewTarget::Module:
-					viewReferenced = (existingView.GetViewTargetModuleID() == loadedViewDetails->moduleID);
-					break;
-				case IViewPresenter::ViewTarget::Device:
-					viewReferenced = (existingView.GetViewTargetModuleID() == loadedViewDetails->moduleID) && (existingView.GetViewTargetDeviceInstanceName() == loadedViewDetails->instanceName);
-					break;
-				case IViewPresenter::ViewTarget::Extension:
-					viewReferenced = (existingView.GetViewTargetExtensionInstanceName() == loadedViewDetails->instanceName) && (existingView.GetViewTargetGlobalExtension() == loadedViewDetails->globalExtension) && (loadedViewDetails->globalExtension || (existingView.GetViewTargetModuleID() == loadedViewDetails->moduleID));
-					break;
-				}
-			}
-			++loadedViewDetails;
-		}
-		if(!viewReferenced)
-		{
-			CloseView(existingView, false);
-		}
+		CloseView(*(*i), false);
 	}
 
 	//Destroy any previously open dashboard windows
