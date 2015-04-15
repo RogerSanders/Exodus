@@ -374,6 +374,10 @@ LRESULT WC_DataGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgGRID_UPDATECELLTEXT(wParam, lParam);
 	case (unsigned int)WindowMessages::UpdateColumnText:
 		return msgGRID_UPDATECOLUMNTEXT(wParam, lParam);
+	case (unsigned int)WindowMessages::UpdateRowText:
+		return msgGRID_UPDATEROWTEXT(wParam, lParam);
+	case (unsigned int)WindowMessages::UpdateMultipleRowText:
+		return msgGRID_UPDATEMULTIPLEROWTEXT(wParam, lParam);
 	case (unsigned int)WindowMessages::SetControlColor:
 		return msgGRID_SETCONTROLCOLOR(wParam, lParam);
 	case (unsigned int)WindowMessages::SetRowColor:
@@ -3064,7 +3068,7 @@ LRESULT WC_DataGrid::msgGRID_SETDATAAREAFONT(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam)
 {
-	const Grid_InsertColumn& info = *((Grid_InsertColumn*)lParam);
+	const Grid_InsertColumn& info = *((const Grid_InsertColumn*)lParam);
 
 	//Insert the new column into our header array
 	columnData.push_back(ColumnData(info.name, info.columnID, info.editingAllowed, info.cellType));
@@ -3164,7 +3168,7 @@ LRESULT WC_DataGrid::msgGRID_DELETECOLUMN(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_INSERTROWS(WPARAM wParam, LPARAM lParam)
 {
-	const Grid_InsertRows& info = *((Grid_InsertRows*)lParam);
+	const Grid_InsertRows& info = *((const Grid_InsertRows*)lParam);
 
 	//Clear any existing data for all rows if requested
 	//##FIX## Determine what we need to do to handle custom controls for columns here. I
@@ -3278,7 +3282,7 @@ LRESULT WC_DataGrid::msgGRID_INSERTROWS(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_DELETEROWS(WPARAM wParam, LPARAM lParam)
 {
-	const Grid_DeleteRows& info = *((Grid_DeleteRows*)lParam);
+	const Grid_DeleteRows& info = *((const Grid_DeleteRows*)lParam);
 
 	//Resize any data buffers that need to be adjusted
 	if((size_t)info.targetRowNo < rowColorDataArray.size())
@@ -3407,7 +3411,7 @@ LRESULT WC_DataGrid::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 	ColumnIDIndexIterator columnIterator = columnIDIndex.find(targetColumnID);
 	if(columnIterator != columnIDIndex.end())
 	{
-		const Grid_SetColumnInfo& info = *((Grid_SetColumnInfo*)lParam);
+		const Grid_SetColumnInfo& info = *((const Grid_SetColumnInfo*)lParam);
 		ColumnData* i = columnIterator->second;
 
 		//If cell editing is about to be disabled for this column, and we have a currently
@@ -3444,7 +3448,7 @@ LRESULT WC_DataGrid::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETCELLINFO(WPARAM wParam, LPARAM lParam)
 {
-	const Grid_SetCellInfo& cellInfo = *((Grid_SetCellInfo*)lParam);
+	const Grid_SetCellInfo& cellInfo = *((const Grid_SetCellInfo*)lParam);
 
 	if(!cellInfo.defined)
 	{
@@ -3477,7 +3481,7 @@ LRESULT WC_DataGrid::msgGRID_SETCELLINFO(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_UPDATECELLTEXT(WPARAM wParam, LPARAM lParam)
 {
-	const Grid_UpdateCellText& info = *((Grid_UpdateCellText*)lParam);
+	const Grid_UpdateCellText& info = *((const Grid_UpdateCellText*)lParam);
 
 	//Retrieve information on the specified column
 	ColumnIDIndexIterator columnIterator = columnIDIndex.find(info.columnID);
@@ -3548,7 +3552,7 @@ LRESULT WC_DataGrid::msgGRID_UPDATECELLTEXT(WPARAM wParam, LPARAM lParam)
 LRESULT WC_DataGrid::msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam)
 {
 	unsigned int targetColumnID = (unsigned int)wParam;
-	const std::vector<std::wstring>& text = *((std::vector<std::wstring>*)lParam);
+	const std::vector<std::wstring>& text = *((const std::vector<std::wstring>*)lParam);
 
 	//Retrieve information on the specified column
 	ColumnIDIndexIterator columnIterator = columnIDIndex.find(targetColumnID);
@@ -3599,9 +3603,193 @@ LRESULT WC_DataGrid::msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam)
 }
 
 //----------------------------------------------------------------------------------------
+LRESULT WC_DataGrid::msgGRID_UPDATEROWTEXT(WPARAM wParam, LPARAM lParam)
+{
+	unsigned int rowNo = (unsigned int)wParam;
+	const std::map<unsigned int, std::wstring>& columnData = *((const std::map<unsigned int, std::wstring>*)lParam);
+
+	//Update each provided value for each target column
+	bool providedDataValid = true;
+	bool updatedDataValue = false;
+	for(std::map<unsigned int, std::wstring>::const_iterator columnDataIterator = columnData.begin(); columnDataIterator != columnData.end(); ++columnDataIterator)
+	{
+		unsigned int columnID = columnDataIterator->first;
+		const std::wstring& newText = columnDataIterator->second;
+
+		//Retrieve information on the specified column
+		ColumnIDIndexIterator columnIterator = columnIDIndex.find(columnID);
+		if(columnIterator == columnIDIndex.end())
+		{
+			providedDataValid = false;
+			continue;
+		}
+		ColumnData* column = columnIterator->second;
+
+		//Ensure the specified row number lies within the data array for the specified column
+		bool resizedDataBuffer = false;
+		if((size_t)rowNo >= column->dataBuffer.size())
+		{
+			if(!autoScrollingManagement)
+			{
+				//If auto scrolling management is disabled, and the row number is larger than
+				//the data buffer, return a failure, since the specified row number must
+				//correspond to a visible row number in this case.
+				providedDataValid = false;
+				continue;
+			}
+			else
+			{
+				//If auto scrolling management is active, and the row number is larger than
+				//the data buffer, extend the data buffer to include the target row.
+				column->dataBuffer.resize((size_t)rowNo + 1);
+				resizedDataBuffer = true;
+				updatedDataValue = true;
+			}
+		}
+
+		//If we haven't come across a changed value in this update so far, check if the
+		//new value is different from the current value, and skip this entry if it is not.
+		if(!updatedDataValue && !resizedDataBuffer && (column->dataBuffer[rowNo] == newText))
+		{
+			continue;
+		}
+
+		//Load the specified cell data into the data buffer for the target column
+		column->dataBuffer[rowNo] = newText;
+		updatedDataValue = true;
+	}
+
+	//If no data values were changed in this update, abort any further processing.
+	if(!updatedDataValue)
+	{
+		return (providedDataValid)? 0: 1;
+	}
+
+	//Recalculate all automatically sized column widths
+	RecalculateColumnWidths();
+
+	//Calculate the new the highest column data index
+	unsigned int newLargestColumnDataArraySize = CalculateLargestColumnDataArraySize();
+
+	//If the highest column data index has changed, apply the new setting, and update
+	//scroll information for the control.
+	if(largestColumnDataArraySize != newLargestColumnDataArraySize)
+	{
+		largestColumnDataArraySize = newLargestColumnDataArraySize;
+		if(autoScrollingManagement)
+		{
+			//Calculate new vertical scroll values automatically based on the current state
+			RecalculateScrollPosition();
+
+			//Update the current scrollbar state
+			UpdateScrollbarSettings(currentScrollHOffset, vscrollCurrent, true);
+		}
+	}
+
+	//Force the control to redraw
+	ForceControlRedraw();
+
+	return (providedDataValid)? 0: 1;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_DataGrid::msgGRID_UPDATEMULTIPLEROWTEXT(WPARAM wParam, LPARAM lParam)
+{
+	const std::map<unsigned int, std::map<unsigned int, std::wstring>>& newTextForColumns = *((const std::map<unsigned int, std::map<unsigned int, std::wstring>>*)lParam);
+
+	//Update each provided value for each target row and column
+	bool providedDataValid = true;
+	bool updatedDataValue = false;
+	for(std::map<unsigned int, std::map<unsigned int, std::wstring>>::const_iterator rowDataIterator = newTextForColumns.begin(); rowDataIterator != newTextForColumns.end(); ++rowDataIterator)
+	{
+		unsigned int rowNo = rowDataIterator->first;
+		const std::map<unsigned int, std::wstring>& columnData = rowDataIterator->second;
+		for(std::map<unsigned int, std::wstring>::const_iterator columnDataIterator = columnData.begin(); columnDataIterator != columnData.end(); ++columnDataIterator)
+		{
+			unsigned int columnID = columnDataIterator->first;
+			const std::wstring& newText = columnDataIterator->second;
+
+			//Retrieve information on the specified column
+			ColumnIDIndexIterator columnIterator = columnIDIndex.find(columnID);
+			if(columnIterator == columnIDIndex.end())
+			{
+				providedDataValid = false;
+				continue;
+			}
+			ColumnData* column = columnIterator->second;
+
+			//Ensure the specified row number lies within the data array for the specified column
+			bool resizedDataBuffer = false;
+			if((size_t)rowNo >= column->dataBuffer.size())
+			{
+				if(!autoScrollingManagement)
+				{
+					//If auto scrolling management is disabled, and the row number is larger than
+					//the data buffer, return a failure, since the specified row number must
+					//correspond to a visible row number in this case.
+					providedDataValid = false;
+					continue;
+				}
+				else
+				{
+					//If auto scrolling management is active, and the row number is larger than
+					//the data buffer, extend the data buffer to include the target row.
+					column->dataBuffer.resize((size_t)rowNo + 1);
+					resizedDataBuffer = true;
+					updatedDataValue = true;
+				}
+			}
+
+			//If we haven't come across a changed value in this update so far, check if the
+			//new value is different from the current value, and skip this entry if it is not.
+			if(!updatedDataValue && !resizedDataBuffer && (column->dataBuffer[rowNo] == newText))
+			{
+				continue;
+			}
+
+			//Load the specified cell data into the data buffer for the target column
+			column->dataBuffer[rowNo] = newText;
+			updatedDataValue = true;
+		}
+	}
+
+	//If no data values were changed in this update, abort any further processing.
+	if(!updatedDataValue)
+	{
+		return (providedDataValid)? 0: 1;
+	}
+
+	//Recalculate all automatically sized column widths
+	RecalculateColumnWidths();
+
+	//Calculate the new the highest column data index
+	unsigned int newLargestColumnDataArraySize = CalculateLargestColumnDataArraySize();
+
+	//If the highest column data index has changed, apply the new setting, and update
+	//scroll information for the control.
+	if(largestColumnDataArraySize != newLargestColumnDataArraySize)
+	{
+		largestColumnDataArraySize = newLargestColumnDataArraySize;
+		if(autoScrollingManagement)
+		{
+			//Calculate new vertical scroll values automatically based on the current state
+			RecalculateScrollPosition();
+
+			//Update the current scrollbar state
+			UpdateScrollbarSettings(currentScrollHOffset, vscrollCurrent, true);
+		}
+	}
+
+	//Force the control to redraw
+	ForceControlRedraw();
+
+	return (providedDataValid)? 0: 1;
+}
+
+//----------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETCONTROLCOLOR(WPARAM wParam, LPARAM lParam)
 {
-	const Grid_SetControlColor& controlColorInfo = *((Grid_SetControlColor*)lParam);
+	const Grid_SetControlColor& controlColorInfo = *((const Grid_SetControlColor*)lParam);
 	userColorData.backgroundColorDefined = controlColorInfo.backgroundColorDefined;
 	userColorData.colorBackground = controlColorInfo.colorBackground;
 	userColorData.textColorDefined = controlColorInfo.textColorDefined;
@@ -3619,7 +3807,7 @@ LRESULT WC_DataGrid::msgGRID_SETCONTROLCOLOR(WPARAM wParam, LPARAM lParam)
 LRESULT WC_DataGrid::msgGRID_SETROWCOLOR(WPARAM wParam, LPARAM lParam)
 {
 	unsigned int targetRowID = (unsigned int)wParam;
-	const Grid_SetRowColor& rowColorInfo = *((Grid_SetRowColor*)lParam);
+	const Grid_SetRowColor& rowColorInfo = *((const Grid_SetRowColor*)lParam);
 	if(targetRowID >= (unsigned int)rowColorDataArray.size())
 	{
 		return 1;
@@ -3645,7 +3833,7 @@ LRESULT WC_DataGrid::msgGRID_SETROWCOLOR(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETCELLCOLOR(WPARAM wParam, LPARAM lParam)
 {
-	const Grid_SetCellColor& cellColorInfo = *((Grid_SetCellColor*)lParam);
+	const Grid_SetCellColor& cellColorInfo = *((const Grid_SetCellColor*)lParam);
 
 	//If a custom colour has been undefined for the target cell, remove it, otherwise add
 	//it to the set of customized cell colours.
@@ -3689,7 +3877,7 @@ LRESULT WC_DataGrid::msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam)
 	}
 
 	//Apply the new vscroll settings
-	const Grid_SetVScrollInfo& info = *((Grid_SetVScrollInfo*)lParam);
+	const Grid_SetVScrollInfo& info = *((const Grid_SetVScrollInfo*)lParam);
 	vscrollCurrent = info.currentPos;
 	vscrollValuesPerPage = info.valuesPerPage;
 	vscrollMin = info.minPos;
