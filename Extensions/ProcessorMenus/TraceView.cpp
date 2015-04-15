@@ -105,22 +105,34 @@ LRESULT TraceView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Update the data grid
+	//Retrieve the latest trace log
 	std::list<IProcessor::TraceLogEntry> traceList = model.GetTraceLog();
-	WC_DataGrid::Grid_InsertRows insertRowsInfo(0, (unsigned int)traceList.size());
-	insertRowsInfo.clearExistingRows = true;
+
+	//Delete any extra rows from that data grid that are no longer required
+	unsigned int currentRowCount = (unsigned int)SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
+	if((unsigned int)traceList.size() < currentRowCount)
+	{
+		unsigned int rowCountToRemove = currentRowCount - (unsigned int)traceList.size();
+		WC_DataGrid::Grid_DeleteRows deleteRowsInfo;
+		deleteRowsInfo.targetRowNo = currentRowCount - rowCountToRemove;
+		deleteRowsInfo.rowCount = rowCountToRemove;
+		SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::DeleteRows, 0, (LPARAM)&deleteRowsInfo);
+	}
+
+	//Update the data grid with the latest text
+	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
 	unsigned int pcLength = model.GetPCCharWidth();
 	unsigned int currentRow = 0;
 	for(std::list<IProcessor::TraceLogEntry>::const_iterator i = traceList.begin(); i != traceList.end(); ++i)
 	{
 		const IProcessor::TraceLogEntry& entry = *i;
+		std::map<unsigned int, std::wstring>& columnText = rowText[currentRow++];
 		std::wstring addressString;
 		IntToStringBase16(entry.address, addressString, pcLength);
-		insertRowsInfo.rowData[currentRow][0] = addressString;
-		insertRowsInfo.rowData[currentRow][1] = entry.disassembly;
-		++currentRow;
+		columnText[COLUMN_ADDRESS] = addressString;
+		columnText[COLUMN_DISASSEMBLY] = entry.disassembly;
 	}
-	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertRows, 0, (LPARAM)&insertRowsInfo);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateMultipleRowText, 0, (LPARAM)&rowText);
 
 	//Update the control panel
 	SendMessage(hwndControlPanel, WM_TIMER, wparam, lparam);

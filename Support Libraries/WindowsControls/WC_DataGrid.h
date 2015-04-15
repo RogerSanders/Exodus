@@ -39,7 +39,6 @@ public:
 	//Message parameter structures
 	//##TODO## Remove the "Grid_" prefixes from these structures, and consider adding a
 	//standard postfix identifying these as message parameter structures.
-	//##TODO## Add an "UpdateRowText" message to allow updating data on a row basis
 	struct Grid_InsertColumn;
 	struct Grid_InsertRows;
 	struct Grid_DeleteRows;
@@ -167,6 +166,8 @@ private:
 	LRESULT msgGRID_SETCELLINFO(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_UPDATECELLTEXT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam);
+	LRESULT msgGRID_UPDATEROWTEXT(WPARAM wParam, LPARAM lParam);
+	LRESULT msgGRID_UPDATEMULTIPLEROWTEXT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_SETCONTROLCOLOR(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_SETROWCOLOR(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_SETCELLCOLOR(WPARAM wParam, LPARAM lParam);

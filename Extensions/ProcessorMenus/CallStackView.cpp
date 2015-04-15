@@ -109,28 +109,40 @@ LRESULT CallStackView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT CallStackView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Update the data grid
+	//Retrieve the latest call stack
 	std::list<IProcessor::CallStackEntry> callStack = model.GetCallStack();
-	WC_DataGrid::Grid_InsertRows insertRowsInfo(0, (unsigned int)callStack.size());
-	insertRowsInfo.clearExistingRows = true;
+
+	//Delete any extra rows from that data grid that are no longer required
+	unsigned int currentRowCount = (unsigned int)SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
+	if((unsigned int)callStack.size() < currentRowCount)
+	{
+		unsigned int rowCountToRemove = currentRowCount - (unsigned int)callStack.size();
+		WC_DataGrid::Grid_DeleteRows deleteRowsInfo;
+		deleteRowsInfo.targetRowNo = currentRowCount - rowCountToRemove;
+		deleteRowsInfo.rowCount = rowCountToRemove;
+		SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::DeleteRows, 0, (LPARAM)&deleteRowsInfo);
+	}
+
+	//Update the data grid with the latest text
+	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
 	unsigned int pcLength = model.GetPCCharWidth();
 	unsigned int currentRow = 0;
 	for(std::list<IProcessor::CallStackEntry>::const_iterator i = callStack.begin(); i != callStack.end(); ++i)
 	{
 		const IProcessor::CallStackEntry& entry = *i;
+		std::map<unsigned int, std::wstring>& columnText = rowText[currentRow++];
 		std::wstring sourceAddressString;
 		std::wstring targetAddressString;
 		std::wstring returnAddressString;
 		IntToStringBase16(entry.sourceAddress, sourceAddressString, pcLength);
 		IntToStringBase16(entry.targetAddress, targetAddressString, pcLength);
 		IntToStringBase16(entry.returnAddress, returnAddressString, pcLength);
-		insertRowsInfo.rowData[currentRow][0] = sourceAddressString;
-		insertRowsInfo.rowData[currentRow][1] = targetAddressString;
-		insertRowsInfo.rowData[currentRow][2] = returnAddressString;
-		insertRowsInfo.rowData[currentRow][3] = entry.disassembly;
-		++currentRow;
+		columnText[COLUMN_SOURCE] = sourceAddressString;
+		columnText[COLUMN_TARGET] = targetAddressString;
+		columnText[COLUMN_RETURN] = returnAddressString;
+		columnText[COLUMN_DISASSEMBLY] = entry.disassembly;
 	}
-	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertRows, 0, (LPARAM)&insertRowsInfo);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateMultipleRowText, 0, (LPARAM)&rowText);
 
 	//Update the control panel
 	SendMessage(hwndControlPanel, WM_TIMER, wparam, lparam);

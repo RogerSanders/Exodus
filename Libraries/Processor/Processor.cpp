@@ -14,7 +14,7 @@
 Processor::Processor(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
 :Device(aimplementationName, ainstanceName, amoduleID),
 clockSpeed(0), reportedClockSpeed(0), clockSpeedOverridden(false),
-traceLogEnabled(false), traceLogDisassemble(false), traceLogLength(200),
+traceLogEnabled(false), traceLogDisassemble(false), traceLogLength(2000),
 stackDisassemble(false), stepOver(false), stepOut(false),
 breakOnNextOpcode(false), breakpointExists(false), watchpointExists(false)
 {
