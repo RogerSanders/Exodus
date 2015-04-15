@@ -23,6 +23,7 @@ public:
 	virtual IGenericAccessDataValue::DataType GetType() const = 0;
 	virtual bool GetReadOnly() const = 0;
 	virtual bool GetLockingSupported() const = 0;
+	virtual bool GetHighlightUsed() const = 0;
 
 	//Data display mode functions
 	virtual IGenericAccessDataValue::IntDisplayMode GetIntDisplayMode() const = 0;

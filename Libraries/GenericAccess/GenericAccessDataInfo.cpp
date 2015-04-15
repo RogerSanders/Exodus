@@ -35,6 +35,12 @@ bool GenericAccessDataInfo::GetLockingSupported() const
 }
 
 //----------------------------------------------------------------------------------------
+bool GenericAccessDataInfo::GetHighlightUsed() const
+{
+	return highlightUsed;
+}
+
+//----------------------------------------------------------------------------------------
 //Data display mode functions
 //----------------------------------------------------------------------------------------
 IGenericAccessDataValue::IntDisplayMode GenericAccessDataInfo::GetIntDisplayMode() const

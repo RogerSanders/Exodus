@@ -21,6 +21,8 @@ public:
 	inline GenericAccessDataInfo* SetReadOnly(bool areadOnly);
 	virtual bool GetLockingSupported() const;
 	inline GenericAccessDataInfo* SetLockingSupported(bool alockingSupported);
+	virtual bool GetHighlightUsed() const;
+	inline GenericAccessDataInfo* SetHighlightUsed(bool ahighlightUsed);
 
 	//Data display mode functions
 	virtual IGenericAccessDataValue::IntDisplayMode GetIntDisplayMode() const;
@@ -71,6 +73,7 @@ private:
 	IGenericAccessDataValue::DataType dataType;
 	bool readOnly;
 	bool lockingSupported;
+	bool highlightUsed;
 
 	//Display mode state
 	IGenericAccessDataValue::IntDisplayMode intDisplayMode;

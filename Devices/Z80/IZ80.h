@@ -113,54 +113,6 @@ public:
 	inline void SetFlagN(bool flag);
 	inline bool GetFlagC() const;
 	inline void SetFlagC(bool flag);
-
-	//Latched register original value functions
-	inline unsigned int GetOriginalValueChangeCounter() const;
-	inline unsigned int GetOriginalValueA() const;
-	inline unsigned int GetOriginalValueF() const;
-	inline unsigned int GetOriginalValueB() const;
-	inline unsigned int GetOriginalValueC() const;
-	inline unsigned int GetOriginalValueD() const;
-	inline unsigned int GetOriginalValueE() const;
-	inline unsigned int GetOriginalValueH() const;
-	inline unsigned int GetOriginalValueL() const;
-	inline unsigned int GetOriginalValueAF() const;
-	inline unsigned int GetOriginalValueBC() const;
-	inline unsigned int GetOriginalValueDE() const;
-	inline unsigned int GetOriginalValueHL() const;
-	inline unsigned int GetOriginalValueA2() const;
-	inline unsigned int GetOriginalValueF2() const;
-	inline unsigned int GetOriginalValueB2() const;
-	inline unsigned int GetOriginalValueC2() const;
-	inline unsigned int GetOriginalValueD2() const;
-	inline unsigned int GetOriginalValueE2() const;
-	inline unsigned int GetOriginalValueH2() const;
-	inline unsigned int GetOriginalValueL2() const;
-	inline unsigned int GetOriginalValueAF2() const;
-	inline unsigned int GetOriginalValueBC2() const;
-	inline unsigned int GetOriginalValueDE2() const;
-	inline unsigned int GetOriginalValueHL2() const;
-	inline unsigned int GetOriginalValueIXHigh() const;
-	inline unsigned int GetOriginalValueIXLow() const;
-	inline unsigned int GetOriginalValueIYHigh() const;
-	inline unsigned int GetOriginalValueIYLow() const;
-	inline unsigned int GetOriginalValueI() const;
-	inline unsigned int GetOriginalValueR() const;
-	inline unsigned int GetOriginalValueIX() const;
-	inline unsigned int GetOriginalValueIY() const;
-	inline unsigned int GetOriginalValueSP() const;
-	inline unsigned int GetOriginalValuePC() const;
-	inline unsigned int GetOriginalValueInterruptMode() const;
-	inline bool GetOriginalValueIFF1() const;
-	inline bool GetOriginalValueIFF2() const;
-	inline bool GetOriginalValueFlagS() const;
-	inline bool GetOriginalValueFlagZ() const;
-	inline bool GetOriginalValueFlagY() const;
-	inline bool GetOriginalValueFlagH() const;
-	inline bool GetOriginalValueFlagX() const;
-	inline bool GetOriginalValueFlagPV() const;
-	inline bool GetOriginalValueFlagN() const;
-	inline bool GetOriginalValueFlagC() const;
 };
 
 #include "IZ80.inl"

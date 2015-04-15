@@ -40,6 +40,9 @@ public:
 	virtual bool GetGenericDataLocked(unsigned int dataID, const typename B::DataContext* dataContext) const;
 	virtual bool SetGenericDataLocked(unsigned int dataID, const typename B::DataContext* dataContext, bool state);
 
+	//Highlight functions
+	virtual bool GetGenericDataHighlightState(unsigned int dataID, const typename B::DataContext* dataContext) const;
+
 	//Command execution functions
 	virtual bool ExecuteGenericCommand(unsigned int commandID, const typename B::DataContext* dataContext);
 

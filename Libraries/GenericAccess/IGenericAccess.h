@@ -54,6 +54,9 @@ public:
 	virtual bool GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const = 0;
 	virtual bool SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state) = 0;
 
+	//Highlight functions
+	virtual bool GetGenericDataHighlightState(unsigned int dataID, const DataContext* dataContext) const = 0;
+
 	//Command execution functions
 	virtual bool ExecuteGenericCommand(unsigned int commandID, const DataContext* dataContext) = 0;
 };

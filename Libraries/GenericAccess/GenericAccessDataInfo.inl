@@ -66,6 +66,13 @@ GenericAccessDataInfo* GenericAccessDataInfo::SetLockingSupported(bool alockingS
 }
 
 //----------------------------------------------------------------------------------------
+GenericAccessDataInfo* GenericAccessDataInfo::SetHighlightUsed(bool ahighlightUsed)
+{
+	highlightUsed = ahighlightUsed;
+	return this;
+}
+
+//----------------------------------------------------------------------------------------
 //Data display mode functions
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode state)

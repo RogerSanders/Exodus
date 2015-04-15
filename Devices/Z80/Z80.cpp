@@ -15,9 +15,6 @@ Z80::Z80(const std::wstring& aimplementationName, const std::wstring& ainstanceN
 	ceLineMaskRD = 0;
 	ceLineMaskWR = 0;
 
-	//Initialize our changed register state
-	systemPausedToggleCounter = 0;
-
 	//Ensure we don't think a reset was triggered on the last processor step
 	resetLastStep = false;
 }
@@ -260,54 +257,54 @@ bool Z80::BuildDevice()
 	opcodeBuffer = (void*)new unsigned char[largestObjectSize];
 
 	//Register each data source with the generic data access base class
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterA, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterF, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterB, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterD, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterE, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterH, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterL, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterAF, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterBC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterDE, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterHL, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterA2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterF2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterB2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterC2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterD2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterE2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterH2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterL2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterAF2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterBC2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterDE2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterHL2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIXHigh, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIXLow, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIYHigh, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIYLow, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterI, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterR, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIX, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIY, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterPC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIM, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(2));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIFF1, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIFF2, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagS, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagZ, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagY, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagH, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagX, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagPV, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagN, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagC, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterA, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterF, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterB, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterD, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterE, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterH, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterL, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterAF, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterBC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterDE, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterHL, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterA2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterF2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterB2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterC2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterD2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterE2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterH2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterL2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterAF2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterBC2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterDE2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterHL2, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIXHigh, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIXLow, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIYHigh, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIYLow, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterI, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterR, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIX, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIY, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterPC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIM, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(2)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIFF1, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterIFF2, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagS, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagZ, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagY, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagH, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagX, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagPV, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagN, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagC, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
 
 	//Register page layouts for generic access to this device
-	GenericAccessPage* registersPage = new GenericAccessPage(L"Generic - Registers");
+	GenericAccessPage* registersPage = new GenericAccessPage(L"Registers");
 	registersPage->AddEntry((new GenericAccessGroup(L"Raw Registers"))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterAF, L"AF"))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterBC, L"BC"))
@@ -416,6 +413,9 @@ void Z80::Initialize()
 	suspendUntilLineStateChangeReceived = false;
 
 	Reset();
+
+	//Synchronize the changed register state with the current register state
+	PopulateChangedRegStateFromCurrentState();
 }
 
 //----------------------------------------------------------------------------------------
@@ -464,62 +464,8 @@ void Z80::Reset()
 //----------------------------------------------------------------------------------------
 void Z80::BeginExecution()
 {
-	//Save a snapshot of the current register state for changed register tracking
-	regChangedAF = GetAF().GetData();
-	regChangedBC = GetBC().GetData();
-	regChangedDE = GetDE().GetData();
-	regChangedHL = GetHL().GetData();
-	regChangedAF2 = GetAF2().GetData();
-	regChangedBC2 = GetBC2().GetData();
-	regChangedDE2 = GetDE2().GetData();
-	regChangedHL2 = GetHL2().GetData();
-	regChangedA = GetA().GetData();
-	regChangedF = GetF().GetData();
-	regChangedB = GetB().GetData();
-	regChangedC = GetC().GetData();
-	regChangedD = GetD().GetData();
-	regChangedE = GetE().GetData();
-	regChangedH = GetH().GetData();
-	regChangedL = GetL().GetData();
-	regChangedA2 = GetA2().GetData();
-	regChangedF2 = GetF2().GetData();
-	regChangedB2 = GetB2().GetData();
-	regChangedC2 = GetC2().GetData();
-	regChangedD2 = GetD2().GetData();
-	regChangedE2 = GetE2().GetData();
-	regChangedH2 = GetH2().GetData();
-	regChangedL2 = GetL2().GetData();
-	regChangedI = GetI().GetData();
-	regChangedR = GetR().GetData();
-	regChangedIX = GetIX().GetData();
-	regChangedIY = GetIY().GetData();
-	regChangedIXHigh = GetIXHigh().GetData();
-	regChangedIXLow = GetIXLow().GetData();
-	regChangedIYHigh = GetIYHigh().GetData();
-	regChangedIYLow = GetIYLow().GetData();
-	regChangedSP = GetSP().GetData();
-	regChangedPC = GetPC().GetData();
-	regChangedIM = GetInterruptMode();
-	regChangedIFF1 = GetIFF1();
-	regChangedIFF2 = GetIFF2();
-	regChangedFlagS = GetFlagS();
-	regChangedFlagZ = GetFlagZ();
-	regChangedFlagY = GetFlagY();
-	regChangedFlagH = GetFlagH();
-	regChangedFlagX = GetFlagX();
-	regChangedFlagPV = GetFlagPV();
-	regChangedFlagN = GetFlagN();
-	regChangedFlagC = GetFlagC();
-
-	//Increment the system paused toggle counter
-	++systemPausedToggleCounter;
-}
-
-//----------------------------------------------------------------------------------------
-void Z80::SuspendExecution()
-{
-	//Increment the system paused toggle counter
-	++systemPausedToggleCounter;
+	//Synchronize the changed register state with the current register state
+	PopulateChangedRegStateFromCurrentState();
 }
 
 //----------------------------------------------------------------------------------------
@@ -1776,7 +1722,7 @@ void Z80::SaveState(IHierarchicalStorageNode& node) const
 bool Z80::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
-	switch(dataID)
+	switch((IZ80DataSource)dataID)
 	{
 	case IZ80DataSource::RegisterA:
 		return dataValue.SetValue(GetA().GetData());
@@ -1868,82 +1814,6 @@ bool Z80::ReadGenericData(unsigned int dataID, const DataContext* dataContext, I
 		return dataValue.SetValue(GetFlagN());
 	case IZ80DataSource::RegisterFlagC:
 		return dataValue.SetValue(GetFlagC());
-	case IZ80DataSource::RegisterOriginalValueChangeCounter:
-		return dataValue.SetValue(systemPausedToggleCounter);
-	case IZ80DataSource::RegisterOriginalValueA:
-		return dataValue.SetValue(regChangedA);
-	case IZ80DataSource::RegisterOriginalValueF:
-		return dataValue.SetValue(regChangedF);
-	case IZ80DataSource::RegisterOriginalValueB:
-		return dataValue.SetValue(regChangedB);
-	case IZ80DataSource::RegisterOriginalValueC:
-		return dataValue.SetValue(regChangedC);
-	case IZ80DataSource::RegisterOriginalValueD:
-		return dataValue.SetValue(regChangedD);
-	case IZ80DataSource::RegisterOriginalValueE:
-		return dataValue.SetValue(regChangedE);
-	case IZ80DataSource::RegisterOriginalValueH:
-		return dataValue.SetValue(regChangedH);
-	case IZ80DataSource::RegisterOriginalValueL:
-		return dataValue.SetValue(regChangedL);
-	case IZ80DataSource::RegisterOriginalValueAF:
-		return dataValue.SetValue(regChangedAF);
-	case IZ80DataSource::RegisterOriginalValueBC:
-		return dataValue.SetValue(regChangedBC);
-	case IZ80DataSource::RegisterOriginalValueDE:
-		return dataValue.SetValue(regChangedDE);
-	case IZ80DataSource::RegisterOriginalValueHL:
-		return dataValue.SetValue(regChangedHL);
-	case IZ80DataSource::RegisterOriginalValueAF2:
-		return dataValue.SetValue(regChangedAF2);
-	case IZ80DataSource::RegisterOriginalValueBC2:
-		return dataValue.SetValue(regChangedBC2);
-	case IZ80DataSource::RegisterOriginalValueDE2:
-		return dataValue.SetValue(regChangedDE2);
-	case IZ80DataSource::RegisterOriginalValueHL2:
-		return dataValue.SetValue(regChangedHL2);
-	case IZ80DataSource::RegisterOriginalValueIXHigh:
-		return dataValue.SetValue(regChangedIX);
-	case IZ80DataSource::RegisterOriginalValueIXLow:
-		return dataValue.SetValue(regChangedIXLow);
-	case IZ80DataSource::RegisterOriginalValueIYHigh:
-		return dataValue.SetValue(regChangedIYHigh);
-	case IZ80DataSource::RegisterOriginalValueIYLow:
-		return dataValue.SetValue(regChangedIYLow);
-	case IZ80DataSource::RegisterOriginalValueI:
-		return dataValue.SetValue(regChangedI);
-	case IZ80DataSource::RegisterOriginalValueR:
-		return dataValue.SetValue(regChangedR);
-	case IZ80DataSource::RegisterOriginalValueIX:
-		return dataValue.SetValue(regChangedIX);
-	case IZ80DataSource::RegisterOriginalValueIY:
-		return dataValue.SetValue(regChangedIY);
-	case IZ80DataSource::RegisterOriginalValueSP:
-		return dataValue.SetValue(regChangedSP);
-	case IZ80DataSource::RegisterOriginalValuePC:
-		return dataValue.SetValue(regChangedPC);
-	case IZ80DataSource::RegisterOriginalValueIM:
-		return dataValue.SetValue(regChangedIM);
-	case IZ80DataSource::RegisterOriginalValueIFF1:
-		return dataValue.SetValue(regChangedIFF1);
-	case IZ80DataSource::RegisterOriginalValueIFF2:
-		return dataValue.SetValue(regChangedIFF2);
-	case IZ80DataSource::RegisterOriginalValueFlagS:
-		return dataValue.SetValue(regChangedFlagS);
-	case IZ80DataSource::RegisterOriginalValueFlagZ:
-		return dataValue.SetValue(regChangedFlagZ);
-	case IZ80DataSource::RegisterOriginalValueFlagY:
-		return dataValue.SetValue(regChangedFlagY);
-	case IZ80DataSource::RegisterOriginalValueFlagH:
-		return dataValue.SetValue(regChangedFlagH);
-	case IZ80DataSource::RegisterOriginalValueFlagX:
-		return dataValue.SetValue(regChangedFlagX);
-	case IZ80DataSource::RegisterOriginalValueFlagPV:
-		return dataValue.SetValue(regChangedFlagPV);
-	case IZ80DataSource::RegisterOriginalValueFlagN:
-		return dataValue.SetValue(regChangedFlagN);
-	case IZ80DataSource::RegisterOriginalValueFlagC:
-		return dataValue.SetValue(regChangedFlagC);
 	}
 	return Processor::ReadGenericData(dataID, dataContext, dataValue);
 }
@@ -1953,7 +1823,7 @@ bool Z80::WriteGenericData(unsigned int dataID, const DataContext* dataContext, 
 {
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
-	switch(dataID)
+	switch((IZ80DataSource)dataID)
 	{
 	case IZ80DataSource::RegisterA:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
@@ -2182,6 +2052,158 @@ bool Z80::WriteGenericData(unsigned int dataID, const DataContext* dataContext, 
 		return true;}
 	}
 	return Processor::WriteGenericData(dataID, dataContext, dataValue);
+}
+
+//----------------------------------------------------------------------------------------
+//Highlight functions
+//----------------------------------------------------------------------------------------
+bool Z80::GetGenericDataHighlightState(unsigned int dataID, const DataContext* dataContext) const
+{
+	switch((IZ80DataSource)dataID)
+	{
+	case IZ80DataSource::RegisterA:
+		return (regChangedA != GetA().GetData());
+	case IZ80DataSource::RegisterF:
+		return (regChangedF != GetF().GetData());
+	case IZ80DataSource::RegisterB:
+		return (regChangedB != GetB().GetData());
+	case IZ80DataSource::RegisterC:
+		return (regChangedC != GetC().GetData());
+	case IZ80DataSource::RegisterD:
+		return (regChangedD != GetD().GetData());
+	case IZ80DataSource::RegisterE:
+		return (regChangedE != GetE().GetData());
+	case IZ80DataSource::RegisterH:
+		return (regChangedH != GetH().GetData());
+	case IZ80DataSource::RegisterL:
+		return (regChangedL != GetL().GetData());
+	case IZ80DataSource::RegisterAF:
+		return (regChangedAF != GetAF().GetData());
+	case IZ80DataSource::RegisterBC:
+		return (regChangedBC != GetBC().GetData());
+	case IZ80DataSource::RegisterDE:
+		return (regChangedDE != GetDE().GetData());
+	case IZ80DataSource::RegisterHL:
+		return (regChangedHL != GetHL().GetData());
+	case IZ80DataSource::RegisterA2:
+		return (regChangedA2 != GetA2().GetData());
+	case IZ80DataSource::RegisterF2:
+		return (regChangedF2 != GetF2().GetData());
+	case IZ80DataSource::RegisterB2:
+		return (regChangedB2 != GetB2().GetData());
+	case IZ80DataSource::RegisterC2:
+		return (regChangedC2 != GetC2().GetData());
+	case IZ80DataSource::RegisterD2:
+		return (regChangedD2 != GetD2().GetData());
+	case IZ80DataSource::RegisterE2:
+		return (regChangedE2 != GetE2().GetData());
+	case IZ80DataSource::RegisterH2:
+		return (regChangedH2 != GetH2().GetData());
+	case IZ80DataSource::RegisterL2:
+		return (regChangedL2 != GetL2().GetData());
+	case IZ80DataSource::RegisterAF2:
+		return (regChangedAF2 != GetAF2().GetData());
+	case IZ80DataSource::RegisterBC2:
+		return (regChangedBC2 != GetBC2().GetData());
+	case IZ80DataSource::RegisterDE2:
+		return (regChangedDE2 != GetDE2().GetData());
+	case IZ80DataSource::RegisterHL2:
+		return (regChangedHL2 != GetHL2().GetData());
+	case IZ80DataSource::RegisterIXHigh:
+		return (regChangedIXHigh != GetIXHigh().GetData());
+	case IZ80DataSource::RegisterIXLow:
+		return (regChangedIXLow != GetIXLow().GetData());
+	case IZ80DataSource::RegisterIYHigh:
+		return (regChangedIYHigh != GetIYHigh().GetData());
+	case IZ80DataSource::RegisterIYLow:
+		return (regChangedIYLow != GetIYLow().GetData());
+	case IZ80DataSource::RegisterI:
+		return (regChangedI != GetI().GetData());
+	case IZ80DataSource::RegisterR:
+		return (regChangedR != GetR().GetData());
+	case IZ80DataSource::RegisterIX:
+		return (regChangedIX != GetIX().GetData());
+	case IZ80DataSource::RegisterIY:
+		return (regChangedIY != GetIY().GetData());
+	case IZ80DataSource::RegisterSP:
+		return (regChangedSP != GetSP().GetData());
+	case IZ80DataSource::RegisterPC:
+		return (regChangedPC != GetPC().GetData());
+	case IZ80DataSource::RegisterIM:
+		return (regChangedIM != GetInterruptMode());
+	case IZ80DataSource::RegisterIFF1:
+		return (regChangedIFF1 != GetIFF1());
+	case IZ80DataSource::RegisterIFF2:
+		return (regChangedIFF2 != GetIFF2());
+	case IZ80DataSource::RegisterFlagS:
+		return (regChangedFlagS != GetFlagS());
+	case IZ80DataSource::RegisterFlagZ:
+		return (regChangedFlagZ != GetFlagZ());
+	case IZ80DataSource::RegisterFlagY:
+		return (regChangedFlagY != GetFlagY());
+	case IZ80DataSource::RegisterFlagH:
+		return (regChangedFlagH != GetFlagH());
+	case IZ80DataSource::RegisterFlagX:
+		return (regChangedFlagX != GetFlagX());
+	case IZ80DataSource::RegisterFlagPV:
+		return (regChangedFlagPV != GetFlagPV());
+	case IZ80DataSource::RegisterFlagN:
+		return (regChangedFlagN != GetFlagN());
+	case IZ80DataSource::RegisterFlagC:
+		return (regChangedFlagC != GetFlagC());
+	}
+	return Processor::GetGenericDataHighlightState(dataID, dataContext);
+}
+
+//----------------------------------------------------------------------------------------
+void Z80::PopulateChangedRegStateFromCurrentState()
+{
+	//Save a snapshot of the current register state for changed register tracking
+	regChangedAF = GetAF().GetData();
+	regChangedBC = GetBC().GetData();
+	regChangedDE = GetDE().GetData();
+	regChangedHL = GetHL().GetData();
+	regChangedAF2 = GetAF2().GetData();
+	regChangedBC2 = GetBC2().GetData();
+	regChangedDE2 = GetDE2().GetData();
+	regChangedHL2 = GetHL2().GetData();
+	regChangedA = GetA().GetData();
+	regChangedF = GetF().GetData();
+	regChangedB = GetB().GetData();
+	regChangedC = GetC().GetData();
+	regChangedD = GetD().GetData();
+	regChangedE = GetE().GetData();
+	regChangedH = GetH().GetData();
+	regChangedL = GetL().GetData();
+	regChangedA2 = GetA2().GetData();
+	regChangedF2 = GetF2().GetData();
+	regChangedB2 = GetB2().GetData();
+	regChangedC2 = GetC2().GetData();
+	regChangedD2 = GetD2().GetData();
+	regChangedE2 = GetE2().GetData();
+	regChangedH2 = GetH2().GetData();
+	regChangedL2 = GetL2().GetData();
+	regChangedI = GetI().GetData();
+	regChangedR = GetR().GetData();
+	regChangedIX = GetIX().GetData();
+	regChangedIY = GetIY().GetData();
+	regChangedIXHigh = GetIXHigh().GetData();
+	regChangedIXLow = GetIXLow().GetData();
+	regChangedIYHigh = GetIYHigh().GetData();
+	regChangedIYLow = GetIYLow().GetData();
+	regChangedSP = GetSP().GetData();
+	regChangedPC = GetPC().GetData();
+	regChangedIM = GetInterruptMode();
+	regChangedIFF1 = GetIFF1();
+	regChangedIFF2 = GetIFF2();
+	regChangedFlagS = GetFlagS();
+	regChangedFlagZ = GetFlagZ();
+	regChangedFlagY = GetFlagY();
+	regChangedFlagH = GetFlagH();
+	regChangedFlagX = GetFlagX();
+	regChangedFlagPV = GetFlagPV();
+	regChangedFlagN = GetFlagN();
+	regChangedFlagC = GetFlagC();
 }
 
 } //Close namespace Z80

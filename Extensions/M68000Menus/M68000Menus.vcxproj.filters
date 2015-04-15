@@ -10,9 +10,6 @@
     <Filter Include="M68000Menus\ExceptionsView">
       <UniqueIdentifier>{493b7d5c-8d65-4b50-b428-39c32c0aaa7e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="M68000Menus\RegistersView">
-      <UniqueIdentifier>{bd15af93-5c41-4f65-a166-9bd868b3b1b0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{2f1262d9-707b-4635-979d-9380f2229f19}</UniqueIdentifier>
     </Filter>
@@ -30,12 +27,6 @@
     <ClCompile Include="ExceptionsViewPresenter.cpp">
       <Filter>M68000Menus\ExceptionsView</Filter>
     </ClCompile>
-    <ClCompile Include="RegistersView.cpp">
-      <Filter>M68000Menus\RegistersView</Filter>
-    </ClCompile>
-    <ClCompile Include="RegistersViewPresenter.cpp">
-      <Filter>M68000Menus\RegistersView</Filter>
-    </ClCompile>
     <ClCompile Include="interface.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -50,12 +41,6 @@
     </ClInclude>
     <ClInclude Include="ExceptionsViewPresenter.h">
       <Filter>M68000Menus\ExceptionsView</Filter>
-    </ClInclude>
-    <ClInclude Include="RegistersView.h">
-      <Filter>M68000Menus\RegistersView</Filter>
-    </ClInclude>
-    <ClInclude Include="RegistersViewPresenter.h">
-      <Filter>M68000Menus\RegistersView</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>

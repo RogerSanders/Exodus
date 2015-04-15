@@ -62,25 +62,6 @@ public:
 	inline unsigned int GetD(unsigned int regiserNo) const;
 	inline void SetD(unsigned int regiserNo, unsigned int adata);
 
-	//Latched register original value functions
-	inline unsigned int GetOriginalValueChangeCounter() const;
-	inline bool GetOriginalValueX() const;
-	inline bool GetOriginalValueN() const;
-	inline bool GetOriginalValueZ() const;
-	inline bool GetOriginalValueV() const;
-	inline bool GetOriginalValueC() const;
-	inline bool GetOriginalValueSR_T() const;
-	inline bool GetOriginalValueSR_S() const;
-	inline unsigned int GetOriginalValueSR_IPM() const;
-	inline unsigned int GetOriginalValuePC() const;
-	inline unsigned int GetOriginalValueSR() const;
-	inline unsigned int GetOriginalValueCCR() const;
-	inline unsigned int GetOriginalValueSP() const;
-	inline unsigned int GetOriginalValueSSP() const;
-	inline unsigned int GetOriginalValueUSP() const;
-	inline unsigned int GetOriginalValueA(unsigned int registerNo) const;
-	inline unsigned int GetOriginalValueD(unsigned int registerNo) const;
-
 	//Exception debugging functions
 	virtual bool GetLogAllExceptions() const = 0;
 	virtual void SetLogAllExceptions(bool state) = 0;

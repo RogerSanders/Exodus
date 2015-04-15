@@ -496,6 +496,14 @@ template<class B> bool GenericAccessBase<B>::SetGenericDataLocked(unsigned int d
 }
 
 //----------------------------------------------------------------------------------------
+//Highlight functions
+//----------------------------------------------------------------------------------------
+template<class B> bool GenericAccessBase<B>::GetGenericDataHighlightState(unsigned int dataID, const typename B::DataContext* dataContext) const
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------
 //Command execution functions
 //----------------------------------------------------------------------------------------
 template<class B> bool GenericAccessBase<B>::ExecuteGenericCommand(unsigned int commandID, const typename B::DataContext* dataContext)
