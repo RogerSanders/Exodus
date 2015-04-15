@@ -10,7 +10,6 @@ public:
 	//Enumerations
 	enum MenuItem
 	{
-		MENUITEM_REGISTERS,
 		MENUITEM_EXCEPTIONS
 	};
 

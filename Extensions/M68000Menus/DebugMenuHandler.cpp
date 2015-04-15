@@ -1,5 +1,4 @@
 #include "DebugMenuHandler.h"
-#include "RegistersViewPresenter.h"
 #include "ExceptionsViewPresenter.h"
 
 //----------------------------------------------------------------------------------------
@@ -15,7 +14,6 @@ DebugMenuHandler::DebugMenuHandler(M68000Menus& aowner, const IDevice& amodelIns
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	menuItems.push_back(MenuItemDefinition(MENUITEM_EXCEPTIONS, L"Exceptions", ExceptionsViewPresenter::GetUnqualifiedViewTitle(), true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", RegistersViewPresenter::GetUnqualifiedViewTitle(), true));
 }
 
 //----------------------------------------------------------------------------------------
@@ -23,8 +21,6 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 {
 	switch(menuItemID)
 	{
-	case MENUITEM_REGISTERS:
-		return new RegistersViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
 	case MENUITEM_EXCEPTIONS:
 		return new ExceptionsViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
 	}

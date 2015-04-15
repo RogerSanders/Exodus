@@ -30,9 +30,6 @@ M68000::M68000(const std::wstring& aimplementationName, const std::wstring& ains
 	breakOnAllExceptions = false;
 	disableAllExceptions = false;
 	debugExceptionTriggerPending = false;
-
-	//Initialize our changed register state
-	systemPausedToggleCounter = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -219,22 +216,22 @@ bool M68000::BuildDevice()
 	opcodeBuffer = (void*)new unsigned char[largestObjectSize];
 
 	//Register each data source with the generic data access base class
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRX, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRN, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRZ, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRV, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRC, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRT, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRS, IGenericAccessDataValue::DataType::Bool)));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRIPM, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0x07));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterPC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSR, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterCCR, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterUSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterA, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterD, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRX, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRN, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRZ, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRV, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRC, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRT, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRS, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSRIPM, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0x07)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterPC, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSR, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterCCR, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterSSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterUSP, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterA, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IM68000DataSource::RegisterD, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFFFFFFFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
 
 	//Register page layouts for generic access to this device
 	GenericAccessGroup* addressRegistersGroup = new GenericAccessGroup(L"Address Registers");
@@ -251,7 +248,7 @@ bool M68000::BuildDevice()
 		IntToString(registerNo + 1, registerNoAsString);
 		dataRegistersGroup->AddEntry((new GenericAccessGroupDataEntry(IM68000DataSource::RegisterD, L"D" + registerNoAsString))->SetDataContext(new RegisterDataContext(registerNo)));
 	}
-	GenericAccessPage* registersPage = new GenericAccessPage(L"Generic - Registers");
+	GenericAccessPage* registersPage = new GenericAccessPage(L"Registers");
 	registersPage->AddEntry((new GenericAccessGroup(L"User Registers"))
 	                 ->AddEntry(addressRegistersGroup)
 	                 ->AddEntry(dataRegistersGroup)
@@ -326,6 +323,9 @@ void M68000::Initialize()
 
 	//Trigger a reset exception to start execution
 	Reset();
+
+	//Synchronize the changed register state with the current register state
+	PopulateChangedRegStateFromCurrentState();
 }
 
 //----------------------------------------------------------------------------------------
@@ -339,39 +339,8 @@ void M68000::Reset()
 //----------------------------------------------------------------------------------------
 void M68000::BeginExecution()
 {
-	//Save a snapshot of the current register state for changed register tracking
-	for(unsigned int i = 0; i < addressRegCount; ++i)
-	{
-		regChangedA[i] = GetA(i).GetData();
-	}
-	for(unsigned int i = 0; i < dataRegCount; ++i)
-	{
-		regChangedD[i] = GetD(i).GetData();
-	}
-	regChangedPC = GetPC().GetData();
-	regChangedX = GetX();
-	regChangedN = GetN();
-	regChangedZ = GetZ();
-	regChangedV = GetV();
-	regChangedC = GetC();
-	regChangedSP = GetSP().GetData();
-	regChangedUSP = GetUSP().GetData();
-	regChangedSSP = GetSSP().GetData();
-	regChangedS = GetSR_S();
-	regChangedT = GetSR_T();
-	regChangedIPM = GetSR_IPM();
-	regChangedSR = GetSR().GetData();
-	regChangedCCR = GetCCR().GetData();
-
-	//Increment the system paused toggle counter
-	++systemPausedToggleCounter;
-}
-
-//----------------------------------------------------------------------------------------
-void M68000::SuspendExecution()
-{
-	//Increment the system paused toggle counter
-	++systemPausedToggleCounter;
+	//Synchronize the changed register state with the current register state
+	PopulateChangedRegStateFromCurrentState();
 }
 
 //----------------------------------------------------------------------------------------
@@ -3124,42 +3093,6 @@ bool M68000::ReadGenericData(unsigned int dataID, const DataContext* dataContext
 	case IM68000DataSource::RegisterD:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		return dataValue.SetValue(GetD(registerDataContext.registerNo).GetData());}
-	case IM68000DataSource::RegisterOriginalValueChangeCounter:
-		return dataValue.SetValue(systemPausedToggleCounter);
-	case IM68000DataSource::RegisterOriginalValueSRX:
-		return dataValue.SetValue(regChangedX);
-	case IM68000DataSource::RegisterOriginalValueSRN:
-		return dataValue.SetValue(regChangedN);
-	case IM68000DataSource::RegisterOriginalValueSRZ:
-		return dataValue.SetValue(regChangedZ);
-	case IM68000DataSource::RegisterOriginalValueSRV:
-		return dataValue.SetValue(regChangedV);
-	case IM68000DataSource::RegisterOriginalValueSRC:
-		return dataValue.SetValue(regChangedC);
-	case IM68000DataSource::RegisterOriginalValueSRT:
-		return dataValue.SetValue(regChangedT);
-	case IM68000DataSource::RegisterOriginalValueSRS:
-		return dataValue.SetValue(regChangedS);
-	case IM68000DataSource::RegisterOriginalValueSRIPM:
-		return dataValue.SetValue(regChangedIPM);
-	case IM68000DataSource::RegisterOriginalValuePC:
-		return dataValue.SetValue(regChangedPC);
-	case IM68000DataSource::RegisterOriginalValueSR:
-		return dataValue.SetValue(regChangedSR);
-	case IM68000DataSource::RegisterOriginalValueCCR:
-		return dataValue.SetValue(regChangedCCR);
-	case IM68000DataSource::RegisterOriginalValueSP:
-		return dataValue.SetValue(regChangedSP);
-	case IM68000DataSource::RegisterOriginalValueSSP:
-		return dataValue.SetValue(regChangedSSP);
-	case IM68000DataSource::RegisterOriginalValueUSP:
-		return dataValue.SetValue(regChangedUSP);
-	case IM68000DataSource::RegisterOriginalValueA:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
-		return dataValue.SetValue(regChangedA[registerDataContext.registerNo]);}
-	case IM68000DataSource::RegisterOriginalValueD:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
-		return dataValue.SetValue(regChangedD[registerDataContext.registerNo]);}
 	}
 	return Processor::ReadGenericData(dataID, dataContext, dataValue);
 }
@@ -3262,6 +3195,79 @@ bool M68000::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 		return true;}
 	}
 	return Processor::WriteGenericData(dataID, dataContext, dataValue);
+}
+
+//----------------------------------------------------------------------------------------
+//Highlight functions
+//----------------------------------------------------------------------------------------
+bool M68000::GetGenericDataHighlightState(unsigned int dataID, const DataContext* dataContext) const
+{
+	switch((IM68000DataSource)dataID)
+	{
+	case IM68000DataSource::RegisterSRX:
+		return (regChangedX != GetX());
+	case IM68000DataSource::RegisterSRN:
+		return (regChangedN != GetN());
+	case IM68000DataSource::RegisterSRZ:
+		return (regChangedZ != GetZ());
+	case IM68000DataSource::RegisterSRV:
+		return (regChangedV != GetV());
+	case IM68000DataSource::RegisterSRC:
+		return (regChangedV != GetC());
+	case IM68000DataSource::RegisterSRT:
+		return (regChangedT != GetSR_T());
+	case IM68000DataSource::RegisterSRS:
+		return (regChangedS != GetSR_S());
+	case IM68000DataSource::RegisterSRIPM:
+		return (regChangedIPM != GetSR_IPM());
+	case IM68000DataSource::RegisterPC:
+		return (regChangedPC != GetPC().GetData());
+	case IM68000DataSource::RegisterSR:
+		return (regChangedSR != GetSR().GetData());
+	case IM68000DataSource::RegisterCCR:
+		return (regChangedCCR != GetCCR().GetData());
+	case IM68000DataSource::RegisterSP:
+		return (regChangedSP != GetSP().GetData());
+	case IM68000DataSource::RegisterSSP:
+		return (regChangedSSP != GetSSP().GetData());
+	case IM68000DataSource::RegisterUSP:
+		return (regChangedUSP != GetUSP().GetData());
+	case IM68000DataSource::RegisterA:{
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		return (regChangedA[registerDataContext.registerNo] != GetA(registerDataContext.registerNo).GetData());}
+	case IM68000DataSource::RegisterD:{
+		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		return (regChangedD[registerDataContext.registerNo] != GetD(registerDataContext.registerNo).GetData());}
+	}
+	return Processor::GetGenericDataHighlightState(dataID, dataContext);
+}
+
+//----------------------------------------------------------------------------------------
+void M68000::PopulateChangedRegStateFromCurrentState()
+{
+	//Save a snapshot of the current register state for changed register tracking
+	for(unsigned int i = 0; i < addressRegCount; ++i)
+	{
+		regChangedA[i] = GetA(i).GetData();
+	}
+	for(unsigned int i = 0; i < dataRegCount; ++i)
+	{
+		regChangedD[i] = GetD(i).GetData();
+	}
+	regChangedPC = GetPC().GetData();
+	regChangedX = GetX();
+	regChangedN = GetN();
+	regChangedZ = GetZ();
+	regChangedV = GetV();
+	regChangedC = GetC();
+	regChangedSP = GetSP().GetData();
+	regChangedUSP = GetUSP().GetData();
+	regChangedSSP = GetSSP().GetData();
+	regChangedS = GetSR_S();
+	regChangedT = GetSR_T();
+	regChangedIPM = GetSR_IPM();
+	regChangedSR = GetSR().GetData();
+	regChangedCCR = GetCCR().GetData();
 }
 
 } //Close namespace M68000

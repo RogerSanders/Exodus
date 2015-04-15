@@ -259,8 +259,6 @@
     <ClCompile Include="ExceptionsViewPresenter.cpp" />
     <ClCompile Include="interface.cpp" />
     <ClCompile Include="M68000Menus.cpp" />
-    <ClCompile Include="RegistersView.cpp" />
-    <ClCompile Include="RegistersViewPresenter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugMenuHandler.h" />
@@ -268,8 +266,6 @@
     <ClInclude Include="ExceptionsViewPresenter.h" />
     <ClInclude Include="interface.h" />
     <ClInclude Include="M68000Menus.h" />
-    <ClInclude Include="RegistersView.h" />
-    <ClInclude Include="RegistersViewPresenter.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -277,5 +273,5 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
-  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets"/>
+  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets" />
 </Project>

@@ -7,12 +7,6 @@
 class DebugMenuHandler :public MenuHandlerBase
 {
 public:
-	//Enumerations
-	enum MenuItem
-	{
-		MENUITEM_REGISTERS
-	};
-
 	//Constructors
 	DebugMenuHandler(Z80Menus& aowner, const IDevice& amodelInstanceKey, IZ80& amodel);
 

@@ -61,7 +61,6 @@ public:
 	virtual void Initialize();
 	virtual void Reset();
 	virtual void BeginExecution();
-	virtual void SuspendExecution();
 
 	//Reference functions
 	using Processor::AddReference;
@@ -270,6 +269,10 @@ public:
 	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
 	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
 
+	//Highlight functions
+	virtual bool GetGenericDataHighlightState(unsigned int dataID, const DataContext* dataContext) const;
+	void PopulateChangedRegStateFromCurrentState();
+
 private:
 	//Enumerations
 	enum class CELineID;
@@ -342,7 +345,6 @@ private:
 	unsigned int ceLineMaskWR;
 
 	//Changed register state
-	volatile unsigned int systemPausedToggleCounter;
 	volatile unsigned int regChangedAF;
 	volatile unsigned int regChangedBC;
 	volatile unsigned int regChangedDE;

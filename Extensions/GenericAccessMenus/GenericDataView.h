@@ -51,6 +51,13 @@ private:
 		std::list<ExpandStateInfo> preservedExpandState;
 		std::list<ParentCollectionInfo> parentCollectionInfo;
 	};
+	struct CachedState
+	{
+		bool supportsLocking;
+		bool lockedState;
+		bool supportsHighlighting;
+		bool highlightState;
+	};
 
 private:
 	//Event handlers
@@ -78,7 +85,7 @@ private:
 	const IGenericAccessPage* page;
 	GenericDataViewPresenter& presenter;
 	IGenericAccess& model;
-	std::map<unsigned int, std::map<const IGenericAccess::DataContext*, bool>> cachedDataLockedState;
+	std::map<unsigned int, std::map<const IGenericAccess::DataContext*, CachedState>> cachedStateMap;
 	std::vector<GridRowInfo> rowInfo;
 	HWND hwndDataList;
 	HFONT valueFont;

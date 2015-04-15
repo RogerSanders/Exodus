@@ -536,10 +536,17 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 			const IGenericAccessDataInfo* dataInfo = model.GetGenericDataInfo(dataEntry->GetDataID());
 			name = dataEntry->GetName();
 
-			//If this data entry supports locking, add it to the lock state cache map.
-			if(dataInfo->GetLockingSupported())
+			//If this data entry supports locking or highlighting, add an entry to the
+			//cached state map.
+			bool supportsLocking = dataInfo->GetLockingSupported();
+			bool supportsHighlighting = dataInfo->GetHighlightUsed();
+			if(supportsLocking || supportsHighlighting)
 			{
-				cachedDataLockedState[dataEntry->GetDataID()][dataEntry->GetDataContext()] = false;
+				CachedState& cachedState = cachedStateMap[dataEntry->GetDataID()][dataEntry->GetDataContext()];
+				cachedState.supportsLocking = supportsLocking;
+				cachedState.supportsHighlighting = supportsHighlighting;
+				cachedState.lockedState = false;
+				cachedState.highlightState = false;
 			}
 
 			//Set the correct control type for the value column
@@ -558,13 +565,20 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 		else if(entryType == IGenericAccessGroup::GroupEntryType::SingleSelectionList)
 		{
 			const IGenericAccessGroupSingleSelectionList* selectionListEntry = static_cast<const IGenericAccessGroupSingleSelectionList*>(entry);
-			const IGenericAccessDataInfo* dataInfo = model.GetGenericDataInfo(selectionListEntry ->GetDataID());
-			name = selectionListEntry ->GetName();
+			const IGenericAccessDataInfo* dataInfo = model.GetGenericDataInfo(selectionListEntry->GetDataID());
+			name = selectionListEntry->GetName();
 
-			//If this data entry supports locking, add it to the lock state cache map.
-			if(dataInfo->GetLockingSupported())
+			//If this data entry supports locking or highlighting, add an entry to the
+			//cached state map.
+			bool supportsLocking = dataInfo->GetLockingSupported();
+			bool supportsHighlighting = dataInfo->GetHighlightUsed();
+			if(supportsLocking || supportsHighlighting)
 			{
-				cachedDataLockedState[selectionListEntry ->GetDataID()][selectionListEntry ->GetDataContext()] = false;
+				CachedState& cachedState = cachedStateMap[selectionListEntry->GetDataID()][selectionListEntry->GetDataContext()];
+				cachedState.supportsLocking = supportsLocking;
+				cachedState.supportsHighlighting = supportsHighlighting;
+				cachedState.lockedState = false;
+				cachedState.highlightState = false;
 			}
 
 			//Set the correct control type for the value column
@@ -828,31 +842,50 @@ void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSu
 				}
 			}
 
-			std::map<unsigned int, std::map<const IGenericAccess::DataContext*, bool>>::iterator cachedDataLockedStateIterator = cachedDataLockedState.find(dataID);
-			if(cachedDataLockedStateIterator != cachedDataLockedState.end())
+			//Update the cached lock and highlight state of the control
+			bool changedLockedState = false;
+			bool changedHighlightState = false;
+			bool newLockedState = false;
+			bool newHighlightState = false;
+			std::map<unsigned int, std::map<const IGenericAccess::DataContext*, CachedState>>::iterator cachedStateIterator = cachedStateMap.find(dataID);
+			if(cachedStateIterator != cachedStateMap.end())
 			{
-				std::map<const IGenericAccess::DataContext*, bool>::iterator cachedDataLockedStateIteratorForDataValue = cachedDataLockedStateIterator->second.find(dataContext);
-				if(cachedDataLockedStateIteratorForDataValue != cachedDataLockedStateIterator->second.end())
+				std::map<const IGenericAccess::DataContext*, CachedState>::iterator cachedStateIteratorForDataValue = cachedStateIterator->second.find(dataContext);
+				if(cachedStateIteratorForDataValue != cachedStateIterator->second.end())
 				{
 					//Update the locked state of the data cell for this data value
-					bool newLockedState = model.GetGenericDataLocked(dataID, dataContext);
-					if(cachedDataLockedStateIteratorForDataValue->second != newLockedState)
+					CachedState& cachedState = cachedStateIteratorForDataValue->second;
+					if(cachedState.supportsLocking)
 					{
-						cachedDataLockedStateIteratorForDataValue->second = newLockedState;
-						WC_DataGrid::Grid_SetCellColor setCellColorParams;
-						setCellColorParams.targetRowNo = currentRow;
-						setCellColorParams.targetColumnID = VALUECOLUMNID;
-						if(newLockedState)
-						{
-							setCellColorParams.backgroundColorDefined = true;
-							setCellColorParams.colorBackground = WinColor(255, 127, 127);
-							setCellColorParams.textColorDefined = true;
-							setCellColorParams.colorTextFront = WinColor(0, 0, 0);
-							setCellColorParams.colorTextBack = setCellColorParams.colorBackground;
-						}
-						SendMessage(hwndDataList, (UINT)WC_DataGrid::WindowMessages::SetCellColor, 0, (LPARAM)&setCellColorParams);
+						newLockedState = model.GetGenericDataLocked(dataID, dataContext);
+						changedLockedState = (cachedState.lockedState != newLockedState);
+						cachedState.lockedState = newLockedState;
+					}
+
+					//Update the highlight state of the data cell for this data value
+					if(cachedState.supportsHighlighting)
+					{
+						newHighlightState = model.GetGenericDataHighlightState(dataID, dataContext);
+						changedHighlightState = (cachedState.highlightState != newHighlightState);
+						cachedState.highlightState = newHighlightState;
 					}
 				}
+			}
+
+			//Update the visual lock or highlight state of the control if required
+			if(changedLockedState || changedHighlightState)
+			{
+				WinColor lockedBackgroundColor(255, 127, 127);
+				WinColor highlightTextColor(30, 0, 255);
+				WC_DataGrid::Grid_SetCellColor setCellColorParams;
+				setCellColorParams.targetRowNo = currentRow;
+				setCellColorParams.targetColumnID = VALUECOLUMNID;
+				setCellColorParams.backgroundColorDefined = newLockedState;
+				setCellColorParams.colorBackground = (newLockedState)? lockedBackgroundColor: WinColor(255, 255, 255);
+				setCellColorParams.textColorDefined = (newLockedState || newHighlightState);
+				setCellColorParams.colorTextFront = (newHighlightState)? highlightTextColor: WinColor(0, 0, 0);
+				setCellColorParams.colorTextBack = setCellColorParams.colorBackground;
+				SendMessage(hwndDataList, (UINT)WC_DataGrid::WindowMessages::SetCellColor, 0, (LPARAM)&setCellColorParams);
 			}
 		}
 
