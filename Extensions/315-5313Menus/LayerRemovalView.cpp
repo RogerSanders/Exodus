@@ -8,7 +8,7 @@ LayerRemovalView::LayerRemovalView(IUIManager& auiManager, LayerRemovalViewPrese
 :ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
 {
 	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_LAYERREMOVAL));
-	SetDialogViewType();
+	SetDockableViewType();
 }
 
 //----------------------------------------------------------------------------------------

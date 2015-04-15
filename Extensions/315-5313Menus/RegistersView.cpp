@@ -10,7 +10,7 @@ RegistersView::RegistersView(IUIManager& auiManager, RegistersViewPresenter& apr
 	lockedColor = RGB(255,127,127);
 	lockedBrush = CreateSolidBrush(lockedColor);
 	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_REGISTERS));
-	SetDialogViewType();
+	SetDockableViewType();
 }
 
 //----------------------------------------------------------------------------------------

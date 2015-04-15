@@ -13,7 +13,7 @@ DebuggerView::DebuggerView(IUIManager& auiManager, DebuggerViewPresenter& aprese
 	lockedColor = RGB(255,127,127);
 	lockedBrush = CreateSolidBrush(lockedColor);
 	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_YM2612_DEBUGGER));
-	SetDialogViewType();
+	SetDockableViewType();
 }
 
 //----------------------------------------------------------------------------------------
