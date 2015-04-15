@@ -1,81 +1,78 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Controls">
-      <UniqueIdentifier>{6b2e3f27-3a2d-4797-a1c0-9a0ed576f5a6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Controls\WC_DataGrid">
-      <UniqueIdentifier>{38b86858-d025-4748-b43a-1069f3482b4d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Controls\WC_HexEdit">
-      <UniqueIdentifier>{dfc4f503-7c04-425a-b559-b04b14a8b84f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Controls\WC_DockPanel">
-      <UniqueIdentifier>{e7491b17-c7c4-4bf3-97ab-d72eea6a97be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Controls\DockingWindow">
-      <UniqueIdentifier>{4fe9e434-b00a-48e6-b9d1-ae42103da56b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Controls\DashboardWindow">
-      <UniqueIdentifier>{6cbc53d6-76ad-4a16-b3f9-100b8a68f5cc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{4430b72e-23b5-42a9-a237-ed0d5e3e3a18}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Controls\WC_LayoutGrid">
+    <Filter Include="DashboardWindow">
+      <UniqueIdentifier>{6cbc53d6-76ad-4a16-b3f9-100b8a68f5cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DockingWindow">
+      <UniqueIdentifier>{4fe9e434-b00a-48e6-b9d1-ae42103da56b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IDockingWindow">
+      <UniqueIdentifier>{673148f2-b8da-4300-96db-9c56919d8350}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WC_DataGrid">
+      <UniqueIdentifier>{38b86858-d025-4748-b43a-1069f3482b4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WC_DockPanel">
+      <UniqueIdentifier>{e7491b17-c7c4-4bf3-97ab-d72eea6a97be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WC_HexEdit">
+      <UniqueIdentifier>{dfc4f503-7c04-425a-b559-b04b14a8b84f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WC_LayoutGrid">
       <UniqueIdentifier>{587a62f2-12eb-43a3-b75a-e5ff9e2cef63}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Controls\WC_ScrollViewer">
+    <Filter Include="WC_ScrollViewer">
       <UniqueIdentifier>{d5096189-3c26-4f08-bdf7-87051095bfd3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Controls\WC_StackPanel">
+    <Filter Include="WC_StackPanel">
       <UniqueIdentifier>{9babd6bb-9a2a-499e-b427-d404900fbad0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Controls\IDockingWindow">
-      <UniqueIdentifier>{673148f2-b8da-4300-96db-9c56919d8350}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WC_DataGrid.cpp">
-      <Filter>Controls\WC_DataGrid</Filter>
+      <Filter>WC_DataGrid</Filter>
     </ClCompile>
     <ClCompile Include="WC_HexEdit.cpp">
-      <Filter>Controls\WC_HexEdit</Filter>
+      <Filter>WC_HexEdit</Filter>
     </ClCompile>
     <ClCompile Include="WC_DockPanel.cpp">
-      <Filter>Controls\WC_DockPanel</Filter>
+      <Filter>WC_DockPanel</Filter>
     </ClCompile>
     <ClCompile Include="DockingWindow.cpp">
-      <Filter>Controls\DockingWindow</Filter>
+      <Filter>DockingWindow</Filter>
     </ClCompile>
     <ClCompile Include="DashboardWindow.cpp">
-      <Filter>Controls\DashboardWindow</Filter>
+      <Filter>DashboardWindow</Filter>
     </ClCompile>
     <ClCompile Include="WC_LayoutGrid.cpp">
-      <Filter>Controls\WC_LayoutGrid</Filter>
+      <Filter>WC_LayoutGrid</Filter>
     </ClCompile>
     <ClCompile Include="WC_ScrollViewer.cpp">
-      <Filter>Controls\WC_ScrollViewer</Filter>
+      <Filter>WC_ScrollViewer</Filter>
     </ClCompile>
     <ClCompile Include="WC_StackPanel.cpp">
-      <Filter>Controls\WC_StackPanel</Filter>
+      <Filter>WC_StackPanel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WC_DataGrid.h">
-      <Filter>Controls\WC_DataGrid</Filter>
+      <Filter>WC_DataGrid</Filter>
     </ClInclude>
     <ClInclude Include="WC_HexEdit.h">
-      <Filter>Controls\WC_HexEdit</Filter>
+      <Filter>WC_HexEdit</Filter>
     </ClInclude>
     <ClInclude Include="WC_DockPanel.h">
-      <Filter>Controls\WC_DockPanel</Filter>
+      <Filter>WC_DockPanel</Filter>
     </ClInclude>
     <ClInclude Include="DockingWindow.h">
-      <Filter>Controls\DockingWindow</Filter>
+      <Filter>DockingWindow</Filter>
     </ClInclude>
     <ClInclude Include="DashboardWindow.h">
-      <Filter>Controls\DashboardWindow</Filter>
+      <Filter>DashboardWindow</Filter>
     </ClInclude>
     <ClInclude Include="Resources\AutoHideCursor_Down.cur.h">
       <Filter>Resources</Filter>
@@ -90,49 +87,49 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="WC_LayoutGrid.h">
-      <Filter>Controls\WC_LayoutGrid</Filter>
+      <Filter>WC_LayoutGrid</Filter>
     </ClInclude>
     <ClInclude Include="WC_ScrollViewer.h">
-      <Filter>Controls\WC_ScrollViewer</Filter>
+      <Filter>WC_ScrollViewer</Filter>
     </ClInclude>
     <ClInclude Include="WC_StackPanel.h">
-      <Filter>Controls\WC_StackPanel</Filter>
+      <Filter>WC_StackPanel</Filter>
     </ClInclude>
     <ClInclude Include="IDockingWindow.h">
-      <Filter>Controls\IDockingWindow</Filter>
+      <Filter>IDockingWindow</Filter>
     </ClInclude>
     <ClInclude Include="IDockingWindowDropTargetInfo.h">
-      <Filter>Controls\IDockingWindow</Filter>
+      <Filter>IDockingWindow</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="WC_DataGrid.inl">
-      <Filter>Controls\WC_DataGrid</Filter>
+      <Filter>WC_DataGrid</Filter>
     </None>
     <None Include="WC_HexEdit.inl">
-      <Filter>Controls\WC_HexEdit</Filter>
+      <Filter>WC_HexEdit</Filter>
     </None>
     <None Include="WC_DockPanel.inl">
-      <Filter>Controls\WC_DockPanel</Filter>
+      <Filter>WC_DockPanel</Filter>
     </None>
     <None Include="DockingWindow.inl">
-      <Filter>Controls\DockingWindow</Filter>
+      <Filter>DockingWindow</Filter>
     </None>
     <None Include="DashboardWindow.inl">
-      <Filter>Controls\DashboardWindow</Filter>
+      <Filter>DashboardWindow</Filter>
     </None>
     <None Include="WindowsControls.pkg" />
     <None Include="WC_LayoutGrid.inl">
-      <Filter>Controls\WC_LayoutGrid</Filter>
+      <Filter>WC_LayoutGrid</Filter>
     </None>
     <None Include="WC_ScrollViewer.inl">
-      <Filter>Controls\WC_ScrollViewer</Filter>
+      <Filter>WC_ScrollViewer</Filter>
     </None>
     <None Include="WC_StackPanel.inl">
-      <Filter>Controls\WC_StackPanel</Filter>
+      <Filter>WC_StackPanel</Filter>
     </None>
     <None Include="IDockingWindow.inl">
-      <Filter>Controls\IDockingWindow</Filter>
+      <Filter>IDockingWindow</Filter>
     </None>
   </ItemGroup>
 </Project>

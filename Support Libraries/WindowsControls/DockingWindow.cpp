@@ -4812,6 +4812,18 @@ void DockingWindow::SetHostedContentWindow(unsigned int contentEntryNo, HWND new
 	//Remove the old content window as a child window
 	SetWindowParent(oldContentWindow, NULL);
 
+	//Subclass any child edit controls to fix the focus issue outlined in KB230587. This
+	//bug affects us because we use the native window caption bar for docked windows.
+	std::list<HWND> descendantWindows = GetDescendantWindows(newContentWindow);
+	for(std::list<HWND>::const_iterator i = descendantWindows.begin(); i != descendantWindows.end(); ++i)
+	{
+		HWND childWindow = *i;
+		if(GetClassName(childWindow) == WC_EDIT)
+		{
+			SetWindowSubclass(childWindow, EditBoxFocusFixSubclassProc, 0, 0);
+		}
+	}
+
 	//Replace the target content window in the main docking window or the docked tab
 	//control as required
 	if(contentTabControl != NULL)
