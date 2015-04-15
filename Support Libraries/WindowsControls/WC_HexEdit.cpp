@@ -1159,10 +1159,6 @@ LRESULT WC_HexEdit::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 	position.y -= (short)HIWORD(tooltipSize);
 	position.x += 8;
 	position.y -= 8;
-	if(position.y < 0)
-	{
-		position.y = 0;
-	}
 	SendMessage(hwndTooltip, TTM_TRACKPOSITION, 0, (LPARAM)MAKELONG(position.x, position.y));
 
 	return 0;
@@ -1184,7 +1180,7 @@ LRESULT WC_HexEdit::msgWM_MOUSELEAVE(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgWM_CONTEXTMENU(WPARAM wParam, LPARAM lParam)
 {
-	TrackPopupMenuEx(hcontextMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, LOWORD(lParam), HIWORD(lParam), hwnd, NULL);
+	TrackPopupMenuEx(hcontextMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, (short)LOWORD(lParam), (short)HIWORD(lParam), hwnd, NULL);
 	return 0;
 }
 
