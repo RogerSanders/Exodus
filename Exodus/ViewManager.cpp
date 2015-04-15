@@ -718,6 +718,16 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 		unsigned int highestMemberCount = 0;
 		for(std::map<HWND, unsigned int>::const_iterator i = dockedWindowCountByParentDockingWindow.begin(); i != dockedWindowCountByParentDockingWindow.end(); ++i)
 		{
+			//If the parent docking window is currently hidden, skip this group, since the
+			//user won't be able to see any signs of the window being created if we use
+			//it.
+			if(IsWindowVisible(i->first) == 0)
+			{
+				continue;
+			}
+
+			//If this parent docking window has the highest number of members with the
+			//target docking group so far, select it as the parent docking window to use.
 			if(i->second > highestMemberCount)
 			{
 				dockingWindow = i->first;
@@ -745,7 +755,7 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 		{
 			//If we're docking to any target other than the center, search the list of
 			//currently docked child windows in the main docking window for the first
-			//window that's docked at the target location.
+			//visible docking window that's docked at the target location.
 			IDockingWindow::WindowEdge initialDockPosAsDockPanelDockLocation = ViewDockLocationToDockingWindowEdge(initialDockPos);
 			unsigned int currentDockedWindowNo = 0;
 			unsigned int dockedWindowCount = (unsigned int)SendMessage(mainDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowCount, 0, 0);
@@ -754,7 +764,7 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 				DockingWindow::GetDockedWindowInfo dockedWindowInfo;
 				if(SendMessage(mainDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowInfo, (WPARAM)currentDockedWindowNo, (LPARAM)&dockedWindowInfo) == 0)
 				{
-					if(dockedWindowInfo.dockLocation == initialDockPosAsDockPanelDockLocation)
+					if(!dockedWindowInfo.autoHide && (dockedWindowInfo.dockLocation == initialDockPosAsDockPanelDockLocation) && IsDockingWindow(dockedWindowInfo.hwnd))
 					{
 						dockingWindow = dockedWindowInfo.hwnd;
 						continue;
