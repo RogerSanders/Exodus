@@ -91,11 +91,14 @@ struct WC_DataGrid::Grid_InsertColumn
 struct WC_DataGrid::Grid_InsertRows
 {
 	Grid_InsertRows(unsigned int atargetRowNo = 0, unsigned int arowCount = 0)
-	:targetRowNo(atargetRowNo), rowCount(arowCount)
-	{}
+	:targetRowNo(atargetRowNo), rowCount(arowCount), clearExistingRows(false)
+	{
+		rowData.resize(rowCount);
+	}
 
 	unsigned int targetRowNo;
 	unsigned int rowCount;
+	bool clearExistingRows;
 	std::vector<std::map<unsigned int, std::wstring>> rowData;
 };
 

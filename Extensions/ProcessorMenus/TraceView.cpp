@@ -1,6 +1,8 @@
 #include "TraceView.h"
 #include "resource.h"
-#include "Stream/Stream.pkg"
+#include "WindowsSupport/WindowsSupport.pkg"
+#include "WindowsControls/WindowsControls.pkg"
+#include "DataConversion/DataConversion.pkg"
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -8,53 +10,245 @@
 TraceView::TraceView(IUIManager& auiManager, TraceViewPresenter& apresenter, IProcessor& amodel)
 :ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0)
 {
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_TRACE));
-	SetDialogViewType();
+	hwndDataGrid = NULL;
+	hwndControlPanel = NULL;
+	hfontHeader = NULL;
+	hfontData = NULL;
+	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, 300, 500);
+	SetDockableViewType(true, DockPos::Right);
 }
 
 //----------------------------------------------------------------------------------------
 //Member window procedure
 //----------------------------------------------------------------------------------------
-INT_PTR TraceView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+LRESULT TraceView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
+	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
 	switch(msg)
 	{
-	case WM_INITDIALOG:
-		return msgWM_INITDIALOG(hwnd, wparam, lparam);
+	case WM_CREATE:
+		return msgWM_CREATE(hwnd, wparam, lparam);
 	case WM_DESTROY:
 		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgWM_TIMER(hwnd, wparam, lparam);
-	case WM_COMMAND:
-		return msgWM_COMMAND(hwnd, wparam, lparam);
+	case WM_SIZE:
+		return msgWM_SIZE(hwnd, wparam, lparam);
+	case WM_PAINT:
+		return msgWM_PAINT(hwnd, wparam, lparam);
 	}
-	return FALSE;
+	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
 //----------------------------------------------------------------------------------------
 //Event handlers
 //----------------------------------------------------------------------------------------
-INT_PTR TraceView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT TraceView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	int tabsize = 40;
-	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), LB_SETTABSTOPS, (WPARAM)1, (LPARAM)&tabsize);
+	//Register the DataGrid window class
+	WC_DataGrid::RegisterWindowClass(GetAssemblyHandle());
 
+	//Create the DataGrid child control
+	hwndDataGrid = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::windowClassName, L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, (HMENU)CTL_DATAGRID, GetAssemblyHandle(), NULL);
+
+	//Insert our columns into the DataGrid control
+	WC_DataGrid::Grid_InsertColumn addressColumn(L"Address", COLUMN_ADDRESS);
+	WC_DataGrid::Grid_InsertColumn disassemblyColumn(L"Disassembly", COLUMN_DISASSEMBLY);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&addressColumn);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&disassemblyColumn);
+
+	//Create the dialog control panel
+	hwndControlPanel = CreateDialogParam(GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_TRACE_PANEL), hwnd, WndProcPanelStatic, (LPARAM)this);
+	ShowWindow(hwndControlPanel, SW_SHOWNORMAL);
+	UpdateWindow(hwndControlPanel);
+
+	//Obtain the correct metrics for our custom font object
+	int fontPointSize = 8;
+	HDC hdc = GetDC(hwnd);
+	int fontnHeight = -MulDiv(fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+	ReleaseDC(hwnd, hdc);
+
+	//Create the font for the header in the grid control
+	std::wstring headerFontTypefaceName = L"MS Shell Dlg";
+	hfontHeader = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &headerFontTypefaceName[0]);
+
+	//Set the header font for the grid control
+	SendMessage(hwndDataGrid, WM_SETFONT, (WPARAM)hfontHeader, (LPARAM)TRUE);
+
+	//Create the font for the data region in the grid control
+	std::wstring dataFontTypefaceName = L"Courier New";
+	hfontData = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &dataFontTypefaceName[0]);
+
+	//Set the data region font for the grid control
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)hfontData, (LPARAM)TRUE);
+
+	//Create a timer to trigger updates to the grid
 	SetTimer(hwnd, 1, 200, NULL);
 
-	return TRUE;
+	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR TraceView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
+LRESULT TraceView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	//Delete our custom font objects
+	SendMessage(hwndDataGrid, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)NULL, (LPARAM)FALSE);
+	DeleteObject(hfontHeader);
+	DeleteObject(hfontData);
+
 	KillTimer(hwnd, 1);
 
+	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	//Update the data grid
+	std::list<IProcessor::TraceLogEntry> traceList = model.GetTraceLog();
+	WC_DataGrid::Grid_InsertRows insertRowsInfo(0, (unsigned int)traceList.size());
+	insertRowsInfo.clearExistingRows = true;
+	unsigned int pcLength = model.GetPCCharWidth();
+	unsigned int currentRow = 0;
+	for(std::list<IProcessor::TraceLogEntry>::const_iterator i = traceList.begin(); i != traceList.end(); ++i)
+	{
+		const IProcessor::TraceLogEntry& entry = *i;
+		std::wstring addressString;
+		IntToStringBase16(entry.address, addressString, pcLength);
+		insertRowsInfo.rowData[currentRow][0] = addressString;
+		insertRowsInfo.rowData[currentRow][1] = entry.disassembly;
+		++currentRow;
+	}
+	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertRows, 0, (LPARAM)&insertRowsInfo);
+
+	//Update the control panel
+	SendMessage(hwndControlPanel, WM_TIMER, wparam, lparam);
+
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT TraceView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	//Read the new client size of the window
+	RECT rect;
+	GetClientRect(hwnd, &rect);
+	int controlWidth = rect.right;
+	int controlHeight = rect.bottom;
+	GetClientRect(hwndControlPanel, &rect);
+	int controlPanelWidth = rect.right;
+	int controlPanelHeight = rect.bottom;
+
+	//Global parameters defining how child windows are positioned
+	int borderSize = 4;
+
+	//Calculate the new position of the control panel
+	int controlPanelPosX = borderSize;
+	int controlPanelPosY = controlHeight - (borderSize + controlPanelHeight);
+	MoveWindow(hwndControlPanel, controlPanelPosX, controlPanelPosY, controlPanelWidth, controlPanelHeight, TRUE);
+
+	//Calculate the new size and position of the list
+	int listBoxWidth = controlWidth - (borderSize * 2);
+	int listBoxPosX = borderSize;
+	int listBoxHeight = controlHeight - ((borderSize * 2) + controlPanelHeight);
+	int listBoxPosY = borderSize;
+	MoveWindow(hwndDataGrid, listBoxPosX, listBoxPosY, listBoxWidth, listBoxHeight, TRUE);
+
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT TraceView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	//Fill the background of the control with the dialog background colour
+	HDC hdc = GetDC(hwnd);
+	HBRUSH hbrush = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
+	HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
+
+	RECT rect;
+	GetClientRect(hwnd, &rect);
+	FillRect(hdc, &rect, hbrush);
+
+	SelectObject(hdc, hbrushOld);
+	DeleteObject(hbrush);
+	ReleaseDC(hwnd, hdc);
+
+	return DefWindowProc(hwnd, WM_PAINT, wparam, lparam);
+}
+
+//----------------------------------------------------------------------------------------
+//Panel dialog window procedure
+//----------------------------------------------------------------------------------------
+INT_PTR CALLBACK TraceView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	//Obtain the object pointer
+	TraceView* state = (TraceView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+	//Process the message
+	switch(msg)
+	{
+	case WM_INITDIALOG:
+		//Set the object pointer
+		state = (TraceView*)lparam;
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
+
+		//Pass this message on to the member window procedure function
+		if(state != 0)
+		{
+			return state->WndProcPanel(hwnd, msg, wparam, lparam);
+		}
+		break;
+	case WM_DESTROY:
+		if(state != 0)
+		{
+			//Pass this message on to the member window procedure function
+			INT_PTR result = state->WndProcPanel(hwnd, msg, wparam, lparam);
+
+			//Discard the object pointer
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
+
+			//Return the result from processing the message
+			return result;
+		}
+		break;
+	}
+
+	//Pass this message on to the member window procedure function
+	INT_PTR result = FALSE;
+	if(state != 0)
+	{
+		result = state->WndProcPanel(hwnd, msg, wparam, lparam);
+	}
+	return result;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR TraceView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
+	switch(msg)
+	{
+	case WM_INITDIALOG:
+		return msgPanelWM_INITDIALOG(hwnd, wparam, lparam);
+	case WM_TIMER:
+		return msgPanelWM_TIMER(hwnd, wparam, lparam);
+	case WM_COMMAND:
+		return msgPanelWM_COMMAND(hwnd, wparam, lparam);
+	}
 	return FALSE;
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
+//Panel dialog event handlers
+//----------------------------------------------------------------------------------------
+INT_PTR TraceView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
+{
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR TraceView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	initializedDialog = true;
 
@@ -62,30 +256,11 @@ INT_PTR TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_DISASSEMBLE, (model.GetTraceDisassemble())? BST_CHECKED: BST_UNCHECKED);
 	if(currentControlFocus != IDC_PROCESSOR_TRACE_LENGTH) UpdateDlgItemBin(hwnd, IDC_PROCESSOR_TRACE_LENGTH, model.GetTraceLength());
 
-	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), WM_SETREDRAW, FALSE, 0);
-
-	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), LB_GETTOPINDEX, 0, 0);
-	LRESULT selected = SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), LB_GETCURSEL, 0, 0);
-	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), LB_RESETCONTENT, 0, NULL);
-	unsigned int width = model.GetAddressBusCharWidth();
-	std::list<IProcessor::TraceLogEntry> traceList = model.GetTraceLog();
-	for(std::list<IProcessor::TraceLogEntry>::const_iterator i = traceList.begin(); i != traceList.end(); ++i)
-	{
-		std::wstringstream buffer;
-		buffer << std::setw(width) << std::setfill(L'0') << std::hex << std::uppercase << i->address << L'\t' << i->disassembly;
-		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), LB_ADDSTRING, 0, (LPARAM)buffer.str().c_str());
-	}
-	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), LB_SETCURSEL, selected, 0);
-	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), LB_SETTOPINDEX, top, 0);
-
-	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), WM_SETREDRAW, TRUE, 0);
-	InvalidateRect(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_LIST), NULL, FALSE);
-
 	return TRUE;
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR TraceView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
+INT_PTR TraceView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
 	{

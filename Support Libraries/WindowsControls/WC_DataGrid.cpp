@@ -3166,6 +3166,19 @@ LRESULT WC_DataGrid::msgGRID_INSERTROWS(WPARAM wParam, LPARAM lParam)
 {
 	const Grid_InsertRows& info = *((Grid_InsertRows*)lParam);
 
+	//Clear any existing data for all rows if requested
+	//##FIX## Determine what we need to do to handle custom controls for columns here. I
+	//think we're handling this incorrectly when removing rows and columns too.
+	if(info.clearExistingRows)
+	{
+		rowColorDataArray.clear();
+		cellCustomColorData.clear();
+		for(ColumnDataIterator i = columnData.begin(); i != columnData.end(); ++i)
+		{
+			i->dataBuffer.clear();
+		}
+	}
+
 	//Resize all our data buffers as required
 	if((size_t)info.targetRowNo > rowColorDataArray.size())
 	{
