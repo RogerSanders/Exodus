@@ -16,6 +16,7 @@ public:
 
 	//Page info functions
 	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual MarshalSupport::Marshal::Ret<std::wstring> GetTitle() const = 0;
 
 	//Content functions
 	virtual const IGenericAccessGroup* GetContentRoot() const = 0;

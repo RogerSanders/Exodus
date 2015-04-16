@@ -139,7 +139,7 @@ bool Processor::BuildDevice()
 
 	//##TODO## Maintain this group
 	breakpointCollection = (new GenericAccessGroupCollectionEntry(L"Breakpoint List", IGenericAccessDataValue::DataType::UInt))->SetOpenByDefault(true);
-	GenericAccessPage* breakpointsPage = new GenericAccessPage(L"Generic - Breakpoints");
+	GenericAccessPage* breakpointsPage = new GenericAccessPage(L"Breakpoints", L"Generic - Breakpoints");
 	breakpointsPage->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointNew, L"New"))
 	               ->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointEnableAll, L"Enable All"))
 	               ->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointDisableAll, L"Disable All"))
