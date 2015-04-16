@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 RegistersView::RegistersView(IUIManager& auiManager, RegistersViewPresenter& apresenter, IS315_5313& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0), activeTabDialog(NULL)
+:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0), activeTabWindow(NULL)
 {
 	lockedColor = RGB(255,127,127);
 	lockedBrush = CreateSolidBrush(lockedColor);
@@ -56,45 +56,22 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		SendMessage(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), TCM_INSERTITEM, i, (LPARAM)&tabItem);
 	}
 
-	//Calculate the required size of the client area of the tab control to fit the largest
-	//tab dialog
+	//Create each window associated with each tab, and calculate the required size of the
+	//client area of the tab control to fit the largest tab window.
 	int requiredTabClientWidth = 0;
 	int requiredTabClientHeight = 0;
 	for(unsigned int i = 0; i < (unsigned int)tabItems.size(); ++i)
 	{
-		//Obtain a handle to the target dialog resource
-		HRSRC dialogResourceHandle = FindResource(GetAssemblyHandle(), MAKEINTRESOURCE(tabItems[i].dialogID), RT_DIALOG);
-		if(dialogResourceHandle == NULL)
-		{
-			continue;
-		}
+		//Create the dialog window for this tab
+		DLGPROC dialogWindowProc = tabItems[i].dialogProc;
+		LPCWSTR dialogTemplateName = MAKEINTRESOURCE(tabItems[i].dialogID);
+		tabItems[i].hwndDialog = CreateDialogParam(GetAssemblyHandle(), dialogTemplateName, GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), dialogWindowProc, (LPARAM)this);
 
-		//Obtain a handle to the data block associated with the target dialog resource
-		HGLOBAL dialogResourceDataHandle = LoadResource(GetAssemblyHandle(), dialogResourceHandle);
-		if(dialogResourceDataHandle == NULL)
-		{
-			continue;
-		}
-
-		//Load the dialog template into memory
-		DLGTEMPLATEEX* dialogTemplate = (DLGTEMPLATEEX*)LockResource(dialogResourceDataHandle);
-		if(dialogTemplate == NULL)
-		{
-			continue;
-		}
-
-		//Calculate the required size of the dialog mapped to this tab in pixel units
-		RECT tabRect;
-		tabRect.left = 0;
-		tabRect.top = 0;
-		tabRect.right = dialogTemplate->cx;
-		tabRect.bottom = dialogTemplate->cy;
-		if(MapDialogRect(hwnd, &tabRect) == 0)
-		{
-			continue;
-		}
-		int tabWidth = tabRect.right;
-		int tabHeight = tabRect.bottom;
+		//Calculate the required size of the window for this tab in pixel units
+		RECT rect;
+		GetClientRect(tabItems[i].hwndDialog, &rect);
+		int tabWidth = rect.right;
+		int tabHeight = rect.bottom;
 
 		//Increase the required size of the client area for the tab control to accommodate
 		//the contents of this tab, if required.
@@ -122,6 +99,25 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Resize the tab control
 	SetWindowPos(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), NULL, 0, 0, tabControlRequiredSizeX, tabControlRequiredSizeY, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOMOVE);
 
+	//Calculate the required pixel size and position of each tab window
+	RECT currentTabControlRect;
+	GetWindowRect(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), &currentTabControlRect);
+	SendMessage(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), TCM_ADJUSTRECT, (WPARAM)FALSE, (LPARAM)&currentTabControlRect);
+	POINT tabContentPoint;
+	tabContentPoint.x = currentTabControlRect.left;
+	tabContentPoint.y = currentTabControlRect.top;
+	ScreenToClient(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), &tabContentPoint);
+	int tabRequiredPosX = tabContentPoint.x;
+	int tabRequiredPosY = tabContentPoint.y;
+	int tabRequiredSizeX = currentTabControlRect.right - currentTabControlRect.left;
+	int tabRequiredSizeY = currentTabControlRect.bottom - currentTabControlRect.top;
+
+	//Position and size each tab window
+	for(unsigned int i = 0; i < (unsigned int)tabItems.size(); ++i)
+	{
+		SetWindowPos(tabItems[i].hwndDialog, NULL, tabRequiredPosX, tabRequiredPosY, tabRequiredSizeX, tabRequiredSizeY, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+	}
+
 	//Calculate the current size of the owning window
 	RECT mainDialogRect;
 	GetWindowRect(hwnd, &mainDialogRect);
@@ -133,14 +129,9 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	int newMainDialogHeight = currentMainDialogHeight + (tabControlRequiredSizeY - tabControlOriginalSizeY);
 	SetWindowPos(hwnd, NULL, 0, 0, newMainDialogWidth, newMainDialogHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOMOVE);
 
-	//Explicitly select the first tab. We need to do this, otherwise no dialog is shown
-	//within the tab control initially. Note that we also explicitly select the second tab
-	//first, then switch to the first tab. We do this because the first tab will be
-	//selected initially, but no selection change notification will have been sent, and
-	//the notification is only sent if the currently selected tab is different from the
-	//target tab.
-	SendMessage(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), TCM_SETCURFOCUS, (WPARAM)1, 0);
-	SendMessage(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), TCM_SETCURFOCUS, (WPARAM)0, 0);
+	//Explicitly select and show the first tab
+	activeTabWindow = tabItems[0].hwndDialog;
+	ShowWindow(activeTabWindow, SW_SHOWNA);
 
 	return TRUE;
 }
@@ -155,10 +146,10 @@ INT_PTR RegistersView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	//explicitly destroy the child window here. The child window is fully destroyed before
 	//the DestroyWindow() function returns, and our state is still valid until we return
 	//from handling this WM_DESTROY message.
-	if(activeTabDialog != NULL)
+	if(activeTabWindow != NULL)
 	{
-		DestroyWindow(activeTabDialog);
-		activeTabDialog = NULL;
+		DestroyWindow(activeTabWindow);
+		activeTabWindow = NULL;
 	}
 
 	return FALSE;
@@ -172,47 +163,30 @@ INT_PTR RegistersView::msgWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	{
 		if((nmhdr->code == TCN_SELCHANGE))
 		{
-			//If we currently have a dialog already associated with the tab control,
-			//destroy it.
-			if(activeTabDialog != NULL)
+			//Begin a session for processing this batch of window visibility changes.
+			//Processing all the changes in a single operation in this manner gives the
+			//best performance and appearance.
+			HDWP deferWindowPosSession = BeginDeferWindowPos(2);
+
+			//If another tab window is currently visible, hide it now.
+			if(activeTabWindow != NULL)
 			{
-				DestroyWindow(activeTabDialog);
-				activeTabDialog = NULL;
+				DeferWindowPos(deferWindowPosSession, activeTabWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+				activeTabWindow = NULL;
 				initializedDialog = false;
 			}
 
-			//Create a new dialog for the currently selected tab on the tab control
+			//Show the window for the new selected tab on the tab control
 			int currentlySelectedTab = (int)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL, 0, 0);
 			if((currentlySelectedTab < 0) || (currentlySelectedTab >= (int)tabItems.size()))
 			{
 				currentlySelectedTab = 0;
 			}
-			DLGPROC dialogWindowProc = tabItems[currentlySelectedTab].dialogProc;
-			LPCWSTR dialogTemplateName = MAKEINTRESOURCE(tabItems[currentlySelectedTab].dialogID);
-			activeTabDialog = CreateDialogParam(GetAssemblyHandle(), dialogTemplateName, GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), dialogWindowProc, (LPARAM)this);
+			activeTabWindow = tabItems[currentlySelectedTab].hwndDialog;
+			DeferWindowPos(deferWindowPosSession, activeTabWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 
-			//Position and size the dialog contained within this tab
-			RECT currentTabControlRect;
-			if(GetWindowRect(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), &currentTabControlRect) != 0)
-			{
-				//Calculate the required pixel size and position of the dialog linked with
-				//this tab
-				SendMessage(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), TCM_ADJUSTRECT, (WPARAM)FALSE, (LPARAM)&currentTabControlRect);
-				POINT tabContentPoint;
-				tabContentPoint.x = currentTabControlRect.left;
-				tabContentPoint.y = currentTabControlRect.top;
-				ScreenToClient(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), &tabContentPoint);
-				int tabRequiredPosX = tabContentPoint.x;
-				int tabRequiredPosY = tabContentPoint.y;
-				int tabRequiredSizeX = currentTabControlRect.right - currentTabControlRect.left;
-				int tabRequiredSizeY = currentTabControlRect.bottom - currentTabControlRect.top;
-
-				//Position and size the dialog contained within this tab
-				SetWindowPos(activeTabDialog, NULL, tabRequiredPosX, tabRequiredPosY, tabRequiredSizeX, tabRequiredSizeY, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
-			}
-
-			//Show the tab window
-			ShowWindow(activeTabDialog, SW_SHOW);
+			//Process all the window size and position changes involved in this update
+			EndDeferWindowPos(deferWindowPosSession);
 		}
 	}
 	return TRUE;
