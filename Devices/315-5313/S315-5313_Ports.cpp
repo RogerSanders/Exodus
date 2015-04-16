@@ -1703,6 +1703,8 @@ void S315_5313::ProcessCommandDataWriteSecondHalf(const Data& data)
 //----------------------------------------------------------------------------------------
 void S315_5313::TransparentRegisterSpecialUpdateFunction(unsigned int registerNo, const Data& data)
 {
+	//Note that if you update this logic, you also need to update the corresponding logic
+	//in RegisterSpecialUpdateFunction and WriteGenericData.
 	switch(registerNo)
 	{
 	case 0:
@@ -1758,6 +1760,8 @@ void S315_5313::TransparentRegisterSpecialUpdateFunction(unsigned int registerNo
 //----------------------------------------------------------------------------------------
 void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int accessContext, unsigned int registerNo, const Data& data)
 {
+	//Note that if you update this logic, you also need to update the corresponding logic
+	//in TransparentRegisterSpecialUpdateFunction and WriteGenericData.
 	switch(registerNo)
 	{
 	case 0:
