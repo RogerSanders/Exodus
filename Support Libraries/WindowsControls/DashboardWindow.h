@@ -196,7 +196,8 @@ private:
 	HCURSOR cursorSizeAll;
 
 	//Window metrics
-	int dividerSize;
+	int dividerSizeX;
+	int dividerSizeY;
 	int controlWidth;
 	int controlHeight;
 
