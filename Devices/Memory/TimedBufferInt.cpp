@@ -213,10 +213,11 @@ void TimedBufferInt::SaveState(IHierarchicalStorageNode& node, const std::wstrin
 void TimedBufferInt::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	size_t memorySize = memoryLocked.size();
+	Stream::IStream::SizeType readCount = (node.GetBinaryDataBufferStream().Size() / (Stream::IStream::SizeType)sizeof(unsigned char));
 	node.ExtractBinaryData(memoryLocked);
-	if(memoryLocked.size() < memorySize)
+	for(size_t i = readCount; i < memorySize; ++i)
 	{
-		memoryLocked.insert(memoryLocked.end(), memorySize - memoryLocked.size(), false);
+		memoryLocked[i] = 0;
 	}
 }
 
