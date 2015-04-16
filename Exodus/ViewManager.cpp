@@ -1105,7 +1105,7 @@ bool ViewManager::LoadWindowState(IView& view, IViewPresenter& viewPresenter, HW
 	if(windowIDAttribute != 0)
 	{
 		//Attempt to retrieve information on the associated placeholder window
-		unsigned int windowID = windowIDAttribute->ExtractHexValue<unsigned int>();
+		unsigned int windowID = windowIDAttribute->ExtractValue<unsigned int>();
 		std::map<unsigned int, PlaceholderWindowInfo>::iterator placeholderWindowsForViewLayoutIterator = placeholderWindowsForViewLayout.find(windowID);
 		if(placeholderWindowsForViewLayoutIterator == placeholderWindowsForViewLayout.end())
 		{
@@ -2047,7 +2047,7 @@ HWND ViewManager::LoadDialogWindowFrameFromViewLayout(IHierarchicalStorageNode& 
 	int posY = (posYAttribute != 0)? posYAttribute->ExtractValue<int>(): 0;
 	int sizeX = (sizeXAttribute != 0)? sizeXAttribute->ExtractValue<int>(): 0;
 	int sizeY = (sizeYAttribute != 0)? sizeYAttribute->ExtractValue<int>(): 0;
-	unsigned int windowID = windowIDAttribute->ExtractHexValue<unsigned int>();
+	unsigned int windowID = windowIDAttribute->ExtractValue<unsigned int>();
 	IView::ViewType viewType = StringToViewType(viewTypeAttribute->GetValue());
 
 	//Adjust the view position and size to convert from DPI-independent values
@@ -2320,7 +2320,7 @@ void ViewManager::CreateDockingWindowChildrenFromViewLayout(HWND dockingWindow, 
 					IView::ViewType viewType = StringToViewType(viewTypeAttribute->GetValue());
 
 					//Create the placeholder window
-					unsigned int windowID = windowIDAttribute->ExtractHexValue<unsigned int>();
+					unsigned int windowID = windowIDAttribute->ExtractValue<unsigned int>();
 					HWND placeholderWindow = CreateWindowEx(0, WC_STATIC, L"", 0, 0, 0, 0, 0, NULL, NULL, viewManagerAssemblyHandle, NULL);
 
 					//Add this placeholder window as a content window of the docking
@@ -2690,9 +2690,29 @@ void ViewManager::DestroyUnusedPlaceholderWindows(const std::map<unsigned int, P
 {
 	for(std::map<unsigned int, PlaceholderWindowInfo>::const_iterator i = placeholderWindowInfo.begin(); i != placeholderWindowInfo.end(); ++i)
 	{
+		//Destroy the target placeholder window
 		const PlaceholderWindowInfo& placeholderWindowInfo = i->second;
 		SendMessage(placeholderWindowInfo.parentWindowFrame, (UINT)DockingWindow::WindowMessages::RemoveContentWindow, 0, (LPARAM)placeholderWindowInfo.placeholderContentWindow);
 		DestroyWindow(placeholderWindowInfo.placeholderContentWindow);
+
+		//Recursively close the parent docking window for the placeholder window until we
+		//find one with remaining content, or we reach the main docking window.
+		HWND searchParentDockingWindow = placeholderWindowInfo.parentWindowFrame;
+		while((searchParentDockingWindow != NULL) && (searchParentDockingWindow != mainDockingWindow))
+		{
+			unsigned int dockedWindowCount = (unsigned int)SendMessage(searchParentDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowCount, 0, 0);
+			unsigned int contentWindowCount = (unsigned int)SendMessage(searchParentDockingWindow, (UINT)DockingWindow::WindowMessages::GetContentWindowCount, 0, 0);
+			if((dockedWindowCount == 0) && (contentWindowCount == 0))
+			{
+				HWND nextParentDockingWindow = GetParentDockingWindow(searchParentDockingWindow);
+				DestroyWindow(searchParentDockingWindow);
+				searchParentDockingWindow = nextParentDockingWindow;
+			}
+			else
+			{
+				searchParentDockingWindow = NULL;
+			}
+		}
 	}
 }
 

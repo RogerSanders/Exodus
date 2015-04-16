@@ -338,7 +338,7 @@ bool YM2612::BuildDevice()
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IYM2612DataSource::OperatorAudioLoggingPath, IGenericAccessDataValue::DataType::FilePath))->SetFilePathExtensionFilter(audioLogExtensionFilter)->SetFilePathDefaultExtension(audioLogDefaultExtension)->SetFilePathCreatingTarget(true));
 
 	//Register page layouts for generic access to this device
-	GenericAccessPage* audioLoggingPage = new GenericAccessPage(L"Generic - Audio Logging");
+	GenericAccessPage* audioLoggingPage = new GenericAccessPage(L"Audio Logging", L"Generic - Audio Logging");
 	audioLoggingPage->AddEntry((new GenericAccessGroup(L"Combined Output"))
 	                    ->AddEntry(new GenericAccessGroupDataEntry(IYM2612DataSource::AudioLoggingEnabled, L"Log Enabled"))
 	                    ->AddEntry(new GenericAccessGroupDataEntry(IYM2612DataSource::AudioLoggingPath, L"Log Path")));

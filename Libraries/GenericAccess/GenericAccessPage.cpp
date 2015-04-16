@@ -3,9 +3,11 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-GenericAccessPage::GenericAccessPage(const std::wstring& aname)
+GenericAccessPage::GenericAccessPage(const std::wstring& aname, const std::wstring& atitle)
 :contentRoot(aname)
-{}
+{
+	title = (atitle.empty())? aname: atitle;
+}
 
 //----------------------------------------------------------------------------------------
 //Interface version functions
@@ -21,6 +23,12 @@ unsigned int GenericAccessPage::GetIGenericAccessPageVersion() const
 MarshalSupport::Marshal::Ret<std::wstring> GenericAccessPage::GetName() const
 {
 	return contentRoot.GetName();
+}
+
+//----------------------------------------------------------------------------------------
+MarshalSupport::Marshal::Ret<std::wstring> GenericAccessPage::GetTitle() const
+{
+	return title;
 }
 
 //----------------------------------------------------------------------------------------

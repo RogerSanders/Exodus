@@ -115,7 +115,7 @@ bool SN76489::BuildDevice()
 	//the fallback resource values are used in the case that nothing else is defined which
 	//is appropriate, IE, as might be the case if the device is updated and the
 	//localization isn't yet.
-	GenericAccessPage* registersPage = new GenericAccessPage(L"Generic - Registers");
+	GenericAccessPage* registersPage = new GenericAccessPage(L"Registers", L"Generic - Registers");
 	registersPage->AddEntry((new GenericAccessGroup(L"Channel 1"))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel1VolumeRegister, L"Volume"))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel1ToneRegister, L"Tone")))
@@ -137,7 +137,7 @@ bool SN76489::BuildDevice()
 	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::LatchedChannelNo, L"Latched Channel No"))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::VolumeRegisterLatched, L"Volume Register Latched")));
 	result &= AddGenericAccessPage(registersPage);
-	GenericAccessPage* parametersPage = new GenericAccessPage(L"Generic - Parameters");
+	GenericAccessPage* parametersPage = new GenericAccessPage(L"Parameters", L"Generic - Parameters");
 	parametersPage->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::ExternalClockRate, L"External Clock Rate"))
 	              ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::ExternalClockDivider, L"External Clock Divider"))
 	              ->AddEntry((new GenericAccessGroup(L"Noise Channel"))
@@ -146,7 +146,7 @@ bool SN76489::BuildDevice()
 	                  ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::WhiteNoiseTappedBitMask, L"White Noise Tapped Bit Mask"))
 	                  ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::PeriodicNoiseTappedBitMask, L"Periodic Noise Tapped Bit Mask")));
 	result &= AddGenericAccessPage(parametersPage);
-	GenericAccessPage* audioLoggingPage = new GenericAccessPage(L"Generic - Audio Logging");
+	GenericAccessPage* audioLoggingPage = new GenericAccessPage(L"Audio Logging", L"Generic - Audio Logging");
 	audioLoggingPage->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::AudioLoggingEnabled, L"Log Enabled"))
 	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::AudioLoggingPath, L"Log Path"))
 	                ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel1AudioLoggingEnabled, L"Channel 1 Log Enabled"))
