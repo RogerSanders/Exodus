@@ -20,7 +20,8 @@ DashboardWindow::DashboardWindow(HINSTANCE amoduleHandle, HWND ahwnd)
 	controlFontHeight = 1;
 
 	//Window metrics
-	dividerSize = 8;
+	dividerSizeX = DPIScaleWidth(8);
+	dividerSizeY = DPIScaleHeight(8);
 	controlWidth = 0;
 	controlHeight = 0;
 
@@ -340,11 +341,13 @@ LRESULT DashboardWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	shadowPenColorComponents[3] = shadowAlphaComponent;
 
 	//Draw the image used for our grabbers on the dividers
-	unsigned int grabberImageWidth = 4;
-	unsigned int grabberImageHeight = 4;
+	unsigned int grabberImageWidth = (unsigned int)dividerSizeX / 2;
+	unsigned int grabberImageHeight = (unsigned int)dividerSizeY / 2;
+	unsigned int grabberImageSquareWidth = grabberImageWidth / 2;
+	unsigned int grabberImageSquareHeight = grabberImageHeight / 2;
 	grabberImage.SetImageFormat(grabberImageWidth, grabberImageHeight, IImage::PIXELFORMAT_RGBA);
-	DrawImageSquare(grabberImage, 2, 2, 2, 2, shadowPenColorComponents);
-	DrawImageSquare(grabberImage, 1, 1, 2, 2, markerPenColorComponents);
+	DrawImageSquare(grabberImage, grabberImageSquareWidth, grabberImageSquareHeight, grabberImageSquareWidth, grabberImageSquareHeight, shadowPenColorComponents);
+	DrawImageSquare(grabberImage, grabberImageSquareWidth / 2, grabberImageSquareHeight / 2, grabberImageSquareWidth, grabberImageSquareHeight, markerPenColorComponents);
 
 	//Draw the images used for the extend buttons on our dividers
 	unsigned int arrowImageWidth = 8;
@@ -377,6 +380,24 @@ LRESULT DashboardWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	DrawImageLine(arrowImageBottomRight, 6, 1, 6, 6, markerPenColorComponents);
 	DrawImageLine(arrowImageBottomRight, 1, 6, 6, 6, markerPenColorComponents);
 	DrawImageLine(arrowImageBottomRight, 1, 1, 6, 6, markerPenColorComponents);
+
+	//Resize the extend button images if the divider is a different size. This can happen
+	//when a high DPI setting is being used.
+	//##TODO## Improve our handling of high DPI modes here. Our resampling solution here
+	//works, but the image quality isn't optimal. The lines for the arrows are
+	//unnecessarily pixelated at higher DPI settings, and the shadow effect is poorly
+	//adjusted on uneven multiples of the standard DPI. When we have a new canvas class,
+	//the drawing routines there can provide a solution by allowing line thickness and
+	//antialiasing support for line drawing, where we can then just make the image at the
+	//correct size for the current DPI and draw larger lines natively with good image
+	//quality.
+	if((arrowImageWidth != (unsigned int)dividerSizeX) || (arrowImageHeight != (unsigned int)dividerSizeY))
+	{
+		arrowImageTopLeft.ResampleBilinear((unsigned int)dividerSizeX, (unsigned int)dividerSizeY);
+		arrowImageTopRight.ResampleBilinear((unsigned int)dividerSizeX, (unsigned int)dividerSizeY);
+		arrowImageBottomLeft.ResampleBilinear((unsigned int)dividerSizeX, (unsigned int)dividerSizeY);
+		arrowImageBottomRight.ResampleBilinear((unsigned int)dividerSizeX, (unsigned int)dividerSizeY);
+	}
 
 	//Calculate the dimensions of the client region of this control
 	RECT rect;
@@ -2320,10 +2341,10 @@ LRESULT DashboardWindow::msgPlacementShadowWM_PAINT(HWND placementShadowHwnd, WP
 	if(dropShadowCurrentPos != DockTargetPos::Center)
 	{
 		RECT dividerRect;
-		dividerRect.left = (dropShadowCurrentPos == DockTargetPos::Left)? (windowWidth - dividerSize): 0;
-		dividerRect.right = ((dropShadowCurrentPos == DockTargetPos::Left) || (dropShadowCurrentPos == DockTargetPos::Right))? dividerRect.left + dividerSize: windowWidth;
-		dividerRect.top = (dropShadowCurrentPos == DockTargetPos::Top)? (windowHeight - dividerSize): 0;
-		dividerRect.bottom = ((dropShadowCurrentPos == DockTargetPos::Top) || (dropShadowCurrentPos == DockTargetPos::Bottom))? dividerRect.top + dividerSize: windowHeight;
+		dividerRect.left = (dropShadowCurrentPos == DockTargetPos::Left)? (windowWidth - dividerSizeX): 0;
+		dividerRect.right = ((dropShadowCurrentPos == DockTargetPos::Left) || (dropShadowCurrentPos == DockTargetPos::Right))? dividerRect.left + dividerSizeX: windowWidth;
+		dividerRect.top = (dropShadowCurrentPos == DockTargetPos::Top)? (windowHeight - dividerSizeY): 0;
+		dividerRect.bottom = ((dropShadowCurrentPos == DockTargetPos::Top) || (dropShadowCurrentPos == DockTargetPos::Bottom))? dividerRect.top + dividerSizeY: windowHeight;
 		FillRect(hdc, &dividerRect, dividerBrush);
 	}
 
@@ -2780,8 +2801,8 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 		dropShadowCurrentPos = newDockLocation;
 
 		//Calculate the width and height of the placement shadow window
-		int placementShadowWidth = (newDockLocation == DockTargetPos::Center)? targetRegion->width: (((newDockLocation == DockTargetPos::Left) || (newDockLocation == DockTargetPos::Right))? ((targetRegion->width + dividerSize) / 2): targetRegion->width);
-		int placementShadowHeight = (newDockLocation == DockTargetPos::Center)? targetRegion->height: (((newDockLocation == DockTargetPos::Top) || (newDockLocation == DockTargetPos::Bottom))? ((targetRegion->height + dividerSize) / 2): targetRegion->height);
+		int placementShadowWidth = (newDockLocation == DockTargetPos::Center)? targetRegion->width: (((newDockLocation == DockTargetPos::Left) || (newDockLocation == DockTargetPos::Right))? ((targetRegion->width + dividerSizeX) / 2): targetRegion->width);
+		int placementShadowHeight = (newDockLocation == DockTargetPos::Center)? targetRegion->height: (((newDockLocation == DockTargetPos::Top) || (newDockLocation == DockTargetPos::Bottom))? ((targetRegion->height + dividerSizeY) / 2): targetRegion->height);
 
 		//Calculate the position of the placement shadow window in screen coordinates
 		POINT point;
@@ -3076,8 +3097,8 @@ void DashboardWindow::UpdateCachedLocations(bool deferWindowUpdate)
 	for(std::list<ContentRegion*>::iterator contentRegionIterator = regions.begin(); contentRegionIterator != regions.end(); ++contentRegionIterator)
 	{
 		ContentRegion& contentRegion = *(*contentRegionIterator);
-		contentRegion.cachedPosX = (contentRegion.leftDivider != 0)? contentRegion.leftDivider->cachedPosX + dividerSize: 0;
-		contentRegion.cachedPosY = (contentRegion.topDivider != 0)? contentRegion.topDivider->cachedPosY + dividerSize: 0;
+		contentRegion.cachedPosX = (contentRegion.leftDivider != 0)? contentRegion.leftDivider->cachedPosX + dividerSizeX: 0;
+		contentRegion.cachedPosY = (contentRegion.topDivider != 0)? contentRegion.topDivider->cachedPosY + dividerSizeY: 0;
 	}
 
 	//If window size and position updates have been requested, perform them now.
@@ -3124,7 +3145,7 @@ void DashboardWindow::UpdateCachedDividerLocation(int regionPosX, int regionPosY
 		const ContentRegion& contentRegion = *(i->contentRegion);
 		if(!firstContentEntry)
 		{
-			dividerLength += dividerSize;
+			dividerLength += (divider.vertical)? dividerSizeY: dividerSizeX;
 		}
 		dividerLength += (divider.vertical)? contentRegion.height: contentRegion.width;
 		firstContentEntry = false;
@@ -3136,7 +3157,7 @@ void DashboardWindow::UpdateCachedDividerLocation(int regionPosX, int regionPosY
 	{
 		divider.cachedPosX = regionPosX + precedingRegion.width;
 		divider.cachedPosY = regionPosY;
-		divider.cachedWidth = dividerSize;
+		divider.cachedWidth = dividerSizeX;
 		divider.cachedHeight = dividerLength;
 		regionPosX = divider.cachedPosX + divider.cachedWidth;
 	}
@@ -3145,7 +3166,7 @@ void DashboardWindow::UpdateCachedDividerLocation(int regionPosX, int regionPosY
 		divider.cachedPosX = regionPosX;
 		divider.cachedPosY = regionPosY + precedingRegion.height;
 		divider.cachedWidth = dividerLength;
-		divider.cachedHeight = dividerSize;
+		divider.cachedHeight = dividerSizeY;
 		regionPosY = divider.cachedPosY + divider.cachedHeight;
 	}
 
@@ -3178,11 +3199,11 @@ void DashboardWindow::InsertRegion(ContentRegion& existingRegion, InsertDirectio
 	int distanceAlongRegion;
 	if((insertDirection == InsertDirection::Top) || (insertDirection == InsertDirection::Bottom))
 	{
-		distanceAlongRegion = (existingRegion.height > dividerSize)? (int)((double)(existingRegion.height - dividerSize) * regionProportion): 0;
+		distanceAlongRegion = (existingRegion.height > dividerSizeY)? (int)((double)(existingRegion.height - dividerSizeY) * regionProportion): 0;
 	}
 	else
 	{
-		distanceAlongRegion = (existingRegion.width > dividerSize)? (int)((double)(existingRegion.width - dividerSize) * regionProportion): 0;
+		distanceAlongRegion = (existingRegion.width > dividerSizeX)? (int)((double)(existingRegion.width - dividerSizeX) * regionProportion): 0;
 	}
 
 	//Insert the new region at the calculated position within the existing region
@@ -3405,11 +3426,11 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 	if((insertDirection == InsertDirection::Top) || (insertDirection == InsertDirection::Bottom))
 	{
 		newRegion.width = existingRegion.width;
-		if((distanceAlongRegion + dividerSize) <= existingRegion.height)
+		if((distanceAlongRegion + dividerSizeY) <= existingRegion.height)
 		{
 			//Split the existing region to insert the new region
-			newRegion.height = (existingRegion.height - (distanceAlongRegion + dividerSize));
-			existingRegion.height -= (newRegion.height + dividerSize);
+			newRegion.height = (existingRegion.height - (distanceAlongRegion + dividerSizeY));
+			existingRegion.height -= (newRegion.height + dividerSizeY);
 		}
 		else
 		{
@@ -3418,7 +3439,7 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 			//handle this case, we need to increase the size of all regions running across
 			//the control, otherwise gaps would be created next to the existing region.
 			newRegion.height = 0;
-			int otherRegionsSizeAdjustment = (distanceAlongRegion + dividerSize) - existingRegion.height;
+			int otherRegionsSizeAdjustment = (distanceAlongRegion + dividerSizeY) - existingRegion.height;
 			int existingRegionSizeAdjustment = distanceAlongRegion - existingRegion.height;
 			for(std::list<ContentRegion*>::const_iterator i = regions.begin(); i != regions.end(); ++i)
 			{
@@ -3434,11 +3455,11 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 	else
 	{
 		newRegion.height = existingRegion.height;
-		if((distanceAlongRegion + dividerSize) <= existingRegion.width)
+		if((distanceAlongRegion + dividerSizeX) <= existingRegion.width)
 		{
 			//Split the existing region to insert the new region
-			newRegion.width = (existingRegion.width - (distanceAlongRegion + dividerSize));
-			existingRegion.width -= (newRegion.width + dividerSize);
+			newRegion.width = (existingRegion.width - (distanceAlongRegion + dividerSizeX));
+			existingRegion.width -= (newRegion.width + dividerSizeX);
 		}
 		else
 		{
@@ -3447,7 +3468,7 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 			//handle this case, we need to increase the size of all regions running across
 			//the control, otherwise gaps would be created next to the existing region.
 			newRegion.width = 0;
-			int otherRegionsSizeAdjustment = (distanceAlongRegion + dividerSize) - existingRegion.width;
+			int otherRegionsSizeAdjustment = (distanceAlongRegion + dividerSizeX) - existingRegion.width;
 			int existingRegionSizeAdjustment = distanceAlongRegion - existingRegion.width;
 			for(std::list<ContentRegion*>::const_iterator i = regions.begin(); i != regions.end(); ++i)
 			{
@@ -3628,7 +3649,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 	switch(dividerToRemoveLocation)
 	{
 	case IDockingWindow::WindowEdge::Left:{
-		int sizeToAdd = dividerSize + existingRegion.width;
+		int sizeToAdd = dividerSizeX + existingRegion.width;
 		for(std::list<DividerContentEntry>::iterator i = existingRegion.leftDivider->precedingContent.begin(); i != existingRegion.leftDivider->precedingContent.end(); ++i)
 		{
 			i->contentRegion->width += sizeToAdd;
@@ -3640,7 +3661,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 		}
 		break;}
 	case IDockingWindow::WindowEdge::Top:{
-		int sizeToAdd = dividerSize + existingRegion.height;
+		int sizeToAdd = dividerSizeY + existingRegion.height;
 		for(std::list<DividerContentEntry>::iterator i = existingRegion.topDivider->precedingContent.begin(); i != existingRegion.topDivider->precedingContent.end(); ++i)
 		{
 			i->contentRegion->height += sizeToAdd;
@@ -3652,7 +3673,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 		}
 		break;}
 	case IDockingWindow::WindowEdge::Right:{
-		int sizeToAdd = dividerSize + existingRegion.width;
+		int sizeToAdd = dividerSizeX + existingRegion.width;
 		for(std::list<DividerContentEntry>::iterator i = existingRegion.rightDivider->followingContent.begin(); i != existingRegion.rightDivider->followingContent.end(); ++i)
 		{
 			i->contentRegion->width += sizeToAdd;
@@ -3664,7 +3685,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 		}
 		break;}
 	case IDockingWindow::WindowEdge::Bottom:{
-		int sizeToAdd = dividerSize + existingRegion.height;
+		int sizeToAdd = dividerSizeY + existingRegion.height;
 		for(std::list<DividerContentEntry>::iterator i = existingRegion.bottomDivider->followingContent.begin(); i != existingRegion.bottomDivider->followingContent.end(); ++i)
 		{
 			i->contentRegion->height += sizeToAdd;
@@ -4061,7 +4082,7 @@ std::list<DashboardWindow::DividerSplitPosition> DashboardWindow::GetSplitPositi
 
 			//Calculate the start position and length of the split grabber along the
 			//target divider
-			static const int dividerSplitGrabberSize = dividerSize * 3;
+			static const int dividerSplitGrabberSize = (targetDivider->vertical)? (dividerSizeY * 3): (dividerSizeX * 3);
 			int splitDividerRegionLength = (precedingRegionCurrentStartPos - synchronizedStartPos) + ((targetDivider->vertical)? precedingContentIterator->contentRegion->height: precedingContentIterator->contentRegion->width);
 			int splitDividerLength = (dividerSplitGrabberSize > splitDividerRegionLength)? splitDividerRegionLength: dividerSplitGrabberSize;
 			int splitDividerStartPos = synchronizedStartPos + (((splitDividerRegionLength / 2) - (splitDividerLength / 2)));
@@ -4086,12 +4107,12 @@ std::list<DashboardWindow::DividerSplitPosition> DashboardWindow::GetSplitPositi
 		int newFollowingRegionCurrentStartPos = followingRegionCurrentStartPos;
 		if((precedingRegionCurrentStartPos + precedingRegionLength) <= (followingRegionCurrentStartPos + followingRegionLength))
 		{
-			newPrecedingRegionCurrentStartPos += precedingRegionLength + dividerSize;
+			newPrecedingRegionCurrentStartPos += precedingRegionLength + ((targetDivider->vertical)? dividerSizeY: dividerSizeX);
 			++precedingContentIterator;
 		}
 		if((precedingRegionCurrentStartPos + precedingRegionLength) >= (followingRegionCurrentStartPos + followingRegionLength))
 		{
-			newFollowingRegionCurrentStartPos += followingRegionLength + dividerSize;
+			newFollowingRegionCurrentStartPos += followingRegionLength + ((targetDivider->vertical)? dividerSizeY: dividerSizeX);
 			++followingContentIterator;
 		}
 		precedingRegionCurrentStartPos = newPrecedingRegionCurrentStartPos;
@@ -4120,7 +4141,7 @@ std::list<DashboardWindow::DividerExtendButtonPosition> DashboardWindow::GetExte
 	//Create the list to store information on the extend button positions, and retrieve
 	//info on the target divider.
 	std::list<DividerExtendButtonPosition> extendButtonPositions;
-	const int dividerExtendButtonLength = 8;
+	const int dividerExtendButtonLength = (targetDivider->vertical)? dividerSizeY: dividerSizeX;
 	int dividerLength = (targetDivider->vertical)? targetDivider->cachedHeight: targetDivider->cachedWidth;
 
 	//Add any extend buttons for the start anchor divider to the list of extend buttons
@@ -4812,6 +4833,7 @@ std::list<DashboardWindow::Divider*> DashboardWindow::GetDividersAtPosition(int 
 
 		//Calculate the distance along this divider where the target position lies
 		int targetPositionAlongDivider = (divider->vertical)? (posY - divider->cachedPosY): (posX - divider->cachedPosX);
+		int dividerSizeBetweenContent = (divider->vertical)? dividerSizeY: dividerSizeX;
 
 		//Add any dividers that intersect this divider at the target position to the list
 		//of dividers
@@ -4825,9 +4847,9 @@ std::list<DashboardWindow::Divider*> DashboardWindow::GetDividersAtPosition(int 
 			Divider* dividerAfterLastRegion = 0;
 			bool firstContentEntry = true;
 			std::list<DividerContentEntry>::const_iterator contentIterator = contentEntryList.begin();
-			while((targetPositionAlongDivider >= (dividerStartPos + dividerSize)) && (contentIterator != contentEntryList.end()))
+			while((targetPositionAlongDivider >= (dividerStartPos + dividerSizeBetweenContent)) && (contentIterator != contentEntryList.end()))
 			{
-				dividerStartPos += (!firstContentEntry)? dividerSize: 0;
+				dividerStartPos += (!firstContentEntry)? dividerSizeBetweenContent: 0;
 				firstContentEntry = false;
 				if(divider->vertical)
 				{
@@ -4840,7 +4862,7 @@ std::list<DashboardWindow::Divider*> DashboardWindow::GetDividersAtPosition(int 
 				dividerAfterLastRegion = contentIterator->followingContentDivider;
 				++contentIterator;
 			}
-			if((dividerAfterLastRegion != 0) && (targetPositionAlongDivider >= dividerStartPos) && (targetPositionAlongDivider < (dividerStartPos + dividerSize)))
+			if((dividerAfterLastRegion != 0) && (targetPositionAlongDivider >= dividerStartPos) && (targetPositionAlongDivider < (dividerStartPos + dividerSizeBetweenContent)))
 			{
 				dividerList.push_back(dividerAfterLastRegion);
 			}
@@ -4966,8 +4988,8 @@ void DashboardWindow::LoadLayoutInfo(const std::list<DividerListEntry>& dividerL
 		while(!foundTargetContentRegion && (followingDividerListIterator != followingDividerList.end()))
 		{
 			const DividerContentEntry& dividerContentEntry = *followingDividerListIterator;
-			int nextRegionSize = (parentDividerVertical)? dividerContentEntry.contentRegion->height: dividerContentEntry.contentRegion->width;
-			if((entry.dividerDistanceAlongParent >= currentDistanceAlongParent) && ((dividerContentEntry.followingContentDivider == 0) || (entry.dividerDistanceAlongParent < (currentDistanceAlongParent + nextRegionSize + dividerSize))))
+			int nextRegionAndDividerSize = (parentDividerVertical)? (dividerContentEntry.contentRegion->height + dividerSizeY): (dividerContentEntry.contentRegion->width + dividerSizeX);
+			if((entry.dividerDistanceAlongParent >= currentDistanceAlongParent) && ((dividerContentEntry.followingContentDivider == 0) || (entry.dividerDistanceAlongParent < (currentDistanceAlongParent + nextRegionAndDividerSize))))
 			{
 				targetContentRegion = dividerContentEntry.contentRegion;
 				distanceAlongTargetContentRegion = entry.dividerDistanceAlongParent - currentDistanceAlongParent;
@@ -4975,8 +4997,7 @@ void DashboardWindow::LoadLayoutInfo(const std::list<DividerListEntry>& dividerL
 				continue;
 			}
 
-			currentDistanceAlongParent += (parentDividerVertical)? dividerContentEntry.contentRegion->height: dividerContentEntry.contentRegion->width;
-			currentDistanceAlongParent += dividerSize;
+			currentDistanceAlongParent += (parentDividerVertical)? (dividerContentEntry.contentRegion->height + dividerSizeY): (dividerContentEntry.contentRegion->width + dividerSizeX);
 			++followingDividerListIterator;
 		}
 		if(!foundTargetContentRegion)
