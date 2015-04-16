@@ -96,8 +96,7 @@ std::map<unsigned int, ModuleOptionMenuHandler::SettingEntry*> ModuleOptionMenuH
 		}
 
 		//Build a SettingEntry object for this module setting
-		SettingEntry* settingEntry = new SettingEntry(std::bind(std::mem_fn(&ModuleOptionMenuHandler::RefreshActiveMenuSettingOption), this, settingID));
-		settingEntry->settingID = settingID;
+		SettingEntry* settingEntry = new SettingEntry(model, moduleID, settingID, std::bind(std::mem_fn(&ModuleOptionMenuHandler::RefreshActiveMenuSettingOption), this, settingID));
 		settingEntry->displayName = moduleSettingInfo.GetDisplayName();
 		settingEntry->toggleSetting = moduleSettingInfo.IsToggleSetting();
 		settingEntry->toggleSettingOnOptionIndex = moduleSettingInfo.GetToggleSettingOnOptionIndex();

@@ -1500,7 +1500,7 @@ bool System::ReloadEmbeddedROMData(const EmbeddedROMInfoInternal& targetEmbedded
 //----------------------------------------------------------------------------------------
 MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetModuleSettingIDs(unsigned int moduleID) const
 {
-	std::unique_lock<std::mutex> lock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> lock(moduleSettingMutex);
 	std::list<unsigned int> moduleSettingIDList;
 	ModuleSystemSettingMap::const_iterator moduleSettingsIterator = moduleSettings.find(moduleID);
 	if(moduleSettingsIterator != moduleSettings.end())
@@ -1514,7 +1514,7 @@ MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetModuleSettingID
 bool System::GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSettingID, IModuleSettingInfo& moduleSettingInfo) const
 {
 	//Locate the target module setting
-	std::unique_lock<std::mutex> lock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::const_iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1541,7 +1541,7 @@ bool System::GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSett
 bool System::GetModuleSettingOptionInfo(unsigned int moduleID, unsigned int moduleSettingID, unsigned int moduleSettingOptionIndex, IModuleSettingOptionInfo& moduleSettingOptionInfo) const
 {
 	//Locate the target module setting
-	std::unique_lock<std::mutex> lock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::const_iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1570,7 +1570,7 @@ bool System::GetModuleSettingOptionInfo(unsigned int moduleID, unsigned int modu
 bool System::GetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned int moduleSettingID, unsigned int& activeModuleOptionIndex) const
 {
 	//Locate the target module setting
-	std::unique_lock<std::mutex> lock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::const_iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1591,7 +1591,7 @@ bool System::GetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned i
 bool System::SetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned int moduleSettingID, unsigned int activeOptionIndex)
 {
 	//Locate the target module setting
-	std::unique_lock<std::mutex> lock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1696,7 +1696,7 @@ bool System::SetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned i
 void System::ModuleSettingActiveOptionChangeNotifyRegister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer)
 {
 	//Locate the target module setting
-	std::unique_lock<std::mutex> lock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -1716,7 +1716,7 @@ void System::ModuleSettingActiveOptionChangeNotifyRegister(unsigned int moduleID
 void System::ModuleSettingActiveOptionChangeNotifyDeregister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer)
 {
 	//Locate the target module setting
-	std::unique_lock<std::mutex> lock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> lock(moduleSettingMutex);
 	SystemSettingsMap::iterator systemSettingsIterator = systemSettings.find(moduleSettingID);
 	if(systemSettingsIterator == systemSettings.end())
 	{
@@ -3115,7 +3115,7 @@ bool System::LoadModule(const MarshalSupport::Marshal::In<std::wstring>& filePat
 	//for any system settings in the set of loaded modules.
 	for(std::list<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 	{
-		std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
+		std::unique_lock<std::recursive_mutex> moduleSettingsLock(moduleSettingMutex);
 		ModuleSystemSettingMap::const_iterator moduleSettingsIterator = moduleSettings.find(*addedModuleIDsIterator);
 		if(moduleSettingsIterator != moduleSettings.end())
 		{
@@ -4218,7 +4218,7 @@ bool System::SaveSystem(const MarshalSupport::Marshal::In<std::wstring>& filePat
 	inputLock.unlock();
 
 	//Save current system setting selections to the system file
-	std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> moduleSettingsLock(moduleSettingMutex);
 	for(SystemSettingsMap::const_iterator i = systemSettings.begin(); i != systemSettings.end(); ++i)
 	{
 		const SystemSettingInfo& systemSettingInfo = *(i->second);
@@ -4651,7 +4651,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 	}
 
 	//Remove any system settings defined by this module
-	std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> moduleSettingsLock(moduleSettingMutex);
 	ModuleSystemSettingMap::iterator moduleSettingsEntry = moduleSettings.find(moduleID);
 	if(moduleSettingsEntry != moduleSettings.end())
 	{
@@ -6897,7 +6897,7 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 	std::wstring importName = importNameAttribute->GetValue();
 
 	//Retrieve the ID number for the referenced system setting
-	std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> moduleSettingsLock(moduleSettingMutex);
 	unsigned int systemSettingID = GetSystemSettingID(moduleID, systemSettingName);
 	if(systemSettingID == 0)
 	{
@@ -7796,7 +7796,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	}
 
 	//Generate an ID number for this system setting
-	std::unique_lock<std::mutex> moduleSettingsLock(moduleSettingMutex);
+	std::unique_lock<std::recursive_mutex> moduleSettingsLock(moduleSettingMutex);
 	unsigned int systemSettingID = GenerateFreeSystemSettingID();
 
 	//Populate the system setting object with this setting info

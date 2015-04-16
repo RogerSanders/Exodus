@@ -552,7 +552,7 @@ private:
 	mutable std::mutex loadedElementMutex;
 	mutable std::mutex eventLogMutex;
 	mutable std::mutex embeddedROMMutex;
-	mutable std::mutex moduleSettingMutex;
+	mutable std::recursive_mutex moduleSettingMutex;
 
 	//Asynchronous notification settings
 	mutable std::mutex moduleNameMutex;

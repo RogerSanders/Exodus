@@ -40,13 +40,21 @@ private:
 	};
 	struct SettingEntry
 	{
-		SettingEntry(const std::function<void()>& acallback)
-		:optionChangeObserver(acallback)
-		{}
+		SettingEntry(ISystemGUIInterface& asystemInterface, unsigned int amoduleID, unsigned int asettingID, const std::function<void()>& acallback)
+		:systemInterface(asystemInterface), moduleID(amoduleID), settingID(asettingID), optionChangeObserver(acallback)
+		{
+			systemInterface.ModuleSettingActiveOptionChangeNotifyRegister(moduleID, settingID, optionChangeObserver);
+		}
+		~SettingEntry()
+		{
+			systemInterface.ModuleSettingActiveOptionChangeNotifyDeregister(moduleID, settingID, optionChangeObserver);
+		}
 
+		ISystemGUIInterface& systemInterface;
 		bool toggleSetting;
 		unsigned int toggleSettingOnOptionIndex;
 		unsigned int toggleSettingOffOptionIndex;
+		unsigned int moduleID;
 		unsigned int settingID;
 		std::vector<OptionEntry> options;
 		IMenuSelectableOption* menuItemEntry;
