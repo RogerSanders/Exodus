@@ -67,12 +67,13 @@ private:
 	struct TabInfo
 	{
 		TabInfo(const std::wstring& atabName, int adialogID, DLGPROC adialogProc)
-		:tabName(atabName), dialogID(adialogID), dialogProc(adialogProc)
+		:tabName(atabName), dialogID(adialogID), dialogProc(adialogProc), hwndDialog(NULL)
 		{}
 
 		std::wstring tabName;
 		int dialogID;
 		DLGPROC dialogProc;
+		HWND hwndDialog;
 	};
 
 private:
@@ -83,7 +84,7 @@ private:
 	unsigned int currentControlFocus;
 	COLORREF lockedColor;
 	HBRUSH lockedBrush;
-	HWND activeTabDialog;
+	HWND activeTabWindow;
 	std::vector<TabInfo> tabItems;
 };
 
