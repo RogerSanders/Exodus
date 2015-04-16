@@ -7,8 +7,8 @@
 #include "HierarchicalStorage/HierarchicalStorage.pkg"
 #include "DataConversion/DataConversion.pkg"
 #include "MenuSelectableOption.h"
-#include <thread>
 #include "MenuHandler.h"
+#include <thread>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -1635,6 +1635,11 @@ bool ExodusInterface::LoadAssembly(const MarshalSupport::Marshal::In<std::wstrin
 		return false;
 	}
 
+	//Write an entry in the event log about this assembly load operation
+	LogEntry logEntry(LogEntry::EventLevel::Info, L"System", L"");
+	logEntry << L"Loading plugins from assembly \"" << filePath << "\".";
+	system->WriteLogEvent(logEntry);
+
 	//Register each device in the assembly
 	bool result = true;
 	if(pluginInfo.GetDeviceEntry != 0)
@@ -1643,21 +1648,12 @@ bool ExodusInterface::LoadAssembly(const MarshalSupport::Marshal::In<std::wstrin
 		DeviceInfo entry;
 		while(pluginInfo.GetDeviceEntry(entryNo, entry))
 		{
-			//##DEBUG##
-			std::wcout << L"Registering device \"" << entry.GetDeviceImplementationName() << L"\"...";
-
 			if(!system->RegisterDevice(entry, pluginInfo.assemblyHandle))
 			{
-				//##DEBUG##
-				std::wcout << L"Failed! Check event log.\n";
-
 				result = false;
 				++entryNo;
 				continue;
 			}
-
-			//##DEBUG##
-			std::wcout << L"Done.\n";
 
 			std::unique_lock<std::mutex> lock(registeredElementMutex);
 			RegisteredDeviceInfo registeredDeviceInfo;
@@ -1676,21 +1672,12 @@ bool ExodusInterface::LoadAssembly(const MarshalSupport::Marshal::In<std::wstrin
 		ExtensionInfo entry;
 		while(pluginInfo.GetExtensionEntry(entryNo, entry))
 		{
-			//##DEBUG##
-			std::wcout << L"Registering extension \"" << entry.GetExtensionImplementationName() << L"\"...";
-
 			if(!system->RegisterExtension(entry, pluginInfo.assemblyHandle))
 			{
-				//##DEBUG##
-				std::wcout << L"Failed! Check event log.\n";
-
 				result = false;
 				++entryNo;
 				continue;
 			}
-
-			//##DEBUG##
-			std::wcout << L"Done.\n";
 
 			std::unique_lock<std::mutex> lock(registeredElementMutex);
 			RegisteredExtensionInfo registeredExtensionInfo;
@@ -1700,6 +1687,20 @@ bool ExodusInterface::LoadAssembly(const MarshalSupport::Marshal::In<std::wstrin
 
 			++entryNo;
 		}
+	}
+
+	//Write an entry in the event log about the success of this assembly load operation
+	if(!result)
+	{
+		LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
+		logEntry << L"One or more plugins failed to load from assembly \"" << filePath << "\"!";
+		system->WriteLogEvent(logEntry);
+	}
+	else
+	{
+		LogEntry logEntry(LogEntry::EventLevel::Info, L"System", L"");
+		logEntry << L"Successfully loaded all plugins from assembly \"" << filePath << "\".";
+		system->WriteLogEvent(logEntry);
 	}
 
 	return result;
@@ -1712,14 +1713,11 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 	HMODULE dllHandle = LoadLibrary(filePath.c_str());
 	if(dllHandle == NULL)
 	{
-		//##DEBUG##
-		std::wcout << "Error loading assembly " << filePath << "!\n"
-			<< "LoadLibrary failed with error code " << GetLastError() << '\n';
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
+		logEntry << L"Error loading assembly \"" << filePath << "\"! " << L"LoadLibrary failed with error code \"" << GetLastError() << L"\".";
+		system->WriteLogEvent(logEntry);
 		return false;
 	}
-
-	//##DEBUG##
-	std::wcout << L"Loading assembly:\t" << filePath << '\n';
 
 	//Ensure the assembly exports the core GetInterfaceVersion function, and obtain a
 	//pointer to it.
@@ -1727,9 +1725,9 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 	GetInterfaceVersion = (unsigned int (*)())GetProcAddress(dllHandle, "GetInterfaceVersion");
 	if(GetInterfaceVersion == 0)
 	{
-		//##DEBUG##
-		std::wcout << "Error loading assembly " << filePath << "!\n"
-			<< "This assembly doesn't appear to be a valid plugin!\n";
+		LogEntry logEntry(LogEntry::EventLevel::Info, L"System", L"");
+		logEntry << L"Skipping assembly \"" << filePath << "\". " << L"This assembly doesn't appear to be a valid plugin.";
+		system->WriteLogEvent(logEntry);
 		FreeLibrary(dllHandle);
 		return false;
 	}
@@ -1738,10 +1736,11 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 	unsigned int interfaceVersion = GetInterfaceVersion();
 	if(interfaceVersion < EXODUS_INTERFACEVERSION)
 	{
-		//##DEBUG##
-		std::wcout << "Error loading assembly " << filePath << "!\n"
-			<< "This assembly has an interface version number of " << GetInterfaceVersion() << ". A minimum interface\n"
-			<< "version of " << EXODUS_INTERFACEVERSION << " is required.\n";
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
+		logEntry << L"Error loading assembly \"" << filePath << "\"! "
+		         << "This assembly has an interface version number of \"" << GetInterfaceVersion() << "\", and a minimum interface "
+		         << "version of \"" << EXODUS_INTERFACEVERSION << "\" is required.";
+		system->WriteLogEvent(logEntry);
 		FreeLibrary(dllHandle);
 		return false;
 	}
@@ -1755,9 +1754,9 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 	GetSystemEntry = (bool (*)(unsigned int entryNo, ISystemInfo& entry))GetProcAddress(dllHandle, "GetSystemEntry");
 	if((GetDeviceEntry == 0) && (GetExtensionEntry == 0) && (GetSystemEntry == 0))
 	{
-		//##DEBUG##
-		std::wcout << "Error loading assembly " << filePath << "!\n"
-			<< "The assembly appears to be a plugin, but is missing required exports!\n";
+		LogEntry logEntry(LogEntry::EventLevel::Error, L"System", L"");
+		logEntry << L"Error loading assembly \"" << filePath << "\"! " << "The assembly appears to be a plugin, but is missing required exports!";
+		system->WriteLogEvent(logEntry);
 		FreeLibrary(dllHandle);
 		return false;
 	}
