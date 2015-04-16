@@ -925,7 +925,7 @@ void SN76489::SaveDebuggerState(IHierarchicalStorageNode& node) const
 bool SN76489::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
-	switch(dataID)
+	switch((ISN76489DataSource)dataID)
 	{
 	case ISN76489DataSource::Channel1VolumeRegister:
 		return dataValue.SetValue(GetVolumeRegister(0, AccessTarget().AccessLatest()).GetData());
@@ -998,7 +998,7 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 	if(dataType == IGenericAccessDataValue::DataType::UInt)
 	{
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		switch(dataID)
+		switch((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::Channel1VolumeRegister:
 			SetVolumeRegister(0, Data(volumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
@@ -1059,7 +1059,7 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 	else if(dataType == IGenericAccessDataValue::DataType::Bool)
 	{
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		switch(dataID)
+		switch((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::Channel4NoiseType:
 		case ISN76489DataSource::Channel4NoisePeriod:
@@ -1089,7 +1089,7 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 	else if(dataType == IGenericAccessDataValue::DataType::Double)
 	{
 		IGenericAccessDataValueDouble& dataValueAsDouble = (IGenericAccessDataValueDouble&)dataValue;
-		switch(dataID)
+		switch((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::ExternalClockRate:
 			externalClockRate = dataValueAsDouble.GetValue();
@@ -1102,7 +1102,7 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 	else if(dataType == IGenericAccessDataValue::DataType::FilePath)
 	{
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
-		switch(dataID)
+		switch((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::AudioLoggingPath:
 			wavLoggingPath = dataValueAsFilePath.GetValue();
@@ -1129,7 +1129,7 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 //----------------------------------------------------------------------------------------
 bool SN76489::GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const
 {
-	switch(dataID)
+	switch((ISN76489DataSource)dataID)
 	{
 	case ISN76489DataSource::Channel1VolumeRegister:
 		return channelVolumeRegisterLocked[0];
@@ -1157,7 +1157,7 @@ bool SN76489::GetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 //----------------------------------------------------------------------------------------
 bool SN76489::SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state)
 {
-	switch(dataID)
+	switch((ISN76489DataSource)dataID)
 	{
 	case ISN76489DataSource::Channel1VolumeRegister:
 		channelVolumeRegisterLocked[0] = state;

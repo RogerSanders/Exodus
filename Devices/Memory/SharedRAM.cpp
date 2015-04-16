@@ -202,10 +202,11 @@ bool SharedRAM::IsAddressLocked(unsigned int location) const
 void SharedRAM::LoadState(IHierarchicalStorageNode& node)
 {
 	size_t memorySize = memory.size();
+	Stream::IStream::SizeType readCount = (node.GetBinaryDataBufferStream().Size() / (Stream::IStream::SizeType)sizeof(unsigned char));
 	node.ExtractBinaryData(memory);
-	if(memory.size() < memorySize)
+	for(size_t i = readCount; i < memorySize; ++i)
 	{
-		memory.insert(memory.end(), memorySize - memory.size(), 0);
+		memory[i] = 0;
 	}
 }
 
