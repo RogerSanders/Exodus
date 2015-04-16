@@ -1158,8 +1158,11 @@ void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, uns
 	//Perform any adjustments required based on the new hcounter position
 	if(hcounterCurrent == hscanSettings.vcounterIncrementPoint)
 	{
-		//Advance the vcounter by one step
-		if(vcounterCurrent == vscanSettings.vcounterActiveScanMaxValue)
+		//Advance the vcounter by one step. Note that we have an unusual check here for
+		//vcounterBlankingInitialValue being less than vcounterMaxValue. This is only here
+		//right now to support our unusual handling of a H32 V30 display in NTSC, where
+		//there is no vertical blanking period.
+		if((vcounterCurrent == vscanSettings.vcounterActiveScanMaxValue) && (vscanSettings.vcounterBlankingInitialValue < vscanSettings.vcounterMaxValue))
 		{
 			vcounterCurrent = oddFlagSet? vscanSettings.vcounterBlankingInitialValueOddFlag: vscanSettings.vcounterBlankingInitialValue;
 		}

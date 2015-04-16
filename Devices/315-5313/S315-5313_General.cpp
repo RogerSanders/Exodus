@@ -4008,6 +4008,8 @@ bool S315_5313::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 //----------------------------------------------------------------------------------------
 bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue)
 {
+	//Note that if you update this logic, you also need to update the corresponding logic
+	//in RegisterSpecialUpdateFunction and TransparentRegisterSpecialUpdateFunction.
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
 	AccessTarget accessTarget = AccessTarget().AccessLatest();

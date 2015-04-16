@@ -1063,7 +1063,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		imageBufferActiveScanPosXStart[drawingImageBufferPlane][renderAnalogCurrentRow] = hscanSettings.leftBorderPixelCount;
 		imageBufferActiveScanPosXEnd[drawingImageBufferPlane][renderAnalogCurrentRow] = hscanSettings.leftBorderPixelCount + hscanSettings.activeDisplayPixelCount;
 	}
-	else if(renderDigitalHCounterPos == hscanSettings.vcounterIncrementPoint && (renderDigitalVCounterPos == vscanSettings.vsyncClearedPoint))
+	else if((renderDigitalHCounterPos == hscanSettings.vcounterIncrementPoint) && (renderDigitalVCounterPos == vscanSettings.vsyncClearedPoint))
 	{
 		//Calculate the image buffer plane to use for the next frame
 		unsigned int newDrawingImageBufferPlane = videoSingleBuffering? drawingImageBufferPlane: (drawingImageBufferPlane + 1) % imageBufferPlanes;
