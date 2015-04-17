@@ -686,7 +686,15 @@ double M68000::ExecuteStep()
 				*(lineAccess.appliedFlag) = true;
 				if(lineAccess.waitingDevice != 0)
 				{
+					//Note that we need to release our lock in lineMutex here in order to
+					//avoid a deadlock case we encountered. When we attempt to change a
+					//device dependency state, there are case where we need to wait for
+					//other devices to finish executing their current step. In the case
+					//that one of those threads needs to obtain a lock on lineMutex, we
+					//will get a deadlock if we're still holding it here.
+					lock.unlock();
 					GetDeviceContext()->SetDeviceDependencyEnable(lineAccess.waitingDevice, true);
+					lock.lock();
 				}
 				advanceToTargetLineStateChanged.notify_all();
 			}
@@ -1506,13 +1514,37 @@ bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 		//applied. It is essential for the execute thread to restore the dependency rather
 		//than us doing it here, otherwise the execute thread could possibly advance
 		//further ahead without the dependency being active.
-		GetDeviceContext()->SetDeviceDependencyEnable(caller, false);
-		//##FIX## Using TimesliceExecutionCompleted() here is a temporary workaround for
-		//our step through deadlock. Using this flag here is not thread safe, as it's
-		//possible that the M68000 worker thread hasn't picked up the execute command yet.
-		while(!targetLineStateChangeApplied && !executionReachedEndOfTimeslice && !GetDeviceContext()->TimesliceExecutionCompleted())
+		//##NOTE## We've implemented the use of performingSingleDeviceStep here as a
+		//solution for a deadlock. The problem occurs when the Z80 triggers a rollback,
+		//and the operation it wants to step through at the timing point is to obtain the
+		//M68000 bus for a read, but the VDP currently has it for a DMA operation. In this
+		//case, this AdvanceToLineState function ends up getting called after the VDP has
+		//flagged a future line state change to release the bus, and the M68000 needs to
+		//advance up to the necessary point to process that change. Normally we would want
+		//to suspend the dependency the M68000 has on the Z80 here and allow the M68000
+		//execution thread to advance ahead, but in this case, no execution threads are
+		//actually running, because the Z80 is being single stepped by the system
+		//execution thread. We now determine if execution threads are running by checking
+		//if a device is being single stepped here.
+		if(!GetSystemInterface().PerformingSingleDeviceStep())
 		{
-			advanceToTargetLineStateChanged.wait(lock);
+			//Note that we need to release our lock in lineMutex here in order to avoid a
+			//deadlock case we encountered. When we attempt to change a device dependency
+			//state, there are case where we need to wait for other devices to finish
+			//executing their current step. In the case that one of those threads needs to
+			//obtain a lock on lineMutex, we will get a deadlock if we're still holding it
+			//here.
+			lock.unlock();
+			GetDeviceContext()->SetDeviceDependencyEnable(caller, false);
+			lock.lock();
+
+			//##FIX## Using TimesliceExecutionCompleted() here is a temporary workaround for
+			//our step through deadlock. Using this flag here is not thread safe, as it's
+			//possible that the M68000 worker thread hasn't picked up the execute command yet.
+			while(!targetLineStateChangeApplied && !executionReachedEndOfTimeslice && !GetDeviceContext()->TimesliceExecutionCompleted())
+			{
+				advanceToTargetLineStateChanged.wait(lock);
+			}
 		}
 
 		//If the processor reached the end of the current timeslice without reaching the
