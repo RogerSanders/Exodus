@@ -172,6 +172,7 @@ public:
 	virtual bool IsSystemRollbackFlagged() const;
 	virtual double SystemRollbackTime() const;
 	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams);
+	virtual bool PerformingSingleDeviceStep() const;
 
 	//View functions
 	virtual void BuildFileOpenMenu(IMenuSubmenu& menuSubmenu) const;
@@ -394,8 +395,8 @@ private:
 	void UnloadExtension(IExtension* aextension);
 
 	//System interface functions
-	void InitializeInternal();
 	bool ValidateSystem();
+	void InitializeInternal();
 	void SignalSystemStopped();
 
 	//System execution functions
@@ -566,6 +567,7 @@ private:
 	volatile bool loadSystemResult;
 	volatile bool loadSystemAbort;
 	volatile bool clearSystemComplete;
+	volatile bool performingSingleDeviceStep;
 	std::list<std::wstring> loadSystemCurrentModuleNameStack;
 	std::list<std::wstring> unloadSystemCurrentModuleNameStack;
 

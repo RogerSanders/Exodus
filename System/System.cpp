@@ -17,7 +17,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 System::System(IGUIExtensionInterface& aguiExtensionInterface)
-:guiExtensionInterface(aguiExtensionInterface), stopSystem(false), systemStopped(true), initialize(true), enableThrottling(true), runWhenProgramModuleLoaded(true), enablePersistentState(true)
+:guiExtensionInterface(aguiExtensionInterface), stopSystem(false), systemStopped(true), initialize(true), rollback(false), performingSingleDeviceStep(false), enableThrottling(true), runWhenProgramModuleLoaded(true), enablePersistentState(true)
 {
 	eventLogSize = 500;
 	eventLogLastModifiedToken = 0;
@@ -2053,6 +2053,50 @@ void System::InitializeDevice(IDevice* device)
 }
 
 //----------------------------------------------------------------------------------------
+bool System::GetThrottlingState() const
+{
+	return enableThrottling;
+}
+
+//----------------------------------------------------------------------------------------
+void System::SetThrottlingState(bool state)
+{
+	enableThrottling = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::GetRunWhenProgramModuleLoadedState() const
+{
+	return runWhenProgramModuleLoaded;
+}
+
+//----------------------------------------------------------------------------------------
+void System::SetRunWhenProgramModuleLoadedState(bool state)
+{
+	runWhenProgramModuleLoaded = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool System::GetEnablePersistentState() const
+{
+	return enablePersistentState;
+}
+
+//----------------------------------------------------------------------------------------
+void System::SetEnablePersistentState(bool state)
+{
+	enablePersistentState = state;
+}
+
+//----------------------------------------------------------------------------------------
+void System::SignalSystemStopped()
+{
+	std::unique_lock<std::mutex> lock(systemStateMutex);
+	systemStopped = true;
+	notifySystemStopped.notify_all();
+}
+
+//----------------------------------------------------------------------------------------
 //System execution functions
 //----------------------------------------------------------------------------------------
 bool System::SystemRunning() const
@@ -2117,12 +2161,16 @@ void System::ExecuteDeviceStep(IDevice* device)
 	//initialize step above, are not lost in the event of a rollback.
 	executionManager.Commit();
 
+	//Flag that we're performing a single device step
+	performingSingleDeviceStep = true;
+
 	//Notify upcoming timeslice
 	executionManager.NotifyUpcomingTimeslice(0.0);
 
 	//Notify before execute called
 	executionManager.NotifyBeforeExecuteCalled();
 
+	//Step through the target device
 	//##FIX## This execution model is not only unusual, it now also causes a deadlock, due
 	//to the missed NotifyAfterExecuteStepFinishedTimeslice() event. It could also cause
 	//logic problems for timeslice execution devices, which receive a notification of an
@@ -2131,13 +2179,15 @@ void System::ExecuteDeviceStep(IDevice* device)
 	//device step execute a system step for a time of 0.0, then step through the device
 	//as a timing point. Actually, looking at our system implementation, it has the exact
 	//same problems and deadlock case. We need to review our execution model here.
-	//Step through the target device
 	rollback = false;
 	DeviceContext* deviceContext = (DeviceContext*)device->GetDeviceContext();
 	double timeslice = deviceContext->ExecuteStep();
 
 	//Notify after execute called
 	executionManager.NotifyAfterExecuteCalled();
+
+	//Flag that we're no longer performing a single device step
+	performingSingleDeviceStep = false;
 
 	if(rollback)
 	{
@@ -2280,6 +2330,9 @@ double System::ExecuteSystemStepInternal(double maximumTimeslice)
 	//If we are currently sitting on a timing point for a device, step through it.
 	if(nextDeviceStep != 0)
 	{
+		//Flag that we're performing a single device step
+		performingSingleDeviceStep = true;
+
 		//Notify upcoming timeslice
 		executionManager.NotifyUpcomingTimeslice(0.0);
 
@@ -2297,6 +2350,9 @@ double System::ExecuteSystemStepInternal(double maximumTimeslice)
 
 		//Notify after execute called
 		executionManager.NotifyAfterExecuteCalled();
+
+		//Flag that we're no longer performing a single device step
+		performingSingleDeviceStep = false;
 	}
 
 	//Commit all changes
@@ -2311,6 +2367,9 @@ double System::ExecuteSystemStepInternal(double maximumTimeslice)
 //----------------------------------------------------------------------------------------
 void System::ExecuteThread()
 {
+	//Set the name of this thread to assist in debugging
+	SetCallingThreadName(L"SystemExecuteThread");
+
 	//Boost the system thread priority. This thread is always on the critical path. We
 	//don't want secondary threads from various devices in the system preventing this
 	//thread running.
@@ -2434,47 +2493,9 @@ void System::SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* a
 }
 
 //----------------------------------------------------------------------------------------
-bool System::GetThrottlingState() const
+bool System::PerformingSingleDeviceStep() const
 {
-	return enableThrottling;
-}
-
-//----------------------------------------------------------------------------------------
-void System::SetThrottlingState(bool state)
-{
-	enableThrottling = state;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::GetRunWhenProgramModuleLoadedState() const
-{
-	return runWhenProgramModuleLoaded;
-}
-
-//----------------------------------------------------------------------------------------
-void System::SetRunWhenProgramModuleLoadedState(bool state)
-{
-	runWhenProgramModuleLoaded = state;
-}
-
-//----------------------------------------------------------------------------------------
-bool System::GetEnablePersistentState() const
-{
-	return enablePersistentState;
-}
-
-//----------------------------------------------------------------------------------------
-void System::SetEnablePersistentState(bool state)
-{
-	enablePersistentState = state;
-}
-
-//----------------------------------------------------------------------------------------
-void System::SignalSystemStopped()
-{
-	std::unique_lock<std::mutex> lock(systemStateMutex);
-	systemStopped = true;
-	notifySystemStopped.notify_all();
+	return performingSingleDeviceStep;
 }
 
 //----------------------------------------------------------------------------------------

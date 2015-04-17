@@ -31,6 +31,7 @@ public:
 	virtual double SystemRollbackTime() const = 0;
 	//##TODO## Define a typedef for the callback function type
 	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*) = 0, void* callbackParams = 0) = 0;
+	virtual bool PerformingSingleDeviceStep() const = 0;
 
 	//Input functions
 	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) const = 0;
