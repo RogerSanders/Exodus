@@ -494,8 +494,13 @@ void Processor::CheckExecutionInternal(unsigned int location) const
 {
 	std::unique_lock<std::mutex> lock(debugMutex);
 
-	bool breakOnInstruction = breakOnNextOpcode;
-	breakOnNextOpcode = false;
+	bool breakOnInstruction = false;
+	if(breakOnNextOpcode)
+	{
+		breakOnInstruction = true;
+		breakOnNextOpcode = false;
+		bstepOver = stepOver = false;
+	}
 	Breakpoint* triggerBreakpoint = 0;
 	for(size_t i = 0; i < breakpoints.size(); ++i)
 	{

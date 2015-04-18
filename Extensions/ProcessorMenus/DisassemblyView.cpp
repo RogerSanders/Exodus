@@ -44,6 +44,8 @@ LRESULT DisassemblyView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARA
 		return msgWM_TIMER(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
+	case WM_BOUNCE:
+		return msgWM_BOUNCE(hwnd, wparam, lparam);
 	case WM_SIZE:
 		return msgWM_SIZE(hwnd, wparam, lparam);
 	case WM_PAINT:
@@ -62,6 +64,9 @@ LRESULT DisassemblyView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Create the DataGrid child control
 	hwndDataGrid = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::windowClassName, L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, (HMENU)CTL_DATAGRID, GetAssemblyHandle(), NULL);
+
+	//Enable message bounce-back on our grid control so we can add hotkey support
+	SetWindowSubclass(hwndDataGrid, BounceBackSubclassProc, 0, 0);
 
 	//Enable manual scrolling for the grid control, so that we only have to generate
 	//content for the rows that are currently in view.
@@ -363,6 +368,28 @@ LRESULT DisassemblyView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	ReleaseDC(hwnd, hdc);
 
 	return DefWindowProc(hwnd, WM_PAINT, wparam, lparam);
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT DisassemblyView::msgWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	BounceMessage* bounceMessage = (BounceMessage*)lParam;
+	if((bounceMessage->uMsg == WM_KEYDOWN) && (bounceMessage->wParam == VK_F11))
+	{
+		//Step a single opcode
+		model.GetDevice()->GetDeviceContext()->StopSystem();
+		model.GetDevice()->GetDeviceContext()->ExecuteDeviceStep();
+		bounceMessage->caught = true;
+	}
+	else if((bounceMessage->uMsg == WM_SYSKEYDOWN) && (bounceMessage->wParam == VK_F10))
+	{
+		//Step over the current opcode
+		model.GetDevice()->GetDeviceContext()->StopSystem();
+		model.BreakOnStepOverCurrentOpcode();
+		model.GetDevice()->GetDeviceContext()->RunSystem();
+		bounceMessage->caught = true;
+	}
+	return 0;
 }
 
 //----------------------------------------------------------------------------------------

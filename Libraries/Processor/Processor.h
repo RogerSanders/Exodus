@@ -395,8 +395,8 @@ private:
 	bool bbreakOnNextOpcode;
 	std::list<CallStackEntry> callStack;
 	std::list<CallStackEntry> bcallStack;
-	bool stepOver;
-	bool bstepOver;
+	mutable bool stepOver;
+	mutable bool bstepOver;
 	bool stepOut;
 	bool bstepOut;
 	int stackLevel;
