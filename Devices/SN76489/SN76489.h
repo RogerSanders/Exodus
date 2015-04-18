@@ -173,6 +173,8 @@ private:
 	//Register locking
 	bool channelVolumeRegisterLocked[channelCount];
 	bool channelDataRegisterLocked[channelCount];
+	bool noiseChannelTypeLocked;
+	bool noiseChannelPeriodLocked;
 
 	//Wave logging
 	mutable std::mutex waveLoggingMutex;

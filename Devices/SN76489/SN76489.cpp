@@ -18,6 +18,8 @@ SN76489::SN76489(const std::wstring& aimplementationName, const std::wstring& ai
 		channelVolumeRegisterLocked[i] = false;
 		channelDataRegisterLocked[i] = false;
 	}
+	noiseChannelTypeLocked = false;
+	noiseChannelPeriodLocked = false;
 
 	//##TODO## Provide a way for these properties to be defined externally, and provide
 	//debug windows which can modify them on the fly.
@@ -72,7 +74,7 @@ bool SN76489::BuildDevice()
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel3ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4NoiseType, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4NoisePeriod, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(3));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4NoisePeriod, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(3)->SetLockingSupported(true));
 	result &= AddGenericDataInfo(dataInfoShiftRegister = (new GenericAccessDataInfo(ISN76489DataSource::NoiseShiftRegister, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::LatchedChannelNo, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(channelCount-1));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::VolumeRegisterLatched, IGenericAccessDataValue::DataType::Bool)));
@@ -131,7 +133,11 @@ bool SN76489::BuildDevice()
 	                 ->AddEntry((new GenericAccessGroupSingleSelectionList(ISN76489DataSource::Channel4NoiseType, L"Noise Type"))->SetAllowNewItemEntry(true)
 	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"Periodic [0]"), new GenericAccessDataValueBool(false))
 	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"White [1]"), new GenericAccessDataValueBool(true)))
-	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel4NoisePeriod, L"Noise Period"))
+	                 ->AddEntry((new GenericAccessGroupSingleSelectionList(ISN76489DataSource::Channel4NoisePeriod, L"Noise Period"))->SetAllowNewItemEntry(true)
+	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"Low"), new GenericAccessDataValueUInt(0x0))
+	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"Medium"), new GenericAccessDataValueUInt(0x01))
+	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"High"), new GenericAccessDataValueUInt(0x02))
+	                     ->AddSelectionListEntry(new GenericAccessDataValueString(L"Channel 3 Tone"), new GenericAccessDataValueUInt(0x03)))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::NoiseShiftRegister, L"Noise Shift Register")))
 	             ->AddEntry((new GenericAccessGroup(L"Control"))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::LatchedChannelNo, L"Latched Channel No"))
@@ -362,13 +368,12 @@ void SN76489::ExecuteCommit()
 	blatchedChannel = latchedChannel;
 	blatchedVolume = latchedVolume;
 
-	//Ensure that a valid latest timeslice exists in all our buffers. We need this
-	//check here, because commits can be triggered by the system at potentially any
-	//point in time, whether a timeslice has been issued or not.
+	//Ensure that a valid latest timeslice exists in all our buffers. We need this check
+	//here, because commits can be triggered by the system at potentially any point in
+	//time, whether a timeslice has been issued or not.
 	if(!regTimesliceListUncommitted.empty())
 	{
-		//Obtain a timeslice lock so we can update the data we feed to the render
-		//thread
+		//Obtain a timeslice lock so we can update the data we feed to the render thread
 		std::unique_lock<std::mutex> lock(timesliceMutex);
 
 		//Add the number of timeslices we are about to commit to the count of pending
@@ -739,6 +744,17 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 		{
 			Data temp(GetToneRegister(latchedChannel, accessTarget));
 			temp.SetLowerBits(4, data.GetDataSegment(0, 4));
+			if(latchedChannel == noiseChannelNo)
+			{
+				if(noiseChannelTypeLocked)
+				{
+					temp.SetBit(2, GetToneRegister(latchedChannel, accessTarget).GetBit(2));
+				}
+				if(noiseChannelPeriodLocked)
+				{
+					temp.SetDataSegment(0, 2, GetToneRegister(latchedChannel, accessTarget).GetDataSegment(0, 2));
+				}
+			}
 			if(!channelDataRegisterLocked[latchedChannel])
 			{
 				SetToneRegister(latchedChannel, temp, accessTarget);
@@ -768,6 +784,17 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 		{
 			Data temp(GetToneRegister(latchedChannel, accessTarget));
 			temp.SetUpperBits(6, data.GetDataSegment(0, 6));
+			if(latchedChannel == noiseChannelNo)
+			{
+				if(noiseChannelTypeLocked)
+				{
+					temp.SetBit(2, GetToneRegister(latchedChannel, accessTarget).GetBit(2));
+				}
+				if(noiseChannelPeriodLocked)
+				{
+					temp.SetDataSegment(0, 2, GetToneRegister(latchedChannel, accessTarget).GetDataSegment(0, 2));
+				}
+			}
 			if(!channelDataRegisterLocked[latchedChannel])
 			{
 				SetToneRegister(latchedChannel, temp, accessTarget);
@@ -944,9 +971,9 @@ bool SN76489::ReadGenericData(unsigned int dataID, const DataContext* dataContex
 	case ISN76489DataSource::Channel4ToneRegister:
 		return dataValue.SetValue(GetToneRegister(3, AccessTarget().AccessLatest()).GetData());
 	case ISN76489DataSource::Channel4NoiseType:
+		return dataValue.SetValue(GetToneRegister(3, AccessTarget().AccessLatest()).GetBit(2));
 	case ISN76489DataSource::Channel4NoisePeriod:
-		//##TODO##
-		return dataValue.SetValue(GetToneRegister(3, AccessTarget().AccessLatest()).GetData() != 0);
+		return dataValue.SetValue(GetToneRegister(3, AccessTarget().AccessLatest()).GetDataSegment(0, 2));
 	case ISN76489DataSource::NoiseShiftRegister:
 		return dataValue.SetValue(noiseShiftRegister);
 	case ISN76489DataSource::LatchedChannelNo:
@@ -1024,6 +1051,9 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 		case ISN76489DataSource::Channel4ToneRegister:
 			SetToneRegister(3, Data(toneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
+		case ISN76489DataSource::Channel4NoisePeriod:
+			SetToneRegister(3, GetToneRegister(3, AccessTarget().AccessLatest()).SetDataSegment(0, 2, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
+			return true;
 		case ISN76489DataSource::NoiseShiftRegister:
 			noiseShiftRegister = Data(GetShiftRegisterBitCount(), dataValueAsUInt.GetValue()).GetData();
 			return true;
@@ -1062,9 +1092,7 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 		switch((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::Channel4NoiseType:
-		case ISN76489DataSource::Channel4NoisePeriod:
-			//##TODO##
-			SetToneRegister(3, Data(toneRegisterBitCount, (unsigned int)dataValueAsBool.GetValue()), AccessTarget().AccessLatest());
+			SetToneRegister(3, GetToneRegister(3, AccessTarget().AccessLatest()).SetBit(2, dataValueAsBool.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::VolumeRegisterLatched:
 			latchedVolume = dataValueAsBool.GetValue();
@@ -1147,9 +1175,10 @@ bool SN76489::GetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 		return channelDataRegisterLocked[2];
 	case ISN76489DataSource::Channel4ToneRegister:
 		return channelDataRegisterLocked[3];
-	//##DEBUG##
 	case ISN76489DataSource::Channel4NoiseType:
-		return channelDataRegisterLocked[3];
+		return channelDataRegisterLocked[3] || noiseChannelTypeLocked;
+	case ISN76489DataSource::Channel4NoisePeriod:
+		return channelDataRegisterLocked[3] || noiseChannelPeriodLocked;
 	}
 	return false;
 }
@@ -1183,9 +1212,13 @@ bool SN76489::SetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 	case ISN76489DataSource::Channel4ToneRegister:
 		channelDataRegisterLocked[3] = state;
 		return true;
-	//##DEBUG##
 	case ISN76489DataSource::Channel4NoiseType:
-		channelDataRegisterLocked[3] = state;
+		noiseChannelTypeLocked = state;
+		channelDataRegisterLocked[3] = false;
+		return true;
+	case ISN76489DataSource::Channel4NoisePeriod:
+		noiseChannelPeriodLocked = state;
+		channelDataRegisterLocked[3] = false;
 		return true;
 	}
 	return false;
