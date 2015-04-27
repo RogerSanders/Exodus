@@ -1,7 +1,7 @@
 #ifndef __IS315_5313_H__
 #define __IS315_5313_H__
 #include "GenericAccess/GenericAccess.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "TimedBuffers/TimedBuffers.pkg"
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <list>

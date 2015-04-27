@@ -2,7 +2,7 @@
 #define __WATCHPOINTVIEW_H__
 #include "WatchpointViewPresenter.h"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 
 class WatchpointView :public ViewBase

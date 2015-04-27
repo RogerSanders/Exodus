@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "SN76489Menus.h"
 
 IExtension* GetSN76489Menus(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)

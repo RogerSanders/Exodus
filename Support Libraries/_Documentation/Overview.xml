@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.Overview" Title="Overview of Support Libraries" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The support libraries for the Exodus project are libraries that were written to make performing various programming tasks easier, but are technically
+      issues outside the bounds of the Exodus project itself. Ideally, none of these libraries would exist as part of this project at all, and would instead
+      be provided as part of the C++ STL libraries, or a widely used and accepted set of third party libraries like boost. Where no suitable language or
+      third party library has been available to perform a particular task however, or where the solutions provided by them were deemed to be poor, incomplete,
+      or too low level for us to use directly within our code, support libraries have been created for use within Exodus. If suitable third party libraries
+      or language features are added or identified in the future that could replace a custom support library here, it may be appropriate to deprecate or
+      remove that library.
+    </Paragraph>
+    <Paragraph>
+      Note that unlike the <PageRef PageName="Libraries.Overview">Core Libraries</PageRef>, our support libraries do not need to be platform
+      independent. In fact, some libraries may exist for the sole purpose of assisting development on a particular platform. Where it is technically
+      feasable and sensible to do so however, our support libraries aim to provide platform independent APIs, and should always keep any references to
+      non-platform third party libraries hidden internally, so that our application doesn't become tightly coupled to third party APIs over which we
+      have no control.
+    </Paragraph>
+  </Section>
+  <Section Title="Support Libraries">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream">AudioStream</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.CallbackSupport">CallbackSupport</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.DataConversion">DataConversion</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.Debug">Debug</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.HierarchicalStorage">HierarchicalStorage</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.Image">Image</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport">MarshalSupport</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.Stream">Stream</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.ThinContainers">ThinContainers</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.ThreadLib">ThreadLib</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.WindowsControls">WindowsControls</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.WindowsSupport">WindowsSupport</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.ZIP">ZIP</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

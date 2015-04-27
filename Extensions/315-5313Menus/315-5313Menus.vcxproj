@@ -238,17 +238,17 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Libraries\Device\Device.vcxproj">
+    <ProjectReference Include="..\..\ExodusSDK\Device\Device.vcxproj">
       <Project>{36693e5e-1462-4cfc-a240-2ccaa6483833}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\Extension\Extension.vcxproj">
+    <ProjectReference Include="..\..\ExodusSDK\Extension\Extension.vcxproj">
       <Project>{8196f896-d9ae-4f6b-9b5a-af2553ea0b32}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\GenericAccess\GenericAccess.vcxproj">
+    <ProjectReference Include="..\..\ExodusSDK\GenericAccess\GenericAccess.vcxproj">
       <Project>{2f6dd00a-03eb-4fe1-95be-f1af9232f302}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>

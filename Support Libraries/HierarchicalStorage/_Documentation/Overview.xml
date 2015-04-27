@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.HierarchicalStorage" Title="HierarchicalStorage Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The HierarchicalStorage library is designed to support an abstract representation of a hierarchical data structure, where each node on the
+      hierarchy can potentially contain child nodes, as well as an unlimited number of attributes in the form of a key/value pair, and a single block
+      of arbitrary data associated with the nodes. This library allows a structure like this to be created, edited, saved, and loaded.
+    </Paragraph>
+    <Paragraph>
+      The primary input and output format of the HierarchicalStorage library is XML. Support for other formats has been considered in the design of
+      the library however, and new input and output formats can easily be added without breaking compatibility with existing code.
+    </Paragraph>
+    <Paragraph>
+      This library is split into two halves, HierarchicalStorage and HierarchicalStorageInterface. This allows code which only needs to use these
+      structures, not create the initial root definition of the structure itself, to include only the header files required to work with the
+      structure. This reduces code linkage, encourages the use of the interface base types, and reduces compilation types and assembly sizes.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Public Members">
+    <SubSection Title="HierarchicalStorageInterface Members">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.HierarchicalStorage.IHierarchicalStorageTree">IHierarchicalStorageTree</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.HierarchicalStorage.IHierarchicalStorageNode">IHierarchicalStorageNode</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.HierarchicalStorage.IHierarchicalStorageAttribute">IHierarchicalStorageAttribute</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+    <SubSection Title="HierarchicalStorage Members">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.HierarchicalStorage.HierarchicalStorageTree">HierarchicalStorageTree</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.HierarchicalStorage.HierarchicalStorageNode">HierarchicalStorageNode</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.HierarchicalStorage.HierarchicalStorageAttribute">HierarchicalStorageAttribute</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      This library is considered stable and complete. If support for more storage formats is desired in the future, extensions may be made to the
+      library to implement that support, however this should not impact existing use.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

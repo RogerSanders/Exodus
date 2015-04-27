@@ -1,7 +1,7 @@
 #ifndef __VRAMVIEW_H__
 #define __VRAMVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Image/Image.pkg"
 #include "VRAMViewPresenter.h"
 #include "315-5313/IS315_5313.h"

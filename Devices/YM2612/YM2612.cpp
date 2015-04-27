@@ -536,17 +536,12 @@ bool YM2612::AddReference(const MarshalSupport::Marshal::In<std::wstring>& refer
 }
 
 //----------------------------------------------------------------------------------------
-bool YM2612::RemoveReference(IBusInterface* target)
+void YM2612::RemoveReference(IBusInterface* target)
 {
 	if(memoryBus == target)
 	{
 		memoryBus = 0;
 	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 //----------------------------------------------------------------------------------------

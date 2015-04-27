@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IBusInterface" Title="IBusInterface interface" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The IBusInterface interface is the way devices communicate with other devices during execution. There are two primary methods of communication,
+      the first and simplest being using the memory interface functions <PageRef PageName="ExodusSDK.DeviceInterface.IBusInterface.ReadMemory">ReadMemory</PageRef>
+      and <PageRef PageName="ExodusSDK.DeviceInterface.IBusInterface.WriteMemory">WriteMemory</PageRef>. These methods implement high-level
+      read and write bus operations in a simple and efficient way. The second method is using the line interface functions
+      <PageRef PageName="ExodusSDK.DeviceInterface.IBusInterface.SetLineState">SetLineState</PageRef> and
+      <PageRef PageName="ExodusSDK.DeviceInterface.IBusInterface.RevokeSetLineState">RevokeSetLineState</PageRef>. These methods implement
+      low-level communication over individual lines, or grouped sets of individual lines.
+    </Paragraph>
+    <Paragraph>
+      Note that the IBusInterface interface has a major redesign in progress, in particular around the implementation of the line interface functions.
+      The goal of the redesign is to improve the usefulness and efficiency of the line interface functions, and to allow line-level emulation of a bus
+      to be mixed with high-level emulation of that bus. Lines will no longer be "set" to a boolean state, rather, they will be "driven" to a logic
+      low or high state, or left floating. This will allow us to support tri-state lines, and correctly model the transition state for lines which
+      have pull-up or pull-down behaviour when they are not being actively driven. The IBusInterface object itself will hold the current state of the
+      lines, rather than each device holding its own state, which is currently the case. Additionally, devices will not receive notification of every
+      change in line state the way they currently do, but rather, system modules will be able to define line "triggers", where when a line or several
+      lines meet a set of conditions, a device-specific trigger is activated, and the device receives a notification that the trigger has occurred.
+    </Paragraph>
+    <Paragraph>
+      With this redesign, the high level memory interface functions will just become wrappers over the line interface functions, where sets of lines
+      are mapped to address, data, and strobe lines through system XML and formed into buses, that can then be mapped to devices that want high level
+      bus interfaces, or used at the line level by devices that work directly with lines.
+    </Paragraph>
+    <Paragraph>
+      Note that the port interface methods are deprecated, and will be removed as part of the bus redesign. The normal memory interface functions can
+      be used to support port access, by using an interface number on the mapping which represents the port interface for that device.
+    </Paragraph>
+  </Section>
+  <Section Title="Memory interface functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="ReadMemory" PageName="ExodusSDK.DeviceInterface.IBusInterface.ReadMemory"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="WriteMemory" PageName="ExodusSDK.DeviceInterface.IBusInterface.WriteMemory"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentReadMemory" PageName="ExodusSDK.DeviceInterface.IBusInterface.TransparentReadMemory"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentWriteMemory" PageName="ExodusSDK.DeviceInterface.IBusInterface.TransparentWriteMemory"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Port interface functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Deprecated="true" Visibility="Public" Name="ReadPort" PageName="ExodusSDK.DeviceInterface.IBusInterface.ReadPort"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Deprecated="true" Visibility="Public" Name="WritePort" PageName="ExodusSDK.DeviceInterface.IBusInterface.WritePort"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Deprecated="true" Visibility="Public" Name="TransparentReadPort" PageName="ExodusSDK.DeviceInterface.IBusInterface.TransparentReadPort"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Deprecated="true" Visibility="Public" Name="TransparentWritePort" PageName="ExodusSDK.DeviceInterface.IBusInterface.TransparentWritePort"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Line interface functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="SetLineState" PageName="ExodusSDK.DeviceInterface.IBusInterface.SetLineState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="RevokeSetLineState" PageName="ExodusSDK.DeviceInterface.IBusInterface.RevokeSetLineState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Deprecated="true" Visibility="Public" Name="AdvanceToLineState" PageName="ExodusSDK.DeviceInterface.IBusInterface.AdvanceToLineState"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Clock source functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="SetClockRate" PageName="ExodusSDK.DeviceInterface.IBusInterface.SetClockRate"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentSetClockRate" PageName="ExodusSDK.DeviceInterface.IBusInterface.TransparentSetClockRate"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IClockSource">IClockSource</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

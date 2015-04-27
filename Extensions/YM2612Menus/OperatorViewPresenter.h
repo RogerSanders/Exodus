@@ -1,6 +1,6 @@
 #ifndef __OPERATORVIEWPRESENTER_H__
 #define __OPERATORVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "YM2612Menus.h"
 #include "YM2612/IYM2612.h"
 

@@ -141,6 +141,10 @@
     <None Include="ThinListDoubleContainer.inl" />
     <None Include="ThinVector.inl" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml" />
+    <Xml Include="_Documentation\ThinVector.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

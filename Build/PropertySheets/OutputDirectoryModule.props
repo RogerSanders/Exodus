@@ -5,7 +5,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
-    <OutDir>$(SolutionDir)\Modules\</OutDir>
+    <OutDir>$(SolutionDir)\Assemblies\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />

@@ -1,6 +1,6 @@
 #ifndef __DEBUGMENUHANDLER_H__
 #define __DEBUGMENUHANDLER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Z80/IZ80.h"
 #include "Z80Menus.h"
 

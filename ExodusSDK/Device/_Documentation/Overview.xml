@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.Device" Title="Device Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Device library provides a default base class implementation of the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRef>
+      interface. This library provides the <PageRef PageName="ExodusSDK.Device.Device">Device</PageRef> base class, which can be inherited from by
+      device emulation cores to simplify their implementation. Note that use of the Device library is optional, and the Exodus Platform isn't even
+      aware this library exists. A device core is free to implement the IDevice interface directly, and not link to this library at all.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      This library is stable, and largely trivial. Please refer to the <PageRef PageName="ExodusSDK.DeviceInterface">DeviceInterface</PageRef>
+      library for the interfaces that affect this base class library.
+    </Paragraph>
+  </Section>
+
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface">DeviceInterface</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

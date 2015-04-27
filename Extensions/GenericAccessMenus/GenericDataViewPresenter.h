@@ -1,7 +1,7 @@
 #ifndef __GENERICDATAVIEWPRESENTER_H__
 #define __GENERICDATAVIEWPRESENTER_H__
 #include "GenericAccess/GenericAccess.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "GenericAccessMenus.h"
 
 class GenericDataViewPresenter :public ViewPresenterBase

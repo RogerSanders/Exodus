@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.Overview" Title="Overview of Exodus SDK" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Exodus SDK is a set of support libraries that allow communication with the Exodus Platform. All communication between plugins and the
+      platform itself happens through a set of pure virtual interfaces, which allows plugins to be developed, compiled, and deployed separately from
+      the platform itself.
+    </Paragraph>
+    <Paragraph>
+      Note that the Exodus Platform itself is also a separate component, which is isolated from the platform and user interface. The SDK also contains
+      the necessary interfaces to communicate with the Exodus Platform and implement an overall user interface to manage it.
+    </Paragraph>
+  </Section>
+  <Section Title="Concepts">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.SystemModel">System Model</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.PluginModel">Plugin Model</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.TimingModel">Timing Model</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.ExportedInterfaces">Exported Interfaces</PageRefListEntry>
+    </PageRefList>
+  </Section>
+  <Section Title="Interface Libraries">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface">DeviceInterface</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.ExtensionInterface">ExtensionInterface</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.SystemInterface">SystemInterface</PageRefListEntry>
+    </PageRefList>
+  </Section>
+  <Section Title="Base Class Libraries">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.Device">Device</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Extension">Extension</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Processor">Processor</PageRefListEntry>
+    </PageRefList>
+  </Section>
+  <Section Title="Utility Libraries">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.GenericAccess">GenericAccess</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.TimedBuffers">TimedBuffers</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

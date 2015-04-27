@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.Initialize" Title="Initialize method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Initialize method should return the device to a clean default state, the same as if the device had just been created. The Exodus Platform
+      calls the Initialize method on each device to perform a "hard reset" of the system back to an initial power-on state. Persistent state should
+      not be cleared when Initialize is called, but any volatile state should be reset to the correct initial state for power-on.
+    </Paragraph>
+    <Paragraph>
+      The Initialize method is called on all devices after they are created, and then could be called at any time afterwards when a hard reset is
+      performed.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual void Initialize();]]>
+    </Code>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

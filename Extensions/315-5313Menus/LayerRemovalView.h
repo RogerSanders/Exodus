@@ -1,7 +1,7 @@
 #ifndef __LAYERREMOVALVIEW_H__
 #define __LAYERREMOVALVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "LayerRemovalViewPresenter.h"
 #include "315-5313/IS315_5313.h"
 

@@ -1,6 +1,6 @@
 #ifndef __VIEWSTATECHANGENOTIFIER_H__
 #define __VIEWSTATECHANGENOTIFIER_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "IViewManagerNotifierInterface.h"
 
 class ViewStateChangeNotifier :public IViewStateChangeNotifier

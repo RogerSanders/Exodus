@@ -238,7 +238,7 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Libraries\Extension\Extension.vcxproj">
+    <ProjectReference Include="..\..\ExodusSDK\Extension\Extension.vcxproj">
       <Project>{8196f896-d9ae-4f6b-9b5a-af2553ea0b32}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>

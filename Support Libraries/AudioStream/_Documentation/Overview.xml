@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.AudioStream" Title="AudioStream Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The AudioStream support library simplifies the playback of audio output streams on Windows. Experience has shown that it is very difficult to
+      achieve low-latency continuous audio playback on Windows where the audio stream is being generated at runtime. Audio output is fairly simple if
+      a large number of samples can be buffered by Windows for playback. This is problematic for emulation however, as the larger the amount of audio
+      data that is buffered, the further behind the audio playback is from the time at which the content was actually generated, which is undesirable,
+      as even with quite small buffer sizes, the user can notice lag between their input or graphical output and the audio output. The
+      <PageRef PageName="SupportLibraries.AudioStream.AudioStream">AudioStream</PageRef> class is provided to achieve low latency audio output on
+      Windows without the user having to worry about how that is achieved. This class also handles issues of sample rate conversion.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Public Members">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream">AudioStream</PageRefListEntry>
+    </PageRefList>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      The AudioStream library itself is fairly stable, although there are missing features. The <PageRef PageName="SupportLibraries.AudioStream.AudioStream">AudioStream</PageRef>
+      class doesn't currently provide any way to enumerate the list of available audio output devices, or to detect their capabilities. Devices which
+      currently use the AudioStream class have to request the output sample rate to use, but don't actually know what devices are present in the
+      system, and what output sample rates they support. The AudioStream class also doesn't provide any way to specify the output device to use, and
+      relies on Windows to select the default compatible device based on the specified output audio settings. The AudioStream class should be extended
+      to allow enumeration and selection of individual audio output devices.
+    </Paragraph>
+    <Paragraph>
+      There is also a problem with the level at which the AudioStream library is currently being used. Right now, our audio devices in Exodus directly
+      bind to this library and create independent audio output streams driven directly by the devices. This will change in the future, once Exodus
+      provides a framework for handing over management of filtering, mixing, and output of audio and video streams to the platform itself. This is
+      essential in order to properly manage analog mixing and filtering issues in particular, which are system specific concerns. Once this framework
+      is implemented, individual devices shouldn't need to directly work with this library.
+    </Paragraph>
+    <Paragraph>
+      Note that there is also some thought that this library could be merged into <PageRef PageName="SupportLibraries.WindowsSupport">WindowsSupport</PageRef>,
+      although at this time it seems like a better idea to keep it as a separate library.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Achieving low latency">
+    <Paragraph>
+      For emulation purposes, when it comes to latency of audio playback, the ideal scenario is as close to zero latency as possible, where samples
+      are sent directly to your speakers almost the instant they're generated. On the real hardware, the audio output was effectively zero latency.
+      Due to the nature of emulation however, and the fact that the samples are not generated at a constant rate as they would have been on the real
+      hardware, at least some buffering is required. We can't let the buffer get too big though, or the user will start to notice the audio lagging.
+      Although a very small buffer size is desirable, on Windows, buffering a very small amount of audio data makes continuous playback much more
+      difficult to manage, as buffer underruns happen very easily with no warning, and always result in audible clicks and pops during audio playback
+      when they occur. The provided APIs are quite limited and awkward to work with, and in some cases don't work properly at all.
+
+      In addition to the usual hassles of achieving low latency audio playback on Windows, emulation adds a rather unique problem on top of this that
+      makes things much harder. The nature of emulation means that the rate at which audio data is generated is unpredictable and unstable. Not only
+      can the emulation lag by an unpredictable amount that can change from moment to moment, it's also possible for the emulation to run faster than
+      normal speed, especially when the user has disabled speed limiting, and again the rate at which it can run faster than normal can vary from
+      moment to moment.
+
+      In order to handle these speed issues on Windows, we need to carefully manage the Windows audio buffer, and feed it data as we recieve it, but
+      not too much or too little at a time. We need to maintain at least two buffered blocks of sample data in the Windows playback queue at all
+      times, one being played, and another waiting to be played, in order to prevent buffer underruns that could cause clicks and pops. If the sample
+      generation is lagging, and we run out of sample data to feed Windows, we grab the last sample in the last buffer, and generate a dummy buffer
+      filled with this sample. This prevents clicks or pops on the audio output. If we're being sent more sample data than we can play in realtime, we
+      need to ensure the audio playback doesn't fall too far behind by discarding audio samples where required.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Sample rate conversion">
+    <Paragraph>
+      Computer audio hardware is extremely limited in the output sample rates they support. Often the output sample rates that are possible on
+      standard computer hardware differ from the effective output rates of hardware devices being emulated. In the interests of accuracy and audio
+      quality, emulation cores for audio devices in Exodus should not attempt to decimate or reduce the number of samples being generated, but rather,
+      that issue should be left until playback to manage. This also assists with debug features like audio logging to a file, where the output stream
+      can be saved at its original sample rate, without filtering or decimation. The <PageRef PageName="SupportLibraries.AudioStream.AudioStream">AudioStream</PageRef>
+      class performs sample rate conversion internally as sample data is recieved, in order to adapt it to the capabilities of the output device.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

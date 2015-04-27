@@ -1,6 +1,6 @@
 #ifndef __DEBUGGERVIEWPRESENTER_H__
 #define __DEBUGGERVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "YM2612Menus.h"
 #include "YM2612/IYM2612.h"
 

@@ -1,6 +1,6 @@
 #ifndef __PROPERTIESVIEWPRESENTER_H__
 #define __PROPERTIESVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "SN76489Menus.h"
 #include "SN76489/ISN76489.h"
 

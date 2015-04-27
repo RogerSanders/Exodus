@@ -120,21 +120,16 @@ bool MDBusArbiter::AddReference(const MarshalSupport::Marshal::In<std::wstring>&
 }
 
 //----------------------------------------------------------------------------------------
-bool MDBusArbiter::RemoveReference(IDevice* target)
+void MDBusArbiter::RemoveReference(IDevice* target)
 {
 	if(bootROM == target)
 	{
 		bootROM = 0;
 	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 //----------------------------------------------------------------------------------------
-bool MDBusArbiter::RemoveReference(IBusInterface* target)
+void MDBusArbiter::RemoveReference(IBusInterface* target)
 {
 	if(m68kMemoryBus == target)
 	{
@@ -144,11 +139,6 @@ bool MDBusArbiter::RemoveReference(IBusInterface* target)
 	{
 		z80MemoryBus = 0;
 	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 //----------------------------------------------------------------------------------------

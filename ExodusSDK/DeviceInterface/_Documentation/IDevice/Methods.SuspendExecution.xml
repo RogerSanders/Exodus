@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.SuspendExecution" Title="SuspendExecution method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The SuspendExecution method is called by the system on each device in the system when system excution is being halted. The complementing method
+      to this method is <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.BeginExecution">BeginExecution</PageRef>, which is called when
+      system execution begins. It is generally expected that this method wll be called if something is setup in the BeginExecution method that needs
+      to be undone here, such as stopping a worker thread.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual void SuspendExecution();]]>
+    </Code>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice.BeginExecution">BeginExecution</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

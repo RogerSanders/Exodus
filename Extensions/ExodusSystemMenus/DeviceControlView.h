@@ -1,7 +1,7 @@
 #ifndef __DEVICECONTROLVIEW_H__
 #define __DEVICECONTROLVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "DeviceControlViewPresenter.h"
 #include <list>
 

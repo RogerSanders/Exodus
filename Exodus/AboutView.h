@@ -1,7 +1,7 @@
 #ifndef __ABOUTVIEW_H__
 #define __ABOUTVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "AboutViewPresenter.h"
 #include "ExodusInterface.h"
 

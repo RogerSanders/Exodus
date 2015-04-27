@@ -110,7 +110,7 @@ bool A10000::AddReference(const MarshalSupport::Marshal::In<std::wstring>& refer
 }
 
 //----------------------------------------------------------------------------------------
-bool A10000::RemoveReference(IBusInterface* target)
+void A10000::RemoveReference(IBusInterface* target)
 {
 	if(memoryBus == target)
 	{
@@ -120,11 +120,6 @@ bool A10000::RemoveReference(IBusInterface* target)
 	{
 		controlPortBus = 0;
 	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 //----------------------------------------------------------------------------------------

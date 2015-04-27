@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.BindToSystemInterface" Title="BindToSystemInterface method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The BindToSystemInterface method is called once during the creation of the device object, to pass in the instance of the
+      <PageRef PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface">ISystemDeviceInterface</PageRef> object to use for communication with
+      the system. Devices are free to keep a reference to this interface for the lifetime of the device object. See the
+      <PageRef PageName="ExodusSDK.Concepts.PluginModel">Plugin Model</PageRef> document for more information on the stages of device initialization.
+    </Paragraph>
+    <Paragraph>
+      Note that the <PageRef PageName="ExodusSDK.Device.Device">Device</PageRef> base class implements this method, and stores a reference to the
+      object. If a device derives from this base class, it can retrieve the object by calling the <PageRef PageName="ExodusSDK.Device.GetSystemInterface">GetSystemInterface</PageRef>
+      method on the Device base class.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual bool BindToSystemInterface(ISystemDeviceInterface* asystemInterface);]]>
+    </Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Type="ISystemDeviceInterface*!ExodusSDK.DeviceInterface.ISystemDeviceInterface" Name="asystemInterface">
+          The instance of the <PageRef PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface">ISystemDeviceInterface</PageRef> object for
+          use in this device
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+    <SubSection Title="Return value">
+      <ReturnValue Type="bool">
+        True if the interface was bound successfully, false otherwise. If a device returns false from this method, the creation of the device object
+        will be considered to have failed, and the destructor of the device object will immediately be called.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface">ISystemDeviceInterface</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.PluginModel">Plugin Model</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.WindowsControls" Title="WindowsControls Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The WindowControls support library provides a set of custom Win32 controls that are designed to assist when building views.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Public Members">
+    <SubSection Title="Layout Controls">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.WindowsControls.LayoutGrid">LayoutGrid</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.WindowsControls.ScrollViewer">ScrollViewer</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.WindowsControls.StackPanel">StackPanel</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.WindowsControls.DockPanel">DockPanel</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.WindowsControls.DockingWindow">DockingWindow</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.WindowsControls.DashboardWindow">DashboardWindow</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+    <SubSection Title="Document Controls">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.WindowsControls.DataGrid">DataGrid</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.WindowsControls.HexEdit">HexEdit</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      The library is generally stable, and the controls are considered suitable for general use, although not all the controls are currently
+      considered to be feature complete.
+    </Paragraph>
+    <Paragraph>
+      There is a pending task which involves changing naming conventions for messages and classes in this library, as well as the possibility of
+      building high level functions for messaging that will handle the use of the Win32 SendMessage API internally, although window messages will
+      still be able to be sent directly if desired. This change will impact the use of this library for all types, breaking existing code that uses
+      this library. Users of this library should be aware that this change will occur sooner or later.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

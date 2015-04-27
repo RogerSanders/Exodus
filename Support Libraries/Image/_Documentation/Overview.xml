@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.Image" Title="Image Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Image library is designed to simplify working with graphical images. The <PageRef PageName="SupportLibraries.Image.Image">Image</PageRef>
+      class is provided by this library, which allows images to be created and edited, and saved to or loaded from a variety of image formats. The
+      <PageRef PageName="SupportLibraries.Image.IImage">IImage</PageRef> interface is provided to allow Image objects to be easily shared between
+      assemblies.
+    </Paragraph>
+    <Paragraph>
+      This library is split into two halves, Image and ImageInterface. This allows code which only needs to use Image objects, not create them, to
+      include only the header files required to work with the object. This reduces code linkage, encourages the use of the interface base types, and
+      reduces compilation types and assembly sizes.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Public Members">
+    <SubSection Title="ImageInterface Members">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.Image.IImage">IImage</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+    <SubSection Title="Image Members">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.Image.Image">Image</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      The Image library has a number of issues, and there are major changes planned for it in the future.
+    </Paragraph>
+    <Paragraph>
+      The current Image class was built heavily around the idea of loading and displaying images, and not as much around editing and creating them. As
+      a result, the Image class is very slow and difficult to work with when actually trying to build image data. There is a future plan to build a
+      Canvas class, which will allow advanced drawing operations, with other classes like a Pen, Brush, etc supporting advanced draw operations to it.
+      If we create a Canvas class, there may not be any need for a separate Image class type.
+    </Paragraph>
+    <Paragraph>
+      The Image class as it stands also has a major issue around the use of third party libraries. Most of the libraries we include to add support for
+      extra image formats are very large, and increase the size of the output assemblies significantly. There should be a way to separate the image
+      file load and save routines from the Image class itself. Since that is mostly all that this class does, it makes sense that we would just
+      provide a separate class to assist in image loading or saving with image files, and that this class would work with Canvas objects.
+    </Paragraph>
+    <Paragraph>
+      There is a further question around the idea of image sets, or in other words, files which contain multiple images. Icon files are an example of
+      this, and it would be extremely useful to support them. It's only a small step from this to animated files like GIF images, or even actual video
+      files, with audio tracks. With this in mind, the future of this library is probably as some kind of MediaSupport library, with support for all
+      kinds of image and sound data formats, both creation and editing, as well as saving and loading. Any refactor of this library should consider
+      this as the logical future direction we should head towards.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

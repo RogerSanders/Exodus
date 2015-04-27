@@ -1,7 +1,7 @@
 #include "IMemory.h"
 #ifndef __MEMORYREAD_H__
 #define __MEMORYREAD_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Device/Device.pkg"
 
 //##TODO## Introduce a new interface for classes derived from this class, which

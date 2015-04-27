@@ -1,7 +1,7 @@
 #ifndef __GENERICDATAVIEW_H__
 #define __GENERICDATAVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "GenericDataViewPresenter.h"
 #include <vector>
 #include <list>

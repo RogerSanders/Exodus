@@ -60,7 +60,7 @@ References:
 #include "IM68000.h"
 #ifndef __M68000_M68000_H__
 #define __M68000_M68000_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 #include "ThreadLib/ThreadLib.pkg"
 #include "Data.h"
@@ -97,7 +97,7 @@ public:
 	//Reference functions
 	using Processor::AddReference;
 	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
-	virtual bool RemoveReference(IBusInterface* target);
+	virtual void RemoveReference(IBusInterface* target);
 
 	//Exception functions
 	double PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool processingInstruction = true);

@@ -579,9 +579,8 @@ bool S315_5313::AddReference(const MarshalSupport::Marshal::In<std::wstring>& re
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::RemoveReference(IDevice* target)
+void S315_5313::RemoveReference(IDevice* target)
 {
-	bool result = true;
 	externalReferenceLock.ObtainWriteLock();
 	ITimedBufferIntDevice* targetAsTimedBufferDevice = dynamic_cast<ITimedBufferIntDevice*>(target);
 	if(targetAsTimedBufferDevice != 0)
@@ -608,35 +607,23 @@ bool S315_5313::RemoveReference(IDevice* target)
 	{
 		psg = 0;
 	}
-	else
-	{
-		result = false;
-	}
 	externalReferenceLock.ReleaseWriteLock();
-	return result;
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::RemoveReference(IBusInterface* target)
+void S315_5313::RemoveReference(IBusInterface* target)
 {
-	bool result = true;
 	externalReferenceLock.ObtainWriteLock();
 	if(memoryBus == target)
 	{
 		memoryBus = 0;
 	}
-	else
-	{
-		result = false;
-	}
 	externalReferenceLock.ReleaseWriteLock();
-	return result;
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313::RemoveReference(IClockSource* target)
+void S315_5313::RemoveReference(IClockSource* target)
 {
-	bool result = true;
 	externalReferenceLock.ObtainWriteLock();
 	if(clockSourceCLK0 == target)
 	{
@@ -646,12 +633,7 @@ bool S315_5313::RemoveReference(IClockSource* target)
 	{
 		clockSourceCLK1 = 0;
 	}
-	else
-	{
-		result = false;
-	}
 	externalReferenceLock.ReleaseWriteLock();
-	return result;
 }
 
 //----------------------------------------------------------------------------------------

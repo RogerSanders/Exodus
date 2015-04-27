@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.WindowsSupport" Title="WindowsSupport Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The WindowsSupport library is a Windows-specific library that has been written to provide more convenient access to the Win32 API. The intention
+      of this library is not to wrap the Win32 API, but rather, to include its standard headers with the necessary preprocessor macros defined first,
+      and to suppliment the Win32 library for functions that are particularly hard to use by default, or are used often enough for a simpler wrapper
+      for them to be convenient. Many of the wrappers added here are designed to allow strings to be worked with as std::wstring objects rather than
+      raw character buffers, which simplifies the use of many functions. All places in code should include this library rather than directly including
+      the windows.h header file.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      This support library has not been designed as such, it is simply viewed as a set of convenient extensions to the Win32 API, which have been
+      added to as needed. It is not currently formally documented, and a review of all existing functions would be appropriate before attempting to do
+      this. It is worth noting that it may also be appropriate to shift all the functions in this library into a namespace, to explicitly separate
+      them from the global scope. Users of the library could apply a using statement if they wanted to be able to use the Win32 function wrappers
+      without qualifying them with the namespace.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

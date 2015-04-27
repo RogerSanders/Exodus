@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.GetDeviceContext" Title="GetDeviceContext method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The GetDeviceContext method must return the IDeviceContext object that was passed into the device when the
+      <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.BindToDeviceContext">BindToDeviceContext</PageRef> method was called. When a device
+      or extension needs the IDeviceContext instance for another device, it can call this method to retrieve the object.
+    </Paragraph>
+    <Paragraph>
+      Note that the <PageRef PageName="ExodusSDK.Device.Device">Device</PageRef> base class implements this method. If a device derives from this
+      base class, it doesn't need to implement this method, or the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.BindToDeviceContext">BindToDeviceContext</PageRef>
+      method.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual IDeviceContext* GetDeviceContext() const;]]>
+    </Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="IDeviceContext*!ExodusSDK.DeviceInterface.IDeviceContext">
+        The IDeviceContext object associated with the device
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.PluginModel">Plugin Model</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{453ea16f-55e1-40a6-8559-9795e1c24e68}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Buffer">
       <UniqueIdentifier>{ad9a4729-5872-4e94-bb5a-b4487eeec568}</UniqueIdentifier>
     </Filter>
@@ -56,5 +59,10 @@
       <Filter>WAVFile</Filter>
     </None>
     <None Include="Stream.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

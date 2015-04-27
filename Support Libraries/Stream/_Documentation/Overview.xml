@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.Stream" Title="Stream Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Stream library is designed to comprehensively handle access to free-form buffers of data, making it easy to extract or insert either text or
+      binary data in the buffer, with advanced control over issues such as text encoding and byte order, so that types can be easily read in
+      using settings are required. High level and low level access is supported, with abstract stream operator support through the
+      <PageRef PageName="SupportLibraries.Stream.ViewBinary">ViewBinary</PageRef> and <PageRef PageName="SupportLibraries.Stream.ViewText">ViewText</PageRef>
+      classes, or direct reading of primitive types at the stream level itself.
+    </Paragraph>
+    <Paragraph>
+      Two generic interfaces are provided by the Stream library: <PageRef PageName="SupportLibraries.Stream.IStream">IStream</PageRef> and
+      <PageRef PageName="SupportLibraries.Stream.IStreamNonSeekable">IStreamNonSeekable</PageRef>, to support streams which either do or do not
+      support seek operations. The use of pure virtual interfaces allows streams to be defined in one assembly and safely shared with other
+      assemblies.
+    </Paragraph>
+    <Paragraph>
+      This library is split into two halves, Stream and StreamInterface. This allows code which only needs to use streams, not create them, to include
+      only the header files required to work with the stream. This reduces code linkage, encourages the use of the interface base types, and reduces
+      compilation types and assembly sizes.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Public Members">
+    <SubSection Title="StreamInterface Members">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.Stream.IStream">IStream</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.Stream.IStreamNonSeekable">IStreamNonSeekable</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.Stream.ViewBinary">ViewBinary</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.Stream.ViewText">ViewText</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+    <SubSection Title="Stream Members">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.Stream.File">File</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.Stream.Buffer">Buffer</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.Stream.WAVFile">WAVFile</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.Stream.Stream">Stream</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      The Stream library is stable and mature, with no significant work planned at this stage. There is some future work to be done regarding the
+      handling of unicode characters however. The Stream library currently assumes wchar_t to use UTF-16 encoding, which is not true on all platforms.
+      There was no platform independent way of handling Unicode text in C++ at the time this library was created however. With C++11, we now have the
+      Unicode character types char16_t and char32_t which will allow us to support Unicode text properly in a plaform independent way, however these
+      character types are still not properly supported in Visual Studio 2013. When Visual Studio fully supports the Unicode character types, we should
+      drop the IStream::UnicodeCodePoint type, and use the char32_t type for all Unicode string encoding work. We should also extend encoding support
+      to all Unicode encodings. This will make our IStream interface fully platform independent, and give more options for text encoding.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

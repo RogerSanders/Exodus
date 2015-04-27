@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.Concepts.PluginModel" Title="Exodus Plugin Model" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+    </Paragraph>
+  </Section>
+
+  <Section Title="Devices and Extensions">
+  </Section>
+
+  <Section Title="Creation and Initialization">
+  </Section>
+
+  <Section Title="See also">
+    <PageRefList>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

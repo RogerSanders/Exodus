@@ -157,6 +157,9 @@
     <None Include="ThreadLib.pkg" />
     <None Include="Timestamp.inl" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

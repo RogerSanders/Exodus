@@ -1,6 +1,6 @@
 #ifndef __EMBEDDEDROMVIEWPRESENTER_H__
 #define __EMBEDDEDROMVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ExodusSystemMenus.h"
 #include "SystemInterface/SystemInterface.pkg"
 

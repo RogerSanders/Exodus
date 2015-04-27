@@ -24,7 +24,7 @@ public:
 	void PlayBuffer(AudioBuffer* buffer);
 
 	//Sample rate conversion
-	void ConvertSampleRate(std::vector<short>& sourceData, unsigned int sourceSampleCount, unsigned int achannelCount, std::vector<short>& targetData, unsigned int targetSampleCount) const;
+	static void ConvertSampleRate(const std::vector<short>& sourceData, unsigned int sourceSampleCount, unsigned int achannelCount, std::vector<short>& targetData, unsigned int targetSampleCount);
 
 private:
 	//Worker thread functions

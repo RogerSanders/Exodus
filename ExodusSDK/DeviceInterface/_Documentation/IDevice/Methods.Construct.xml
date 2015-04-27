@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.Construct" Title="Construct method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Construct method is called during the creation of the device object, and allows custom XML data to be supplied for the device from the XML
+      markup for the module that is using this device. The XML node that defines the device in the module is passed into this method. Device specific
+      settings can be passed in through the system module and retrieved here. This is the best way to allow externally configurable device settings to
+      be provided. This devices are free to use any custom attributes, data, or child nodes on the Device node in the system module.
+    </Paragraph>
+    <Paragraph>
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual bool Construct(IHierarchicalStorageNode& node);]]>
+    </Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Type="IHierarchicalStorageNode&amp;" Name="node">
+          The XML node which defined this device in the XML module definition
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+    <SubSection Title="Return value">
+      <ReturnValue Type="bool">
+        True if the construction was successful, false otherwise. If a device returns false from this method, the creation of the device object will
+        be considered to have failed, and the destructor of the device object will immediately be called.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.PluginModel">Plugin Model</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

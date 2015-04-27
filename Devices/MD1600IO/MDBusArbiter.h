@@ -1,6 +1,6 @@
 #ifndef __MDBUSARBITER_H__
 #define __MDBUSARBITER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Device/Device.pkg"
 #include <mutex>
 
@@ -17,8 +17,8 @@ public:
 	//Reference functions
 	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target);
 	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
-	virtual bool RemoveReference(IDevice* target);
-	virtual bool RemoveReference(IBusInterface* target);
+	virtual void RemoveReference(IDevice* target);
+	virtual void RemoveReference(IBusInterface* target);
 
 	//Execute functions
 	virtual void ExecuteRollback();

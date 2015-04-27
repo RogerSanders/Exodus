@@ -54,7 +54,7 @@ References:
 #define __S315_5313_H__
 #include "Device/Device.pkg"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
 #include <list>
@@ -102,9 +102,9 @@ public:
 	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target);
 	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IClockSource* target);
-	virtual bool RemoveReference(IDevice* target);
-	virtual bool RemoveReference(IBusInterface* target);
-	virtual bool RemoveReference(IClockSource* target);
+	virtual void RemoveReference(IDevice* target);
+	virtual void RemoveReference(IBusInterface* target);
+	virtual void RemoveReference(IClockSource* target);
 
 	//Suspend functions
 	virtual bool UsesTransientExecution() const;

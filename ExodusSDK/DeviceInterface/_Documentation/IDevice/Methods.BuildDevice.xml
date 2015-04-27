@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.BuildDevice" Title="BuildDevice method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The BuildDevice method is called during the creation of the device object, to give the device a chance to perform any initialization tasks that
+      it needs to perform. It is better to use this method rather than the constructor as the point where any significant tasks, such as building
+      lookup tables or allocating significant memory buffers. Like the constructor, this method is only called once for the lifetime of the object,
+      and it is called shortly after the constructor is called, but unlike the constructor, virtual functions can be invoked safely, the
+      <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.BindToSystemInterface">BindToSystemInterface</PageRef>,
+      <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.BindToDeviceContext">BindToDeviceContext</PageRef>, and
+      <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.Construct">Construct</PageRef> functions have already been called, and this function
+      can return false to indicate failure.
+  </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual bool BuildDevice();]]>
+    </Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="bool">
+        True if the construction was successful, false otherwise. If a device returns false from this method, the creation of the device object will
+        be considered to have failed, and the destructor of the device object will immediately be called.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.BindToSystemInterface">BindToSystemInterface</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.BindToDeviceContext">BindToDeviceContext</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.Construct">Construct</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.PluginModel">Plugin Model</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

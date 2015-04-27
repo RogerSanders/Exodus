@@ -50,7 +50,7 @@ References:
 #include "IYM2612.h"
 #ifndef __YM2612_H__
 #define __YM2612_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include <vector>
 #include <mutex>
 #include <condition_variable>
@@ -80,7 +80,7 @@ public:
 
 	//Reference functions
 	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
-	virtual bool RemoveReference(IBusInterface* target);
+	virtual void RemoveReference(IBusInterface* target);
 
 	//Line functions
 	virtual unsigned int GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const;

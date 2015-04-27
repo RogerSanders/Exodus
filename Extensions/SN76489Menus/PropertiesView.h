@@ -1,7 +1,7 @@
 #ifndef __PROPERTIESVIEW_H__
 #define __PROPERTIESVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "PropertiesViewPresenter.h"
 #include "SN76489/ISN76489.h"
 

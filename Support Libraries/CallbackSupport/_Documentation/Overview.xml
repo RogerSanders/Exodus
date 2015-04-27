@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.CallbackSupport" Title="CallbackSupport Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The CallbackSupport library provides classes to make callbacks easier to manage in C++. Ccurrently, the library provides a set of types to
+      assist in implementing an observer pattern, where interested parties can register themselves as observers of an entity, and be notified when
+      an event occurs that observers should be notified about.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Public Members">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.CallbackSupport.IObserverCollection">IObserverCollection</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.CallbackSupport.IObserverSubscription">IObserverSubscription</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.CallbackSupport.ObserverCollection">ObserverCollection</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.CallbackSupport.ObserverSubscription">ObserverSubscription</PageRefListEntry>
+    </PageRefList>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      This library is relatively new, although it is reasonably well implemented. The current implementation is not feature complete however. One
+      significant improvement would be to template the <PageRef PageName="SupportLibraries.CallbackSupport.IObserverCollection">IObserverCollection</PageRef>
+      and <PageRef PageName="SupportLibraries.CallbackSupport.IObserverSubscription">IObserverSubscription</PageRef> interfaces using variadic
+      templates to allow an arbitrary number and type of arguments to be passed to observers when they are notified.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

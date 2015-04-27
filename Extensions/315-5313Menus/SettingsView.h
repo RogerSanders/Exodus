@@ -1,7 +1,7 @@
 #ifndef __SETTINGSVIEW_H__
 #define __SETTINGSVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "SettingsViewPresenter.h"
 #include "315-5313/S315_5313.h"
 

@@ -63,17 +63,12 @@ bool MDControl6::AddReference(const MarshalSupport::Marshal::In<std::wstring>& r
 }
 
 //----------------------------------------------------------------------------------------
-bool MDControl6::RemoveReference(IBusInterface* target)
+void MDControl6::RemoveReference(IBusInterface* target)
 {
 	if(memoryBus == target)
 	{
 		memoryBus = 0;
 	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 //----------------------------------------------------------------------------------------

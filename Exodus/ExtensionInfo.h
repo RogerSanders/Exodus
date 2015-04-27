@@ -1,6 +1,6 @@
 #ifndef __EXTENSIONINFO_H__
 #define __EXTENSIONINFO_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include <string>
 
 class ExtensionInfo :public IExtensionInfo

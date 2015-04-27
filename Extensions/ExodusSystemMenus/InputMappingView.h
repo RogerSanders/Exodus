@@ -1,7 +1,7 @@
 #ifndef __INPUTMAPPINGVIEW_H__
 #define __INPUTMAPPINGVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "InputMappingViewPresenter.h"
 
 class InputMappingView :public ViewBase

@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{f1fa20d3-a10d-48f0-a899-4cb81a87bcee}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Assertion">
       <UniqueIdentifier>{cf42afb0-67ef-4072-8224-567b35dc719b}</UniqueIdentifier>
     </Filter>
@@ -35,5 +38,10 @@
     <ClCompile Include="Threading.cpp">
       <Filter>Threading</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

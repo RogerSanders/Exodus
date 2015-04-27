@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IClockSource" Title="IClockSource interface" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The IClockSource interface provides a way to manage clock sources within the system. The effective output rate of a clock source can be modified
+      using methods on this interface, with the new clock rate propagated to all devices in the system that use this clock.
+    </Paragraph>
+  </Section>
+  <Section Title="Clock type functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetClockType" PageName="ExodusSDK.DeviceInterface.IClockSource.GetClockType"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Clock frequency functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="SetClockFrequency" PageName="ExodusSDK.DeviceInterface.IClockSource.SetClockFrequency"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetClockDivider" PageName="ExodusSDK.DeviceInterface.IClockSource.SetClockDivider"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetClockMultiplier" PageName="ExodusSDK.DeviceInterface.IClockSource.SetClockMultiplier"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentSetClockFrequency" PageName="ExodusSDK.DeviceInterface.IClockSource.TransparentSetClockFrequency"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentSetClockDivider" PageName="ExodusSDK.DeviceInterface.IClockSource.TransparentSetClockDivider"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentSetClockMultiplier" PageName="ExodusSDK.DeviceInterface.IClockSource.TransparentSetClockMultiplier"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IBusInterface">IBusInterface</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

@@ -1,0 +1,257 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOInstrument|Win32">
+      <Configuration>Release - PGOInstrument</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGOInstrument|x64">
+      <Configuration>Release - PGOInstrument</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGORebuildOptimized|Win32">
+      <Configuration>Release - PGORebuildOptimized</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - PGORebuildOptimized|x64">
+      <Configuration>Release - PGORebuildOptimized</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DB781392-9752-4607-B90C-614FA1670D47}</ProjectGuid>
+    <RootNamespace>DeviceInterface</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryPGORebuildOptimizedx86.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryPGOInstrumentx86.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryReleasex86.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryDebugx86.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryPGORebuildOptimizedx64.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryPGOInstrumentx64.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryReleasex64.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Build\PropertySheets\LibraryDebugx64.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Support Libraries\WindowsSupport\WindowsSupport.vcxproj">
+      <Project>{5ac3cb2c-0a1a-4e29-8a07-2bded302611b}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Data.h" />
+    <ClInclude Include="IBusInterface.h" />
+    <ClInclude Include="IClockSource.h" />
+    <ClInclude Include="IDevice.h" />
+    <ClInclude Include="IDeviceContext.h" />
+    <ClInclude Include="IDeviceInfo.h" />
+    <ClInclude Include="ILogEntry.h" />
+    <ClInclude Include="InterfaceVersion.h" />
+    <ClInclude Include="ISystemDeviceInterface.h" />
+    <ClInclude Include="LogEntry.h" />
+    <ClInclude Include="VersionNo.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data.inl" />
+    <None Include="DeviceInterface.pkg" />
+    <None Include="IBusInterface.inl" />
+    <None Include="IClockSource.inl" />
+    <None Include="IDevice.inl" />
+    <None Include="ILogEntry.inl" />
+    <None Include="ISystemDeviceInterface.inl" />
+    <None Include="LogEntry.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LogEntry.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Data\Data.xml" />
+    <Xml Include="_Documentation\IBusInterface\IBusInterface.xml" />
+    <Xml Include="_Documentation\IClockSource\IClockSource.xml" />
+    <Xml Include="_Documentation\IDeviceContext\IDeviceContext.xml" />
+    <Xml Include="_Documentation\IDeviceInfo\IDeviceInfo.xml" />
+    <Xml Include="_Documentation\IDevice\IDevice.xml">
+      <SubType>Designer</SubType>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.AddReference.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.AdvanceToLineState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.AssertCurrentOutputLineState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.BeginExecution.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.BindToDeviceContext.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.BindToSystemInterface.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.BuildDevice.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.CalculateCELineStateMemory.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.CalculateCELineStateMemoryTransparent.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.CalculateCELineStatePort.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.CalculateCELineStatePortTransparent.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.Construct.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteCommit.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteRollback.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteStep.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteTimeslice.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteTimesliceTimingPointStep.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetCELineID.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetClockSourceID.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetClockSourceName.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetCurrentTimesliceProgress.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetDeviceContext.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetDeviceImplementationName.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetDeviceInstanceName.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetDeviceModuleID.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetFullyQualifiedDeviceInstanceName.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetKeyCodeID.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetKeyCodeName.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetLineID.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetLineName.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetLineWidth.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetModuleDisplayName.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetModuleInstanceName.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetNextTimingPointInDeviceTime.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetScreenshot.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.GetUpdateMethod.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.HandleInputKeyDown.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.HandleInputKeyUp.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.Initialize.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.LoadDebuggerState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.LoadPersistentState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.LoadSettingsState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.LoadState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.NegateCurrentOutputLineState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.NotifyAfterExecuteCalled.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.NotifyAfterExecuteStepFinishedTimeslice.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.NotifyBeforeExecuteCalled.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.NotifyUpcomingTimeslice.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.ReadInterface.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.ReadPort.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.RemoveReference.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.RevokeSetLineState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SaveDebuggerState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SavePersistentState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SaveSettingsState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SaveState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SendNotifyAfterExecuteCalled.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SendNotifyBeforeExecuteCalled.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SendNotifyUpcomingTimeslice.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SetCELineInput.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SetCELineOutput.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SetClockSourceRate.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SetLineState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.SuspendExecution.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.TransparentReadInterface.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.TransparentReadPort.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.TransparentSetClockSourceRate.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.TransparentSetLineState.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.TransparentWriteInterface.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.TransparentWritePort.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.UsesExecuteSuspend.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.UsesTransientExecution.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.ValidateDevice.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.WriteInterface.xml" />
+    <Xml Include="_Documentation\IDevice\Methods.WritePort.xml" />
+    <Xml Include="_Documentation\ISystemDeviceInterface\ISystemDeviceInterface.xml" />
+    <Xml Include="_Documentation\Overview.xml" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties DevPartner_IsInstrumented="0" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

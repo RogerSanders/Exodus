@@ -1,6 +1,6 @@
 #ifndef __IVIEWMANAGERNOTIFIERINTERFACE_H__
 #define __IVIEWMANAGERNOTIFIERINTERFACE_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 
 class IViewManagerNotifierInterface :public IViewManager
 {

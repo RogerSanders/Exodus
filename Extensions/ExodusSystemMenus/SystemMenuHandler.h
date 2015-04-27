@@ -1,6 +1,6 @@
 #ifndef __SYSTEMMENUHANDLER_H__
 #define __SYSTEMMENUHANDLER_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "ExodusSystemMenus.h"
 
 class SystemMenuHandler :public MenuHandlerBase

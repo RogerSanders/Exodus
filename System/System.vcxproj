@@ -238,12 +238,12 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Libraries\ExodusDeviceInterface\ExodusDeviceInterface.vcxproj">
+    <ProjectReference Include="..\ExodusSDK\DeviceInterface\DeviceInterface.vcxproj">
       <Project>{db781392-9752-4607-b90c-614fa1670d47}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\Libraries\ExodusExtensionInterface\ExodusExtensionInterface.vcxproj">
+    <ProjectReference Include="..\ExodusSDK\ExtensionInterface\ExtensionInterface.vcxproj">
       <Project>{1a40c5a2-95ed-4a3f-be41-ad027d6e1c6c}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>

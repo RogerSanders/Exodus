@@ -1,5 +1,5 @@
 #include "BusInterface.h"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "DataConversion/DataConversion.pkg"
 #include "Debug/Debug.pkg"
 #include <set>

@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{57d728fa-edb6-4600-8b0f-a55a98279a3a}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Image">
       <UniqueIdentifier>{39cd9508-c4f2-48f9-a44c-ccc0b5b0d60f}</UniqueIdentifier>
     </Filter>
@@ -29,5 +32,10 @@
       <Filter>Image</Filter>
     </None>
     <None Include="Image.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

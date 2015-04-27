@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.AudioStream.AudioStream.DeleteAudioBuffer" Title="DeleteAudioBuffer method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This method deletes a previously allocated <PageRef PageName="SupportLibraries.AudioStream.AudioStream.AudioBuffer">AudioBuffer</PageRef> object
+      which was returned by the <PageRef PageName="SupportLibraries.AudioStream.AudioStream.CreateAudioBuffer">CreateAudioBuffer</PageRef> method.
+      This method only needs to be used if the caller wants to delete a previously allocated buffer without playing it. If a buffer is sent for playback
+      through a call to the <PageRef PageName="SupportLibraries.AudioStream.AudioStream.PlayBuffer">PlayBuffer</PageRef> method, the AudioStream class
+      will delete it automatically after playback is complete.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code><![CDATA[void DeleteAudioBuffer(AudioBuffer* buffer);]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Type="AudioBuffer*!SupportLibraries.AudioStream.AudioStream.AudioBuffer" Name="buffer">
+          The AudioBuffer object to delete
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream">AudioStream class</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream.CreateAudioBuffer">CreateAudioBuffer method</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream.PlayBuffer">PlayBuffer method</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>
+

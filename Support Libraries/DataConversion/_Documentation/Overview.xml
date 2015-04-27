@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.DataConversion" Title="DataConversion Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd" xmlns:doc="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The DataConversion library provides a set of general conversion routines to and from text for integers, floating point, and boolean types. The
+      library also provides some text to text conversion routines. All conversion functions adopt the same conventions, which makes it easy to convert
+      betwen types and understand what the output of various conversions will be.
+    </Paragraph>
+    <Paragraph>
+      All integer conversion functions support a unified prefix notation for distinguising the base encoding of any arbitrary number from a string.
+      These prefixes are adopted based on the prevailing conventions used in various programming languages and markup systems. Only one prefix is used
+      when converting to a string, but when loading from a string, several forms are permitted. The following list shows the list of supported
+      prefixes for converting integers from strings. The prefix used for saving to string is the first one shown for each base encoding.
+    </Paragraph>
+    <Code>Base 16: 0x????, 0X????, 0h????, 0H????
+Base 10: 0d????, 0D????
+Base 8:  0o????, 0O????, 0q????, 0Q????
+Base 2:  0b????, 0B????</Code>
+    <Paragraph>
+      Note that we don't support any postfix base encoding forms, because they can be ambiguous with unqualified number encodings from other bases.
+      Using the 'b' and 'd' characters in particular as postfixes would conflict with base 16 encoding, but other encoding schemes like base 32
+      encoding that could be added later would conflict with all postfixes. There are various other language conventions that have also been rejected,
+      such as a leading '0' in C++ representing a base 8 number. Using the prefixes that have been specified, it is always safe to evaluate qualified
+      or non-fixed length unqualified strings containing integers.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Public Members">
+    <SubSection Title="Boolean Conversion">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="BoolToString">
+          Converts a boolean into a string in the requested form
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToBool">
+          Attempts to convert a string into a boolean
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Integer Conversion">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="HexNybbleToChar">
+          Converts an integer of the range 0x0-0xF to a corresponding hexadecimal char
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="HexNybbleToWChar">
+          Converts an integer of the range 0x0-0xF to a corresponding hexadecimal wchar_t
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="HexCharToNybble">
+          Converts a hexadecimal digit from a char into an integer of the range 0x0-0xF, or 0x10 if the specified character is not a hexadecimal digit.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="HexWCharToNybble">
+          Converts a hexadecimal digit from a wchar_t into an integer of the range 0x0-0xF, or 0x10 if the specified character is not a hexadecimal digit.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="IntToString">
+          Converts an integer into a string, using the specified base encoding.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="IntToStringBase16">
+          Converts an integer into a base 16 string, with control over type encoding and length.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="IntToStringBase10">
+          Converts an integer into a base 10 string, with control over type encoding and length.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="IntToStringBase8">
+          Converts an integer into a base 8 string, with control over type encoding and length.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="IntToStringBase2">
+          Converts an integer into a base 2 string, with control over type encoding and length.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToInt">
+          Attempts to convert a string into an integer, using the specified default base encoding if it isn't specified in the string.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToIntBase16">
+          Attempts to convert a base 16 number as a string into an integer
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToIntBase10">
+          Attempts to convert a base 10 number as a string into an integer
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToIntBase8">
+          Attempts to convert a base 8 number as a string into an integer
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToIntBase2">
+          Attempts to convert a base 2 number as a string into an integer
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Floating Point Conversion">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="FloatToString">
+          Converts a single precision floating point number into a string in the requested form
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToFloat">
+          Attempts to convert a string into a single precision floating point number
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="DoubleToString">
+          Converts a double precision floating point number into a string in the requested form
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToDouble">
+          Attempts to convert a string into a double precision floating point number
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="String Conversion">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="TokenizeString">
+          Tokenizes the supplied string using the set of specified delimiter characters
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="CharToLower">
+          Converts the target ASCII character to its lowercase equivalent. This function does not attempt to support Unicode characters.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="CharToUpper">
+          Converts the target ASCII character to its uppercase equivalent. This function does not attempt to support Unicode characters.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToLower">
+          Converts all ASCII characters in the target string to their lowercase equivalent. This function does not attempt to support Unicode characters.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToUpper">
+          Converts all ASCII characters in the target string to their uppercase equivalent. This function does not attempt to support Unicode characters.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="StringToWString">
+          Converts an std::string with ASCII encoding to an std::wstring. This function does not attempt to support non-ASCII characters.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="WStringToString">
+          Converts an std::wstring with ASCII encoding to an std::string. This function does not attempt to support non-ASCII characters.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      This library originally grew as required, however it is now quite consistent in its use. There are some limitations regarding the output of
+      floating point numbers at fixed lengths however, and these cannot be worked around without a major investment of work, due to limits of control
+      around how both std::stringstream and printf perform floating point conversion. These issues will be fixed if they cause problems in the future.
+    </Paragraph>
+    <Paragraph>
+      Note that although what is currently in this library is fairly good, the library itself is not considered feature complete. There are many other
+      conversion functions that may be added in the future as a need for them arises.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

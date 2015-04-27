@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDeviceContext" Title="IDeviceContext interface" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The IDeviceContext interface provides an interface to the device context for a given device. The system implements this device in an internal
+      type, which is not exposed to any elements in the system. The purpose of the device context is to hold the current execution state for the
+      associated device, and to manage the execution of that device. The target device for an IDeviceContext object can be retrieved by calling the
+      <PageRef PageName="ExodusSDK.DeviceInterface.IDeviceContext.GetTargetDevice">GetTargetDevice</PageRef> method.
+    </Paragraph>
+  </Section>
+  <Section Title="Timing functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetCurrentTimesliceProgress" PageName="ExodusSDK.DeviceInterface.IDeviceContext.GetCurrentTimesliceProgress"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetCurrentTimesliceProgress" PageName="ExodusSDK.DeviceInterface.IDeviceContext.SetCurrentTimesliceProgress"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Control functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="DeviceEnabled" PageName="ExodusSDK.DeviceInterface.IDeviceContext.DeviceEnabled"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDeviceEnabled" PageName="ExodusSDK.DeviceInterface.IDeviceContext.SetDeviceEnabled"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Device interface">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetTargetDevice" PageName="ExodusSDK.DeviceInterface.IDeviceContext.GetTargetDevice"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceIndexNo" PageName="ExodusSDK.DeviceInterface.IDeviceContext.GetDeviceIndexNo"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="System message functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="WriteLogEvent" PageName="ExodusSDK.DeviceInterface.IDeviceContext.WriteLogEvent"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="FlagStopSystem" PageName="ExodusSDK.DeviceInterface.IDeviceContext.FlagStopSystem"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="StopSystem" PageName="ExodusSDK.DeviceInterface.IDeviceContext.StopSystem"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="RunSystem" PageName="ExodusSDK.DeviceInterface.IDeviceContext.RunSystem"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ExecuteDeviceStep" PageName="ExodusSDK.DeviceInterface.IDeviceContext.ExecuteDeviceStep"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetFullyQualifiedDeviceInstanceName" PageName="ExodusSDK.DeviceInterface.IDeviceContext.GetFullyQualifiedDeviceInstanceName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetModuleDisplayName" PageName="ExodusSDK.DeviceInterface.IDeviceContext.GetModuleDisplayName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetModuleInstanceName" PageName="ExodusSDK.DeviceInterface.IDeviceContext.GetModuleInstanceName"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Suspend functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="UsesExecuteSuspend" PageName="ExodusSDK.DeviceInterface.IDeviceContext.UsesExecuteSuspend"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="UsesTransientExecution" PageName="ExodusSDK.DeviceInterface.IDeviceContext.UsesTransientExecution"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TimesliceExecutionSuspended" PageName="ExodusSDK.DeviceInterface.IDeviceContext.TimesliceExecutionSuspended"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SuspendTimesliceExecution" PageName="ExodusSDK.DeviceInterface.IDeviceContext.SuspendTimesliceExecution"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="WaitForTimesliceExecutionResume" PageName="ExodusSDK.DeviceInterface.IDeviceContext.WaitForTimesliceExecutionResume"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ResumeTimesliceExecution" PageName="ExodusSDK.DeviceInterface.IDeviceContext.ResumeTimesliceExecution"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TimesliceSuspensionDisabled" PageName="ExodusSDK.DeviceInterface.IDeviceContext.TimesliceSuspensionDisabled"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransientExecutionActive" PageName="ExodusSDK.DeviceInterface.IDeviceContext.TransientExecutionActive"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransientExecutionActive" PageName="ExodusSDK.DeviceInterface.IDeviceContext.TransientExecutionActive"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TimesliceExecutionCompleted" PageName="ExodusSDK.DeviceInterface.IDeviceContext.TimesliceExecutionCompleted"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Dependent device functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDeviceDependencyEnable" PageName="ExodusSDK.DeviceInterface.IDevice.SetDeviceDependencyEnable"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

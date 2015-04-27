@@ -1,7 +1,7 @@
 #ifndef __WATCHPOINTVIEWPRESENTER_H__
 #define __WATCHPOINTVIEWPRESENTER_H__
 #include "ProcessorMenus.h"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 
 class WatchpointViewPresenter :public ViewPresenterBase

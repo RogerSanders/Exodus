@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{3d2327bd-7155-4ae6-80ef-4462e8c663fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RandomTimeAccessBuffer">
+      <UniqueIdentifier>{ac850344-815d-4402-8dae-7221850af1a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RandomTimeAccessValue">
+      <UniqueIdentifier>{1372c8a4-69de-4145-8b8c-ea0736b81d4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer">
+      <UniqueIdentifier>{7a6a708d-e3bd-4176-b5d5-64db3535f49a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer\ITimedBufferInt">
+      <UniqueIdentifier>{13f38a8a-2d24-4e4e-8db5-133b8ce800e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer\ITimedBufferIntDevice">
+      <UniqueIdentifier>{f163d6fd-5956-4975-9357-cf3f5d2410c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer\ITimedBufferTimeslice">
+      <UniqueIdentifier>{c631b3d6-9373-4f4a-8868-ca491475c81b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer\TimedBufferWriteInfo">
+      <UniqueIdentifier>{409d06b5-7d19-4b2d-be61-2eeeb469f1fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer\TimedBufferAccessTarget">
+      <UniqueIdentifier>{318a642a-efd9-426e-80cb-d145ecadc6cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimedBuffer\TimedBufferAdvanceSession">
+      <UniqueIdentifier>{f760d3e3-3927-4bdb-8773-7219b76f8f29}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RandomTimeAccessBuffer.h">
+      <Filter>RandomTimeAccessBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomTimeAccessBufferNew.h">
+      <Filter>RandomTimeAccessBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomTimeAccessValue.h">
+      <Filter>RandomTimeAccessValue</Filter>
+    </ClInclude>
+    <ClInclude Include="ITimedBufferInt.h">
+      <Filter>TimedBuffer\ITimedBufferInt</Filter>
+    </ClInclude>
+    <ClInclude Include="ITimedBufferIntDevice.h">
+      <Filter>TimedBuffer\ITimedBufferIntDevice</Filter>
+    </ClInclude>
+    <ClInclude Include="ITimedBufferTimeslice.h">
+      <Filter>TimedBuffer\ITimedBufferTimeslice</Filter>
+    </ClInclude>
+    <ClInclude Include="TimedBufferWriteInfo.h">
+      <Filter>TimedBuffer\TimedBufferWriteInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="TimedBufferAccessTarget.h">
+      <Filter>TimedBuffer\TimedBufferAccessTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="TimedBufferAdvanceSession.h">
+      <Filter>TimedBuffer\TimedBufferAdvanceSession</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="RandomTimeAccessBuffer.inl">
+      <Filter>RandomTimeAccessBuffer</Filter>
+    </None>
+    <None Include="RandomTimeAccessBufferNew.inl">
+      <Filter>RandomTimeAccessBuffer</Filter>
+    </None>
+    <None Include="RandomTimeAccessValue.inl">
+      <Filter>RandomTimeAccessValue</Filter>
+    </None>
+    <None Include="ITimedBufferInt.inl">
+      <Filter>TimedBuffer\ITimedBufferInt</Filter>
+    </None>
+    <None Include="TimedBufferWriteInfo.inl">
+      <Filter>TimedBuffer\TimedBufferWriteInfo</Filter>
+    </None>
+    <None Include="TimedBufferAccessTarget.inl">
+      <Filter>TimedBuffer\TimedBufferAccessTarget</Filter>
+    </None>
+    <None Include="TimedBufferAdvanceSession.inl">
+      <Filter>TimedBuffer\TimedBufferAdvanceSession</Filter>
+    </None>
+    <None Include="TimedBuffers.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+  </ItemGroup>
+</Project>

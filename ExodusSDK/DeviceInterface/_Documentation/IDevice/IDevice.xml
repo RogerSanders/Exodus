@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice" Title="IDevice interface" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The IDevice interface is the primary interface which exposes devices, such as processors, memory, peripherals, etc, to the emulation
+      environment. A device must implement this interface in order to be compatible, although it is better to derive from the
+      <PageRef PageName="ExodusSDK.Device.Device">Device</PageRef> base class instead, which contains a default implementation
+      of this interface. Many devices only need to implement a few of these methods in order to actually perform the tasks they need to do, so it is
+      better to use this base class and override just the methods that need to be defined for a given device.
+    </Paragraph>
+    <Paragraph>
+      Note that this interface is designed to be passed across DLL boundaries, so it must meet the requirements of a <PageRef PageName="SharedInterface">Shared Interface</PageRef>.
+    </Paragraph>
+  </Section>
+  <Section Title="Initialization functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="BindToSystemInterface" PageName="ExodusSDK.DeviceInterface.IDevice.BindToSystemInterface">
+        Called by the system to bind the device to the <PageRef PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface">ISystemDeviceInterface</PageRef> object
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="BindToDeviceContext" PageName="ExodusSDK.DeviceInterface.IDevice.BindToDeviceContext">
+        Called by the system to bind the device to its <PageRef PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRef> object
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="Construct" PageName="ExodusSDK.DeviceInterface.IDevice.Construct">
+        Allows a device to load additional parameters which control its construction, as they have been specified in the module file which has
+        created this device instance.
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="BuildDevice" PageName="ExodusSDK.DeviceInterface.IDevice.BuildDevice">
+        Allows devices to perform additional one-time construction tasks during the module load process.
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ValidateDevice" PageName="ExodusSDK.DeviceInterface.IDevice.ValidateDevice">
+        Allows a device to validate its current state and connection to other devices, as a final check before the device is considered
+        successfully loaded.
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="Initialize" PageName="ExodusSDK.DeviceInterface.IDevice.Initialize">
+        Is called to instruct a device to initialize its internal state back to a state consistent with a cold-boot.
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Reference functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="AddReference" PageName="ExodusSDK.DeviceInterface.IDevice.AddReference">
+        Allows a device to reference another element in the system. References are the means by which devices are able to be associated with other
+        system components. Objects of type <PageRef PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRef>,
+        <PageRef PageName="ExodusSDK.DeviceInterface.IExtension">IExtension</PageRef>,
+        <PageRef PageName="ExodusSDK.DeviceInterface.IBusInterface">IBusInterface</PageRef>, and
+        <PageRef PageName="ExodusSDK.DeviceInterface.IClockSource">IClockSource</PageRef> can be referenced.
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="RemoveReference" PageName="ExodusSDK.DeviceInterface.IDevice.RemoveReference">
+        Removes a reference previously accepted by a successful call to the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.AddReference">AddReference</PageRef> method
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Device context functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceContext" PageName="ExodusSDK.DeviceInterface.IDevice.GetDeviceContext">
+        Returns the <PageRef PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRef> object associated with this device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetCurrentTimesliceProgress" PageName="ExodusSDK.DeviceInterface.IDevice.GetCurrentTimesliceProgress">
+        Returns the progress this device has made through the current timeslice, in nanoseconds.
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Suspend functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="UsesExecuteSuspend" PageName="ExodusSDK.DeviceInterface.IDevice.UsesExecuteSuspend">
+        Reports whether this device ever calls the <PageRef PageName="ExodusSDK.DeviceInterface.DeviceContext.SuspendTimesliceExecution">SuspendTimesliceExecution</PageRef>
+        method on the <PageRef PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRef> object associated with this device.
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="UsesTransientExecution" PageName="ExodusSDK.DeviceInterface.IDevice.UsesTransientExecution">
+        Reports whether this device ever calls the <PageRef PageName="ExodusSDK.DeviceInterface.DeviceContext.SetTransientExecutionActive">SetTransientExecutionActive</PageRef>
+        method on the <PageRef PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRef> object associated with this device.
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Execute functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="BeginExecution" PageName="ExodusSDK.DeviceInterface.IDevice.BeginExecution">
+        Called by the system on each device when before system execution starts
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SuspendExecution" PageName="ExodusSDK.DeviceInterface.IDevice.SuspendExecution">
+        Called by the system on each device when system execution is paused
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ExecuteStep" PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteStep">
+        Called by the system to advance execution on devices that return "Step" as the execution method from <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.GetUpdateMethod">GetUpdateMethod</PageRef>
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ExecuteTimeslice" PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteTimeslice">
+        Called by the system to advance execution on devices that return "Timeslice" as the execution method from <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.GetUpdateMethod">GetUpdateMethod</PageRef>
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ExecuteTimesliceTimingPointStep" PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteTimesliceTimingPointStep">
+        Called by the system to step through a timing point for devices that return "Timeslice" as the execution method from <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.GetUpdateMethod">GetUpdateMethod</PageRef>
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetNextTimingPointInDeviceTime" PageName="ExodusSDK.DeviceInterface.IDevice.GetNextTimingPointInDeviceTime">
+        Called by the system to request a device to report when its next known timing point will occur
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ExecuteRollback" PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteRollback">
+        Called by the system to request a device to rollback its execution state to the point it was at when the last call to <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteCommit">ExecuteCommit</PageRef> occurred
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ExecuteCommit" PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteCommit">
+        Called by the system to request a device to commit its current execution state, so that it can be restored if the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteRollback">ExecuteRollback</PageRef> is called.
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetUpdateMethod" PageName="ExodusSDK.DeviceInterface.IDevice.GetUpdateMethod">
+        Returns the update method the device uses to advance execution
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SendNotifyUpcomingTimeslice" PageName="ExodusSDK.DeviceInterface.IDevice.SendNotifyUpcomingTimeslice">
+        Reports whether the device wants the system to call the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.NotifyUpcomingTimeslice">NotifyUpcomingTimeslice</PageRef>
+        method before each system timeslice begins execution
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="NotifyUpcomingTimeslice" PageName="ExodusSDK.DeviceInterface.IDevice.NotifyUpcomingTimeslice">
+        Called before each system timeslice begins execution, if this device returned true from the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.SendNotifyUpcomingTimeslice">SendNotifyUpcomingTimeslice</PageRef>
+        method.
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SendNotifyBeforeExecuteCalled" PageName="ExodusSDK.DeviceInterface.IDevice.SendNotifyBeforeExecuteCalled">
+        Reports whether the device wants the system to call the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.NotifyBeforeExecuteCalled">NotifyBeforeExecuteCalled</PageRef>
+        method before any devices execute the upcoming timeslice
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="NotifyBeforeExecuteCalled" PageName="ExodusSDK.DeviceInterface.IDevice.NotifyBeforeExecuteCalled">
+        Called before each device executes the upcoming timeslice, if this device returned true from the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.SendNotifyBeforeExecuteCalled">SendNotifyBeforeExecuteCalled</PageRef>
+        method.
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SendNotifyAfterExecuteCalled" PageName="ExodusSDK.DeviceInterface.IDevice.SendNotifyAfterExecuteCalled">
+        Reports whether the device wants the system to call the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.NotifyAfterExecuteCalled">NotifyAfterExecuteCalled</PageRef>
+        method after all devices finish executing the last timeslice
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="NotifyAfterExecuteCalled" PageName="ExodusSDK.DeviceInterface.IDevice.NotifyAfterExecuteCalled">
+        Called after all devices finish executing the last timeslice, if this device returned true from the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.SendNotifyAfterExecuteCalled">SendNotifyAfterExecuteCalled</PageRef>
+        method.
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="NotifyAfterExecuteStepFinishedTimeslice" PageName="ExodusSDK.DeviceInterface.IDevice.NotifyAfterExecuteStepFinishedTimeslice">
+        Called on this device after it finishes executing the current timeslice
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Name functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceImplementationName" PageName="ExodusSDK.DeviceInterface.IDevice.GetDeviceImplementationName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceInstanceName" PageName="ExodusSDK.DeviceInterface.IDevice.GetDeviceInstanceName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetFullyQualifiedDeviceInstanceName" PageName="ExodusSDK.DeviceInterface.IDevice.GetFullyQualifiedDeviceInstanceName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetModuleDisplayName" PageName="ExodusSDK.DeviceInterface.IDevice.GetModuleDisplayName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetModuleInstanceName" PageName="ExodusSDK.DeviceInterface.IDevice.GetModuleInstanceName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceModuleID" PageName="ExodusSDK.DeviceInterface.IDevice.GetDeviceModuleID"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Savestate functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetScreenshot" PageName="ExodusSDK.DeviceInterface.IDevice.GetScreenshot"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="LoadState" PageName="ExodusSDK.DeviceInterface.IDevice.LoadState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SaveState" PageName="ExodusSDK.DeviceInterface.IDevice.SaveState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="LoadPersistentState" PageName="ExodusSDK.DeviceInterface.IDevice.LoadPersistentState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SavePersistentState" PageName="ExodusSDK.DeviceInterface.IDevice.SavePersistentState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="LoadSettingsState" PageName="ExodusSDK.DeviceInterface.IDevice.LoadSettingsState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SaveSettingsState" PageName="ExodusSDK.DeviceInterface.IDevice.SaveSettingsState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="LoadDebuggerState" PageName="ExodusSDK.DeviceInterface.IDevice.LoadDebuggerState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SaveDebuggerState" PageName="ExodusSDK.DeviceInterface.IDevice.SaveDebuggerState"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="CE line state functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetCELineID" PageName="ExodusSDK.DeviceInterface.IDevice.GetCELineID"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetCELineInput" PageName="ExodusSDK.DeviceInterface.IDevice.SetCELineInput"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetCELineOutput" PageName="ExodusSDK.DeviceInterface.IDevice.SetCELineOutput"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="CalculateCELineStateMemory" PageName="ExodusSDK.DeviceInterface.IDevice.CalculateCELineStateMemory"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="CalculateCELineStateMemoryTransparent" PageName="ExodusSDK.DeviceInterface.IDevice.CalculateCELineStateMemoryTransparent"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="CalculateCELineStatePort" PageName="ExodusSDK.DeviceInterface.IDevice.CalculateCELineStatePort"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="CalculateCELineStatePortTransparent" PageName="ExodusSDK.DeviceInterface.IDevice.CalculateCELineStatePortTransparent"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Memory functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="ReadInterface" PageName="ExodusSDK.DeviceInterface.IDevice.ReadInterface"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="WriteInterface" PageName="ExodusSDK.DeviceInterface.IDevice.WriteInterface"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentReadInterface" PageName="ExodusSDK.DeviceInterface.IDevice.TransparentReadInterface"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentWriteInterface" PageName="ExodusSDK.DeviceInterface.IDevice.TransparentWriteInterface"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Port functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Deprecated="true" Visibility="Public" Name="ReadPort" PageName="ExodusSDK.DeviceInterface.IDevice.ReadPort"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Deprecated="true" Visibility="Public" Name="WritePort" PageName="ExodusSDK.DeviceInterface.IDevice.WritePort"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Deprecated="true" Visibility="Public" Name="TransparentReadPort" PageName="ExodusSDK.DeviceInterface.IDevice.TransparentReadPort"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Deprecated="true" Visibility="Public" Name="TransparentWritePort" PageName="ExodusSDK.DeviceInterface.IDevice.TransparentWritePort"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Line functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetLineID" PageName="ExodusSDK.DeviceInterface.IDevice.GetLineID"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetLineName" PageName="ExodusSDK.DeviceInterface.IDevice.GetLineName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetLineWidth" PageName="ExodusSDK.DeviceInterface.IDevice.GetLineWidth"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetLineState" PageName="ExodusSDK.DeviceInterface.IDevice.SetLineState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentSetLineState" PageName="ExodusSDK.DeviceInterface.IDevice.TransparentSetLineState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="RevokeSetLineState" PageName="ExodusSDK.DeviceInterface.IDevice.RevokeSetLineState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="AdvanceToLineState" PageName="ExodusSDK.DeviceInterface.IDevice.AdvanceToLineState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="AssertCurrentOutputLineState" PageName="ExodusSDK.DeviceInterface.IDevice.AssertCurrentOutputLineState"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="NegateCurrentOutputLineState" PageName="ExodusSDK.DeviceInterface.IDevice.NegateCurrentOutputLineState"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Clock source functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetClockSourceID" PageName="ExodusSDK.DeviceInterface.IDevice.GetClockSourceID"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetClockSourceName" PageName="ExodusSDK.DeviceInterface.IDevice.GetClockSourceName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetClockSourceRate" PageName="ExodusSDK.DeviceInterface.IDevice.SetClockSourceRate"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TransparentSetClockSourceRate" PageName="ExodusSDK.DeviceInterface.IDevice.TransparentSetClockSourceRate"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Input functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetKeyCodeID" PageName="ExodusSDK.DeviceInterface.IDevice.GetKeyCodeID"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetKeyCodeName" PageName="ExodusSDK.DeviceInterface.IDevice.GetKeyCodeName"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="HandleInputKeyDown" PageName="ExodusSDK.DeviceInterface.IDevice.HandleInputKeyDown"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="HandleInputKeyUp" PageName="ExodusSDK.DeviceInterface.IDevice.HandleInputKeyUp"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.Device.Device">Device</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IBusInterface">IBusInterface</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IExtension">IExtension</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IClockSource">IClockSource</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

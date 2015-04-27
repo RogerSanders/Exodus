@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Z80.h"
 
 IDevice* GetZ80(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)

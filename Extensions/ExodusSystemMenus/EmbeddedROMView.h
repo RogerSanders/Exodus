@@ -1,7 +1,7 @@
 #ifndef __INPUTMAPPINGVIEW_H__
 #define __INPUTMAPPINGVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "EmbeddedROMViewPresenter.h"
 
 class EmbeddedROMView :public ViewBase

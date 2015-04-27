@@ -1,7 +1,7 @@
 #ifndef __CONTROLVIEWPRESENTER_H__
 #define __CONTROLVIEWPRESENTER_H__
 #include "ProcessorMenus.h"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 
 class ControlViewPresenter :public ViewPresenterBase

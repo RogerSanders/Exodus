@@ -31,7 +31,7 @@ References:
 #include "IZ80.h"
 #ifndef __Z80_Z80_H__
 #define __Z80_Z80_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 #include "ThreadLib/ThreadLib.pkg"
 #include "Data.h"
@@ -65,7 +65,7 @@ public:
 	//Reference functions
 	using Processor::AddReference;
 	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
-	virtual bool RemoveReference(IBusInterface* target);
+	virtual void RemoveReference(IBusInterface* target);
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const;

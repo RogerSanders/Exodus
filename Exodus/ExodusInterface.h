@@ -38,7 +38,7 @@ the slots.
 #ifndef __EXODUSINTERFACE_H__
 #define __EXODUSINTERFACE_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 #include "Image/Image.pkg"
 #include "ThreadLib/ThreadLib.pkg"

@@ -318,12 +318,12 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Libraries\Extension\Extension.vcxproj">
+    <ProjectReference Include="..\..\ExodusSDK\Extension\Extension.vcxproj">
       <Project>{8196f896-d9ae-4f6b-9b5a-af2553ea0b32}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\SystemInterface\SystemInterface.vcxproj">
+    <ProjectReference Include="..\..\ExodusSDK\SystemInterface\SystemInterface.vcxproj">
       <Project>{b105790c-254b-4a4f-abfd-d11f7de1531d}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>

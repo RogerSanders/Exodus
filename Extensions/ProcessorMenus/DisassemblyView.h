@@ -2,7 +2,7 @@
 #define __DISASSEMBLYVIEW_H__
 #include "DisassemblyViewPresenter.h"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 
 class DisassemblyView :public ViewBase

@@ -1,6 +1,6 @@
 #ifndef __MODULEMANAGERVIEWPRESENTER_H__
 #define __MODULEMANAGERVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ExodusInterface.h"
 
 class ModuleManagerViewPresenter :public ViewPresenterBase

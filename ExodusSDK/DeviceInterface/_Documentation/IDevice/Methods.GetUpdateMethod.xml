@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.GetUpdateMethod" Title="GetUpdateMethod method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      GetUpdateMethod is called by the system to determine what kind of update method a device needs in order to advance its current execution state.
+      Some devices are passive, and don't need to perform any execution steps of their own, they merely need to respond to input from other devices.
+      Memory buffers are an example of this. Devices which need to initiate unsolicited contact with other devices however are considerd active
+      devices, and will generally need an update method to be called to advance their execution state. The device must return a member of the
+      <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.UpdateMethod">UpdateMethod</PageRef> enumeration, which indicates the kind of update
+      method this device uses.
+    </Paragraph>
+    <Paragraph>
+      There are currently three supported update methods, "None", "Step", and "Timeslice". None is the default. If a device is active, and needs to
+      perform its own execution steps, it will probably need either the "Step" or "Timeslice" update methods. If a device requests the step update
+      method, it must implement the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteStep">ExecuteStep</PageRef> method. If a device
+      requests the timeslice update method, it must implement the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteTimeslice">ExecuteTimeslice</PageRef>
+      and <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteTimesliceTimingPointStep">ExecuteTimesliceTimingPointStep</PageRef>
+      methods. See the documentation for those methods for further info.
+    </Paragraph>
+    <Paragraph>
+      Note that the value returned by this method should be constant, and should not change for the lifetime of the device object. Returning a
+      different value from this method at different times may result in the change not taking effect, or causing unexpected problems during system
+      execution.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual double ExecuteStep();]]>
+    </Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="UpdateMethod!ExodusSDK.DeviceInterface.IDevice.UpdateMethod">
+        The update method this device requires for execution
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice.UpdateMethod">UpdateMethod</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteStep">ExecuteStep</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteTimeslice">ExecuteTimeslice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteTimesliceTimingPointStep">ExecuteTimesliceTimingPointStep</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

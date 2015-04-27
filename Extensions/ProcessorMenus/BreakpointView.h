@@ -2,7 +2,7 @@
 #define __BREAKPOINTVIEW_H__
 #include "BreakpointViewPresenter.h"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 
 class BreakpointView :public ViewBase

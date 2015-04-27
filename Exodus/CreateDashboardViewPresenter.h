@@ -1,6 +1,6 @@
 #ifndef __CREATEDASHBOARDVIEWPRESENTER_H__
 #define __CREATEDASHBOARDVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ExodusInterface.h"
 
 class CreateDashboardViewPresenter :public ViewPresenterBase

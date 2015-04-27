@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "S315_5313Menus.h"
 
 IExtension* GetS315_5313Menus(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
