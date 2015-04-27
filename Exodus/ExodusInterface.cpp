@@ -2799,9 +2799,10 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 		case ID_FILE_SAVESYSTEM:
 			state->SaveSystem(state->prefs.pathModules);
 			break;
-		case ID_FILE_MANAGEMODULES:
-			state->menuHandler->HandleMenuItemSelect(MenuHandler::MENUITEM_MODULEMANAGER);
-			break;
+		case ID_FILE_MANAGEMODULES:{
+			std::thread backgroundWorkerThread([state]() { state->menuHandler->HandleMenuItemSelect(MenuHandler::MENUITEM_MODULEMANAGER); });
+			backgroundWorkerThread.detach();
+			break;}
 		case ID_FILE_UNLOADALLMODULES:
 			state->UnloadAllModules();
 			break;
@@ -2854,12 +2855,14 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 		case ID_FILE_SAVEWORKSPACE:
 			state->SaveWorkspace(state->prefs.pathWorkspaces);
 			break;
-		case ID_SETTINGS_PLATFORMSETTINGS:
-			state->menuHandler->HandleMenuItemSelect(MenuHandler::MENUITEM_SETTINGS);
-			break;
-		case ID_HELP_ABOUT:
-			state->menuHandler->HandleMenuItemSelect(MenuHandler::MENUITEM_ABOUT);
-			break;
+		case ID_SETTINGS_PLATFORMSETTINGS:{
+			std::thread backgroundWorkerThread([state]() { state->menuHandler->HandleMenuItemSelect(MenuHandler::MENUITEM_SETTINGS); });
+			backgroundWorkerThread.detach();
+			break;}
+		case ID_HELP_ABOUT:{
+			std::thread backgroundWorkerThread([state]() { state->menuHandler->HandleMenuItemSelect(MenuHandler::MENUITEM_ABOUT); });
+			backgroundWorkerThread.detach();
+			break;}
 		case ID_SELECTWINDOW_REVERSE:{
 			if(IsWindowVisible(state->windowSelectHandle) != 0)
 			{
@@ -2900,15 +2903,18 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 				}
 			}
 			break;}
-		case ID_WINDOW_CREATEDASHBOARD:
-			state->menuHandler->HandleMenuItemSelect(MenuHandler::MENUITEM_CREATEDASHBOARD);
-			break;
+		case ID_WINDOW_CREATEDASHBOARD:{
+			std::thread backgroundWorkerThread([state]() { state->menuHandler->HandleMenuItemSelect(MenuHandler::MENUITEM_CREATEDASHBOARD); });
+			backgroundWorkerThread.detach();
+			break;}
 		default:{
 			//##TODO## Comment this and clean it up
 			ExodusInterface::NewMenuList::iterator newMenuItem = state->newMenuList.find(menuID);
 			if(newMenuItem != state->newMenuList.end())
 			{
-				newMenuItem->second.menuItem.GetMenuHandler().HandleMenuItemSelect(newMenuItem->second.menuItem.GetMenuItemID());
+				IMenuSelectableOption& menuItem = newMenuItem->second.menuItem;
+				std::thread backgroundWorkerThread([&menuItem]() { menuItem.GetMenuHandler().HandleMenuItemSelect(menuItem.GetMenuItemID()); });
+				backgroundWorkerThread.detach();
 			}
 			break;}
 		}

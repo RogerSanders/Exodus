@@ -26,6 +26,7 @@ public:
 	bool IsEventProcessingPaused() const;
 	void PauseEventProcessing();
 	void ResumeEventProcessing();
+	void WaitForAllPendingEventsToFinish() const;
 
 	//View management functions
 	virtual bool OpenView(IViewPresenter& aviewPresenter, bool waitToClose = true);
@@ -198,6 +199,7 @@ private:
 	bool eventProcessingPaused;
 	std::list<ViewOperation> viewOperationQueue;
 	std::map<IViewPresenter*, ViewInfo*> viewInfoSet;
+	mutable std::condition_variable viewOperationQueueEmptied;
 
 	//Window info
 	int defaultWindowPosX;

@@ -591,7 +591,6 @@ private:
 	//Physical registers and memory buffers
 	mutable std::mutex accessMutex; //Top-level, protects against concurrent interface access.
 	mutable std::mutex lineMutex; //Top level, must never be held during a blocking operation
-	mutable std::mutex externalReferenceMutex;
 	double lastAccessTime;
 	RegBuffer reg;
 	ITimedBufferInt* vram;

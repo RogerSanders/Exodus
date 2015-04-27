@@ -299,6 +299,7 @@ private:
 
 private:
 	//Bus interface
+	mutable ReadWriteLock externalReferenceLock;
 	IBusInterface* memoryBus;
 
 	//Opcode decode table
