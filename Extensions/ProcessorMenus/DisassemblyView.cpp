@@ -538,6 +538,23 @@ INT_PTR DisassemblyView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 		case IDC_PROCESSOR_DISASSEMBLY_PANEL_JUMPTOCURRENT:
 			forcePCSync = true;
 			break;
+		case IDC_PROCESSOR_DISASSEMBLY_PANEL_STEPINTO:
+			//Step a single opcode
+			model.GetDevice()->GetDeviceContext()->StopSystem();
+			model.GetDevice()->GetDeviceContext()->ExecuteDeviceStep();
+			break;
+		case IDC_PROCESSOR_DISASSEMBLY_PANEL_STEPOVER:
+			//Step over the current opcode
+			model.GetDevice()->GetDeviceContext()->StopSystem();
+			model.BreakOnStepOverCurrentOpcode();
+			model.GetDevice()->GetDeviceContext()->RunSystem();
+			break;
+		case IDC_PROCESSOR_DISASSEMBLY_PANEL_STEPOUT:
+			//Step out one call stack level
+			model.GetDevice()->GetDeviceContext()->StopSystem();
+			model.BreakOnStepOutCurrentOpcode();
+			model.GetDevice()->GetDeviceContext()->RunSystem();
+			break;
 		}
 
 		//Update the disassembly

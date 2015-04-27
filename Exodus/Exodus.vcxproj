@@ -180,6 +180,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOUpdate|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -194,6 +195,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOOptimize|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -208,6 +210,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -222,6 +225,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - Static|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -236,6 +240,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeRelease.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Static|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -249,6 +254,7 @@
     <Import Project="..\Build\PropertySheets\ExodusManifestx86.props" />
     <Import Project="..\Build\PropertySheets\RuntimeDebug.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -263,6 +269,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -277,6 +284,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeDebugDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGORebuildOptimized|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -291,6 +299,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOUpdate|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -305,6 +314,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOOptimize|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -319,6 +329,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - PGOInstrument|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -333,6 +344,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - Static|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -347,6 +359,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeRelease.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Static|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -360,6 +373,7 @@
     <Import Project="..\Build\PropertySheets\ExodusManifestx64.props" />
     <Import Project="..\Build\PropertySheets\RuntimeDebug.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -374,6 +388,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeReleaseDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -388,6 +403,7 @@
     <Import Project="..\Build\PropertySheets\ExportExodusDLLInterface.props" />
     <Import Project="..\Build\PropertySheets\RuntimeDebugDLL.props" />
     <Import Project="..\Build\PropertySheets\ExodusAdditionalLibs.props" />
+    <Import Project="..\Build\PropertySheets\ExodusDebuggerConfig.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
