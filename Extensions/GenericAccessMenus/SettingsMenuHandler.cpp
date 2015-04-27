@@ -1,22 +1,34 @@
 #include "SettingsMenuHandler.h"
+#include "GenericDataViewPresenter.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SettingsMenuHandler::SettingsMenuHandler(S315_5313Menus& aowner, const IDevice& amodelInstanceKey, IS315_5313& amodel)
-:MenuHandlerBase(L"VDPSettingsMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+SettingsMenuHandler::SettingsMenuHandler(GenericAccessMenus& aowner, const IDevice& amodelInstanceKey, IGenericAccess& amodel)
+:MenuHandlerBase(L"GenericAccessSettingsMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
 {}
 
 //----------------------------------------------------------------------------------------
 //Management functions
 //----------------------------------------------------------------------------------------
 void SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
-{}
+{
+	unsigned int pageCount = model.GetGenericAccessPageCount();
+	for(unsigned int i = 0; i < pageCount; ++i)
+	{
+		const IGenericAccessPage* page = model.GetGenericAccessPage(i);
+		if(page->GetPageType() == IGenericAccessPage::Type::Settings)
+		{
+			menuItems.push_back(MenuItemDefinition((int)i, page->GetName(), page->GetTitle(), true, true));
+		}
+	}
+}
 
 //----------------------------------------------------------------------------------------
 IViewPresenter* SettingsMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
-	return 0;
+	const IGenericAccessPage* page = model.GetGenericAccessPage((unsigned int)menuItemID);
+	return new GenericDataViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model, page);
 }
 
 //----------------------------------------------------------------------------------------

@@ -13,6 +13,9 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{331791c5-72d8-46ff-9c04-9bd0c5a2586f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GenericAccessMenus\SettingsMenuHandler">
+      <UniqueIdentifier>{213b934c-e4e1-4aff-857d-c84740b9a8cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GenericAccessMenus.cpp">
@@ -28,6 +31,9 @@
       <Filter>GenericAccessMenus\GenericAccessView</Filter>
     </ClCompile>
     <ClCompile Include="interface.cpp" />
+    <ClCompile Include="SettingsMenuHandler.cpp">
+      <Filter>GenericAccessMenus\SettingsMenuHandler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GenericAccessMenus.h">
@@ -46,6 +52,9 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="interface.h" />
+    <ClInclude Include="SettingsMenuHandler.h">
+      <Filter>GenericAccessMenus\SettingsMenuHandler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="folder.ico">

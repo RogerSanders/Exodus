@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-GenericAccessPage::GenericAccessPage(const std::wstring& aname, const std::wstring& atitle)
-:contentRoot(aname)
+GenericAccessPage::GenericAccessPage(const std::wstring& aname, const std::wstring& atitle, Type atype)
+:contentRoot(aname), type(atype)
 {
 	title = (atitle.empty())? aname: atitle;
 }
@@ -19,6 +19,18 @@ unsigned int GenericAccessPage::GetIGenericAccessPageVersion() const
 
 //----------------------------------------------------------------------------------------
 //Page info methods
+//----------------------------------------------------------------------------------------
+GenericAccessPage::Type GenericAccessPage::GetPageType() const
+{
+	return type;
+}
+
+//----------------------------------------------------------------------------------------
+void GenericAccessPage::SetPageType(Type atype)
+{
+	type = atype;
+}
+
 //----------------------------------------------------------------------------------------
 MarshalSupport::Marshal::Ret<std::wstring> GenericAccessPage::GetName() const
 {

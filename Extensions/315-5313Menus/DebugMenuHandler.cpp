@@ -4,8 +4,6 @@
 #include "PlaneViewPresenter.h"
 #include "ImageViewPresenter.h"
 #include "RegistersViewPresenter.h"
-#include "LayerRemovalViewPresenter.h"
-#include "DebugSettingsViewPresenter.h"
 #include "SpriteListViewPresenter.h"
 #include "SpriteListDetailsViewPresenter.h"
 #include "PortMonitorViewPresenter.h"
@@ -23,9 +21,7 @@ DebugMenuHandler::DebugMenuHandler(S315_5313Menus& aowner, const IDevice& amodel
 //----------------------------------------------------------------------------------------
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_SETTINGS, L"DebugSettings", DebugSettingsViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_IMAGE, L"Image", ImageViewPresenter::GetUnqualifiedViewTitle(), true, true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_LAYERREMOVAL, L"LayerRemoval", LayerRemovalViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PALETTEVIEWER, L"Palette", PaletteViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PLANEVIEWER, L"PlaneViewer", PlaneViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITOR, L"PortMonitor", PortMonitorViewPresenter::GetUnqualifiedViewTitle(), true));
@@ -51,10 +47,6 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 		return new ImageViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
 	case MENUITEM_REGISTERS:
 		return new RegistersViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
-	case MENUITEM_LAYERREMOVAL:
-		return new LayerRemovalViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
-	case MENUITEM_SETTINGS:
-		return new DebugSettingsViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
 	case MENUITEM_SPRITELIST:
 		return new SpriteListViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
 	case MENUITEM_PORTMONITOR:

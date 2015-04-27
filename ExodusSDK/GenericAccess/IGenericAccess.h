@@ -7,11 +7,6 @@
 #include <string>
 class IGenericAccessPage;
 
-//##TODO## Make this more generic than just being "IDeviceAccess". We can use this exact
-//same interface for extensions, and for the system platform itself. To make this work, we
-//need to rename it again, and shift it into a library of its own. I suggest we call it
-//IGenericAccess. The library should be called GenericAccess, and it should contain both
-//the interfaces and the implementation.
 class IGenericAccess
 {
 public:

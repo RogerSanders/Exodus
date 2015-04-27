@@ -2,6 +2,7 @@
 #define __GENERICACCESSMENUS_H__
 #include "Extension/Extension.pkg"
 class DebugMenuHandler;
+class SettingsMenuHandler;
 
 //##TODO## Register menu handlers for extensions or the system itself if they expose
 //generic access interfaces too
@@ -21,6 +22,7 @@ public:
 
 private:
 	std::map<IDevice*, DebugMenuHandler*> debugMenuHandlers;
+	std::map<IDevice*, SettingsMenuHandler*> settingsMenuHandlers;
 };
 
 #endif

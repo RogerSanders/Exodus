@@ -113,18 +113,26 @@ public:
 	inline void SetVideoShowBoundaryTitleSafe(bool adata);
 
 	//Layer removal
+	inline bool GetEnableLayerA() const;
+	inline void SetEnableLayerA(bool adata);
 	inline bool GetEnableLayerAHigh() const;
 	inline void SetEnableLayerAHigh(bool adata);
 	inline bool GetEnableLayerALow() const;
 	inline void SetEnableLayerALow(bool adata);
+	inline bool GetEnableLayerB() const;
+	inline void SetEnableLayerB(bool adata);
 	inline bool GetEnableLayerBHigh() const;
 	inline void SetEnableLayerBHigh(bool adata);
 	inline bool GetEnableLayerBLow() const;
 	inline void SetEnableLayerBLow(bool adata);
+	inline bool GetEnableWindow() const;
+	inline void SetEnableWindow(bool adata);
 	inline bool GetEnableWindowHigh() const;
 	inline void SetEnableWindowHigh(bool adata);
 	inline bool GetEnableWindowLow() const;
 	inline void SetEnableWindowLow(bool adata);
+	inline bool GetEnableSprite() const;
+	inline void SetEnableSprite(bool adata);
 	inline bool GetEnableSpriteHigh() const;
 	inline void SetEnableSpriteHigh(bool adata);
 	inline bool GetEnableSpriteLow() const;

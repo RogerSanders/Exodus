@@ -1,14 +1,14 @@
 #ifndef __SETTINGSMENUHANDLER_H__
 #define __SETTINGSMENUHANDLER_H__
 #include "DeviceInterface/DeviceInterface.pkg"
-#include "S315_5313Menus.h"
-#include "315-5313/IS315_5313.h"
+#include "GenericAccess/GenericAccess.pkg"
+#include "GenericAccessMenus.h"
 
 class SettingsMenuHandler :public MenuHandlerBase
 {
 public:
 	//Constructors
-	SettingsMenuHandler(S315_5313Menus& aowner, const IDevice& amodelInstanceKey, IS315_5313& amodel);
+	SettingsMenuHandler(GenericAccessMenus& aowner, const IDevice& amodelInstanceKey, IGenericAccess& amodel);
 
 protected:
 	//Management functions
@@ -17,9 +17,9 @@ protected:
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
 
 private:
-	S315_5313Menus& owner;
+	GenericAccessMenus& owner;
 	const IDevice& modelInstanceKey;
-	IS315_5313& model;
+	IGenericAccess& model;
 };
 
 #endif

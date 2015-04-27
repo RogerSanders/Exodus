@@ -27,7 +27,6 @@ private:
 	LRESULT WndProcChildGroup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 	//Child event handlers
-	LRESULT msgChildWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgChildWM_KEYUP(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgChildWM_KEYDOWN(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgChildWM_SYSKEYDOWN(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -46,6 +45,7 @@ private:
 
 	//Screen mode functions
 	void UpdateOpenGLViewport();
+	void UpdateRenderWindowSize();
 	void SetFullScreen(HWND hwnd, bool fullScreenModeNew);
 
 private:

@@ -2236,8 +2236,8 @@ unsigned char S315_5313::ColorValueTo8BitValue(unsigned int colorValue, bool sha
 //----------------------------------------------------------------------------------------
 MarshalSupport::Marshal::Ret<std::list<S315_5313::SpriteBoundaryLineEntry>> S315_5313::GetSpriteBoundaryLines(unsigned int planeNo) const
 {
-	std::unique_lock<std::mutex> spriteLock(spriteBoundaryMutex[drawingImageBufferPlane]);
-	return imageBufferSpriteBoundaryLines[drawingImageBufferPlane];
+	std::unique_lock<std::mutex> spriteLock(spriteBoundaryMutex[planeNo]);
+	return imageBufferSpriteBoundaryLines[planeNo];
 }
 
 //----------------------------------------------------------------------------------------

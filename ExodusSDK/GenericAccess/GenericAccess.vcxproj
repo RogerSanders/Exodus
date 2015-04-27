@@ -180,6 +180,7 @@
     <None Include="IGenericAccessGroup.inl" />
     <None Include="IGenericAccessGroupCollectionEntry.inl" />
     <None Include="IGenericAccessGroupEntry.inl" />
+    <None Include="IGenericAccessPage.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GenericAccessCommandInfo.cpp" />
