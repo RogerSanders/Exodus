@@ -130,6 +130,16 @@ void ViewManager::ResumeEventProcessing()
 }
 
 //----------------------------------------------------------------------------------------
+void ViewManager::WaitForAllPendingEventsToFinish() const
+{
+	std::unique_lock<std::mutex> lock(viewMutex);
+	if(!viewOperationQueue.empty())
+	{
+		viewOperationQueueEmptied.wait(lock);
+	}
+}
+
+//----------------------------------------------------------------------------------------
 //Main window functions
 //----------------------------------------------------------------------------------------
 HWND ViewManager::GetMainWindow() const
@@ -365,6 +375,7 @@ void ViewManager::ProcessPendingEvents()
 			lock.lock();
 		}
 	}
+	viewOperationQueueEmptied.notify_all();
 }
 
 //----------------------------------------------------------------------------------------
@@ -1537,6 +1548,13 @@ void ViewManager::AdjustFloatingWindowPositions(int displacementX, int displacem
 //----------------------------------------------------------------------------------------
 bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISystemGUIInterface::ModuleRelationshipMap& relationshipMap)
 {
+	//Wait for any pending view events to complete processing. We do this to ensure that
+	//if a workspace is loaded immediately after another event has attempted to open a
+	//view, that the view is actually opened before we load the layout, otherwise any
+	//pending view open requests may occur in addition to the specified view layout being
+	//opened.
+	WaitForAllPendingEventsToFinish();
+
 	//Ensure the current list of placeholder windows is clear
 	placeholderWindowsForViewLayout.clear();
 

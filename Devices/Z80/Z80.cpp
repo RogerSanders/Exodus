@@ -473,24 +473,26 @@ void Z80::BeginExecution()
 //----------------------------------------------------------------------------------------
 bool Z80::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
+	bool result = false;
+	externalReferenceLock.ObtainWriteLock();
 	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
+		result = true;
 	}
-	else
-	{
-		return false;
-	}
-	return true;
+	externalReferenceLock.ReleaseWriteLock();
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::RemoveReference(IBusInterface* target)
 {
+	externalReferenceLock.ObtainWriteLock();
 	if(memoryBus == target)
 	{
 		memoryBus = 0;
 	}
+	externalReferenceLock.ReleaseWriteLock();
 }
 
 //----------------------------------------------------------------------------------------
@@ -1269,21 +1271,44 @@ unsigned int Z80::GetMinimumDataByteSize() const
 //----------------------------------------------------------------------------------------
 unsigned int Z80::GetMemorySpaceByte(unsigned int location) const
 {
+	externalReferenceLock.ObtainReadLock();
+	if(memoryBus == 0)
+	{
+		externalReferenceLock.ReleaseReadLock();
+		return 0;
+	}
+
 	Z80Byte data;
 	ReadMemory(location, data, true);
+	externalReferenceLock.ReleaseReadLock();
 	return data.GetData();
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetMemorySpaceByte(unsigned int location, unsigned int data)
 {
+	externalReferenceLock.ObtainReadLock();
+	if(memoryBus == 0)
+	{
+		externalReferenceLock.ReleaseReadLock();
+		return;
+	}
+
 	Z80Byte byte(data);
 	WriteMemory(location, byte, true);
+	externalReferenceLock.ReleaseReadLock();
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 {
+	externalReferenceLock.ObtainReadLock();
+	if(memoryBus == 0)
+	{
+		externalReferenceLock.ReleaseReadLock();
+		return false;
+	}
+
 	opcodeInfo.SetIsValidOpcode(false);
 
 	Z80Word instructionLocation = location;
@@ -1377,6 +1402,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		delete nextOpcode;
 	}
 
+	externalReferenceLock.ReleaseReadLock();
 	return true;
 }
 

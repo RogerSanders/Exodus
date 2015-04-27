@@ -109,10 +109,8 @@ void MenuHandlerBase::HandleMenuItemSelect(int menuItemID)
 		}
 		else
 		{
-			//If this menu item opens a view, invoke a background thread to handle the
-			//menu item selection.
-			std::thread backgroundWorkerThread(std::bind(std::mem_fn(&MenuHandlerBase::HandleViewMenuItemSelect), this, std::ref(menuItem)));
-			backgroundWorkerThread.detach();
+			//If this menu item opens a view, process the selection event now.
+			HandleViewMenuItemSelect(menuItem);
 		}
 	}
 }
@@ -129,7 +127,7 @@ void MenuHandlerBase::HandleViewMenuItemSelect(MenuItemInternal& menuItem)
 	}
 	else
 	{
-		//If the view isn't currently open, or multiple instances are allow, create and
+		//If the view isn't currently open, or multiple instances are allowed, create and
 		//open the view.
 		IViewPresenter* viewPresenter = CreateViewForItem(menuItem.itemDefinition.menuItemID, menuItem.itemDefinition.menuItemName);
 		if(viewPresenter != 0)

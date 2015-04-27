@@ -348,24 +348,26 @@ void M68000::BeginExecution()
 //----------------------------------------------------------------------------------------
 bool M68000::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
+	bool result = false;
+	externalReferenceLock.ObtainWriteLock();
 	if(referenceName == L"BusInterface")
 	{
 		memoryBus = target;
+		result = true;
 	}
-	else
-	{
-		return false;
-	}
-	return true;
+	externalReferenceLock.ReleaseWriteLock();
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::RemoveReference(IBusInterface* target)
 {
+	externalReferenceLock.ObtainWriteLock();
 	if(memoryBus == target)
 	{
 		memoryBus = 0;
 	}
+	externalReferenceLock.ReleaseWriteLock();
 }
 
 //----------------------------------------------------------------------------------------
@@ -1197,21 +1199,44 @@ unsigned int M68000::GetMinimumDataByteSize() const
 //----------------------------------------------------------------------------------------
 unsigned int M68000::GetMemorySpaceByte(unsigned int location) const
 {
+	externalReferenceLock.ObtainReadLock();
+	if(memoryBus == 0)
+	{
+		externalReferenceLock.ReleaseReadLock();
+		return 0;
+	}
+
 	M68000Byte data;
 	ReadMemoryTransparent(location, data, FunctionCode::SupervisorProgram, false, false);
+	externalReferenceLock.ReleaseReadLock();
 	return data.GetData();
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetMemorySpaceByte(unsigned int location, unsigned int data)
 {
+	externalReferenceLock.ObtainReadLock();
+	if(memoryBus == 0)
+	{
+		externalReferenceLock.ReleaseReadLock();
+		return;
+	}
+
 	M68000Byte byte(data);
 	WriteMemoryTransparent(location, byte, FunctionCode::SupervisorProgram, false, false);
+	externalReferenceLock.ReleaseReadLock();
 }
 
 //----------------------------------------------------------------------------------------
 bool M68000::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 {
+	externalReferenceLock.ObtainReadLock();
+	if(memoryBus == 0)
+	{
+		externalReferenceLock.ReleaseReadLock();
+		return false;
+	}
+
 	opcodeInfo.SetIsValidOpcode(false);
 
 	M68000Long instructionLocation = location;
@@ -1251,6 +1276,7 @@ bool M68000::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		delete targetOpcode;
 	}
 
+	externalReferenceLock.ReleaseReadLock();
 	return true;
 }
 
