@@ -10,9 +10,6 @@
     <Filter Include="YM2612Menus\DebuggerView">
       <UniqueIdentifier>{14c38bad-2394-432c-a137-fcd0bb42f780}</UniqueIdentifier>
     </Filter>
-    <Filter Include="YM2612Menus\LoggingView">
-      <UniqueIdentifier>{2870bccb-1c7f-455f-8aa3-c113b68d862c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="YM2612Menus\OperatorView">
       <UniqueIdentifier>{29677eb9-0150-4492-9b53-70b86d62922b}</UniqueIdentifier>
     </Filter>
@@ -35,12 +32,6 @@
     </ClCompile>
     <ClCompile Include="DebuggerViewPresenter.cpp">
       <Filter>YM2612Menus\DebuggerView</Filter>
-    </ClCompile>
-    <ClCompile Include="LoggingView.cpp">
-      <Filter>YM2612Menus\LoggingView</Filter>
-    </ClCompile>
-    <ClCompile Include="LoggingViewPresenter.cpp">
-      <Filter>YM2612Menus\LoggingView</Filter>
     </ClCompile>
     <ClCompile Include="OperatorView.cpp">
       <Filter>YM2612Menus\OperatorView</Filter>
@@ -69,12 +60,6 @@
     <ClInclude Include="DebuggerViewPresenter.h">
       <Filter>YM2612Menus\DebuggerView</Filter>
     </ClInclude>
-    <ClInclude Include="LoggingView.h">
-      <Filter>YM2612Menus\LoggingView</Filter>
-    </ClInclude>
-    <ClInclude Include="LoggingViewPresenter.h">
-      <Filter>YM2612Menus\LoggingView</Filter>
-    </ClInclude>
     <ClInclude Include="OperatorView.h">
       <Filter>YM2612Menus\OperatorView</Filter>
     </ClInclude>
@@ -91,11 +76,6 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="interface.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\Exodus\Resources\folder.ico">
-      <Filter>Resources</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="YM2612Menus.rc">

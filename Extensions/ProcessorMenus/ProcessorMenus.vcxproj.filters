@@ -7,9 +7,6 @@
     <Filter Include="ProcessorMenus\ActiveDisassemblyView">
       <UniqueIdentifier>{2d23ff9b-840e-4310-a5ed-561643d8cd94}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ProcessorMenus\BreakpointView">
-      <UniqueIdentifier>{b5377f2d-ca19-4678-8f58-69f6b9549852}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ProcessorMenus\CallStackView">
       <UniqueIdentifier>{25382fec-f911-4427-af7c-858c8d1b8b7a}</UniqueIdentifier>
     </Filter>
@@ -41,12 +38,6 @@
     </ClCompile>
     <ClCompile Include="ActiveDisassemblyViewPresenter.cpp">
       <Filter>ProcessorMenus\ActiveDisassemblyView</Filter>
-    </ClCompile>
-    <ClCompile Include="BreakpointView.cpp">
-      <Filter>ProcessorMenus\BreakpointView</Filter>
-    </ClCompile>
-    <ClCompile Include="BreakpointViewPresenter.cpp">
-      <Filter>ProcessorMenus\BreakpointView</Filter>
     </ClCompile>
     <ClCompile Include="CallStackView.cpp">
       <Filter>ProcessorMenus\CallStackView</Filter>
@@ -92,12 +83,6 @@
     </ClInclude>
     <ClInclude Include="ActiveDisassemblyViewPresenter.h">
       <Filter>ProcessorMenus\ActiveDisassemblyView</Filter>
-    </ClInclude>
-    <ClInclude Include="BreakpointView.h">
-      <Filter>ProcessorMenus\BreakpointView</Filter>
-    </ClInclude>
-    <ClInclude Include="BreakpointViewPresenter.h">
-      <Filter>ProcessorMenus\BreakpointView</Filter>
     </ClInclude>
     <ClInclude Include="CallStackView.h">
       <Filter>ProcessorMenus\CallStackView</Filter>

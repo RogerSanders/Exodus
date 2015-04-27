@@ -7,15 +7,6 @@
 class DebugMenuHandler :public MenuHandlerBase
 {
 public:
-	//Enumerations
-	enum MenuItem
-	{
-		MENUITEM_REGISTERS,
-		MENUITEM_PROPERTIES,
-		MENUITEM_WAV_FILE_LOGGING
-	};
-
-public:
 	//Constructors
 	DebugMenuHandler(SN76489Menus& aowner, const IDevice& amodelInstanceKey, ISN76489& amodel);
 

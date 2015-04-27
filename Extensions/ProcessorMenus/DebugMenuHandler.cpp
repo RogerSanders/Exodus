@@ -1,6 +1,5 @@
 #include "DebugMenuHandler.h"
 #include "ControlViewPresenter.h"
-#include "BreakpointViewPresenter.h"
 #include "WatchpointViewPresenter.h"
 #include "CallStackViewPresenter.h"
 #include "TraceViewPresenter.h"
@@ -23,7 +22,6 @@ void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) co
 	{
 		menuItems.push_back(MenuItemDefinition(MENUITEM_ACTIVEDISASSEMBLY, L"ActiveDisassembly", ActiveDisassemblyViewPresenter::GetUnqualifiedViewTitle(), true));
 	}
-	menuItems.push_back(MenuItemDefinition(MENUITEM_BREAKPOINTS, L"Breakpoints", BreakpointViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_CALLSTACK, L"CallStack", CallStackViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_DISASSEMBLY, L"Disassembly", DisassemblyViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_CONTROL, L"ProcessorControl", ControlViewPresenter::GetUnqualifiedViewTitle(), true));
@@ -38,8 +36,6 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 	{
 	case MENUITEM_CONTROL:
 		return new ControlViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
-	case MENUITEM_BREAKPOINTS:
-		return new BreakpointViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
 	case MENUITEM_WATCHPOINTS:
 		return new WatchpointViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
 	case MENUITEM_CALLSTACK:

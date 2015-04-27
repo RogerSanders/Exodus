@@ -268,8 +268,6 @@
     <ClCompile Include="DebuggerViewPresenter.cpp" />
     <ClCompile Include="DebugMenuHandler.cpp" />
     <ClCompile Include="interface.cpp" />
-    <ClCompile Include="LoggingView.cpp" />
-    <ClCompile Include="LoggingViewPresenter.cpp" />
     <ClCompile Include="OperatorView.cpp" />
     <ClCompile Include="OperatorViewPresenter.cpp" />
     <ClCompile Include="RegistersView.cpp" />
@@ -281,8 +279,6 @@
     <ClInclude Include="DebuggerViewPresenter.h" />
     <ClInclude Include="DebugMenuHandler.h" />
     <ClInclude Include="interface.h" />
-    <ClInclude Include="LoggingView.h" />
-    <ClInclude Include="LoggingViewPresenter.h" />
     <ClInclude Include="OperatorView.h" />
     <ClInclude Include="OperatorViewPresenter.h" />
     <ClInclude Include="RegistersView.h" />
@@ -291,12 +287,9 @@
     <ClInclude Include="YM2612Menus.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\Exodus\Resources\folder.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="YM2612Menus.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
-  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets"/>
+  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets" />
 </Project>

@@ -13,144 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_SN76489_REGISTERS DIALOGEX 0, 0, 118, 156
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
-EXSTYLE WS_EX_TOOLWINDOW
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    LTEXT           "Volume",IDC_STATIC,42,16,24,8
-    LTEXT           "Tone/Noise",IDC_STATIC,69,16,40,8
-    EDITTEXT        IDC_SN76489_REG_C0V,46,29,15,12,ES_CENTER | ES_UPPERCASE
-    LTEXT           "0",IDC_STATIC,24,31,8,8
-    LTEXT           "Channel",IDC_STATIC,12,16,25,8
-    EDITTEXT        IDC_SN76489_REG_C0D,75,29,24,12,ES_CENTER | ES_UPPERCASE
-    EDITTEXT        IDC_SN76489_REG_C1V,46,43,15,12,ES_CENTER | ES_UPPERCASE
-    LTEXT           "1",IDC_STATIC,24,44,8,8
-    EDITTEXT        IDC_SN76489_REG_C1D,75,43,24,12,ES_CENTER | ES_UPPERCASE
-    EDITTEXT        IDC_SN76489_REG_C2V,46,56,15,12,ES_CENTER | ES_UPPERCASE
-    LTEXT           "2",IDC_STATIC,24,58,8,8
-    EDITTEXT        IDC_SN76489_REG_C2D,75,56,24,12,ES_CENTER | ES_UPPERCASE
-    EDITTEXT        IDC_SN76489_REG_C3V,46,69,15,12,ES_CENTER | ES_UPPERCASE
-    LTEXT           "3",IDC_STATIC,24,71,8,8
-    EDITTEXT        IDC_SN76489_REG_C3D,75,69,24,12,ES_CENTER | ES_UPPERCASE
-    EDITTEXT        IDC_SN76489_REG_LATCHCHANNEL,78,112,17,12,ES_AUTOHSCROLL
-    LTEXT           "Latched Channel",IDC_STATIC,22,114,54,8
-    EDITTEXT        IDC_SN76489_REG_LATCHREGISTER,78,127,17,12,ES_AUTOHSCROLL
-    LTEXT           "Latched Register",IDC_STATIC,22,128,55,8
-    GROUPBOX        "Register Data",IDC_STATIC,7,3,105,99
-    GROUPBOX        "Control Registers",IDC_STATIC,13,102,91,43
-    CONTROL         "Noise Shift Register",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,11,87,63,9
-    EDITTEXT        IDC_SN76489_REG_SHIFTREGISTER,75,85,27,12,ES_UPPERCASE | ES_AUTOHSCROLL
-    LTEXT           "*Register locking supported",IDC_STATIC,7,147,90,8
-    CONTROL         "[?]",IDC_SN76489_REG_LOCKING_TT,"Static",SS_LEFTNOWORDWRAP | NOT WS_VISIBLE | WS_GROUP,97,147,10,8
-END
-
-IDD_SN76489_LOGGING DIALOGEX 0, 0, 249, 94
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
-EXSTYLE WS_EX_TOOLWINDOW
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    EDITTEXT        IDC_SN76489_LOGGING_PATH,64,7,161,12,ES_AUTOHSCROLL
-    LTEXT           "Mixed Output",IDC_STATIC,7,9,44,8
-    CONTROL         "",IDC_SN76489_LOGGING_ENABLED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,52,9,9,10
-    PUSHBUTTON      "Button1",IDC_SN76489_LOGGING_SELECT,228,7,14,12,BS_ICON
-    EDITTEXT        IDC_SN76489_LOGGING_PATH_C0,57,26,161,12,ES_AUTOHSCROLL
-    LTEXT           "Channel 0",IDC_STATIC,11,28,33,8
-    CONTROL         "",IDC_SN76489_LOGGING_ENABLED_C0,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,45,28,9,10
-    PUSHBUTTON      "Button1",IDC_SN76489_LOGGING_SELECT_C0,221,26,14,12,BS_ICON
-    EDITTEXT        IDC_SN76489_LOGGING_PATH_C1,57,43,161,12,ES_AUTOHSCROLL
-    LTEXT           "Channel 1",IDC_STATIC,11,45,33,8
-    CONTROL         "",IDC_SN76489_LOGGING_ENABLED_C1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,45,45,9,10
-    PUSHBUTTON      "Button1",IDC_SN76489_LOGGING_SELECT_C1,221,43,14,12,BS_ICON
-    EDITTEXT        IDC_SN76489_LOGGING_PATH_C2,57,59,161,12,ES_AUTOHSCROLL
-    LTEXT           "Channel 2",IDC_STATIC,11,61,33,8
-    CONTROL         "",IDC_SN76489_LOGGING_ENABLED_C2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,45,61,9,10
-    PUSHBUTTON      "Button1",IDC_SN76489_LOGGING_SELECT_C2,221,59,14,12,BS_ICON
-    EDITTEXT        IDC_SN76489_LOGGING_PATH_C3,57,75,161,12,ES_AUTOHSCROLL
-    LTEXT           "Channel 3",IDC_STATIC,11,77,33,8
-    CONTROL         "",IDC_SN76489_LOGGING_ENABLED_C3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,45,77,9,10
-    PUSHBUTTON      "Button1",IDC_SN76489_LOGGING_SELECT_C3,221,75,14,12,BS_ICON
-END
-
-IDD_SN76489_PROPERTIES DIALOGEX 0, 0, 122, 134
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
-EXSTYLE WS_EX_TOOLWINDOW
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    EDITTEXT        IDC_SN76489_CLOCKFREQUENCY,69,13,40,12,ES_AUTOHSCROLL
-    RTEXT           "Clock Frequency",IDC_STATIC,13,14,54,8
-    RTEXT           "Clock Divider",IDC_STATIC,25,29,42,8
-    EDITTEXT        IDC_SN76489_CLOCKDIVIDER,69,27,40,12,ES_AUTOHSCROLL
-    GROUPBOX        "Device Properties",IDC_STATIC,7,3,108,41
-    RTEXT           "White Noise",IDC_STATIC,27,98,41,9
-    EDITTEXT        IDC_SN76489_WHITENOISE,70,96,31,12,ES_AUTOHSCROLL
-    LTEXT           "Tapped Bit Masks",IDC_STATIC,36,86,56,8
-    RTEXT           "Periodic Noise",IDC_STATIC,23,111,45,9
-    EDITTEXT        IDC_SN76489_PERIODICNOISE,70,110,31,12,ES_AUTOHSCROLL
-    RTEXT           "Shift Register Size",IDC_STATIC,14,58,60,9
-    EDITTEXT        IDC_SN76489_SHIFTREGISTERSIZE,75,56,21,12,ES_AUTOHSCROLL
-    RTEXT           "Default Value",IDC_STATIC,29,72,45,9
-    EDITTEXT        IDC_SN76489_SHIFTREGISTERDEFAULTVALUE,75,71,31,12,ES_AUTOHSCROLL
-    GROUPBOX        "Noise Channel Properties",IDC_STATIC,7,44,108,83
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
-BEGIN
-    IDD_SN76489_REGISTERS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 111
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 149
-    END
-
-    IDD_SN76489_LOGGING, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 242
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 87
-    END
-
-    IDD_SN76489_PROPERTIES, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 115
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 127
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDI_FOLDER              ICON                    "..\\..\\Exodus\\Resources\\folder.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -190,7 +57,7 @@ BEGIN
     END
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -198,10 +65,8 @@ END
 // English (Australia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
