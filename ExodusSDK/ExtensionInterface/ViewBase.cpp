@@ -260,21 +260,6 @@ HINSTANCE ViewBase::GetAssemblyHandle() const
 }
 
 //----------------------------------------------------------------------------------------
-//##TODO## Remove this
-std::wstring ViewBase::GetLockingSupportedMessage() const
-{
-	return L"Selected controls on this window support register locking. "
-	       L"Register locking allows the current value of a register to "
-	       L"be frozen, preventing changes from within the system. "
-	       L"Attempts by any device to modify locked registers will be "
-	       L"ignored. The current value of locked registers can still be "
-	       L"modified through the debugger. To toggle locking for a "
-	       L"register, hold the CTRL key while clicking on a control. "
-	       L"Controls that support locking will change colour to indicate "
-	       L"when they are locked.";
-}
-
-//----------------------------------------------------------------------------------------
 //Member window procedure
 //----------------------------------------------------------------------------------------
 INT_PTR ViewBase::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)

@@ -47,8 +47,6 @@ public:
 protected:
 	//Helper functions
 	HINSTANCE GetAssemblyHandle() const;
-	//##TODO## Remove this
-	std::wstring GetLockingSupportedMessage() const;
 
 	//Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
