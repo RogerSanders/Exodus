@@ -159,8 +159,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
+ FILEVERSION 2,0,0,0
+ PRODUCTVERSION 2,0,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -175,14 +175,14 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "Nemesis Software"
+            VALUE "CompanyName", "Exodus Open Source Project"
             VALUE "FileDescription", "Exodus Plugin"
-            VALUE "FileVersion", "1.0.0"
+            VALUE "FileVersion", "2.0.0"
             VALUE "InternalName", "ExodusSystemMenus"
-            VALUE "LegalCopyright", "© 2013 Roger Sanders"
+            VALUE "LegalCopyright", "© 2006-2015 Exodus Open Source Project"
             VALUE "OriginalFilename", "ExodusSystemMenus.dll"
             VALUE "ProductName", "ExodusSystemMenus"
-            VALUE "ProductVersion", "1.0.0"
+            VALUE "ProductVersion", "2.0.0"
         END
     END
     BLOCK "VarFileInfo"

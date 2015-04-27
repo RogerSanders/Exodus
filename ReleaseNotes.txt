@@ -1,0 +1,22 @@
+//----------------------------------------------------------------------------------------------------------
+2015-04-30 - Exodus 2.0.0
+Visible changes:
+-Released Exodus as open source, with initial SDK documentation.
+-Greatly improved performance and reduced memory requirements
+-Brand new user interface, with integrated docking and dashboard system.
+-Added gamepad/joystick support
+-Added a setting for unfiltered (pixelated) VDP image output
+-New VDP plane viewer
+-Numerous bugs fixed
+
+Internal changes:
+-Migrated to Visual Studio 2013
+-Separated the concepts of Devices and Extensions
+-Fully isolated the core of the Exodus platform from the user interface
+-Completely new view management system, with a total refactor of all existing views.
+-Greatly improved marshalling library for sharing STL types across DLL boundaries
+-Added the GenericAccess library to assist in isolating the user interface from device cores
+
+//----------------------------------------------------------------------------------------------------------
+2013-04-30 - Exodus 1.0.0
+-Initial release
