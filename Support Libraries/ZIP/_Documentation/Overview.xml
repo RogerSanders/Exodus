@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.ZIP" Title="ZIP Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The purpose of this library is to provide an easy way to read and write compressed ZIP files.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      This entire library needs to be deprecated, and a new general "CompressionSupport" library created to replace it, which can provide an abstract
+      way of working with the concept of a file library, with support for multiple forms of compression, not just ZIP compression. The support for
+      file library compression should also just provide support for these high level container formats like ZIP, while actual lower level data
+      compression algorithms, like deflate, or any other supported compression method, should be exposed through generic functions that operate on
+      data streams, like we currently have for deflate compression in this ZIP support library.
+    </Paragraph>
+    <Paragraph>
+      Since this library is intended to be replaced with a better support library, it is not currently documented here.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

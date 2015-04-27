@@ -152,6 +152,9 @@
     <None Include="Stream.pkg" />
     <None Include="WAVFile.inl" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

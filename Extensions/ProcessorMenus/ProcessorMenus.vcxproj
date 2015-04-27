@@ -238,16 +238,16 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Libraries\Extension\Extension.vcxproj">
+    <ProjectReference Include="..\..\ExodusSDK\Extension\Extension.vcxproj">
       <Project>{8196f896-d9ae-4f6b-9b5a-af2553ea0b32}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\GenericAccess\GenericAccess.vcxproj">
+    <ProjectReference Include="..\..\ExodusSDK\GenericAccess\GenericAccess.vcxproj">
       <Project>{2f6dd00a-03eb-4fe1-95be-f1af9232f302}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\Processor\Processor.vcxproj">
+    <ProjectReference Include="..\..\ExodusSDK\Processor\Processor.vcxproj">
       <Project>{47967ef3-5853-4bc8-b863-e6674079871b}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>

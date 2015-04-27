@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.Extension" Title="Extension Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Extension library provides a default base class implementation of the <PageRef PageName="ExodusSDK.ExtensionInterface.IDevice">IExtension</PageRef>
+      interface. This library provides the <PageRef PageName="ExodusSDK.Extension.Extension">Extension</PageRef> base class, which can be inherited
+      from by extension plugins to simplify their implementation. Note that use of the Extension library is optional, and the Exodus Platform isn't
+      even aware this library exists. An extension is free to implement the IExtension interface directly, and not link to this library at all.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      This library is stable, and largely trivial. Please refer to the <PageRef PageName="ExodusSDK.ExtensionInterface">ExtensionInterface</PageRef>
+      and <PageRef PageName="ExodusSDK.DeviceInterface">DeviceInterface</PageRef> libraries for the interfaces that affect this base
+      class library.
+    </Paragraph>
+  </Section>
+
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface">DeviceInterface</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.ExtensionInterface">ExtensionInterface</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

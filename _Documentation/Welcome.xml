@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="Welcome" Title="Welcome" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd" xmlns:doc="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Image>ExodusBanner</Image>
+  <Section Title="Welcome">
+    <Paragraph>
+      Welcome to the Exodus SDK support documentation. The goal of this documentation is to provide all the information necessary to understand the
+      architecture and design of the Exodus emulation platform, and how to use the provided APIs and tools to build new emulation cores, and add more
+      debug and development features to existing cores, or the platform itself.
+    </Paragraph>
+    <Paragraph>
+      Please note that this documentation is a work in progress, and will continue to be expanded and improved as this project advances. The very
+      latest version of this documentation can be retrieved from the website at <doc:XHTMLContent xmlns="http://www.w3.org/1999/xhtml"><a href="http://www.exodusemulator.com" target="_top">http://www.exodusemulator.com</a>.</doc:XHTMLContent>
+    </Paragraph>
+  </Section>
+  <Section Title="Future Changes">
+    <Paragraph>Please note although the Exodus API has a versioning system for individual interfaces, and will in the future provide full API backwards compatibility between versions, as this is a very early release of the API, and there is at this time no known usage of this API outside of the Exodus repository itself, the project lead reserves the right to break compatibility with existing code or existing binaries between versions. This documentation will note areas of the API that are expected to change in the near future. Feel free to open a discussion on the support forums you have any questions or concerns about this.</Paragraph>
+  </Section>
+</XMLDocContent>

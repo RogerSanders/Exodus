@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.ThinContainers" Title="ThinContainers Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This library provides a limited set of containers that have been specifically engineered to provide the most performance and space efficient
+      containers possible, at the cost of usability. These containers are essentially convenient thin structures over raw memory buffers, and are not
+      intended for general use. These containers were designed and written specifically for the BusInterface class after extensive profiling and
+      thought, to provide high speed access to the very large and open-ended bus mapping information, which is one of the most critical components in
+      the performance of the emulator.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Public Members">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.ThinContainers.ThinVector">ThinVector</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.ThinContainers.ThinList">ThinList</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.ThinContainers.ThinListDouble">ThinListDouble</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.ThinContainers.ThinListContainer">ThinListContainer</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.ThinContainers.ThinListDoubleContainer">ThinListDoubleContainer</PageRefListEntry>
+    </PageRefList>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      The containers provided in this library achieve what they were written to do. No more changes are intended to be performed to add features or
+      improve usablity.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

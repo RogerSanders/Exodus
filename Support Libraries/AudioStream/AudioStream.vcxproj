@@ -147,6 +147,18 @@
     <None Include="AudioStream.inl" />
     <None Include="AudioStream.pkg" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\AudioStream\Methods.Close.xml" />
+    <Xml Include="_Documentation\AudioStream\Methods.ConvertSampleRate.xml" />
+    <Xml Include="_Documentation\AudioStream\Methods.CreateAudioBuffer.xml">
+      <SubType>Designer</SubType>
+    </Xml>
+    <Xml Include="_Documentation\AudioStream\Methods.DeleteAudioBuffer.xml" />
+    <Xml Include="_Documentation\AudioStream\Methods.Open.xml" />
+    <Xml Include="_Documentation\AudioStream\Methods.PlayBuffer.xml" />
+    <Xml Include="_Documentation\AudioStream\AudioStream.xml" />
+    <Xml Include="_Documentation\Overview.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

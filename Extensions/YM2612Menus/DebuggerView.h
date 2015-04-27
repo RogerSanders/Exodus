@@ -1,7 +1,7 @@
 #ifndef __DEBUGGERVIEW_H__
 #define __DEBUGGERVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "DebuggerViewPresenter.h"
 #include "YM2612/IYM2612.h"
 

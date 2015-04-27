@@ -1,6 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{2cbe9ef5-c25a-44a2-a490-7922f06eb4a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\AudioStream">
+      <UniqueIdentifier>{102476e4-482d-4044-843c-94655b205a94}</UniqueIdentifier>
+    </Filter>
     <Filter Include="AudioStream">
       <UniqueIdentifier>{f8caacf8-1995-4d94-84c0-c99ad3dcb12f}</UniqueIdentifier>
     </Filter>
@@ -20,5 +26,31 @@
       <Filter>AudioStream</Filter>
     </None>
     <None Include="AudioStream.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\AudioStream\Methods.Close.xml">
+      <Filter>_Documentation\AudioStream</Filter>
+    </Xml>
+    <Xml Include="_Documentation\AudioStream\Methods.ConvertSampleRate.xml">
+      <Filter>_Documentation\AudioStream</Filter>
+    </Xml>
+    <Xml Include="_Documentation\AudioStream\Methods.CreateAudioBuffer.xml">
+      <Filter>_Documentation\AudioStream</Filter>
+    </Xml>
+    <Xml Include="_Documentation\AudioStream\Methods.DeleteAudioBuffer.xml">
+      <Filter>_Documentation\AudioStream</Filter>
+    </Xml>
+    <Xml Include="_Documentation\AudioStream\Methods.Open.xml">
+      <Filter>_Documentation\AudioStream</Filter>
+    </Xml>
+    <Xml Include="_Documentation\AudioStream\Methods.PlayBuffer.xml">
+      <Filter>_Documentation\AudioStream</Filter>
+    </Xml>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+    <Xml Include="_Documentation\AudioStream\AudioStream.xml">
+      <Filter>_Documentation\AudioStream</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

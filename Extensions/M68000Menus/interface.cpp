@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "M68000Menus.h"
 
 IExtension* GetM68000Menus(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)

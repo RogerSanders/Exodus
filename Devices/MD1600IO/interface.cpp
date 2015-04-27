@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "A10000.h"
 #include "MDControl3.h"
 #include "MDControl6.h"

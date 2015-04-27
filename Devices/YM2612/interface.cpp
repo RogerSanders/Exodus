@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "YM2612.h"
 
 IDevice* GetYM2612(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)

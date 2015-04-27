@@ -1,6 +1,6 @@
 #ifndef __DEVICECONTROLVIEWPRESENTER_H__
 #define __DEVICECONTROLVIEWPRESENTER_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "ExodusSystemMenus.h"
 #include "SystemInterface/SystemInterface.pkg"
 

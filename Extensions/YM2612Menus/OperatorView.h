@@ -1,7 +1,7 @@
 #ifndef __OPERATORVIEW_H__
 #define __OPERATORVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "OperatorViewPresenter.h"
 #include "YM2612/IYM2612.h"
 

@@ -1,6 +1,6 @@
 #ifndef __MENUSUBMENU_H__
 #define __MENUSUBMENU_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include <string>
 #include <vector>
 

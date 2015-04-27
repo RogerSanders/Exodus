@@ -1,6 +1,6 @@
 #ifndef __EXECUTIONMANAGER_H__
 #define __EXECUTIONMANAGER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "ThreadLib/ThreadLib.pkg"
 #include "DeviceContext.h"

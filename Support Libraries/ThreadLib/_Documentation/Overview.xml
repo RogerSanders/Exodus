@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.ThreadLib" Title="ThreadLib Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This library supplies classes and functions to assist with threaded programming.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      This entire library is deprecated and scheduled for removal. This library is mostly a throwback to times before the C++11 standard, when there
+      was no STL support for threading, and we were experimenting with low-level implementations of our own locking mechanisms to give a performance
+      edge over boost. The real world gains were minimal. With C++11 support for threading, and low-level synchronization primitives, there's little
+      need for this library anymore. When we have C++14 support for std::shared_mutex, we'll no longer be dependent on the ReadWriteLock class
+      provided by this library, at which point the entire library should be removed. There's no confirmation yet on when std::shared_mutex support is
+      planned for Visual Studio.
+    </Paragraph>
+    <Paragraph>
+      It should be noted that the PerformanceTimer class in this library, despite being a very old class, is still the synchronization mechanism that
+      Exodus uses to keep execution running in time. We should completely re-evaluate the method this class uses to maintain synchronization, and
+      consider rolling this functionality out of a separate class and directly into the function that controls system execution. This may improve
+      performance, and it will make the behaviour of the main system loop more obvious, and easier to follow and modify.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

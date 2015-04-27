@@ -1,7 +1,7 @@
 #ifndef __MEMORYEDITORVIEW_H__
 #define __MEMORYEDITORVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "MemoryEditorViewPresenter.h"
 #include "Memory/MemoryRead.h"
 

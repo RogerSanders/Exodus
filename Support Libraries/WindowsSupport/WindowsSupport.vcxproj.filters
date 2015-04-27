@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{4757b8b0-5891-4054-8726-130f9d2454f6}</UniqueIdentifier>
+    </Filter>
     <Filter Include="WindowFunctions">
       <UniqueIdentifier>{88a9c890-7f6e-46e9-9802-14e714987866}</UniqueIdentifier>
     </Filter>
@@ -29,5 +32,10 @@
       <Filter>WindowFunctions</Filter>
     </None>
     <None Include="WindowsSupport.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

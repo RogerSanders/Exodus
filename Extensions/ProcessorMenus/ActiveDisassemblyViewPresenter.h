@@ -1,6 +1,6 @@
 #ifndef __ACTIVEDISASSEMBLYVIEWPRESENTER_H__
 #define __ACTIVEDISASSEMBLYVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ProcessorMenus.h"
 #include "Processor/Processor.pkg"
 

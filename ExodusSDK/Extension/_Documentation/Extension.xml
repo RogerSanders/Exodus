@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.Extension.Extension" Title="Extension base class" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Extension class provides a default implementation of the <PageRef PageName="ExodusSDK.ExtensionInterface.IExtension">IExtension</PageRef>
+      interface. It is provided simply as a convenience to avoid the need for an extension to provide an implementation for each pure virtual function
+      in the IExtension interface, even if many of those methods are not required. Extensions are free to derive from this base class, or to implement
+      the IExtension interface directly.
+    </Paragraph>
+    <Paragraph>
+      As this class doesn't add any functionality that isn't present in the <PageRef PageName="ExodusSDK.ExtensionInterface.IExtension">IExtension</PageRef>
+      interface, please refer to the documentation on that interface for further info.
+    </Paragraph>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.ExtensionInterface.IExtension">IExtension</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

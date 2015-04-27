@@ -2,7 +2,7 @@
 #define __CONTROLVIEW_H__
 #include "ControlViewPresenter.h"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 
 class ControlView :public ViewBase

@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ROM8.h"
 #include "ROM16.h"
 #include "ROM32.h"

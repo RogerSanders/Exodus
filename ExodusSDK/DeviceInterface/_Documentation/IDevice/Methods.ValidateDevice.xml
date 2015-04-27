@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.ValidateDevice" Title="ValidateDevice method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The ValidateDevice method gives devices a chance to notify the system if there's some aspect of the configuration of the device that is invalid.
+      Every loaded device is validated after system modules are loaded or unloaded, so devices must be able to allow this method to run multiple
+      times, and at potentially any time after device creation. Returning false from this method indicates that the device cannot execute with the
+      current configuration.
+    </Paragraph>
+    <Paragraph>
+      The main purpose of this method is to validate the device connections to other devices. The <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.AddReference">AddReference</PageRef>
+      method is called during device construction to link it to other devices. If a required link for a device has not been established, the
+      ValidateDevice method should return false.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual bool ValidateDevice();]]>
+    </Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="bool">
+        True if the device was validated successfully, false otherwise. If a device returns false from this method, the system will consider the
+        device to be in an invalid state, and the system will not be allowed to execute.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.PluginModel">Plugin Model</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

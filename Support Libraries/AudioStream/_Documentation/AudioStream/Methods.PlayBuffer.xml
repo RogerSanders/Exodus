@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.AudioStream.AudioStream.PlayBuffer" Title="PlayBuffer method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This method sends a previously allocated <PageRef PageName="SupportLibraries.AudioStream.AudioStream.AudioBuffer">AudioBuffer</PageRef> object
+      for playback. The caller is responsible for filling the AudioBuffer object with valid sample data before calling this method. Note that the
+      caller is also responsible for handling sample rate conversion issues. When a buffer is sent for playback, it must match the sample rate being
+      used for the audio output device. If sample rate conversion is required, the caller must perform this sample rate conversion. This is best
+      achieved by using the <PageRef PageName="SupportLibraries.AudioStream.AudioStream.ConvertSampleRate">ConvertSampleRate</PageRef> function to
+      adjust the sample rate of the raw sample data.
+    </Paragraph>
+    <Paragraph>
+      Note that audio buffers should be sent for playback in the order they are created. If two AudioBuffer objects are allocated by successive calls
+      to the <PageRef PageName="SupportLibraries.AudioStream.AudioStream.CreateAudioBuffer">CreateAudioBuffer</PageRef> method, and the second buffer
+      is sent for playback through a call to the PlayBuffer method, that buffer will not begin playback until the first buffer is either sent for
+      playback too, or deleted through a call to the <PageRef PageName="SupportLibraries.AudioStream.AudioStream.DeleteAudioBuffer">DeleteAudioBuffer</PageRef>
+      method.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code><![CDATA[void PlayBuffer(AudioBuffer* buffer);]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Type="AudioBuffer*!SupportLibraries.AudioStream.AudioStream.AudioBuffer" Name="buffer">
+          The AudioBuffer object to send for playback
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream">AudioStream class</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream.CreateAudioBuffer">CreateAudioBuffer method</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream.DeleteAudioBuffer">DeleteAudioBuffer method</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>
+

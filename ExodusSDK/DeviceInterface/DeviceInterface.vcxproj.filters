@@ -1,0 +1,377 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{8d980edf-2bcc-40a8-858a-bf2ca94897c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{ce0e29c3-31e8-400e-b14e-06031ee77898}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IBusInterface">
+      <UniqueIdentifier>{7e7259ef-3f7c-4e2d-907f-9e139c35d587}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IClockSource">
+      <UniqueIdentifier>{262707d7-dae5-415c-a276-7008386af666}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IDevice">
+      <UniqueIdentifier>{6e19eb1d-9881-4112-9ed0-0c84e8efa284}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IDeviceContext">
+      <UniqueIdentifier>{340615b7-755d-45d9-8b79-36545b57be83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IDeviceInfo">
+      <UniqueIdentifier>{3435efdb-b232-4423-a557-9c41f97bcefe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ILogEntry">
+      <UniqueIdentifier>{37020aba-15ff-4467-b683-fe0ee3df5bca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InterfaceVersion">
+      <UniqueIdentifier>{56367902-1b8f-4e60-bcb0-e75ce535109d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogEntry">
+      <UniqueIdentifier>{8b9113b1-4d9d-43cf-832d-37ce80feabad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ISystemDeviceInterface">
+      <UniqueIdentifier>{266fab7a-ee0a-4180-9b16-a90d0dee3c3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VersionNo">
+      <UniqueIdentifier>{f93f7f38-2a6a-4535-a96a-fd58d3720f1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\IDevice">
+      <UniqueIdentifier>{ada17028-2b82-4d5a-a9f0-1ed8d103fa5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\IDeviceContext">
+      <UniqueIdentifier>{94b2f26b-4066-4744-b758-727ddbfb6f81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\IBusInterface">
+      <UniqueIdentifier>{5d326c4c-eaa0-4163-a0eb-b96b4b5e9e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\IClockSource">
+      <UniqueIdentifier>{de0f7a2a-64fd-44b1-aa79-dd2a50befc00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\Data">
+      <UniqueIdentifier>{d4c74fa5-0be4-4d38-b16e-e59fec98de14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\ISystemDeviceInterface">
+      <UniqueIdentifier>{043769c2-7588-4b53-82d4-00fb5ff2a268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\IDeviceInfo">
+      <UniqueIdentifier>{1ccacbe8-eef5-4110-b3de-350278ab9b20}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Data.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="IBusInterface.h">
+      <Filter>IBusInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="IClockSource.h">
+      <Filter>IClockSource</Filter>
+    </ClInclude>
+    <ClInclude Include="IDevice.h">
+      <Filter>IDevice</Filter>
+    </ClInclude>
+    <ClInclude Include="IDeviceContext.h">
+      <Filter>IDeviceContext</Filter>
+    </ClInclude>
+    <ClInclude Include="IDeviceInfo.h">
+      <Filter>IDeviceInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="ILogEntry.h">
+      <Filter>ILogEntry</Filter>
+    </ClInclude>
+    <ClInclude Include="InterfaceVersion.h">
+      <Filter>InterfaceVersion</Filter>
+    </ClInclude>
+    <ClInclude Include="LogEntry.h">
+      <Filter>LogEntry</Filter>
+    </ClInclude>
+    <ClInclude Include="ISystemDeviceInterface.h">
+      <Filter>ISystemDeviceInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="VersionNo.h">
+      <Filter>VersionNo</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data.inl">
+      <Filter>Data</Filter>
+    </None>
+    <None Include="IBusInterface.inl">
+      <Filter>IBusInterface</Filter>
+    </None>
+    <None Include="IClockSource.inl">
+      <Filter>IClockSource</Filter>
+    </None>
+    <None Include="IDevice.inl">
+      <Filter>IDevice</Filter>
+    </None>
+    <None Include="ILogEntry.inl">
+      <Filter>ILogEntry</Filter>
+    </None>
+    <None Include="LogEntry.inl">
+      <Filter>LogEntry</Filter>
+    </None>
+    <None Include="ISystemDeviceInterface.inl">
+      <Filter>ISystemDeviceInterface</Filter>
+    </None>
+    <None Include="DeviceInterface.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LogEntry.cpp">
+      <Filter>LogEntry</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\IDevice.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.AddReference.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.AdvanceToLineState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.AssertCurrentOutputLineState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.BeginExecution.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.BindToDeviceContext.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.BuildDevice.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.CalculateCELineStateMemory.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.CalculateCELineStateMemoryTransparent.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.CalculateCELineStatePort.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.CalculateCELineStatePortTransparent.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.Construct.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteCommit.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteRollback.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteStep.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteTimeslice.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.ExecuteTimesliceTimingPointStep.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetCELineID.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetClockSourceID.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetClockSourceName.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetCurrentTimesliceProgress.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetDeviceContext.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetDeviceImplementationName.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetDeviceInstanceName.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetDeviceModuleID.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetFullyQualifiedDeviceInstanceName.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetKeyCodeID.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetKeyCodeName.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetLineID.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetLineName.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetLineWidth.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetModuleDisplayName.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetModuleInstanceName.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetNextTimingPointInDeviceTime.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetScreenshot.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.GetUpdateMethod.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.HandleInputKeyDown.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.HandleInputKeyUp.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.Initialize.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.LoadDebuggerState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.LoadPersistentState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.LoadSettingsState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.LoadState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.NegateCurrentOutputLineState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.NotifyAfterExecuteCalled.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.NotifyAfterExecuteStepFinishedTimeslice.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.NotifyBeforeExecuteCalled.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.NotifyUpcomingTimeslice.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.ReadInterface.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.ReadPort.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.RevokeSetLineState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SaveDebuggerState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SavePersistentState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SaveSettingsState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SaveState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SendNotifyAfterExecuteCalled.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SendNotifyBeforeExecuteCalled.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SendNotifyUpcomingTimeslice.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SetCELineInput.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SetCELineOutput.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SetClockSourceRate.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SetLineState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.SuspendExecution.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.TransparentReadInterface.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.TransparentReadPort.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.TransparentSetClockSourceRate.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.TransparentSetLineState.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.TransparentWriteInterface.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.TransparentWritePort.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.UsesExecuteSuspend.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.UsesTransientExecution.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.ValidateDevice.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.WriteInterface.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.WritePort.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.RemoveReference.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDeviceContext\IDeviceContext.xml">
+      <Filter>_Documentation\IDeviceContext</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IBusInterface\IBusInterface.xml">
+      <Filter>_Documentation\IBusInterface</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IClockSource\IClockSource.xml">
+      <Filter>_Documentation\IClockSource</Filter>
+    </Xml>
+    <Xml Include="_Documentation\Data\Data.xml">
+      <Filter>_Documentation\Data</Filter>
+    </Xml>
+    <Xml Include="_Documentation\ISystemDeviceInterface\ISystemDeviceInterface.xml">
+      <Filter>_Documentation\ISystemDeviceInterface</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDevice\Methods.BindToSystemInterface.xml">
+      <Filter>_Documentation\IDevice</Filter>
+    </Xml>
+    <Xml Include="_Documentation\IDeviceInfo\IDeviceInfo.xml">
+      <Filter>_Documentation\IDeviceInfo</Filter>
+    </Xml>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.AudioStream.AudioStream.Close" Title="Close method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Close method does the reverse of the <PageRef PageName="SupportLibraries.AudioStream.AudioStream.Open">Open</PageRef> method, that is, if
+      an audio output device has previously been opened, it terminates the worker thread which is managing audio playback, and closes the handle to
+      the audio output device. If a device is open when the AudioStream object is destroyed, it is closed automatically.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code><![CDATA[void Close();]]></Code>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream">AudioStream class</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream.Open">Open method</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>
+

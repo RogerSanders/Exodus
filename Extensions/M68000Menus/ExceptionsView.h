@@ -1,7 +1,7 @@
 #ifndef __EXCEPTIONSVIEW_H__
 #define __EXCEPTIONSVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ExceptionsViewPresenter.h"
 #include "M68000/IM68000.h"
 #include <list>

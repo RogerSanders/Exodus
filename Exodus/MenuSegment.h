@@ -1,6 +1,6 @@
 #ifndef __MENUSEGMENT_H__
 #define __MENUSEGMENT_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include <vector>
 
 class MenuSegment :public IMenuSegment

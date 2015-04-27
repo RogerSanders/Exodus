@@ -1,7 +1,7 @@
 #include "MegaDriveROMLoader.h"
 #ifndef __MEGADRIVEROMLOADER_FILEOPENMENUHANDLER_H__
 #define __MEGADRIVEROMLOADER_FILEOPENMENUHANDLER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 
 class MegaDriveROMLoader::FileOpenMenuHandler :public MenuHandlerBase
 {

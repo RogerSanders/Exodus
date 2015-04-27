@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.UsesTransientExecution" Title="UsesTransientExecution method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The UsesTransientExecution method must return true if this device ever calls the <PageRef PageName="ExodusSDK.DeviceInterface.DeviceContext.SetTransientExecutionActive">SetTransientExecutionActive</PageRef>
+      method on the <PageRef PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRef> object associated with this device. If
+      the device attempts to call the SetTransientExecutionActive method when it has not returned true from this method, an assertion failure may be
+      triggered by the system.
+    </Paragraph>
+    <Paragraph>
+      Note that the return value from this method should be consistent after the device object has been created, and never change, otherwise errors
+      may occur at runtime. The system uses this function as a hint to help it optimize performance.
+    </Paragraph>
+    <Paragraph>
+      The <PageRef PageName="ExodusSDK.Device.Device">Device</PageRef> base class implements this method, and returns false by default. If a device
+      derives from this base class, it doesn't need to implement this method unless it needs to call the <PageRef PageName="ExodusSDK.DeviceInterface.DeviceContext.SetTransientExecutionActive">SetTransientExecutionActive</PageRef>
+      method.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual bool UsesTransientExecution() const;]]>
+    </Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="bool">
+        True if the device may call the <PageRef PageName="ExodusSDK.DeviceInterface.DeviceContext.SetTransientExecutionActive">SetTransientExecutionActive</PageRef>
+        method at any point during its lifetime, false otherwise.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

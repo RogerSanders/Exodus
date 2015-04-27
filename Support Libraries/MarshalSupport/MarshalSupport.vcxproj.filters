@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{045fbe45-0f37-4388-80d3-a0739a592870}</UniqueIdentifier>
+    </Filter>
     <Filter Include="STLContainerDecomposition">
       <UniqueIdentifier>{49578913-e140-49a0-b9e3-539ac7949a97}</UniqueIdentifier>
     </Filter>
@@ -162,5 +165,10 @@
     <None Include="MarshalInOutStringOperators.inl">
       <Filter>Marshallers\Operators</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

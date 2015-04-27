@@ -1,0 +1,180 @@
+body {
+	margin: 0;
+	padding: 0;
+	font-family: Verdana;
+	font-size: 67%;
+}
+h1 {
+	font-family: Verdana;
+	font-size: 130%;
+	margin-top: 18px;
+	margin-bottom: 8px;
+}
+h2 {
+	font-family: Verdana;
+	font-size: 110%;
+}
+.tocRoot {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.tocGroupChildList  {
+	list-style-type: none;
+	margin: 0;
+	padding-left: 0.4cm;
+}
+.tocEntry, .tocGroupListEntry {
+	white-space:nowrap;
+}
+.tocFrame {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.tocTable {
+	background-color: rgb(235,235,235);
+	position: fixed;
+	top: 0;
+	height: 100%;
+	width: 7cm;
+	border: 0;
+	border-right: 1px solid gray;
+}
+.docBody {
+	position: absolute;
+	padding-left: 7cm;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+.docFrame {
+	position: relative;
+	top: 0;
+	left: 0;
+	border: 0;
+	height: 100%;
+	width: 100%;
+	min-width: 500px;
+}
+.mainSection {
+	padding-bottom: 20px;
+	margin-top: 10px;
+	margin-left: 15px;
+}
+.section {
+	margin-left: 0;
+	padding: 0px 15px 0px 15px;
+}
+.subSection {
+	margin-left: 0;
+	padding: 0px 15px 0px 15px;
+}
+.sourceCode {
+	color: rgb(0, 0, 100);
+	font-size: 125%;
+}
+.iconColumn {
+	padding: 2px;
+	width: 30px;
+	text-align: center;
+}
+.typeColumn {
+	padding: 2px;
+	width: 5cm;
+	/*width: 1px;*/
+	white-space:nowrap
+}
+.nameColumn {
+	padding: 2px;
+	width: 5cm;
+	/*width: 1px;*/
+	white-space:nowrap
+}
+.descriptionColumn {
+	padding: 2px;
+}
+.functionMembers {
+	width: 100%;
+	font-size: 100%;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.functionMembersRow {
+	vertical-align: top;
+}
+.functionMembersData {
+	padding-right: 5px;
+	padding-left: 5px;
+	border-bottom-color: rgb(213, 213, 211);
+	border-left-color: rgb(213, 213, 211);
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-bottom-style: solid;
+	border-left-style: none;
+	background-color: rgb(247, 247, 255);
+}
+.functionMembersHeader {
+	text-align: left;
+	color: rgb(0, 0, 102);
+	padding-right: 5px;
+	padding-left: 5px;
+	border-bottom-color: rgb(200, 205, 222);
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-left-color: rgb(213, 213, 211);
+	border-left-width: 1px;
+	border-left-style: none;
+	background-color: rgb(239, 239, 247);
+}
+.dataMembers {
+	width: 100%;
+	font-size: 100%;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.dataMembersRow {
+	vertical-align: top;
+}
+.dataMembersData {
+	padding-right: 5px;
+	padding-left: 5px;
+	border-bottom-color: rgb(213, 213, 211);
+	border-left-color: rgb(213, 213, 211);
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-bottom-style: solid;
+	border-left-style: none;
+	background-color: rgb(247, 247, 255);
+}
+.dataMembersHeader {
+	text-align: left;
+	color: rgb(0, 0, 102);
+	padding-right: 5px;
+	padding-left: 5px;
+	border-bottom-color: rgb(200, 205, 222);
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-left-color: rgb(213, 213, 211);
+	border-left-width: 1px;
+	border-left-style: none;
+	background-color: rgb(239, 239, 247);
+}
+.nolink {
+	font-weight: bold;
+}
+.missinglink {
+	font-weight: bold;
+	color: Red;
+}
+.argumentName {
+	font-style:italic;
+	font-size: 110%;
+}
+.argumentListEntryType, .returnValueListEntryType {
+	padding-bottom: 2px;
+}
+.argumentListEntryDescription, .returnValueListEntryDescription {
+	padding-bottom: 5px;
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.AddReference" Title="AddReference method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The AddReference method allows a device to reference another element in the system. References are the means by which devices are able to be
+      associated with other system components. Objects of type <PageRef PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRef>,
+      <PageRef PageName="ExodusSDK.DeviceInterface.IExtension">IExtension</PageRef>,
+      <PageRef PageName="ExodusSDK.DeviceInterface.IBusInterface">IBusInterface</PageRef>, and
+      <PageRef PageName="ExodusSDK.DeviceInterface.IClockSource">IClockSource</PageRef> can be referenced.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code><![CDATA[virtual bool AddReference(const std::wstring& referenceName, IDevice* target);
+virtual bool AddReference(const std::wstring& referenceName, IExtension* target);
+virtual bool AddReference(const std::wstring& referenceName, IBusInterface* target);
+virtual bool AddReference(const std::wstring& referenceName, IClockSource* target);]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Type="std::wstring" Name="referenceName">
+          Name which identifies this reference to the device. Reference names are specific to the device that the reference is being added to, and
+          supported reference names, and the purpose of each reference, should be clearly documented for each device.
+        </ArgumentListEntry>
+        <ArgumentListEntry Type="IDevice!ExodusSDK.DeviceInterface.IDevice;IExtension!ExodusSDK.DeviceInterface.IExtension;IBusInterface!ExodusSDK.DeviceInterface.IBusInterface;IClockSource!ExodusSDK.DeviceInterface.IClockSource" Name="target">
+          The object being referenced. A pointer is passed in to this object, and it is perfectly valid, and expected, for the device to keep a
+          reference to the target object. If the referenced object is removed from the system, the RemoveReference method will be called before the
+          target object is destroyed. Note that RemoveReference is not guaranteed to be called for all existing references before a device which has
+          added references to other devices is destroyed, although any remaining references are guaranteed to still be valid at the time the
+          destructor is run.
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+    <SubSection Title="Return value">
+      <ReturnValue Type="bool">
+        True if the reference was successfully added by the target device, false otherwise.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice.RemoveReference">RemoveReference</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IBusInterface">IBusInterface</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IExtension">IExtension</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IClockSource">IClockSource</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

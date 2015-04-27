@@ -1,5 +1,6 @@
 #ifndef __OBSERVERCOLLECTION_H__
 #define __OBSERVERCOLLECTION_H__
+#include "IObserverCollection.h"
 #include "IObserverSubscription.h"
 #include <set>
 #include <mutex>

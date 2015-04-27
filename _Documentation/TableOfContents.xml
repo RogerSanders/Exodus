@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent TOCFile="true" Title="Table of Contents" PageName="TableOfContents" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Image>ContentsHeaderImage</Image>
+  <TOC>
+    <TOCEntry Title="Home" PageName="Welcome"/>
+    <TOCGroup Title="Exodus SDK" PageName="ExodusSDK.Overview">
+      <TOCGroup Title="Concepts">
+        <TOCEntry Title="System Model" PageName="ExodusSDK.Concepts.SystemModel"/>
+        <TOCEntry Title="Plugin Model" PageName="ExodusSDK.Concepts.PluginModel"/>
+        <TOCEntry Title="Timing Model" PageName="ExodusSDK.Concepts.TimingModel"/>
+        <TOCEntry Title="Exported Interfaces" PageName="ExodusSDK.Concepts.ExportedInterfaces"/>
+      </TOCGroup>
+      <TOCGroup Title="Interface Libraries">
+        <TOCGroup Title="DeviceInterface" PageName="ExodusSDK.DeviceInterface">
+          <TOCGroup Title="Device System">
+            <TOCEntry Title="IDevice" PageName="ExodusSDK.DeviceInterface.IDevice"/>
+            <TOCEntry Title="IDeviceContext" PageName="ExodusSDK.DeviceInterface.IDeviceContext"/>
+            <TOCEntry Title="IDeviceInfo" PageName="ExodusSDK.DeviceInterface.IDeviceInfo"/>
+            <TOCEntry Title="IBusInterface" PageName="ExodusSDK.DeviceInterface.IBusInterface"/>
+            <TOCEntry Title="IClockSource" PageName="ExodusSDK.DeviceInterface.IClockSource"/>
+            <TOCEntry Title="ISystemDeviceInterface" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface"/>
+            <TOCEntry Title="Data" PageName="ExodusSDK.DeviceInterface.Data"/>
+          </TOCGroup>
+        </TOCGroup>
+        <TOCGroup Title="ExtensionInterface" PageName="ExodusSDK.ExtensionInterface">
+          <TOCGroup Title="Extension System">
+            <TOCEntry Title="IExtension" PageName="ExodusSDK.ExtensionInterface.IExtension"/>
+            <TOCEntry Title="IExtensionInfo" PageName="ExodusSDK.ExtensionInterface.IExtensionInfo"/>
+            <TOCEntry Title="ISystemExtensionInterface" PageName="ExodusSDK.ExtensionInterface.ISystemExtensionInterface"/>
+            <TOCEntry Title="IGUIExtensionInterface" PageName="ExodusSDK.ExtensionInterface.IGUIExtensionInterface"/>
+          </TOCGroup>
+          <TOCGroup Title="Menu System">
+            <TOCEntry Title="IMenuHandler" PageName="ExodusSDK.ExtensionInterface.IMenuHandler"/>
+            <TOCEntry Title="IMenuSegment" PageName="ExodusSDK.ExtensionInterface.IMenuSegment"/>
+            <TOCEntry Title="IMenuItem" PageName="ExodusSDK.ExtensionInterface.IMenuItem"/>
+            <TOCEntry Title="IMenuSelectableOption" PageName="ExodusSDK.ExtensionInterface.IMenuSelectableOption"/>
+            <TOCEntry Title="IMenuSubmenu" PageName="ExodusSDK.ExtensionInterface.IMenuSubmenu"/>
+          </TOCGroup>
+          <TOCGroup Title="View System">
+            <TOCEntry Title="IViewPresenter" PageName="ExodusSDK.ExtensionInterface.IViewPresenter"/>
+            <TOCEntry Title="IView" PageName="ExodusSDK.ExtensionInterface.IView"/>
+            <TOCEntry Title="IViewManager" PageName="ExodusSDK.ExtensionInterface.IViewManager"/>
+            <TOCEntry Title="IUIManager" PageName="ExodusSDK.ExtensionInterface.IUIManager"/>
+          </TOCGroup>
+        </TOCGroup>
+        <TOCGroup Title="SystemInterface" PageName="ExodusSDK.SystemInterface">
+          <TOCEntry Title="ISystemGUIInterface" PageName="ExodusSDK.SystemInterface.ISystemGUIInterface"/>
+          <TOCEntry Title="ISystemInfo" PageName="ExodusSDK.SystemInterface.ISystemInfo"/>
+        </TOCGroup>
+      </TOCGroup>
+      <TOCGroup Title="Base Class Libraries">
+        <TOCGroup Title="Device" PageName="ExodusSDK.Device">
+          <TOCEntry Title="Device" PageName="ExodusSDK.Device.Device"/>
+        </TOCGroup>
+        <TOCGroup Title="Extension" PageName="ExodusSDK.Extension">
+          <TOCEntry Title="Extension" PageName="ExodusSDK.Extension.Extension"/>
+        </TOCGroup>
+        <TOCGroup Title="Processor" PageName="ExodusSDK.Processor">
+          <TOCEntry Title="Processor" PageName="ExodusSDK.Processor.Processor"/>
+          <TOCEntry Title="IWatchpoint" PageName="ExodusSDK.Processor.IWatchpoint"/>
+          <TOCEntry Title="IBreakpoint" PageName="ExodusSDK.Processor.IBreakpoint"/>
+          <TOCEntry Title="IOpcodeInfo" PageName="ExodusSDK.Processor.IOpcodeInfo"/>
+          <TOCEntry Title="OpcodeTable" PageName="ExodusSDK.Processor.OpcodeTable"/>
+        </TOCGroup>
+      </TOCGroup>
+      <TOCGroup Title="Utility Libraries">
+        <TOCGroup Title="TimedBuffers" PageName="ExodusSDK.TimedBuffers">
+          <TOCEntry Title="RandomTimeAccessBuffer" PageName="ExodusSDK.TimedBuffers.RandomTimeAccessBuffer"/>
+          <TOCEntry Title="RandomTimeAccessValue" PageName="ExodusSDK.TimedBuffers.RandomTimeAccessValue"/>
+          <TOCEntry Title="ITimedBufferInt" PageName="ExodusSDK.TimedBuffers.ITimedBufferInt"/>
+          <TOCEntry Title="ITimedBufferIntDevice" PageName="ExodusSDK.TimedBuffers.ITimedBufferIntDevice"/>
+        </TOCGroup>
+        <TOCGroup Title="GenericAccess" PageName="ExodusSDK.GenericAccess">
+          <TOCEntry Title="IGenericAccess" PageName="ExodusSDK.GenericAccess.IGenericAccess"/>
+          <TOCEntry Title="GenericAccessBase" PageName="ExodusSDK.GenericAccess.GenericAccessBase"/>
+        </TOCGroup>
+      </TOCGroup>
+    </TOCGroup>
+    <TOCGroup Title="Support Libraries"     PageName="SupportLibraries.Overview">
+      <TOCEntry Title="AudioStream"         PageName="SupportLibraries.AudioStream"/>
+      <TOCEntry Title="CallbackSupport"     PageName="SupportLibraries.CallbackSupport"/>
+      <TOCEntry Title="DataConversion"      PageName="SupportLibraries.DataConversion"/>
+      <TOCEntry Title="Debug"               PageName="SupportLibraries.Debug"/>
+      <TOCEntry Title="HierarchicalStorage" PageName="SupportLibraries.HierarchicalStorage"/>
+      <TOCEntry Title="Image"               PageName="SupportLibraries.Image"/>
+      <TOCEntry Title="MarshalSupport"      PageName="SupportLibraries.MarshalSupport"/>
+      <TOCEntry Title="Stream"              PageName="SupportLibraries.Stream"/>
+      <TOCEntry Title="ThinContainers"      PageName="SupportLibraries.ThinContainers"/>
+      <TOCEntry Title="ThreadLib"           PageName="SupportLibraries.ThreadLib"/>
+      <TOCEntry Title="WindowsControls"     PageName="SupportLibraries.WindowsControls"/>
+      <TOCEntry Title="WindowsSupport"      PageName="SupportLibraries.WindowsSupport"/>
+      <TOCEntry Title="ZIP"                 PageName="SupportLibraries.ZIP"/>
+    </TOCGroup>
+  </TOC>
+</XMLDocContent>

@@ -2,7 +2,7 @@
 #define __CALLSTACKVIEW_H__
 #include "CallStackViewPresenter.h"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 
 class CallStackView :public ViewBase
@@ -63,7 +63,7 @@ private:
 //#define __CALLSTACKVIEW_H__
 //#include "CallStackViewPresenter.h"
 //#include "WindowsSupport/WindowsSupport.pkg"
-//#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+//#include "DeviceInterface/DeviceInterface.pkg"
 //#include "Processor/Processor.pkg"
 //
 //class CallStackView :public ViewBase

@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ProcessorMenus.h"
 
 IExtension* GetProcessorMenus(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)

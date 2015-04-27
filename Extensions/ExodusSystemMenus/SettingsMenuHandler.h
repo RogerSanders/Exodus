@@ -1,6 +1,6 @@
 #ifndef __SETTINGSMENUHANDLER_H__
 #define __SETTINGSMENUHANDLER_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "ExodusSystemMenus.h"
 
 class SettingsMenuHandler :public MenuHandlerBase

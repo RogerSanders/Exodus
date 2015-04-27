@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.Data" Title="Data class" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Data class is designed to simplify working with binary and integer data with a fixed bit count. Rather than using raw integer types with
+      lots of bitwise AND, OR, and shift operations to set or test bit segments within integer types, the Data class provides functions to simplify
+      these tasks, making the operation clearer and less error prone. Functions are also provided to test advanced properties of integer types, such
+      as parity and the highest set bit number, and conversion functions are provided to perform tasks like sign extension. An extensive set of
+      custom operators are also provided to allow Data objects to be operated on directly in the same way as native integer types. The bit count of
+      the Data objects are taken into account when calculating the results of any operations.
+    </Paragraph>
+  </Section>
+  <Section Title="Constructors">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="Data" PageName="ExodusSDK.DeviceInterface.Data.Data"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Management functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="Resize" PageName="ExodusSDK.DeviceInterface.Data.Resize"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Container size properties">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetBitMask" PageName="ExodusSDK.DeviceInterface.Data.GetBitMask"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetMaxValue" PageName="ExodusSDK.DeviceInterface.Data.GetMaxValue"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetMaxValue" PageName="ExodusSDK.DeviceInterface.Data.GetMaxValue"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetHexCharCount" PageName="ExodusSDK.DeviceInterface.Data.GetHexCharCount"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetBitCount" PageName="ExodusSDK.DeviceInterface.Data.GetBitCount"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Data conversion functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="Convert" PageName="ExodusSDK.DeviceInterface.Data.Convert"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SignExtend" PageName="ExodusSDK.DeviceInterface.Data.SignExtend"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Data segment extraction/insertion">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetData" PageName="ExodusSDK.DeviceInterface.Data.GetData"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetData" PageName="ExodusSDK.DeviceInterface.Data.SetData"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="MSB" PageName="ExodusSDK.DeviceInterface.Data.MSB"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="LSB" PageName="ExodusSDK.DeviceInterface.Data.LSB"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetBit" PageName="ExodusSDK.DeviceInterface.Data.GetBit"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetBit" PageName="ExodusSDK.DeviceInterface.Data.SetBit"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetByteFromBottomUp" PageName="ExodusSDK.DeviceInterface.Data.GetByteFromBottomUp"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetByteFromBottomUp" PageName="ExodusSDK.DeviceInterface.Data.SetByteFromBottomUp"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetByteFromTopDown" PageName="ExodusSDK.DeviceInterface.Data.GetByteFromTopDown"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetByteFromTopDown" PageName="ExodusSDK.DeviceInterface.Data.SetByteFromTopDown"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDataSegment" PageName="ExodusSDK.DeviceInterface.Data.GetDataSegment"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDataSegment" PageName="ExodusSDK.DeviceInterface.Data.SetDataSegment"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Upper/Lower half functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetUpperHalf" PageName="ExodusSDK.DeviceInterface.Data.GetUpperHalf"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetLowerHalf" PageName="ExodusSDK.DeviceInterface.Data.GetLowerHalf"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetUpperHalf" PageName="ExodusSDK.DeviceInterface.Data.SetUpperHalf"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetLowerHalf" PageName="ExodusSDK.DeviceInterface.Data.SetLowerHalf"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Upper/Lower bit functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetUpperBits" PageName="ExodusSDK.DeviceInterface.Data.GetUpperBits"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetLowerBits" PageName="ExodusSDK.DeviceInterface.Data.GetLowerBits"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetUpperBits" PageName="ExodusSDK.DeviceInterface.Data.SetUpperBits"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetLowerBits" PageName="ExodusSDK.DeviceInterface.Data.SetLowerBits"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Data properties">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="Even" PageName="ExodusSDK.DeviceInterface.Data.Even"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="Odd" PageName="ExodusSDK.DeviceInterface.Data.Odd"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="Zero" PageName="ExodusSDK.DeviceInterface.Data.Zero"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="NonZero" PageName="ExodusSDK.DeviceInterface.Data.NonZero"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="Negative" PageName="ExodusSDK.DeviceInterface.Data.Negative"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="Positive" PageName="ExodusSDK.DeviceInterface.Data.Positive"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ParityEven" PageName="ExodusSDK.DeviceInterface.Data.ParityEven"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="ParityOdd" PageName="ExodusSDK.DeviceInterface.Data.ParityOdd"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetSetBitCount" PageName="ExodusSDK.DeviceInterface.Data.GetSetBitCount"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetHighestSetBitNumber" PageName="ExodusSDK.DeviceInterface.Data.GetHighestSetBitNumber"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetHighestSetBitMask" PageName="ExodusSDK.DeviceInterface.Data.GetHighestSetBitMask"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetLowestSetBitNumber" PageName="ExodusSDK.DeviceInterface.Data.GetLowestSetBitNumber"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetLowestSetBitMask" PageName="ExodusSDK.DeviceInterface.Data.GetLowestSetBitMask"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Custom operators">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="operators" PageName="ExodusSDK.DeviceInterface.Data.Operators"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+</XMLDocContent>

@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:this="http://www.exodusemulator.com/schema/XMLDocSchema.xsd" targetNamespace="http://www.exodusemulator.com/schema/XMLDocSchema.xsd" elementFormDefault="qualified">
+  <!-- Elements -->
+  <xs:element name="XMLDocProject" type="this:XMLDocProject"/>
+  <xs:element name="XMLDocContent" type="this:XMLDocContent"/>
+  <!-- Simple types  -->
+  <xs:simpleType name="MemberVisibility">
+    <xs:annotation>
+      <xs:documentation>Specifies the visibility of this member to other code</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Public"/>
+      <xs:enumeration value="Protected"/>
+      <xs:enumeration value="Private"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!-- Complex types  -->
+  <xs:complexType name="XMLDocProject">
+    <xs:annotation>
+      <xs:documentation>Defines the overall settings for this document project</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Title" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the title to use for this document project</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="InitialPage" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document to show as the first page when this document project is opened</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="ContentsPage" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document to show as the table of contents for this document project</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="XMLDocContent">
+    <xs:annotation>
+      <xs:documentation>Defines the root element of this document, with any associated settings for this document.</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="Paragraph" type="this:Paragraph"/>
+      <xs:element name="Section" type="this:Section"/>
+      <xs:element name="TOC" type="this:TOC"/>
+      <xs:element name="Code" type="this:Code"/>
+      <xs:element name="Image" type="this:Image"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+      <xs:element name="FunctionMemberList" type="this:FunctionMemberList"/>
+      <xs:element name="DataMemberList" type="this:DataMemberList"/>
+      <xs:element name="ArgumentList" type="this:ArgumentList"/>
+      <xs:element name="PageRefList" type="this:PageRefList"/>
+      <xs:element name="ReturnValue" type="this:ReturnValue"/>
+    </xs:choice>
+    <xs:attribute name="PageName" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of this document. The value of this property is the name other documents will use to refer to this document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Title" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the title to show for this document</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="TOCFile" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>A boolean flag indicating whether this document is the special table of contents page. False by default.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="XHTMLContent" mixed="true">
+    <xs:annotation>
+      <xs:documentation>This node allows any correctly formatted XHTML child content to be provided, which will then be inserted at the target position in the generated document.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:any minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Paragraph" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Defines a paragraph of text to insert in the generated document. Spacing will be inserted between consecutive paragraphs as required.</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="Section">
+    <xs:annotation>
+      <xs:documentation>Defines a top-level section of the document with a specified title. Sections should be used to break the document into logical components.</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="Paragraph" type="this:Paragraph"/>
+      <xs:element name="SubSection" type="this:SubSection"/>
+      <xs:element name="TOC" type="this:TOC"/>
+      <xs:element name="Code" type="this:Code"/>
+      <xs:element name="Image" type="this:Image"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+      <xs:element name="FunctionMemberList" type="this:FunctionMemberList"/>
+      <xs:element name="DataMemberList" type="this:DataMemberList"/>
+      <xs:element name="ArgumentList" type="this:ArgumentList"/>
+      <xs:element name="PageRefList" type="this:PageRefList"/>
+      <xs:element name="ReturnValue" type="this:ReturnValue"/>
+    </xs:choice>
+    <xs:attribute name="Title" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the title to display for this section</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="PageName" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this section references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="SubSection">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="Paragraph" type="this:Paragraph"/>
+      <xs:element name="SubSection" type="this:SubSection"/>
+      <xs:element name="TOC" type="this:TOC"/>
+      <xs:element name="Code" type="this:Code"/>
+      <xs:element name="Image" type="this:Image"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+      <xs:element name="FunctionMemberList" type="this:FunctionMemberList"/>
+      <xs:element name="DataMemberList" type="this:DataMemberList"/>
+      <xs:element name="ArgumentList" type="this:ArgumentList"/>
+      <xs:element name="PageRefList" type="this:PageRefList"/>
+      <xs:element name="ReturnValue" type="this:ReturnValue"/>
+    </xs:choice>
+    <xs:attribute name="Title" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the title to display for this subsection</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="TOC">
+    <xs:annotation>
+      <xs:documentation>Inserts a table of contents into the document</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="TOCEntry" type="this:TOCEntry"/>
+      <xs:element name="TOCGroup" type="this:TOCGroup"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="TOCEntry">
+    <xs:annotation>
+      <xs:documentation>Defines a single entry in the parent table of contents that links to a target page</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Title" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the title to display for this item</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="PageName" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this entry references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="TOCGroup">
+    <xs:annotation>
+      <xs:documentation>Defines an entry in the parent table of contents that can contain other entries, and optionally links to a target page.</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="TOCGroup" type="this:TOCGroup"/>
+      <xs:element name="TOCEntry" type="this:TOCEntry"/>
+    </xs:choice>
+    <xs:attribute name="Title" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the title to display for this item</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="PageName" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this entry references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Code" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Allows a block of code to be shown with the correct formatting</xs:documentation>
+    </xs:annotation>
+  </xs:complexType>
+
+  <xs:complexType name="Image" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Allows an image to be shown</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="PageName" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this image references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="PageRef" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Inserts a link to the target page</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="PageName" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this item references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="PageRefList">
+    <xs:annotation>
+      <xs:documentation>Presents a formatted list of links to other pages</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="PageRefListEntry" type="this:PageRefListEntry"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="PageRefListEntry" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Adds a link to a target page into the parent list</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="PageName" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this entry references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="FunctionMemberList">
+    <xs:annotation>
+      <xs:documentation>Allows a list of member functions to be nicely formatted and presented to the user</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="FunctionMemberListEntry" type="this:FunctionMemberListEntry"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="FunctionMemberListEntry" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Defines a single entry in the parent function member list</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+    </xs:choice>
+    <xs:attribute name="Static" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>Specifies whether this is a static member</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Deprecated" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>Specifies whether the use of this member is deprecated and should not be used in new code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Visibility" type="this:MemberVisibility" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the visibility of this function member to external code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Name" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the name of this function member in code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="PageName" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this entry references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="DataMemberList">
+    <xs:annotation>
+      <xs:documentation>Allows a list of data members to be nicely formatted and presented to the user</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="DataMemberListEntry" type="this:DataMemberListEntry"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="DataMemberListEntry" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Defines a single entry in the parent data member list</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+    </xs:choice>
+    <xs:attribute name="Static" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>Specifies whether this is a static member</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Deprecated" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>Specifies whether the use of this member is deprecated and should not be used in new code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Visibility" type="this:MemberVisibility" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the visibility of this data member to external code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Type" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the type name of this member in code. If the specified type has an associated document, that document can be referenced by specifying the page name after the type name, with an exclamation mark separating them.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Name" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the name of this data member in code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="PageName" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this entry references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ArgumentList">
+    <xs:annotation>
+      <xs:documentation>Allows a list of arguments of a function to be nicely formatted and presented to the user</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="ArgumentListEntry" type="this:ArgumentListEntry"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="ArgumentListEntry" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Defines a single entry in the parent argument list</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+    </xs:choice>
+    <xs:attribute name="Name" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the name of this argument in code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Type" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the type name of this member in code. If the target method is overloaded and it is desirable to list multiple types for this argument, multiple types can be listed separated by semicolons. If a specified type has an associated document, that document can be referenced by specifying the page name after the type name, with an exclamation mark separating them.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ReturnValue" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Allows the return value of a function to be nicely formatted and presented to the user</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+    </xs:choice>
+    <xs:attribute name="Type" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the type name of this member in code. If the specified type has an associated document, that document can be referenced by specifying the page name after the type name, with an exclamation mark separating them.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+</xs:schema>

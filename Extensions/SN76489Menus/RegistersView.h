@@ -1,7 +1,7 @@
 #ifndef __REGISTERSVIEW_H__
 #define __REGISTERSVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "RegistersViewPresenter.h"
 #include "SN76489/ISN76489.h"
 

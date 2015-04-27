@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{ecf6afe5-5ecd-4454-b149-53a73aa75f6f}</UniqueIdentifier>
+    </Filter>
     <Filter Include="ThinList">
       <UniqueIdentifier>{61b8ebff-d6e3-4cb4-9377-bfd878336b0c}</UniqueIdentifier>
     </Filter>
@@ -51,5 +54,13 @@
       <Filter>ThinVector</Filter>
     </None>
     <None Include="ThinContainers.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+    <Xml Include="_Documentation\ThinVector.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

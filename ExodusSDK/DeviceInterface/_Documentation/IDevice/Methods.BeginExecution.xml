@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.BeginExecution" Title="BeginExecution method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The BeginExecution method is called by the system on each device in the system when system excution is about to begin. Devices can use this
+      method to start worker threads for example, or perform any kind of initialization that is useful to perform before execution begins. When system
+      execution is paused, the corresponding <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.SuspendExecution">SuspendExecution</PageRef>
+      method is called.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual void BeginExecution();]]>
+    </Code>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice.SuspendExecution">SuspendExecution</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

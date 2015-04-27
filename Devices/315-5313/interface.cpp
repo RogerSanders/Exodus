@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "S315_5313.h"
 
 IDevice* GetS315_5313(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)

@@ -20,7 +20,7 @@ should be able to be sent to all devices simultaneously.
 #ifndef __SYSTEM_H__
 #define __SYSTEM_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "SystemInterface/SystemInterface.pkg"
 #include "BusInterface.h"
 #include "ClockSource.h"

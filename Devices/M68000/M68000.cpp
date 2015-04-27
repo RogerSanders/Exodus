@@ -360,17 +360,12 @@ bool M68000::AddReference(const MarshalSupport::Marshal::In<std::wstring>& refer
 }
 
 //----------------------------------------------------------------------------------------
-bool M68000::RemoveReference(IBusInterface* target)
+void M68000::RemoveReference(IBusInterface* target)
 {
 	if(memoryBus == target)
 	{
 		memoryBus = 0;
 	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 //----------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "YM2612Menus.h"
 
 IExtension* GetYM2612Menus(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)

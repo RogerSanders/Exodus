@@ -2,7 +2,7 @@
 #define __TRACEVIEW_H__
 #include "TraceViewPresenter.h"
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 
 class TraceView :public ViewBase
@@ -72,7 +72,7 @@ private:
 //#define __TRACEVIEW_H__
 //#include "TraceViewPresenter.h"
 //#include "WindowsSupport/WindowsSupport.pkg"
-//#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+//#include "DeviceInterface/DeviceInterface.pkg"
 //#include "Processor/Processor.pkg"
 //
 //class TraceView :public ViewBase

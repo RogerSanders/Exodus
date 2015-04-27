@@ -1,6 +1,6 @@
 #ifndef __DEBUGMENUHANDLER_H__
 #define __DEBUGMENUHANDLER_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "ExodusSystemMenus.h"
 
 class DebugMenuHandler :public MenuHandlerBase

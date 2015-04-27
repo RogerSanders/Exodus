@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{9ce73219-091f-4371-a96b-abd2c5e7111a}</UniqueIdentifier>
+    </Filter>
     <Filter Include="DataConversion">
       <UniqueIdentifier>{6c42261f-6715-443d-954c-9accd06e4c30}</UniqueIdentifier>
     </Filter>
@@ -15,5 +18,10 @@
       <Filter>DataConversion</Filter>
     </None>
     <None Include="DataConversion.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

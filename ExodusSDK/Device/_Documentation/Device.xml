@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.Device.Device" Title="Device base class" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The Device class provides a default implementation of the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRef>
+      interface. It is provided simply as a convenience to avoid the need for a device to provide an implementation for each pure virtual function in
+      the IDevice interface, even if many of those methods are not required. Devices are free to derive from this base class, or to implement the
+      IDevice interface directly.
+    </Paragraph>
+    <Paragraph>
+      As this class doesn't add any functionality that isn't present in the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRef>
+      interface, please refer to the documentation on that interface for further info.
+    </Paragraph>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

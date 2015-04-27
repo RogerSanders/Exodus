@@ -1,6 +1,6 @@
 #ifndef __INPUTMAPPINGDETAILSVIEWPRESENTER_H__
 #define __INPUTMAPPINGDETAILSVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ExodusSystemMenus.h"
 
 class InputMappingDetailsViewPresenter :public ViewPresenterBase

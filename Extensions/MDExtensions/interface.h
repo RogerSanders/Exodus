@@ -1,6 +1,6 @@
 #ifndef __MDEXTENSIONS_INTERFACE_H__
 #define __MDEXTENSIONS_INTERFACE_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 
 void GetMDExtensionsExtensionInfo(IExtensionInfo& deviceInfo);
 

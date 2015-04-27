@@ -2,14 +2,13 @@ syntax: glob
 
 # Data folders to ignore
 Crash Reports/
-Data/Captures/
-Data/DebugSessions/
-Data/Savestates/
-Data/PersistentState/
+Data/
 
-# We ignore the documentation folder for now, but once we've cleaned this folder
-# up and made it useful, we'll want to commit it to the repository.
+# Compiled documentation and uncommitted directories to ignore
 Documentation/
+_Documentation/Notes/
+_Documentation/bin/
+_Documentation/obj/
 
 # Visual Studio auto-generated files to ignore
 *.user
@@ -25,7 +24,7 @@ Documentation/
 # Compiled output folders to ignore
 Win32/
 x64/
-Modules/
+Assemblies/
 StaticModules/
 Exodus.exe
 Exodus.ilk
@@ -36,16 +35,7 @@ System.lib
 System.pdb
 
 # Third folders to ignore
-Third/expat/expat-2.1.0
-Third/libjpeg/jpeg-9a
-Third/libpng/lpng1612
-Third/libtiff/tiff-4.0.3
-Third/zlib/zlib-1.2.8
+Third/
 
 # Miscellaneous files to ignore
-Exodus/Resources/Unused
-settings.xml
-
-# We ignore our V2 M68000 core for now, until we have a chance to resume
-# development on it and get it in a state ready for a commit.
-Devices/M68000V2/
+Exodus/Resources/Unused/

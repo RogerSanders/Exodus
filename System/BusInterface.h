@@ -49,7 +49,7 @@ frequently.
 #include <map>
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "ThinContainers/ThinContainers.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "DataRemapTable.h"
 
 class BusInterface :public IBusInterface

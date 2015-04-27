@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.AudioStream.AudioStream" Title="AudioStream class" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The AudioStream class is designed to allow simple low-latency gapless audio playback on Windows, even when the sample data being output isn't
+      generated at a constant rate. Measures are taken to prevent audio artifacts that can occur from buffer underruns, and synchronization problems
+      from sample data arriving too quickly or at a varying rate. See the overall description of the
+      <PageRef PageName="SupportLibraries.AudioStream">AudioStream library</PageRef> for further info.
+    </Paragraph>
+  </Section>
+  <Section Title="Audio stream binding functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="Open" PageName="SupportLibraries.AudioStream.AudioStream.Open">
+        Opens an audio output device and prepares it for playback
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="Close" PageName="SupportLibraries.AudioStream.AudioStream.Close">
+        Closes the previously opened audio output device
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Buffer management functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="CreateAudioBuffer" PageName="SupportLibraries.AudioStream.AudioStream.CreateAudioBuffer">
+        Creates an AudioBuffer object for supplying audio data
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="DeleteAudioBuffer" PageName="SupportLibraries.AudioStream.AudioStream.DeleteAudioBuffer">
+        Deletes a previously allocated AudioBuffer object that has not been sent for playback
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="PlayBuffer" PageName="SupportLibraries.AudioStream.AudioStream.PlayBuffer">
+        Places an AudioBuffer object in the list for playback. The buffer must not be accessed after this function is called, and the buffer is
+        deleted automatically when playback is complete.
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Sample rate conversion functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Static="true" Visibility="Public" Name="ConvertSampleRate" PageName="SupportLibraries.AudioStream.AudioStream.ConvertSampleRate">
+        Performs a high quality sample rate conversion on raw sample data from one sample rate to another
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream">AudioStream library</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

@@ -1,6 +1,6 @@
 #ifndef __MENUSELECTABLEOPTION_H__
 #define __MENUSELECTABLEOPTION_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 
 class MenuSelectableOption :public IMenuSelectableOption
 {

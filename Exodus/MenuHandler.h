@@ -1,6 +1,6 @@
 #ifndef __MENUHANDLER_H__
 #define __MENUHANDLER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ExodusInterface.h"
 
 class MenuHandler :public MenuHandlerBase

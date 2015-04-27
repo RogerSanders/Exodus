@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.RemoveReference" Title="RemoveReference method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The RemoveReference method is the reverse of the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.AddReference">AddReference</PageRef> method.
+      This method is called by the system on a device when an object that the device has previously accepted a reference to, as indicated by it
+      returning true from the AddReference method, is being released. If the device has retained a reference to the target object, or has established
+      any kind of connection or association with the target object, it must be released when this function is called.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code><![CDATA[virtual void RemoveReference(IDevice* target);
+virtual void RemoveReference(IExtension* target);
+virtual void RemoveReference(IBusInterface* target);
+virtual void RemoveReference(IClockSource* target);]]>
+    </Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Type="IDevice!ExodusSDK.DeviceInterface.IDevice;IExtension!ExodusSDK.DeviceInterface.IExtension;IBusInterface!ExodusSDK.DeviceInterface.IBusInterface;IClockSource!ExodusSDK.DeviceInterface.IClockSource" Name="target">
+          The target object having its referencec removed
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice.AddReference">AddReference</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IBusInterface">IBusInterface</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IExtension">IExtension</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IClockSource">IClockSource</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

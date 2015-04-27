@@ -1,6 +1,6 @@
 #ifndef __EXCEPTIONSVIEWPRESENTER_H__
 #define __EXCEPTIONSVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "M68000Menus.h"
 #include "M68000/IM68000.h"
 

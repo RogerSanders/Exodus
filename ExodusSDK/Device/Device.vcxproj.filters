@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{c34393de-1f4d-4c03-a815-e3e6828b907e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Device">
+      <UniqueIdentifier>{7dc24724-1cb4-4799-bc03-d138ec4546d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DeviceInternal">
+      <UniqueIdentifier>{1c85cae6-9f8e-4d2f-80c5-614cf76824e1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Device.cpp">
+      <Filter>Device</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceInternal.cpp">
+      <Filter>DeviceInternal</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Device.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceInternal.h">
+      <Filter>DeviceInternal</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Device.inl">
+      <Filter>Device</Filter>
+    </None>
+    <None Include="Device.pkg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="_Documentation\Overview.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+    <Xml Include="_Documentation\Device.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+  </ItemGroup>
+</Project>

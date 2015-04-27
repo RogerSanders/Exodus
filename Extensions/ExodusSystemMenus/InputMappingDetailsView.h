@@ -1,7 +1,7 @@
 #ifndef __INPUTMAPPINGDETAILSVIEW_H__
 #define __INPUTMAPPINGDETAILSVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "InputMappingDetailsViewPresenter.h"
 #include <mutex>
 #include <condition_variable>

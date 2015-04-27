@@ -25,7 +25,7 @@ conditional, which unlocks the calling thread.
 \*--------------------------------------------------------------------------------------*/
 #ifndef __DEVICECONTEXT_H__
 #define __DEVICECONTEXT_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "ThreadLib/ThreadLib.pkg"
 #include "SystemInterface/SystemInterface.pkg"

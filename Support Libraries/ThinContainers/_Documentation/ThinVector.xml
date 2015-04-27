@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.ThinContainers.ThinVector" Title="ThinVector class" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This container is designed to allow the most efficient representation of an array with a variable size in memory to be created and accessed,
+      which is a single integer giving the size of the array, followed at the same place in memory by an array of items of a specified type, with any
+      necessary padding the hardware platform requires inserted between the size and the array of items. This is not possible to achieve with normal
+      C++ structures. In traditional C++ code, two separate memory allocations would be required, one storing the array of items, and another storing
+      the size of the array and a pointer to the array of items, which doubles the number of memory allocations required for the vector, and slows
+      down access due to another layer of indirection adding additional cycles and cache misses.
+    </Paragraph>
+  </Section>
+  <Section Title="Remarks">
+    <Paragraph>
+      A typecast is necessary to get the intended use out of this class. It is expected that instances of the ThinVector class will be allocated on
+      the heap, and that the size
+
+      makes this possible through the use of templates to create the
+      structure in memory, with the caller then using a typecast to effectively discard the size parameter, after which the container can be passed
+      around and used in a generic manner, and referenced in arrays with other containers that have different sizes.
+    </Paragraph>
+    <Paragraph>
+      It is very important to note that the ThinVector class is, by design, only intended for use with primitive types. Specifically, any types which
+      cannot by initialized by a zero fill, or be populated from a completely uninitialized state by an assignment operation, should not be used in
+      this container, and any type that has a destructor will fail catastrophically. The lack of a virtual destructor, combined with the intention of
+      casting away the true number of elements in the array, makes memory deallocation unsafe for any objects with a destructor.
+    </Paragraph>
+  </Section>
+  <Section Title="Template parameters">
+    <DataMemberList>
+      <DataMemberListEntry Visibility="Public" Type="class" Name="T">
+        The type of each element in the array. Note that only primitive types are supported.
+      </DataMemberListEntry>
+      <DataMemberListEntry Visibility="Public" Type="size_t" Name="S">
+        The number of elements to allocate in the array. Note that this template parameter is only used during construction. After construction, the
+        arraySize member is used to test the size of the array.
+      </DataMemberListEntry>
+    </DataMemberList>
+  </Section>
+  <Section Title="Data members">
+    <DataMemberList>
+      <DataMemberListEntry Visibility="Public" Type="size_t" Name="arraySize">
+        The number of entries in the array
+      </DataMemberListEntry>
+      <DataMemberListEntry Visibility="Public" Type="T[]" Name="array">
+        The array of data entries
+      </DataMemberListEntry>
+    </DataMemberList>
+  </Section>
+  <Section Title="Member functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="InitializeData">
+        Performs a zero fill of all entries in the array
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="CopyData">
+        Copies data from the specified array into the vector. If more elements are in the array than the vector, the extra elements are ignored. If
+        more elements are in the vector than the array, the remaining entries in the vector are zero filled.
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.ThinContainers.ThinList">ThinList</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.ThinContainers.ThinListDouble">ThinListDouble</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

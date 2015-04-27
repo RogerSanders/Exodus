@@ -1,6 +1,6 @@
 #ifndef __DEBUGSETTINGSVIEWPRESENTER_H__
 #define __DEBUGSETTINGSVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "S315_5313Menus.h"
 #include "315-5313/IS315_5313.h"
 

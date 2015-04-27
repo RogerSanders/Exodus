@@ -40,7 +40,7 @@ References:
 #include "ISN76489.h"
 #ifndef __SN76489_H__
 #define __SN76489_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "TimedBuffers/TimedBuffers.pkg"
 #include <vector>
 #include <map>

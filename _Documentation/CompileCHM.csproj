@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{241703DF-B6B1-48C8-984C-588245E5E33A}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="XML Transforms\ConvertDocsProjectToHHP.xsl">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="XML Transforms\ConvertDocsProjectToHTML.xsl">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <!-- Custom Build Settings -->
+  <PropertyGroup>
+    <ConvertDocsXSLFilePath Condition="'$(ConvertDocsXSLFilePath)' == ''">XML Transforms\ConvertDocsToHTML.xsl</ConvertDocsXSLFilePath>
+    <ConvertProjectXSLFilePath Condition="'$(ConvertProjectXSLFilePath)' == ''">XML Transforms\ConvertDocsProjectToHHP.xsl</ConvertProjectXSLFilePath>
+    <HHCFilePath Condition="'$(HHCFilePath)' == ''">$(SolutionDir)\Third\htmlhelp\htmlhelp\hhc.exe</HHCFilePath>
+    <ProjectXMLFilePath Condition="'$(ProjectXMLFilePath)' == ''">ExodusSDKProject.xml</ProjectXMLFilePath>
+    <XMLTOCFilePath Condition="'$(XMLTOCFilePath)' == ''">TableOfContents.xml</XMLTOCFilePath>
+    <HTMLContentSubDir Condition="'$(HTMLContentSubDir)' == ''">_CHMContent</HTMLContentSubDir>
+    <OutputFileName Condition="'$(OutputFileName)' == ''">ExodusSDK</OutputFileName>
+    <OutputFileDir Condition="'$(OutputFileDir)' == ''">$(SolutionDir)\Documentation\</OutputFileDir>
+  </PropertyGroup>
+  <Target Name="Build">
+    <ItemGroup>
+      <HTMLContentFileGroup Include="$(OutputFileDir)$(HTMLContentSubDir)\**\*.*"/>
+    </ItemGroup>
+    <PropertyGroup>
+      <HTMLContentFileList>@(HTMLContentFileGroup -> '$(HTMLContentSubDir)\%(RecursiveDir)%(Filename)%(Extension)')</HTMLContentFileList>
+    </PropertyGroup>
+
+    <!-- Ensure the output directory exists -->
+    <MakeDir Directories="$(OutputFileDir)" />
+
+    <!-- Create the HTML help contents file -->
+    <XslTransformation XslInputPath="$(ConvertDocsXSLFilePath)" XmlInputPaths="$(XMLTOCFilePath)" OutputPaths="$(OutputFileDir)$(OutputFileName).hhc" Parameters="&lt;Parameter Name='TypeFilesPresent' Value='$(HTMLContentFileList)'/&gt;&lt;Parameter Name='OutputHHCFile' Value='true'/&gt;" />
+
+    <!-- Create the HTML help project file -->
+    <XslTransformation XslInputPath="$(ConvertProjectXSLFilePath)" XmlInputPaths="$(ProjectXMLFilePath)" OutputPaths="$(OutputFileDir)$(OutputFileName).hhp" Parameters="&lt;Parameter Name='HTMLContentFileList' Value='$(HTMLContentFileList)'/&gt;&lt;Parameter Name='OutputFilePath' Value='$(OutputFileName).chm'/&gt;&lt;Parameter Name='ContentsFilePath' Value='$(OutputFileName).hhc'/&gt;" />
+
+    <!-- Build the HTML help project -->
+    <Exec Command="&quot;$(HHCFilePath)&quot; &quot;$(OutputFileDir)$(OutputFileName).hhp&quot;" WorkingDirectory="$(OutputFileDir)" IgnoreExitCode="true" />
+  </Target>
+</Project>

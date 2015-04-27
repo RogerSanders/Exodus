@@ -117,7 +117,7 @@ bool SN76489::BuildDevice()
 	//the fallback resource values are used in the case that nothing else is defined which
 	//is appropriate, IE, as might be the case if the device is updated and the
 	//localization isn't yet.
-	GenericAccessPage* registersPage = new GenericAccessPage(L"Registers", L"Generic - Registers");
+	GenericAccessPage* registersPage = new GenericAccessPage(L"Registers", L"Registers");
 	registersPage->AddEntry((new GenericAccessGroup(L"Channel 1"))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel1VolumeRegister, L"Volume"))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(ISN76489DataSource::Channel1ToneRegister, L"Tone")))

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.GetCurrentTimesliceProgress" Title="GetCurrentTimesliceProgress method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The GetCurrentTimesliceProgress method should directly call and return the value returned by the
+      <PageRef PageName="ExodusSDK.DeviceInterface.IDeviceContext.GetCurrentTimesliceProgress">GetCurrentTimesliceProgress</PageRef> method on
+      the <PageRef PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRef> object for this device. This method is only
+      provided here for convenience and efficiency, due to the large number of times and places this value is retrieved for devices.
+    </Paragraph>
+    <Paragraph>
+      Note that the <PageRef PageName="ExodusSDK.Device.Device">Device</PageRef> base class implements this method. If a device derives from this
+      base class, it doesn't need to implement this method itself.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual double GetCurrentTimesliceProgress() const;]]>
+    </Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="double">
+        The current progress of the device through the current timeslice, in nanoseconds.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDeviceContext.GetCurrentTimesliceProgress">GetCurrentTimesliceProgress</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDeviceContext">IDeviceContext</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.Concepts.PluginModel">Plugin Model</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

@@ -1,6 +1,6 @@
 #ifndef __VIEWMANAGER_H__
 #define __VIEWMANAGER_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "WindowsControls/WindowsControls.pkg"
 #include "IViewManagerNotifierInterface.h"
 #include "ViewStateChangeNotifier.h"

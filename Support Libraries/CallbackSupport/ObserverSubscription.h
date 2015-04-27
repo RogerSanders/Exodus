@@ -1,5 +1,6 @@
 #ifndef __OBSERVERSUBSCRIPTION_H__
 #define __OBSERVERSUBSCRIPTION_H__
+#include "IObserverSubscription.h"
 #include "IObserverCollection.h"
 #include <set>
 #include <functional>

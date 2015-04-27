@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{89CD5A4A-357E-44EB-BBEF-B629F0839EEC}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="ExodusSDKProject.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="XML Transforms\ConvertDocsToHTML.xsl">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <!-- Custom Build Settings -->
+  <PropertyGroup>
+    <ConvertDocsXSLFilePath Condition="'$(ConvertDocsXSLFilePath)' == ''">XML Transforms\ConvertDocsToHTML.xsl</ConvertDocsXSLFilePath>
+    <ConvertProjectXSLFilePath Condition="'$(ConvertProjectXSLFilePath)' == ''">XML Transforms\ConvertDocsProjectToHTML.xsl</ConvertProjectXSLFilePath>
+    <ProjectXMLFilePath Condition="'$(ProjectXMLFilePath)' == ''">ExodusSDKProject.xml</ProjectXMLFilePath>
+    <XMLPageInputFolderPath Condition="'$(XMLPageInputFolderPath)' == ''">$(SolutionDir)</XMLPageInputFolderPath>
+    <ImageFilesInputFolderPath Condition="'$(ImageFilesInputFolderPath)' == ''">Resources\images\</ImageFilesInputFolderPath>
+    <StyleFilesInputFolderPath Condition="'$(StyleFilesInputFolderPath)' == ''">Resources\styles\</StyleFilesInputFolderPath>
+    <OutputFileDir Condition="'$(OutputFileDir)' == ''">$(SolutionDir)\Documentation\</OutputFileDir>
+    <HTMLOutputFilePath Condition="'$(HTMLOutputFilePath)' == ''">$(OutputFileDir)\html\</HTMLOutputFilePath>
+    <CHMIntermediateOutputFileDir Condition="'$(CHMIntermediateOutputFileDir)' == ''">$(OutputFileDir)\_CHMContent\</CHMIntermediateOutputFileDir>
+    <CHMHTMLOutputFilePath Condition="'$(CHMHTMLOutputFilePath)' == ''">$(CHMIntermediateOutputFileDir)\html\</CHMHTMLOutputFilePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <XMLPageFileGroupRaw Include="$(XMLPageInputFolderPath)**\*.xml" Exclude="$(XMLPageInputFolderPath)_Documentation\Notes\**\*.xml">
+      <InProject>false</InProject>
+    </XMLPageFileGroupRaw>
+  </ItemGroup>
+  <Target Name="Build" DependsOnTargets="SetXMLPageFileGroupMetadata">
+    <ItemGroup>
+      <XMLPageFileGroup Include="@(XMLPageFileGroupRaw)" Condition="'%(XMLOutputFileName)' != ''" />
+      <ImageFilesGroup Include="$(ImageFilesInputFolderPath)/**/*.*" />
+      <StyleFilesGroup Include="$(StyleFilesInputFolderPath)/**/*.*" />
+    </ItemGroup>
+    <PropertyGroup>
+      <XMLPageFilePresentList>@(XMLPageFileGroup -> '[%(XMLOutputFileName)]')</XMLPageFilePresentList>
+    </PropertyGroup>
+    <Message Importance="High" Text="Executing XslTransformation task with input file set: $(XMLPageFilePresentList)" />
+    <!-- Create the documentation HTML files -->
+    <MakeDir Directories="$(HTMLOutputFilePath)" />
+    <Message Importance="High" Text="XMLFile: %(XMLPageFileGroup.Identity), %(Filename), %(XMLOutputFileName)" />
+    <XslTransformation XslInputPath="$(ConvertDocsXSLFilePath)" XmlInputPaths="@(XMLPageFileGroup)" OutputPaths="$(HTMLOutputFilePath)/%(XMLOutputFileName).html" Parameters="&lt;Parameter Name='TypeFilesPresent' Value='$(XMLPageFilePresentList)'/&gt;" />
+    <!-- Copy any additional files to include with the HTML output files -->
+    <Copy SourceFiles="@(ImageFilesGroup)" DestinationFolder="$(OutputFileDir)\images\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(StyleFilesGroup)" DestinationFolder="$(OutputFileDir)\styles\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <!-- Create the index page for the project -->
+    <XslTransformation XslInputPath="$(ConvertProjectXSLFilePath)" XmlInputPaths="$(ProjectXMLFilePath)" OutputPaths="$(OutputFileDir)index.html" />
+    <!-- Create the documentation HTML files for the CHM project -->
+    <MakeDir Directories="$(CHMHTMLOutputFilePath)" />
+    <Message Importance="High" Text="XMLFile: %(XMLPageFileGroup.Identity), %(Filename), %(XMLOutputFileName)" />
+    <XslTransformation XslInputPath="$(ConvertDocsXSLFilePath)" XmlInputPaths="@(XMLPageFileGroup)" OutputPaths="$(CHMHTMLOutputFilePath)/%(XMLOutputFileName).html" Parameters="&lt;Parameter Name='TypeFilesPresent' Value='$(XMLPageFilePresentList)'/&gt;&lt;Parameter Name='BuildingCHMFiles' Value='true'/&gt;" />
+    <!-- Copy any additional files to include with the HTML output files -->
+    <Copy SourceFiles="@(ImageFilesGroup)" DestinationFolder="$(CHMIntermediateOutputFileDir)\images\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(StyleFilesGroup)" DestinationFolder="$(CHMIntermediateOutputFileDir)\styles\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="SetXMLPageFileGroupMetadata" Outputs="%(XMLPageFileGroupRaw.Identity)">
+    <XmlPeek XmlInputPath="%(XMLPageFileGroupRaw.Identity)" Query="/doc:XMLDocContent/@PageName" Namespaces="&lt;Namespace Prefix='doc' Uri='http://www.exodusemulator.com/schema/XMLDocSchema.xsd'/&gt;" ContinueOnError="true">
+      <Output TaskParameter="Result" PropertyName="_TempValue" />
+    </XmlPeek>
+    <!-- Set the metadata item for XMLOutputFileName to the value of the temporary property -->
+    <ItemGroup>
+      <XMLPageFileGroupRaw Condition="'%(XMLPageFileGroupRaw.Identity)' == '%(Identity)'">
+        <XMLOutputFileName>$(_TempValue)</XMLOutputFileName>
+      </XMLPageFileGroupRaw>
+    </ItemGroup>
+    <!-- Clear the temporary property -->
+    <PropertyGroup>
+      <_TempValue />
+    </PropertyGroup>
+  </Target>
+</Project>

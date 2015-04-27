@@ -1,7 +1,7 @@
 #ifndef __MODULEMANAGERVIEW_H__
 #define __MODULEMANAGERVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "CallbackSupport/CallbackSupport.pkg"
 #include "ModuleManagerViewPresenter.h"
 #include "ExodusInterface.h"

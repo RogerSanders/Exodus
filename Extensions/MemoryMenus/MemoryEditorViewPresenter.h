@@ -1,6 +1,6 @@
 #ifndef __MEMORYEDITORVIEWPRESENTER_H__
 #define __MEMORYEDITORVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "MemoryMenus.h"
 #include "Memory/MemoryRead.h"
 

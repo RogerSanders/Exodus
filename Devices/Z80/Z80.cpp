@@ -485,17 +485,12 @@ bool Z80::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenc
 }
 
 //----------------------------------------------------------------------------------------
-bool Z80::RemoveReference(IBusInterface* target)
+void Z80::RemoveReference(IBusInterface* target)
 {
 	if(memoryBus == target)
 	{
 		memoryBus = 0;
 	}
-	else
-	{
-		return false;
-	}
-	return true;
 }
 
 //----------------------------------------------------------------------------------------

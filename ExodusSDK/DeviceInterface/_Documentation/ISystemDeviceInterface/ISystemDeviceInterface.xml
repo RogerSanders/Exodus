@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface" Title="ISystemDeviceInterface interface" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The ISystemDeviceInterface provides a means for devices to communicate directly with the Exodus Platform. The system communicates with devices
+      over the <PageRef PageName="ExodusSDK.DeviceInterface.IDeviceContext.IDevice">IDevice</PageRef> interface, and devices communicate back
+      with the system over this interface.
+    </Paragraph>
+  </Section>
+  <Section Title="Path functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetCapturePath" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.GetCapturePath"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Logging functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="WriteLogEvent" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.WriteLogEvent"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="System execution functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="FlagStopSystem" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.FlagStopSystem"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="IsSystemRollbackFlagged" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.IsSystemRollbackFlagged"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SystemRollbackTime" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.SystemRollbackTime"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetSystemRollback" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.SetSystemRollback"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="PerformingSingleDeviceStep" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.PerformingSingleDeviceStep"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Input functions">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="TranslateKeyCode" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.TranslateKeyCode"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TranslateJoystickButton" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.TranslateJoystickButton"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TranslateJoystickAxisAsButton" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.TranslateJoystickAxisAsButton"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="TranslateJoystickAxis" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.TranslateJoystickAxis"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="HandleInputKeyDown" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.HandleInputKeyDown"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="HandleInputKeyUp" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.HandleInputKeyUp"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="HandleInputAxisUpdate" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.HandleInputAxisUpdate"></FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="HandleInputScrollUpdate" PageName="ExodusSDK.DeviceInterface.ISystemDeviceInterface.HandleInputScrollUpdate"></FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

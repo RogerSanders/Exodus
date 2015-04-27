@@ -1,6 +1,6 @@
 #ifndef __SETTINGSVIEWPRESENTER_H__
 #define __SETTINGSVIEWPRESENTER_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ExodusInterface.h"
 
 class SettingsViewPresenter :public ViewPresenterBase

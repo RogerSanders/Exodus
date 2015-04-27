@@ -1,7 +1,7 @@
 #ifndef __TRACEVIEWPRESENTER_H__
 #define __TRACEVIEWPRESENTER_H__
 #include "ProcessorMenus.h"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Processor/Processor.pkg"
 
 class TraceViewPresenter :public ViewPresenterBase

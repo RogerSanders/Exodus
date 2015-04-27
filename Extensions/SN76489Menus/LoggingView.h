@@ -1,7 +1,7 @@
 #ifndef __LOGGINGVIEW_H__
 #define __LOGGINGVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "LoggingViewPresenter.h"
 #include "SN76489/ISN76489.h"
 

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDevice.ExecuteStep" Title="ExecuteStep method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The ExecuteStep method is called during system execution for a device that has returned the "Step" execution method from
+      <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.GetUpdateMethod">GetUpdateMethod</PageRef>. When this method is called, the
+      device should perform whatever logic is necessary to advance the device by the smallest indivisible operation step that device supports. This
+      may mean advancing the device by a single internal cycle, or for a series of operations which are carried out in sequence which cannot be
+      interrupted or altered by any external event.
+    </Paragraph>
+    <Paragraph>
+      This device must return a double value, which is the total time the device advanced in nanoseconds by the step the device just performed. This
+      amount will be automatically added to the accumulated total of time advanced reported by the <PageRef PageName="ExodusSDK.DeviceInterface.IDevice.GetCurrentTimesliceProgress">GetCurrentTimesliceProgress</PageRef>
+      method. When the device reaches or passes the total amount of time allocated to the device in the current timeslice, the ExecuteStep method will
+      no longer be called until all devices complete the timeslice, and a new timeslice begins.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code>
+      <![CDATA[virtual double ExecuteStep();]]>
+    </Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="double">
+        The total time the device advanced in the executed update step, in nanoseconds.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice.GetCurrentTimesliceProgress">GetCurrentTimesliceProgress</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

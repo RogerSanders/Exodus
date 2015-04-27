@@ -1,6 +1,6 @@
 #ifndef __DEVICEINFO_H__
 #define __DEVICEINFO_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include <string>
 
 class DeviceInfo :public IDeviceInfo

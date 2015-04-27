@@ -1,7 +1,7 @@
 #ifndef __CREATEDASHBOARDVIEW_H__
 #define __CREATEDASHBOARDVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "CreateDashboardViewPresenter.h"
 #include "ExodusInterface.h"
 

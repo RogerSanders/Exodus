@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport" Title="MarshalSupport Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The MarshalSupport library is an advanced library which provides easy, and in most cases transparent, exchange of objects between assemblies in
+      C++, even if the sender and receiver represent the object differently. This library is particularly good for sending STL objects, or custom
+      types that contain STL objects, across pure virtual interfaces that are being exchanged between assemblies. This is something that is extremely
+      difficult to achieve in C++, and that the language provides no support for. The MarshalSupport library solves this problem comprehensively for
+      any C++03 conformant compiler onwards, and allows exchange of any types between assemblies over pure virtual interfaces, where the assemblies
+      support at least enough ABI compatibility to exchange pure virtual interfaces.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Public Members">
+    <SubSection Title="Marshal Operators">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalInOut">Marshal::InOut</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalRet">Marshal::Ret</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+    <SubSection Title="Marshal Classes">
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.IMarshalSource">IMarshalSource</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.IMarshalTarget">IMarshalTarget</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalSource">MarshalSource</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalTarget">MarshalTarget</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+  </Section>
+
+  <Section Title="Status of the library">
+    <Paragraph>
+      This library is in an extremely advanced and mature state, with a high level of optimization in place, as well as extensive cross-compiler
+      testing having been performed. A full set of unit tests has also been developed. This library is considered stable and available for use in all
+      areas of code.
+    </Paragraph>
+    <Paragraph>
+      The only planned future changes to this library are to add support for new container types. Full support for C++11 container types is provided
+      currently, with the exception of std::pair and std::tuple, both of which we should support in the future. The C++14 standards and onwards have
+      not been considered yet.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.AudioStream.AudioStream.ConvertSampleRate" Title="ConvertSampleRate method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The ConvertSampleRate method performs a high quality resampling operation on the supplied raw sample data buffer, from the specified input
+      sample rate to the desired output sample rate.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code><![CDATA[static void ConvertSampleRate(const std::vector<short>& sourceData, unsigned int sourceSampleCount, unsigned int achannelCount, std::vector<short>& targetData, unsigned int targetSampleCount);]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Type="const std::vector&lt;short&gt;&amp;" Name="sourceData">
+          The input sample data to convert
+        </ArgumentListEntry>
+        <ArgumentListEntry Type="unsigned int" Name="sourceSampleCount">
+          The sample rate of the input sample data
+        </ArgumentListEntry>
+        <ArgumentListEntry Type="unsigned int" Name="achannelCount">
+          The number of channels in the sample data
+        </ArgumentListEntry>
+        <ArgumentListEntry Type="std::vector&lt;short&gt;&amp;" Name="targetData">
+          The output buffer to receive the converted sample data. If this buffer contains any existing data, it will be erased.
+        </ArgumentListEntry>
+        <ArgumentListEntry Type="unsigned int" Name="sourceData">
+          The desired sample rate of the output sample data
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.AudioStream.AudioStream">AudioStream class</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>
+

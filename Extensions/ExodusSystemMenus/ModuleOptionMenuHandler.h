@@ -1,6 +1,6 @@
 #ifndef __MODULEOPTIONMENUHANDLER_H__
 #define __MODULEOPTIONMENUHANDLER_H__
-#include "ExodusExtensionInterface/ExodusExtensionInterface.pkg"
+#include "ExtensionInterface/ExtensionInterface.pkg"
 #include "ExodusSystemMenus.h"
 #include "SystemInterface/SystemInterface.pkg"
 #include <map>

@@ -1,7 +1,7 @@
 #ifndef __ACTIVEDISASSEMBLYVIEW_H__
 #define __ACTIVEDISASSEMBLYVIEW_H__
 #include "WindowsSupport/WindowsSupport.pkg"
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "ActiveDisassemblyViewPresenter.h"
 #include "Processor/Processor.pkg"
 

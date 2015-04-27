@@ -13,7 +13,7 @@ References:
 \*--------------------------------------------------------------------------------------*/
 #ifndef __MDCONTROL3_H__
 #define __MDCONTROL3_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include "Device/Device.pkg"
 #include <mutex>
 
@@ -29,7 +29,7 @@ public:
 
 	//Reference functions
 	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
-	virtual bool RemoveReference(IBusInterface* target);
+	virtual void RemoveReference(IBusInterface* target);
 
 	//Execute functions
 	virtual bool SendNotifyUpcomingTimeslice() const;

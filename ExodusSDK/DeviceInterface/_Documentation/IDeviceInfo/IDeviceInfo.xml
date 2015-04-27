@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="ExodusSDK.DeviceInterface.IDeviceInfo" Title="IDeviceInfo interface" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      The IDeviceInfo interface is used by the system to retrieve information on devices that are exposed by plugins. A plugin exports the
+      GetDeviceEntry function, through which the system can retrieve information on the defined devices in that plugin by sending an IDeviceInfo
+      object to that function to retrieve the device info.
+    </Paragraph>
+  </Section>
+  <Section Title="Getters">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="GetAllocator" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.GetAllocator">
+        Gets a pointer to a function which will create a new object for the device when it is called
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDestructor" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.GetDestructor">
+        Gets a pointer to a function which will delete a previously created object for the device when it is called
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceClassName" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.GetDeviceClassName">
+        Gets the class name of the device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceImplementationName" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.GetDeviceImplementationName">
+        Gets the implementation name of the device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceVersionNo" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.GetDeviceVersionNo">
+        Gets the version number of the device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceCopyright" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.GetDeviceCopyright">
+        Gets the copyright string for the device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="GetDeviceComments" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.GetDeviceComments">
+        Gets the comment string for the device
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="Setters">
+    <FunctionMemberList>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDeviceSettings" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.SetDeviceSettings">
+        Sets the commonly used device settings in one function call
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDeviceAllocators" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.SetDeviceAllocators">
+        Sets the allocator and deallocator function pointers for the device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDeviceClassName" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.SetDeviceClassName">
+        Sets the class name of the device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDeviceImplementationName" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.SetDeviceImplementationName">
+        Sets the implementation name of the device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDeviceVersionNo" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.SetDeviceVersionNo">
+        Sets the version number of the device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDeviceCopyright" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.SetDeviceCopyright">
+        Sets the copyright string for the device
+      </FunctionMemberListEntry>
+      <FunctionMemberListEntry Visibility="Public" Name="SetDeviceComments" PageName="ExodusSDK.DeviceInterface.IDeviceInfo.SetDeviceComments">
+        Sets the comment string for the device
+      </FunctionMemberListEntry>
+    </FunctionMemberList>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="ExodusSDK.DeviceInterface.IDevice">IDevice</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

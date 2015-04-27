@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildDocs", "_Documentation\BuildDocs.csproj", "{89CD5A4A-357E-44EB-BBEF-B629F0839EEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompileCHM", "_Documentation\CompileCHM.csproj", "{241703DF-B6B1-48C8-984C-588245E5E33A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{89CD5A4A-357E-44EB-BBEF-B629F0839EEC} = {89CD5A4A-357E-44EB-BBEF-B629F0839EEC}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89CD5A4A-357E-44EB-BBEF-B629F0839EEC}.Debug|x86.ActiveCfg = Debug|x86
+		{89CD5A4A-357E-44EB-BBEF-B629F0839EEC}.Debug|x86.Build.0 = Debug|x86
+		{241703DF-B6B1-48C8-984C-588245E5E33A}.Debug|x86.ActiveCfg = Debug|x86
+		{241703DF-B6B1-48C8-984C-588245E5E33A}.Debug|x86.Build.0 = Debug|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

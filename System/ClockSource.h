@@ -1,6 +1,6 @@
 #ifndef __CLOCKSOURCE_H__
 #define __CLOCKSOURCE_H__
-#include "ExodusDeviceInterface/ExodusDeviceInterface.pkg"
+#include "DeviceInterface/DeviceInterface.pkg"
 #include <set>
 
 class ClockSource :public IClockSource

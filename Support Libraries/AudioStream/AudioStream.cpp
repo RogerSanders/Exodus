@@ -47,12 +47,12 @@ bool AudioStream::Open(unsigned int achannelCount, unsigned int abitsPerSample, 
 	maxPendingSamples = amaxPendingSamples;
 	if(maxPendingSamples == 0)
 	{
-		maxPendingSamples = samplesPerSec * 2;
+		maxPendingSamples = samplesPerSec / 4;
 	}
 	minPlayingSamples = aminPlayingSamples;
 	if(minPlayingSamples == 0)
 	{
-		minPlayingSamples = samplesPerSec;
+		minPlayingSamples = minPlayingSamples / 20;
 	}
 	currentPlayingSamples = 0;
 
@@ -550,7 +550,7 @@ void CALLBACK AudioStream::WaveOutCallback(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dw
 
 		//Raise an event to indicate that there's at least one completed buffer awaiting
 		//deletion. Note that we do this inside the lock here so that the worker thread
-		//recieves the event as soon as possible.
+		//receives the event as soon as possible.
 		SetEvent(stream->eventHandles[EVENT_BUFFERDONE]);
 
 		LeaveCriticalSection(&stream->waveMutex);
@@ -560,7 +560,7 @@ void CALLBACK AudioStream::WaveOutCallback(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dw
 //----------------------------------------------------------------------------------------
 //Sample rate conversion
 //----------------------------------------------------------------------------------------
-void AudioStream::ConvertSampleRate(std::vector<short>& sourceData, unsigned int sourceSampleCount, unsigned int achannelCount, std::vector<short>& targetData, unsigned int targetSampleCount) const
+void AudioStream::ConvertSampleRate(const std::vector<short>& sourceData, unsigned int sourceSampleCount, unsigned int achannelCount, std::vector<short>& targetData, unsigned int targetSampleCount)
 {
 	//Perform a linear resampling of the source sample data to the requested sample rate
 	targetData.resize(targetSampleCount * achannelCount);
