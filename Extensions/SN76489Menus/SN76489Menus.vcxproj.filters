@@ -7,15 +7,6 @@
     <Filter Include="SN76489Menus\DebugMenuHandler">
       <UniqueIdentifier>{4c707e11-9646-4ce8-8b93-478300979a3a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SN76489Menus\LoggingView">
-      <UniqueIdentifier>{a0b0982b-2cf8-4871-a216-3f574b09ecd5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SN76489Menus\PropertiesView">
-      <UniqueIdentifier>{80c59c47-83dd-4b6c-bd83-d60a9dc5df7a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SN76489Menus\RegistersView">
-      <UniqueIdentifier>{84a35634-d5ae-44fb-b2f5-bd3af3e64e07}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{e9661b1a-74ac-49fe-bb1f-241aecbe82db}</UniqueIdentifier>
     </Filter>
@@ -27,24 +18,6 @@
     <ClCompile Include="DebugMenuHandler.cpp">
       <Filter>SN76489Menus\DebugMenuHandler</Filter>
     </ClCompile>
-    <ClCompile Include="LoggingView.cpp">
-      <Filter>SN76489Menus\LoggingView</Filter>
-    </ClCompile>
-    <ClCompile Include="LoggingViewPresenter.cpp">
-      <Filter>SN76489Menus\LoggingView</Filter>
-    </ClCompile>
-    <ClCompile Include="PropertiesView.cpp">
-      <Filter>SN76489Menus\PropertiesView</Filter>
-    </ClCompile>
-    <ClCompile Include="PropertiesViewPresenter.cpp">
-      <Filter>SN76489Menus\PropertiesView</Filter>
-    </ClCompile>
-    <ClCompile Include="RegistersView.cpp">
-      <Filter>SN76489Menus\RegistersView</Filter>
-    </ClCompile>
-    <ClCompile Include="RegistersViewPresenter.cpp">
-      <Filter>SN76489Menus\RegistersView</Filter>
-    </ClCompile>
     <ClCompile Include="interface.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -54,33 +27,10 @@
     <ClInclude Include="DebugMenuHandler.h">
       <Filter>SN76489Menus\DebugMenuHandler</Filter>
     </ClInclude>
-    <ClInclude Include="LoggingView.h">
-      <Filter>SN76489Menus\LoggingView</Filter>
-    </ClInclude>
-    <ClInclude Include="LoggingViewPresenter.h">
-      <Filter>SN76489Menus\LoggingView</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertiesView.h">
-      <Filter>SN76489Menus\PropertiesView</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertiesViewPresenter.h">
-      <Filter>SN76489Menus\PropertiesView</Filter>
-    </ClInclude>
-    <ClInclude Include="RegistersView.h">
-      <Filter>SN76489Menus\RegistersView</Filter>
-    </ClInclude>
-    <ClInclude Include="RegistersViewPresenter.h">
-      <Filter>SN76489Menus\RegistersView</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="interface.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="folder.ico">
-      <Filter>Resources</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SN76489Menus.rc">

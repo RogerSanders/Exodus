@@ -1,6 +1,5 @@
 #include "DebugMenuHandler.h"
 #include "DebuggerViewPresenter.h"
-#include "LoggingViewPresenter.h"
 #include "OperatorViewPresenter.h"
 #include "RegistersViewPresenter.h"
 
@@ -18,7 +17,6 @@ void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) co
 {
 	menuItems.push_back(MenuItemDefinition(MENUITEM_DEBUGGER, L"Debugger", DebuggerViewPresenter::GetUnqualifiedViewTitle(), true));
 	//menuItems.push_back(MenuItemDefinition(MENUITEM_OPERATOR, L"Operator", OperatorViewPresenter::GetUnqualifiedViewTitle(), true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_WAV_FILE_LOGGING, L"OutputLogging", LoggingViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", RegistersViewPresenter::GetUnqualifiedViewTitle(), true));
 }
 
@@ -33,8 +31,6 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 		return new OperatorViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
 	case MENUITEM_REGISTERS:
 		return new RegistersViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
-	case MENUITEM_WAV_FILE_LOGGING:
-		return new LoggingViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
 	}
 	return 0;
 }

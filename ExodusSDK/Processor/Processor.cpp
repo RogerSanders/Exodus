@@ -139,7 +139,7 @@ bool Processor::BuildDevice()
 
 	//##TODO## Maintain this group
 	breakpointCollection = (new GenericAccessGroupCollectionEntry(L"Breakpoint List", IGenericAccessDataValue::DataType::UInt))->SetOpenByDefault(true);
-	GenericAccessPage* breakpointsPage = new GenericAccessPage(L"Breakpoints", L"Generic - Breakpoints");
+	GenericAccessPage* breakpointsPage = new GenericAccessPage(L"Breakpoints", L"Breakpoints");
 	breakpointsPage->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointNew, L"New"))
 	               ->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointEnableAll, L"Enable All"))
 	               ->AddEntry(new GenericAccessGroupCommandEntry(IProcessorCommand::BreakpointDisableAll, L"Disable All"))
@@ -4606,7 +4606,7 @@ void Processor::SaveCallStack(IHierarchicalStorageNode& node) const
 bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
-	switch(dataID)
+	switch((IProcessorDataSource)dataID)
 	{
 	case IProcessorDataSource::BreakpointName:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
@@ -4725,7 +4725,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 {
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
-	switch(dataID)
+	switch((IProcessorDataSource)dataID)
 	{
 	case IProcessorDataSource::BreakpointName:{
 		if(dataType != IGenericAccessDataValue::DataType::String) return false;
@@ -4880,7 +4880,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 //----------------------------------------------------------------------------------------
 bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext* dataContext)
 {
-	switch(commandID)
+	switch((IProcessorCommand)commandID)
 	{
 	case IProcessorCommand::BreakpointResetHitCounter:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);

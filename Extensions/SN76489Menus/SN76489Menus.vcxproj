@@ -251,28 +251,13 @@
   <ItemGroup>
     <ClCompile Include="DebugMenuHandler.cpp" />
     <ClCompile Include="interface.cpp" />
-    <ClCompile Include="LoggingView.cpp" />
-    <ClCompile Include="LoggingViewPresenter.cpp" />
-    <ClCompile Include="PropertiesView.cpp" />
-    <ClCompile Include="PropertiesViewPresenter.cpp" />
-    <ClCompile Include="RegistersView.cpp" />
-    <ClCompile Include="RegistersViewPresenter.cpp" />
     <ClCompile Include="SN76489Menus.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugMenuHandler.h" />
     <ClInclude Include="interface.h" />
-    <ClInclude Include="LoggingView.h" />
-    <ClInclude Include="LoggingViewPresenter.h" />
-    <ClInclude Include="PropertiesView.h" />
-    <ClInclude Include="PropertiesViewPresenter.h" />
-    <ClInclude Include="RegistersView.h" />
-    <ClInclude Include="RegistersViewPresenter.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SN76489Menus.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="folder.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SN76489Menus.rc" />

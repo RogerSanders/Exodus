@@ -261,8 +261,6 @@
   <ItemGroup>
     <ClCompile Include="ActiveDisassemblyView.cpp" />
     <ClCompile Include="ActiveDisassemblyViewPresenter.cpp" />
-    <ClCompile Include="BreakpointView.cpp" />
-    <ClCompile Include="BreakpointViewPresenter.cpp" />
     <ClCompile Include="CallStackView.cpp" />
     <ClCompile Include="CallStackViewPresenter.cpp" />
     <ClCompile Include="ControlView.cpp" />
@@ -280,8 +278,6 @@
   <ItemGroup>
     <ClInclude Include="ActiveDisassemblyView.h" />
     <ClInclude Include="ActiveDisassemblyViewPresenter.h" />
-    <ClInclude Include="BreakpointView.h" />
-    <ClInclude Include="BreakpointViewPresenter.h" />
     <ClInclude Include="CallStackView.h" />
     <ClInclude Include="CallStackViewPresenter.h" />
     <ClInclude Include="ControlView.h" />
@@ -302,5 +298,5 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
-  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets"/>
+  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets" />
 </Project>
