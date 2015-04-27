@@ -1,5 +1,6 @@
 #include "GenericAccessMenus.h"
 #include "DebugMenuHandler.h"
+#include "SettingsMenuHandler.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -13,6 +14,11 @@ GenericAccessMenus::~GenericAccessMenus()
 {
 	//Delete all menu handlers
 	for(std::map<IDevice*, DebugMenuHandler*>::const_iterator i = debugMenuHandlers.begin(); i != debugMenuHandlers.end(); ++i)
+	{
+		i->second->ClearMenuItems();
+		delete i->second;
+	}
+	for(std::map<IDevice*, SettingsMenuHandler*>::const_iterator i = settingsMenuHandlers.begin(); i != settingsMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -31,39 +37,63 @@ bool GenericAccessMenus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 		return false;
 	}
 
-	//Create a new menu handler for the target device
-	DebugMenuHandler* menuHandler = new DebugMenuHandler(*this, *targetDevice, *targetDeviceAsIDeviceGenericAccess);
-	menuHandler->LoadMenuItems();
-	debugMenuHandlers[targetDevice] = menuHandler;
+	//Create a new debug menu handler for the target device
+	DebugMenuHandler* debugMenuHandler = new DebugMenuHandler(*this, *targetDevice, *targetDeviceAsIDeviceGenericAccess);
+	debugMenuHandler->LoadMenuItems();
+	debugMenuHandlers[targetDevice] = debugMenuHandler;
+
+	//Create a new settings menu handler for the target device
+	SettingsMenuHandler* settingsMenuHandler = new SettingsMenuHandler(*this, *targetDevice, *targetDeviceAsIDeviceGenericAccess);
+	settingsMenuHandler->LoadMenuItems();
+	settingsMenuHandlers[targetDevice] = settingsMenuHandler;
+
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessMenus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 {
-	DebugMenuHandler* menuHandler = debugMenuHandlers[targetDevice];
-	menuHandler->ClearMenuItems();
-	delete menuHandler;
+	//Delete the debug menu handler for the target device
+	DebugMenuHandler* debugMenuHandler = debugMenuHandlers[targetDevice];
+	debugMenuHandler->ClearMenuItems();
+	delete debugMenuHandler;
 	debugMenuHandlers.erase(targetDevice);
+
+	//Delete the settings menu handler for the target device
+	SettingsMenuHandler* settingsMenuHandler = settingsMenuHandlers[targetDevice];
+	settingsMenuHandler->ClearMenuItems();
+	delete settingsMenuHandler;
+	settingsMenuHandlers.erase(targetDevice);
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessMenus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	if(deviceMenu == IExtension::DeviceMenu::Debug)
+	switch(deviceMenu)
 	{
+	case IExtension::DeviceMenu::Debug:
 		debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
+		break;
+	case IExtension::DeviceMenu::Settings:
+		settingsMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
+		break;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 bool GenericAccessMenus::RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
 {
-	return debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
+	bool result = false;
+	result |= debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
+	result |= settingsMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
 bool GenericAccessMenus::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
 {
-	return debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);
+	bool result = false;
+	result |= debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);
+	result |= settingsMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);
+	return result;
 }

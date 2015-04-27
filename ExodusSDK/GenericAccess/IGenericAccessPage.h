@@ -7,6 +7,10 @@
 class IGenericAccessPage
 {
 public:
+	//Enumerations
+	enum class Type;
+
+public:
 	//Constructors
 	virtual ~IGenericAccessPage() = 0 {}
 
@@ -15,6 +19,7 @@ public:
 	virtual unsigned int GetIGenericAccessPageVersion() const = 0;
 
 	//Page info functions
+	virtual Type GetPageType() const = 0;
 	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
 	virtual MarshalSupport::Marshal::Ret<std::wstring> GetTitle() const = 0;
 
@@ -22,4 +27,5 @@ public:
 	virtual const IGenericAccessGroup* GetContentRoot() const = 0;
 };
 
+#include "IGenericAccessPage.inl"
 #endif

@@ -99,9 +99,11 @@ LRESULT ImageView::msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	int windowWidth = clientRect.right - clientRect.left;
 	int windowHeight = clientRect.bottom - clientRect.top;
 
-	//Set the new window position and size for the OpenGL window
+	//Set the new window position and size for the child window group
 	SetWindowPos(hwndChildGroup, NULL, 0, 0, windowWidth, windowHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 
+	//Update the size of the render window
+	UpdateRenderWindowSize();
 	return 0;
 }
 
@@ -120,7 +122,7 @@ LRESULT ImageView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	if(videoShowStatusBarCached != model.GetVideoShowStatusBar())
 	{
 		videoShowStatusBarCached = model.GetVideoShowStatusBar();
-		SendMessage(hwnd, WM_SIZE, 0, 0);
+		UpdateRenderWindowSize();
 	}
 	return 0;
 }
@@ -132,8 +134,6 @@ LRESULT ImageView::WndProcChildGroup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM 
 {
 	switch(msg)
 	{
-	case WM_SIZE:
-		return msgChildWM_SIZE(hwnd, wparam, lparam);
 	case WM_KEYUP:
 		return msgChildWM_KEYUP(hwnd, wparam, lparam);
 	case WM_KEYDOWN:
@@ -146,54 +146,6 @@ LRESULT ImageView::WndProcChildGroup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM 
 
 //----------------------------------------------------------------------------------------
 //Child event handlers
-//----------------------------------------------------------------------------------------
-LRESULT ImageView::msgChildWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
-{
-	//Obtain the current size of the client area of the window
-	RECT clientRect;
-	GetClientRect(hwnd, &clientRect);
-	int windowWidth = clientRect.right - clientRect.left;
-	int windowHeight = clientRect.bottom - clientRect.top;
-
-	//Set the visibility state of the status bar
-	ShowWindow(hwndStatusBar, videoShowStatusBarCached? SW_SHOWNOACTIVATE: SW_HIDE);
-
-	//If the status bar is currently visible, position and size it correctly within the
-	//window.
-	int statusBarHeight = 0;
-	if(videoShowStatusBarCached)
-	{
-		//Send a size message to the status bar. Note that the status bar auto-sizes and
-		//positions itself based on the size of its parent window. Simply sending a
-		//WM_SIZE message will cause the status bar to recalculate its size and position.
-		SendMessage(hwndStatusBar, WM_SIZE, 0, 0);
-
-		//Retrieve the height of the status bar
-		RECT statusBarRect;
-		GetWindowRect(hwndStatusBar, &statusBarRect);
-		int statusBarWidth = statusBarRect.right - statusBarRect.left;
-		statusBarHeight = statusBarRect.bottom - statusBarRect.top;
-
-		//Set the sizes and positions of the segments in the status bar
-		const int framesPerSecondSegmentPreferredWidth = DPIScaleWidth(75);
-		int framesPerSecondSegmentWidth = (framesPerSecondSegmentPreferredWidth <= statusBarWidth)? framesPerSecondSegmentPreferredWidth: statusBarWidth;
-		int notificationSegmentWidth = statusBarWidth - framesPerSecondSegmentWidth;
-		int statusBarSegmentWidths[] = {notificationSegmentWidth, -1};
-		SendMessage(hwndStatusBar, SB_SETPARTS, 2, (LPARAM)statusBarSegmentWidths);
-	}
-
-	//Calculate the position and size of the OpenGL window
-	int openGLWindowSizeX = windowWidth;
-	int openGLWindowSizeY = windowHeight - statusBarHeight;
-	int openGLWindowPosX = 0;
-	int openGLWindowPosY = 0;
-
-	//Set the new window position and size for the OpenGL window
-	SetWindowPos(hwndOpenGL, NULL, openGLWindowPosX, openGLWindowPosY, openGLWindowSizeX, openGLWindowSizeY, SWP_NOZORDER | SWP_NOACTIVATE);
-
-	return 0;
-}
-
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::msgChildWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
@@ -691,6 +643,52 @@ void ImageView::UpdateOpenGLViewport()
 
 	//Set the viewport dimensions based on the current window size
 	glViewport(imageRegionPosX, imageRegionPosY, imageRegionWidth, imageRegionHeight);
+}
+
+//----------------------------------------------------------------------------------------
+void ImageView::UpdateRenderWindowSize()
+{
+	//Obtain the current size of the client area of the window
+	RECT clientRect;
+	GetClientRect(hwndChildGroup, &clientRect);
+	int windowWidth = clientRect.right - clientRect.left;
+	int windowHeight = clientRect.bottom - clientRect.top;
+
+	//Set the visibility state of the status bar
+	ShowWindow(hwndStatusBar, videoShowStatusBarCached? SW_SHOWNOACTIVATE: SW_HIDE);
+
+	//If the status bar is currently visible, position and size it correctly within the
+	//window.
+	int statusBarHeight = 0;
+	if(videoShowStatusBarCached)
+	{
+		//Send a size message to the status bar. Note that the status bar auto-sizes and
+		//positions itself based on the size of its parent window. Simply sending a
+		//WM_SIZE message will cause the status bar to recalculate its size and position.
+		SendMessage(hwndStatusBar, WM_SIZE, 0, 0);
+
+		//Retrieve the height of the status bar
+		RECT statusBarRect;
+		GetWindowRect(hwndStatusBar, &statusBarRect);
+		int statusBarWidth = statusBarRect.right - statusBarRect.left;
+		statusBarHeight = statusBarRect.bottom - statusBarRect.top;
+
+		//Set the sizes and positions of the segments in the status bar
+		const int framesPerSecondSegmentPreferredWidth = DPIScaleWidth(75);
+		int framesPerSecondSegmentWidth = (framesPerSecondSegmentPreferredWidth <= statusBarWidth)? framesPerSecondSegmentPreferredWidth: statusBarWidth;
+		int notificationSegmentWidth = statusBarWidth - framesPerSecondSegmentWidth;
+		int statusBarSegmentWidths[] = {notificationSegmentWidth, -1};
+		SendMessage(hwndStatusBar, SB_SETPARTS, 2, (LPARAM)statusBarSegmentWidths);
+	}
+
+	//Calculate the position and size of the OpenGL window
+	int openGLWindowSizeX = windowWidth;
+	int openGLWindowSizeY = windowHeight - statusBarHeight;
+	int openGLWindowPosX = 0;
+	int openGLWindowPosY = 0;
+
+	//Set the new window position and size for the OpenGL window
+	SetWindowPos(hwndOpenGL, NULL, openGLWindowPosX, openGLWindowPosY, openGLWindowSizeX, openGLWindowSizeY, SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 //----------------------------------------------------------------------------------------

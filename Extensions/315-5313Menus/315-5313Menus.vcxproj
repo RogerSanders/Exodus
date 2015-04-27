@@ -268,13 +268,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugMenuHandler.cpp" />
-    <ClCompile Include="DebugSettingsView.cpp" />
-    <ClCompile Include="DebugSettingsViewPresenter.cpp" />
     <ClCompile Include="ImageView.cpp" />
     <ClCompile Include="ImageViewPresenter.cpp" />
     <ClCompile Include="interface.cpp" />
-    <ClCompile Include="LayerRemovalView.cpp" />
-    <ClCompile Include="LayerRemovalViewPresenter.cpp" />
     <ClCompile Include="PaletteView.cpp" />
     <ClCompile Include="PaletteViewPresenter.cpp" />
     <ClCompile Include="PlaneView.cpp" />
@@ -287,8 +283,6 @@
     <ClCompile Include="RegistersViewPresenter.cpp" />
     <ClCompile Include="S315_5313Menus.cpp" />
     <ClCompile Include="SettingsMenuHandler.cpp" />
-    <ClCompile Include="SettingsView.cpp" />
-    <ClCompile Include="SettingsViewPresenter.cpp" />
     <ClCompile Include="SpriteListDetailsView.cpp" />
     <ClCompile Include="SpriteListDetailsViewPresenter.cpp" />
     <ClCompile Include="SpriteListView.cpp" />
@@ -298,13 +292,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugMenuHandler.h" />
-    <ClInclude Include="DebugSettingsView.h" />
-    <ClInclude Include="DebugSettingsViewPresenter.h" />
     <ClInclude Include="ImageView.h" />
     <ClInclude Include="ImageViewPresenter.h" />
     <ClInclude Include="interface.h" />
-    <ClInclude Include="LayerRemovalView.h" />
-    <ClInclude Include="LayerRemovalViewPresenter.h" />
     <ClInclude Include="PaletteView.h" />
     <ClInclude Include="PaletteViewPresenter.h" />
     <ClInclude Include="PlaneView.h" />
@@ -318,8 +308,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="S315_5313Menus.h" />
     <ClInclude Include="SettingsMenuHandler.h" />
-    <ClInclude Include="SettingsView.h" />
-    <ClInclude Include="SettingsViewPresenter.h" />
     <ClInclude Include="SpriteListDetailsView.h" />
     <ClInclude Include="SpriteListDetailsViewPresenter.h" />
     <ClInclude Include="SpriteListView.h" />

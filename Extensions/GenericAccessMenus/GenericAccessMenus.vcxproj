@@ -259,6 +259,7 @@
     <ClCompile Include="GenericDataView.cpp" />
     <ClCompile Include="GenericDataViewPresenter.cpp" />
     <ClCompile Include="interface.cpp" />
+    <ClCompile Include="SettingsMenuHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugMenuHandler.h" />
@@ -267,6 +268,7 @@
     <ClInclude Include="GenericDataViewPresenter.h" />
     <ClInclude Include="interface.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SettingsMenuHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="folder.ico" />
@@ -276,5 +278,5 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
-  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets"/>
+  <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets" />
 </Project>

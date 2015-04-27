@@ -8,7 +8,7 @@ ActiveDisassemblyView::ActiveDisassemblyView(IUIManager& auiManager, ActiveDisas
 :ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0)
 {
 	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_ACTIVEDISASSEMBLY));
-	SetDialogViewType();
+	SetDockableViewType();
 }
 
 //----------------------------------------------------------------------------------------

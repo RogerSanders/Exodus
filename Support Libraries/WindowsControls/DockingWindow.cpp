@@ -3790,11 +3790,13 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 	{
 		//Calculate the maximum initial width or height for this new child docking window
 		//depending on the target dock location. We do this to ensure that a new docked
-		//window is never made to cover the content region when it is initially docked.
+		//window won't fully cover the content region when it is initially docked.
 		RECT rect;
 		SendMessage(dockPanel, (UINT)WC_DockPanel::WindowMessages::GetContentRect, 0, (LPARAM)&rect);
-		int maxInitialDockedWidth = (rect.right - rect.left) / 2;
-		int maxInitialDockedHeight = (rect.bottom - rect.top) / 2;
+		int currentContentRegionWidth = (rect.right - rect.left);
+		int currentContentRegionHeight = (rect.bottom - rect.top);
+		int maxInitialDockedWidth = currentContentRegionWidth - (currentContentRegionWidth / 10);
+		int maxInitialDockedHeight = currentContentRegionHeight - (currentContentRegionHeight / 10);
 
 		//Calculate window dimensions of the new child container
 		GetWindowRect(entry.childContainer->GetWindowHandle(), &rect);

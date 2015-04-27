@@ -124,12 +124,16 @@ enum class IS315_5313::IS315_5313DataSource
 	SettingsVideoShowBoundaryActiveImage,
 	SettingsVideoShowBoundaryActionSafe,
 	SettingsVideoShowBoundaryTitleSafe,
+	SettingsVideoEnableLayerA,
 	SettingsVideoEnableLayerAHigh,
 	SettingsVideoEnableLayerALow,
+	SettingsVideoEnableLayerB,
 	SettingsVideoEnableLayerBHigh,
 	SettingsVideoEnableLayerBLow,
+	SettingsVideoEnableWindow,
 	SettingsVideoEnableWindowHigh,
 	SettingsVideoEnableWindowLow,
+	SettingsVideoEnableSprite,
 	SettingsVideoEnableSpriteHigh,
 	SettingsVideoEnableSpriteLow
 };
@@ -473,6 +477,21 @@ void IS315_5313::SetVideoShowBoundaryTitleSafe(bool adata)
 //----------------------------------------------------------------------------------------
 //Layer removal
 //----------------------------------------------------------------------------------------
+bool IS315_5313::GetEnableLayerA() const
+{
+	GenericAccessDataValueBool data;
+	ReadGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerA, 0, data);
+	return data.GetValue();
+}
+
+//----------------------------------------------------------------------------------------
+void IS315_5313::SetEnableLayerA(bool adata)
+{
+	GenericAccessDataValueBool data(adata);
+	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerA, 0, data);
+}
+
+//----------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableLayerAHigh() const
 {
 	GenericAccessDataValueBool data;
@@ -500,6 +519,21 @@ void IS315_5313::SetEnableLayerALow(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerALow, 0, data);
+}
+
+//----------------------------------------------------------------------------------------
+bool IS315_5313::GetEnableLayerB() const
+{
+	GenericAccessDataValueBool data;
+	ReadGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerB, 0, data);
+	return data.GetValue();
+}
+
+//----------------------------------------------------------------------------------------
+void IS315_5313::SetEnableLayerB(bool adata)
+{
+	GenericAccessDataValueBool data(adata);
+	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerB, 0, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -533,6 +567,21 @@ void IS315_5313::SetEnableLayerBLow(bool adata)
 }
 
 //----------------------------------------------------------------------------------------
+bool IS315_5313::GetEnableWindow() const
+{
+	GenericAccessDataValueBool data;
+	ReadGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableWindow, 0, data);
+	return data.GetValue();
+}
+
+//----------------------------------------------------------------------------------------
+void IS315_5313::SetEnableWindow(bool adata)
+{
+	GenericAccessDataValueBool data(adata);
+	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableWindow, 0, data);
+}
+
+//----------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableWindowHigh() const
 {
 	GenericAccessDataValueBool data;
@@ -560,6 +609,21 @@ void IS315_5313::SetEnableWindowLow(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableWindowLow, 0, data);
+}
+
+//----------------------------------------------------------------------------------------
+bool IS315_5313::GetEnableSprite() const
+{
+	GenericAccessDataValueBool data;
+	ReadGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableSprite, 0, data);
+	return data.GetValue();
+}
+
+//----------------------------------------------------------------------------------------
+void IS315_5313::SetEnableSprite(bool adata)
+{
+	GenericAccessDataValueBool data(adata);
+	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableSprite, 0, data);
 }
 
 //----------------------------------------------------------------------------------------

@@ -276,6 +276,9 @@
     <None Include="IGenericAccessDataValue.inl">
       <Filter>IGenericAccessDataValue\IGenericAccessDataValue</Filter>
     </None>
+    <None Include="IGenericAccessPage.inl">
+      <Filter>IGenericAccessPage</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GenericAccessCommandInfo.cpp">

@@ -196,7 +196,77 @@ bool S315_5313::BuildDevice()
 		layerPriorityLookupTable[i] = layerIndex;
 	}
 
-	return true;
+	//Register each data source with the generic data access base class
+	bool result = true;
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoSingleBuffering, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoFixedAspectRatio, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoShowStatusBar, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableLineSmoothing, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoDisableRenderOutput, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoHighlightRenderPos, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableSpriteBoxing, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoShowBoundaryActiveImage, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoShowBoundaryActionSafe, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoShowBoundaryTitleSafe, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputPortAccessDebugMessages, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputTimingDebugMessages, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputRenderSyncDebugMessages, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputInterruptDebugMessages, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableLayerA, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableLayerAHigh, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableLayerALow, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableLayerB, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableLayerBHigh, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableLayerBLow, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableWindow, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableWindowHigh, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableWindowLow, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableSprite, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableSpriteHigh, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableSpriteLow, IGenericAccessDataValue::DataType::Bool)));
+
+	//Register page layouts for generic access to this device
+	GenericAccessPage* systemSettingsPage = new GenericAccessPage(L"SystemSettings", L"System Settings", IGenericAccessPage::Type::Settings);
+	systemSettingsPage->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoSingleBuffering, L"Single Buffering"))
+	                  ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoFixedAspectRatio, L"Fixed Aspect Ratio"))
+	                  ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoShowStatusBar, L"Show Status Bar"))
+	                  ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableLineSmoothing, L"Enable Line Smoothing"));
+	result &= AddGenericAccessPage(systemSettingsPage);
+	GenericAccessPage* debugSettingsPage = new GenericAccessPage(L"DebugSettings", L"Debug Settings");
+	debugSettingsPage->AddEntry((new GenericAccessGroup(L"Image Debug"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoDisableRenderOutput, L"Disable Rendering"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoHighlightRenderPos, L"Highlight Render Pos"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableSpriteBoxing, L"Sprite Boxing")))
+	                 ->AddEntry((new GenericAccessGroup(L"Image Boundaries"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoShowBoundaryActiveImage, L"Active Image"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoShowBoundaryActionSafe, L"Action Safe"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoShowBoundaryTitleSafe, L"Title Safe")))
+	                 ->AddEntry((new GenericAccessGroup(L"VDP Core Debugging"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsOutputPortAccessDebugMessages, L"Port Access Debug"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsOutputTimingDebugMessages, L"Timing Debug"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsOutputRenderSyncDebugMessages, L"Render Sync Debug"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsOutputInterruptDebugMessages, L"Interrupt Debug")));
+	result &= AddGenericAccessPage(debugSettingsPage);
+	GenericAccessPage* layerRemovalPage = new GenericAccessPage(L"LayerVisibility", L"Layer Visibility");
+	layerRemovalPage->AddEntry((new GenericAccessGroup(L"Layer A"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableLayerA, L"Both Enabled"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableLayerAHigh, L"High Priority"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableLayerALow, L"Low Priority")))
+	                ->AddEntry((new GenericAccessGroup(L"Layer B"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableLayerB, L"Both Enabled"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableLayerBHigh, L"High Priority"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableLayerBLow, L"Low Priority")))
+	                ->AddEntry((new GenericAccessGroup(L"Window"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableWindow, L"Both Enabled"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableWindowHigh, L"High Priority"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableWindowLow, L"Low Priority")))
+	                ->AddEntry((new GenericAccessGroup(L"Sprite"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableSprite, L"Both Enabled"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableSpriteHigh, L"High Priority"))
+	                    ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableSpriteLow, L"Low Priority")));
+	result &= AddGenericAccessPage(layerRemovalPage);
+
+	return result;
 }
 
 //----------------------------------------------------------------------------------------
@@ -3967,18 +4037,26 @@ bool S315_5313::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		return dataValue.SetValue(videoShowBoundaryActionSafe);
 	case IS315_5313DataSource::SettingsVideoShowBoundaryTitleSafe:
 		return dataValue.SetValue(videoShowBoundaryTitleSafe);
+	case IS315_5313DataSource::SettingsVideoEnableLayerA:
+		return dataValue.SetValue(enableLayerAHigh && enableLayerALow);
 	case IS315_5313DataSource::SettingsVideoEnableLayerAHigh:
 		return dataValue.SetValue(enableLayerAHigh);
 	case IS315_5313DataSource::SettingsVideoEnableLayerALow:
 		return dataValue.SetValue(enableLayerALow);
+	case IS315_5313DataSource::SettingsVideoEnableLayerB:
+		return dataValue.SetValue(enableLayerBHigh && enableLayerBLow);
 	case IS315_5313DataSource::SettingsVideoEnableLayerBHigh:
 		return dataValue.SetValue(enableLayerBHigh);
 	case IS315_5313DataSource::SettingsVideoEnableLayerBLow:
 		return dataValue.SetValue(enableLayerBLow);
+	case IS315_5313DataSource::SettingsVideoEnableWindow:
+		return dataValue.SetValue(enableWindowHigh && enableWindowLow);
 	case IS315_5313DataSource::SettingsVideoEnableWindowHigh:
 		return dataValue.SetValue(enableWindowHigh);
 	case IS315_5313DataSource::SettingsVideoEnableWindowLow:
 		return dataValue.SetValue(enableWindowLow);
+	case IS315_5313DataSource::SettingsVideoEnableSprite:
+		return dataValue.SetValue(enableSpriteHigh && enableSpriteLow);
 	case IS315_5313DataSource::SettingsVideoEnableSpriteHigh:
 		return dataValue.SetValue(enableSpriteHigh);
 	case IS315_5313DataSource::SettingsVideoEnableSpriteLow:
@@ -4671,6 +4749,11 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		videoShowBoundaryTitleSafe = dataValueAsBool.GetValue();
 		return true;}
+	case IS315_5313DataSource::SettingsVideoEnableLayerA:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableLayerAHigh = enableLayerALow = dataValueAsBool.GetValue();
+		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLayerAHigh:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
@@ -4680,6 +4763,11 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		enableLayerALow = dataValueAsBool.GetValue();
+		return true;}
+	case IS315_5313DataSource::SettingsVideoEnableLayerB:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableLayerBHigh = enableLayerBLow = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLayerBHigh:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
@@ -4691,6 +4779,11 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		enableLayerBLow = dataValueAsBool.GetValue();
 		return true;}
+	case IS315_5313DataSource::SettingsVideoEnableWindow:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableWindowHigh = enableWindowLow = dataValueAsBool.GetValue();
+		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableWindowHigh:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
@@ -4700,6 +4793,11 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		enableWindowLow = dataValueAsBool.GetValue();
+		return true;}
+	case IS315_5313DataSource::SettingsVideoEnableSprite:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		enableSpriteHigh = enableSpriteLow = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableSpriteHigh:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
