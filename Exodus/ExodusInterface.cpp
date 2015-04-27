@@ -370,6 +370,13 @@ bool ExodusInterface::InitializeSystem()
 	//Load addon modules
 	LoadAssembliesFromFolder(prefs.pathAssemblies);
 
+	//Since we might have just loaded a persistent global extension which has registered
+	//menu handlers, rebuild the menu segments now.
+	BuildFileMenu();
+	BuildSystemMenu();
+	BuildSettingsMenu();
+	BuildDebugMenu();
+
 	//Load the default system
 	if(!prefs.loadSystem.empty())
 	{
@@ -1571,7 +1578,7 @@ bool ExodusInterface::LoadAssembliesFromFolderSynchronous(const std::wstring& fo
 	findFileHandle = FindFirstFile(fileSearchString.c_str(), &findData);
 	if(findFileHandle == INVALID_HANDLE_VALUE)
 	{
-		loadPluginsResult = false;
+		loadPluginsResult = (GetLastError() == ERROR_FILE_NOT_FOUND);
 		loadPluginsComplete = true;
 		return false;
 	}

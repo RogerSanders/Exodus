@@ -1,0 +1,50 @@
+﻿<System>
+	<Info CreationDate="2013-2-28" CreationTime="9:10:15" />
+	<ModuleRelationships>
+		<Module ModuleID="0" SystemClassName="SegaMegaDrive" ModuleClassName="SegaMegaDrive" ModuleInstanceName="MD1600" FilePath="Sega Mega Drive 1600.xml">
+			<ExportConnector ConnectorClassName="ControlPort" ConnectorInstanceName="Control Port 1" />
+			<ExportConnector ConnectorClassName="ControlPort" ConnectorInstanceName="Control Port 2" />
+			<ExportConnector ConnectorClassName="ControlPort" ConnectorInstanceName="Control Port 3" />
+			<ExportConnector ConnectorClassName="CartridgePort" ConnectorInstanceName="Cartridge Port" />
+			<ExportConnector ConnectorClassName="ExpansionPort" ConnectorInstanceName="Expansion Port" />
+		</Module>
+		<Module ModuleID="1" SystemClassName="SegaMegaDrive" ModuleClassName="Control6" ModuleInstanceName="Generic 6-Button Controller" FilePath="Sega Mega Drive 6 Button Controller.xml">
+			<ImportConnector ExportingModuleID="0" ConnectorClassName="ControlPort" ConnectorInstanceNameLocal="Control Port" ConnectorInstanceNameRemote="Control Port 1" />
+		</Module>
+		<Module ModuleID="2" SystemClassName="SegaMegaDrive" ModuleClassName="ROMLoader" ModuleInstanceName="Generic ROM Loader" FilePath="Sega Mega Drive ROM Loader.xml" />
+	</ModuleRelationships>
+	<Device.Settings DeviceInstanceName="VDP" ModuleID="0">
+		<Register name="VideoSingleBuffering">0</Register>
+		<Register name="VideoFixedAspectRatio">1</Register>
+		<Register name="VideoShowStatusBar">1</Register>
+	</Device.Settings>
+	<Device.Settings DeviceInstanceName="Main 68000" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="RAM" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="YM2612" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="PSG" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="Z80 RAM" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="Z80" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="MD IO" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="Bus Arbiter" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="Boot ROM" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="VDP - VRAM" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="VDP - CRAM" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="VDP - VSRAM" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="VDP - SpriteCache" ModuleID="0" />
+	<Device.Settings DeviceInstanceName="Controller" ModuleID="1" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="Up" DeviceKeyCode="Up" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="Down" DeviceKeyCode="Down" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="Left" DeviceKeyCode="Left" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="Right" DeviceKeyCode="Right" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="A" DeviceKeyCode="X" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="C" DeviceKeyCode="C" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="D" DeviceKeyCode="Z" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="F" DeviceKeyCode="Mode" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="S" DeviceKeyCode="Y" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="V" DeviceKeyCode="Start" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="X" DeviceKeyCode="B" />
+	<Device.MapInput ModuleID="1" DeviceInstanceName="Controller" SystemKeyCode="Z" DeviceKeyCode="A" />
+	<System.SelectSettingOption ModuleID="0" SettingName="Region" OptionName="U" />
+	<System.SelectSettingOption ModuleID="0" SettingName="Soft Reset" OptionName="Off" />
+	<System.SelectSettingOption ModuleID="0" SettingName="TMSS" OptionName="None" />
+</System>

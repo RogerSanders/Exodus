@@ -40,10 +40,11 @@ System::~System()
 	//Unload all currently loaded modules
 	UnloadAllModules();
 
-	//Unload all persistent global extensions
-	while(globalExtensionInfoList.empty())
+	//Unload all persistent global extensions. Persistent extensions should be all that is
+	//left in the list of global extensions at this point.
+	for(LoadedGlobalExtensionInfoList::const_iterator i = globalExtensionInfoList.begin(); i != globalExtensionInfoList.end(); ++i)
 	{
-		UnloadExtension(globalExtensionInfoList.begin()->second.extension);
+		UnloadExtension(i->second.extension);
 	}
 }
 
@@ -2874,8 +2875,14 @@ bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
 	LoadedGlobalExtensionInfo extensionInfo;
 	extensionInfo.extension = extension;
 	extensionInfo.name = extensionName;
-	extensionInfo.globalExtension = true;
+	extensionInfo.persistentExtension = true;
 	globalExtensionInfoList.insert(LoadedGlobalExtensionInfoListEntry(extensionInfo.name, extensionInfo));
+
+	//Attempt to register the persistent global extension as a system menu handler
+	if(extension->RegisterSystemMenuHandler())
+	{
+		systemMenuHandlers.insert(extension);
+	}
 
 	return true;
 }
@@ -3214,7 +3221,7 @@ bool System::LoadModule(const MarshalSupport::Marshal::In<std::wstring>& filePat
 		//Retrieve information on the next global extension, and determine if this global
 		//extension was just loaded by the set of loaded modules.
 		LoadedGlobalExtensionInfo& globalExtensionInfo = globalExtensionIterator->second;
-		bool globalExtensionWasJustLoaded = std::includes(addedModuleIDs.begin(), addedModuleIDs.end(), globalExtensionInfo.moduleIDs.begin(), globalExtensionInfo.moduleIDs.end());
+		bool globalExtensionWasJustLoaded = (!globalExtensionInfo.persistentExtension && std::includes(addedModuleIDs.begin(), addedModuleIDs.end(), globalExtensionInfo.moduleIDs.begin(), globalExtensionInfo.moduleIDs.end()));
 
 		//If this global extension was just loaded, attempt to add it as a menu handler
 		//for the system.
@@ -4569,7 +4576,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		extensionInfo.moduleIDs.erase(moduleID);
 
 		//If the global extension is no longer referenced by any modules, remove it.
-		if(!extensionInfo.globalExtension && extensionInfo.moduleIDs.empty())
+		if(!extensionInfo.persistentExtension && extensionInfo.moduleIDs.empty())
 		{
 			//Remove any references to this extension, IE, through ReferenceExtension.
 			for(LoadedDeviceInfoList::const_iterator i = loadedDeviceInfoList.begin(); i != loadedDeviceInfoList.end(); ++i)
@@ -5313,7 +5320,7 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 	LoadedGlobalExtensionInfo extensionInfo;
 	extensionInfo.extension = extension;
 	extensionInfo.name = extensionName;
-	extensionInfo.globalExtension = false;
+	extensionInfo.persistentExtension = false;
 	extensionInfo.moduleIDs.insert(moduleID);
 	globalExtensionInfoList.insert(LoadedGlobalExtensionInfoListEntry(extensionInfo.name, extensionInfo));
 
