@@ -150,8 +150,8 @@ public:
 	void SetGlobalPreferenceShowDebugConsole(bool state);
 
 	//Assembly functions
-	bool LoadAssembliesFromFolder(const std::wstring& folder);
-	bool LoadAssembliesFromFolderSynchronous(const std::wstring& folder);
+	bool LoadAssembliesFromFolder(const std::wstring& folderPath);
+	bool LoadAssembliesFromFolderSynchronous(const std::wstring& folderPath);
 	virtual bool LoadAssembly(const MarshalSupport::Marshal::In<std::wstring>& filePath);
 	bool LoadAssemblyInfo(const std::wstring& filePath, PluginInfo& pluginInfo);
 

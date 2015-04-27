@@ -101,7 +101,7 @@ struct System::LoadedGlobalExtensionInfo
 {
 	IExtension* extension;
 	std::wstring name;
-	bool globalExtension;
+	bool persistentExtension;
 	std::set<unsigned int> moduleIDs;
 	std::set<IExtension*> menuHandlers;
 };
