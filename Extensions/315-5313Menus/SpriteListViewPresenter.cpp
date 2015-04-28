@@ -29,11 +29,3 @@ void SpriteListViewPresenter::DeleteView(IView* aview)
 {
 	delete aview;
 }
-
-//----------------------------------------------------------------------------------------
-//Window functions
-//----------------------------------------------------------------------------------------
-void SpriteListViewPresenter::OpenSpriteListDetailsView(unsigned int aspriteIndex)
-{
-	owner.OpenSpriteListDetailsView(&modelInstanceKey, aspriteIndex);
-}

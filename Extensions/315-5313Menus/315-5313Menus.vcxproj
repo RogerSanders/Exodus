@@ -283,8 +283,6 @@
     <ClCompile Include="RegistersViewPresenter.cpp" />
     <ClCompile Include="S315_5313Menus.cpp" />
     <ClCompile Include="SettingsMenuHandler.cpp" />
-    <ClCompile Include="SpriteListDetailsView.cpp" />
-    <ClCompile Include="SpriteListDetailsViewPresenter.cpp" />
     <ClCompile Include="SpriteListView.cpp" />
     <ClCompile Include="SpriteListViewPresenter.cpp" />
     <ClCompile Include="VRAMView.cpp" />
@@ -308,8 +306,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="S315_5313Menus.h" />
     <ClInclude Include="SettingsMenuHandler.h" />
-    <ClInclude Include="SpriteListDetailsView.h" />
-    <ClInclude Include="SpriteListDetailsViewPresenter.h" />
     <ClInclude Include="SpriteListView.h" />
     <ClInclude Include="SpriteListViewPresenter.h" />
     <ClInclude Include="VRAMView.h" />

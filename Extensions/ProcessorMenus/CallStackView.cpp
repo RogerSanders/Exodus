@@ -112,7 +112,7 @@ LRESULT CallStackView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Retrieve the latest call stack
 	std::list<IProcessor::CallStackEntry> callStack = model.GetCallStack();
 
-	//Delete any extra rows from that data grid that are no longer required
+	//Delete any extra rows from the data grid that are no longer required
 	unsigned int currentRowCount = (unsigned int)SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
 	if((unsigned int)callStack.size() < currentRowCount)
 	{

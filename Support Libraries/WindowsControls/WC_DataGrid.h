@@ -152,7 +152,6 @@ private:
 	LRESULT msgWM_LBUTTONUP(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam);
-	LRESULT msgWM_BOUNCE(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_CTLCOLORSTATIC(WPARAM wParam, LPARAM lParam);
 
 	LRESULT msgGRID_SETMANUALSCROLLING(WPARAM wParam, LPARAM lParam);
@@ -173,6 +172,9 @@ private:
 	LRESULT msgGRID_SETCELLCOLOR(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_GETROWCOUNT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam);
+
+	//Subclass window procedures
+	static LRESULT CALLBACK ChildControlClickHandlerSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
 private:
 	//Typedefs

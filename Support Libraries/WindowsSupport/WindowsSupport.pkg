@@ -54,6 +54,7 @@
 #pragma comment(lib, "dwmapi")
 #pragma comment(lib, "shell32")
 #pragma comment(lib, "Version")
+#pragma comment(lib, "UxTheme")
 #endif
 
 #endif

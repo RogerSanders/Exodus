@@ -3218,7 +3218,7 @@ void YM2612::SaveDebuggerState(IHierarchicalStorageNode& node) const
 bool YM2612::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
-	switch(dataID)
+	switch((IYM2612DataSource)dataID)
 	{
 	case IYM2612DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
@@ -3402,7 +3402,7 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 {
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
-	switch(dataID)
+	switch((IYM2612DataSource)dataID)
 	{
 	case IYM2612DataSource::RawRegister:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
@@ -3771,8 +3771,8 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 //----------------------------------------------------------------------------------------
 bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const
 {
-	std::unique_lock<std::mutex> lock2(registerLockMutex);
-	switch(dataID)
+	std::unique_lock<std::mutex> lock(registerLockMutex);
+	switch((IYM2612DataSource)dataID)
 	{
 	case IYM2612DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
@@ -3873,7 +3873,7 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state)
 {
 	std::unique_lock<std::mutex> lock2(registerLockMutex);
-	switch(dataID)
+	switch((IYM2612DataSource)dataID)
 	{
 	case IYM2612DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
@@ -4023,6 +4023,7 @@ void YM2612::SetAudioLoggingEnabled(bool state)
 {
 	double fmClock = (externalClockRate / fmClockDivider) / outputClockDivider;
 	ToggleLoggingEnabledState(wavLog, wavLoggingPath, wavLoggingEnabled, state, 2, 16, (unsigned int)fmClock * channelCount);
+	wavLoggingEnabled = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -4030,6 +4031,7 @@ void YM2612::SetChannelAudioLoggingEnabled(unsigned int channelNo, bool state)
 {
 	double fmClock = (externalClockRate / fmClockDivider) / outputClockDivider;
 	ToggleLoggingEnabledState(wavLogChannel[channelNo], wavLoggingChannelPath[channelNo], wavLoggingChannelEnabled[channelNo], state, 2, 16, (unsigned int)fmClock);
+	wavLoggingChannelEnabled[channelNo] = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -4037,6 +4039,7 @@ void YM2612::SetOperatorAudioLoggingEnabled(unsigned int channelNo, unsigned int
 {
 	double fmClock = (externalClockRate / fmClockDivider) / outputClockDivider;
 	ToggleLoggingEnabledState(wavLogOperator[channelNo][operatorNo], wavLoggingOperatorPath[channelNo][operatorNo], wavLoggingOperatorEnabled[channelNo][operatorNo], state, 1, 16, (unsigned int)fmClock);
+	wavLoggingOperatorEnabled[channelNo][operatorNo] = state;
 }
 
 //----------------------------------------------------------------------------------------

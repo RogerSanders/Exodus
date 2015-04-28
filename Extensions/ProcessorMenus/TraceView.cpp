@@ -108,7 +108,7 @@ LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Retrieve the latest trace log
 	std::list<IProcessor::TraceLogEntry> traceList = model.GetTraceLog();
 
-	//Delete any extra rows from that data grid that are no longer required
+	//Delete any extra rows from the data grid that are no longer required
 	unsigned int currentRowCount = (unsigned int)SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
 	if((unsigned int)traceList.size() < currentRowCount)
 	{

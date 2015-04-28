@@ -28,7 +28,7 @@ PlaneView::PlaneView(IUIManager& auiManager, PlaneViewPresenter& apresenter, IS3
 	spritePatternBaseManual = false;
 
 	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_S315_5313_PLANEVIEW));
-	SetDialogViewType();
+	SetDockableViewType();
 }
 
 //----------------------------------------------------------------------------------------
