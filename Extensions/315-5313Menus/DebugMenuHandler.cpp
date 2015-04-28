@@ -6,7 +6,6 @@
 #include "RegistersViewPresenter.h"
 #include "SpriteListViewPresenter.h"
 #include "PortMonitorViewPresenter.h"
-#include "PortMonitorDetailsViewPresenter.h"
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -23,8 +22,7 @@ void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) co
 	menuItems.push_back(MenuItemDefinition(MENUITEM_IMAGE, L"Image", ImageViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PALETTEVIEWER, L"Palette", PaletteViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_PLANEVIEWER, L"PlaneViewer", PlaneViewPresenter::GetUnqualifiedViewTitle(), true, true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITOR, L"PortMonitor", PortMonitorViewPresenter::GetUnqualifiedViewTitle(), true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITORDETAILS, L"PortMonitorDetails", PortMonitorDetailsViewPresenter::GetUnqualifiedViewTitle(), true, false, true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_PORTMONITOR, L"PortMonitor", PortMonitorViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", RegistersViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_SPRITELIST, L"SpriteList", SpriteListViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_VRAMVIEWER, L"VRAMPatterns", VRAMViewPresenter::GetUnqualifiedViewTitle(), true, true));
@@ -57,29 +55,4 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 void DebugMenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter)
 {
 	delete viewPresenter;
-}
-
-//----------------------------------------------------------------------------------------
-//Window functions
-//----------------------------------------------------------------------------------------
-void DebugMenuHandler::OpenPortMonitorDetailsView(const IS315_5313::PortMonitorEntry& aentry)
-{
-	std::set<IViewPresenter*> viewPresenters = GetOpenViewPresenters(MENUITEM_PORTMONITORDETAILS);
-	if(!viewPresenters.empty())
-	{
-		IViewPresenter* viewPresenter = *viewPresenters.begin();
-		PortMonitorDetailsViewPresenter* portMonitorDetailsViewPresenter = dynamic_cast<PortMonitorDetailsViewPresenter*>(viewPresenter);
-		if(portMonitorDetailsViewPresenter != 0)
-		{
-			portMonitorDetailsViewPresenter->SetPortMonitorEntry(aentry);
-		}
-	}
-	else
-	{
-		IViewPresenter* viewPresenter = new PortMonitorDetailsViewPresenter(GetMenuHandlerName(), GetMenuItemName(MENUITEM_PORTMONITORDETAILS), MENUITEM_PORTMONITORDETAILS, owner, modelInstanceKey, model, aentry);
-		if(!AddCreatedView(MENUITEM_PORTMONITORDETAILS, viewPresenter))
-		{
-			delete viewPresenter;
-		}
-	}
 }

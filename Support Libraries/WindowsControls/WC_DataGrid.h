@@ -50,7 +50,7 @@ public:
 	struct Grid_SetControlColor;
 	struct Grid_SetRowColor;
 	struct Grid_SetCellColor;
-	struct Grid_NewRowCount;
+	struct Grid_NewVisibleRowCount;
 	struct Grid_ShiftRowsUp;
 	struct Grid_ShiftRowsDown;
 	struct Grid_NewScrollPosition;
@@ -171,6 +171,7 @@ private:
 	LRESULT msgGRID_SETROWCOLOR(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_SETCELLCOLOR(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_GETROWCOUNT(WPARAM wParam, LPARAM lParam);
+	LRESULT msgGRID_GETVISIBLEROWCOUNT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam);
 
 	//Subclass window procedures
@@ -217,11 +218,8 @@ private:
 	HFONT dataAreaFont;
 
 	//##FIX## Comment and group these correctly
-	//##DEBUG##
 	int openComboBoxColumnID;
 	int openComboBoxRowNo;
-
-	//##DEBUG##
 	struct CellMapping
 	{
 		CellMapping(unsigned int acolumnID, unsigned int arowNo)

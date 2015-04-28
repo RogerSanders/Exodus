@@ -1,3 +1,12 @@
+//Disable warning about the presence of virtual functions without a virtual destructor.
+//Our structures below use virtual functions to create code barriers between assemblies so
+//that they can be marshalled, but they are never derived from, so a virtual destructor is
+//not required.
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4265)
+#endif
+
 //----------------------------------------------------------------------------------------
 //Enumerations
 //----------------------------------------------------------------------------------------
@@ -163,11 +172,29 @@ struct IS315_5313::FIFOEntryDataContext :public IGenericAccess::DataContext
 //----------------------------------------------------------------------------------------
 struct IS315_5313::PortMonitorEntry
 {
-	//##FIX## We're sharing STL objects here
+public:
+	//Constructors
 	PortMonitorEntry(const std::wstring& atarget, const std::wstring& asource, unsigned int adata, double aaccessTime, unsigned int ahcounterPos, unsigned int avcounterPos)
 	:target(atarget), source(asource), data(adata), accessTime(aaccessTime), hcounterPos(ahcounterPos), vcounterPos(avcounterPos)
 	{}
+	PortMonitorEntry(MarshalSupport::marshal_object_t, const PortMonitorEntry& sourceObject)
+	{
+		sourceObject.MarshalToTarget(source, target, data, accessTime, hcounterPos, vcounterPos);
+	}
 
+private:
+	//Marshalling methods
+	virtual void MarshalToTarget(const MarshalSupport::Marshal::Out<std::wstring>& sourceMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& targetMarshaller, unsigned int& dataMarshaller, double& accessTimeMarshaller, unsigned int& hcounterPosMarshaller, unsigned int& vcounterPosMarshaller) const
+	{
+		sourceMarshaller = source;
+		targetMarshaller = target;
+		dataMarshaller = data;
+		accessTimeMarshaller = accessTime;
+		hcounterPosMarshaller = hcounterPos;
+		vcounterPosMarshaller = vcounterPos;
+	}
+
+public:
 	std::wstring source;
 	std::wstring target;
 	unsigned int data;
@@ -2234,3 +2261,8 @@ void IS315_5313::RegSetFIFONextWriteEntry(unsigned int adata)
 	GenericAccessDataValueUInt data(adata);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegNextFIFOWriteEntry, 0, data);
 }
+
+//Restore the disabled warnings
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif

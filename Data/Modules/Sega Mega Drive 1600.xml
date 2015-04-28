@@ -343,8 +343,6 @@
 	<BusInterface.MapDevice BusInterfaceName="Z80Bus" DeviceInstanceName="Bus Arbiter" InterfaceNumber="4" MemoryMapBase="0x8000" MemoryMapSize="0x8000" />
 
 	<!-- Default views to open. This specifies which debug windows are open by default when the user first loads the system. -->
-	<System.OpenView Target="Device" DeviceInstanceName="VDP" ViewGroupName="VDPDebugMenu" ViewName="VRAMPatterns"/>
-	<System.OpenView Target="Device" DeviceInstanceName="VDP" ViewGroupName="VDPDebugMenu" ViewName="Palette"/>
 	<System.OpenView Target="Device" DeviceInstanceName="VDP" ViewGroupName="VDPDebugMenu" ViewName="Image"/>
 
 	<!-- TMSS Security Device -->

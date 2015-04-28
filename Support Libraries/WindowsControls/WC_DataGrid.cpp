@@ -386,6 +386,8 @@ LRESULT WC_DataGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgGRID_SETCELLCOLOR(wParam, lParam);
 	case (unsigned int)WindowMessages::GetRowCount:
 		return msgGRID_GETROWCOUNT(wParam, lParam);
+	case (unsigned int)WindowMessages::GetVisibleRowCount:
+		return msgGRID_GETVISIBLEROWCOUNT(wParam, lParam);
 	case (unsigned int)WindowMessages::SetVScrollInfo:
 		return msgGRID_SETVSCROLLINFO(wParam, lParam);
 	}
@@ -961,11 +963,15 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 			//content.
 			if(cellDataRaw != 0)
 			{
-				//Retrieve the control information for this cell. We can assume this
-				//structure exists at this point as all child controls should have been
-				//correctly initialized before this paint message was called.
-				//##FIX## What if WM_PRINTCLIENT was sent outside WM_PAINT?
+				//Retrieve the control information for this cell. Note that we can't
+				//assume this structure exists at this point, as themed win32 controls
+				//send WM_PRINTCLIENT messages directly to their parent controls, meaning
+				//we can't assume WM_PAINT has already been called.
 				std::vector<CellControlInfo>& controlListForColumn = customControlForCell[columnData.columnID];
+				if(rowDataArrayIndex >= controlListForColumn.size())
+				{
+					controlListForColumn.resize(rowDataArrayIndex+1, CellControlInfo(columnData.controlType));
+				}
 				CellControlInfo& cellControlInfo = controlListForColumn[rowDataArrayIndex];
 
 				//Calculate the default position of text within this cell
@@ -1590,7 +1596,7 @@ void WC_DataGrid::UpdateWindowSize()
 
 		//If the number of visible rows has changed, send a message to the parent control
 		//to notify it about the change in visible rows.
-		Grid_NewRowCount newRowCountState;
+		Grid_NewVisibleRowCount newRowCountState;
 		newRowCountState.visibleRows = newVisibleRows;
 		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::NewRowCount), (LPARAM)&newRowCountState);
 	}
@@ -3830,6 +3836,12 @@ LRESULT WC_DataGrid::msgGRID_SETCELLCOLOR(WPARAM wParam, LPARAM lParam)
 
 //----------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_GETROWCOUNT(WPARAM wParam, LPARAM lParam)
+{
+	return (LRESULT)largestColumnDataArraySize;
+}
+
+//----------------------------------------------------------------------------------------
+LRESULT WC_DataGrid::msgGRID_GETVISIBLEROWCOUNT(WPARAM wParam, LPARAM lParam)
 {
 	return (LRESULT)visibleRows;
 }

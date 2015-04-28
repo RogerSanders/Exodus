@@ -14,8 +14,8 @@
 Processor::Processor(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
 :Device(aimplementationName, ainstanceName, amoduleID),
 clockSpeed(0), reportedClockSpeed(0), clockSpeedOverridden(false),
-traceLogEnabled(false), traceLogDisassemble(false), traceLogLength(2000),
-stackDisassemble(false), stepOver(false), stepOut(false),
+traceLogEnabled(false), traceLogDisassemble(false), traceLogLength(2000), traceLogLastModifiedToken(0),
+stackDisassemble(false), callStackLastModifiedToken(0), stepOver(false), stepOut(false),
 breakOnNextOpcode(false), breakpointExists(false), watchpointExists(false)
 {
 	//Initialize active disassembly info
@@ -801,6 +801,20 @@ MarshalSupport::Marshal::Ret<std::list<Processor::CallStackEntry>> Processor::Ge
 }
 
 //----------------------------------------------------------------------------------------
+unsigned int Processor::GetCallStackLastModifiedToken() const
+{
+	return callStackLastModifiedToken;
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::ClearCallStack()
+{
+	std::unique_lock<std::mutex> lock(debugMutex);
+	callStack.clear();
+	++callStackLastModifiedToken;
+}
+
+//----------------------------------------------------------------------------------------
 void Processor::PushCallStack(unsigned int sourceAddress, unsigned int targetAddress, unsigned int returnAddress, const std::wstring& entry, bool fixedDisassembly)
 {
 	std::unique_lock<std::mutex> lock(debugMutex);
@@ -829,6 +843,7 @@ void Processor::PushCallStack(unsigned int sourceAddress, unsigned int targetAdd
 	{
 		callStack.pop_back();
 	}
+	++callStackLastModifiedToken;
 }
 
 //----------------------------------------------------------------------------------------
@@ -853,6 +868,7 @@ void Processor::PopCallStack(unsigned int returnAddress)
 			break;
 		}
 	}
+	++callStackLastModifiedToken;
 
 	if(stepOut || stepOver)
 	{
@@ -871,37 +887,7 @@ void Processor::PopCallStack(unsigned int returnAddress)
 }
 
 //----------------------------------------------------------------------------------------
-void Processor::ClearCallStack()
-{
-	std::unique_lock<std::mutex> lock(debugMutex);
-	callStack.clear();
-}
-
-//----------------------------------------------------------------------------------------
 //Trace functions
-//----------------------------------------------------------------------------------------
-void Processor::RecordTraceInternal(unsigned int pc)
-{
-	std::unique_lock<std::mutex> lock(debugMutex);
-
-	TraceLogEntry traceEntry(pc);
-	if(traceLogDisassemble)
-	{
-		OpcodeInfo opcodeInfo;
-		if(GetOpcodeInfo(pc, opcodeInfo))
-		{
-			traceEntry.disassembly = opcodeInfo.GetOpcodeNameDisassembly() + L'\t' + opcodeInfo.GetOpcodeArgumentsDisassembly();
-		}
-	}
-
-	//Add the entry to the running trace log
-	traceLog.push_front(traceEntry);
-	while(traceLog.size() > traceLogLength)
-	{
-		traceLog.pop_back();
-	}
-}
-
 //----------------------------------------------------------------------------------------
 bool Processor::GetTraceEnabled() const
 {
@@ -946,10 +932,41 @@ MarshalSupport::Marshal::Ret<std::list<Processor::TraceLogEntry>> Processor::Get
 }
 
 //----------------------------------------------------------------------------------------
+unsigned int Processor::GetTraceLogLastModifiedToken() const
+{
+	return traceLogLastModifiedToken;
+}
+
+//----------------------------------------------------------------------------------------
 void Processor::ClearTraceLog()
 {
 	std::unique_lock<std::mutex> lock(debugMutex);
 	traceLog.clear();
+	++traceLogLastModifiedToken;
+}
+
+//----------------------------------------------------------------------------------------
+void Processor::RecordTraceInternal(unsigned int pc)
+{
+	std::unique_lock<std::mutex> lock(debugMutex);
+
+	TraceLogEntry traceEntry(pc);
+	if(traceLogDisassemble)
+	{
+		OpcodeInfo opcodeInfo;
+		if(GetOpcodeInfo(pc, opcodeInfo))
+		{
+			traceEntry.disassembly = opcodeInfo.GetOpcodeNameDisassembly() + L'\t' + opcodeInfo.GetOpcodeArgumentsDisassembly();
+		}
+	}
+
+	//Add the entry to the running trace log
+	traceLog.push_front(traceEntry);
+	while(traceLog.size() > traceLogLength)
+	{
+		traceLog.pop_back();
+	}
+	++traceLogLastModifiedToken;
 }
 
 //----------------------------------------------------------------------------------------

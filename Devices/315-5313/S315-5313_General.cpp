@@ -142,7 +142,8 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	logHVCounterRead = false;
 	logControlPortWrite = false;
 	logDataPortWrite = false;
-	portMonitorListSize = 200;
+	portMonitorListSize = 2000;
+	portMonitorLastModifiedToken = 0;
 }
 
 //----------------------------------------------------------------------------------------

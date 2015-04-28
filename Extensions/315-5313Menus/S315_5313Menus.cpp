@@ -97,9 +97,3 @@ bool S315_5313Menus::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstri
 	result |= settingsMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);
 	return result;
 }
-
-//----------------------------------------------------------------------------------------
-void S315_5313Menus::OpenPortMonitorDetailsView(const IDevice* targetDevice, const IS315_5313::PortMonitorEntry& aentry)
-{
-	debugMenuHandlers[targetDevice]->OpenPortMonitorDetailsView(aentry);
-}

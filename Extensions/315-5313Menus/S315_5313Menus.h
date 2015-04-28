@@ -18,7 +18,6 @@ public:
 	virtual void AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice);
 	virtual bool RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice);
 	virtual bool OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice);
-	void OpenPortMonitorDetailsView(const IDevice* targetDevice, const IS315_5313::PortMonitorEntry& aentry);
 
 private:
 	std::map<const IDevice*, DebugMenuHandler*> debugMenuHandlers;

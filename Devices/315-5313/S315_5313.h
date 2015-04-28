@@ -274,8 +274,22 @@ private:
 	void RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int accessContext, unsigned int registerNo, const Data& data);
 
 	//Port monitor functions
+	virtual bool GetPortMonitorStatusReadEnabled() const;
+	virtual void SetPortMonitorStatusReadEnabled(bool state);
+	virtual bool GetPortMonitorDataReadEnabled() const;
+	virtual void SetPortMonitorDataReadEnabled(bool state);
+	virtual bool GetPortMonitorHVReadEnabled() const;
+	virtual void SetPortMonitorHVReadEnabled(bool state);
+	virtual bool GetPortMonitorControlWriteEnabled() const;
+	virtual void SetPortMonitorControlWriteEnabled(bool state);
+	virtual bool GetPortMonitorDataWriteEnabled() const;
+	virtual void SetPortMonitorDataWriteEnabled(bool state);
+	virtual unsigned int GetPortMonitorLength() const;
+	virtual void SetPortMonitorLength(unsigned int state);
+	virtual MarshalSupport::Marshal::Ret<std::list<PortMonitorEntry>> GetPortMonitorLog() const;
+	virtual unsigned int GetPortMonitorLogLastModifiedToken() const;
+	virtual void ClearPortMonitorLog();
 	void RecordPortMonitorEntry(const PortMonitorEntry& entry);
-	void ClearPortMonitorList();
 
 	//HV counter internal/linear conversion
 	static unsigned int HCounterValueFromVDPInternalToLinear(const HScanSettings& hscanSettings, unsigned int hcounterCurrent);
@@ -585,6 +599,7 @@ private:
 	bool logControlPortWrite;
 	bool logDataPortWrite;
 	unsigned int portMonitorListSize;
+	unsigned int portMonitorLastModifiedToken;
 	std::list<PortMonitorEntry> portMonitorList;
 	std::list<PortMonitorEntry> bportMonitorList;
 

@@ -14,6 +14,7 @@ TraceView::TraceView(IUIManager& auiManager, TraceViewPresenter& apresenter, IPr
 	hwndControlPanel = NULL;
 	hfontHeader = NULL;
 	hfontData = NULL;
+	logLastModifiedToken = 0;
 	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, 300, 500);
 	SetDockableViewType(true, DockPos::Right);
 }
@@ -105,6 +106,18 @@ LRESULT TraceView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	//Update the control panel
+	SendMessage(hwndControlPanel, WM_TIMER, wparam, lparam);
+
+	//If the trace log hasn't changed since the last refresh, abort any further
+	//processing.
+	unsigned int newLogLastModifiedToken = model.GetTraceLogLastModifiedToken();
+	if(newLogLastModifiedToken == logLastModifiedToken)
+	{
+		return 0;
+	}
+	logLastModifiedToken = newLogLastModifiedToken;
+
 	//Retrieve the latest trace log
 	std::list<IProcessor::TraceLogEntry> traceList = model.GetTraceLog();
 
@@ -133,9 +146,6 @@ LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		columnText[COLUMN_DISASSEMBLY] = entry.disassembly;
 	}
 	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateMultipleRowText, 0, (LPARAM)&rowText);
-
-	//Update the control panel
-	SendMessage(hwndControlPanel, WM_TIMER, wparam, lparam);
 
 	return 0;
 }
@@ -263,7 +273,6 @@ INT_PTR TraceView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam
 INT_PTR TraceView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	initializedDialog = true;
-
 	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_ENABLED, (model.GetTraceEnabled())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_DISASSEMBLE, (model.GetTraceDisassemble())? BST_CHECKED: BST_UNCHECKED);
 	if(currentControlFocus != IDC_PROCESSOR_TRACE_LENGTH) UpdateDlgItemBin(hwnd, IDC_PROCESSOR_TRACE_LENGTH, model.GetTraceLength());

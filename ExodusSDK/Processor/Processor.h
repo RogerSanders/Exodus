@@ -195,9 +195,10 @@ public:
 	virtual bool GetCallStackDisassemble() const;
 	virtual void SetCallStackDisassemble(bool state);
 	virtual MarshalSupport::Marshal::Ret<std::list<CallStackEntry>> GetCallStack() const;
+	virtual unsigned int GetCallStackLastModifiedToken() const;
+	virtual void ClearCallStack();
 	void PushCallStack(unsigned int sourceAddress, unsigned int targetAddress, unsigned int returnAddress, const std::wstring& entry, bool fixedDisassembly = false);
 	void PopCallStack(unsigned int returnAddress);
-	virtual void ClearCallStack();
 
 	//Trace functions
 	virtual bool GetTraceEnabled() const;
@@ -207,8 +208,9 @@ public:
 	virtual unsigned int GetTraceLength() const;
 	virtual void SetTraceLength(unsigned int state);
 	virtual MarshalSupport::Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const;
-	inline void RecordTrace(unsigned int pc);
+	virtual unsigned int GetTraceLogLastModifiedToken() const;
 	virtual void ClearTraceLog();
+	inline void RecordTrace(unsigned int pc);
 
 	//Active disassembly info functions
 	virtual bool ActiveDisassemblySupported() const;
@@ -402,6 +404,7 @@ private:
 	int stackLevel;
 	int bstackLevel;
 	bool stackDisassemble;
+	unsigned int callStackLastModifiedToken;
 
 	//Trace
 	std::list<TraceLogEntry> traceLog;
@@ -409,6 +412,7 @@ private:
 	volatile bool traceLogEnabled;
 	bool traceLogDisassemble;
 	unsigned int traceLogLength;
+	unsigned int traceLogLastModifiedToken;
 
 	//Active disassembly
 	bool activeDisassemblyEnabled;
