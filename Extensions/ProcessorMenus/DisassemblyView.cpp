@@ -245,7 +245,7 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		WC_DataGrid::WindowNotifications notification = (WC_DataGrid::WindowNotifications)HIWORD(wparam);
 		if(notification == WC_DataGrid::WindowNotifications::NewRowCount)
 		{
-			WC_DataGrid::Grid_NewRowCount* newRowCountInfo = (WC_DataGrid::Grid_NewRowCount*)lparam;
+			WC_DataGrid::Grid_NewVisibleRowCount* newRowCountInfo = (WC_DataGrid::Grid_NewVisibleRowCount*)lparam;
 			visibleRows = newRowCountInfo->visibleRows;
 			UpdateDisassembly();
 		}

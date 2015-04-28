@@ -1901,6 +1901,99 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 //----------------------------------------------------------------------------------------
 //Port monitor functions
 //----------------------------------------------------------------------------------------
+bool S315_5313::GetPortMonitorStatusReadEnabled() const
+{
+	return logStatusRegisterRead;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SetPortMonitorStatusReadEnabled(bool state)
+{
+	logStatusRegisterRead = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::GetPortMonitorDataReadEnabled() const
+{
+	return logDataPortRead;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SetPortMonitorDataReadEnabled(bool state)
+{
+	logDataPortRead = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::GetPortMonitorHVReadEnabled() const
+{
+	return logHVCounterRead;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SetPortMonitorHVReadEnabled(bool state)
+{
+	logHVCounterRead = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::GetPortMonitorControlWriteEnabled() const
+{
+	return logControlPortWrite;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SetPortMonitorControlWriteEnabled(bool state)
+{
+	logControlPortWrite = state;
+}
+
+//----------------------------------------------------------------------------------------
+bool S315_5313::GetPortMonitorDataWriteEnabled() const
+{
+	return logDataPortWrite;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SetPortMonitorDataWriteEnabled(bool state)
+{
+	logDataPortWrite = state;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::GetPortMonitorLength() const
+{
+	return portMonitorListSize;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::SetPortMonitorLength(unsigned int state)
+{
+	portMonitorListSize = state;
+}
+
+//----------------------------------------------------------------------------------------
+MarshalSupport::Marshal::Ret<std::list<S315_5313::PortMonitorEntry>> S315_5313::GetPortMonitorLog() const
+{
+	std::unique_lock<std::mutex> lock(portMonitorMutex);
+	return portMonitorList;
+}
+
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::GetPortMonitorLogLastModifiedToken() const
+{
+	return portMonitorLastModifiedToken;
+}
+
+//----------------------------------------------------------------------------------------
+void S315_5313::ClearPortMonitorLog()
+{
+	std::unique_lock<std::mutex> lock(portMonitorMutex);
+	portMonitorList.clear();
+	++portMonitorLastModifiedToken;
+}
+
+//----------------------------------------------------------------------------------------
 void S315_5313::RecordPortMonitorEntry(const PortMonitorEntry& entry)
 {
 	std::unique_lock<std::mutex> lock(portMonitorMutex);
@@ -1909,11 +2002,5 @@ void S315_5313::RecordPortMonitorEntry(const PortMonitorEntry& entry)
 	{
 		portMonitorList.pop_back();
 	}
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::ClearPortMonitorList()
-{
-	std::unique_lock<std::mutex> lock(portMonitorMutex);
-	portMonitorList.clear();
+	++portMonitorLastModifiedToken;
 }

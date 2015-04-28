@@ -10,22 +10,17 @@ public:
 	//Enumerations
 	enum MenuItem
 	{
-		MENUITEM_VRAMVIEWER,
+		MENUITEM_IMAGE,
 		MENUITEM_PALETTEVIEWER,
 		MENUITEM_PLANEVIEWER,
-		MENUITEM_IMAGE,
+		MENUITEM_PORTMONITOR,
 		MENUITEM_REGISTERS,
 		MENUITEM_SPRITELIST,
-		MENUITEM_SPRITELISTDETAILS,
-		MENUITEM_PORTMONITOR,
-		MENUITEM_PORTMONITORDETAILS
+		MENUITEM_VRAMVIEWER
 	};
 
 	//Constructors
 	DebugMenuHandler(S315_5313Menus& aowner, const IDevice& amodelInstanceKey, IS315_5313& amodel);
-
-	//Window functions
-	void OpenPortMonitorDetailsView(const IS315_5313::PortMonitorEntry& aentry);
 
 protected:
 	//Management functions

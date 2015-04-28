@@ -14,6 +14,7 @@ CallStackView::CallStackView(IUIManager& auiManager, CallStackViewPresenter& apr
 	hwndControlPanel = NULL;
 	hfontHeader = NULL;
 	hfontData = NULL;
+	logLastModifiedToken = 0;
 	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, 400, 300);
 	SetDockableViewType(true, DockPos::Bottom);
 }
@@ -109,6 +110,18 @@ LRESULT CallStackView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT CallStackView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	//Update the control panel
+	SendMessage(hwndControlPanel, WM_TIMER, wparam, lparam);
+
+	//If the call stack hasn't changed since the last refresh, abort any further
+	//processing.
+	unsigned int newLogLastModifiedToken = model.GetCallStackLastModifiedToken();
+	if(newLogLastModifiedToken == logLastModifiedToken)
+	{
+		return 0;
+	}
+	logLastModifiedToken = newLogLastModifiedToken;
+
 	//Retrieve the latest call stack
 	std::list<IProcessor::CallStackEntry> callStack = model.GetCallStack();
 
@@ -143,9 +156,6 @@ LRESULT CallStackView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		columnText[COLUMN_DISASSEMBLY] = entry.disassembly;
 	}
 	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateMultipleRowText, 0, (LPARAM)&rowText);
-
-	//Update the control panel
-	SendMessage(hwndControlPanel, WM_TIMER, wparam, lparam);
 
 	return 0;
 }

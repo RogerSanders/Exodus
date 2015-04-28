@@ -76,6 +76,23 @@ public:
 	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int entryNo) const = 0;
 	virtual void SetSpriteMappingTableEntry(unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData) = 0;
 
+	//Port monitor functions
+	virtual bool GetPortMonitorStatusReadEnabled() const = 0;
+	virtual void SetPortMonitorStatusReadEnabled(bool state) = 0;
+	virtual bool GetPortMonitorDataReadEnabled() const = 0;
+	virtual void SetPortMonitorDataReadEnabled(bool state) = 0;
+	virtual bool GetPortMonitorHVReadEnabled() const = 0;
+	virtual void SetPortMonitorHVReadEnabled(bool state) = 0;
+	virtual bool GetPortMonitorControlWriteEnabled() const = 0;
+	virtual void SetPortMonitorControlWriteEnabled(bool state) = 0;
+	virtual bool GetPortMonitorDataWriteEnabled() const = 0;
+	virtual void SetPortMonitorDataWriteEnabled(bool state) = 0;
+	virtual unsigned int GetPortMonitorLength() const = 0;
+	virtual void SetPortMonitorLength(unsigned int state) = 0;
+	virtual MarshalSupport::Marshal::Ret<std::list<PortMonitorEntry>> GetPortMonitorLog() const = 0;
+	virtual unsigned int GetPortMonitorLogLastModifiedToken() const = 0;
+	virtual void ClearPortMonitorLog() = 0;
+
 	//Debug output
 	inline bool GetOutputPortAccessDebugMessages() const;
 	inline void SetOutputPortAccessDebugMessages(bool adata);

@@ -275,8 +275,6 @@
     <ClCompile Include="PaletteViewPresenter.cpp" />
     <ClCompile Include="PlaneView.cpp" />
     <ClCompile Include="PlaneViewPresenter.cpp" />
-    <ClCompile Include="PortMonitorDetailsView.cpp" />
-    <ClCompile Include="PortMonitorDetailsViewPresenter.cpp" />
     <ClCompile Include="PortMonitorView.cpp" />
     <ClCompile Include="PortMonitorViewPresenter.cpp" />
     <ClCompile Include="RegistersView.cpp" />
@@ -297,8 +295,6 @@
     <ClInclude Include="PaletteViewPresenter.h" />
     <ClInclude Include="PlaneView.h" />
     <ClInclude Include="PlaneViewPresenter.h" />
-    <ClInclude Include="PortMonitorDetailsView.h" />
-    <ClInclude Include="PortMonitorDetailsViewPresenter.h" />
     <ClInclude Include="PortMonitorView.h" />
     <ClInclude Include="PortMonitorViewPresenter.h" />
     <ClInclude Include="RegistersView.h" />

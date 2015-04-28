@@ -21,6 +21,7 @@ enum class WC_DataGrid::WindowMessages :unsigned int
 	SetRowColor,
 	SetCellColor,
 	GetRowCount,
+	GetVisibleRowCount,
 	SetVScrollInfo
 };
 
@@ -252,7 +253,7 @@ struct WC_DataGrid::Grid_SetCellColor
 };
 
 //----------------------------------------------------------------------------------------
-struct WC_DataGrid::Grid_NewRowCount
+struct WC_DataGrid::Grid_NewVisibleRowCount
 {
 	unsigned int visibleRows;
 };

@@ -17,9 +17,6 @@ public:
 	virtual IView* CreateView(IUIManager& uiManager);
 	virtual void DeleteView(IView* aview);
 
-	//Window functions
-	void OpenPortMonitorDetailsView(const IS315_5313::PortMonitorEntry& aentry);
-
 private:
 	S315_5313Menus& owner;
 	const IDevice& modelInstanceKey;

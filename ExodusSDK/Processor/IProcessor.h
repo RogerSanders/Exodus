@@ -81,6 +81,7 @@ public:
 	virtual bool GetCallStackDisassemble() const = 0;
 	virtual void SetCallStackDisassemble(bool state) = 0;
 	virtual MarshalSupport::Marshal::Ret<std::list<CallStackEntry>> GetCallStack() const = 0;
+	virtual unsigned int GetCallStackLastModifiedToken() const = 0;
 	virtual void ClearCallStack() = 0;
 
 	//Trace functions
@@ -91,6 +92,7 @@ public:
 	virtual unsigned int GetTraceLength() const = 0;
 	virtual void SetTraceLength(unsigned int state) = 0;
 	virtual MarshalSupport::Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const = 0;
+	virtual unsigned int GetTraceLogLastModifiedToken() const = 0;
 	virtual void ClearTraceLog() = 0;
 
 	//Active disassembly info functions

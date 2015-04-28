@@ -29,11 +29,3 @@ void PortMonitorViewPresenter::DeleteView(IView* aview)
 {
 	delete aview;
 }
-
-//----------------------------------------------------------------------------------------
-//Window functions
-//----------------------------------------------------------------------------------------
-void PortMonitorViewPresenter::OpenPortMonitorDetailsView(const IS315_5313::PortMonitorEntry& aentry)
-{
-	owner.OpenPortMonitorDetailsView(&modelInstanceKey, aentry);
-}
