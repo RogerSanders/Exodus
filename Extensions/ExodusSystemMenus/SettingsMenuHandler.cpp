@@ -16,7 +16,7 @@ SettingsMenuHandler::SettingsMenuHandler(ExodusSystemMenus& aowner, ISystemGUIIn
 void SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	menuItems.push_back(MenuItemDefinition(MENUITEM_INPUTMAPPING, L"InputMapping", InputMappingViewPresenter::GetUnqualifiedViewTitle(), true));
-	menuItems.push_back(MenuItemDefinition(MENUITEM_INPUTMAPPINGDETAILS, L"InputMappingDetails", InputMappingDetailsViewPresenter::GetUnqualifiedViewTitle(), true, true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_INPUTMAPPINGDETAILS, L"InputMappingDetails", InputMappingDetailsViewPresenter::GetUnqualifiedViewTitle(), true, false, true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_EMBEDDEDROM, L"EmbeddedROMControl", EmbeddedROMViewPresenter::GetUnqualifiedViewTitle(), true));
 }
 

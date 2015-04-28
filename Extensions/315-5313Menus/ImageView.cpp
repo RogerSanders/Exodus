@@ -59,6 +59,9 @@ LRESULT ImageView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 	InitCommonControlsEx(&iccex);
 
+	//Save a copy of the main window handle
+	hwndMain = hwnd;
+
 	//Create the render window
 	hwndChildGroup = CreateChildWindow(WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, 0, hwnd, std::bind(&ImageView::WndProcChildGroup, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
@@ -162,7 +165,7 @@ LRESULT ImageView::msgChildWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if(fullScreenMode && (wparam == VK_ESCAPE))
 	{
-		SetFullScreen(hwnd, false);
+		SetFullScreen(false);
 	}
 	else
 	{
@@ -180,7 +183,7 @@ LRESULT ImageView::msgChildWM_SYSKEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam
 {
 	if(wparam == VK_RETURN)
 	{
-		SetFullScreen(hwnd, !fullScreenMode);
+		SetFullScreen(!fullScreenMode);
 	}
 	return 0;
 }
@@ -655,7 +658,7 @@ void ImageView::UpdateRenderWindowSize()
 	int windowHeight = clientRect.bottom - clientRect.top;
 
 	//Set the visibility state of the status bar
-	ShowWindow(hwndStatusBar, videoShowStatusBarCached? SW_SHOWNOACTIVATE: SW_HIDE);
+	ShowWindow(hwndStatusBar, (videoShowStatusBarCached? SW_SHOWNOACTIVATE: SW_HIDE));
 
 	//If the status bar is currently visible, position and size it correctly within the
 	//window.
@@ -692,7 +695,7 @@ void ImageView::UpdateRenderWindowSize()
 }
 
 //----------------------------------------------------------------------------------------
-void ImageView::SetFullScreen(HWND hwnd, bool fullScreenModeNew)
+void ImageView::SetFullScreen(bool fullScreenModeNew)
 {
 	//If we're already in the target mode, abort any further processing.
 	if(fullScreenMode == fullScreenModeNew)
@@ -706,17 +709,36 @@ void ImageView::SetFullScreen(HWND hwnd, bool fullScreenModeNew)
 		//Obtain the position and dimensions of the monitor closest to the image window
 		MONITORINFO monitorInfo;
 		monitorInfo.cbSize = sizeof(monitorInfo);
-		GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), &monitorInfo);
+		GetMonitorInfo(MonitorFromWindow(hwndMain, MONITOR_DEFAULTTONEAREST), &monitorInfo);
 
-		//Save the width and height of our image window before entering fullscreen mode
+		//Save the position and size of our image window before entering fullscreen mode
 		RECT rect;
-		GetClientRect(hwnd, &rect);
+		GetWindowRect(hwndMain, &rect);
+		savedWindowPosX = rect.left;
+		savedWindowPosY = rect.top;
 		savedWindowWidth = rect.right - rect.left;
 		savedWindowHeight = rect.bottom - rect.top;
 
 		//Make our image window into a top-level window, and save the previous parent
 		//window.
-		savedParent = SetWindowParent(hwnd, NULL);
+		savedParent = SetWindowParent(hwndMain, NULL);
+
+		//If we had a parent window previously, convert the saved window position into
+		//coordinates relative to the parent window.
+		if(savedParent != NULL)
+		{
+			POINT windowPos;
+			windowPos.x = savedWindowPosX;
+			windowPos.y = savedWindowPosY;
+			ScreenToClient(savedParent, &windowPos);
+			savedWindowPosX = (int)windowPos.x;
+			savedWindowPosY = (int)windowPos.y;
+		}
+
+		//Ensure our detached image window is set as the foreground window, and that the
+		//input window has focus.
+		SetForegroundWindow(hwndMain);
+		SetFocus(hwndChildGroup);
 
 		//Set the position and dimensions of the image window based on the position and
 		//dimensions of the monitor
@@ -724,20 +746,23 @@ void ImageView::SetFullScreen(HWND hwnd, bool fullScreenModeNew)
 		int newWindowPosY = monitorInfo.rcMonitor.top;
 		int newWindowSizeX = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
 		int newWindowSizeY = monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
-		SetWindowPos(hwnd, NULL, newWindowPosX, newWindowPosY, newWindowSizeX, newWindowSizeY, SWP_NOZORDER);
+		SetWindowPos(hwndMain, NULL, newWindowPosX, newWindowPosY, newWindowSizeX, newWindowSizeY, SWP_NOZORDER);
 	}
 	else
 	{
+		//Restore the image window size
+		SetWindowPos(hwndMain, NULL, 0, 0, savedWindowWidth, savedWindowHeight, SWP_NOZORDER | SWP_NOMOVE);
+
 		//Restore the saved parent window of the image window
-		SetWindowParent(hwnd, savedParent);
+		SetWindowParent(hwndMain, savedParent);
+
+		//Restore the image window position
+		SetWindowPos(hwndMain, NULL, savedWindowPosX, savedWindowPosY, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 
 		//Ensure that the parent window is correctly set as the foreground window, and
-		//that our image window retains focus.
+		//that our input window retains focus.
 		SetForegroundWindow(GetAncestor(savedParent, GA_ROOT));
-		SetFocus(hwnd);
-
-		//Restore the image window size and position
-		SetWindowPos(hwnd, NULL, 0, 0, savedWindowWidth, savedWindowHeight, SWP_NOZORDER | SWP_NOMOVE);
+		SetFocus(hwndChildGroup);
 	}
 
 	//Record the new full screen mode state
