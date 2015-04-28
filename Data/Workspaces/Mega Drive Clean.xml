@@ -12,7 +12,19 @@
 		</Module>
 		<Module ModuleID="2" SystemClassName="SegaMegaDrive" ModuleClassName="ROMLoader" ModuleInstanceName="Generic ROM Loader" />
 	</ModuleRelationships>
-	<Window Owner="Device" DeviceInstanceName="VDP" ModuleID="0" ViewModelGroupName="VDPDebugMenu" ViewModelName="VRAMPatterns" XPos="0" YPos="0" />
-	<Window Owner="Device" DeviceInstanceName="VDP" ModuleID="0" ViewModelGroupName="VDPDebugMenu" ViewModelName="Palette" XPos="331" YPos="0" />
-	<Window Owner="Device" DeviceInstanceName="VDP" ModuleID="0" ViewModelGroupName="VDPDebugMenu" ViewModelName="Image" XPos="331" YPos="94" Width="436" Height="347" />
+	<ViewLayout>
+		<MainWindowState SizeX="1020" SizeY="764" Maximized="1">
+			<MainDockedWindow ActiveHostedWindowID="1">
+				<HostedContentWindows>
+					<HostedWindow WindowID="1" ViewType="Dockable" WindowTitle="VDP - Image Window" />
+				</HostedContentWindows>
+			</MainDockedWindow>
+			<FloatingWindows />
+		</MainWindowState>
+		<ViewPresenterState ViewPresenterGroupName="VDPDebugMenu" ViewPresenterName="Image" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="1" />
+			</ViewState>
+		</ViewPresenterState>
+	</ViewLayout>
 </Workspace>

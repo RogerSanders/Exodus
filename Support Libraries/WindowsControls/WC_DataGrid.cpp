@@ -1145,11 +1145,12 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				{
 					//Calculate the position and size of the checkbox control for this
 					//cell
+					int controlSmallestDimension = (cellControlInfo.controlWidth < cellControlInfo.controlHeight)? cellControlInfo.controlWidth: cellControlInfo.controlHeight;
 					RECT rect;
 					rect.left = cellControlInfo.controlPosX;
-					rect.right = cellControlInfo.controlPosX + cellControlInfo.controlWidth;
+					rect.right = cellControlInfo.controlPosX + controlSmallestDimension;
 					rect.top = cellControlInfo.controlPosY;
-					rect.bottom = cellControlInfo.controlPosY + cellControlInfo.controlHeight;
+					rect.bottom = cellControlInfo.controlPosY + controlSmallestDimension;
 
 					//Draw the checkbox for this cell
 					HTHEME hTheme = OpenThemeData(hwnd, WC_BUTTON);
