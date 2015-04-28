@@ -46,15 +46,18 @@ private:
 	//Screen mode functions
 	void UpdateOpenGLViewport();
 	void UpdateRenderWindowSize();
-	void SetFullScreen(HWND hwnd, bool fullScreenModeNew);
+	void SetFullScreen(bool fullScreenModeNew);
 
 private:
 	ImageViewPresenter& presenter;
 	IS315_5313& model;
+	HWND hwndMain;
 	HWND hwndChildGroup;
 	HWND hwndOpenGL;
 	HWND hwndStatusBar;
 	HWND savedParent;
+	int savedWindowPosX;
+	int savedWindowPosY;
 	int savedWindowWidth;
 	int savedWindowHeight;
 
