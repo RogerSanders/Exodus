@@ -59,9 +59,9 @@
 						<RegionLayout>
 							<DividerList>
 								<DividerListEntry DividerID="4" ParentDividerID="1" DistanceAlongParent="802" />
-								<DividerListEntry DividerID="5" ParentDividerID="2" DistanceAlongParent="699" />
-								<DividerListEntry DividerID="6" ParentDividerID="5" DistanceAlongParent="186" />
-								<DividerListEntry DividerID="7" ParentDividerID="1" DistanceAlongParent="278" />
+								<DividerListEntry DividerID="5" ParentDividerID="2" DistanceAlongParent="700" />
+								<DividerListEntry DividerID="6" ParentDividerID="5" DistanceAlongParent="187" />
+								<DividerListEntry DividerID="7" ParentDividerID="1" DistanceAlongParent="282" />
 							</DividerList>
 						</RegionLayout>
 					</DashboardWindowFrame>
@@ -111,7 +111,7 @@
 							</DividerList>
 						</RegionLayout>
 					</DashboardWindowFrame>
-					<DashboardWindowFrame DockPos="Left" AutoHide="1" DesiredWidth="1398" DesiredHeight="971" Title="Graphics Debugger">
+					<DashboardWindowFrame DockPos="Left" AutoHide="1" DesiredWidth="1412" DesiredHeight="971" Title="Graphics Debugger">
 						<HostedDockingWindows>
 							<DockingWindowFrame RegionNo="0" ActiveHostedWindowID="18">
 								<HostedContentWindows>
@@ -122,36 +122,43 @@
 								<HostedContentWindows>
 									<HostedWindow WindowID="19" ViewType="Dockable" WindowTitle="VDP - Registers" />
 								</HostedContentWindows>
-							</DockingWindowFrame>
-							<DockingWindowFrame RegionNo="2" ActiveHostedWindowID="20">
-								<HostedContentWindows>
-									<HostedWindow WindowID="20" ViewType="Dockable" WindowTitle="VDP - Image Window" />
-								</HostedContentWindows>
-							</DockingWindowFrame>
-							<DockingWindowFrame RegionNo="3" ActiveHostedWindowID="21">
-								<HostedContentWindows>
-									<HostedWindow WindowID="21" ViewType="Dockable" WindowTitle="VDP - VRAM - Memory Editor" />
-								</HostedContentWindows>
 								<HostedDockingWindows>
-									<DockingWindowFrame DockPos="Right" AutoHide="1" DesiredWidth="433" DesiredHeight="893" ActiveHostedWindowID="24">
+									<DockingWindowFrame DockPos="Bottom" AutoHide="1" DesiredWidth="583" DesiredHeight="436" ActiveHostedWindowID="20">
 										<HostedContentWindows>
-											<HostedWindow WindowID="22" ViewType="Dockable" WindowTitle="VDP - CRAM - Memory Editor" />
-											<HostedWindow WindowID="23" ViewType="Dockable" WindowTitle="VDP - VSRAM - Memory Editor" />
-											<HostedWindow WindowID="24" ViewType="Dockable" WindowTitle="VDP - SpriteCache - Memory Editor" />
+											<HostedWindow WindowID="20" ViewType="Dockable" WindowTitle="VDP - Sprite List" />
 										</HostedContentWindows>
 									</DockingWindowFrame>
 								</HostedDockingWindows>
 							</DockingWindowFrame>
-							<DockingWindowFrame RegionNo="4" ActiveHostedWindowID="25">
+							<DockingWindowFrame RegionNo="2" ActiveHostedWindowID="21">
 								<HostedContentWindows>
-									<HostedWindow WindowID="25" ViewType="Dockable" WindowTitle="VDP - Layer Visibility" />
-									<HostedWindow WindowID="26" ViewType="Dockable" WindowTitle="VDP - Debug Settings" />
-									<HostedWindow WindowID="27" ViewType="Dockable" WindowTitle="VDP - System Settings" />
+									<HostedWindow WindowID="21" ViewType="Dockable" WindowTitle="VDP - Image Window" />
 								</HostedContentWindows>
 							</DockingWindowFrame>
-							<DockingWindowFrame RegionNo="5" ActiveHostedWindowID="28">
+							<DockingWindowFrame RegionNo="3" ActiveHostedWindowID="22">
 								<HostedContentWindows>
-									<HostedWindow WindowID="28" ViewType="Dockable" WindowTitle="VDP - VRAM Pattern Viewer" />
+									<HostedWindow WindowID="22" ViewType="Dockable" WindowTitle="VDP - VRAM - Memory Editor" />
+								</HostedContentWindows>
+								<HostedDockingWindows>
+									<DockingWindowFrame DockPos="Right" AutoHide="1" DesiredWidth="433" DesiredHeight="509" ActiveHostedWindowID="24">
+										<HostedContentWindows>
+											<HostedWindow WindowID="23" ViewType="Dockable" WindowTitle="VDP - CRAM - Memory Editor" />
+											<HostedWindow WindowID="24" ViewType="Dockable" WindowTitle="VDP - VSRAM - Memory Editor" />
+											<HostedWindow WindowID="25" ViewType="Dockable" WindowTitle="VDP - SpriteCache - Memory Editor" />
+										</HostedContentWindows>
+									</DockingWindowFrame>
+								</HostedDockingWindows>
+							</DockingWindowFrame>
+							<DockingWindowFrame RegionNo="4" ActiveHostedWindowID="26">
+								<HostedContentWindows>
+									<HostedWindow WindowID="26" ViewType="Dockable" WindowTitle="VDP - Layer Visibility" />
+									<HostedWindow WindowID="27" ViewType="Dockable" WindowTitle="VDP - Debug Settings" />
+									<HostedWindow WindowID="28" ViewType="Dockable" WindowTitle="VDP - System Settings" />
+								</HostedContentWindows>
+							</DockingWindowFrame>
+							<DockingWindowFrame RegionNo="5" ActiveHostedWindowID="29">
+								<HostedContentWindows>
+									<HostedWindow WindowID="29" ViewType="Dockable" WindowTitle="VDP - VRAM Pattern Viewer" />
 								</HostedContentWindows>
 							</DockingWindowFrame>
 						</HostedDockingWindows>
@@ -167,20 +174,20 @@
 					</DashboardWindowFrame>
 					<DashboardWindowFrame DockPos="Left" AutoHide="1" DesiredWidth="865" DesiredHeight="971" Title="Audio Debugger">
 						<HostedDockingWindows>
-							<DockingWindowFrame RegionNo="0" ActiveHostedWindowID="29">
+							<DockingWindowFrame RegionNo="0" ActiveHostedWindowID="30">
 								<HostedContentWindows>
-									<HostedWindow WindowID="29" ViewType="Dockable" WindowTitle="YM2612 - Debugger" />
+									<HostedWindow WindowID="30" ViewType="Dockable" WindowTitle="YM2612 - Debugger" />
 								</HostedContentWindows>
 							</DockingWindowFrame>
-							<DockingWindowFrame RegionNo="1" ActiveHostedWindowID="30">
+							<DockingWindowFrame RegionNo="1" ActiveHostedWindowID="31">
 								<HostedContentWindows>
-									<HostedWindow WindowID="30" ViewType="Dockable" WindowTitle="PSG - Registers" />
+									<HostedWindow WindowID="31" ViewType="Dockable" WindowTitle="PSG - Registers" />
 								</HostedContentWindows>
 							</DockingWindowFrame>
 							<DockingWindowFrame RegionNo="2" ActiveHostedWindowID="32">
 								<HostedContentWindows>
-									<HostedWindow WindowID="31" ViewType="Dockable" WindowTitle="YM2612 - Audio Logging" />
-									<HostedWindow WindowID="32" ViewType="Dockable" WindowTitle="PSG - Audio Logging" />
+									<HostedWindow WindowID="32" ViewType="Dockable" WindowTitle="YM2612 - Audio Logging" />
+									<HostedWindow WindowID="33" ViewType="Dockable" WindowTitle="PSG - Audio Logging" />
 								</HostedContentWindows>
 							</DockingWindowFrame>
 						</HostedDockingWindows>
@@ -195,49 +202,14 @@
 			</MainDockedWindow>
 			<FloatingWindows />
 		</MainWindowState>
-		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Breakpoints" Target="Device" DeviceInstanceName="Main 68000" ModuleID="0">
+		<ViewPresenterState ViewPresenterGroupName="VDPDebugMenu" ViewPresenterName="SpriteList" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
 			<ViewState>
-				<WindowState WindowID="5" />
+				<WindowState WindowID="20" />
 			</ViewState>
 		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Registers" Target="Device" DeviceInstanceName="PSG" ModuleID="0">
 			<ViewState>
-				<WindowState WindowID="30" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Registers" Target="Device" DeviceInstanceName="Main 68000" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="2" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Audio Logging" Target="Device" DeviceInstanceName="YM2612" ModuleID="0">
-			<ViewState>
 				<WindowState WindowID="31" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Breakpoints" Target="Device" DeviceInstanceName="Z80" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="13" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="CallStack" Target="Device" DeviceInstanceName="Z80" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="17" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="ProcessorControl" Target="Device" DeviceInstanceName="Z80" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="16" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="RAM" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="6" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="VDP - CRAM" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="22" />
 			</ViewState>
 		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="ProcessorControl" Target="Device" DeviceInstanceName="Main 68000" ModuleID="0">
@@ -245,19 +217,19 @@
 				<WindowState WindowID="8" />
 			</ViewState>
 		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="VDPDebugMenu" ViewPresenterName="VRAMPatterns" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="28" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="VDPDebugMenu" ViewPresenterName="Image" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="20" />
-			</ViewState>
-		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="Boot ROM" ModuleID="0">
 			<ViewState>
 				<WindowState WindowID="7" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="ProcessorControl" Target="Device" DeviceInstanceName="Z80" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="16" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="VDP - CRAM" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="23" />
 			</ViewState>
 		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="Disassembly" Target="Device" DeviceInstanceName="Main 68000" ModuleID="0">
@@ -270,9 +242,64 @@
 				<WindowState WindowID="19" />
 			</ViewState>
 		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="YM2612DebugMenu" ViewPresenterName="Debugger" Target="Device" DeviceInstanceName="YM2612" ModuleID="0">
+		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Breakpoints" Target="Device" DeviceInstanceName="Z80" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="13" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Registers" Target="Device" DeviceInstanceName="Main 68000" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="2" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="CallStack" Target="Device" DeviceInstanceName="Z80" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="17" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Breakpoints" Target="Device" DeviceInstanceName="Main 68000" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="5" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="RAM" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="6" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="VDPDebugMenu" ViewPresenterName="Image" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="21" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="VDPDebugMenu" ViewPresenterName="VRAMPatterns" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
 			<ViewState>
 				<WindowState WindowID="29" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Audio Logging" Target="Device" DeviceInstanceName="YM2612" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="32" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="DebugSettings" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="27" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="VDP - SpriteCache" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="25" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Audio Logging" Target="Device" DeviceInstanceName="PSG" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="33" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="LayerVisibility" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="26" />
 			</ViewState>
 		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="Trace" Target="Device" DeviceInstanceName="Main 68000" ModuleID="0">
@@ -280,34 +307,24 @@
 				<WindowState WindowID="4" />
 			</ViewState>
 		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="VDPDebugMenu" ViewPresenterName="Image" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="1" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="CallStack" Target="Device" DeviceInstanceName="Main 68000" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="9" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="VDP - VSRAM" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="23" />
-			</ViewState>
-		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="VDPDebugMenu" ViewPresenterName="Palette" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
 			<ViewState>
 				<WindowState WindowID="18" />
 			</ViewState>
 		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="YM2612DebugMenu" ViewPresenterName="Debugger" Target="Device" DeviceInstanceName="YM2612" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="30" />
+			</ViewState>
+		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="VDP - VSRAM" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="24" />
+			</ViewState>
+		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="RAM" ModuleID="0">
 			<ViewState>
 				<WindowState WindowID="15" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="VDP - VRAM" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="21" />
 			</ViewState>
 		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="Disassembly" Target="Device" DeviceInstanceName="Z80" ModuleID="0">
@@ -320,19 +337,19 @@
 				<WindowState WindowID="12" />
 			</ViewState>
 		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="VDP - VRAM" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="22" />
+			</ViewState>
+		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="Z80 RAM" ModuleID="0">
 			<ViewState>
 				<WindowState WindowID="14" />
 			</ViewState>
 		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="MemoryReadDebugMenu" ViewPresenterName="MemoryEditor" Target="Device" DeviceInstanceName="VDP - SpriteCache" ModuleID="0">
+		<ViewPresenterState ViewPresenterGroupName="ProcessorDebugMenu" ViewPresenterName="CallStack" Target="Device" DeviceInstanceName="Main 68000" ModuleID="0">
 			<ViewState>
-				<WindowState WindowID="24" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="DebugSettings" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="26" />
+				<WindowState WindowID="9" />
 			</ViewState>
 		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Registers" Target="Device" DeviceInstanceName="Z80" ModuleID="0">
@@ -340,19 +357,14 @@
 				<WindowState WindowID="10" />
 			</ViewState>
 		</ViewPresenterState>
+		<ViewPresenterState ViewPresenterGroupName="VDPDebugMenu" ViewPresenterName="Image" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
+			<ViewState>
+				<WindowState WindowID="1" />
+			</ViewState>
+		</ViewPresenterState>
 		<ViewPresenterState ViewPresenterGroupName="GenericAccessSettingsMenu" ViewPresenterName="SystemSettings" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
 			<ViewState>
-				<WindowState WindowID="27" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="Audio Logging" Target="Device" DeviceInstanceName="PSG" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="32" />
-			</ViewState>
-		</ViewPresenterState>
-		<ViewPresenterState ViewPresenterGroupName="GenericAccessDebugMenu" ViewPresenterName="LayerVisibility" Target="Device" DeviceInstanceName="VDP" ModuleID="0">
-			<ViewState>
-				<WindowState WindowID="25" />
+				<WindowState WindowID="28" />
 			</ViewState>
 		</ViewPresenterState>
 	</ViewLayout>
