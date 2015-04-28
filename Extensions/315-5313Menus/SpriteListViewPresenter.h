@@ -17,9 +17,6 @@ public:
 	virtual IView* CreateView(IUIManager& uiManager);
 	virtual void DeleteView(IView* aview);
 
-	//Window functions
-	void OpenSpriteListDetailsView(unsigned int aspriteIndex);
-
 private:
 	S315_5313Menus& owner;
 	const IDevice& modelInstanceKey;

@@ -129,11 +129,15 @@ struct WC_DataGrid::Grid_GetColumnInfo
 struct WC_DataGrid::Grid_SetColumnInfo
 {
 	Grid_SetColumnInfo()
-	:columnID(0), sizeMode(ColumnSizeMode::SizeToContent), absoluteWidth(0), proportionalWidth(0), minWidth(-1), maxWidth(-1)
+	:columnID(0), controlType(CellControlType::TextBox), sizeMode(ColumnSizeMode::SizeToContent), absoluteWidth(0), proportionalWidth(0), minWidth(-1), maxWidth(-1)
+	{}
+	Grid_SetColumnInfo(unsigned int acolumnID, CellControlType acontrolType = CellControlType::TextBox)
+	:columnID(acolumnID), controlType(acontrolType), sizeMode(ColumnSizeMode::SizeToContent), absoluteWidth(0), proportionalWidth(0), minWidth(-1), maxWidth(-1)
 	{}
 
 	std::wstring name;
 	unsigned int columnID;
+	CellControlType controlType;
 	bool editingAllowed;
 	ColumnSizeMode sizeMode;
 	unsigned int absoluteWidth;
@@ -344,6 +348,7 @@ struct WC_DataGrid::CellControlInfo
 	unsigned int treeEntryIndentLevel;
 	bool showExpandIcon;
 	bool expandIconIsExpanded;
+	bool checkedState;
 	bool lastBackgroundColorSet;
 	COLORREF lastBackgroundColor;
 	HBRUSH lastBackgroundColorBrush;

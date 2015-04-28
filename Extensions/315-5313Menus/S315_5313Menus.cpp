@@ -99,12 +99,6 @@ bool S315_5313Menus::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstri
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313Menus::OpenSpriteListDetailsView(const IDevice* targetDevice, unsigned int aspriteIndex)
-{
-	debugMenuHandlers[targetDevice]->OpenSpriteListDetailsView(aspriteIndex);
-}
-
-//----------------------------------------------------------------------------------------
 void S315_5313Menus::OpenPortMonitorDetailsView(const IDevice* targetDevice, const IS315_5313::PortMonitorEntry& aentry)
 {
 	debugMenuHandlers[targetDevice]->OpenPortMonitorDetailsView(aentry);

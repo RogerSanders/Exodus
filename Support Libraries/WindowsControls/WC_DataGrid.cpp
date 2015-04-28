@@ -2,6 +2,8 @@
 #include "DataConversion/DataConversion.pkg"
 #include <locale>
 #include <algorithm>
+#include <Uxtheme.h>
+#include <Vsstyle.h>
 //##DEBUG##
 #include <iostream>
 
@@ -347,8 +349,6 @@ LRESULT WC_DataGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgWM_LBUTTONDOWN(wParam, lParam);
 	case WM_MOUSEWHEEL:
 		return msgWM_MOUSEWHEEL(wParam, lParam);
-	case WM_BOUNCE:
-		return msgWM_BOUNCE(wParam, lParam);
 	case WM_CTLCOLORSTATIC:
 		return msgWM_CTLCOLORSTATIC(wParam, lParam);
 
@@ -733,13 +733,12 @@ void WC_DataGrid::UpdateChildControls()
 				//Create or reposition the child control for this cell as required
 				if(cellControlInfo.hwnd == NULL)
 				{
-					if((cellControlInfo.controlType == CellControlType::CheckBox)
-					|| (cellControlInfo.controlType == CellControlType::ComboBox)
+					if((cellControlInfo.controlType == CellControlType::ComboBox)
 					|| (cellControlInfo.controlType == CellControlType::Button)
 					|| (cellControlInfo.controlType == CellControlType::TextBoxWithButton))
 					{
 						const wchar_t* buttonText = (cellControlInfo.controlType == CellControlType::TextBoxWithButton)? cellControlInfo.customButtonText.c_str(): (cellControlInfo.controlType == CellControlType::ComboBox)? L"\u25BC": L"";
-						int windowStyle = (cellControlInfo.controlType == CellControlType::CheckBox)? WS_CHILD | WS_VISIBLE | BS_CHECKBOX: WS_CHILD | WS_VISIBLE;
+						int windowStyle = WS_CHILD | WS_VISIBLE;
 						cellControlInfo.hwnd = CreateWindow(WC_BUTTON, buttonText, windowStyle, newControlPosX, newControlPosY, newControlWidth, newControlHeight, hwnd, NULL, moduleHandle, NULL);
 						if(cellControlInfo.hwnd != NULL)
 						{
@@ -747,7 +746,7 @@ void WC_DataGrid::UpdateChildControls()
 							SendMessage(cellControlInfo.hwnd, WM_SETFONT, (WPARAM)controlFont, FALSE);
 
 							//Subclass the child control so we can intercept click events
-							SetWindowSubclass(cellControlInfo.hwnd, BounceBackSubclassProc, 0, 0);
+							SetWindowSubclass(cellControlInfo.hwnd, ChildControlClickHandlerSubclassProc, 0, (DWORD_PTR)this);
 
 							//Save information on this created child control
 							childControlSet.insert(cellControlInfo.hwnd);
@@ -777,6 +776,18 @@ void WC_DataGrid::UpdateChildControls()
 				cellControlInfo.controlPosY = newControlPosY;
 				cellControlInfo.controlWidth = newControlWidth;
 				cellControlInfo.controlHeight = newControlHeight;
+
+				//Update the current state of the child control
+				if(cellControlInfo.controlType == CellControlType::CheckBox)
+				{
+					//Update the checked state for this checkbox cell
+					StringToBool(cellDataRaw, cellControlInfo.checkedState);
+				}
+				if((cellControlInfo.hwnd != NULL) && (cellControlInfo.controlType == CellControlType::Button))
+				{
+					//Update the text for this button cell
+					SendMessage(cellControlInfo.hwnd, WM_SETTEXT, 0, (LPARAM)cellDataRaw);
+				}
 
 				//If a control exists for this cell, ensure it is currently visible, and
 				//add it to the list of child controls that were drawn in this paint
@@ -1126,14 +1137,22 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				//Update the content of this cell
 				if(cellControlInfo.controlType == CellControlType::CheckBox)
 				{
-					//Update the checked state for this checkbox cell
-					bool checkedState = false;
-					StringToBool(cellDataRaw, checkedState);
-					SendMessage(cellControlInfo.hwnd, BM_SETCHECK, (checkedState)? BST_CHECKED: BST_UNCHECKED, 0);
-				}
-				else if(cellControlInfo.controlType == CellControlType::Button)
-				{
-					SendMessage(cellControlInfo.hwnd, WM_SETTEXT, 0, (LPARAM)cellDataRaw);
+					//Calculate the position and size of the checkbox control for this
+					//cell
+					RECT rect;
+					rect.left = cellControlInfo.controlPosX;
+					rect.right = cellControlInfo.controlPosX + cellControlInfo.controlWidth;
+					rect.top = cellControlInfo.controlPosY;
+					rect.bottom = cellControlInfo.controlPosY + cellControlInfo.controlHeight;
+
+					//Draw the checkbox for this cell
+					HTHEME hTheme = OpenThemeData(hwnd, WC_BUTTON);
+					if(hTheme != NULL)
+					{
+						int stateID = cellControlInfo.checkedState? CBS_CHECKEDNORMAL: CBS_UNCHECKEDNORMAL;
+						DrawThemeBackground(hTheme, hdc, BP_CHECKBOX, stateID, &rect, NULL);
+						CloseThemeData(hTheme);
+					}
 				}
 				else if((cellControlInfo.controlType == CellControlType::TextBox) || (cellControlInfo.controlType == CellControlType::ComboBox) || (cellControlInfo.controlType == CellControlType::TreeEntry) || (cellControlInfo.controlType == CellControlType::TextBoxWithButton))
 				{
@@ -1334,21 +1353,7 @@ LRESULT WC_DataGrid::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 					ColumnData& columnData = *columnIDIndex[columnID];
 					if(columnData.editingAllowed)
 					{
-						if(cellControlInfo.createdControlType == CellControlType::CheckBox)
-						{
-							std::wstring dataAsString = columnData.dataBuffer[rowNo];
-							bool checkedState = false;
-							StringToBool(dataAsString, checkedState);
-							checkedState = !checkedState;
-							BoolToString(checkedState, dataAsString);
-
-							Grid_CellEditEvent info;
-							info.targetRowNo = rowNo;
-							info.targetColumnID = columnID;
-							info.newData = dataAsString;
-							SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
-						}
-						else if((cellControlInfo.createdControlType == CellControlType::Button) || (cellControlInfo.createdControlType == CellControlType::TextBoxWithButton))
+						if((cellControlInfo.createdControlType == CellControlType::Button) || (cellControlInfo.createdControlType == CellControlType::TextBoxWithButton))
 						{
 							Grid_CellButtonClickEvent info;
 							info.targetRowNo = rowNo;
@@ -2716,6 +2721,7 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 		std::vector<CellControlInfo>& cellInfoArray = customControlForCell[newSelectedColumnID];
 		if(newSelectedRowNo < (unsigned int)cellInfoArray.size())
 		{
+			ColumnData& columnData = *columnIDIndex[newSelectedColumnID];
 			CellControlInfo& cellInfoInternal = cellInfoArray[newSelectedRowNo];
 			if((cellInfoInternal.controlType == CellControlType::TreeEntry) && cellInfoInternal.showExpandIcon)
 			{
@@ -2735,11 +2741,28 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 					return 0;
 				}
 			}
-			else if((cellInfoInternal.controlType == CellControlType::ComboBox) && cellInfoInternal.pickFromSelectionListOnly)
+			else if((cellInfoInternal.controlType == CellControlType::ComboBox) && columnData.editingAllowed && cellInfoInternal.pickFromSelectionListOnly)
 			{
 				//If the user selected the text region of a combobox cell that doesn't
 				//allow manual entries, expand the selection list for the cell.
 				ShowCellSelectionList(newSelectedColumnID, newSelectedRowNo, cellInfoInternal);
+				return 0;
+			}
+			else if((cellInfoInternal.controlType == CellControlType::CheckBox) && columnData.editingAllowed)
+			{
+				//Calcuate the inverted checked state for this checkbox cell
+				std::wstring dataAsString = columnData.dataBuffer[newSelectedRowNo];
+				bool checkedState = false;
+				StringToBool(dataAsString, checkedState);
+				checkedState = !checkedState;
+				BoolToString(checkedState, dataAsString);
+
+				//Raise an edit event for this checkbox cell
+				Grid_CellEditEvent info;
+				info.targetRowNo = newSelectedRowNo;
+				info.targetColumnID = newSelectedColumnID;
+				info.newData = dataAsString;
+				SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
 				return 0;
 			}
 		}
@@ -2892,61 +2915,6 @@ LRESULT WC_DataGrid::msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam)
 
 	//Force the entire control to redraw
 	ForceControlRedraw();
-
-	return 0;
-}
-
-//----------------------------------------------------------------------------------------
-LRESULT WC_DataGrid::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
-{
-	BounceMessage* bounceMessage = (BounceMessage*)lParam;
-	switch(bounceMessage->uMsg)
-	{
-	case WM_LBUTTONDBLCLK:
-	case WM_LBUTTONDOWN:
-		//Attempt to identify a cell associated with the target control
-		std::map<HWND, CellMapping>::const_iterator controlMappingIterator = childControlMapping.find(bounceMessage->hwnd);
-		if(controlMappingIterator == childControlMapping.end())
-		{
-			return 0;
-		}
-
-		//Retrieve information on the target cell
-		const CellMapping& cellMapping = controlMappingIterator->second;
-
-		//Notify the parent window of the selection event. Note that we give the handler
-		//an option to abort any further processing of this click event by setting the
-		//ignoreClickEvent field of this message to true. This allows the owner to extend
-		//the selection behaviour of the grid control by performing custom actions in
-		//response to this click event, without the control performing actions that
-		//interfere.
-		Grid_SelectionEvent info;
-		info.sameCellAsPrevious = false;
-		info.rowSelected = true;
-		info.columnSelected = true;
-		info.selectedRowNo = cellMapping.rowNo;
-		info.columnID = cellMapping.columnID;
-		info.keyPressedCtrl = (bounceMessage->wParam & MK_CONTROL) != 0;
-		info.keyPressedShift = (bounceMessage->wParam & MK_SHIFT) != 0;
-		info.ignoreSelectionEvent = false;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
-
-		//If we were instructed to ignore this click event, abort any further processing.
-		if(info.ignoreSelectionEvent)
-		{
-			bounceMessage->SetResult(0);
-		}
-
-		//Complete cell editing if it is currently active
-		CompleteCellEditing();
-
-		//Update the currently selected cell information
-		rowSelected = false;
-		columnSelected = false;
-		selectedRowNo = 0;
-		selectedColumnID = 0;
-		break;
-	}
 
 	return 0;
 }
@@ -3407,11 +3375,10 @@ LRESULT WC_DataGrid::msgGRID_GETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 {
-	unsigned int targetColumnID = (unsigned int)wParam;
-	ColumnIDIndexIterator columnIterator = columnIDIndex.find(targetColumnID);
+	const Grid_SetColumnInfo& info = *((const Grid_SetColumnInfo*)lParam);
+	ColumnIDIndexIterator columnIterator = columnIDIndex.find(info.columnID);
 	if(columnIterator != columnIDIndex.end())
 	{
-		const Grid_SetColumnInfo& info = *((const Grid_SetColumnInfo*)lParam);
 		ColumnData* i = columnIterator->second;
 
 		//If cell editing is about to be disabled for this column, and we have a currently
@@ -3424,6 +3391,7 @@ LRESULT WC_DataGrid::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 		//Update the info for this column
 		i->columnID = info.columnID;
 		i->name = info.name;
+		i->controlType = info.controlType;
 		i->editingAllowed = info.editingAllowed;
 		i->sizeMode = info.sizeMode;
 		i->absoluteWidth = info.absoluteWidth;
@@ -3891,4 +3859,60 @@ LRESULT WC_DataGrid::msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam)
 	ForceControlRedraw();
 
 	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+//Subclass window procedures
+//----------------------------------------------------------------------------------------
+LRESULT CALLBACK WC_DataGrid::ChildControlClickHandlerSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+	WC_DataGrid& dataGrid = *((WC_DataGrid*)dwRefData);
+	switch(uMsg)
+	{
+	case WM_LBUTTONDBLCLK:
+	case WM_LBUTTONDOWN:
+		//Attempt to identify a cell associated with the target control
+		std::map<HWND, CellMapping>::const_iterator controlMappingIterator = dataGrid.childControlMapping.find(hwnd);
+		if(controlMappingIterator == dataGrid.childControlMapping.end())
+		{
+			return 0;
+		}
+
+		//Retrieve information on the target cell
+		const CellMapping& cellMapping = controlMappingIterator->second;
+
+		//Notify the parent window of the selection event. Note that we give the handler
+		//an option to abort any further processing of this click event by setting the
+		//ignoreClickEvent field of this message to true. This allows the owner to extend
+		//the selection behaviour of the grid control by performing custom actions in
+		//response to this click event, without the control performing actions that
+		//interfere.
+		Grid_SelectionEvent info;
+		info.sameCellAsPrevious = false;
+		info.rowSelected = true;
+		info.columnSelected = true;
+		info.selectedRowNo = cellMapping.rowNo;
+		info.columnID = cellMapping.columnID;
+		info.keyPressedCtrl = (wParam & MK_CONTROL) != 0;
+		info.keyPressedShift = (wParam & MK_SHIFT) != 0;
+		info.ignoreSelectionEvent = false;
+		SendMessage(GetParent(dataGrid.hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(dataGrid.hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
+
+		//If we were instructed to ignore this click event, abort any further processing.
+		if(info.ignoreSelectionEvent)
+		{
+			return 0;
+		}
+
+		//Complete cell editing if it is currently active
+		dataGrid.CompleteCellEditing();
+
+		//Update the currently selected cell information
+		dataGrid.rowSelected = false;
+		dataGrid.columnSelected = false;
+		dataGrid.selectedRowNo = 0;
+		dataGrid.selectedColumnID = 0;
+		break;
+	}
+	return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }

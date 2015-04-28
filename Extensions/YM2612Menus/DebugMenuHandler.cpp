@@ -15,7 +15,7 @@ DebugMenuHandler::DebugMenuHandler(YM2612Menus& aowner, const IDevice& amodelIns
 //----------------------------------------------------------------------------------------
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	menuItems.push_back(MenuItemDefinition(MENUITEM_DEBUGGER, L"Debugger", DebuggerViewPresenter::GetUnqualifiedViewTitle(), true));
+	menuItems.push_back(MenuItemDefinition(MENUITEM_DEBUGGER, L"Debugger", DebuggerViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	//menuItems.push_back(MenuItemDefinition(MENUITEM_OPERATOR, L"Operator", OperatorViewPresenter::GetUnqualifiedViewTitle(), true));
 	menuItems.push_back(MenuItemDefinition(MENUITEM_REGISTERS, L"Registers", RegistersViewPresenter::GetUnqualifiedViewTitle(), true));
 }

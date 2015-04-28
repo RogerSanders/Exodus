@@ -25,7 +25,6 @@ public:
 	DebugMenuHandler(S315_5313Menus& aowner, const IDevice& amodelInstanceKey, IS315_5313& amodel);
 
 	//Window functions
-	void OpenSpriteListDetailsView(unsigned int aspriteIndex);
 	void OpenPortMonitorDetailsView(const IS315_5313::PortMonitorEntry& aentry);
 
 protected:

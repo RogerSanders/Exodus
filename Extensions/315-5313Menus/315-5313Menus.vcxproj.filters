@@ -31,9 +31,6 @@
     <Filter Include="315-5313Menus\SettingsMenuHandler">
       <UniqueIdentifier>{99308a5e-bb8d-45ba-8d13-c80d7ee6fe79}</UniqueIdentifier>
     </Filter>
-    <Filter Include="315-5313Menus\SpriteListDetailsView">
-      <UniqueIdentifier>{5bd2a0e5-6bff-4411-81de-7eddd5f2217d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="315-5313Menus\SpriteListView">
       <UniqueIdentifier>{7f92a944-6558-4e3a-8522-5521e9831810}</UniqueIdentifier>
     </Filter>
@@ -92,12 +89,6 @@
     </ClCompile>
     <ClCompile Include="SettingsMenuHandler.cpp">
       <Filter>315-5313Menus\SettingsMenuHandler</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteListDetailsView.cpp">
-      <Filter>315-5313Menus\SpriteListDetailsView</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteListDetailsViewPresenter.cpp">
-      <Filter>315-5313Menus\SpriteListDetailsView</Filter>
     </ClCompile>
     <ClCompile Include="SpriteListView.cpp">
       <Filter>315-5313Menus\SpriteListView</Filter>
@@ -158,12 +149,6 @@
     </ClInclude>
     <ClInclude Include="SettingsMenuHandler.h">
       <Filter>315-5313Menus\SettingsMenuHandler</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteListDetailsView.h">
-      <Filter>315-5313Menus\SpriteListDetailsView</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteListDetailsViewPresenter.h">
-      <Filter>315-5313Menus\SpriteListDetailsView</Filter>
     </ClInclude>
     <ClInclude Include="SpriteListView.h">
       <Filter>315-5313Menus\SpriteListView</Filter>
