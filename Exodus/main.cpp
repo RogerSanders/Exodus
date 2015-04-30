@@ -64,14 +64,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ExodusInterface::PluginInfo systemPluginInfo;
 	if(!exodusInterface.LoadAssemblyInfo(L"System.dll", systemPluginInfo) || (systemPluginInfo.GetSystemEntry == 0))
 	{
-		return 1;
+		return 10;
 	}
 
 	//Retrieve information on the system plugin from the system assembly
 	SystemInfo systemInfo;
 	if(!systemPluginInfo.GetSystemEntry(0, systemInfo))
 	{
-		return 2;
+		return 20;
 	}
 
 	//Construct the system object
@@ -82,18 +82,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//Bind the main interface to the system
 	exodusInterface.BindToSystem(systemObject);
 
+	//Initialize the preferences system
+	if(!exodusInterface.InitializePrefs())
+	{
+		return 30;
+	}
+
 	//Create the main interface window
 	HWND hwnd = exodusInterface.CreateMainInterface(hInstance);
 	if(hwnd == NULL)
 	{
-		return 3;
+		return 40;
 	}
 
 	//Load the keyboard accelerator table
 	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATORS));
 	if(acceleratorTable == NULL)
 	{
-		return 4;
+		return 50;
 	}
 
 	//Begin the message loop

@@ -79,6 +79,7 @@ public:
 	void AdjustFloatingWindowPositions(int displacementX, int displacementY);
 
 	//Layout functions
+	bool ReadMainWindowSizeFromViewLayout(IHierarchicalStorageNode& viewLayout, bool& maximized, int& sizeX, int& sizeY) const;
 	bool LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISystemGUIInterface::ModuleRelationshipMap& relationshipMap);
 	bool SaveViewLayout(IHierarchicalStorageNode& viewLayout) const;
 
@@ -115,7 +116,7 @@ private:
 	void ProcessPendingEvents();
 	void ProcessOpenView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo, IHierarchicalStorageNode* viewState);
 	void ProcessCloseView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo);
-	void ProcessDeleteView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo);
+	void ProcessDeleteView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo, std::unique_lock<std::recursive_mutex>& lock);
 	void ProcessActivateView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo);
 	void ProcessShowView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo);
 	void ProcessHideView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo);
@@ -195,11 +196,11 @@ private:
 	std::list<InvokeUIParams> pendingInvokeUIRequests;
 
 	//View info
-	mutable std::mutex viewMutex;
+	mutable std::recursive_mutex viewMutex;
 	bool eventProcessingPaused;
 	std::list<ViewOperation> viewOperationQueue;
 	std::map<IViewPresenter*, ViewInfo*> viewInfoSet;
-	mutable std::condition_variable viewOperationQueueEmptied;
+	mutable std::condition_variable_any viewOperationQueueEmptied;
 
 	//Window info
 	int defaultWindowPosX;
