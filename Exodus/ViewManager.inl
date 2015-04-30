@@ -26,9 +26,9 @@ struct ViewManager::ViewInfo
 	int waitCount;
 	IViewPresenter& viewPresenter;
 	ViewStateChangeNotifier* notifier;
-	std::condition_variable_any viewClosed;
-	std::condition_variable_any viewOpened;
-	std::condition_variable_any viewInfoSafeToDelete;
+	std::condition_variable viewClosed;
+	std::condition_variable viewOpened;
+	std::condition_variable viewInfoSafeToDelete;
 	IHierarchicalStorageNode* node;
 };
 
