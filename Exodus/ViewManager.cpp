@@ -132,7 +132,7 @@ void ViewManager::ResumeEventProcessing()
 //----------------------------------------------------------------------------------------
 void ViewManager::WaitForAllPendingEventsToFinish() const
 {
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	if(!viewOperationQueue.empty())
 	{
 		viewOperationQueueEmptied.wait(lock);
@@ -164,7 +164,7 @@ bool ViewManager::OpenView(IViewPresenter& aviewPresenter, IHierarchicalStorageN
 //----------------------------------------------------------------------------------------
 bool ViewManager::OpenViewInternal(IViewPresenter& aviewPresenter, IHierarchicalStorageNode* viewState, bool waitToClose)
 {
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 
 	//Ensure this view isn't already open or in the queue to be opened
 	if(viewInfoSet.find(&aviewPresenter) != viewInfoSet.end())
@@ -204,7 +204,7 @@ bool ViewManager::OpenViewInternal(IViewPresenter& aviewPresenter, IHierarchical
 //----------------------------------------------------------------------------------------
 void ViewManager::CloseView(IViewPresenter& aviewPresenter, bool waitToClose)
 {
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 
 	//Retrieve the viewInfo structure for this view
 	ViewInfo* viewInfo = 0;
@@ -239,7 +239,7 @@ void ViewManager::CloseView(IViewPresenter& aviewPresenter, bool waitToClose)
 void ViewManager::ShowView(IViewPresenter& aviewPresenter)
 {
 	//Add an operation to the queue to show this view
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Show, aviewPresenter));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 }
@@ -248,7 +248,7 @@ void ViewManager::ShowView(IViewPresenter& aviewPresenter)
 void ViewManager::HideView(IViewPresenter& aviewPresenter)
 {
 	//Add an operation to the queue to hide this view
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Hide, aviewPresenter));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 }
@@ -257,7 +257,7 @@ void ViewManager::HideView(IViewPresenter& aviewPresenter)
 void ViewManager::ActivateView(IViewPresenter& aviewPresenter)
 {
 	//Add an operation to the queue to activate this view
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Activate, aviewPresenter));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 }
@@ -265,7 +265,7 @@ void ViewManager::ActivateView(IViewPresenter& aviewPresenter)
 //----------------------------------------------------------------------------------------
 bool ViewManager::WaitUntilViewOpened(IViewPresenter& aviewPresenter)
 {
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 
 	//Retrieve the viewInfo structure for this view
 	ViewInfo* viewInfo = 0;
@@ -299,7 +299,7 @@ bool ViewManager::WaitUntilViewOpened(IViewPresenter& aviewPresenter)
 //----------------------------------------------------------------------------------------
 void ViewManager::WaitUntilViewClosed(IViewPresenter& aviewPresenter)
 {
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 
 	//Retrieve the viewInfo structure for this view
 	ViewInfo* viewInfo = 0;
@@ -325,7 +325,7 @@ void ViewManager::WaitUntilViewClosed(IViewPresenter& aviewPresenter)
 //----------------------------------------------------------------------------------------
 void ViewManager::NotifyViewClosed(IViewPresenter& aviewPresenter)
 {
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	viewOperationQueue.push_back(ViewOperation(ViewOperationType::Delete, aviewPresenter));
 	PostMessage(messageWindow, WM_USER, 0, 0);
 }
@@ -333,7 +333,7 @@ void ViewManager::NotifyViewClosed(IViewPresenter& aviewPresenter)
 //----------------------------------------------------------------------------------------
 void ViewManager::ProcessPendingEvents()
 {
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	while(!viewOperationQueue.empty())
 	{
 		//Grab the details of the next view operation, and pop it from the queue.
@@ -348,9 +348,7 @@ void ViewManager::ProcessPendingEvents()
 			//Get the view info data associated with this view
 			ViewInfo* viewInfo = viewInfoSetIterator->second;
 
-			//Process the operation. Note that we explicitly release our lock here. This
-			//allows the view to call back into routines which affect views.
-			lock.unlock();
+			//Process the operation
 			switch(viewOperation.type)
 			{
 			case ViewOperationType::Open:
@@ -360,7 +358,7 @@ void ViewManager::ProcessPendingEvents()
 				ProcessCloseView(viewOperation.viewPresenter, viewInfo);
 				break;
 			case ViewOperationType::Delete:
-				ProcessDeleteView(viewOperation.viewPresenter, viewInfo);
+				ProcessDeleteView(viewOperation.viewPresenter, viewInfo, lock);
 				break;
 			case ViewOperationType::Activate:
 				ProcessActivateView(viewOperation.viewPresenter, viewInfo);
@@ -372,7 +370,6 @@ void ViewManager::ProcessPendingEvents()
 				ProcessHideView(viewOperation.viewPresenter, viewInfo);
 				break;
 			}
-			lock.lock();
 		}
 	}
 	viewOperationQueueEmptied.notify_all();
@@ -406,10 +403,9 @@ void ViewManager::ProcessCloseView(IViewPresenter& aviewPresenter, ViewInfo* vie
 }
 
 //----------------------------------------------------------------------------------------
-void ViewManager::ProcessDeleteView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo)
+void ViewManager::ProcessDeleteView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo, std::unique_lock<std::recursive_mutex>& lock)
 {
 	//Erase all references to this view from our lists of views
-	std::unique_lock<std::mutex> lock(viewMutex);
 	std::list<ViewOperation>::iterator viewOperationQueueIterator = viewOperationQueue.begin();
 	while(viewOperationQueueIterator != viewOperationQueue.end())
 	{
@@ -1432,7 +1428,7 @@ HWND ViewManager::GetActiveDialogWindow() const
 void ViewManager::CloseViewsForSystem()
 {
 	//Build a set of all views to close
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	std::set<IViewPresenter*> viewsToClose;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
@@ -1455,7 +1451,7 @@ void ViewManager::CloseViewsForSystem()
 void ViewManager::CloseViewsForModule(unsigned int moduleID)
 {
 	//Build a set of all views to close
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	std::set<IViewPresenter*> viewsToClose;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
@@ -1478,7 +1474,7 @@ void ViewManager::CloseViewsForModule(unsigned int moduleID)
 void ViewManager::CloseViewsForDevice(unsigned int moduleID, const std::wstring& deviceInstanceName)
 {
 	//Build a set of all views to close
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	std::set<IViewPresenter*> viewsToClose;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
@@ -1501,7 +1497,7 @@ void ViewManager::CloseViewsForDevice(unsigned int moduleID, const std::wstring&
 void ViewManager::CloseAllViews()
 {
 	//Build a set of all views to close
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	std::set<IViewPresenter*> viewsToClose;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
@@ -1559,7 +1555,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 	placeholderWindowsForViewLayout.clear();
 
 	//Build a set of all currently open views
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	std::set<IViewPresenter*> existingViewSet;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
@@ -1746,7 +1742,7 @@ bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISy
 bool ViewManager::SaveViewLayout(IHierarchicalStorageNode& viewLayout) const
 {
 	//Build a set of all currently open views
-	std::unique_lock<std::mutex> lock(viewMutex);
+	std::unique_lock<std::recursive_mutex> lock(viewMutex);
 	std::set<IViewPresenter*> existingViewSet;
 	for(std::map<IViewPresenter*, ViewInfo*>::const_iterator i = viewInfoSet.begin(); i != viewInfoSet.end(); ++i)
 	{
