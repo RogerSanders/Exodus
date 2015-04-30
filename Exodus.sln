@@ -104,8 +104,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Documentation", "_Document
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Documentation", "_Documentation", "{35C51F87-D5D3-4AAD-A65B-5D52FCA32CC9}"
 	ProjectSection(SolutionItems) = preProject
-		Libraries\_Documentation\Overview.xml = Libraries\_Documentation\Overview.xml
-		Libraries\_Documentation\PluginModel.xml = Libraries\_Documentation\PluginModel.xml
+		ExodusSDK\_Documentation\Overview.xml = ExodusSDK\_Documentation\Overview.xml
+		ExodusSDK\_Documentation\PluginModel.xml = ExodusSDK\_Documentation\PluginModel.xml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{635C531F-B575-4B10-BCDF-140887341676}"
