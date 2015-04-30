@@ -1,0 +1,1 @@
+This is a placeholder file for the contents of this directory. This is designed to make things easier by ensuring this directory exists when the repository is cloned. A committed file is required here in order to achieve that, since you can't commit an empty folder in Mercurial.
