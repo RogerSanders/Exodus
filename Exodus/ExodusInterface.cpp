@@ -100,24 +100,64 @@ ISystemGUIInterface* ExodusInterface::GetSystemInterface() const
 //----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
+bool ExodusInterface::InitializePrefs()
+{
+	//Save the initial working directory of the process as the preference directory
+	preferenceDirectoryPath = PathGetCurrentWorkingDirectory();
+
+	//Initialize the system prefs to their default values
+	SetGlobalPreferencePathModules(L"Modules");
+	SetGlobalPreferencePathSavestates(L"Savestates");
+	SetGlobalPreferencePathPersistentState(L"PersistentState");
+	SetGlobalPreferencePathWorkspaces(L"Workspaces");
+	SetGlobalPreferencePathCaptures(L"Captures");
+	SetGlobalPreferencePathAssemblies(L"Plugins");
+	SetGlobalPreferenceEnableThrottling(true);
+	SetGlobalPreferenceRunWhenProgramModuleLoaded(true);
+	SetGlobalPreferenceEnablePersistentState(true);
+	SetGlobalPreferenceLoadWorkspaceWithDebugState(true);
+	SetGlobalPreferenceShowDebugConsole(false);
+
+	//Load preferences from the settings.xml file if present
+	std::wstring preferenceFilePath = PathCombinePaths(preferenceDirectoryPath, L"settings.xml");
+	LoadPrefs(preferenceFilePath);
+
+	//Return the result to the caller
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 {
+	//Determine the style settings of the main window
+	DWORD mainWindowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
+	DWORD mainWindowStyleEx = WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE;
+
+	//Determine the initial size and state of the main window. Note that we need to set
+	//initial values here ourselves, as the settings will not be modified if they are not
+	//present in the target workspace file, even if the operation reports success.
+	bool mainWindowMaximized = false;
+	int mainWindowWidth = DPIScaleWidth(1024);
+	int mainWindowHeight = DPIScaleWidth(768);
+	if(!prefs.loadWorkspace.empty())
+	{
+		ReadMainWindowSizeFromWorkspaceFile(prefs.loadWorkspace, mainWindowMaximized, mainWindowWidth, mainWindowHeight);
+	}
+
 	//Calculate the default dimensions of the main window.
-	unsigned int width = DPIScaleWidth(1024);
-	unsigned int height = DPIScaleWidth(768);
 	RECT clientRect;
 	clientRect.left = 0;
 	clientRect.top = 0;
-	clientRect.right = width;
-	clientRect.bottom = height;
+	clientRect.right = mainWindowWidth;
+	clientRect.bottom = mainWindowHeight;
 	BOOL adjustWindowRectExReturn;
-	adjustWindowRectExReturn = AdjustWindowRectEx(&clientRect, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, TRUE, WS_EX_CONTROLPARENT);
+	adjustWindowRectExReturn = AdjustWindowRectEx(&clientRect, mainWindowStyle, TRUE, mainWindowStyleEx);
 	if(adjustWindowRectExReturn == 0)
 	{
 		return NULL;
 	}
-	width = clientRect.right - clientRect.left;
-	height = clientRect.bottom - clientRect.top;
+	mainWindowWidth = clientRect.right - clientRect.left;
+	mainWindowHeight = clientRect.bottom - clientRect.top;
 
 	//Register the main window class
 	WNDCLASSEX wc;
@@ -141,7 +181,7 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	}
 
 	//Create the main window
-	mainWindowHandle = CreateWindowEx(WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE, windowClassName.c_str(), windowName.c_str(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, hinstance, (LPVOID)this);
+	mainWindowHandle = CreateWindowEx(mainWindowStyleEx, windowClassName.c_str(), windowName.c_str(), mainWindowStyle, CW_USEDEFAULT, CW_USEDEFAULT, mainWindowWidth, mainWindowHeight, NULL, NULL, hinstance, (LPVOID)this);
 	if(mainWindowHandle == NULL)
 	{
 		return NULL;
@@ -330,7 +370,7 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	}
 
 	//Show the main window
-	ShowWindow(mainWindowHandle, SW_SHOWMAXIMIZED);
+	ShowWindow(mainWindowHandle, (mainWindowMaximized? SW_SHOWMAXIMIZED: SW_SHOWDEFAULT));
 	UpdateWindow(mainWindowHandle);
 
 	//Save the initial position of the main window, so we can reposition child
@@ -345,28 +385,8 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::InitializeSystem()
+bool ExodusInterface::InitializeAfterMainWindowLoad()
 {
-	//Save the initial working directory of the process as the preference directory
-	preferenceDirectoryPath = PathGetCurrentWorkingDirectory();
-
-	//Initialize the system prefs to their default values
-	SetGlobalPreferencePathModules(L"Modules");
-	SetGlobalPreferencePathSavestates(L"Savestates");
-	SetGlobalPreferencePathPersistentState(L"PersistentState");
-	SetGlobalPreferencePathWorkspaces(L"Workspaces");
-	SetGlobalPreferencePathCaptures(L"Captures");
-	SetGlobalPreferencePathAssemblies(L"Plugins");
-	SetGlobalPreferenceEnableThrottling(true);
-	SetGlobalPreferenceRunWhenProgramModuleLoaded(true);
-	SetGlobalPreferenceEnablePersistentState(true);
-	SetGlobalPreferenceLoadWorkspaceWithDebugState(true);
-	SetGlobalPreferenceShowDebugConsole(false);
-
-	//Load preferences from the settings.xml file if present
-	std::wstring preferenceFilePath = PathCombinePaths(preferenceDirectoryPath, L"settings.xml");
-	LoadPrefs(preferenceFilePath);
-
 	//Load addon modules
 	LoadAssembliesFromFolder(prefs.pathAssemblies);
 
@@ -829,6 +849,50 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 
 	//Load the view layout
 	if(!viewManager->LoadViewLayout(*viewLayoutNode, relationshipMap))
+	{
+		return false;
+	}
+
+	//Return the result to the caller
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
+bool ExodusInterface::ReadMainWindowSizeFromWorkspaceFile(const std::wstring& filePath, bool& maximized, int& sizeX, int& sizeY) const
+{
+	//Open the target file
+	FileStreamReference fileStreamReference(*this);
+	if(!fileStreamReference.OpenExistingFileForRead(filePath))
+	{
+		return false;
+	}
+	Stream::IStream& file = *fileStreamReference;
+
+	//Attempt to load an XML structure from the file
+	file.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
+	file.ProcessByteOrderMark();
+	HierarchicalStorageTree tree;
+	if(!tree.LoadTree(file))
+	{
+		return false;
+	}
+
+	//Validate the root node type of the XML structure
+	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
+	if(rootNode.GetName() != L"Workspace")
+	{
+		return false;
+	}
+
+	//Attempt to retrieve the required child entries in this workspace state
+	IHierarchicalStorageNode* viewLayoutNode = rootNode.GetChild(L"ViewLayout");
+	if(viewLayoutNode == 0)
+	{
+		return false;
+	}
+
+	//Load the view layout
+	if(!viewManager->ReadMainWindowSizeFromViewLayout(*viewLayoutNode, maximized, sizeX, sizeY))
 	{
 		return false;
 	}
@@ -2753,7 +2817,7 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 		}
 		break;
 	case WM_USER+3: //Initialize platform
-		state->InitializeSystem();
+		state->InitializeAfterMainWindowLoad();
 		break;
 	case WM_NCHITTEST:{
 		//If a hit test reports the current cursor position as in the border region, the

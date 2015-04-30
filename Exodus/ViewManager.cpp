@@ -1542,6 +1542,39 @@ void ViewManager::AdjustFloatingWindowPositions(int displacementX, int displacem
 //----------------------------------------------------------------------------------------
 //Layout functions
 //----------------------------------------------------------------------------------------
+bool ViewManager::ReadMainWindowSizeFromViewLayout(IHierarchicalStorageNode& viewLayout, bool& maximized, int& sizeX, int& sizeY) const
+{
+	//Attempt to locate the MainWindowState child node
+	IHierarchicalStorageNode* mainWindowState = viewLayout.GetChild(L"MainWindowState");
+	if(mainWindowState == 0)
+	{
+		return false;
+	}
+
+	//Maximize or restore the main window if required
+	IHierarchicalStorageAttribute* mainWindowMaximizedAttribute = mainWindowState->GetAttribute(L"Maximized");
+	if(mainWindowMaximizedAttribute != 0)
+	{
+		maximized = mainWindowMaximizedAttribute->ExtractValue<bool>();
+	}
+
+	//Resize the main window if required
+	IHierarchicalStorageAttribute* mainWindowClientSizeXAttribute = mainWindowState->GetAttribute(L"SizeX");
+	IHierarchicalStorageAttribute* mainWindowClientSizeYAttribute = mainWindowState->GetAttribute(L"SizeY");
+	if((mainWindowClientSizeXAttribute != 0) && (mainWindowClientSizeYAttribute != 0))
+	{
+		//Retrieve the specified main window client size
+		sizeX = mainWindowClientSizeXAttribute->ExtractValue<int>();
+		sizeY = mainWindowClientSizeYAttribute->ExtractValue<int>();
+
+		//Convert the main window client size from a DPI independent value
+		sizeY = DPIScaleWidth(sizeY);
+		sizeY = DPIScaleHeight(sizeY);
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------
 bool ViewManager::LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISystemGUIInterface::ModuleRelationshipMap& relationshipMap)
 {
 	//Wait for any pending view events to complete processing. We do this to ensure that

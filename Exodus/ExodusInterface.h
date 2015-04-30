@@ -75,8 +75,8 @@ public:
 	ISystemGUIInterface* GetSystemInterface() const;
 
 	//Initialization functions
+	bool InitializePrefs();
 	HWND CreateMainInterface(HINSTANCE hinstance);
-	bool InitializeSystem();
 
 	//Interface version functions
 	virtual unsigned int GetIGUIExtensionInterfaceVersion() const;
@@ -106,6 +106,7 @@ public:
 	//Workspace functions
 	void LoadWorkspace(const std::wstring& folder);
 	bool LoadWorkspaceFromFile(const std::wstring& filePath);
+	bool ReadMainWindowSizeFromWorkspaceFile(const std::wstring& filePath, bool& maximized, int& sizeX, int& sizeY) const;
 	void SaveWorkspace(const std::wstring& folder);
 	bool SaveWorkspaceToFile(const std::wstring& filePath);
 
@@ -197,6 +198,9 @@ private:
 	typedef std::pair<unsigned int, NewMenuItem> NewMenuListEntry;
 
 private:
+	//Initialization functions
+	bool InitializeAfterMainWindowLoad();
+
 	//Savestate functions
 	std::wstring GetSavestateAutoFileNamePrefix() const;
 
