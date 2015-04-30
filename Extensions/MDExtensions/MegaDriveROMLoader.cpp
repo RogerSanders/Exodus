@@ -270,7 +270,7 @@ bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath
 	node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"ROM16").CreateAttribute(L"InstanceName", L"ROM").CreateAttribute(L"BinaryDataPresent", true).CreateAttribute(L"SeparateBinaryData", true).SetData(filePath);
 	if(sramPresent)
 	{
-		IHierarchicalStorageNode& ramDeviceNode = node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"RAM").CreateAttribute(L"InstanceName", L"SRAM").CreateAttributeHex(L"InterfaceSize", sramByteSize, 0).CreateAttribute(L"RepeatData", true).CreateAttribute(L"PersistentData", true);
+		IHierarchicalStorageNode& ramDeviceNode = node.CreateChild(L"Device").CreateAttribute(L"DeviceName", L"RAM8").CreateAttribute(L"InstanceName", L"SRAM").CreateAttributeHex(L"MemoryEntryCount", sramByteSize, 0).CreateAttribute(L"RepeatData", true).CreateAttribute(L"PersistentData", true);
 		if(!initialRAMData.empty())
 		{
 			ramDeviceNode.InsertBinaryData(initialRAMData, L"RAM.InitialData", true);
