@@ -4288,7 +4288,7 @@ bool System::SaveSystem(const MarshalSupport::Marshal::In<std::wstring>& filePat
 		//Create the embedded ROM selection node for this setting
 		IHierarchicalStorageNode& loadROMDataNode = tree.GetRootNode().CreateChild(L"System.LoadEmbeddedROMData");
 		loadROMDataNode.CreateAttribute(L"ModuleID", embeddedROMInfo.moduleID);
-		loadROMDataNode.CreateAttribute(L"DeviceInstanceName", embeddedROMInfo.targetDevice->GetDeviceInstanceName());
+		loadROMDataNode.CreateAttribute(L"EmbeddedROMName", embeddedROMInfo.targetDevice->GetDeviceInstanceName());
 		loadROMDataNode.CreateAttribute(L"InterfaceNumber", embeddedROMInfo.interfaceNumber);
 		loadROMDataNode.CreateAttribute(L"FilePath", filePath);
 	}
