@@ -11,5 +11,5 @@
 	<RunWhenProgramModuleLoaded>1</RunWhenProgramModuleLoaded>
 	<EnablePersistentState>1</EnablePersistentState>
 	<LoadWorkspaceWithDebugState>1</LoadWorkspaceWithDebugState>
-	<ShowDebugConsole>1</ShowDebugConsole>
+	<ShowDebugConsole>0</ShowDebugConsole>
 </Settings>
