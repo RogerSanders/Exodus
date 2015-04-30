@@ -9474,12 +9474,30 @@ System::KeyCode System::GetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned 
 //----------------------------------------------------------------------------------------
 bool System::SetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int deviceKeyCode, KeyCode systemKeyCode)
 {
+	//If the target device key code is already mapped, remove the existing mapping.
 	std::unique_lock<std::mutex> lock(inputMutex);
-	InputMapEntry mapEntry;
-	mapEntry.keyCode = systemKeyCode;
-	mapEntry.targetDevice = targetDevice;
-	mapEntry.targetDeviceKeyCode = deviceKeyCode;
-	inputKeyMap[systemKeyCode] = mapEntry;
+	InputKeyMap::const_iterator inputKeyMapIterator = inputKeyMap.begin();
+	while(inputKeyMapIterator != inputKeyMap.end())
+	{
+		const InputMapEntry& inputMapEntry = inputKeyMapIterator->second;
+		if((inputMapEntry.targetDevice == targetDevice) && (inputMapEntry.targetDeviceKeyCode == deviceKeyCode))
+		{
+			inputKeyMap.erase(inputKeyMapIterator);
+			break;
+		}
+		++inputKeyMapIterator;
+	}
+
+	//If the target device key code is being assigned to a system key code, perform the
+	//mapping now.
+	if(systemKeyCode != KeyCode::None)
+	{
+		InputMapEntry mapEntry;
+		mapEntry.keyCode = systemKeyCode;
+		mapEntry.targetDevice = targetDevice;
+		mapEntry.targetDeviceKeyCode = deviceKeyCode;
+		inputKeyMap[systemKeyCode] = mapEntry;
+	}
 	return true;
 }
 

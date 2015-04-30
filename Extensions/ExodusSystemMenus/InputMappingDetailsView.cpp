@@ -245,10 +245,14 @@ INT_PTR InputMappingDetailsView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM l
 			break;
 		}
 	}
-	else if((controlID == IDC_INPUTMAPPING_DETAILS_AUTOMAPPINGTOGGLE) && initializedDialog)
+	else if(controlID == IDC_INPUTMAPPING_DETAILS_AUTOMAPPINGTOGGLE)
 	{
 		switch(bounceMessage->uMsg)
 		{
+		case DLGC_WANTMESSAGE:
+			bounceMessage->caught = true;
+			bounceMessage->result = DLGC_WANTMESSAGE;
+			break;
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			if(autoKeyMappingActive)
