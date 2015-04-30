@@ -13,7 +13,7 @@
 		<Module ModuleID="2" SystemClassName="SegaMegaDrive" ModuleClassName="ROMLoader" ModuleInstanceName="Generic ROM Loader" />
 	</ModuleRelationships>
 	<ViewLayout>
-		<MainWindowState SizeX="1020" SizeY="764" Maximized="1">
+		<MainWindowState SizeX="800" SizeY="600" Maximized="0">
 			<MainDockedWindow ActiveHostedWindowID="1">
 				<HostedContentWindows>
 					<HostedWindow WindowID="1" ViewType="Dockable" WindowTitle="VDP - Image Window" />
