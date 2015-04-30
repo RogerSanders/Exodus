@@ -79,6 +79,7 @@ public:
 	void AdjustFloatingWindowPositions(int displacementX, int displacementY);
 
 	//Layout functions
+	bool ReadMainWindowSizeFromViewLayout(IHierarchicalStorageNode& viewLayout, bool& maximized, int& sizeX, int& sizeY) const;
 	bool LoadViewLayout(IHierarchicalStorageNode& viewLayout, const ISystemGUIInterface::ModuleRelationshipMap& relationshipMap);
 	bool SaveViewLayout(IHierarchicalStorageNode& viewLayout) const;
 
