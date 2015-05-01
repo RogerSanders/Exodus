@@ -414,6 +414,21 @@ void Z80::Initialize()
 
 	Reset();
 
+	//These defaults are suggested by "The Undocumented Z80 Documented", but apparently
+	//these registers aren't actually initialized during power on, and more importantly,
+	//during a reset. We used to incorrectly initialize these registers during a reset as
+	//well, but this caused the Z80 sound driver in "Decap Attack" for the Mega Drive to
+	//crash during startup.
+	SetBC(Z80Word(0xFFFF));
+	SetDE(Z80Word(0xFFFF));
+	SetHL(Z80Word(0xFFFF));
+	SetAF2(Z80Word(0xFFFF));
+	SetBC2(Z80Word(0xFFFF));
+	SetDE2(Z80Word(0xFFFF));
+	SetHL2(Z80Word(0xFFFF));
+	SetIX(Z80Word(0xFFFF));
+	SetIY(Z80Word(0xFFFF));
+
 	//Synchronize the changed register state with the current register state
 	PopulateChangedRegStateFromCurrentState();
 }
@@ -435,18 +450,6 @@ void Z80::Reset()
 	SetIFF1(false);
 	SetIFF2(false);
 	SetInterruptMode(0);
-
-	//These defaults are suggested by "The Undocumented Z80 Documented", but apparently
-	//these registers aren't actually initialized during power on.
-	SetBC(Z80Word(0xFFFF));
-	SetDE(Z80Word(0xFFFF));
-	SetHL(Z80Word(0xFFFF));
-	SetAF2(Z80Word(0xFFFF));
-	SetBC2(Z80Word(0xFFFF));
-	SetDE2(Z80Word(0xFFFF));
-	SetHL2(Z80Word(0xFFFF));
-	SetIX(Z80Word(0xFFFF));
-	SetIY(Z80Word(0xFFFF));
 
 	//##FIX## Refer to http://gendev.spritesmind.net/forum/viewtopic.php?t=779 thread
 	//"Williams Arcade Classics sound" for lots of information about how the Z80 is
