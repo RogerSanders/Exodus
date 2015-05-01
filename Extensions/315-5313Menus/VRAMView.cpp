@@ -113,7 +113,7 @@ LRESULT VRAMView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 }
 
 //----------------------------------------------------------------------------------------
-INT_PTR VRAMView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
+LRESULT VRAMView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
 	//Note that we need to explicitly destroy the child window here, since we share state
 	//with the child window, passing in the "this" pointer as its state. Since the
