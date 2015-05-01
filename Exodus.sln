@@ -1405,17 +1405,13 @@ Global
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOInstrument|x64.ActiveCfg = Release - PGOInstrument|x64
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOInstrument|x64.Build.0 = Release - PGOInstrument|x64
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOOptimize|Win32.ActiveCfg = Release - PGORebuildOptimized|Win32
-		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOOptimize|Win32.Build.0 = Release - PGORebuildOptimized|Win32
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOOptimize|x64.ActiveCfg = Release - PGORebuildOptimized|x64
-		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOOptimize|x64.Build.0 = Release - PGORebuildOptimized|x64
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGORebuildOptimized|Win32.ActiveCfg = Release - PGORebuildOptimized|Win32
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGORebuildOptimized|Win32.Build.0 = Release - PGORebuildOptimized|Win32
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGORebuildOptimized|x64.ActiveCfg = Release - PGORebuildOptimized|x64
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGORebuildOptimized|x64.Build.0 = Release - PGORebuildOptimized|x64
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOUpdate|Win32.ActiveCfg = Release - PGORebuildOptimized|Win32
-		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOUpdate|Win32.Build.0 = Release - PGORebuildOptimized|Win32
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOUpdate|x64.ActiveCfg = Release - PGORebuildOptimized|x64
-		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - PGOUpdate|x64.Build.0 = Release - PGORebuildOptimized|x64
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - Static|Win32.ActiveCfg = Release - PGORebuildOptimized|Win32
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - Static|Win32.Build.0 = Release - PGORebuildOptimized|Win32
 		{D70F521E-591C-4E77-9AF4-C8A47E813424}.Release - Static|x64.ActiveCfg = Release - PGORebuildOptimized|x64
