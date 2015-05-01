@@ -238,14 +238,14 @@ bool M68000::BuildDevice()
 	for(unsigned int registerNo = 0; registerNo < addressRegCount; ++registerNo)
 	{
 		std::wstring registerNoAsString;
-		IntToString(registerNo + 1, registerNoAsString);
+		IntToString(registerNo, registerNoAsString);
 		addressRegistersGroup->AddEntry((new GenericAccessGroupDataEntry(IM68000DataSource::RegisterA, L"A" + registerNoAsString))->SetDataContext(new RegisterDataContext(registerNo)));
 	}
 	GenericAccessGroup* dataRegistersGroup = new GenericAccessGroup(L"Data Registers");
 	for(unsigned int registerNo = 0; registerNo < dataRegCount; ++registerNo)
 	{
 		std::wstring registerNoAsString;
-		IntToString(registerNo + 1, registerNoAsString);
+		IntToString(registerNo, registerNoAsString);
 		dataRegistersGroup->AddEntry((new GenericAccessGroupDataEntry(IM68000DataSource::RegisterD, L"D" + registerNoAsString))->SetDataContext(new RegisterDataContext(registerNo)));
 	}
 	GenericAccessPage* registersPage = new GenericAccessPage(L"Registers");
