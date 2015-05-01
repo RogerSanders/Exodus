@@ -677,7 +677,7 @@ void ImageView::UpdateRenderWindowSize()
 		statusBarHeight = statusBarRect.bottom - statusBarRect.top;
 
 		//Set the sizes and positions of the segments in the status bar
-		const int framesPerSecondSegmentPreferredWidth = DPIScaleWidth(75);
+		const int framesPerSecondSegmentPreferredWidth = DPIScaleWidth(100);
 		int framesPerSecondSegmentWidth = (framesPerSecondSegmentPreferredWidth <= statusBarWidth)? framesPerSecondSegmentPreferredWidth: statusBarWidth;
 		int notificationSegmentWidth = statusBarWidth - framesPerSecondSegmentWidth;
 		int statusBarSegmentWidths[] = {notificationSegmentWidth, -1};
