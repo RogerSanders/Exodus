@@ -1,4 +1,15 @@
 //----------------------------------------------------------------------------------------------------------
+2015-05-01 - Exodus 2.0.1
+Enhancements:
+EX-291 - Improved default workspace loading to restore the main window size and maximized state before the main window appears, removed the maximized state as the default state, and changed the "Mega Drive Clean" workspace to not be maximized.
+
+Bug fixes:
+EX-289 - Fixed an error in the Mega Drive ROM loader which prevented games that used SRAM from loading
+EX-290 - Fixed a bug in the way embedded ROM file selection was saved which prevented saved systems with an embedded ROM specified from loading
+EX-292 - Fixed a race condition in the ViewManager which intermittently caused two "Image" windows to appear on startup
+EX-293 - Fixed several issues with device key mapping which prevented new key assignments being made
+
+//----------------------------------------------------------------------------------------------------------
 2015-04-30 - Exodus 2.0.0
 Visible changes:
 -Released Exodus as open source, with initial SDK documentation.
