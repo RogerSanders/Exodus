@@ -132,10 +132,11 @@ LRESULT SpriteListView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 LRESULT SpriteListView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Update the data grid with the latest text
+	unsigned int spriteMappingBaseAddress = model.RegGetNameTableBaseSprite();
 	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
 	for(unsigned int i = 0; i < 80; ++i)
 	{
-		IS315_5313::SpriteMappingTableEntry mapping = model.GetSpriteMappingTableEntry(i);
+		IS315_5313::SpriteMappingTableEntry mapping = model.GetSpriteMappingTableEntry(spriteMappingBaseAddress, i);
 		std::map<unsigned int, std::wstring>& columnText = rowText[i];
 		IntToStringBase16(i, columnText[COLUMN_NO], 2, false);
 		IntToStringBase16(mapping.xpos, columnText[COLUMN_XPOS], 4, false);
@@ -166,7 +167,8 @@ LRESULT SpriteListView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		if((WC_DataGrid::WindowNotifications)HIWORD(wparam) == WC_DataGrid::WindowNotifications::CellEdit)
 		{
 			WC_DataGrid::Grid_CellEditEvent* cellEditEventInfo = (WC_DataGrid::Grid_CellEditEvent*)lparam;
-			IS315_5313::SpriteMappingTableEntry spriteMapping = model.GetSpriteMappingTableEntry(cellEditEventInfo->targetRowNo);
+			unsigned int spriteMappingBaseAddress = model.RegGetNameTableBaseSprite();
+			IS315_5313::SpriteMappingTableEntry spriteMapping = model.GetSpriteMappingTableEntry(spriteMappingBaseAddress, cellEditEventInfo->targetRowNo);
 			bool useSeparatedData = true;
 			switch(cellEditEventInfo->targetColumnID)
 			{
@@ -225,7 +227,7 @@ LRESULT SpriteListView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				useSeparatedData = false;
 				break;}
 			}
-			model.SetSpriteMappingTableEntry(cellEditEventInfo->targetRowNo, spriteMapping, useSeparatedData);
+			model.SetSpriteMappingTableEntry(spriteMappingBaseAddress, cellEditEventInfo->targetRowNo, spriteMapping, useSeparatedData);
 		}
 	}
 	return TRUE;

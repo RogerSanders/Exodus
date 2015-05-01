@@ -22,6 +22,7 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_HSCROLL(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_VSCROLL(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	void UpdateScrollbar(HWND scrollWindow, WPARAM wParam);
 
 	//Render window procedure
 	static LRESULT CALLBACK WndProcRenderStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);

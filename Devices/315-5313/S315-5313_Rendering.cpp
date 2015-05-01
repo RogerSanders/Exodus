@@ -2243,18 +2243,8 @@ MarshalSupport::Marshal::Ret<std::list<S315_5313::SpriteBoundaryLineEntry>> S315
 //----------------------------------------------------------------------------------------
 //Sprite list debugging functions
 //----------------------------------------------------------------------------------------
-S315_5313::SpriteMappingTableEntry S315_5313::GetSpriteMappingTableEntry(unsigned int entryNo) const
+S315_5313::SpriteMappingTableEntry S315_5313::GetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo) const
 {
-	AccessTarget accessTarget;
-	accessTarget.AccessCommitted();
-
-	//Read the sprite table base address register
-	//##TODO## Add support for mode 4
-	bool mode4Active = false;
-	bool screenModeRS1Active = RegGetRS1(accessTarget);
-	bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
-	unsigned int spriteTableBaseAddress = RegGetNameTableBaseSprite(accessTarget, mode4Active, screenModeRS1Active, extendedVRAMModeActive);
-
 	//Calculate the address in VRAM of this sprite table entry
 	static const unsigned int spriteTableEntrySize = 8;
 	unsigned int spriteTableEntryAddress = spriteTableBaseAddress + (entryNo * spriteTableEntrySize);
@@ -2311,18 +2301,8 @@ S315_5313::SpriteMappingTableEntry S315_5313::GetSpriteMappingTableEntry(unsigne
 }
 
 //----------------------------------------------------------------------------------------
-void S315_5313::SetSpriteMappingTableEntry(unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData)
+void S315_5313::SetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData)
 {
-	AccessTarget accessTarget;
-	accessTarget.AccessLatest();
-
-	//Read the sprite table base address register
-	//##TODO## Add support for mode 4
-	bool mode4Active = false;
-	bool screenModeRS1Active = RegGetRS1(accessTarget);
-	bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
-	unsigned int spriteTableBaseAddress = RegGetNameTableBaseSprite(accessTarget, mode4Active, screenModeRS1Active, extendedVRAMModeActive);
-
 	//Select the data to write back to the sprite table
 	Data rawDataWord0(entry.rawDataWord0);
 	Data rawDataWord1(entry.rawDataWord1);
