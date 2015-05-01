@@ -73,8 +73,8 @@ public:
 	virtual MarshalSupport::Marshal::Ret<std::list<SpriteBoundaryLineEntry>> GetSpriteBoundaryLines(unsigned int planeNo) const = 0;
 
 	//Sprite list debugging functions
-	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int entryNo) const = 0;
-	virtual void SetSpriteMappingTableEntry(unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData) = 0;
+	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo) const = 0;
+	virtual void SetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData) = 0;
 
 	//Port monitor functions
 	virtual bool GetPortMonitorStatusReadEnabled() const = 0;

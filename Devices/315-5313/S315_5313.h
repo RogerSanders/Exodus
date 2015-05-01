@@ -263,8 +263,8 @@ private:
 	virtual MarshalSupport::Marshal::Ret<std::list<SpriteBoundaryLineEntry>> GetSpriteBoundaryLines(unsigned int planeNo) const;
 
 	//Sprite list debugging functions
-	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int entryNo) const;
-	virtual void SetSpriteMappingTableEntry(unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData);
+	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo) const;
+	virtual void SetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData);
 
 	//Memory interface functions
 	Data GetHVCounter() const;

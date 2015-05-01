@@ -286,88 +286,96 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				if(layerAScrollPlaneWidth <= 0)
 				{
 					layerAScrollPlaneWidth = 1;
-					UpdateDlgItemBin(hwnd, controlID, layerAScrollPlaneWidth);
 				}
+				UpdateDlgItemBin(hwnd, controlID, layerAScrollPlaneWidth);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA:
 				layerAScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
 				if(layerAScrollPlaneHeight <= 0)
 				{
 					layerAScrollPlaneHeight = 1;
-					UpdateDlgItemBin(hwnd, controlID, layerAScrollPlaneHeight);
 				}
+				UpdateDlgItemBin(hwnd, controlID, layerAScrollPlaneHeight);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB:
 				layerBScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
 				if(layerBScrollPlaneWidth <= 0)
 				{
 					layerBScrollPlaneWidth = 1;
-					UpdateDlgItemBin(hwnd, controlID, layerBScrollPlaneWidth);
 				}
+				UpdateDlgItemBin(hwnd, controlID, layerBScrollPlaneWidth);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB:
 				layerBScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
 				if(layerBScrollPlaneHeight <= 0)
 				{
 					layerBScrollPlaneHeight = 1;
-					UpdateDlgItemBin(hwnd, controlID, layerBScrollPlaneHeight);
 				}
+				UpdateDlgItemBin(hwnd, controlID, layerBScrollPlaneHeight);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW:
 				windowScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
 				if(windowScrollPlaneWidth <= 0)
 				{
 					windowScrollPlaneWidth = 1;
-					UpdateDlgItemBin(hwnd, controlID, windowScrollPlaneWidth);
 				}
+				UpdateDlgItemBin(hwnd, controlID, windowScrollPlaneWidth);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW:
 				windowScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
 				if(windowScrollPlaneHeight <= 0)
 				{
 					windowScrollPlaneHeight = 1;
-					UpdateDlgItemBin(hwnd, controlID, windowScrollPlaneHeight);
 				}
+				UpdateDlgItemBin(hwnd, controlID, windowScrollPlaneHeight);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES:
 				spriteScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
 				if(spriteScrollPlaneWidth <= 0)
 				{
 					spriteScrollPlaneWidth = 1;
-					UpdateDlgItemBin(hwnd, controlID, spriteScrollPlaneWidth);
 				}
+				UpdateDlgItemBin(hwnd, controlID, spriteScrollPlaneWidth);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES:
 				spriteScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
 				if(spriteScrollPlaneHeight <= 0)
 				{
 					spriteScrollPlaneHeight = 1;
-					UpdateDlgItemBin(hwnd, controlID, spriteScrollPlaneHeight);
 				}
+				UpdateDlgItemBin(hwnd, controlID, spriteScrollPlaneHeight);
 				break;
 			case IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA:
 				layerAMappingBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, layerAMappingBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB:
 				layerBMappingBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, layerBMappingBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW:
 				windowMappingBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, windowMappingBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES:
 				spriteMappingBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, spriteMappingBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PATTERNLAYERA:
 				layerAPatternBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, layerAPatternBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PATTERNLAYERB:
 				layerBPatternBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, layerBPatternBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PATTERNWINDOW:
 				windowPatternBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, windowPatternBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PATTERNSPRITES:
 				spritePatternBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, spritePatternBase);
 				break;
 			}
 		}
@@ -378,41 +386,61 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR PlaneView::msgWM_HSCROLL(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
-	//Get the current horizontal scrollbar track position
-	SCROLLINFO hscrollInfoCurrent;
-	hscrollInfoCurrent.cbSize = sizeof(hscrollInfoCurrent);
-	hscrollInfoCurrent.fMask = SIF_TRACKPOS;
-	GetScrollInfo(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_HSCROLL), SB_CTL, &hscrollInfoCurrent);
-	int currentScrollPosH = hscrollInfoCurrent.nTrackPos;
-
-	//Apply the new horizontal scroll track position as the current scroll position
-	SCROLLINFO hscrollInfo;
-	hscrollInfo.cbSize = sizeof(hscrollInfo);
-	hscrollInfo.nPos = currentScrollPosH;
-	hscrollInfo.fMask = SIF_POS;
-	SetScrollInfo(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_HSCROLL), SB_CTL, &hscrollInfo, TRUE);
-
+	UpdateScrollbar(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_HSCROLL), wParam);
 	return TRUE;
 }
 
 //----------------------------------------------------------------------------------------
 INT_PTR PlaneView::msgWM_VSCROLL(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
-	//Get the current vertical scrollbar track position
-	SCROLLINFO vscrollInfoCurrent;
-	vscrollInfoCurrent.cbSize = sizeof(vscrollInfoCurrent);
-	vscrollInfoCurrent.fMask = SIF_TRACKPOS;
-	GetScrollInfo(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_VSCROLL), SB_CTL, &vscrollInfoCurrent);
-	int currentScrollPosV = vscrollInfoCurrent.nTrackPos;
-
-	//Apply the new vertical scroll track position as the current scroll position
-	SCROLLINFO vscrollInfo;
-	vscrollInfo.cbSize = sizeof(vscrollInfo);
-	vscrollInfo.nPos = currentScrollPosV;
-	vscrollInfo.fMask = SIF_POS;
-	SetScrollInfo(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_VSCROLL), SB_CTL, &vscrollInfo, TRUE);
-
+	UpdateScrollbar(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_VSCROLL), wParam);
 	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+void PlaneView::UpdateScrollbar(HWND scrollWindow, WPARAM wParam)
+{
+	//Get the current scrollbar info
+	SCROLLINFO currentScrollInfo;
+	currentScrollInfo.cbSize = sizeof(currentScrollInfo);
+	currentScrollInfo.fMask = SIF_TRACKPOS | SIF_RANGE | SIF_POS | SIF_PAGE;
+	GetScrollInfo(scrollWindow, SB_CTL, &currentScrollInfo);
+
+	//Calculate the new scrollbar position
+	int newScrollPos = currentScrollInfo.nPos;
+	switch(LOWORD(wParam))
+	{
+	case SB_THUMBTRACK:{
+		newScrollPos = currentScrollInfo.nTrackPos;
+		break;}
+	case SB_TOP:
+		newScrollPos = 0;
+		break;
+	case SB_BOTTOM:
+		newScrollPos = currentScrollInfo.nMax;
+		break;
+	case SB_PAGEUP:
+		newScrollPos -= currentScrollInfo.nPage;
+		break;
+	case SB_PAGEDOWN:
+		newScrollPos += currentScrollInfo.nPage;
+		break;
+	case SB_LINEUP:
+		newScrollPos -= 1;
+		break;
+	case SB_LINEDOWN:
+		newScrollPos += 1;
+		break;
+	}
+	newScrollPos = (newScrollPos < 0)? 0: newScrollPos;
+	newScrollPos = (newScrollPos > currentScrollInfo.nMax)? currentScrollInfo.nMax: newScrollPos;
+
+	//Apply the new scrollbar position
+	SCROLLINFO newScrollInfo;
+	newScrollInfo.cbSize = sizeof(newScrollInfo);
+	newScrollInfo.nPos = newScrollPos;
+	newScrollInfo.fMask = SIF_POS;
+	SetScrollInfo(scrollWindow, SB_CTL, &newScrollInfo, TRUE);
 }
 
 //----------------------------------------------------------------------------------------
@@ -799,10 +827,11 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		//Render each sprite to the sprite plane
 		unsigned int maxSpriteCount = (h40ModeActive)? 80: 64;
 		unsigned int currentSpriteNo = 0;
+		std::set<unsigned int> processedSprites;
 		do
 		{
 			//Read the mapping data for this sprite
-			IS315_5313::SpriteMappingTableEntry spriteMapping = model.GetSpriteMappingTableEntry(currentSpriteNo);
+			IS315_5313::SpriteMappingTableEntry spriteMapping = model.GetSpriteMappingTableEntry(spriteMappingBase, currentSpriteNo);
 
 			//Render this sprite to the buffer
 			unsigned int spriteHeightInCells = spriteMapping.height + 1;
@@ -885,9 +914,10 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			}
 
 			//Advance to the next sprite in the list
+			processedSprites.insert(currentSpriteNo);
 			currentSpriteNo = spriteMapping.link;
 		}
-		while((currentSpriteNo > 0) && (currentSpriteNo < maxSpriteCount));
+		while((currentSpriteNo > 0) && (currentSpriteNo < maxSpriteCount) && (processedSprites.find(currentSpriteNo) == processedSprites.end()));
 	}
 
 	//Calculate the screen boundary region information for the target layer, if requested.
