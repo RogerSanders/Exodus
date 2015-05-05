@@ -232,6 +232,8 @@ private:
 	virtual void LockImageBufferData(unsigned int planeNo);
 	virtual void UnlockImageBufferData(unsigned int planeNo);
 	virtual const unsigned char* GetImageBufferData(unsigned int planeNo) const;
+	virtual const ImageBufferInfo* GetImageBufferInfo(unsigned int planeNo) const;
+	virtual const ImageBufferInfo* GetImageBufferInfo(unsigned int planeNo, unsigned int lineNo, unsigned int pixelNo) const;
 	virtual bool GetImageBufferOddInterlaceFrame(unsigned int planeNo) const;
 	virtual unsigned int GetImageBufferLineCount(unsigned int planeNo) const;
 	virtual unsigned int GetImageBufferLineWidth(unsigned int planeNo, unsigned int lineNo) const;
@@ -250,13 +252,13 @@ private:
 	void UpdateAnalogRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
 	virtual void DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const;
 	virtual void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, unsigned int layerNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerVscrollPatternDisplacement, unsigned int& layerVscrollMappingDisplacement, Data& vsramReadCache) const;
-	void DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const;
-	void DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const;
+	static unsigned int DigitalRenderCalculateMappingVRAMAddess(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState);
 	void DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool interlaceMode2Active, bool screenModeRS1Active, unsigned int& nextTableEntryToRead, bool& spriteSearchComplete, bool& spriteOverflow, unsigned int& spriteDisplayCacheEntryCount, std::vector<SpriteDisplayCacheEntry>& spriteDisplayCache) const;
 	void DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int spriteDisplayCacheIndex, unsigned int spriteTableBaseAddress, bool interlaceMode2Active, bool screenModeRS1Active, bool& spriteDotOverflow, SpriteDisplayCacheEntry& spriteDisplayCacheEntry, unsigned int& spriteCellDisplayCacheEntryCount, std::vector<SpriteCellDisplayCacheEntry>& spriteCellDisplayCache) const;
 	unsigned int DigitalRenderReadPixelIndex(const Data& patternRow, bool horizontalFlip, unsigned int pixelIndex) const;
 	void CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shadow, bool& highlight, bool shadowHighlightEnabled, bool spriteIsShadowOperator, bool spriteIsHighlightOperator, bool foundSpritePixel, bool foundLayerAPixel, bool foundLayerBPixel, bool prioritySprite, bool priorityLayerA, bool priorityLayerB) const;
-	virtual unsigned int CalculatePatternDataRowAddress(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData) const;
+	virtual unsigned int CalculatePatternDataRowNumber(unsigned int patternRowNumberNoFlip, bool interlaceMode2Active, const Data& mappingData) const;
+	virtual unsigned int CalculatePatternDataRowAddress(unsigned int patternRowNumber, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData) const;
 	virtual void CalculateEffectiveCellScrollSize(unsigned int hszState, unsigned int vszState, unsigned int& effectiveScrollWidth, unsigned int& effectiveScrollHeight) const;
 	virtual DecodedPaletteColorEntry ReadDecodedPaletteColor(unsigned int paletteRow, unsigned int paletteIndex) const;
 	virtual unsigned char ColorValueTo8BitValue(unsigned int colorValue, bool shadow, bool highlight) const;
@@ -558,6 +560,7 @@ private:
 	bool videoShowBoundaryActiveImage;
 	bool videoShowBoundaryActionSafe;
 	bool videoShowBoundaryTitleSafe;
+	bool videoEnableFullImageBufferInfo;
 
 	//Bus interface
 	IBusInterface* memoryBus;
@@ -858,10 +861,12 @@ private:
 	std::vector<bool> renderWindowActiveCache;
 	std::vector<Data> renderMappingDataCacheLayerA;
 	std::vector<Data> renderMappingDataCacheLayerB;
-	std::vector<Data> renderMappingDataCacheSprite;
+	std::vector<unsigned int> renderMappingDataCacheSourceAddressLayerA;
+	std::vector<unsigned int> renderMappingDataCacheSourceAddressLayerB;
 	std::vector<Data> renderPatternDataCacheLayerA;
 	std::vector<Data> renderPatternDataCacheLayerB;
-	std::vector<Data> renderPatternDataCacheSprite;
+	std::vector<unsigned int> renderPatternDataCacheRowNoLayerA;
+	std::vector<unsigned int> renderPatternDataCacheRowNoLayerB;
 	std::vector<SpriteDisplayCacheEntry> renderSpriteDisplayCache;
 	unsigned int renderSpriteDisplayCacheEntryCount;
 	unsigned int renderSpriteDisplayCacheCurrentIndex;
@@ -887,6 +892,7 @@ private:
 	volatile unsigned int lastRenderedFrameToken;
 	mutable ReadWriteLock imageBufferLock[imageBufferPlanes];
 	unsigned char imageBuffer[imageBufferPlanes][imageBufferHeight * imageBufferWidth * 4];
+	ImageBufferInfo imageBufferInfo[imageBufferPlanes][imageBufferHeight * imageBufferWidth];
 	bool imageBufferOddInterlaceFrame[imageBufferPlanes];
 	unsigned int imageBufferLineCount[imageBufferPlanes];
 	unsigned int imageBufferLineWidth[imageBufferPlanes][imageBufferHeight];

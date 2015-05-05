@@ -41,10 +41,12 @@ spriteCacheSession(0),
 renderWindowActiveCache(maxCellsPerRow / cellsPerColumn),
 renderMappingDataCacheLayerA(maxCellsPerRow, Data(16)),
 renderMappingDataCacheLayerB(maxCellsPerRow, Data(16)),
-renderMappingDataCacheSprite(maxCellsPerRow, Data(16)),
+renderMappingDataCacheSourceAddressLayerA(maxCellsPerRow, 0),
+renderMappingDataCacheSourceAddressLayerB(maxCellsPerRow, 0),
 renderPatternDataCacheLayerA(maxCellsPerRow, Data(32)),
 renderPatternDataCacheLayerB(maxCellsPerRow, Data(32)),
-renderPatternDataCacheSprite(maxCellsPerRow, Data(32)),
+renderPatternDataCacheRowNoLayerA(maxCellsPerRow, 0),
+renderPatternDataCacheRowNoLayerB(maxCellsPerRow, 0),
 renderSpriteDisplayCache(maxSpriteDisplayCacheSize),
 renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 {
@@ -127,6 +129,7 @@ renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	videoShowBoundaryActiveImage = false;
 	videoShowBoundaryActionSafe = false;
 	videoShowBoundaryTitleSafe = false;
+	videoEnableFullImageBufferInfo = false;
 
 	enableLayerAHigh = true;
 	enableLayerALow = true;
@@ -209,6 +212,7 @@ bool S315_5313::BuildDevice()
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoShowBoundaryActiveImage, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoShowBoundaryActionSafe, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoShowBoundaryTitleSafe, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputPortAccessDebugMessages, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputTimingDebugMessages, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputRenderSyncDebugMessages, IGenericAccessDataValue::DataType::Bool)));
@@ -237,7 +241,8 @@ bool S315_5313::BuildDevice()
 	debugSettingsPage->AddEntry((new GenericAccessGroup(L"Image Debug"))
 	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoDisableRenderOutput, L"Disable Rendering"))
 	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoHighlightRenderPos, L"Highlight Render Pos"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableSpriteBoxing, L"Sprite Boxing")))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableSpriteBoxing, L"Sprite Boxing"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo, L"Show Pixel Info")))
 	                 ->AddEntry((new GenericAccessGroup(L"Image Boundaries"))
 	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoShowBoundaryActiveImage, L"Active Image"))
 	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsVideoShowBoundaryActionSafe, L"Action Safe"))
@@ -457,11 +462,13 @@ void S315_5313::Initialize()
 	//Additional render buffers
 	for(unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
 	{
-		renderSpriteDisplayCellCache[i].patternCellOffset = 0;
+		renderSpriteDisplayCellCache[i].patternCellOffsetX = 0;
+		renderSpriteDisplayCellCache[i].patternCellOffsetY = 0;
 		renderSpriteDisplayCellCache[i].patternData = 0;
 		renderSpriteDisplayCellCache[i].patternRowOffset = 0;
 		renderSpriteDisplayCellCache[i].spriteCellColumnNo = 0;
 		renderSpriteDisplayCellCache[i].spriteDisplayCacheIndex = 0;
+		renderSpriteDisplayCellCache[i].spriteTableEntryAddress = 0;
 	}
 	for(unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
 	{
@@ -3363,7 +3370,8 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 				else if(registerName == L"RenderWindowActiveCache")						(*i)->ExtractBinaryData(renderWindowActiveCache);
 				else if(registerName == L"RenderMappingDataCacheLayerA")				(*i)->ExtractBinaryData(renderMappingDataCacheLayerA);
 				else if(registerName == L"RenderMappingDataCacheLayerB")				(*i)->ExtractBinaryData(renderMappingDataCacheLayerB);
-				else if(registerName == L"RenderMappingDataCacheSprite")				(*i)->ExtractBinaryData(renderMappingDataCacheSprite);
+				else if(registerName == L"RenderMappingDataCacheSourceAddressLayerA")	(*i)->ExtractBinaryData(renderMappingDataCacheSourceAddressLayerA);
+				else if(registerName == L"RenderMappingDataCacheSourceAddressLayerB")	(*i)->ExtractBinaryData(renderMappingDataCacheSourceAddressLayerB);
 				else if(registerName == L"RenderPatternDataCacheLayerA")				(*i)->ExtractBinaryData(renderPatternDataCacheLayerA);
 				else if(registerName == L"RenderPatternDataCacheLayerB")				(*i)->ExtractBinaryData(renderPatternDataCacheLayerB);
 				else if(registerName == L"RenderPatternDataCacheSprite")				(*i)->ExtractBinaryData(renderPatternDataCacheLayerB);
@@ -3457,7 +3465,8 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 						SpriteCellDisplayCacheEntry& entry = renderSpriteDisplayCellCache[entryIndex];
 						entryNode->ExtractAttribute(L"spriteDisplayCacheIndex", entry.spriteDisplayCacheIndex);
 						entryNode->ExtractAttribute(L"spriteCellColumnNo", entry.spriteCellColumnNo);
-						entryNode->ExtractAttribute(L"patternCellOffset", entry.patternCellOffset);
+						entryNode->ExtractAttribute(L"patternCellOffsetX", entry.patternCellOffsetX);
+						entryNode->ExtractAttribute(L"patternCellOffsetY", entry.patternCellOffsetY);
 						entryNode->ExtractAttribute(L"patternRowOffset", entry.patternRowOffset);
 						entryNode->ExtractAttributeHex(L"patternData", entry.patternData);
 					}
@@ -3598,7 +3607,8 @@ void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChildBinary(L"Register", renderWindowActiveCache, GetFullyQualifiedDeviceInstanceName() + L"RenderWindowActiveCache").CreateAttribute(L"name", L"RenderWindowActiveCache");
 	node.CreateChildBinary(L"Register", renderMappingDataCacheLayerA, GetFullyQualifiedDeviceInstanceName() + L"RenderMappingDataCacheLayerA").CreateAttribute(L"name", L"RenderMappingDataCacheLayerA");
 	node.CreateChildBinary(L"Register", renderMappingDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderMappingDataCacheLayerB").CreateAttribute(L"name", L"RenderMappingDataCacheLayerB");
-	node.CreateChildBinary(L"Register", renderMappingDataCacheSprite, GetFullyQualifiedDeviceInstanceName() + L"RenderMappingDataCacheSprite").CreateAttribute(L"name", L"RenderMappingDataCacheSprite");
+	node.CreateChildBinary(L"Register", renderMappingDataCacheSourceAddressLayerA, GetFullyQualifiedDeviceInstanceName() + L"RenderMappingDataCacheLayerA").CreateAttribute(L"name", L"RenderMappingDataCacheSourceAddressLayerA");
+	node.CreateChildBinary(L"Register", renderMappingDataCacheSourceAddressLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderMappingDataCacheLayerB").CreateAttribute(L"name", L"RenderMappingDataCacheSourceAddressLayerB");
 	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerA, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheLayerA").CreateAttribute(L"name", L"RenderPatternDataCacheLayerA");
 	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheLayerB").CreateAttribute(L"name", L"RenderPatternDataCacheLayerB");
 	node.CreateChildBinary(L"Register", renderPatternDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheSprite").CreateAttribute(L"name", L"RenderPatternDataCacheSprite");
@@ -3628,7 +3638,8 @@ void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 		entryNode.CreateAttribute(L"index", i);
 		entryNode.CreateAttribute(L"spriteDisplayCacheIndex", entry.spriteDisplayCacheIndex);
 		entryNode.CreateAttribute(L"spriteCellColumnNo", entry.spriteCellColumnNo);
-		entryNode.CreateAttribute(L"patternCellOffset", entry.patternCellOffset);
+		entryNode.CreateAttribute(L"patternCellOffsetX", entry.patternCellOffsetX);
+		entryNode.CreateAttribute(L"patternCellOffsetY", entry.patternCellOffsetY);
 		entryNode.CreateAttribute(L"patternRowOffset", entry.patternRowOffset);
 		entryNode.CreateAttributeHex(L"patternData", entry.patternData.GetData(), entry.patternData.GetHexCharCount());
 	}
@@ -3736,6 +3747,7 @@ void S315_5313::LoadDebuggerState(IHierarchicalStorageNode& node)
 				else if(registerName == L"VideoShowBoundaryActiveImage")	videoShowBoundaryActiveImage = (*i)->ExtractData<bool>();
 				else if(registerName == L"VideoShowBoundaryActionSafe")		videoShowBoundaryActionSafe = (*i)->ExtractData<bool>();
 				else if(registerName == L"VideoShowBoundaryTitleSafe")		videoShowBoundaryTitleSafe = (*i)->ExtractData<bool>();
+				else if(registerName == L"VideoEnableFullImageBufferInfo")	videoEnableFullImageBufferInfo = (*i)->ExtractData<bool>();
 				//Layer removal settings
 				else if(registerName == L"EnableLayerAHigh")		enableLayerAHigh = (*i)->ExtractData<bool>();
 				else if(registerName == L"EnableLayerALow")			enableLayerALow = (*i)->ExtractData<bool>();
@@ -3766,6 +3778,7 @@ void S315_5313::SaveDebuggerState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", videoShowBoundaryActiveImage).CreateAttribute(L"name", L"VideoShowBoundaryActiveImage");
 	node.CreateChild(L"Register", videoShowBoundaryActionSafe).CreateAttribute(L"name", L"VideoShowBoundaryActionSafe");
 	node.CreateChild(L"Register", videoShowBoundaryTitleSafe).CreateAttribute(L"name", L"VideoShowBoundaryTitleSafe");
+	node.CreateChild(L"Register", videoEnableFullImageBufferInfo).CreateAttribute(L"name", L"VideoEnableFullImageBufferInfo");
 
 	//Layer removal settings
 	node.CreateChild(L"Register", enableLayerAHigh).CreateAttribute(L"name", L"EnableLayerAHigh");
@@ -4038,6 +4051,8 @@ bool S315_5313::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		return dataValue.SetValue(videoShowBoundaryActionSafe);
 	case IS315_5313DataSource::SettingsVideoShowBoundaryTitleSafe:
 		return dataValue.SetValue(videoShowBoundaryTitleSafe);
+	case IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo:
+		return dataValue.SetValue(videoEnableFullImageBufferInfo);
 	case IS315_5313DataSource::SettingsVideoEnableLayerA:
 		return dataValue.SetValue(enableLayerAHigh && enableLayerALow);
 	case IS315_5313DataSource::SettingsVideoEnableLayerAHigh:
@@ -4749,6 +4764,11 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		videoShowBoundaryTitleSafe = dataValueAsBool.GetValue();
+		return true;}
+	case IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo:{
+		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		videoEnableFullImageBufferInfo = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLayerA:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;

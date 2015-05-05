@@ -25,6 +25,7 @@ public:
 
 	//Enumerations
 	enum class IS315_5313DataSource;
+	enum class PixelSource;
 
 	//Structures
 	struct RegisterDataContext;
@@ -33,6 +34,7 @@ public:
 	struct SpriteMappingTableEntry;
 	struct DecodedPaletteColorEntry;
 	struct SpriteBoundaryLineEntry;
+	struct ImageBufferInfo;
 
 public:
 	//Interface version functions
@@ -57,6 +59,8 @@ public:
 	virtual void LockImageBufferData(unsigned int planeNo) = 0;
 	virtual void UnlockImageBufferData(unsigned int planeNo) = 0;
 	virtual const unsigned char* GetImageBufferData(unsigned int planeNo) const = 0;
+	virtual const ImageBufferInfo* GetImageBufferInfo(unsigned int planeNo) const = 0;
+	virtual const ImageBufferInfo* GetImageBufferInfo(unsigned int planeNo, unsigned int lineNo, unsigned int pixelNo) const = 0;
 	virtual bool GetImageBufferOddInterlaceFrame(unsigned int planeNo) const = 0;
 	virtual unsigned int GetImageBufferLineCount(unsigned int planeNo) const = 0;
 	virtual unsigned int GetImageBufferLineWidth(unsigned int planeNo, unsigned int lineNo) const = 0;
@@ -66,6 +70,7 @@ public:
 	//Rendering functions
 	virtual void DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const = 0;
 	virtual void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, unsigned int layerNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerVscrollPatternDisplacement, unsigned int& layerVscrollMappingDisplacement, Data& vsramReadCache) const = 0;
+	virtual unsigned int CalculatePatternDataRowNumber(unsigned int patternRowNumberNoFlip, bool interlaceMode2Active, const Data& mappingData) const = 0;
 	virtual unsigned int CalculatePatternDataRowAddress(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData) const = 0;
 	virtual void CalculateEffectiveCellScrollSize(unsigned int hszState, unsigned int vszState, unsigned int& effectiveScrollWidth, unsigned int& effectiveScrollHeight) const = 0;
 	virtual DecodedPaletteColorEntry ReadDecodedPaletteColor(unsigned int paletteRow, unsigned int paletteIndex) const = 0;
@@ -128,6 +133,8 @@ public:
 	inline void SetVideoShowBoundaryActionSafe(bool adata);
 	inline bool GetVideoShowBoundaryTitleSafe() const;
 	inline void SetVideoShowBoundaryTitleSafe(bool adata);
+	inline bool GetVideoEnableFullImageBufferInfo() const;
+	inline void SetVideoEnableFullImageBufferInfo(bool adata);
 
 	//Layer removal
 	inline bool GetEnableLayerA() const;

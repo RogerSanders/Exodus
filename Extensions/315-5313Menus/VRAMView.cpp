@@ -628,7 +628,12 @@ LRESULT VRAMView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Position the details popup, and show it if necessary.
 	ShowWindow((detailsBlock16)? hwndDetails: hwndDetails16, SW_HIDE);
-	SetWindowPos((detailsBlock16)? hwndDetails16: hwndDetails, NULL, xposDetails, yposDetails, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+	SetWindowPos((detailsBlock16)? hwndDetails16: hwndDetails, NULL, xposDetails, yposDetails, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+	if(!detailsVisible)
+	{
+		detailsVisible = true;
+		ShowWindow((detailsBlock16)? hwndDetails16: hwndDetails, SW_SHOWNA);
+	}
 
 	return 0;
 }

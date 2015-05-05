@@ -133,6 +133,7 @@ enum class IS315_5313::IS315_5313DataSource
 	SettingsVideoShowBoundaryActiveImage,
 	SettingsVideoShowBoundaryActionSafe,
 	SettingsVideoShowBoundaryTitleSafe,
+	SettingsVideoEnableFullImageBufferInfo,
 	SettingsVideoEnableLayerA,
 	SettingsVideoEnableLayerAHigh,
 	SettingsVideoEnableLayerALow,
@@ -145,6 +146,19 @@ enum class IS315_5313::IS315_5313DataSource
 	SettingsVideoEnableSprite,
 	SettingsVideoEnableSpriteHigh,
 	SettingsVideoEnableSpriteLow
+};
+
+//----------------------------------------------------------------------------------------
+enum class IS315_5313::PixelSource
+{
+	Sprite,
+	LayerA,
+	LayerB,
+	Background,
+	Window,
+	CRAMWrite,
+	Border,
+	Blanking
 };
 
 //----------------------------------------------------------------------------------------
@@ -242,6 +256,38 @@ struct IS315_5313::SpriteBoundaryLineEntry
 	int linePosXEnd;
 	int linePosYStart;
 	int linePosYEnd;
+};
+
+//----------------------------------------------------------------------------------------
+struct IS315_5313::ImageBufferInfo
+{
+	ImageBufferInfo()
+	:mappingData(32, 0)
+	{}
+
+	PixelSource pixelSource;
+	unsigned int hcounter;
+	unsigned int vcounter;
+	unsigned int paletteRow;
+	unsigned int paletteEntry;
+	bool shadowHighlightEnabled;
+	bool pixelIsShadowed;
+	bool pixelIsHighlighted;
+	unsigned int colorComponentR;
+	unsigned int colorComponentG;
+	unsigned int colorComponentB;
+
+	unsigned int layerMappingVRAMAddress;
+	Data mappingData;
+	unsigned int patternRowNo;
+	unsigned int patternColumnNo;
+
+	unsigned int spriteTableEntryNo;
+	unsigned int spriteTableEntryAddress;
+	unsigned int spriteCellWidth;
+	unsigned int spriteCellHeight;
+	unsigned int spriteCellPosX;
+	unsigned int spriteCellPosY;
 };
 
 //----------------------------------------------------------------------------------------
@@ -499,6 +545,21 @@ void IS315_5313::SetVideoShowBoundaryTitleSafe(bool adata)
 {
 	GenericAccessDataValueBool data(adata);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoShowBoundaryTitleSafe, 0, data);
+}
+
+//----------------------------------------------------------------------------------------
+bool IS315_5313::GetVideoEnableFullImageBufferInfo() const
+{
+	GenericAccessDataValueBool data;
+	ReadGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo, 0, data);
+	return data.GetValue();
+}
+
+//----------------------------------------------------------------------------------------
+void IS315_5313::SetVideoEnableFullImageBufferInfo(bool adata)
+{
+	GenericAccessDataValueBool data(adata);
+	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo, 0, data);
 }
 
 //----------------------------------------------------------------------------------------

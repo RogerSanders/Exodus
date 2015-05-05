@@ -267,18 +267,37 @@ struct S315_5313::SpriteCellDisplayCacheEntry
 
 	unsigned int spriteDisplayCacheIndex;
 	unsigned int spriteCellColumnNo;
-	unsigned int patternCellOffset;
+	unsigned int patternCellOffsetX;
+	unsigned int patternCellOffsetY;
 	unsigned int patternRowOffset;
 	Data patternData;
+
+	//Debug info
+	unsigned int spriteTableEntryAddress;
 };
 
 //----------------------------------------------------------------------------------------
 struct S315_5313::SpritePixelBufferEntry
 {
+	SpritePixelBufferEntry()
+	:spriteMappingData(32, 0)
+	{}
+
 	unsigned int paletteLine;
 	unsigned int paletteIndex;
 	bool layerPriority;
 	bool entryWritten;
+
+	//Debug info
+	unsigned int patternRowNo;
+	unsigned int patternColumnNo;
+	unsigned int spriteTableEntryNo;
+	unsigned int spriteTableEntryAddress;
+	Data spriteMappingData;
+	unsigned int spriteCellWidth;
+	unsigned int spriteCellHeight;
+	unsigned int spriteCellPosX;
+	unsigned int spriteCellPosY;
 };
 
 //----------------------------------------------------------------------------------------

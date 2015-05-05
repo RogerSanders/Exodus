@@ -39,6 +39,9 @@ private:
 	LRESULT msgRenderWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgRenderWM_MOUSELEAVE(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	void HidePixelInfoWindow();
 
 	//Image update functions
 	void UpdateImage();
@@ -47,6 +50,13 @@ private:
 	void UpdateOpenGLViewport();
 	void UpdateRenderWindowSize();
 	void SetFullScreen(bool fullScreenModeNew);
+
+	//Pixel info dialog window procedure
+	INT_PTR WndProcPixelInfo(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+	//Pixel info dialog event handlers
+	INT_PTR msgPixelInfoWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
 	ImageViewPresenter& presenter;
@@ -66,8 +76,8 @@ private:
 	LONG fullScreenSavedWindowStyle;
 	LONG fullScreenSavedWindowStyleEx;
 	double imageAspectRatio;
-	unsigned int renderWindowWidth;
-	unsigned int renderWindowHeight;
+	int renderWindowWidth;
+	int renderWindowHeight;
 	bool videoFixedAspectRatioCached;
 	bool videoShowStatusBarCached;
 	unsigned int windowPendingClearCount;
@@ -76,6 +86,15 @@ private:
 	LARGE_INTEGER counterFrequency;
 	unsigned int framesRenderedSinceLastFPSCounterUpdate;
 	unsigned int lastRenderedFrameTokenCached;
+
+	int imageRegionPosX;
+	int imageRegionPosY;
+	int imageRegionWidth;
+	int imageRegionHeight;
+	HWND hwndPixelInfo;
+	bool pixelInfoVisible;
+	int pixelInfoTargetBufferPosX;
+	int pixelInfoTargetBufferPosY;
 };
 
 #endif
