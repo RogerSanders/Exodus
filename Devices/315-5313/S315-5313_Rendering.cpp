@@ -95,6 +95,23 @@ const unsigned char* S315_5313::GetImageBufferData(unsigned int planeNo) const
 }
 
 //----------------------------------------------------------------------------------------
+const S315_5313::ImageBufferInfo* S315_5313::GetImageBufferInfo(unsigned int planeNo) const
+{
+	return &imageBufferInfo[planeNo][0];
+}
+
+//----------------------------------------------------------------------------------------
+const S315_5313::ImageBufferInfo* S315_5313::GetImageBufferInfo(unsigned int planeNo, unsigned int lineNo, unsigned int pixelNo) const
+{
+	if((lineNo >= imageBufferHeight) || (pixelNo >= imageBufferWidth))
+	{
+		return 0;
+	}
+	unsigned int index = (lineNo * imageBufferWidth) + pixelNo;
+	return &imageBufferInfo[planeNo][index];
+}
+
+//----------------------------------------------------------------------------------------
 bool S315_5313::GetImageBufferOddInterlaceFrame(unsigned int planeNo) const
 {
 	return imageBufferOddInterlaceFrame[planeNo];
@@ -556,7 +573,8 @@ void S315_5313::PerformInternalRenderOperation(const AccessTarget& accessTarget,
 
 		//Clear the contents of the sprite pixel buffer for this line. Note that most
 		//likely in the real VDP, the analog render process would do this for us as it
-		//pulls sprite data out of the buffer.
+		//pulls sprite data out of the buffer. We don't want to rely on the render process
+		//running at all in our core though, so we do it as a manual step here.
 		for(unsigned int i = 0; i < spritePixelBufferSize; ++i)
 		{
 			spritePixelBuffer[renderSpritePixelBufferDigitalRenderPlane][i].entryWritten = false;
@@ -617,8 +635,7 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		unsigned int renderDigitalCurrentColumn = (nextOperation.index - 1) / cellsPerColumn;
 
 		//Read the current mode register settings
-		//##TODO## Add support for mode 4
-		bool mode4Active = false;
+		bool mode4Active = !RegGetMode5(accessTarget);
 		bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
 
 		//Read the current window register settings
@@ -681,7 +698,11 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 			unsigned int vszState = 0x0;
 
 			//Read window mapping data
-			DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, 0, 0, 0, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
+			unsigned int mappingDataAddressWindow = DigitalRenderCalculateMappingVRAMAddess(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, 0, 0, 0, hszState, vszState);
+			renderMappingDataCacheLayerA[nextOperation.index] = ((unsigned int)vram->ReadCommitted(mappingDataAddressWindow+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddressWindow+1);
+			renderMappingDataCacheLayerA[nextOperation.index+1] = ((unsigned int)vram->ReadCommitted(mappingDataAddressWindow+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddressWindow+3);
+			renderMappingDataCacheSourceAddressLayerA[nextOperation.index] = mappingDataAddressWindow;
+			renderMappingDataCacheSourceAddressLayerA[nextOperation.index+1] = mappingDataAddressWindow+2;
 
 			//Apply layer removal for the window layer
 			if(!enableWindowHigh || !enableWindowLow)
@@ -694,7 +715,9 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 				//Read layer A mapping data
 				Data layerAMapping1(16);
 				Data layerAMapping2(16);
-				DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, layerAMapping1, layerAMapping2);
+				unsigned int mappingDataAddressLayerA = DigitalRenderCalculateMappingVRAMAddess(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState);
+				layerAMapping1 = ((unsigned int)vram->ReadCommitted(mappingDataAddressLayerA+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddressLayerA+1);
+				layerAMapping2 = ((unsigned int)vram->ReadCommitted(mappingDataAddressLayerA+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddressLayerA+3);
 
 				//Substitute layer A mapping data for any mapping blocks in the window
 				//region that are hidden by layer removal
@@ -706,6 +729,8 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 					renderWindowActiveCache[renderDigitalCurrentColumn] = false;
 					renderMappingDataCacheLayerA[nextOperation.index] = layerAMapping1;
 					renderMappingDataCacheLayerA[nextOperation.index+1] = layerAMapping2;
+					renderMappingDataCacheSourceAddressLayerA[nextOperation.index] = mappingDataAddressLayerA;
+					renderMappingDataCacheSourceAddressLayerA[nextOperation.index+1] = mappingDataAddressLayerA+2;
 				}
 			}
 		}
@@ -717,7 +742,11 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 			unsigned int vszState = RegGetVSZ(accessTarget);
 
 			//Read layer A mapping data
-			DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerA[nextOperation.index], renderMappingDataCacheLayerA[nextOperation.index+1]);
+			unsigned int mappingDataAddress = DigitalRenderCalculateMappingVRAMAddess(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerAHscrollMappingDisplacement, renderLayerAVscrollMappingDisplacement, renderLayerAVscrollPatternDisplacement, hszState, vszState);
+			renderMappingDataCacheLayerA[nextOperation.index] = ((unsigned int)vram->ReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+1);
+			renderMappingDataCacheLayerA[nextOperation.index+1] = ((unsigned int)vram->ReadCommitted(mappingDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+3);
+			renderMappingDataCacheSourceAddressLayerA[nextOperation.index] = mappingDataAddress;
+			renderMappingDataCacheSourceAddressLayerA[nextOperation.index+1] = mappingDataAddress+2;
 		}
 
 		break;}
@@ -759,8 +788,14 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
 		unsigned int patternRowNumberNoFlip = (screenPatternRowIndex + verticalPatternDisplacement) % rowsPerTile;
 
-		//Read layer A pattern row
-		DigitalRenderReadPatternDataRow(patternRowNumberNoFlip, 0, interlaceMode2Active, renderMappingDataCacheLayerA[nextOperation.index], renderPatternDataCacheLayerA[nextOperation.index]);
+		//Calculate the address of the target pattern data row
+		const Data& mappingData = renderMappingDataCacheLayerA[nextOperation.index];
+		unsigned int patternRowNumber = CalculatePatternDataRowNumber(patternRowNumberNoFlip, interlaceMode2Active, mappingData);
+		unsigned int patternDataAddress = CalculatePatternDataRowAddress(patternRowNumber, 0, interlaceMode2Active, mappingData);
+
+		//Read the target pattern row
+		renderPatternDataCacheLayerA[nextOperation.index] = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
+		renderPatternDataCacheRowNoLayerA[nextOperation.index] = patternRowNumber;
 		break;}
 	case VRAMRenderOp::MAPPING_B:{
 		//Skip the operation if this is the invisible line just before the display region
@@ -798,7 +833,11 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		unsigned int vszState = RegGetVSZ(accessTarget);
 
 		//Read layer B mapping data
-		DigitalRenderReadMappingDataPair(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerBHscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement, renderLayerBVscrollPatternDisplacement, hszState, vszState, renderMappingDataCacheLayerB[nextOperation.index], renderMappingDataCacheLayerB[nextOperation.index+1]);
+		unsigned int mappingDataAddress = DigitalRenderCalculateMappingVRAMAddess(screenRowIndex, renderDigitalCurrentColumn, interlaceMode2Active, nameTableBase, renderLayerBHscrollMappingDisplacement, renderLayerBVscrollMappingDisplacement, renderLayerBVscrollPatternDisplacement, hszState, vszState);
+		renderMappingDataCacheLayerB[nextOperation.index] = ((unsigned int)vram->ReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+1);
+		renderMappingDataCacheLayerB[nextOperation.index+1] = ((unsigned int)vram->ReadCommitted(mappingDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+3);
+		renderMappingDataCacheSourceAddressLayerB[nextOperation.index] = mappingDataAddress;
+		renderMappingDataCacheSourceAddressLayerB[nextOperation.index+1] = mappingDataAddress+2;
 		break;}
 	case VRAMRenderOp::PATTERN_B:{
 		//Skip the operation if this is the invisible line just before the display region
@@ -822,13 +861,18 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
 		unsigned int patternRowNumberNoFlip = (screenPatternRowIndex + renderLayerBVscrollPatternDisplacement) % rowsPerTile;
 
-		//Read layer B pattern row
-		DigitalRenderReadPatternDataRow(patternRowNumberNoFlip, 0, interlaceMode2Active, renderMappingDataCacheLayerB[nextOperation.index], renderPatternDataCacheLayerB[nextOperation.index]);
+		//Calculate the address of the target pattern data row
+		const Data& mappingData = renderMappingDataCacheLayerB[nextOperation.index];
+		unsigned int patternRowNumber = CalculatePatternDataRowNumber(patternRowNumberNoFlip, interlaceMode2Active, mappingData);
+		unsigned int patternDataAddress = CalculatePatternDataRowAddress(patternRowNumber, 0, interlaceMode2Active, mappingData);
+
+		//Read the target pattern row
+		renderPatternDataCacheLayerB[nextOperation.index] = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
+		renderPatternDataCacheRowNoLayerB[nextOperation.index] = patternRowNumber;
 		break;}
 	case VRAMRenderOp::MAPPING_S:{
 		//Read the current mode register settings
-		//##TODO## Add support for mode 4
-		bool mode4Active = false;
+		bool mode4Active = !RegGetMode5(accessTarget);
 		bool extendedVRAMModeActive = RegGetEVRAM(accessTarget);
 
 		//Read sprite mapping data and decode sprite cells for the next sprite to display
@@ -867,8 +911,17 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 			SpriteCellDisplayCacheEntry& spriteCellDisplayCacheEntry = renderSpriteDisplayCellCache[renderSpriteDisplayCellCacheCurrentIndex];
 			SpriteDisplayCacheEntry& spriteDisplayCacheEntry = renderSpriteDisplayCache[spriteCellDisplayCacheEntry.spriteDisplayCacheIndex];
 
-			//Read pattern data for the sprite cell
-			DigitalRenderReadPatternDataRow(spriteCellDisplayCacheEntry.patternRowOffset, spriteCellDisplayCacheEntry.patternCellOffset, interlaceMode2Active, spriteDisplayCacheEntry.mappingData, spriteCellDisplayCacheEntry.patternData);
+			//Calculate the width and height of this sprite in cells
+			unsigned int spriteWidthInCells = spriteDisplayCacheEntry.sizeAndLinkData.GetDataSegment(10, 2) + 1;
+			unsigned int spriteHeightInCells = spriteDisplayCacheEntry.sizeAndLinkData.GetDataSegment(8, 2) + 1;
+
+			//Calculate the address of the target pattern data row for the sprite cell
+			unsigned int patternCellOffset = (spriteCellDisplayCacheEntry.patternCellOffsetX * spriteHeightInCells) + spriteCellDisplayCacheEntry.patternCellOffsetY;
+			unsigned int patternRowNumber = CalculatePatternDataRowNumber(spriteCellDisplayCacheEntry.patternRowOffset, interlaceMode2Active, spriteDisplayCacheEntry.mappingData);
+			unsigned int patternDataAddress = CalculatePatternDataRowAddress(patternRowNumber, patternCellOffset, interlaceMode2Active, spriteDisplayCacheEntry.mappingData);
+
+			//Read the target pattern row
+			spriteCellDisplayCacheEntry.patternData = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
 
 			//Read all used bits of the horizontal position data for this sprite
 			Data spritePosH(9);
@@ -930,6 +983,22 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 							spritePixelBufferEntry.layerPriority = spriteDisplayCacheEntry.mappingData.GetBit(15);
 							spritePixelBufferEntry.paletteLine = spriteDisplayCacheEntry.mappingData.GetDataSegment(13, 2);
 							spritePixelBufferEntry.paletteIndex = DigitalRenderReadPixelIndex(spriteCellDisplayCacheEntry.patternData, spriteDisplayCacheEntry.mappingData.GetBit(11), cellPixelIndex);
+
+							//Record debug info on this sprite pixel buffer entry, so that
+							//we can reverse the render pipeline later for debug purposes
+							//and determine the sprite that generated this pixel.
+							if(videoEnableFullImageBufferInfo)
+							{
+								spritePixelBufferEntry.patternRowNo = patternRowNumber;
+								spritePixelBufferEntry.patternColumnNo = cellPixelIndex;
+								spritePixelBufferEntry.spriteTableEntryNo = spriteDisplayCacheEntry.spriteTableIndex;
+								spritePixelBufferEntry.spriteTableEntryAddress = spriteCellDisplayCacheEntry.spriteTableEntryAddress;
+								spritePixelBufferEntry.spriteMappingData = spriteDisplayCacheEntry.mappingData;
+								spritePixelBufferEntry.spriteCellWidth = spriteWidthInCells;
+								spritePixelBufferEntry.spriteCellHeight = spriteHeightInCells;
+								spritePixelBufferEntry.spriteCellPosX = spriteCellDisplayCacheEntry.patternCellOffsetX;
+								spritePixelBufferEntry.spriteCellPosY = spriteCellDisplayCacheEntry.patternCellOffsetY;
+							}
 						}
 						else
 						{
@@ -1113,6 +1182,17 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	//Clean up these comments, and ensure we're not doing anything to affect rendering
 	//based on this register state.
 
+	//Set the initial data for this pixel info entry
+	ImageBufferInfo* imageBufferInfoEntry = 0;
+	if(videoEnableFullImageBufferInfo && insidePixelBufferRegion)
+	{
+		imageBufferInfoEntry = &imageBufferInfo[drawingImageBufferPlane][(renderAnalogCurrentRow * imageBufferWidth) + renderAnalogCurrentPixel];
+		imageBufferInfoEntry->hcounter = renderDigitalHCounterPos;
+		imageBufferInfoEntry->vcounter = renderDigitalVCounterPos;
+		imageBufferInfoEntry->mappingData = 0;
+		imageBufferInfoEntry->layerMappingVRAMAddress = 0;
+	}
+
 	//Determine the palette line and index numbers and the shadow/highlight state for this
 	//pixel.
 	bool shadow = false;
@@ -1123,6 +1203,12 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 	{
 		//If a pixel is being forced to black, we currently don't have anything to do
 		//here.
+
+		//Record the source layer for this pixel
+		if(imageBufferInfoEntry != 0)
+		{
+			imageBufferInfoEntry->pixelSource = PixelSource::Blanking;
+		}
 	}
 	else if(forceOutputBackgroundPixel)
 	{
@@ -1130,6 +1216,12 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		//background palette index and line data.
 		paletteLine = RegGetBackgroundPaletteRow(accessTarget);
 		paletteIndex = RegGetBackgroundPaletteColumn(accessTarget);
+
+		//Record the source layer for this pixel
+		if(imageBufferInfoEntry != 0)
+		{
+			imageBufferInfoEntry->pixelSource = PixelSource::Border;
+		}
 	}
 	else if(insideActiveScanVertically && insideActiveScanHorizontally)
 	{
@@ -1156,9 +1248,9 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		layerPriority[LAYERINDEX_SPRITE] = false;
 		paletteLineData[LAYERINDEX_SPRITE] = 0;
 		paletteIndexData[LAYERINDEX_SPRITE] = 0;
-		if(spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex].entryWritten)
+		const SpritePixelBufferEntry& spritePixelBufferEntry = spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex];
+		if(spritePixelBufferEntry.entryWritten)
 		{
-			const SpritePixelBufferEntry& spritePixelBufferEntry = spritePixelBuffer[renderSpritePixelBufferAnalogRenderPlane][activeScanPixelIndex];
 			layerPriority[LAYERINDEX_SPRITE] = spritePixelBufferEntry.layerPriority;
 			paletteLineData[LAYERINDEX_SPRITE] = spritePixelBufferEntry.paletteLine;
 			paletteIndexData[LAYERINDEX_SPRITE] = spritePixelBufferEntry.paletteIndex;
@@ -1168,11 +1260,15 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		unsigned int screenCellNo = activeScanPixelIndex / cellBlockSizeH;
 		unsigned int screenColumnNo = screenCellNo / cellsPerColumn;
 		bool windowEnabledAtCell = renderWindowActiveCache[screenColumnNo];
+		unsigned int mappingNumberWindow;
+		unsigned int scrolledMappingNumberLayerA;
+		unsigned int pixelNumberWindow;
+		unsigned int scrolledPixelNumberLayerA;
 		if(windowEnabledAtCell)
 		{
 			//Read the pixel data from the window plane
-			unsigned int mappingNumberWindow = ((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) / cellBlockSizeH;
-			unsigned int pixelNumberWindow = ((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) % cellBlockSizeH;
+			mappingNumberWindow = ((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) / cellBlockSizeH;
+			pixelNumberWindow = ((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) % cellBlockSizeH;
 			const Data& windowMappingData = renderMappingDataCacheLayerA[mappingNumberWindow];
 			layerPriority[LAYERINDEX_LAYERA] = windowMappingData.GetBit(15);
 			paletteLineData[LAYERINDEX_LAYERA] = windowMappingData.GetDataSegment(13, 2);
@@ -1181,8 +1277,8 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		else
 		{
 			//Calculate the mapping number and pixel number within the layer
-			unsigned int scrolledMappingNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) / cellBlockSizeH;
-			unsigned int scrolledPixelNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) % cellBlockSizeH;
+			scrolledMappingNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) / cellBlockSizeH;
+			scrolledPixelNumberLayerA = (((cellBlockSizeH * cellsPerColumn) + activeScanPixelIndex) - renderLayerAHscrollPatternDisplacement) % cellBlockSizeH;
 
 			//Take the window distortion bug into account. Due to an implementation quirk,
 			//the real VDP apparently reads the window mapping and pattern data at the
@@ -1290,6 +1386,54 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		//Read the palette line and index to use for the selected layer
 		paletteLine = paletteLineData[layerIndex];
 		paletteIndex = paletteIndexData[layerIndex];
+
+		//Record the source layer for this pixel
+		if(imageBufferInfoEntry != 0)
+		{
+			switch(layerIndex)
+			{
+			case LAYERINDEX_SPRITE:
+				imageBufferInfoEntry->pixelSource = PixelSource::Sprite;
+				imageBufferInfoEntry->patternRowNo = spritePixelBufferEntry.patternRowNo;
+				imageBufferInfoEntry->patternColumnNo = spritePixelBufferEntry.patternColumnNo;
+				imageBufferInfoEntry->mappingData = spritePixelBufferEntry.spriteMappingData;
+				imageBufferInfoEntry->spriteTableEntryNo = spritePixelBufferEntry.spriteTableEntryNo;
+				imageBufferInfoEntry->spriteTableEntryAddress = spritePixelBufferEntry.spriteTableEntryAddress;
+				imageBufferInfoEntry->spriteCellWidth = spritePixelBufferEntry.spriteCellWidth;
+				imageBufferInfoEntry->spriteCellHeight = spritePixelBufferEntry.spriteCellHeight;
+				imageBufferInfoEntry->spriteCellPosX = spritePixelBufferEntry.spriteCellPosX;
+				imageBufferInfoEntry->spriteCellPosY = spritePixelBufferEntry.spriteCellPosY;
+				break;
+			case LAYERINDEX_LAYERA:
+				if(windowEnabledAtCell)
+				{
+					imageBufferInfoEntry->pixelSource = PixelSource::Window;
+					imageBufferInfoEntry->patternRowNo = renderPatternDataCacheRowNoLayerA[mappingNumberWindow];
+					imageBufferInfoEntry->patternColumnNo = pixelNumberWindow;
+					imageBufferInfoEntry->mappingData = renderMappingDataCacheLayerA[mappingNumberWindow];
+					imageBufferInfoEntry->layerMappingVRAMAddress = renderMappingDataCacheSourceAddressLayerA[mappingNumberWindow];
+				}
+				else
+				{
+					imageBufferInfoEntry->pixelSource = PixelSource::LayerA;
+					imageBufferInfoEntry->patternRowNo = renderPatternDataCacheRowNoLayerA[scrolledMappingNumberLayerB];
+					imageBufferInfoEntry->patternColumnNo = scrolledPixelNumberLayerA;
+					imageBufferInfoEntry->mappingData = renderMappingDataCacheLayerA[scrolledMappingNumberLayerA];
+					imageBufferInfoEntry->layerMappingVRAMAddress = renderMappingDataCacheSourceAddressLayerA[scrolledMappingNumberLayerA];
+				}
+				break;
+			case LAYERINDEX_LAYERB:
+				imageBufferInfoEntry->pixelSource = PixelSource::LayerB;
+				imageBufferInfoEntry->patternRowNo = renderPatternDataCacheRowNoLayerB[scrolledMappingNumberLayerB];
+				imageBufferInfoEntry->patternColumnNo = scrolledPixelNumberLayerB;
+				imageBufferInfoEntry->mappingData = renderMappingDataCacheLayerB[scrolledMappingNumberLayerB];
+				imageBufferInfoEntry->layerMappingVRAMAddress = renderMappingDataCacheSourceAddressLayerB[scrolledMappingNumberLayerB];
+				break;
+			case LAYERINDEX_BACKGROUND:
+				imageBufferInfoEntry->pixelSource = PixelSource::Background;
+				break;
+			}
+		}
 	}
 
 	//If we just determined the palette line and index for a pixel within the active scan
@@ -1327,6 +1471,22 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		unsigned int cramWriteAddress = cramSession.writeInfo.writeAddress;
 		paletteLine = (cramWriteAddress / paletteEntrySize) / paletteEntriesPerLine;
 		paletteIndex = (cramWriteAddress / paletteEntrySize) % paletteEntriesPerLine;
+
+		//Record the source layer for this pixel
+		if(imageBufferInfoEntry != 0)
+		{
+			imageBufferInfoEntry->pixelSource = IS315_5313::PixelSource::CRAMWrite;
+		}
+	}
+
+	//Record information on the selected palette entry for this pixel
+	if(imageBufferInfoEntry != 0)
+	{
+		imageBufferInfoEntry->shadowHighlightEnabled = RegGetSTE(accessTarget);
+		imageBufferInfoEntry->pixelIsShadowed = shadow;
+		imageBufferInfoEntry->pixelIsHighlighted = highlight;
+		imageBufferInfoEntry->paletteRow = paletteLine;
+		imageBufferInfoEntry->paletteEntry = paletteIndex;
 	}
 
 	//Now that we've advanced the analog render cycle and handled CRAM write flicker,
@@ -1408,6 +1568,14 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 			imageBufferEntry.g = paletteEntryTo8BitHighlight[colorIntensityG];
 			imageBufferEntry.b = paletteEntryTo8BitHighlight[colorIntensityB];
 			imageBufferEntry.a = 0xFF;
+		}
+
+		//Record information on the output colour for this pixel
+		if(imageBufferInfoEntry != 0)
+		{
+			imageBufferInfoEntry->colorComponentR = colorIntensityR;
+			imageBufferInfoEntry->colorComponentG = colorIntensityG;
+			imageBufferInfoEntry->colorComponentB = colorIntensityB;
 		}
 	}
 }
@@ -1615,7 +1783,7 @@ void S315_5313::DigitalRenderReadVscrollData(unsigned int screenColumnNumber, un
 //| Base Addr | 0 | 0 | 0 | 0 | 0 | 0 | 0 |       Column      | 0 |
 //-----------------------------------------------------------------
 //----------------------------------------------------------------------------------------
-void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState, Data& mappingDataEntry1, Data& mappingDataEntry2) const
+unsigned int S315_5313::DigitalRenderCalculateMappingVRAMAddess(unsigned int screenRowNumber, unsigned int screenColumnNumber, bool interlaceMode2Active, unsigned int nameTableBaseAddress, unsigned int layerHscrollMappingDisplacement, unsigned int layerVscrollMappingDisplacement, unsigned int layerVscrollPatternDisplacement, unsigned int hszState, unsigned int vszState)
 {
 	//The existence and contents of this table have been determined through analysis of
 	//the behaviour of the VDP when invalid field size settings are selected. In
@@ -1695,19 +1863,8 @@ void S315_5313::DigitalRenderReadMappingDataPair(unsigned int screenRowNumber, u
 		mappingDataAddress &= 0xFF3F;
 	}
 
-	//Read target layer mapping data
-	mappingDataEntry1 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+0) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+1);
-	mappingDataEntry2 = ((unsigned int)vram->ReadCommitted(mappingDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(mappingDataAddress+3);
-}
-
-//----------------------------------------------------------------------------------------
-void S315_5313::DigitalRenderReadPatternDataRow(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData, Data& patternData) const
-{
-	//Calculate the address of the target pattern data row
-	unsigned int patternDataAddress = CalculatePatternDataRowAddress(patternRowNumberNoFlip, patternCellOffset, interlaceMode2Active, mappingData);
-
-	//Read the target pattern row
-	patternData = ((unsigned int)vram->ReadCommitted(patternDataAddress+0) << 24) | ((unsigned int)vram->ReadCommitted(patternDataAddress+1) << 16) | ((unsigned int)vram->ReadCommitted(patternDataAddress+2) << 8) | (unsigned int)vram->ReadCommitted(patternDataAddress+3);
+	//Return the calculated mapping data address to the caller
+	return mappingDataAddress;
 }
 
 //----------------------------------------------------------------------------------------
@@ -1937,9 +2094,16 @@ void S315_5313::DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSetti
 				//leftmost column, and so forth to the end of that column, followed by the
 				//pattern data for the topmost cell in the second column, and so on.
 				unsigned int spriteCellHorizontalOffset = (hflip)? (spriteWidthInCells - 1) - i: i;
-				spriteCellDisplayCache[spriteCellDisplayCacheEntryCount].patternCellOffset = (spriteCellHorizontalOffset * spriteHeightInCells) + spriteCellRowNumber;
-				spriteCellDisplayCache[spriteCellDisplayCacheEntryCount].patternRowOffset = spriteCellPatternRowNumber;
-				spriteCellDisplayCache[spriteCellDisplayCacheEntryCount].spriteCellColumnNo = i;
+				SpriteCellDisplayCacheEntry& cellCacheEntry = spriteCellDisplayCache[spriteCellDisplayCacheEntryCount];
+				cellCacheEntry.patternCellOffsetX = spriteCellHorizontalOffset;
+				cellCacheEntry.patternCellOffsetY = spriteCellRowNumber;
+				cellCacheEntry.patternRowOffset = spriteCellPatternRowNumber;
+				cellCacheEntry.spriteCellColumnNo = i;
+
+				//Record debug info on this sprite cell buffer entry, so that we can
+				//reverse the render pipeline later for debug purposes and determine the
+				//sprite that generated this pixel.
+				cellCacheEntry.spriteTableEntryAddress = spriteTableEntryAddress;
 
 				//Advance to the next available entry in the sprite cell cache
 				++spriteCellDisplayCacheEntryCount;
@@ -2128,7 +2292,7 @@ void S315_5313::CalculateLayerPriorityIndex(unsigned int& layerIndex, bool& shad
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::CalculatePatternDataRowAddress(unsigned int patternRowNumberNoFlip, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData) const
+unsigned int S315_5313::CalculatePatternDataRowNumber(unsigned int patternRowNumberNoFlip, bool interlaceMode2Active, const Data& mappingData) const
 {
 	//Calculate the final number of the pattern row to read, taking into account vertical
 	//flip if it is specified in the block mapping.
@@ -2144,7 +2308,12 @@ unsigned int S315_5313::CalculatePatternDataRowAddress(unsigned int patternRowNu
 	//HF:     Horizontal Flip
 	const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
 	unsigned int patternRowNumber = mappingData.GetBit(12)? (rowsPerTile - 1) - patternRowNumberNoFlip: patternRowNumberNoFlip;
+	return patternRowNumber;
+}
 
+//----------------------------------------------------------------------------------------
+unsigned int S315_5313::CalculatePatternDataRowAddress(unsigned int patternRowNumber, unsigned int patternCellOffset, bool interlaceMode2Active, const Data& mappingData) const
+{
 	//The address of the pattern data to read is determined by combining the number of the
 	//pattern (tile) with the row of the pattern to be read. The way the data is combined
 	//is different under interlace mode 2, where patterns are 16 pixels high instead of
@@ -2168,6 +2337,7 @@ unsigned int S315_5313::CalculatePatternDataRowAddress(unsigned int patternRowNu
 	//in the case of interlace mode 2.
 	//##TODO## Test the above assertion on the TeraDrive with the larger VRAM mode active
 	static const unsigned int patternDataRowByteSize = 4;
+	const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
 	const unsigned int blockPatternByteSize = rowsPerTile * patternDataRowByteSize;
 	unsigned int patternDataAddress = (((mappingData.GetData() + patternCellOffset) * blockPatternByteSize) + (patternRowNumber * patternDataRowByteSize)) % vramSize;
 	return patternDataAddress;

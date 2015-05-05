@@ -261,10 +261,6 @@
     <ProjectReference Include="..\..\Support Libraries\WindowsControls\WindowsControls.vcxproj">
       <Project>{952d92a9-1e79-420c-8a8a-c6f230e819b5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\GenericAccessMenus\GenericAccessMenus.vcxproj">
-      <Project>{7e40a1df-de81-455a-ad7b-8505372f1fdc}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugMenuHandler.cpp" />

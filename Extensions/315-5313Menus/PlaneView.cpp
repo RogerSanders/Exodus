@@ -1196,7 +1196,8 @@ void PlaneView::GetScrollPlanePaletteInfo(const std::vector<unsigned char>& vram
 	mappingData.SetLowerHalf(vramData[mappingAddress+1]);
 
 	//Determine the address of the target row in the target block
-	unsigned int patternRowNumber = ypos % blockPixelSizeY;
+	unsigned int patternRowNumberNoFlip = ypos % blockPixelSizeY;
+	unsigned int patternRowNumber = model.CalculatePatternDataRowNumber(patternRowNumberNoFlip, interlaceMode2Active, mappingData);
 	unsigned int patternRowDataAddress = model.CalculatePatternDataRowAddress(patternRowNumber, 0, interlaceMode2Active, mappingData);
 	patternRowDataAddress = (patternBaseAddress + patternRowDataAddress) % (unsigned int)vramData.size();
 
