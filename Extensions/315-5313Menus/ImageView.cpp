@@ -1058,7 +1058,7 @@ INT_PTR ImageView::msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//HF:     Horizontal Flip
 	if(mappingDataPresent)
 	{
-		UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_MAPPINGADDRESS, 5, pixelInfo->layerMappingVRAMAddress);
+		UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_MAPPINGADDRESS, 5, pixelInfo->mappingVRAMAddress);
 		UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_MAPPINGDATA, 4, pixelInfo->mappingData.GetData());
 		UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_PATTERNNUMBER, 3, pixelInfo->mappingData.GetDataSegment(0, 11));
 		CheckDlgButton(hwnd, IDC_VDP_IMAGE_PIXELINFO_HORIZONTALFLIP, pixelInfo->mappingData.GetBit(11)? BST_CHECKED: BST_UNCHECKED);
