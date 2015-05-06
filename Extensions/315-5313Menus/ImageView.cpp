@@ -382,8 +382,8 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 		if(pixelInfoVisible)
 		{
 			HidePixelInfoWindow();
-			return 0;
 		}
+		return 0;
 	}
 
 	//Obtain the mouse coordinates within the render window
