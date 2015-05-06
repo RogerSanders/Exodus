@@ -277,7 +277,7 @@ struct IS315_5313::ImageBufferInfo
 	unsigned int colorComponentG;
 	unsigned int colorComponentB;
 
-	unsigned int layerMappingVRAMAddress;
+	unsigned int mappingVRAMAddress;
 	Data mappingData;
 	unsigned int patternRowNo;
 	unsigned int patternColumnNo;

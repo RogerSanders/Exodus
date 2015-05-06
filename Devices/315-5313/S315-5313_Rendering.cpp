@@ -1190,7 +1190,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		imageBufferInfoEntry->hcounter = renderDigitalHCounterPos;
 		imageBufferInfoEntry->vcounter = renderDigitalVCounterPos;
 		imageBufferInfoEntry->mappingData = 0;
-		imageBufferInfoEntry->layerMappingVRAMAddress = 0;
+		imageBufferInfoEntry->mappingVRAMAddress = 0;
 	}
 
 	//Determine the palette line and index numbers and the shadow/highlight state for this
@@ -1396,6 +1396,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 				imageBufferInfoEntry->pixelSource = PixelSource::Sprite;
 				imageBufferInfoEntry->patternRowNo = spritePixelBufferEntry.patternRowNo;
 				imageBufferInfoEntry->patternColumnNo = spritePixelBufferEntry.patternColumnNo;
+				imageBufferInfoEntry->mappingVRAMAddress = spritePixelBufferEntry.spriteTableEntryAddress + 4;
 				imageBufferInfoEntry->mappingData = spritePixelBufferEntry.spriteMappingData;
 				imageBufferInfoEntry->spriteTableEntryNo = spritePixelBufferEntry.spriteTableEntryNo;
 				imageBufferInfoEntry->spriteTableEntryAddress = spritePixelBufferEntry.spriteTableEntryAddress;
@@ -1411,7 +1412,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 					imageBufferInfoEntry->patternRowNo = renderPatternDataCacheRowNoLayerA[mappingNumberWindow];
 					imageBufferInfoEntry->patternColumnNo = pixelNumberWindow;
 					imageBufferInfoEntry->mappingData = renderMappingDataCacheLayerA[mappingNumberWindow];
-					imageBufferInfoEntry->layerMappingVRAMAddress = renderMappingDataCacheSourceAddressLayerA[mappingNumberWindow];
+					imageBufferInfoEntry->mappingVRAMAddress = renderMappingDataCacheSourceAddressLayerA[mappingNumberWindow];
 				}
 				else
 				{
@@ -1419,7 +1420,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 					imageBufferInfoEntry->patternRowNo = renderPatternDataCacheRowNoLayerA[scrolledMappingNumberLayerB];
 					imageBufferInfoEntry->patternColumnNo = scrolledPixelNumberLayerA;
 					imageBufferInfoEntry->mappingData = renderMappingDataCacheLayerA[scrolledMappingNumberLayerA];
-					imageBufferInfoEntry->layerMappingVRAMAddress = renderMappingDataCacheSourceAddressLayerA[scrolledMappingNumberLayerA];
+					imageBufferInfoEntry->mappingVRAMAddress = renderMappingDataCacheSourceAddressLayerA[scrolledMappingNumberLayerA];
 				}
 				break;
 			case LAYERINDEX_LAYERB:
@@ -1427,7 +1428,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 				imageBufferInfoEntry->patternRowNo = renderPatternDataCacheRowNoLayerB[scrolledMappingNumberLayerB];
 				imageBufferInfoEntry->patternColumnNo = scrolledPixelNumberLayerB;
 				imageBufferInfoEntry->mappingData = renderMappingDataCacheLayerB[scrolledMappingNumberLayerB];
-				imageBufferInfoEntry->layerMappingVRAMAddress = renderMappingDataCacheSourceAddressLayerB[scrolledMappingNumberLayerB];
+				imageBufferInfoEntry->mappingVRAMAddress = renderMappingDataCacheSourceAddressLayerB[scrolledMappingNumberLayerB];
 				break;
 			case LAYERINDEX_BACKGROUND:
 				imageBufferInfoEntry->pixelSource = PixelSource::Background;
