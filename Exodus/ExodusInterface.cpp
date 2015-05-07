@@ -3777,14 +3777,13 @@ void ExodusInterface::JoystickInputWorkerThread()
 	const unsigned int maxAxisCount = 6;
 
 	//Initialize the button and axis state for each joystick
-	std::vector<std::vector<bool>> buttonState;
-	std::vector<std::vector<float>> axisState;
-	buttonState.resize(connectedJoystickInfo.size());
-	axisState.resize(connectedJoystickInfo.size());
-	for(unsigned int i = 0; i < connectedJoystickInfo.size(); ++i)
+	std::map<unsigned int, std::vector<bool>> buttonState;
+	std::map<unsigned int, std::vector<float>> axisState;
+	for(std::map<unsigned int, JOYCAPS>::const_iterator connectedJoystickInfoIterator = connectedJoystickInfo.begin(); connectedJoystickInfoIterator != connectedJoystickInfo.end(); ++connectedJoystickInfoIterator)
 	{
-		buttonState[i].resize(maxButtonCount);
-		axisState[i].resize(maxAxisCount);
+		unsigned int joystickNo = connectedJoystickInfoIterator->first;
+		buttonState[joystickNo].resize(maxButtonCount);
+		axisState[joystickNo].resize(maxAxisCount);
 	}
 
 	//Process input state changes from joysticks until we're requested to stop
@@ -3793,8 +3792,17 @@ void ExodusInterface::JoystickInputWorkerThread()
 		//Latch new values from each joystick
 		for(std::map<unsigned int, JOYCAPS>::const_iterator connectedJoystickInfoIterator = connectedJoystickInfo.begin(); connectedJoystickInfoIterator != connectedJoystickInfo.end(); ++connectedJoystickInfoIterator)
 		{
+			//Retrieve info for the target joystick
 			unsigned int joystickNo = connectedJoystickInfoIterator->first;
 			const JOYCAPS& joystickCapabilities = connectedJoystickInfoIterator->second;
+			std::map<unsigned int, std::vector<bool>>::iterator buttonStateIterator = buttonState.find(joystickNo);
+			std::map<unsigned int, std::vector<float>>::iterator axisStateIterator = axisState.find(joystickNo);
+			if((buttonStateIterator == buttonState.end()) || (axisStateIterator == axisState.end()))
+			{
+				continue;
+			}
+			std::vector<bool>& buttonStateForJoystick = buttonStateIterator->second;
+			std::vector<float>& axisStateForJoystick = axisStateIterator->second;
 
 			//Obtain info on the current button state for this joystick
 			JOYINFOEX joystickInfo;
@@ -3814,13 +3822,13 @@ void ExodusInterface::JoystickInputWorkerThread()
 				//If the current button state matches the previous button state, advance
 				//to the next button.
 				bool buttonStateNew = buttonData.GetBit(buttonNo);
-				if(buttonState[joystickNo][buttonNo] == buttonStateNew)
+				if(buttonStateForJoystick[buttonNo] == buttonStateNew)
 				{
 					continue;
 				}
 
 				//Latch the new button state
-				buttonState[joystickNo][buttonNo] = buttonStateNew;
+				buttonStateForJoystick[buttonNo] = buttonStateNew;
 
 				//Notify the system of the button state change
 				ISystemGUIInterface::KeyCode keyCode;
@@ -3881,15 +3889,15 @@ void ExodusInterface::JoystickInputWorkerThread()
 			{
 				//If the current axis state matches the previous axis state, advance to
 				//the next axis.
-				if(axisState[joystickNo][axisNo] == newAxisState[axisNo])
+				if(axisStateForJoystick[axisNo] == newAxisState[axisNo])
 				{
 					continue;
 				}
 
 				//Latch the new axis state
 				float axisStateNew = newAxisState[axisNo];
-				float axisStateOld = axisState[joystickNo][axisNo];
-				axisState[joystickNo][axisNo] = axisStateNew;
+				float axisStateOld = axisStateForJoystick[axisNo];
+				axisStateForJoystick[axisNo] = axisStateNew;
 
 				//Notify the system of axis state changes
 				ISystemDeviceInterface::AxisCode axisCode;
