@@ -4022,7 +4022,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 void YM2612::SetAudioLoggingEnabled(bool state)
 {
 	double fmClock = (externalClockRate / fmClockDivider) / outputClockDivider;
-	ToggleLoggingEnabledState(wavLog, wavLoggingPath, wavLoggingEnabled, state, 2, 16, (unsigned int)fmClock * channelCount);
+	ToggleLoggingEnabledState(wavLog, wavLoggingPath, wavLoggingEnabled, state, 2, 16, (unsigned int)fmClock);
 	wavLoggingEnabled = state;
 }
 

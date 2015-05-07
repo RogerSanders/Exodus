@@ -1234,7 +1234,8 @@ void SN76489::SetAudioLoggingEnabled(bool state)
 	{
 		if(state)
 		{
-			wavLog.SetDataFormat(1, 16, outputSampleRate);
+			double outputFrequency = externalClockRate / externalClockDivider;
+			wavLog.SetDataFormat(1, 16, (unsigned int)outputFrequency);
 			wavLog.Open(wavLoggingPath, Stream::WAVFile::OpenMode::WriteOnly, Stream::WAVFile::CreateMode::Create);
 		}
 		else
@@ -1253,7 +1254,8 @@ void SN76489::SetChannelAudioLoggingEnabled(unsigned int channelNo, bool state)
 	{
 		if(state)
 		{
-			wavLogChannel[channelNo].SetDataFormat(1, 16, outputSampleRate);
+			double outputFrequency = externalClockRate / externalClockDivider;
+			wavLogChannel[channelNo].SetDataFormat(1, 16, (unsigned int)outputFrequency);
 			wavLogChannel[channelNo].Open(wavLoggingChannelPath[channelNo], Stream::WAVFile::OpenMode::WriteOnly, Stream::WAVFile::CreateMode::Create);
 		}
 		else
