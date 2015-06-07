@@ -13,7 +13,7 @@ SettingsViewPresenter::SettingsViewPresenter(const std::wstring& aviewGroupName,
 //----------------------------------------------------------------------------------------
 std::wstring SettingsViewPresenter::GetUnqualifiedViewTitle()
 {
-	return L"About";
+	return L"Settings";
 }
 
 //----------------------------------------------------------------------------------------
