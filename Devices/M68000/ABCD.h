@@ -69,7 +69,7 @@ public:
 		bool carry = false;
 		if(resultBase10Temp > 99)
 		{
-			resultBase10Temp -= 100;
+			resultBase10Temp %= 100;
 			carry = true;
 		}
 		M68000Byte resultBase10;
