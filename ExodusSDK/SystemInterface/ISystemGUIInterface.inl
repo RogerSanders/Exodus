@@ -26,14 +26,14 @@ public:
 	StateInfo()
 	:valid(false), debuggerState(false), screenshotPresent(false)
 	{}
-	StateInfo(MarshalSupport::marshal_object_t, const StateInfo& source)
+	StateInfo(MarshalSupport::marshal_object_tag, const StateInfo& source)
 	{
 		source.MarshalToTarget(valid, debuggerState, creationDate, creationTime, comments, screenshotPresent, screenshotFilename);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(bool& validMarshaller, bool& debuggerStateMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& creationDateMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& creationTimeMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& commentsMarshaller, bool& screenshotPresentMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& screenshotFilenameMarshaller) const
+	virtual void MarshalToTarget(bool& validMarshaller, bool& debuggerStateMarshaller, const Marshal::Out<std::wstring>& creationDateMarshaller, const Marshal::Out<std::wstring>& creationTimeMarshaller, const Marshal::Out<std::wstring>& commentsMarshaller, bool& screenshotPresentMarshaller, const Marshal::Out<std::wstring>& screenshotFilenameMarshaller) const
 	{
 		validMarshaller = valid;
 		debuggerStateMarshaller = debuggerState;
@@ -61,14 +61,14 @@ public:
 	//Constructors
 	ModuleRelationship()
 	{}
-	ModuleRelationship(MarshalSupport::marshal_object_t, const ModuleRelationship& source)
+	ModuleRelationship(MarshalSupport::marshal_object_tag, const ModuleRelationship& source)
 	{
 		source.MarshalToTarget(savedModuleID, savedModuleClassName, savedModuleInstanceName, foundMatch, loadedModuleID);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(unsigned int& savedModuleIDMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& savedModuleClassNameMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& savedModuleInstanceNameMarshaller, bool& foundMatchMarshaller, unsigned int& loadedModuleIDMarshaller) const
+	virtual void MarshalToTarget(unsigned int& savedModuleIDMarshaller, const Marshal::Out<std::wstring>& savedModuleClassNameMarshaller, const Marshal::Out<std::wstring>& savedModuleInstanceNameMarshaller, bool& foundMatchMarshaller, unsigned int& loadedModuleIDMarshaller) const
 	{
 		savedModuleIDMarshaller = savedModuleID;
 		savedModuleClassNameMarshaller = savedModuleClassName;
@@ -95,14 +95,14 @@ public:
 	//Constructors
 	SavedRelationshipImportConnector()
 	{}
-	SavedRelationshipImportConnector(MarshalSupport::marshal_object_t, const SavedRelationshipImportConnector& source)
+	SavedRelationshipImportConnector(MarshalSupport::marshal_object_tag, const SavedRelationshipImportConnector& source)
 	{
 		source.MarshalToTarget(moduleID, className, instanceNameLocal, instanceNameRemote);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(unsigned int& moduleIDMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& classNameMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& instanceNameLocalMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& instanceNameRemoteMarshaller) const
+	virtual void MarshalToTarget(unsigned int& moduleIDMarshaller, const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameLocalMarshaller, const Marshal::Out<std::wstring>& instanceNameRemoteMarshaller) const
 	{
 		moduleIDMarshaller = moduleID;
 		classNameMarshaller = className;
@@ -124,14 +124,14 @@ public:
 	//Constructors
 	SavedRelationshipExportConnector()
 	{}
-	SavedRelationshipExportConnector(MarshalSupport::marshal_object_t, const SavedRelationshipExportConnector& source)
+	SavedRelationshipExportConnector(MarshalSupport::marshal_object_tag, const SavedRelationshipExportConnector& source)
 	{
 		source.MarshalToTarget(className, instanceName);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(const MarshalSupport::Marshal::Out<std::wstring>& classNameMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& instanceNameMarshaller) const
+	virtual void MarshalToTarget(const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameMarshaller) const
 	{
 		classNameMarshaller = className;
 		instanceNameMarshaller = instanceName;
@@ -149,14 +149,14 @@ public:
 	//Constructors
 	SavedRelationshipModule()
 	{}
-	SavedRelationshipModule(MarshalSupport::marshal_object_t, const SavedRelationshipModule& source)
+	SavedRelationshipModule(MarshalSupport::marshal_object_tag, const SavedRelationshipModule& source)
 	{
 		source.MarshalToTarget(moduleID, systemClassName, className, instanceName, filePath, exportedConnectors, importedConnectors);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(unsigned int& moduleIDMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& systemClassNameMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& classNameMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& instanceNameMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& filePathMarshaller, const MarshalSupport::Marshal::Out<std::list<SavedRelationshipExportConnector>>& exportedConnectorsMarshaller, const MarshalSupport::Marshal::Out<std::list<SavedRelationshipImportConnector>>& importedConnectorsMarshaller) const
+	virtual void MarshalToTarget(unsigned int& moduleIDMarshaller, const Marshal::Out<std::wstring>& systemClassNameMarshaller, const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameMarshaller, const Marshal::Out<std::wstring>& filePathMarshaller, const Marshal::Out<std::list<SavedRelationshipExportConnector>>& exportedConnectorsMarshaller, const Marshal::Out<std::list<SavedRelationshipImportConnector>>& importedConnectorsMarshaller) const
 	{
 		moduleIDMarshaller = moduleID;
 		systemClassNameMarshaller = systemClassName;
@@ -184,14 +184,14 @@ public:
 	//Constructors
 	ConnectorMapping()
 	{}
-	ConnectorMapping(MarshalSupport::marshal_object_t, const ConnectorMapping& source)
+	ConnectorMapping(MarshalSupport::marshal_object_tag, const ConnectorMapping& source)
 	{
 		source.MarshalToTarget(connectorID, importingModuleConnectorInstanceName);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(unsigned int& connectorIDMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& importingModuleConnectorInstanceNameMarshaller) const
+	virtual void MarshalToTarget(unsigned int& connectorIDMarshaller, const Marshal::Out<std::wstring>& importingModuleConnectorInstanceNameMarshaller) const
 	{
 		connectorIDMarshaller = connectorID;
 		importingModuleConnectorInstanceNameMarshaller = importingModuleConnectorInstanceName;
@@ -209,14 +209,14 @@ public:
 	//Constructors
 	ConnectorDefinitionImport()
 	{}
-	ConnectorDefinitionImport(MarshalSupport::marshal_object_t, const ConnectorDefinitionImport& source)
+	ConnectorDefinitionImport(MarshalSupport::marshal_object_tag, const ConnectorDefinitionImport& source)
 	{
 		source.MarshalToTarget(className, instanceName);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(const MarshalSupport::Marshal::Out<std::wstring>& classNameMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& instanceNameMarshaller) const
+	virtual void MarshalToTarget(const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameMarshaller) const
 	{
 		classNameMarshaller = className;
 		instanceNameMarshaller = instanceName;
@@ -234,14 +234,14 @@ public:
 	//Constructors
 	ConnectorDefinitionExport()
 	{}
-	ConnectorDefinitionExport(MarshalSupport::marshal_object_t, const ConnectorDefinitionExport& source)
+	ConnectorDefinitionExport(MarshalSupport::marshal_object_tag, const ConnectorDefinitionExport& source)
 	{
 		source.MarshalToTarget(className, instanceName);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(const MarshalSupport::Marshal::Out<std::wstring>& classNameMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& instanceNameMarshaller) const
+	virtual void MarshalToTarget(const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameMarshaller) const
 	{
 		classNameMarshaller = className;
 		instanceNameMarshaller = instanceName;
@@ -259,14 +259,14 @@ public:
 	//Constructors
 	SystemLogEntry()
 	{}
-	SystemLogEntry(MarshalSupport::marshal_object_t, const SystemLogEntry& sourceObject)
+	SystemLogEntry(MarshalSupport::marshal_object_tag, const SystemLogEntry& sourceObject)
 	{
 		sourceObject.MarshalToTarget(eventLevel, text, source, eventLevelString, eventTimeString);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(ILogEntry::EventLevel& eventLevelMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& textMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& sourceMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& eventLevelStringMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& eventTimeStringMarshaller) const
+	virtual void MarshalToTarget(ILogEntry::EventLevel& eventLevelMarshaller, const Marshal::Out<std::wstring>& textMarshaller, const Marshal::Out<std::wstring>& sourceMarshaller, const Marshal::Out<std::wstring>& eventLevelStringMarshaller, const Marshal::Out<std::wstring>& eventTimeStringMarshaller) const
 	{
 		eventLevelMarshaller = eventLevel;
 		textMarshaller = text;

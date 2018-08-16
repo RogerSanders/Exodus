@@ -2,6 +2,7 @@
 #define __IGENERICACCESSDATAVALUE_H__
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IGenericAccessDataValue
 {
@@ -23,7 +24,7 @@ public:
 	virtual DataType GetType() const = 0;
 
 	//Value read functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetValueString() const = 0;
+	virtual Marshal::Ret<std::wstring> GetValueString() const = 0;
 
 	//Value write functions
 	inline bool SetValue(bool value);
@@ -37,9 +38,9 @@ public:
 	virtual bool SetValueUInt(unsigned int value) = 0;
 	virtual bool SetValueFloat(float value) = 0;
 	virtual bool SetValueDouble(double value) = 0;
-	virtual bool SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value) = 0;
-	virtual bool SetValueFilePath(const MarshalSupport::Marshal::In<std::wstring>& value) = 0;
-	virtual bool SetValueFolderPath(const MarshalSupport::Marshal::In<std::wstring>& value) = 0;
+	virtual bool SetValueString(const Marshal::In<std::wstring>& value) = 0;
+	virtual bool SetValueFilePath(const Marshal::In<std::wstring>& value) = 0;
+	virtual bool SetValueFolderPath(const Marshal::In<std::wstring>& value) = 0;
 
 	//Value limit functions
 	virtual void ApplyLimitSettingsToCurrentValue() = 0;

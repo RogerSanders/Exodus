@@ -26,11 +26,11 @@ public:
 
 	//Data info functions
 	virtual unsigned int GetDataID() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
+	virtual Marshal::Ret<std::wstring> GetName() const;
 	inline GenericAccessGroupDataEntry* SetName(const std::wstring& aname);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDescription() const;
+	virtual Marshal::Ret<std::wstring> GetDescription() const;
 	inline GenericAccessGroupDataEntry* SetDescription(const std::wstring& adescription);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHelpFileLink() const;
+	virtual Marshal::Ret<std::wstring> GetHelpFileLink() const;
 	inline GenericAccessGroupDataEntry* SetHelpFileLink(const std::wstring& ahelpFileLink);
 
 protected:

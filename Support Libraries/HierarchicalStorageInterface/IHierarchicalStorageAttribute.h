@@ -3,6 +3,7 @@
 #include "StreamInterface/StreamInterface.pkg"
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IHierarchicalStorageAttribute
 {
@@ -11,8 +12,8 @@ public:
 	virtual ~IHierarchicalStorageAttribute() = 0 {}
 
 	//Name functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname) = 0;
+	virtual Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual void SetName(const Marshal::In<std::wstring>& aname) = 0;
 
 	//Value read functions
 	//##FIX## Why do we reset the stream position when extracting data, but not when

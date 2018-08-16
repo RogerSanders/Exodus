@@ -51,14 +51,14 @@ public:
 	CallStackEntry(unsigned int asourceAddress, unsigned int atargetAddress, unsigned int areturnAddress, const std::wstring& adisassembly)
 	:sourceAddress(asourceAddress), targetAddress(atargetAddress), returnAddress(areturnAddress), disassembly(adisassembly)
 	{}
-	CallStackEntry(MarshalSupport::marshal_object_t, const CallStackEntry& source)
+	CallStackEntry(MarshalSupport::marshal_object_tag, const CallStackEntry& source)
 	{
 		source.MarshalToTarget(sourceAddress, targetAddress, returnAddress, disassembly);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(unsigned int& sourceAddressMarshaller, unsigned int& targetAddressMarshaller, unsigned int& returnAddressMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& disassemblyMarshaller) const
+	virtual void MarshalToTarget(unsigned int& sourceAddressMarshaller, unsigned int& targetAddressMarshaller, unsigned int& returnAddressMarshaller, const Marshal::Out<std::wstring>& disassemblyMarshaller) const
 	{
 		sourceAddressMarshaller = sourceAddress;
 		targetAddressMarshaller = targetAddress;
@@ -81,14 +81,14 @@ public:
 	explicit TraceLogEntry(unsigned int aaddress = 0)
 	:address(aaddress)
 	{}
-	TraceLogEntry(MarshalSupport::marshal_object_t, const TraceLogEntry& source)
+	TraceLogEntry(MarshalSupport::marshal_object_tag, const TraceLogEntry& source)
 	{
 		source.MarshalToTarget(address, disassembly);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(unsigned int& addressMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& disassemblyMarshaller) const
+	virtual void MarshalToTarget(unsigned int& addressMarshaller, const Marshal::Out<std::wstring>& disassemblyMarshaller) const
 	{
 		addressMarshaller = address;
 		disassemblyMarshaller = disassembly;

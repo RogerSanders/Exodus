@@ -15,8 +15,8 @@ public:
 	//Page info methods
 	virtual Type GetPageType() const;
 	void SetPageType(Type atype);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetTitle() const;
+	virtual Marshal::Ret<std::wstring> GetName() const;
+	virtual Marshal::Ret<std::wstring> GetTitle() const;
 
 	//Content methods
 	virtual const IGenericAccessGroup* GetContentRoot() const;

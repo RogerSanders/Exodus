@@ -2,11 +2,10 @@
 namespace MarshalSupport {
 namespace Internal {
 
+//Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
+//intended, and the compiler is free to optimize away the dead branch.
 #ifdef _MSC_VER
 #pragma warning(push)
-//Disable warning about our use of type traits causing conditional expressions to be
-//constant. The code behaves as intended, and the compiler is free to optimize away the
-//dead branch.
 #pragma warning(disable:4127)
 #endif
 
@@ -323,6 +322,18 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 		}
 	}
 }
+
+//----------------------------------------------------------------------------------------
+template<class T1, class T2>
+void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::pair<T1, T2>& element)
+{ }
+
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
+//----------------------------------------------------------------------------------------
+template<class... Args>
+void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::tuple<Args...>& element)
+{ }
+#endif
 
 //----------------------------------------------------------------------------------------
 template<class ElementType>

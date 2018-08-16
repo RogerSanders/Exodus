@@ -16,12 +16,12 @@ public:
 	virtual DataType GetType() const;
 
 	//Value read functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetValue() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetValueString() const;
+	virtual Marshal::Ret<std::wstring> GetValue() const;
+	virtual Marshal::Ret<std::wstring> GetValueString() const;
 
 	//Value write functions
-	virtual bool SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value);
-	virtual bool SetValueFolderPath(const MarshalSupport::Marshal::In<std::wstring>& value);
+	virtual bool SetValueString(const Marshal::In<std::wstring>& value);
+	virtual bool SetValueFolderPath(const Marshal::In<std::wstring>& value);
 
 	//Value limit functions
 	virtual unsigned int GetMaxLength() const;

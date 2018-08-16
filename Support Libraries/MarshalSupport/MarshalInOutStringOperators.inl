@@ -103,7 +103,7 @@ bool operator!=(const std::basic_string<ElementType, traits, Alloc>& left, const
 template<class ElementType, class traits, class Alloc>
 bool operator!=(const InOut<std::basic_string<ElementType, traits, Alloc>>& left, const ElementType *right)
 {
-	return (left.GetWithoutMove() !== right);
+	return (left.GetWithoutMove() != right);
 }
 
 //----------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 #include "IMenuItem.h"
 #include "IMenuHandler.h"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IMenuSelectableOption :public IMenuItem
 {
@@ -13,7 +14,7 @@ public:
 	virtual unsigned int GetIMenuSelectableOptionVersion() const = 0;
 
 	//Menu title functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetMenuTitle() const = 0;
+	virtual Marshal::Ret<std::wstring> GetMenuTitle() const = 0;
 
 	//Menu handler functions
 	virtual IMenuHandler& GetMenuHandler() const = 0;

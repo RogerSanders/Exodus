@@ -67,7 +67,7 @@ const IGenericAccess::DataContext* GenericAccessGroupCollectionEntry::GetDataCon
 //----------------------------------------------------------------------------------------
 //Group info functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupCollectionEntry::GetName() const
+Marshal::Ret<std::wstring> GenericAccessGroupCollectionEntry::GetName() const
 {
 	return name;
 }
@@ -96,7 +96,7 @@ unsigned int GenericAccessGroupCollectionEntry::GetEntryCount() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroupCollectionEntry::GetEntries() const
+Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroupCollectionEntry::GetEntries() const
 {
 	std::list<IGenericAccessGroupEntry*> entryList;
 	for(std::list<GenericAccessGroupCollectionEntry::CollectionEntry>::const_iterator i = entries.begin(); i != entries.end(); ++i)
@@ -107,13 +107,13 @@ MarshalSupport::Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccess
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<GenericAccessGroupCollectionEntry::CollectionEntry>> GenericAccessGroupCollectionEntry::GetCollectionEntries() const
+Marshal::Ret<std::list<GenericAccessGroupCollectionEntry::CollectionEntry>> GenericAccessGroupCollectionEntry::GetCollectionEntries() const
 {
 	return entries;
 }
 
 //----------------------------------------------------------------------------------------
-IGenericAccessGroupEntry* GenericAccessGroupCollectionEntry::GetCollectionEntry(const MarshalSupport::Marshal::In<std::wstring>& key) const
+IGenericAccessGroupEntry* GenericAccessGroupCollectionEntry::GetCollectionEntry(const Marshal::In<std::wstring>& key) const
 {
 	//##TODO## Consider using a key map to make these lookups more efficient
 	std::wstring keyResolved = key.Get();

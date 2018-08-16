@@ -129,6 +129,22 @@ MARSHALSUPPORT_CONSTEXPR size_t CalculateSTLContainerNestingDepth(size_t current
 }
 
 //----------------------------------------------------------------------------------------
+template<class T1, class T2>
+MARSHALSUPPORT_CONSTEXPR size_t CalculateSTLContainerNestingDepth(size_t currentNestingDepth, const std::pair<T1, T2>* elementPointer)
+{
+	return currentNestingDepth+2;
+}
+
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
+//----------------------------------------------------------------------------------------
+template<class... Args>
+MARSHALSUPPORT_CONSTEXPR size_t CalculateSTLContainerNestingDepth(size_t currentNestingDepth, const std::tuple<Args...>* elementPointer)
+{
+	return currentNestingDepth+std::tuple_size<std::tuple<Args...>>::value;
+}
+#endif
+
+//----------------------------------------------------------------------------------------
 template<class ElementType>
 MARSHALSUPPORT_CONSTEXPR size_t CalculateSTLContainerNestingDepth(size_t currentNestingDepth, const ElementType* elementPointer)
 {

@@ -18,8 +18,8 @@ public:
 
 	//Collection entry functions
 	virtual IGenericAccessDataValue::DataType GetKeyDataType() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::list<CollectionEntry>> GetCollectionEntries() const = 0;
-	virtual IGenericAccessGroupEntry* GetCollectionEntry(const MarshalSupport::Marshal::In<std::wstring>& key) const = 0;
+	virtual Marshal::Ret<std::list<CollectionEntry>> GetCollectionEntries() const = 0;
+	virtual IGenericAccessGroupEntry* GetCollectionEntry(const Marshal::In<std::wstring>& key) const = 0;
 	virtual IGenericAccessGroupEntry* GetCollectionEntry(const IGenericAccessDataValue& key) const = 0;
 
 	//Modification functions

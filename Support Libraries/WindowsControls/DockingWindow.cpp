@@ -4100,7 +4100,7 @@ bool DockingWindow::HasNestedChildDockingWindows() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IDockingWindow*>> DockingWindow::GetNestedChildDockingWindowList() const
+Marshal::Ret<std::list<IDockingWindow*>> DockingWindow::GetNestedChildDockingWindowList() const
 {
 	//Create a list object to hold our list of nested child windows
 	std::list<IDockingWindow*> dockingWindowList;
@@ -4752,7 +4752,7 @@ void DockingWindow::SetActiveContent(unsigned int contentEntryNo)
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> DockingWindow::GetHostedContentTitle(unsigned int contentEntryNo) const
+Marshal::Ret<std::wstring> DockingWindow::GetHostedContentTitle(unsigned int contentEntryNo) const
 {
 	//Return the title of the target content window to the caller
 	return hostedContent[contentEntryNo].contentTitle;

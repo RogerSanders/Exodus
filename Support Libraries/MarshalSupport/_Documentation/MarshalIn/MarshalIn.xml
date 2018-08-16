@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalIn" Title="Marshal::In" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Declaration">
+    <Code Language="C++"><![CDATA[template<class ContainerType,
+         bool IsOnlyMovable = MarshalSupport::Internal::is_only_movable<typename MarshalSupport::Internal::get_last_nested_container_element_type<ContainerType>::type>::value,
+         bool IsAssignable = MarshalSupport::Internal::is_assignable<ContainerType>::value,
+         bool IsLastElement = MarshalSupport::Internal::is_last_nested_container_element<ContainerType>::value,
+         bool IsThisOrNextElementLastElement = MarshalSupport::Internal::is_this_or_nested_element_last_nested_container_element<ContainerType>::value>
+class In;]]></Code>
+  </Section>
+
+  <Section Title="Description">
+    <Paragraph>
+      The <TypeRef>Marshal::In</TypeRef> class is a helper class designed to allow largely transparent and automatic marshalling of types as input arguments for
+      functions. Through appropriate use, implicit conversions in the <TypeRef>Marshal::In</TypeRef> type allow identical code to be written by the caller
+      whether marshalling is employed or not. An object supplied as an input argument can be marshalled into the target function, allowing the supplied value to
+      be retrieved, but not modified. Marshalling a parameter with <TypeRef>Marshal::In</TypeRef> provides similar functionality to passing an argument by const
+      reference or by value.
+    </Paragraph>
+
+    <Paragraph>
+      Note that the <TypeRef>Marshal::In</TypeRef> template type makes use of template specialization to change its implementation based on the specific type
+      supplied in its first template argument, and the characteristics of that type. As such, its list of members varies based on the type supplied.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Members">
+    <SubSection Title="Constructors (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="In" PageName="SupportLibraries.MarshalSupport.MarshalIn.Constructor">
+          Constructs the marshaller and binds the input object
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Marshal methods (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="Get" PageName="SupportLibraries.MarshalSupport.MarshalIn.Get">
+          Marshals the bound element to a new object, performing a move if possible.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="GetWithoutMove" PageName="SupportLibraries.MarshalSupport.MarshalIn.GetWithoutMove">
+          Marshals the bound element to a new object, leaving the original object unchanged.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Capacity methods (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="size" PageName="SupportLibraries.MarshalSupport.MarshalIn.size">
+          Returns the number of elements in the bound collection.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="capacity" PageName="SupportLibraries.MarshalSupport.MarshalIn.capacity">
+          Returns the currently allocated memory capacity of the bound collection.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="empty" PageName="SupportLibraries.MarshalSupport.MarshalIn.empty">
+          Returns true if the bound collection is currently empty.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Element access methods (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="GetElement" PageName="SupportLibraries.MarshalSupport.MarshalIn.GetElement">
+          Marshals a single element from the bound collection.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Conversion operators (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="operator ContainerType()">
+          Performs an implicit conversion from the marshaller to the native type. A copy is always used in this case, never a move.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+  </Section>
+
+  <Section Title="Examples">
+    <SubSection Title="Recommended usage">
+      <Paragraph>
+        Given the following code without any marshalling involved:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[void SomeFunction(const std::list<int>& argByRef)
+{
+    std::cout << argByRef.back() << std::endl;
+}
+
+int main()
+{
+    std::list<int> arg;
+    arg.push_back(1);
+    SomeFunction(arg);
+    return 0;
+}]]></Code>
+      <Paragraph>
+        The recommended conversion to use marshalling would take this form:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[void SomeFunction(const Marshal::In<std::list<int>>& argByRef)
+{
+    std::list<int> localArg = argByRef.Get();
+    std::cout << localArg.back() << std::endl;
+}
+
+int main()
+{
+    std::list<int> arg;
+    arg.push_back(1);
+    SomeFunction(arg);
+    return 0;
+}]]></Code>
+      <Paragraph>
+        Note that the syntax remains unchanged for the caller, making it relatively easy to add marshalling to existing APIs. The function argument is adapted
+        to use marshalling simply by wrapping it in a <TypeRef>Marshal::In</TypeRef> helper. Note that the marshal helpers are always passed in by const
+        reference, even if the original signature passed in the parameter by value. This is essential in order to allow implicit conversions to the marshal
+        helper by the caller. In the function implementation, this example follows the recommended approach of calling the
+        <PageRef PageName="SupportLibraries.MarshalSupport.MarshalIn.Get">Get method</PageRef> on the marshal helper to explicitly marshal the object. Although
+        implicit conversions exist from the helper to the marshalled type, so it could be used directly in many cases as though it was the native object, each
+        time an implicit conversion is invoked the object is marshalled again, and move semantics can't be used to efficiently marshal temporary objects or
+        arguments explicitly passed in with <TypeRef>std::move</TypeRef>, so relying on an implicit conversion can be less efficient.
+      </Paragraph>
+    </SubSection>
+    <SubSection Title="String conversion example">
+      <Paragraph>
+        Given the following code without any marshalling involved:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[void SomeFunction(const std::string& argByRef)
+{
+    std::cout << argByRef << std::endl;
+}
+
+int main()
+{
+    std::string test1 = "Test1";
+    SomeFunction(test1);
+    SomeFunction("Test2");
+    return 0;
+}]]></Code>
+      <Paragraph>
+        The code can be converted to marshal the string argument by changing the function signature alone, as follows:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[void SomeFunction(const Marshal::In<std::string>& argByRef)
+{
+    std::cout << argByRef << std::endl;
+}
+
+int main()
+{
+    std::string test1 = "Test1";
+    SomeFunction(test1);
+    SomeFunction("Test2");
+    return 0;
+}]]></Code>
+      <Paragraph>
+        In this case, special constructor overloads for the <TypeRef>std::basic_string</TypeRef> type custom allow a string literal to be used directly by the
+        caller, regardless of whether the type is being marshalled or not. Custom marshal string operators allow the function implementation to use the
+        marshalled string directly in stream operations without needing to explicitly unpack it, if desired.
+      </Paragraph>
+    </SubSection>
+  </Section>
+
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport">MarshalSupport Library Overview</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalInOut">Marshal::InOut</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalRet">Marshal::Ret</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalOut.push_back" Title="push_back method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This method is only available when marshalling <TypeRef>std::vector</TypeRef> objects, and provides equivalent functionality to the corresponding method
+      on the native container as defined in the C++ standard. Note that this method does not marshal the container itself in order to perform the operation, so
+      it is an efficient way to append items to an existing collection, however note that marshalling a collection is less efficient when done one element at a
+      time, so this method should only be used where it is required to append data to a collection with existing data. In other cases, a local container should
+      be populated with all the required data, and the entire collection marshalled back to the target.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage:">
+    <Code Language="C++"><![CDATA[void push_back(const ElementType& element) const
+void push_back(ElementType&& element) const]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="element" Type="ElementType">
+          The source object to append to the bound collection
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut.SetElement">SetElement</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut.assign">assign</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut.AssignFrom">AssignFrom</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut.AssignFromWithMove">AssignFromWithMove</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

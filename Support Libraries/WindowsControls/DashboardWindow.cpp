@@ -3001,7 +3001,7 @@ bool DashboardWindow::HasNestedChildDockingWindows() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IDockingWindow*>> DashboardWindow::GetNestedChildDockingWindowList() const
+Marshal::Ret<std::list<IDockingWindow*>> DashboardWindow::GetNestedChildDockingWindowList() const
 {
 	//Create a list object to hold our list of nested child windows
 	std::list<IDockingWindow*> dockingWindowList;

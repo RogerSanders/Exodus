@@ -153,13 +153,13 @@ ViewPresenterBase::ViewTarget ViewPresenterBase::GetViewTarget() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ViewPresenterBase::GetViewTargetDeviceInstanceName() const
+Marshal::Ret<std::wstring> ViewPresenterBase::GetViewTargetDeviceInstanceName() const
 {
 	return viewTargetDeviceInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ViewPresenterBase::GetViewTargetExtensionInstanceName() const
+Marshal::Ret<std::wstring> ViewPresenterBase::GetViewTargetExtensionInstanceName() const
 {
 	return viewTargetExtensionInstanceName;
 }
@@ -195,13 +195,13 @@ int ViewPresenterBase::GetViewID() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ViewPresenterBase::GetViewGroupName() const
+Marshal::Ret<std::wstring> ViewPresenterBase::GetViewGroupName() const
 {
 	return viewGroupName;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ViewPresenterBase::GetViewName() const
+Marshal::Ret<std::wstring> ViewPresenterBase::GetViewName() const
 {
 	return viewName;
 }

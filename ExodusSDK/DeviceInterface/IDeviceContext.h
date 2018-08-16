@@ -3,6 +3,7 @@
 #include "MarshalSupport/MarshalSupport.pkg"
 class ILogEntry;
 class IDevice;
+using namespace MarshalSupport::Operators;
 
 //##TODO## Eliminate any methods here which are merely wrappers of system methods, and
 //don't logically belong on this interface.
@@ -38,9 +39,9 @@ public:
 	virtual void StopSystem() = 0;
 	virtual void RunSystem() = 0;
 	virtual void ExecuteDeviceStep() = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFullyQualifiedDeviceInstanceName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleDisplayName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleInstanceName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetFullyQualifiedDeviceInstanceName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetModuleDisplayName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetModuleInstanceName() const = 0;
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const = 0;

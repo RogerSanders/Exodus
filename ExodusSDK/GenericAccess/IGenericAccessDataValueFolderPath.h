@@ -3,6 +3,7 @@
 #include "IGenericAccessDataValue.h"
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IGenericAccessDataValueFolderPath :public IGenericAccessDataValue
 {
@@ -12,7 +13,7 @@ public:
 	virtual unsigned int GetIGenericAccessDataValueFolderPathVersion() const = 0;
 
 	//Value read functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetValue() const = 0;
+	virtual Marshal::Ret<std::wstring> GetValue() const = 0;
 
 	//Value limit functions
 	virtual unsigned int GetMaxLength() const = 0;

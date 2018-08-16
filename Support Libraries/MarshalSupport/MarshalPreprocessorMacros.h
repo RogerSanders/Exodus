@@ -6,9 +6,8 @@
 #if __cplusplus >= 201103L
 #define MARSHALSUPPORT_CPP11SUPPORTED
 #elif defined(_MSC_VER) && (_MSC_VER >= 1900) //VS2015 and higher
-//Note that although still in development at this time, CTP builds of Visual Studio 2015
-//support constexpr for non-member functions, which is sufficient for our current use to
-//consider constexpr supported by this compiler.
+//Note that although still in development at this time, CTP builds of Visual Studio 2015 support constexpr for
+//non-member functions, which is sufficient for our current use to consider constexpr supported by this compiler.
 #define MARSHALSUPPORT_CPP11SUPPORTED
 #elif defined(_MSC_VER) && (_MSC_VER >= 1800) //VS2013
 #define MARSHALSUPPORT_CPP11SUPPORTED
@@ -17,7 +16,15 @@
 #define MARSHALSUPPORT_CPP11SUPPORTED
 #define MARSHALSUPPORT_NOCONSTEXPR
 #define MARSHALSUPPORT_NODELETE
+#define MARSHALSUPPORT_NOVARIADICTEMPLATES
 #endif
+#endif
+
+//Set the calling convention to use for our virtual member functions based on the target platform
+#if defined(_WIN32) && !defined(_WIN64)
+#define MARSHALSUPPORT_CALLINGCONVENTION __stdcall
+#else
+#define MARSHALSUPPORT_CALLINGCONVENTION
 #endif
 
 //Include the utility header for std::forward and std::move if C++11 is supported

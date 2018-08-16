@@ -199,7 +199,7 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForSystem(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter) const
+bool System::RestoreViewStateForSystem(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();
@@ -212,7 +212,7 @@ bool System::RestoreViewStateForSystem(const MarshalSupport::Marshal::In<std::ws
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForModule(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID) const
+bool System::RestoreViewStateForModule(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();
@@ -230,7 +230,7 @@ bool System::RestoreViewStateForModule(const MarshalSupport::Marshal::In<std::ws
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForDevice(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& deviceInstanceName) const
+bool System::RestoreViewStateForDevice(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const Marshal::In<std::wstring>& deviceInstanceName) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();
@@ -254,7 +254,7 @@ bool System::RestoreViewStateForDevice(const MarshalSupport::Marshal::In<std::ws
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const
+bool System::RestoreViewStateForExtension(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, const Marshal::In<std::wstring>& extensionInstanceName) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();
@@ -279,7 +279,7 @@ bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std:
 }
 
 //----------------------------------------------------------------------------------------
-bool System::RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const
+bool System::RestoreViewStateForExtension(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const Marshal::In<std::wstring>& extensionInstanceName) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
 	std::wstring viewNameCached = viewName.Get();

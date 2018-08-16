@@ -30,13 +30,13 @@ ExtensionInfo::DestructorPointer ExtensionInfo::GetDestructor() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionClassName() const
+Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionClassName() const
 {
 	return className;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionImplementationName() const
+Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionImplementationName() const
 {
 	return implementationName;
 }
@@ -48,13 +48,13 @@ unsigned int ExtensionInfo::GetExtensionVersionNo() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionCopyright() const
+Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionCopyright() const
 {
 	return copyright;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionComments() const
+Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionComments() const
 {
 	return comments;
 }
@@ -68,7 +68,7 @@ bool ExtensionInfo::GetIsPersistentGlobalExtension() const
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const MarshalSupport::Marshal::In<std::wstring>& aextensionClassName, const MarshalSupport::Marshal::In<std::wstring>& aextensionImplementationName, unsigned int aextensionVersionNo, const MarshalSupport::Marshal::In<std::wstring>& aextensionCopyright, const MarshalSupport::Marshal::In<std::wstring>& aextensionComments, bool apersistentGlobalExtension)
+void ExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const Marshal::In<std::wstring>& aextensionClassName, const Marshal::In<std::wstring>& aextensionImplementationName, unsigned int aextensionVersionNo, const Marshal::In<std::wstring>& aextensionCopyright, const Marshal::In<std::wstring>& aextensionComments, bool apersistentGlobalExtension)
 {
 	SetExtensionAllocators(aAllocator, aDestructor);
 	SetExtensionClassName(aextensionClassName);
@@ -87,13 +87,13 @@ void ExtensionInfo::SetExtensionAllocators(AllocatorPointer aAllocator, Destruct
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionClassName(const MarshalSupport::Marshal::In<std::wstring>& aextensionClassName)
+void ExtensionInfo::SetExtensionClassName(const Marshal::In<std::wstring>& aextensionClassName)
 {
 	className = aextensionClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionImplementationName(const MarshalSupport::Marshal::In<std::wstring>& aextensionImplementationName)
+void ExtensionInfo::SetExtensionImplementationName(const Marshal::In<std::wstring>& aextensionImplementationName)
 {
 	implementationName = aextensionImplementationName;
 }
@@ -105,13 +105,13 @@ void ExtensionInfo::SetExtensionVersionNo(unsigned int aextensionVersionNo)
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionCopyright(const MarshalSupport::Marshal::In<std::wstring>& aextensionCopyright)
+void ExtensionInfo::SetExtensionCopyright(const Marshal::In<std::wstring>& aextensionCopyright)
 {
 	copyright = aextensionCopyright;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionComments(const MarshalSupport::Marshal::In<std::wstring>& aextensionComments)
+void ExtensionInfo::SetExtensionComments(const Marshal::In<std::wstring>& aextensionComments)
 {
 	comments = aextensionComments;
 }

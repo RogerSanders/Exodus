@@ -20,10 +20,10 @@ public:
 	virtual bool ValidateExtension();
 
 	//Reference functions
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target);
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IExtension* target);
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IClockSource* target);
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IDevice* target);
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IExtension* target);
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target);
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IClockSource* target);
 	virtual bool RemoveReference(IDevice* target);
 	virtual bool RemoveReference(IExtension* target);
 	virtual bool RemoveReference(IBusInterface* target);
@@ -35,8 +35,8 @@ public:
 	inline IViewManager& GetViewManager() const;
 
 	//Name functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionClassName() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionInstanceName() const;
+	virtual Marshal::Ret<std::wstring> GetExtensionClassName() const;
+	virtual Marshal::Ret<std::wstring> GetExtensionInstanceName() const;
 	virtual unsigned int GetExtensionModuleID() const;
 
 	//Savestate functions
@@ -60,14 +60,14 @@ public:
 	virtual void AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& menuSegment, unsigned int moduleID);
 	virtual void AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice);
 	virtual void AddExtensionMenuItems(ExtensionMenu extensionMenu, IMenuSegment& menuSegment, IExtension* targetExtension);
-	virtual bool RestoreSystemViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter);
-	virtual bool RestoreModuleViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID);
-	virtual bool RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice);
-	virtual bool RestoreExtensionViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IExtension* targetExtension);
-	virtual bool OpenSystemView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName);
-	virtual bool OpenModuleView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, unsigned int moduleID);
-	virtual bool OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice);
-	virtual bool OpenExtensionView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IExtension* targetExtension);
+	virtual bool RestoreSystemViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter);
+	virtual bool RestoreModuleViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID);
+	virtual bool RestoreDeviceViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice);
+	virtual bool RestoreExtensionViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IExtension* targetExtension);
+	virtual bool OpenSystemView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName);
+	virtual bool OpenModuleView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, unsigned int moduleID);
+	virtual bool OpenDeviceView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IDevice* targetDevice);
+	virtual bool OpenExtensionView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IExtension* targetExtension);
 
 private:
 	std::wstring className;

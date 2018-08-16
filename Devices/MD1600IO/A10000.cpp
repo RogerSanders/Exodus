@@ -92,7 +92,7 @@ void A10000::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool A10000::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
+bool A10000::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	if(referenceName == L"BusInterface")
 	{
@@ -209,7 +209,7 @@ void A10000::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int A10000::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const
+unsigned int A10000::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
 	if(lineName == L"PORT1_D0")
 	{
@@ -322,7 +322,7 @@ unsigned int A10000::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& 
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> A10000::GetLineName(unsigned int lineID) const
+Marshal::Ret<std::wstring> A10000::GetLineName(unsigned int lineID) const
 {
 	switch((LineID)lineID)
 	{

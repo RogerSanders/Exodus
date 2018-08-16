@@ -1,4 +1,5 @@
 #include <ostream>
+#include <string>
 namespace MarshalSupport {
 namespace Marshal {
 

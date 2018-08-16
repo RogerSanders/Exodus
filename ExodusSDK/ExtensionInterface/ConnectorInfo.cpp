@@ -44,37 +44,37 @@ void ConnectorInfo::SetExportingModuleID(unsigned int aexportingModuleID)
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ConnectorInfo::GetConnectorClassName() const
+Marshal::Ret<std::wstring> ConnectorInfo::GetConnectorClassName() const
 {
 	return connectorClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetConnectorClassName(const MarshalSupport::Marshal::In<std::wstring>& aconnectorClassName)
+void ConnectorInfo::SetConnectorClassName(const Marshal::In<std::wstring>& aconnectorClassName)
 {
 	connectorClassName = aconnectorClassName;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ConnectorInfo::GetExportingModuleConnectorInstanceName() const
+Marshal::Ret<std::wstring> ConnectorInfo::GetExportingModuleConnectorInstanceName() const
 {
 	return exportingModuleConnectorInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetExportingModuleConnectorInstanceName(const MarshalSupport::Marshal::In<std::wstring>& aexportingModuleConnectorInstanceName)
+void ConnectorInfo::SetExportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& aexportingModuleConnectorInstanceName)
 {
 	exportingModuleConnectorInstanceName = aexportingModuleConnectorInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ConnectorInfo::GetSystemClassName() const
+Marshal::Ret<std::wstring> ConnectorInfo::GetSystemClassName() const
 {
 	return systemClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetSystemClassName(const MarshalSupport::Marshal::In<std::wstring>& asystemClassName)
+void ConnectorInfo::SetSystemClassName(const Marshal::In<std::wstring>& asystemClassName)
 {
 	systemClassName = asystemClassName;
 }
@@ -106,13 +106,13 @@ void ConnectorInfo::SetImportingModuleID(unsigned int aimportingModuleID)
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ConnectorInfo::GetImportingModuleConnectorInstanceName() const
+Marshal::Ret<std::wstring> ConnectorInfo::GetImportingModuleConnectorInstanceName() const
 {
 	return importingModuleConnectorInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetImportingModuleConnectorInstanceName(const MarshalSupport::Marshal::In<std::wstring>& aimportingModuleConnectorInstanceName)
+void ConnectorInfo::SetImportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& aimportingModuleConnectorInstanceName)
 {
 	importingModuleConnectorInstanceName = aimportingModuleConnectorInstanceName;
 }

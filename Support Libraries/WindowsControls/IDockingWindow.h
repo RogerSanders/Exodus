@@ -3,6 +3,7 @@
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "MarshalSupport/MarshalSupport.pkg"
 #include "IDockingWindowDropTargetInfo.h"
+using namespace MarshalSupport::Operators;
 
 class IDockingWindow
 {
@@ -27,7 +28,7 @@ public:
 	virtual void RemoveChildContainer(IDockingWindow* childContainer) = 0;
 	virtual void NotifyChildContainerContentChanged(IDockingWindow* childContainer) = 0;
 	virtual bool HasNestedChildDockingWindows() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::list<IDockingWindow*>> GetNestedChildDockingWindowList() const = 0;
+	virtual Marshal::Ret<std::list<IDockingWindow*>> GetNestedChildDockingWindowList() const = 0;
 	virtual bool CanResizeChildContainerWindowEdge(IDockingWindow* childContainer, WindowEdge windowEdge) const = 0;
 	virtual void UpdateDesiredChildContainerSize(IDockingWindow* childContainer, int desiredWidth, int desiredHeight) = 0;
 	virtual HCURSOR ParentOverrideCursorForChildContainer(IDockingWindow* childContainer, int cursorPosX, int cursorPosY) const = 0;
@@ -41,7 +42,7 @@ public:
 	virtual unsigned int GetSortedContentEntryNo(unsigned int sortedContentEntryIndex) const = 0;
 	virtual bool GetHostedContentIndexFromWindow(HWND contentWindow, unsigned int& contentEntryNo) const = 0;
 	virtual void SetActiveContent(unsigned int contentEntryNo) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHostedContentTitle(unsigned int contentEntryNo) const = 0;
+	virtual Marshal::Ret<std::wstring> GetHostedContentTitle(unsigned int contentEntryNo) const = 0;
 	virtual HWND GetHostedContentWindow(unsigned int contentEntryNo) const = 0;
 
 	//Parent docking window methods

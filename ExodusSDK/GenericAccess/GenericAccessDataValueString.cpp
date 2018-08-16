@@ -29,13 +29,13 @@ GenericAccessDataValueString::DataType GenericAccessDataValueString::GetType() c
 //----------------------------------------------------------------------------------------
 //Value read functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValue() const
+Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValue() const
 {
 	return dataValue;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValueString() const
+Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValueString() const
 {
 	return dataValue;
 }
@@ -43,7 +43,7 @@ MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValu
 //----------------------------------------------------------------------------------------
 //Value write functions
 //----------------------------------------------------------------------------------------
-bool GenericAccessDataValueString::SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value)
+bool GenericAccessDataValueString::SetValueString(const Marshal::In<std::wstring>& value)
 {
 	dataValue = value;
 	ApplyLimitSettingsToCurrentValue();

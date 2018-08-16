@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalOut.resize" Title="resize method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This method is only available when marshalling <TypeRef>std::vector</TypeRef> objects, and provides equivalent functionality to the corresponding method
+      on the native container as defined in the C++ standard. Note that this method does not marshal the container itself in order to perform the operation.
+      This method may be useful if only a subset of elements in the collection are being marshalled, through calls to the
+      <PageRef PageName="SupportLibraries.MarshalSupport.MarshalOut.SetElement">SetElement method</PageRef>.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage (std::vector, std::array with copyable element types only):">
+    <Code Language="C++"><![CDATA[void resize(size_type newSize, const ElementType& insertElement = ElementType()) const]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="newSize" Type="size_type">
+          The number of elements to allocate in the bound collection
+        </ArgumentListEntry>
+        <ArgumentListEntry Name="insertElement" Type="ElementType">
+          The source object to marshal into each created entry in the bound collection
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut.SetElement">SetElement</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

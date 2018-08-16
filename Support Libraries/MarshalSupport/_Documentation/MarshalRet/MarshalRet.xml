@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalRet" Title="Marshal::Ret" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Declaration">
+    <Code Language="C++"><![CDATA[template<class ContainerType,
+         bool IsOnlyMovable = MarshalSupport::Internal::is_only_movable<typename MarshalSupport::Internal::get_last_nested_container_element_type<ContainerType>::type>::value>
+class Ret;]]></Code>
+  </Section>
+
+  <Section Title="Description">
+    <Paragraph>
+      The <TypeRef>Marshal::Ret</TypeRef> class is a helper class designed to allow largely transparent and automatic marshalling of types as return values from
+      functions. Through appropriate use, implicit conversions in the <TypeRef>Marshal::Ret</TypeRef> type allow identical code to be written by the caller
+      whether marshalling is employed or not. Unlike other marshal helper classes, the <TypeRef>Marshal::Ret</TypeRef> helper class always needs to perform one
+      allocation of heap memory in order to operate, making it marginally less efficient than values returned through arguments using the <TypeRef>Marshal::Out</TypeRef>
+      helper.
+    </Paragraph>
+
+    <Paragraph>
+      Note that the <TypeRef>Marshal::Ret</TypeRef> template type makes use of template specialization to change its implementation based on the specific type
+      supplied in its first template argument, and the characteristics of that type. As such, its list of members varies based on the type supplied.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Members">
+    <SubSection Title="Constructors (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="Ret" PageName="SupportLibraries.MarshalSupport.MarshalRet.Constructor">
+          Constructs the marshaller and binds the return value
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Marshal methods (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="Get" PageName="SupportLibraries.MarshalSupport.MarshalIn.Get">
+          Marshals the bound element to a new object, performing a move if possible.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="GetWithoutMove" PageName="SupportLibraries.MarshalSupport.MarshalIn.GetWithoutMove">
+          Marshals the bound element to a new object, leaving the original object unchanged.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Conversion operators">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="operator ContainerType()">
+          Performs an implicit conversion from the marshaller to the native type. Note that unlike the <TypeRef>Marshal::In</TypeRef> helper, a move is performed by an implicit conversion where possible.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+  </Section>
+
+  <Section Title="Examples">
+    <SubSection Title="Recommended usage">
+      <Paragraph>
+        Given the following code without any marshalling involved:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[std::vector<int> SomeFunction()
+{
+    std::vector<int> result;
+    result.push_back(1);
+    return result;
+}
+
+int main()
+{
+    std::vector<int> result = SomeFunction(arg);
+    std::cout << arg.back() << std::endl;
+    return 0;
+}]]></Code>
+      <Paragraph>
+        The recommended conversion to use marshalling would take this form:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[Marshal::Ret<std::vector<int>> SomeFunction()
+{
+    std::vector<int> result;
+    result.push_back(1);
+    return result;
+}
+
+int main()
+{
+    std::vector<int> result = SomeFunction();
+    std::cout << result.back() << std::endl;
+    return 0;
+}]]></Code>
+      <Paragraph>
+        Note that the syntax remains unchanged for the caller, making it relatively easy to add marshalling to existing APIs. The return value is adapted to use
+        marshalling simply by wrapping it in a <TypeRef>Marshal::Ret</TypeRef> helper.
+      </Paragraph>
+    </SubSection>
+    <SubSection Title="String conversion example">
+      <Paragraph>
+        Given the following code without any marshalling involved:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[std::string SomeFunction()
+{
+    return "SomeValue";
+}
+
+int main()
+{
+    std::string result = SomeFunction();
+    std::cout << result << std::endl;
+    return 0;
+}]]></Code>
+      <Paragraph>
+        The code can be converted to marshal the string argument by changing the function signature alone, as follows:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[Marshal::Ret<std::string> SomeFunction()
+{
+    return "SomeValue";
+}
+
+int main()
+{
+    std::string result = SomeFunction();
+    std::cout << result << std::endl;
+    return 0;
+}]]></Code>
+      <Paragraph>
+        In this case, implicit conversions handle the conversion from string literals to our marshal helper.
+      </Paragraph>
+    </SubSection>
+  </Section>
+
+  <Section Title="Using std::move on return">
+    <Paragraph>
+      There is an important difference in behaviour here between C++11 compilers, and those conforming to the C++14 standard or higher, regarding whether
+      returned values will be treated as movable or not by default. According to the rules as defined in the C++11 standard, implicit conversions of local
+      objects being returned from a function via the <TypeRef>return</TypeRef> keyword will not treat the source object as movable by default, even though it is
+      going out of scope. An explicit <TypeRef>std::move</TypeRef> operation would be required in order to allow moving the source object in these cases. This
+      means that in our previous example function, as shown here:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[Marshal::Ret<std::vector<int>> SomeFunction()
+{
+    std::vector<int> result;
+    result.push_back(1);
+    return result;
+}]]></Code>
+    <Paragraph>
+      On a C++11 compiler, this will in fact invoke the constructor for <TypeRef>Marshal::Ret</TypeRef> using a const lvalue reference. In order to bind to the
+      return value as a non-const rvalue reference, we would need to use <TypeRef>std::move</TypeRef> on the returned value, as follows:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[Marshal::Ret<std::vector<int>> SomeFunction()
+{
+    std::vector<int> result;
+    result.push_back(1);
+    return std::move(result);
+}]]></Code>
+    <Paragraph>
+      This was a limitation of the C++11 language specification, and it was addressed in <URL DisplayName="Defect Report 1579">http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579</URL>,
+      the changes for which were adopted into the C++14 langauge. If you are using a C++14 conforming compiler or higher, a move will automatically be performed
+      where appropriate. If you are using C++11 however, be aware that as per the C++11 language rules, a move operation cannot be generated automatically in
+      this case, and you may need to perform an <TypeRef>std::move</TypeRef> operation on returned values when adapting them for marshalling in order to achieve
+      the best possible performance, or to support move-only types.
+    </Paragraph>
+  </Section>
+
+    <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport">MarshalSupport Library Overview</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalInOut">Marshal::InOut</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalRet">Marshal::Ret</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

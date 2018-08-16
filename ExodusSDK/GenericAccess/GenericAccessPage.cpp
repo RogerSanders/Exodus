@@ -32,13 +32,13 @@ void GenericAccessPage::SetPageType(Type atype)
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessPage::GetName() const
+Marshal::Ret<std::wstring> GenericAccessPage::GetName() const
 {
 	return contentRoot.GetName();
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessPage::GetTitle() const
+Marshal::Ret<std::wstring> GenericAccessPage::GetTitle() const
 {
 	return title;
 }

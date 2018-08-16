@@ -71,7 +71,7 @@ unsigned int System::GetISystemGUIInterfaceVersion() const
 //----------------------------------------------------------------------------------------
 //Savestate functions
 //----------------------------------------------------------------------------------------
-bool System::LoadState(const MarshalSupport::Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState)
+bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState)
 {
 	//Save running state and pause system
 	bool running = SystemRunning();
@@ -348,7 +348,7 @@ bool System::LoadState(const MarshalSupport::Marshal::In<std::wstring>& filePath
 }
 
 //----------------------------------------------------------------------------------------
-bool System::SaveState(const MarshalSupport::Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState)
+bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState)
 {
 	//Save running state and pause system
 	bool running = SystemRunning();
@@ -950,7 +950,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<System::StateInfo> System::GetStateInfo(const MarshalSupport::Marshal::In<std::wstring>& filePath, FileType fileType) const
+Marshal::Ret<System::StateInfo> System::GetStateInfo(const Marshal::In<std::wstring>& filePath, FileType fileType) const
 {
 	StateInfo stateInfo;
 	stateInfo.valid = false;
@@ -1112,7 +1112,7 @@ bool System::LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelat
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const MarshalSupport::Marshal::Out<ModuleRelationshipMap>& relationshipMap) const
+bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const Marshal::Out<ModuleRelationshipMap>& relationshipMap) const
 {
 	//Load the saved module relationship data
 	SavedRelationshipMap savedRelationshipData;
@@ -1190,7 +1190,7 @@ bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const M
 }
 
 //----------------------------------------------------------------------------------------
-void System::SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool saveFilePathInfo, const MarshalSupport::Marshal::In<std::wstring>& relativePathBase) const
+void System::SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool saveFilePathInfo, const Marshal::In<std::wstring>& relativePathBase) const
 {
 	for(LoadedModuleInfoMap::const_iterator i = loadedModuleInfoMap.begin(); i != loadedModuleInfoMap.end(); ++i)
 	{
@@ -1332,7 +1332,7 @@ void System::WriteLogEvent(const ILogEntry& entry) const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::vector<System::SystemLogEntry>> System::GetEventLog() const
+Marshal::Ret<std::vector<System::SystemLogEntry>> System::GetEventLog() const
 {
 	std::unique_lock<std::mutex> lock(eventLogMutex);
 	std::vector<SystemLogEntry> eventLogCopy(log.size());
@@ -1381,7 +1381,7 @@ void System::SetEventLogSize(unsigned int alogSize)
 //----------------------------------------------------------------------------------------
 //Embedded ROM functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetEmbeddedROMIDs() const
+Marshal::Ret<std::list<unsigned int>> System::GetEmbeddedROMIDs() const
 {
 	std::unique_lock<std::mutex> lock(embeddedROMMutex);
 	std::list<unsigned int> embeddedROMIDList;
@@ -1425,7 +1425,7 @@ bool System::GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& em
 
 
 //----------------------------------------------------------------------------------------
-bool System::SetEmbeddedROMPath(unsigned int embeddedROMID, const MarshalSupport::Marshal::In<std::wstring>& filePath)
+bool System::SetEmbeddedROMPath(unsigned int embeddedROMID, const Marshal::In<std::wstring>& filePath)
 {
 	//Attempt to locate the target embedded ROM entry
 	std::unique_lock<std::mutex> lock(embeddedROMMutex);
@@ -1499,7 +1499,7 @@ bool System::ReloadEmbeddedROMData(const EmbeddedROMInfoInternal& targetEmbedded
 //----------------------------------------------------------------------------------------
 //Module setting functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetModuleSettingIDs(unsigned int moduleID) const
+Marshal::Ret<std::list<unsigned int>> System::GetModuleSettingIDs(unsigned int moduleID) const
 {
 	std::unique_lock<std::recursive_mutex> lock(moduleSettingMutex);
 	std::list<unsigned int> moduleSettingIDList;
@@ -1737,13 +1737,13 @@ void System::ModuleSettingActiveOptionChangeNotifyDeregister(unsigned int module
 //----------------------------------------------------------------------------------------
 //Path functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> System::GetCapturePath() const
+Marshal::Ret<std::wstring> System::GetCapturePath() const
 {
 	return capturePath;
 }
 
 //----------------------------------------------------------------------------------------
-void System::SetCapturePath(const MarshalSupport::Marshal::In<std::wstring>& apath)
+void System::SetCapturePath(const Marshal::In<std::wstring>& apath)
 {
 	capturePath = apath;
 }
@@ -2578,7 +2578,7 @@ bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHan
 }
 
 //----------------------------------------------------------------------------------------
-void System::UnregisterDevice(const MarshalSupport::Marshal::In<std::wstring>& deviceName)
+void System::UnregisterDevice(const Marshal::In<std::wstring>& deviceName)
 {
 	DeviceLibraryList::iterator i = deviceLibrary.find(deviceName);
 	if(i != deviceLibrary.end())
@@ -2682,7 +2682,7 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 }
 
 //----------------------------------------------------------------------------------------
-void System::UnregisterExtension(const MarshalSupport::Marshal::In<std::wstring>& extensionName)
+void System::UnregisterExtension(const Marshal::In<std::wstring>& extensionName)
 {
 	ExtensionLibraryList::iterator i = extensionLibrary.find(extensionName);
 	if(i != extensionLibrary.end())
@@ -2956,7 +2956,7 @@ void System::UnloadExtension(IExtension* aextension)
 //----------------------------------------------------------------------------------------
 //Module loading and unloading
 //----------------------------------------------------------------------------------------
-void System::LoadModuleSynchronous(const MarshalSupport::Marshal::In<std::wstring>& filePath, const MarshalSupport::Marshal::In<ConnectorMappingList>& connectorMappings)
+void System::LoadModuleSynchronous(const Marshal::In<std::wstring>& filePath, const Marshal::In<ConnectorMappingList>& connectorMappings)
 {
 	loadSystemComplete = false;
 	loadSystemProgress = 0;
@@ -2996,7 +2996,7 @@ bool System::LoadModuleSynchronousAborted() const
 }
 
 //----------------------------------------------------------------------------------------
-bool System::LoadModule(const MarshalSupport::Marshal::In<std::wstring>& filePath, const MarshalSupport::Marshal::In<ConnectorMappingList>& connectorMappings)
+bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal::In<ConnectorMappingList>& connectorMappings)
 {
 	std::unique_lock<std::mutex> lock(moduleLoadMutex);
 
@@ -4181,7 +4181,7 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 }
 
 //----------------------------------------------------------------------------------------
-bool System::SaveSystem(const MarshalSupport::Marshal::In<std::wstring>& filePath)
+bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 {
 	//Save running state and pause system
 	bool running = SystemRunning();
@@ -8172,7 +8172,7 @@ void System::UnloadAllModules()
 }
 
 //----------------------------------------------------------------------------------------
-bool System::ReadModuleConnectorInfo(const MarshalSupport::Marshal::In<std::wstring>& filePath, const MarshalSupport::Marshal::Out<std::wstring>& systemClassName, const MarshalSupport::Marshal::Out<ConnectorImportList>& connectorsImported, const MarshalSupport::Marshal::Out<ConnectorExportList>& connectorsExported) const
+bool System::ReadModuleConnectorInfo(const Marshal::In<std::wstring>& filePath, const Marshal::Out<std::wstring>& systemClassName, const Marshal::Out<ConnectorImportList>& connectorsImported, const Marshal::Out<ConnectorExportList>& connectorsExported) const
 {
 	//Open the target file
 	FileStreamReference streamReference(guiExtensionInterface);
@@ -8255,7 +8255,7 @@ bool System::ReadModuleConnectorInfo(const MarshalSupport::Marshal::In<std::wstr
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> System::LoadModuleSynchronousCurrentModuleName() const
+Marshal::Ret<std::wstring> System::LoadModuleSynchronousCurrentModuleName() const
 {
 	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	std::wstring moduleName;
@@ -8281,7 +8281,7 @@ void System::PopLoadModuleCurrentModuleName()
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> System::UnloadModuleSynchronousCurrentModuleName() const
+Marshal::Ret<std::wstring> System::UnloadModuleSynchronousCurrentModuleName() const
 {
 	std::unique_lock<std::mutex> lock(moduleNameMutex);
 	std::wstring moduleName;
@@ -8309,7 +8309,7 @@ void System::PopUnloadModuleCurrentModuleName()
 //----------------------------------------------------------------------------------------
 //Loaded module info functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetLoadedModuleIDs() const
+Marshal::Ret<std::list<unsigned int>> System::GetLoadedModuleIDs() const
 {
 	std::list<unsigned int> idList;
 	for(LoadedModuleInfoMap::const_iterator i = loadedModuleInfoMap.begin(); i != loadedModuleInfoMap.end(); ++i)
@@ -8343,7 +8343,7 @@ bool System::GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& modul
 }
 
 //----------------------------------------------------------------------------------------
-bool System::GetModuleDisplayName(unsigned int moduleID, const MarshalSupport::Marshal::Out<std::wstring>& moduleDisplayName) const
+bool System::GetModuleDisplayName(unsigned int moduleID, const Marshal::Out<std::wstring>& moduleDisplayName) const
 {
 	LoadedModuleInfoMap::const_iterator loadedModuleIterator = loadedModuleInfoMap.find(moduleID);
 	if(loadedModuleIterator == loadedModuleInfoMap.end())
@@ -8357,7 +8357,7 @@ bool System::GetModuleDisplayName(unsigned int moduleID, const MarshalSupport::M
 }
 
 //----------------------------------------------------------------------------------------
-bool System::GetModuleInstanceName(unsigned int moduleID, const MarshalSupport::Marshal::Out<std::wstring>& moduleInstanceName) const
+bool System::GetModuleInstanceName(unsigned int moduleID, const Marshal::Out<std::wstring>& moduleInstanceName) const
 {
 	LoadedModuleInfoMap::const_iterator loadedModuleIterator = loadedModuleInfoMap.find(moduleID);
 	if(loadedModuleIterator == loadedModuleInfoMap.end())
@@ -8385,7 +8385,7 @@ void System::LoadedModulesChangeNotifyDeregister(IObserverSubscription& observer
 //----------------------------------------------------------------------------------------
 //Connector info functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetConnectorIDs() const
+Marshal::Ret<std::list<unsigned int>> System::GetConnectorIDs() const
 {
 	std::list<unsigned int> idList;
 	for(ConnectorDetailsMap::const_iterator i = connectorDetailsMap.begin(); i != connectorDetailsMap.end(); ++i)
@@ -8424,7 +8424,7 @@ bool System::GetConnectorInfo(unsigned int connectorID, IConnectorInfo& connecto
 //----------------------------------------------------------------------------------------
 //Loaded device info functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IDevice*>> System::GetLoadedDevices() const
+Marshal::Ret<std::list<IDevice*>> System::GetLoadedDevices() const
 {
 	//##TODO## Consider thread safety for all functions exposed over the system extension
 	//interface
@@ -8438,7 +8438,7 @@ MarshalSupport::Marshal::Ret<std::list<IDevice*>> System::GetLoadedDevices() con
 }
 
 //----------------------------------------------------------------------------------------
-bool System::GetDeviceDisplayName(IDevice* device, const MarshalSupport::Marshal::Out<std::wstring>& deviceDisplayName) const
+bool System::GetDeviceDisplayName(IDevice* device, const Marshal::Out<std::wstring>& deviceDisplayName) const
 {
 	//Ensure the specified target device is one of the currently loaded devices
 	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
@@ -8465,7 +8465,7 @@ bool System::GetDeviceDisplayName(IDevice* device, const MarshalSupport::Marshal
 }
 
 //----------------------------------------------------------------------------------------
-bool System::GetDeviceInstanceName(IDevice* device, const MarshalSupport::Marshal::Out<std::wstring>& deviceInstanceName) const
+bool System::GetDeviceInstanceName(IDevice* device, const Marshal::Out<std::wstring>& deviceInstanceName) const
 {
 	//Ensure the specified target device is one of the currently loaded devices
 	bool foundTargetDevice = false;
@@ -8491,7 +8491,7 @@ bool System::GetDeviceInstanceName(IDevice* device, const MarshalSupport::Marsha
 }
 
 //----------------------------------------------------------------------------------------
-bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, const MarshalSupport::Marshal::Out<std::wstring>& fullyQualifiedDeviceDisplayName) const
+bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, const Marshal::Out<std::wstring>& fullyQualifiedDeviceDisplayName) const
 {
 	//Ensure the specified target device is one of the currently loaded devices
 	std::unique_lock<std::mutex> loadedElementLock(loadedElementMutex);
@@ -8577,7 +8577,7 @@ bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, const MarshalSu
 //----------------------------------------------------------------------------------------
 //Loaded extension info functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IExtension*>> System::GetLoadedExtensions() const
+Marshal::Ret<std::list<IExtension*>> System::GetLoadedExtensions() const
 {
 	//##TODO## Consider thread safety for all functions exposed over the system extension
 	//interface
@@ -8596,7 +8596,7 @@ MarshalSupport::Marshal::Ret<std::list<IExtension*>> System::GetLoadedExtensions
 //----------------------------------------------------------------------------------------
 //Input functions
 //----------------------------------------------------------------------------------------
-System::KeyCode System::GetKeyCodeID(const MarshalSupport::Marshal::In<std::wstring>& keyCodeName) const
+System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const
 {
 	//Control keys
 	std::wstring keyCodeNameTemp = keyCodeName.Get();
@@ -8789,7 +8789,7 @@ System::KeyCode System::GetKeyCodeID(const MarshalSupport::Marshal::In<std::wstr
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
+Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 {
 	switch(keyCode)
 	{
@@ -9378,7 +9378,7 @@ unsigned int System::GetInputDeviceListLastModifiedToken() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IDevice*>> System::GetInputDeviceList() const
+Marshal::Ret<std::list<IDevice*>> System::GetInputDeviceList() const
 {
 	std::unique_lock<std::mutex> lock(inputMutex);
 	std::set<IDevice*> inputDeviceSet;
@@ -9392,7 +9392,7 @@ MarshalSupport::Marshal::Ret<std::list<IDevice*>> System::GetInputDeviceList() c
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetDeviceKeyCodeList(IDevice* targetDevice) const
+Marshal::Ret<std::list<unsigned int>> System::GetDeviceKeyCodeList(IDevice* targetDevice) const
 {
 	std::unique_lock<std::mutex> lock(inputMutex);
 	std::list<unsigned int> deviceKeyCodeList;
@@ -9408,7 +9408,7 @@ MarshalSupport::Marshal::Ret<std::list<unsigned int>> System::GetDeviceKeyCodeLi
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<System::KeyCode>> System::GetDeviceKeyCodePreferredDefaultMappingList(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
+Marshal::Ret<std::list<System::KeyCode>> System::GetDeviceKeyCodePreferredDefaultMappingList(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
 {
 	std::unique_lock<std::mutex> lock(inputMutex);
 	std::list<KeyCode> preferredDefaultMappingList;

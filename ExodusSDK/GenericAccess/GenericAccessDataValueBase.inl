@@ -41,19 +41,19 @@ template<class B> bool GenericAccessDataValueBase<B>::SetValueDouble(double valu
 }
 
 //----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value)
+template<class B> bool GenericAccessDataValueBase<B>::SetValueString(const Marshal::In<std::wstring>& value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueFilePath(const MarshalSupport::Marshal::In<std::wstring>& value)
+template<class B> bool GenericAccessDataValueBase<B>::SetValueFilePath(const Marshal::In<std::wstring>& value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueFolderPath(const MarshalSupport::Marshal::In<std::wstring>& value)
+template<class B> bool GenericAccessDataValueBase<B>::SetValueFolderPath(const Marshal::In<std::wstring>& value)
 {
 	return false;
 }

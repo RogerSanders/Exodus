@@ -2,6 +2,7 @@
 #define __ICONNECTORINFO_H__
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IConnectorInfo
 {
@@ -20,20 +21,20 @@ public:
 	//Exporting module info
 	virtual unsigned int GetExportingModuleID() const = 0;
 	virtual void SetExportingModuleID(unsigned int aexportingModuleID) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetConnectorClassName() const = 0;
-	virtual void SetConnectorClassName(const MarshalSupport::Marshal::In<std::wstring>& aconnectorClassName) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExportingModuleConnectorInstanceName() const = 0;
-	virtual void SetExportingModuleConnectorInstanceName(const MarshalSupport::Marshal::In<std::wstring>& aexportingModuleConnectorInstanceName) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemClassName() const = 0;
-	virtual void SetSystemClassName(const MarshalSupport::Marshal::In<std::wstring>& asystemClassName) = 0;
+	virtual Marshal::Ret<std::wstring> GetConnectorClassName() const = 0;
+	virtual void SetConnectorClassName(const Marshal::In<std::wstring>& aconnectorClassName) = 0;
+	virtual Marshal::Ret<std::wstring> GetExportingModuleConnectorInstanceName() const = 0;
+	virtual void SetExportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& aexportingModuleConnectorInstanceName) = 0;
+	virtual Marshal::Ret<std::wstring> GetSystemClassName() const = 0;
+	virtual void SetSystemClassName(const Marshal::In<std::wstring>& asystemClassName) = 0;
 
 	//Importing module info
 	virtual bool GetIsConnectorUsed() const = 0;
 	virtual void SetIsConnectorUsed(bool aconnectorUser) = 0;
 	virtual unsigned int GetImportingModuleID() const = 0;
 	virtual void SetImportingModuleID(unsigned int aimportingModuleID) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetImportingModuleConnectorInstanceName() const = 0;
-	virtual void SetImportingModuleConnectorInstanceName(const MarshalSupport::Marshal::In<std::wstring>& aimportingModuleConnectorInstanceName) = 0;
+	virtual Marshal::Ret<std::wstring> GetImportingModuleConnectorInstanceName() const = 0;
+	virtual void SetImportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& aimportingModuleConnectorInstanceName) = 0;
 };
 
 #endif

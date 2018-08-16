@@ -89,9 +89,9 @@ public:
 	virtual void StopSystem();
 	virtual void RunSystem();
 	virtual void ExecuteDeviceStep();
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFullyQualifiedDeviceInstanceName() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleDisplayName() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleInstanceName() const;
+	virtual Marshal::Ret<std::wstring> GetFullyQualifiedDeviceInstanceName() const;
+	virtual Marshal::Ret<std::wstring> GetModuleDisplayName() const;
+	virtual Marshal::Ret<std::wstring> GetModuleInstanceName() const;
 
 	//Suspend functions
 	virtual bool UsesExecuteSuspend() const;

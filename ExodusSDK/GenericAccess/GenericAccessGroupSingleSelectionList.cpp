@@ -68,7 +68,7 @@ unsigned int GenericAccessGroupSingleSelectionList::GetDataID() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GenericAccessGroupSingleSelectionList::GetSelectionList() const
+Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GenericAccessGroupSingleSelectionList::GetSelectionList() const
 {
 	return selectionList;
 }
@@ -80,19 +80,19 @@ bool GenericAccessGroupSingleSelectionList::GetAllowNewItemEntry() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupSingleSelectionList::GetName() const
+Marshal::Ret<std::wstring> GenericAccessGroupSingleSelectionList::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupSingleSelectionList::GetDescription() const
+Marshal::Ret<std::wstring> GenericAccessGroupSingleSelectionList::GetDescription() const
 {
 	return description;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupSingleSelectionList::GetHelpFileLink() const
+Marshal::Ret<std::wstring> GenericAccessGroupSingleSelectionList::GetHelpFileLink() const
 {
 	return helpFileLink;
 }

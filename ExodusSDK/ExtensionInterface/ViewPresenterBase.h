@@ -34,8 +34,8 @@ public:
 
 	//View target functions
 	virtual ViewTarget GetViewTarget() const;
-	MarshalSupport::Marshal::Ret<std::wstring> GetViewTargetDeviceInstanceName() const;
-	MarshalSupport::Marshal::Ret<std::wstring> GetViewTargetExtensionInstanceName() const;
+	Marshal::Ret<std::wstring> GetViewTargetDeviceInstanceName() const;
+	Marshal::Ret<std::wstring> GetViewTargetExtensionInstanceName() const;
 	virtual bool GetViewTargetGlobalExtension() const;
 	virtual unsigned int GetViewTargetModuleID() const;
 
@@ -45,8 +45,8 @@ public:
 
 	//State functions
 	virtual int GetViewID() const;
-	MarshalSupport::Marshal::Ret<std::wstring> GetViewGroupName() const;
-	MarshalSupport::Marshal::Ret<std::wstring> GetViewName() const;
+	Marshal::Ret<std::wstring> GetViewGroupName() const;
+	Marshal::Ret<std::wstring> GetViewName() const;
 	virtual bool LoadViewState(IHierarchicalStorageNode& viewState);
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const;
 

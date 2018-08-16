@@ -3,6 +3,7 @@
 #include <ExtensionInterface/ExtensionInterface.pkg>
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IModuleSettingOptionInfo
 {
@@ -15,12 +16,12 @@ public:
 	virtual unsigned int GetIModuleSettingOptionInfoVersion() const = 0;
 
 	//Getters
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDisplayName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetDisplayName() const = 0;
 
 	//Setters
-	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& name) = 0;
-	virtual void SetDisplayName(const MarshalSupport::Marshal::In<std::wstring>& displayName) = 0;
+	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
+	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName) = 0;
 };
 
 #endif

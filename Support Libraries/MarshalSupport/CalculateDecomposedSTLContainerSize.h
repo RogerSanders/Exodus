@@ -9,11 +9,13 @@
 #include <stack>
 #include <queue>
 #include <string>
+#include <utility>
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 #include <array>
 #include <forward_list>
 #include <unordered_set>
 #include <unordered_map>
+#include <tuple>
 #endif
 namespace MarshalSupport {
 namespace Internal {
@@ -60,6 +62,12 @@ template<class ElementType, class Container, class Compare>
 inline void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::priority_queue<ElementType, Container, Compare>& element);
 template<class ElementType, class traits, class Alloc>
 inline void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::basic_string<ElementType, traits, Alloc>& element);
+template<class T1, class T2>
+inline void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::pair<T1, T2>& element);
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
+template<class... Args>
+inline void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::tuple<Args...>& element);
+#endif
 template<class ElementType>
 inline void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const ElementType& element);
 

@@ -61,19 +61,19 @@ void Watchpoint::SetBreakEvent(bool state)
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Watchpoint::GetName() const
+Marshal::Ret<std::wstring> Watchpoint::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
+void Watchpoint::SetName(const Marshal::In<std::wstring>& aname)
 {
 	name = aname;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Watchpoint::GenerateName() const
+Marshal::Ret<std::wstring> Watchpoint::GenerateName() const
 {
 	std::wstring newName;
 	switch(locationCondition)

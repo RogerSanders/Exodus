@@ -32,16 +32,18 @@
 
 //Include any header files which are part of the public interface for this library here
 #ifndef PACKAGE_LINK_LIBS_ONLY
+#include "MarshalIn.h"
+#include "MarshalOut.h"
+#include "MarshalInOut.h"
+#include "MarshalRet.h"
+#include "MarshalOperators.h"
 #include "IMarshalSource.h"
 #include "MarshalSource.h"
 #include "IMarshalTarget.h"
 #include "MarshalTarget.h"
 #include "IMarshallingObject.h"
-#include "MarshalObjectT.h"
-#include "MarshalIn.h"
-#include "MarshalOut.h"
-#include "MarshalInOut.h"
-#include "MarshalRet.h"
+#include "MarshalObjectTag.h"
+#include "MarshallableDelete.h"
 #endif
 
 //Automatically link static library dependencies

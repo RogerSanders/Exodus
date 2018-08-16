@@ -5,6 +5,7 @@
 #include <string>
 class IViewPresenter;
 class IUIManager;
+using namespace MarshalSupport::Operators;
 
 class IView
 {
@@ -35,7 +36,7 @@ public:
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const = 0;
 
 	//New window state
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewDockingGroup() const = 0;
+	virtual Marshal::Ret<std::wstring> GetViewDockingGroup() const = 0;
 	virtual bool IsViewInitiallyDocked() const = 0;
 	virtual bool IsViewInitiallyCollapsed() const = 0;
 	virtual DockPos GetViewInitialDockPosition() const = 0;

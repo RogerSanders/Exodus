@@ -231,7 +231,7 @@ void SN76489::Initialize()
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int SN76489::GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const
+unsigned int SN76489::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const
 {
 	if(clockSourceName == L"CLOCK")
 	{
@@ -241,7 +241,7 @@ unsigned int SN76489::GetClockSourceID(const MarshalSupport::Marshal::In<std::ws
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> SN76489::GetClockSourceName(unsigned int clockSourceID) const
+Marshal::Ret<std::wstring> SN76489::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch((ClockID)clockSourceID)
 	{

@@ -137,13 +137,13 @@ bool GenericAccessDataInfo::GetFilePathAllowScanningIntoArchives() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataInfo::GetFilePathExtensionFilter() const
+Marshal::Ret<std::wstring> GenericAccessDataInfo::GetFilePathExtensionFilter() const
 {
 	return filePathExtensionFilter;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataInfo::GetFilePathDefaultExtension() const
+Marshal::Ret<std::wstring> GenericAccessDataInfo::GetFilePathDefaultExtension() const
 {
 	return filePathDefaultExtension;
 }

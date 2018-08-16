@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalIn.size" Title="size method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This method is only available when marshalling <TypeRef>std::vector</TypeRef> and <TypeRef>std::array</TypeRef> objects, and provides equivalent
+      functionality to the corresponding method on the native containers as defined in the C++ standard. Note that this method does not marshal the contents of
+      the source container in order to evaluate the result. This method may be useful if only a subset of elements in the collection are being marshalled,
+      through calls to the <PageRef PageName="SupportLibraries.MarshalSupport.MarshalIn.GetElement">GetElement method</PageRef>.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage (std::vector, std::array only):">
+    <Code Language="C++"><![CDATA[size_type size() const]]></Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="size_type">
+        The number of elements in the bound collection
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn.GetElement">GetElement</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

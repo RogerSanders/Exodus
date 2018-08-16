@@ -28,9 +28,9 @@ public:
 	virtual void SetBreakEvent(bool state);
 
 	//Name functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
-	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GenerateName() const;
+	virtual Marshal::Ret<std::wstring> GetName() const;
+	virtual void SetName(const Marshal::In<std::wstring>& aname);
+	virtual Marshal::Ret<std::wstring> GenerateName() const;
 
 	//Location condition functions
 	virtual bool GetLocationConditionNot() const;

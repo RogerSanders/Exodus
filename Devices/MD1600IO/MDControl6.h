@@ -29,7 +29,7 @@ public:
 	virtual bool ValidateDevice();
 
 	//Reference functions
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual void RemoveReference(IBusInterface* target);
 
 	//Execute functions
@@ -39,8 +39,8 @@ public:
 	virtual void ExecuteCommit();
 
 	//Line functions
-	virtual unsigned int GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
+	virtual unsigned int GetLineID(const Marshal::In<std::wstring>& lineName) const;
+	virtual Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);
@@ -48,8 +48,8 @@ public:
 	virtual void NegateCurrentOutputLineState() const;
 
 	//Input functions
-	virtual unsigned int GetKeyCodeID(const MarshalSupport::Marshal::In<std::wstring>& keyCodeName) const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetKeyCodeName(unsigned int keyCodeID) const;
+	virtual unsigned int GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const;
+	virtual Marshal::Ret<std::wstring> GetKeyCodeName(unsigned int keyCodeID) const;
 	virtual void HandleInputKeyDown(unsigned int keyCodeID);
 	virtual void HandleInputKeyUp(unsigned int keyCodeID);
 

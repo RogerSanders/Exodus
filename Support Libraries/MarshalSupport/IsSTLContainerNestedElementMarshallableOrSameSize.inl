@@ -130,6 +130,22 @@ MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(
 }
 
 //----------------------------------------------------------------------------------------
+template<class T1, class T2>
+MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(size_t expectedSize, const std::pair<T1, T2>* elementPointer)
+{
+	return true;
+}
+
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
+//----------------------------------------------------------------------------------------
+template<class... Args>
+MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(size_t expectedSize, const std::tuple<Args...>* elementPointer)
+{
+	return true;
+}
+#endif
+
+//----------------------------------------------------------------------------------------
 template<class ElementType>
 MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(size_t expectedSize, const ElementType* elementPointer)
 {

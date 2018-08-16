@@ -43,7 +43,7 @@ MenuSubmenu::Type MenuSubmenu::GetType() const
 //----------------------------------------------------------------------------------------
 //Menu title functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> MenuSubmenu::GetMenuTitle() const
+Marshal::Ret<std::wstring> MenuSubmenu::GetMenuTitle() const
 {
 	return title;
 }
@@ -82,7 +82,7 @@ bool MenuSubmenu::NoMenuItemsExist() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IMenuItem*>> MenuSubmenu::GetMenuItems() const
+Marshal::Ret<std::list<IMenuItem*>> MenuSubmenu::GetMenuItems() const
 {
 	return menuItems;
 }
@@ -98,7 +98,7 @@ IMenuSegment& MenuSubmenu::AddMenuItemSegment(bool asurroundWithSeparators, IMen
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenu(const MarshalSupport::Marshal::In<std::wstring>& title)
+IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenu(const Marshal::In<std::wstring>& title)
 {
 	IMenuSubmenu* newMenuItem = new MenuSubmenu(title);
 	menuItems.push_back(newMenuItem);
@@ -106,7 +106,7 @@ IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenu(const MarshalSupport::Marshal::In<
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSubmenu::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const MarshalSupport::Marshal::In<std::wstring>& title)
+IMenuSelectableOption& MenuSubmenu::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title)
 {
 	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, title);
 	menuItems.push_back(newMenuItem);

@@ -1,6 +1,6 @@
 #ifndef __MARSHALOBJECT_H__
 #define __MARSHALOBJECT_H__
-#include "MarshalObjectT.h"
+#include "MarshalObjectTag.h"
 #include <vector>
 #include <list>
 #include <deque>
@@ -14,19 +14,22 @@
 #include <unordered_set>
 #include <unordered_map>
 #endif
+#include "IsOnlyMovable.h"
+#include "IsAssignable.h"
+#include "GetLastNestedContainerElementType.h"
 #include "HasMarshalConstructor.h"
 #include "GetNextNestedContainerElementType.h"
 namespace MarshalSupport {
 namespace Internal {
 
 //----------------------------------------------------------------------------------------
-template<class ElementType, bool HasMashalConstructor = has_marshal_constructor<ElementType>::value>
+template<class ElementType, bool HasMashalConstructor = has_marshal_constructor<ElementType>::value, bool IsOnlyMovable = Internal::is_only_movable<typename Internal::get_last_nested_container_element_type<ElementType>::type>::value, bool IsAssignable = Internal::is_assignable<ElementType>::value>
 class MarshalObjectHelperInternal
 { };
 
 //----------------------------------------------------------------------------------------
 template<class ElementType>
-class MarshalObjectHelperInternal<ElementType, false>
+class MarshalObjectHelperInternal<ElementType, false, false, true>
 {
 public:
 	inline static void MarshalObjectToExistingObject(const ElementType& sourceObject, ElementType& targetObject)
@@ -53,30 +56,124 @@ public:
 
 //----------------------------------------------------------------------------------------
 template<class ElementType>
-class MarshalObjectHelperInternal<ElementType, true>
+class MarshalObjectHelperInternal<ElementType, false, false, false>
 {
 public:
-	inline static void MarshalObjectToExistingObject(const ElementType& sourceObject, ElementType& targetObject)
-	{
-		targetObject = ElementType(marshal_object_t(), sourceObject);
-	}
-#ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	inline static void MarshalObjectToExistingObject(ElementType&& sourceObject, ElementType& targetObject)
-	{
-		targetObject = ElementType(marshal_object_t(), std::move(sourceObject));
-	}
-#endif
 	inline static ElementType MarshalObjectToNewObject(const ElementType& sourceObject)
 	{
-		return ElementType(marshal_object_t(), sourceObject);
+		return ElementType(sourceObject);
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static ElementType MarshalObjectToNewObject(ElementType&& sourceObject)
 	{
-		return ElementType(marshal_object_t(), std::move(sourceObject));
+		return ElementType(std::move(sourceObject));
 	}
 #endif
 };
+
+//----------------------------------------------------------------------------------------
+#ifdef MARSHALSUPPORT_CPP11SUPPORTED
+template<class ElementType>
+class MarshalObjectHelperInternal<ElementType, false, true, true>
+{
+public:
+	inline static void MarshalObjectToExistingObject(ElementType&& sourceObject, ElementType& targetObject)
+	{
+		targetObject = std::move(sourceObject);
+	}
+	inline static ElementType MarshalObjectToNewObject(ElementType&& sourceObject)
+	{
+		return ElementType(std::move(sourceObject));
+	}
+};
+#endif
+
+//----------------------------------------------------------------------------------------
+#ifdef MARSHALSUPPORT_CPP11SUPPORTED
+template<class ElementType>
+class MarshalObjectHelperInternal<ElementType, false, true, false>
+{
+public:
+	inline static ElementType MarshalObjectToNewObject(ElementType&& sourceObject)
+	{
+		return ElementType(std::move(sourceObject));
+	}
+};
+#endif
+
+//----------------------------------------------------------------------------------------
+template<class ElementType>
+class MarshalObjectHelperInternal<ElementType, true, false, true>
+{
+public:
+	inline static void MarshalObjectToExistingObject(const ElementType& sourceObject, ElementType& targetObject)
+	{
+		targetObject = ElementType(marshal_object_tag(), sourceObject);
+	}
+#ifdef MARSHALSUPPORT_CPP11SUPPORTED
+	inline static void MarshalObjectToExistingObject(ElementType&& sourceObject, ElementType& targetObject)
+	{
+		targetObject = ElementType(marshal_object_tag(), std::move(sourceObject));
+	}
+#endif
+	inline static ElementType MarshalObjectToNewObject(const ElementType& sourceObject)
+	{
+		return ElementType(marshal_object_tag(), sourceObject);
+	}
+#ifdef MARSHALSUPPORT_CPP11SUPPORTED
+	inline static ElementType MarshalObjectToNewObject(ElementType&& sourceObject)
+	{
+		return ElementType(marshal_object_tag(), std::move(sourceObject));
+	}
+#endif
+};
+
+//----------------------------------------------------------------------------------------
+template<class ElementType>
+class MarshalObjectHelperInternal<ElementType, true, false, false>
+{
+public:
+	inline static ElementType MarshalObjectToNewObject(const ElementType& sourceObject)
+	{
+		return ElementType(marshal_object_tag(), sourceObject);
+	}
+#ifdef MARSHALSUPPORT_CPP11SUPPORTED
+	inline static ElementType MarshalObjectToNewObject(ElementType&& sourceObject)
+	{
+		return ElementType(marshal_object_tag(), std::move(sourceObject));
+	}
+#endif
+};
+
+//----------------------------------------------------------------------------------------
+#ifdef MARSHALSUPPORT_CPP11SUPPORTED
+template<class ElementType>
+class MarshalObjectHelperInternal<ElementType, true, true, true>
+{
+public:
+	inline static void MarshalObjectToExistingObject(ElementType&& sourceObject, ElementType& targetObject)
+	{
+		targetObject = ElementType(marshal_object_tag(), std::move(sourceObject));
+	}
+	inline static ElementType MarshalObjectToNewObject(ElementType&& sourceObject)
+	{
+		return ElementType(marshal_object_tag(), std::move(sourceObject));
+	}
+};
+#endif
+
+//----------------------------------------------------------------------------------------
+#ifdef MARSHALSUPPORT_CPP11SUPPORTED
+template<class ElementType>
+class MarshalObjectHelperInternal<ElementType, true, true, false>
+{
+public:
+	inline static ElementType MarshalObjectToNewObject(ElementType&& sourceObject)
+	{
+		return ElementType(marshal_object_tag(), std::move(sourceObject));
+	}
+};
+#endif
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, bool ContainedElementHasMashalConstructor = has_marshal_constructor<typename get_next_nested_container_element_type<ElementType>::type>::value>
@@ -108,15 +205,15 @@ public:
 	inline static void MarshalObjectToContainer(const ElementType& sourceObject, std::vector<ElementType, Alloc>& targetObject)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		targetObject.emplace_back(marshal_object_t(), sourceObject);
+		targetObject.emplace_back(marshal_object_tag(), sourceObject);
 #else
-		targetObject.push_back(ElementType(marshal_object_t(), sourceObject));
+		targetObject.push_back(ElementType(marshal_object_tag(), sourceObject));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static void MarshalObjectToContainer(ElementType&& sourceObject, std::vector<ElementType, Alloc>& targetObject)
 	{
-		targetObject.emplace_back(marshal_object_t(), std::move(sourceObject));
+		targetObject.emplace_back(marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };
@@ -146,15 +243,15 @@ public:
 	inline static void MarshalObjectToContainer(const ElementType& sourceObject, std::list<ElementType, Alloc>& targetObject)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		targetObject.emplace_back(marshal_object_t(), sourceObject);
+		targetObject.emplace_back(marshal_object_tag(), sourceObject);
 #else
-		targetObject.push_back(ElementType(marshal_object_t(), sourceObject));
+		targetObject.push_back(ElementType(marshal_object_tag(), sourceObject));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static void MarshalObjectToContainer(ElementType&& sourceObject, std::list<ElementType, Alloc>& targetObject)
 	{
-		targetObject.emplace_back(marshal_object_t(), std::move(sourceObject));
+		targetObject.emplace_back(marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };
@@ -184,12 +281,12 @@ class MarshalObjectHelper<std::forward_list<ElementType, Alloc>, true> :public M
 public:
 	inline static typename std::forward_list<ElementType, Alloc>::iterator MarshalObjectToContainer(const ElementType& sourceObject, std::forward_list<ElementType, Alloc>& targetObject, const typename std::forward_list<ElementType, Alloc>::iterator& insertPosition)
 	{
-		return targetObject.emplace_after(insertPosition, marshal_object_t(), sourceObject);
+		return targetObject.emplace_after(insertPosition, marshal_object_tag(), sourceObject);
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static typename std::forward_list<ElementType, Alloc>::iterator MarshalObjectToContainer(ElementType&& sourceObject, std::forward_list<ElementType, Alloc>& targetObject, const typename std::forward_list<ElementType, Alloc>::iterator& insertPosition)
 	{
-		return targetObject.emplace_after(insertPosition, marshal_object_t(), std::move(sourceObject));
+		return targetObject.emplace_after(insertPosition, marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };
@@ -220,15 +317,15 @@ public:
 	inline static void MarshalObjectToContainer(const ElementType& sourceObject, std::deque<ElementType, Alloc>& targetObject)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		targetObject.emplace_back(marshal_object_t(), sourceObject);
+		targetObject.emplace_back(marshal_object_tag(), sourceObject);
 #else
-		targetObject.push_back(ElementType(marshal_object_t(), sourceObject));
+		targetObject.push_back(ElementType(marshal_object_tag(), sourceObject));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static void MarshalObjectToContainer(ElementType&& sourceObject, std::deque<ElementType, Alloc>& targetObject)
 	{
-		targetObject.emplace_back(marshal_object_t(), std::move(sourceObject));
+		targetObject.emplace_back(marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };
@@ -258,15 +355,15 @@ public:
 	inline static typename std::set<ElementType, Compare, Alloc>::iterator MarshalObjectToContainer(const ElementType& sourceObject, std::set<ElementType, Compare, Alloc>& targetObject, const typename std::set<ElementType, Compare, Alloc>::iterator& insertPosition)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		return targetObject.emplace_hint(insertPosition, marshal_object_t(), sourceObject);
+		return targetObject.emplace_hint(insertPosition, marshal_object_tag(), sourceObject);
 #else
-		return targetObject.insert(insertPosition, ElementType(marshal_object_t(), sourceObject));
+		return targetObject.insert(insertPosition, ElementType(marshal_object_tag(), sourceObject));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static typename std::set<ElementType, Compare, Alloc>::iterator MarshalObjectToContainer(ElementType&& sourceObject, std::set<ElementType, Compare, Alloc>& targetObject, const typename std::set<ElementType, Compare, Alloc>::iterator& insertPosition)
 	{
-		return targetObject.emplace_hint(insertPosition, marshal_object_t(), std::move(sourceObject));
+		return targetObject.emplace_hint(insertPosition, marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };
@@ -296,15 +393,15 @@ public:
 	inline static typename std::multiset<ElementType, Compare, Alloc>::iterator MarshalObjectToContainer(const ElementType& sourceObject, std::multiset<ElementType, Compare, Alloc>& targetObject, const typename std::multiset<ElementType, Compare, Alloc>::iterator& insertPosition)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		return targetObject.emplace_hint(insertPosition, marshal_object_t(), sourceObject);
+		return targetObject.emplace_hint(insertPosition, marshal_object_tag(), sourceObject);
 #else
-		return targetObject.insert(insertPosition, ElementType(marshal_object_t(), sourceObject));
+		return targetObject.insert(insertPosition, ElementType(marshal_object_tag(), sourceObject));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static typename std::multiset<ElementType, Compare, Alloc>::iterator MarshalObjectToContainer(ElementType&& sourceObject, std::multiset<ElementType, Compare, Alloc>& targetObject, const typename std::multiset<ElementType, Compare, Alloc>::iterator& insertPosition)
 	{
-		return targetObject.emplace_hint(insertPosition, marshal_object_t(), std::move(sourceObject));
+		return targetObject.emplace_hint(insertPosition, marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };
@@ -332,11 +429,11 @@ class MarshalObjectHelper<std::unordered_set<ElementType, Hash, Pred, Alloc>, tr
 public:
 	inline static void MarshalObjectToContainer(const ElementType& sourceObject, std::unordered_set<ElementType, Hash, Pred, Alloc>& targetObject)
 	{
-		targetObject.emplace(marshal_object_t(), sourceObject);
+		targetObject.emplace(marshal_object_tag(), sourceObject);
 	}
 	inline static void MarshalObjectToContainer(ElementType&& sourceObject, std::unordered_set<ElementType, Hash, Pred, Alloc>& targetObject)
 	{
-		targetObject.emplace(marshal_object_t(), std::move(sourceObject));
+		targetObject.emplace(marshal_object_tag(), std::move(sourceObject));
 	}
 };
 
@@ -362,11 +459,11 @@ class MarshalObjectHelper<std::unordered_multiset<ElementType, Hash, Pred, Alloc
 public:
 	inline static void MarshalObjectToContainer(const ElementType& sourceObject, std::unordered_multiset<ElementType, Hash, Pred, Alloc>& targetObject)
 	{
-		targetObject.emplace(marshal_object_t(), sourceObject);
+		targetObject.emplace(marshal_object_tag(), sourceObject);
 	}
 	inline static void MarshalObjectToContainer(ElementType&& sourceObject, std::unordered_multiset<ElementType, Hash, Pred, Alloc>& targetObject)
 	{
-		targetObject.emplace(marshal_object_t(), std::move(sourceObject));
+		targetObject.emplace(marshal_object_tag(), std::move(sourceObject));
 	}
 };
 #endif
@@ -396,15 +493,15 @@ public:
 	inline static typename std::map<KeyType, ElementType, Compare, Alloc>::iterator MarshalObjectToContainer(const KeyType& keyValue, const ElementType& sourceObject, std::map<KeyType, ElementType, Compare, Alloc>& targetObject, const typename std::map<KeyType, ElementType, Compare, Alloc>::iterator& insertPosition)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		return targetObject.emplace_hint(insertPosition, keyValue, ElementType(marshal_object_t(), sourceObject));
+		return targetObject.emplace_hint(insertPosition, keyValue, ElementType(marshal_object_tag(), sourceObject));
 #else
-		return targetObject.insert(insertPosition, std::make_pair(keyValue, ElementType(marshal_object_t(), sourceObject)));
+		return targetObject.insert(insertPosition, std::make_pair(keyValue, ElementType(marshal_object_tag(), sourceObject)));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static typename std::map<KeyType, ElementType, Compare, Alloc>::iterator MarshalObjectToContainer(const KeyType& keyValue, ElementType&& sourceObject, std::map<KeyType, ElementType, Compare, Alloc>& targetObject, const typename std::map<KeyType, ElementType, Compare, Alloc>::iterator& insertPosition)
 	{
-		return targetObject.emplace_hint(insertPosition, keyValue, ElementType(marshal_object_t(), std::move(sourceObject)));
+		return targetObject.emplace_hint(insertPosition, keyValue, ElementType(marshal_object_tag(), std::move(sourceObject)));
 	}
 #endif
 };
@@ -434,15 +531,15 @@ public:
 	inline static typename std::multimap<KeyType, ElementType, Compare, Alloc>::iterator MarshalObjectToContainer(const KeyType& keyValue, const ElementType& sourceObject, std::multimap<KeyType, ElementType, Compare, Alloc>& targetObject, const typename std::multimap<KeyType, ElementType, Compare, Alloc>::iterator& insertPosition)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		return targetObject.emplace_hint(insertPosition, keyValue, marshal_object_t(), sourceObject);
+		return targetObject.emplace_hint(insertPosition, keyValue, marshal_object_tag(), sourceObject);
 #else
-		return targetObject.insert(insertPosition, std::make_pair(keyValue, ElementType(marshal_object_t(), sourceObject)));
+		return targetObject.insert(insertPosition, std::make_pair(keyValue, ElementType(marshal_object_tag(), sourceObject)));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static typename std::multimap<KeyType, ElementType, Compare, Alloc>::iterator MarshalObjectToContainer(const KeyType& keyValue, ElementType&& sourceObject, std::multimap<KeyType, ElementType, Compare, Alloc>& targetObject, const typename std::multimap<KeyType, ElementType, Compare, Alloc>::iterator& insertPosition)
 	{
-		return targetObject.emplace_hint(insertPosition, keyValue, ElementType(marshal_object_t(), std::move(sourceObject)));
+		return targetObject.emplace_hint(insertPosition, keyValue, ElementType(marshal_object_tag(), std::move(sourceObject)));
 	}
 #endif
 };
@@ -470,11 +567,11 @@ class MarshalObjectHelper<std::unordered_map<KeyType, ElementType, Hash, Pred, A
 public:
 	inline static void MarshalObjectToContainer(const KeyType& keyValue, const ElementType& sourceObject, std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>& targetObject)
 	{
-		targetObject.emplace(keyValue, marshal_object_t(), sourceObject);
+		targetObject.emplace(keyValue, marshal_object_tag(), sourceObject);
 	}
 	inline static void MarshalObjectToContainer(const KeyType& keyValue, ElementType&& sourceObject, std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>& targetObject)
 	{
-		targetObject.emplace(keyValue, ElementType(marshal_object_t(), std::move(sourceObject)));
+		targetObject.emplace(keyValue, ElementType(marshal_object_tag(), std::move(sourceObject)));
 	}
 };
 
@@ -500,11 +597,11 @@ class MarshalObjectHelper<std::unordered_multimap<KeyType, ElementType, Hash, Pr
 public:
 	inline static void MarshalObjectToContainer(const KeyType& keyValue, const ElementType& sourceObject, std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>& targetObject)
 	{
-		targetObject.emplace(keyValue, marshal_object_t(), sourceObject);
+		targetObject.emplace(keyValue, marshal_object_tag(), sourceObject);
 	}
 	inline static void MarshalObjectToContainer(const KeyType& keyValue, ElementType&& sourceObject, std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>& targetObject)
 	{
-		targetObject.emplace(keyValue, ElementType(marshal_object_t(), std::move(sourceObject)));
+		targetObject.emplace(keyValue, ElementType(marshal_object_tag(), std::move(sourceObject)));
 	}
 };
 #endif
@@ -534,15 +631,15 @@ public:
 	inline static void MarshalObjectToContainer(const ElementType& sourceObject, std::stack<ElementType, Container>& targetObject)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		targetObject.emplace(marshal_object_t(), sourceObject);
+		targetObject.emplace(marshal_object_tag(), sourceObject);
 #else
-		targetObject.push(ElementType(marshal_object_t(), sourceObject));
+		targetObject.push(ElementType(marshal_object_tag(), sourceObject));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static void MarshalObjectToContainer(ElementType&& sourceObject, std::stack<ElementType, Container>& targetObject)
 	{
-		targetObject.emplace(marshal_object_t(), std::move(sourceObject));
+		targetObject.emplace(marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };
@@ -572,15 +669,15 @@ public:
 	inline static void MarshalObjectToContainer(const ElementType& sourceObject, std::queue<ElementType, Container>& targetObject)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		targetObject.emplace(marshal_object_t(), sourceObject);
+		targetObject.emplace(marshal_object_tag(), sourceObject);
 #else
-		targetObject.push(ElementType(marshal_object_t(), sourceObject));
+		targetObject.push(ElementType(marshal_object_tag(), sourceObject));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static void MarshalObjectToContainer(ElementType&& sourceObject, std::queue<ElementType, Container>& targetObject)
 	{
-		targetObject.emplace(marshal_object_t(), std::move(sourceObject));
+		targetObject.emplace(marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };
@@ -610,15 +707,15 @@ public:
 	inline static void MarshalObjectToContainer(const ElementType& sourceObject, std::priority_queue<ElementType, Container, Compare>& targetObject)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		targetObject.emplace(marshal_object_t(), sourceObject);
+		targetObject.emplace(marshal_object_tag(), sourceObject);
 #else
-		targetObject.push(ElementType(marshal_object_t(), sourceObject));
+		targetObject.push(ElementType(marshal_object_tag(), sourceObject));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static void MarshalObjectToContainer(ElementType&& sourceObject, std::priority_queue<ElementType, Container, Compare>& targetObject)
 	{
-		targetObject.emplace(marshal_object_t(), std::move(sourceObject));
+		targetObject.emplace(marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };
@@ -648,15 +745,15 @@ public:
 	inline static void MarshalObjectToContainer(const ElementType& sourceObject, std::basic_string<ElementType, traits, Alloc>& targetObject)
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		targetObject.emplace_back(marshal_object_t(), sourceObject);
+		targetObject.emplace_back(marshal_object_tag(), sourceObject);
 #else
-		targetObject.push_back(ElementType(marshal_object_t(), sourceObject));
+		targetObject.push_back(ElementType(marshal_object_tag(), sourceObject));
 #endif
 	}
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	inline static void MarshalObjectToContainer(ElementType&& sourceObject, std::basic_string<ElementType, traits, Alloc>& targetObject)
 	{
-		targetObject.emplace_back(marshal_object_t(), std::move(sourceObject));
+		targetObject.emplace_back(marshal_object_tag(), std::move(sourceObject));
 	}
 #endif
 };

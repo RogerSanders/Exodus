@@ -9,11 +9,14 @@
 #include <stack>
 #include <queue>
 #include <string>
+#include <utility>
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 #include <array>
 #include <forward_list>
 #include <unordered_set>
 #include <unordered_map>
+#include <tuple>
+#include <memory>
 #endif
 namespace MarshalSupport {
 namespace Internal {
@@ -70,6 +73,16 @@ private:
 	static no check(std::priority_queue<ElementType, Container, Compare>*);
 	template<class ElementType, class traits, class Alloc>
 	static no check(std::basic_string<ElementType, traits, Alloc>*);
+	template<class T1, class T2>
+	static no check(std::pair<T1, T2>*);
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
+	template<class... Args>
+	static no check(std::tuple<Args...>*);
+#endif
+#ifdef MARSHALSUPPORT_CPP11SUPPORTED
+	template<class T, class Deleter>
+	static no check(std::unique_ptr<T, Deleter>*);
+#endif
 	template<class ElementType>
 	static yes check(ElementType*);
 

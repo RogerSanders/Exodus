@@ -1,14 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="_Documentation">
-      <UniqueIdentifier>{045fbe45-0f37-4388-80d3-a0739a592870}</UniqueIdentifier>
-    </Filter>
     <Filter Include="STLContainerDecomposition">
       <UniqueIdentifier>{49578913-e140-49a0-b9e3-539ac7949a97}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="STLObjectKeyMarshaller">
-      <UniqueIdentifier>{74d55fce-7aac-4c6d-a5cb-6c45fc9f77d7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Marshallers">
       <UniqueIdentifier>{8f3999e8-beb9-4275-b082-281389e51d1f}</UniqueIdentifier>
@@ -27,6 +21,24 @@
     </Filter>
     <Filter Include="Marshallers\Operators">
       <UniqueIdentifier>{c1cde4e5-e66f-48c1-bc8b-ab4140ddf04a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NestedMarshaller">
+      <UniqueIdentifier>{74d55fce-7aac-4c6d-a5cb-6c45fc9f77d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation">
+      <UniqueIdentifier>{0c92340c-2387-4ef8-a51b-6697e8dba7f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\MarshalIn">
+      <UniqueIdentifier>{85d60994-b472-4218-84d9-01e7c4b12388}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\MarshalOut">
+      <UniqueIdentifier>{9c49f01c-2d63-4aae-8bc9-3a5533031a31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\MarshalInOut">
+      <UniqueIdentifier>{de674d92-c3d6-4968-a8de-5a678874dbdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_Documentation\MarshalRet">
+      <UniqueIdentifier>{d2b893b1-14f6-4dc8-9e4f-fb4f5a4cc574}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -56,15 +68,6 @@
     </ClInclude>
     <ClInclude Include="RecomposeSTLContainer.h">
       <Filter>STLContainerDecomposition</Filter>
-    </ClInclude>
-    <ClInclude Include="ISTLObjectKeyMarshaller.h">
-      <Filter>STLObjectKeyMarshaller</Filter>
-    </ClInclude>
-    <ClInclude Include="ISTLObjectKeyMarshallerBase.h">
-      <Filter>STLObjectKeyMarshaller</Filter>
-    </ClInclude>
-    <ClInclude Include="STLObjectKeyMarshaller.h">
-      <Filter>STLObjectKeyMarshaller</Filter>
     </ClInclude>
     <ClInclude Include="IMarshalTarget.h">
       <Filter>MarshalTarget</Filter>
@@ -113,7 +116,6 @@
     <ClInclude Include="GetNextNestedContainerElementType.h">
       <Filter>Type Traits</Filter>
     </ClInclude>
-    <ClInclude Include="MarshalObjectT.h" />
     <ClInclude Include="NestedContainerHasKeys.h">
       <Filter>Type Traits</Filter>
     </ClInclude>
@@ -128,6 +130,34 @@
     </ClInclude>
     <ClInclude Include="MarshalRetStringOperators.inl">
       <Filter>Marshallers\Operators</Filter>
+    </ClInclude>
+    <ClInclude Include="IsOnlyMovable.h">
+      <Filter>Type Traits</Filter>
+    </ClInclude>
+    <ClInclude Include="TupleHelper.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="EnsureSTLContainerKeySizesMatch.h">
+      <Filter>STLContainerDecomposition</Filter>
+    </ClInclude>
+    <ClInclude Include="INestedMarshallerBase.h">
+      <Filter>NestedMarshaller</Filter>
+    </ClInclude>
+    <ClInclude Include="INestedMarshaller.h">
+      <Filter>NestedMarshaller</Filter>
+    </ClInclude>
+    <ClInclude Include="NestedMarshaller.h">
+      <Filter>NestedMarshaller</Filter>
+    </ClInclude>
+    <ClInclude Include="MarshalObjectTag.h" />
+    <ClInclude Include="NoBoundObjectTag.h" />
+    <ClInclude Include="IsAssignable.h">
+      <Filter>Type Traits</Filter>
+    </ClInclude>
+    <ClInclude Include="MarshallableDelete.h" />
+    <ClInclude Include="MarshalOperators.h" />
+    <ClInclude Include="IsComplete.h">
+      <Filter>Type Traits</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -165,10 +195,100 @@
     <None Include="MarshalInOutStringOperators.inl">
       <Filter>Marshallers\Operators</Filter>
     </None>
+    <None Include="EnsureSTLContainerKeySizesMatch.inl">
+      <Filter>STLContainerDecomposition</Filter>
+    </None>
+    <None Include="_Documentation\MarshalIn\Methods.capacity.xml">
+      <Filter>_Documentation\MarshalIn</Filter>
+    </None>
+    <None Include="_Documentation\MarshalIn\Methods.empty.xml">
+      <Filter>_Documentation\MarshalIn</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="_Documentation\MarshalIn\Methods.Constructor.xml">
+      <Filter>_Documentation\MarshalIn</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalIn\Methods.Get.xml">
+      <Filter>_Documentation\MarshalIn</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalIn\Methods.GetWithoutMove.xml">
+      <Filter>_Documentation\MarshalIn</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalIn\Methods.size.xml">
+      <Filter>_Documentation\MarshalIn</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalIn\MarshalIn.xml">
+      <Filter>_Documentation\MarshalIn</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalIn\Methods.GetElement.xml">
+      <Filter>_Documentation\MarshalIn</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalInOut\MarshalInOut.xml">
+      <Filter>_Documentation\MarshalInOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\MarshalOut.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalRet\MarshalRet.xml">
+      <Filter>_Documentation\MarshalRet</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalInOut\Methods.Constructor.xml">
+      <Filter>_Documentation\MarshalInOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.Constructor.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.Set.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.resize.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.reserve.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.SetElement.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.push_back.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.pop_back.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.clear.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.assign.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.AssignFrom.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalOut\Methods.AssignFromWithMove.xml">
+      <Filter>_Documentation\MarshalOut</Filter>
+    </Xml>
+    <Xml Include="_Documentation\TheSolution.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+    <Xml Include="_Documentation\TheProblem.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
     <Xml Include="_Documentation\Overview.xml">
       <Filter>_Documentation</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshallingCustomTypes.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshallingSTLTypes.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+    <Xml Include="_Documentation\InterfaceDesign.xml">
+      <Filter>_Documentation</Filter>
+    </Xml>
+    <Xml Include="_Documentation\MarshalRet\Methods.Constructor.xml">
+      <Filter>_Documentation\MarshalRet</Filter>
     </Xml>
   </ItemGroup>
 </Project>

@@ -14,12 +14,12 @@ public:
 	virtual unsigned int GetIGenericAccessVersion() const;
 
 	//Data info functions
-	MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetGenericDataIDList() const;
+	Marshal::Ret<std::set<unsigned int>> GetGenericDataIDList() const;
 	virtual const IGenericAccessDataInfo* GetGenericDataInfo(unsigned int dataID) const;
 	bool AddGenericDataInfo(const IGenericAccessDataInfo* dataInfo);
 
 	//Command info functions
-	MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetGenericCommandIDList() const;
+	Marshal::Ret<std::set<unsigned int>> GetGenericCommandIDList() const;
 	virtual const IGenericAccessCommandInfo* GetGenericCommandInfo(unsigned int commandID) const;
 	bool AddGenericCommandInfo(const IGenericAccessCommandInfo* commandInfo);
 
@@ -31,8 +31,8 @@ public:
 	//Data read/write functions
 	using B::ReadGenericData;
 	using B::WriteGenericData;
-	bool ReadGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const MarshalSupport::Marshal::Out<std::wstring>& dataValue) const;
-	bool WriteGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const MarshalSupport::Marshal::In<std::wstring>& dataValue);
+	bool ReadGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const Marshal::Out<std::wstring>& dataValue) const;
+	bool WriteGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const Marshal::In<std::wstring>& dataValue);
 	virtual bool ApplyGenericDataValueLimitSettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const;
 	virtual bool ApplyGenericDataValueDisplaySettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const;
 

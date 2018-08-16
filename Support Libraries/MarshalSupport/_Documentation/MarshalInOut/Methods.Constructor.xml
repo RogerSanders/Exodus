@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalInOut.Constructor" Title="Marshal::InOut Constructor" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      Constructs the <TypeRef>Marshal::InOut</TypeRef> helper object. Note that this class is not intended to be explicitly constructed in code, rather, it is
+      expected that objects of this type will be generated automatically by the compiler through implicit conversions from the target object.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <Code Language="C++"><![CDATA[InOut(ContainerType& target)]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="target">
+          The target object to bind to the marshaller.
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalInOut">Marshal::InOut</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

@@ -2,6 +2,7 @@
 #define __IWATCHPOINT_H__
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IWatchpoint
 {
@@ -26,9 +27,9 @@ public:
 	virtual void SetBreakEvent(bool state) = 0;
 
 	//Name functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GenerateName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual void SetName(const Marshal::In<std::wstring>& aname) = 0;
+	virtual Marshal::Ret<std::wstring> GenerateName() const = 0;
 
 	//Location condition functions
 	virtual bool GetLocationConditionNot() const = 0;

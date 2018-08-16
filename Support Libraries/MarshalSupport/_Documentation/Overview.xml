@@ -1,18 +1,40 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<XMLDocContent PageName="SupportLibraries.MarshalSupport" Title="MarshalSupport Support Library" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
-  <Section Title="Description">
+<XMLDocContent PageName="SupportLibraries.MarshalSupport" Title="MarshalSupport Library Overview" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Overview">
     <Paragraph>
-      The MarshalSupport library is an advanced library which provides easy, and in most cases transparent, exchange of objects between assemblies in
-      C++, even if the sender and receiver represent the object differently. This library is particularly good for sending STL objects, or custom
-      types that contain STL objects, across pure virtual interfaces that are being exchanged between assemblies. This is something that is extremely
-      difficult to achieve in C++, and that the language provides no support for. The MarshalSupport library solves this problem comprehensively for
-      any C++03 conformant compiler onwards, and allows exchange of any types between assemblies over pure virtual interfaces, where the assemblies
-      support at least enough ABI compatibility to exchange pure virtual interfaces.
+      The MarshalSupport library is an advanced header-only template library which enables easy and largely transparent exchange of objects between assemblies
+      in C++, even if the sender and receiver represent the object differently, and even if different memory heaps are used between assemblies. This potentially
+      allows different assemblies to communicate and exchange complex types where different compiler types, versions, settings, and incompatible STL
+      implementations are used between them.
     </Paragraph>
+
+    <Paragraph>
+      This library is perfectly suited for exchanging objects over extern "C" exported functions or pure virtual interfaces, including instances of STL types
+      or instances of custom types that contain STL objects, without requiring the same compiler version and settings to be used when consuming the assembly.
+      This is something that is extremely difficult to achieve in C++, and which the language currently provides no support for. Simply compiling two assemblies
+      in different configurations like "debug" and "release" is enough to make assemblies incompatible on most implementations. The MarshalSupport library
+      solves this problem comprehensively for any C++03 conformant compiler onwards, and allows exchange of potentially any data structures, where the
+      assemblies have at least enough C++ ABI compatibility to exchange pure virtual interfaces. Applications that want to use plugin-based systems, provide
+      external C++ based APIs, or adopt a distributed application model, or any other scenario involving native code compiled separately needing to communicate
+      within the same process, can benefit from this library.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Detailed Information">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.Problem">Understanding the Problem</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.Solution">Understanding the Solution</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshallingSTL">Marshalling STL Types</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshallingCustom">Marshalling Custom Types</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.InterfaceDesign">Interface Design</PageRefListEntry>
+    </PageRefList>
   </Section>
 
   <Section Title="Public Members">
     <SubSection Title="Marshal Operators">
+      <Paragraph>
+        Marshal operators are the recommended way to perform marshalling.
+      </Paragraph>
       <PageRefList>
         <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
         <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRefListEntry>
@@ -20,26 +42,47 @@
         <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalRet">Marshal::Ret</PageRefListEntry>
       </PageRefList>
     </SubSection>
-    <SubSection Title="Marshal Classes">
+    <SubSection Title="Marshal Constructor Helpers">
+      <Paragraph>
+        These types are involved in the process of creating marshal constructors for user-defined types.
+      </Paragraph>
       <PageRefList>
-        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.IMarshalSource">IMarshalSource</PageRefListEntry>
-        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.IMarshalTarget">IMarshalTarget</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshallingCustom">marshal_object_tag</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshallingCustom">IMarshallingObject</PageRefListEntry>
+      </PageRefList>
+    </SubSection>
+    <SubSection Title="Low-level Marshal Types">
+      <Paragraph>
+        These types form part of the public API, but generally should not need to be used directly in code.
+      </Paragraph>
+      <PageRefList>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalSource">IMarshalSource</PageRefListEntry>
         <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalSource">MarshalSource</PageRefListEntry>
+        <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalTarget">IMarshalTarget</PageRefListEntry>
         <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalTarget">MarshalTarget</PageRefListEntry>
       </PageRefList>
     </SubSection>
   </Section>
 
-  <Section Title="Status of the library">
+  <Section Title="Status of the Library">
     <Paragraph>
-      This library is in an extremely advanced and mature state, with a high level of optimization in place, as well as extensive cross-compiler
-      testing having been performed. A full set of unit tests has also been developed. This library is considered stable and available for use in all
-      areas of code.
+      This library is in an extremely advanced and mature state, with a high level of optimization in place, as well as extensive cross-compiler testing having
+      been performed. Full support is provided for any compiler supporting at least C++03 and higher, with up to date support also included for all relevant
+      C++11, C++14, and C++17(draft) features and types. A comprehensive set of unit tests is provided to verify the operation of the library. This library is
+      considered stable and available for use in all areas of code.
     </Paragraph>
     <Paragraph>
-      The only planned future changes to this library are to add support for new container types. Full support for C++11 container types is provided
-      currently, with the exception of std::pair and std::tuple, both of which we should support in the future. The C++14 standards and onwards have
-      not been considered yet.
+      Note that there has been interest in having the MarshalSupport library included as part of the <URL DisplayName="Boost C++ Libraries">http://www.boost.org</URL>
+      project. If this library is adopted by Boost, and compatibility is maintained with the existing implementation here, consideration should be given to
+      migrating to the Boost implementation.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Authorship and License">
+    <Paragraph>
+      The MarshalSupport library was developed by Roger Sanders independently of Maptek, and usage is granted to Maptek under the terms of the <URL DisplayName="MS-PL">https://opensource.org/licenses/MS-PL</URL>.
+      Express permission was granted for enhancements made to this library while under paid employment for Maptek to be contributed back to other privately and
+      publicly available distributions of this library, without any claim of copyright or ownership attributed to Maptek or any of its affiliated organisations.
     </Paragraph>
   </Section>
 </XMLDocContent>

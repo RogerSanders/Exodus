@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const
+unsigned int S315_5313::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
 	if(lineName == L"IPL")        //O
 	{
@@ -37,7 +37,7 @@ unsigned int S315_5313::GetLineID(const MarshalSupport::Marshal::In<std::wstring
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> S315_5313::GetLineName(unsigned int lineID) const
+Marshal::Ret<std::wstring> S315_5313::GetLineName(unsigned int lineID) const
 {
 	switch((LineID)lineID)
 	{
@@ -646,7 +646,7 @@ void S315_5313::UpdateLineStateChangePrediction(unsigned int lineNo, unsigned in
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const
+unsigned int S315_5313::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const
 {
 	if(clockSourceName == L"MCLK")
 	{
@@ -656,7 +656,7 @@ unsigned int S315_5313::GetClockSourceID(const MarshalSupport::Marshal::In<std::
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> S315_5313::GetClockSourceName(unsigned int clockSourceID) const
+Marshal::Ret<std::wstring> S315_5313::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch((ClockID)clockSourceID)
 	{
@@ -693,7 +693,7 @@ void S315_5313::TransparentSetClockSourceRate(unsigned int clockInput, double cl
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int S315_5313::GetCELineID(const MarshalSupport::Marshal::In<std::wstring>& lineName, bool inputLine) const
+unsigned int S315_5313::GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const
 {
 	if(lineName == L"LDS")
 	{
@@ -1973,7 +1973,7 @@ void S315_5313::SetPortMonitorLength(unsigned int state)
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<S315_5313::PortMonitorEntry>> S315_5313::GetPortMonitorLog() const
+Marshal::Ret<std::list<S315_5313::PortMonitorEntry>> S315_5313::GetPortMonitorLog() const
 {
 	std::unique_lock<std::mutex> lock(portMonitorMutex);
 	return portMonitorList;

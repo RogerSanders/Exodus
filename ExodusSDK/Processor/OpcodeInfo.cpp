@@ -42,61 +42,61 @@ void OpcodeInfo::SetOpcodeSize(unsigned int state)
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> OpcodeInfo::GetOpcodeNameDisassembly() const
+Marshal::Ret<std::wstring> OpcodeInfo::GetOpcodeNameDisassembly() const
 {
 	return disassemblyOpcode;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetOpcodeNameDisassembly(const MarshalSupport::Marshal::In<std::wstring>& state)
+void OpcodeInfo::SetOpcodeNameDisassembly(const Marshal::In<std::wstring>& state)
 {
 	disassemblyOpcode = state;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> OpcodeInfo::GetOpcodeArgumentsDisassembly() const
+Marshal::Ret<std::wstring> OpcodeInfo::GetOpcodeArgumentsDisassembly() const
 {
 	return disassemblyArguments;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetOpcodeArgumentsDisassembly(const MarshalSupport::Marshal::In<std::wstring>& state)
+void OpcodeInfo::SetOpcodeArgumentsDisassembly(const Marshal::In<std::wstring>& state)
 {
 	disassemblyArguments = state;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> OpcodeInfo::GetDisassemblyComment() const
+Marshal::Ret<std::wstring> OpcodeInfo::GetDisassemblyComment() const
 {
 	return disassemblyComment;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetDisassemblyComment(const MarshalSupport::Marshal::In<std::wstring>& state)
+void OpcodeInfo::SetDisassemblyComment(const Marshal::In<std::wstring>& state)
 {
 	disassemblyComment = state;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::set<unsigned int>> OpcodeInfo::GetLabelTargetLocations() const
+Marshal::Ret<std::set<unsigned int>> OpcodeInfo::GetLabelTargetLocations() const
 {
 	return labelTargetLocations;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetLabelTargetLocations(const MarshalSupport::Marshal::In<std::set<unsigned int>>& state)
+void OpcodeInfo::SetLabelTargetLocations(const Marshal::In<std::set<unsigned int>>& state)
 {
 	labelTargetLocations = state;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::set<unsigned int>> OpcodeInfo::GetResultantPCLocations() const
+Marshal::Ret<std::set<unsigned int>> OpcodeInfo::GetResultantPCLocations() const
 {
 	return resultantPCLocations;
 }
 
 //----------------------------------------------------------------------------------------
-void OpcodeInfo::SetResultantPCLocations(const MarshalSupport::Marshal::In<std::set<unsigned int>>& state)
+void OpcodeInfo::SetResultantPCLocations(const Marshal::In<std::set<unsigned int>>& state)
 {
 	resultantPCLocations = state;
 }

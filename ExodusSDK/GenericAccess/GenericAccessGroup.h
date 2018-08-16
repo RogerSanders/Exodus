@@ -27,14 +27,14 @@ public:
 	inline GenericAccessGroup* SetDataContext(const IGenericAccess::DataContext* adataContext);
 
 	//Group info methods
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
+	virtual Marshal::Ret<std::wstring> GetName() const;
 	inline GenericAccessGroup* SetName(const std::wstring& aname);
 	virtual bool GetOpenByDefault() const;
 	inline GenericAccessGroup* SetOpenByDefault(bool state);
 
 	//Entry methods
 	virtual unsigned int GetEntryCount() const;
-	virtual MarshalSupport::Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GetEntries() const;
+	virtual Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GetEntries() const;
 	inline GenericAccessGroup* AddEntry(IGenericAccessGroupEntry* entry);
 	inline GenericAccessGroup* RemoveEntry(IGenericAccessGroupEntry* entry);
 

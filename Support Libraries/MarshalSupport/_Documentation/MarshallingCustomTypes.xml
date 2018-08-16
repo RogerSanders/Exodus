@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshallingCustom" Title="MarshalSupport Library - Marshalling Custom Types" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Marshalling Custom Types">
+    <Paragraph>
+      Application-specific classes and structures may require marshalling themselves in order to share between assemblies. Serious consideration should be given
+      to exposing types through <PageRef PageName="SupportLibraries.MarshalSupport.InterfaceDesign">interfaces</PageRef> where appropriate, however for simple
+      structures that happen to contain STL types, it may be preferable to marshal them instead. Note that types do not require marshalling if they contain only
+      primitive types. Basic structures like a point class for example may meet this requirement, and in these cases, the type can be directly shared between
+      assemblies without marshalling. Any type that contains STL data members however must be marshalled or exposed through interfaces. As a general guideline,
+      basic data structures which essentially just hold values, and provide little functionality through methods, and generally don't use inheritance or virtual
+      functions, may be appropriate for marshalling. Types which involve virtual methods or lot of functionality through non-virtual methods, may be more
+      appropriate to expose via interfaces.
+    </Paragraph>
+  </Section>
+  <Section Title="Defining a Marshallable Type">
+    <Paragraph>
+      Very few requirements need to be met for a class to qualify as marshallable through the MarshalSupport library. Types do not need to have default
+      constructors, nor do they need to be copyable. Move-only types which require constructor arguments can be successfully marshalled for example, either by
+      themselves or within STL containers which support such types. The main requirement in order to be able to correctly marshal a type is that it generally
+      needs to be possible to define and call a virtual method on that type between assemblies, so the vtable implementation of that type at least needs to be
+      compatible between assemblies. Some guidance for ABI compatibility is given in <PageRef PageName="SupportLibraries.MarshalSupport.Problem">the problem</PageRef>,
+      however in this case full compatibility isn't required for a type, simply enough to ensure that one method can be successfully called from the vtable.
+      If your type doesn't use inheritance, it will be marshallable. If inheritance is used, please refer to information for your specific compiler and platform
+      to determine whether marshalling can be supported.
+    </Paragraph>
+    <Paragraph>
+      Types are made marshallable by defining a "marshalling constructor", which like a copy or move constructor takes a reference to an existing object as an
+      argument, and copies or moves the contents from the existing object into the object being constructed. A marshalling constructor is a constructor which
+      takes as a first parameter a type of <TypeRef>marshal_object_tag</TypeRef>, with a second parameter being a reference to the source object to marshal.
+      Given the following type:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[struct SomeType
+{
+    SomeType(int someArg)
+    :data1(someArg)
+    { }
+
+    int data1;
+    float data2;
+    std::string data3;
+};]]></Code>
+    <Paragraph>
+      Here's what the declarations for marshalling constructors would look like:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[SomeType(MarshalSupport::marshal_object_tag, const SomeType& source);
+SomeType(MarshalSupport::marshal_object_tag, SomeType&& source);]]></Code>
+    <Paragraph>
+      Just like copy and move constructors, marshalling constructors can take either or both of these forms, one copying the source data, and one moving it. If
+      a type is copyable, it must have a marshalling constructor that performs a copy. The move form of the marshalling constructor is optional in all cases,
+      unless the type is non-copyable and can only be moved. Where both the copy and move forms are present, the move form of the marshalling constructor will
+      be called in all cases where it is possible to do so.
+    </Paragraph>
+  </Section>
+  <Section Title="Implementing a Marshalling Constructor">
+    <Paragraph>
+      Marshalling constructors are called automatically by the MarshalSupport library when objects are being marshalled, either by themselves or within STL
+      containers. The marshalling constructor is invoked on the receiving assembly side, with a reference passed in to the existing source object from the
+      sender. These two objects exist across the assembly boundary, so we can't just access the data members in the source object and copy them directly. If we
+      could assume that level of compatibility between the objects, we wouldn't need to marshal the object at all. We now need a safe way to copy or move data
+      from the source object into the target object which is currently being constructed. The technique for doing this is to effectively use the same techniques
+      the MarshalSupport library uses internally. We're going to decompose our complex type into its elements, and use virtual functions as assembly barriers to
+      safely pass this data between assemblies. See <PageRef PageName="SupportLibraries.MarshalSupport.Solution">the solution</PageRef> for information on
+      these techniques.
+    </Paragraph>
+    <Paragraph>
+      Using the same structure we showed before, we can implement our marshalling constructor as follows:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[struct SomeType
+{
+public:
+    SomeType(int someArg)
+    :data1(someArg)
+    { }
+    SomeType(MarshalSupport::marshal_object_tag, const SomeType& source)
+    {
+        MarshalData(data1, data2, data3);
+    }
+
+protected:
+    virtual void MarshalData(int& data1Target, int data2Target, const Marshal::Out<std::string>& data3Target)
+    {
+        data1Target = data1;
+        data2Target = data2;
+        data3Target = data3;
+    }
+
+public:
+    int data1;
+    float data2;
+    std::string data3;
+};]]></Code>
+    <Paragraph>
+      We only implement the copy form of the marshalling constructor here, which in many cases is all you'll want to do. If you want to implement a marshalling
+      constructor which performs a move, the techniques are the same as for writing a move constructor, in that you need to use <TypeRef>std::move</TypeRef>
+      when assigning the members for which you want a move to be performed. Note that since STL containers are expected to be incompatible across the assembly
+      boundary, internal resources within STL containers cannot be directly transferred during marshalling in the way they might normally be when doing a move.
+      Generally this means STL types cannot benefit from doing a move operation, and it's only resources you allocate within your own objects, like buffers
+      directly allocated from the heap, which can have their ownership transferred, although in this case you'll need to make measures to ensure it is
+      deallocated from the correct heap.
+    </Paragraph>
+    <Paragraph>
+      Although not useful in this case, if you wanted to add the move form of a marshalling constructor to our example type, it could be implemented as follows:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[struct SomeType
+{
+public:
+    SomeType(int someArg)
+    :data1(someArg)
+    { }
+    SomeType(MarshalSupport::marshal_object_tag, const SomeType& source)
+    {
+        MarshalData(data1, data2, data3);
+    }
+    SomeType(MarshalSupport::marshal_object_tag, SomeType&& source)
+    {
+        MarshalDataWithMove(data1, data2, data3);
+    }
+
+protected:
+    virtual void MarshalData(int& data1Target, int data2Target, const Marshal::Out<std::string>& data3Target)
+    {
+        data1Target = data1;
+        data2Target = data2;
+        data3Target = data3;
+    }
+    virtual void MarshalDataWithMove(int& data1Target, int data2Target, const Marshal::Out<std::string>& data3Target)
+    {
+        data1Target = data1;
+        data2Target = data2;
+        data3Target = std::move(data3);
+    }
+
+public:
+    int data1;
+    float data2;
+    std::string data3;
+};]]></Code>
+  </Section>
+  <Section Title="Additional Requirements for C++03 ">
+    <Paragraph>
+      If you are using a compiler which only has C++03 support, and is lacking C++11 features, an additional requirement exists in order to make your type
+      marshallable. In this case, your type must inherit from the <TypeRef>IMarshallingObject</TypeRef> base class, which is empty. This class only exists to
+      identify that your custom type supports marshalling. This is required in C++03, as a lack of compiler support for type traits makes it impossible to
+      detect the presence of a constructor accepting a particular set of arguments. The use of the <TypeRef>IMarshallingObject</TypeRef> base class is not
+      recommended unless you know you need to support compilation in an environment without C++11 type trait support.
+    </Paragraph>
+  </Section>
+  <Section Title="Extending the MarshalSupport Library">
+    <Paragraph>
+      The MarshalSupport library includes inbuilt support for types defined in the C++ Standard Template Library, which are considered core types that are
+      expected to be used and encountered throughout a program. You may however have additional types that are considered "standard types" in your codebase,
+      such as types defined in the <URL DisplayName="Boost C++ Libraries">http://www.boost.org</URL>, or possibly your own custom types such as a highly
+      optimized hashmap implementation.
+    </Paragraph>
+    <Paragraph>
+      Note that careful consideration should be given as to whether custom types such as this should be exposed over your interfaces from your assemblies. These
+      types will form part of your public API, and will need to be kept and preserved on that API into the future. Where a type isn't truly a core type for your
+      team that you intend to use forever into the future, it may be more appropriate to restrict yourself to types defined in the STL, especially where your
+      custom types provide identical or similar functionality to STL types, but are merely used for historical or current performance reasons. If you have
+      determined you truly have a container or similar type which fits the definition of a standard type for your product, and it isn't appropriate or practical
+      to modify the type to add marshalling support by defining marshalling constructors, another option exists, which is to extend the MarshalSupport library
+      to natively support marshalling of your type.
+    </Paragraph>
+    <Paragraph>
+      The MarshalSupport library has been carefully designed to avoid any "closed type" definitions in its structure. In any place where behaviour needs to be
+      adjusted based on the types being used, template specialization and overload resolution is used to provide the custom behaviour. All types and functions
+      that need to have more specializations or overloads added in order to extend support for new types are defined at the namespace level. This makes it easy
+      to add support for custom types natively within the library, as no existing library code needs to be modified. All the required extensions can be made in
+      an externally defined header file, which simply needs to be included after the MarshalSupport headers in the application code to extend support to any
+      custom types.
+    </Paragraph>
+    <Paragraph>
+      A stable API for extending the MarshalSupport library is not guaranteed, and there may be breaking changes between versions that require modifications to
+      be made in order to retain support for custom types. It is guaranteed however that the ability to externally extend the MarshalSupport library to cover
+      new types will always be retained, so it will be possible to adapt extensions if breaking API changes occur. Full instructions for how to extend the
+      MarshalSupport library for additional types will not be given here. Please refer to the library code itself to determine the points at which extensions
+      are required for the particular type you require.
+    </Paragraph>
+  </Section>
+</XMLDocContent>

@@ -204,7 +204,7 @@ bool ViewBase::SaveViewState(IHierarchicalStorageNode& viewState) const
 //----------------------------------------------------------------------------------------
 //New window state
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ViewBase::GetViewDockingGroup() const
+Marshal::Ret<std::wstring> ViewBase::GetViewDockingGroup() const
 {
 	return viewDockingGroup;
 }

@@ -2,6 +2,7 @@
 #define __ISYSTEMDEVICEINTERFACE_H__
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class ISystemDeviceInterface
 {
@@ -20,7 +21,7 @@ public:
 	virtual unsigned int GetISystemDeviceInterfaceVersion() const = 0;
 
 	//Path functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetCapturePath() const = 0;
+	virtual Marshal::Ret<std::wstring> GetCapturePath() const = 0;
 
 	//Logging functions
 	virtual void WriteLogEvent(const ILogEntry& entry) const = 0;

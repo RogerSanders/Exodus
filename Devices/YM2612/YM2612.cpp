@@ -522,7 +522,7 @@ void YM2612::Reset(double accessTime)
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool YM2612::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
+bool YM2612::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	if(referenceName == L"BusInterface")
 	{
@@ -547,7 +547,7 @@ void YM2612::RemoveReference(IBusInterface* target)
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const
+unsigned int YM2612::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
 	if(lineName == L"IRQ")     //O
 	{
@@ -561,7 +561,7 @@ unsigned int YM2612::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& 
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> YM2612::GetLineName(unsigned int lineID) const
+Marshal::Ret<std::wstring> YM2612::GetLineName(unsigned int lineID) const
 {
 	switch((LineID)lineID)
 	{
@@ -626,7 +626,7 @@ void YM2612::NegateCurrentOutputLineState() const
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int YM2612::GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const
+unsigned int YM2612::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const
 {
 	if(clockSourceName == L"0M")
 	{
@@ -636,7 +636,7 @@ unsigned int YM2612::GetClockSourceID(const MarshalSupport::Marshal::In<std::wst
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> YM2612::GetClockSourceName(unsigned int clockSourceID) const
+Marshal::Ret<std::wstring> YM2612::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch((ClockID)clockSourceID)
 	{

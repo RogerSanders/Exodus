@@ -3,6 +3,7 @@
 #include "MarshalSupport/MarshalSupport.pkg"
 #include "IGenericAccessGroup.h"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IGenericAccessPage
 {
@@ -20,8 +21,8 @@ public:
 
 	//Page info functions
 	virtual Type GetPageType() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetTitle() const = 0;
+	virtual Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetTitle() const = 0;
 
 	//Content functions
 	virtual const IGenericAccessGroup* GetContentRoot() const = 0;

@@ -27,6 +27,9 @@
   <!-- Process the root "XMLDocContent" element -->
   <xsl:template match="/doc:XMLDocContent">
     <html>
+      <link rel="stylesheet" href="../styles/source.css"/>
+      <script src="../scripts/highlight.pack.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script>
       <head>
         <title>
           <xsl:value-of select="@Title"/>
@@ -132,7 +135,7 @@
       </xsl:when>
       <xsl:otherwise>
         <li class="tocGroupListEntry">
-          <span class="nolink"><xsl:value-of select="@Title"/></span>
+          <span class="tocGroupHeaderNoLink"><xsl:value-of select="@Title"/></span>
           <ul class="tocGroupChildList">
             <xsl:apply-templates/>
           </ul>
@@ -159,7 +162,7 @@
         <li class="tocGroupListEntry">
           <xsl:choose>
             <xsl:when test="contains($TypeFilesPresent,concat('[',@PageName,']'))">
-              <a href="{@PageName}.html" target="_top"><xsl:value-of select="@Title"/></a>
+              <a class="tocGroupHeaderWithLink" href="{@PageName}.html" target="_top"><xsl:value-of select="@Title"/></a>
             </xsl:when>
             <xsl:otherwise>
               <span class="missinglink"><xsl:value-of select="@Title"/></span>
@@ -206,6 +209,14 @@
       <xsl:apply-templates mode="copy"/>
   </xsl:template>
 
+  <!-- Process "URL" elements -->
+  <xsl:template match="doc:URL">
+    <a href="{.}" target="_blank"><xsl:value-of select="."/></a>
+  </xsl:template>
+  <xsl:template match="doc:URL[@DisplayName]">
+    <a href="{.}" target="_blank"><xsl:value-of select="@DisplayName"/></a>
+  </xsl:template>
+
   <!-- Process "Paragraph" elements -->
   <xsl:template match="doc:Paragraph">
     <p><xsl:apply-templates/></p>
@@ -213,7 +224,58 @@
 
   <!-- Process "Code" elements -->
   <xsl:template match="doc:Code">
-    <pre class="sourceCode"><xsl:value-of select="."/></pre>
+    <xsl:choose>
+      <xsl:when test="@Language='C#'">
+        <pre class="sourceCode"><code class="cs"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='XML'">
+        <pre class="sourceCode"><code class="xml"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='XAML'">
+        <pre class="sourceCode"><code class="xml"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='C'">
+        <pre class="sourceCode"><code class="cpp"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='C++'">
+        <pre class="sourceCode"><code class="cpp"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='C++/CLI'">
+        <pre class="sourceCode"><code class="cpp"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='Python'">
+        <pre class="sourceCode"><code class="py"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='Perl'">
+        <pre class="sourceCode"><code class="pl"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='Ruby'">
+        <pre class="sourceCode"><code class="rb"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='PowerShell'">
+        <pre class="sourceCode"><code class="ps"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='WindowsBatch'">
+        <pre class="sourceCode"><code class="cmd"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='Bash'">
+        <pre class="sourceCode"><code class="sh"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='VB'">
+        <pre class="sourceCode"><code class="vb"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:when test="@Language='VBScript'">
+        <pre class="sourceCode"><code class="vbscript"><xsl:value-of select="."/></code></pre>
+      </xsl:when>
+      <xsl:otherwise>
+        <pre class="sourceCode"><code><xsl:value-of select="."/></code></pre>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- Process "TypeRef" elements -->
+  <xsl:template match="doc:TypeRef">
+    <span class="typeRef"><xsl:value-of select="."/></span>
   </xsl:template>
 
   <!-- Process "Image" elements -->
@@ -231,6 +293,25 @@
     </xsl:choose>
   </xsl:template>
 
+  <!-- Process "Download" elements -->
+  <xsl:template match="doc:Download">
+    <a href="../downloads/{.}"><xsl:value-of select="."/></a>
+  </xsl:template>
+
+  <!-- Process "List" elements -->
+  <xsl:template match="doc:List">
+    <ul class="list">
+      <xsl:apply-templates select="doc:ListEntry"/>
+    </ul>
+  </xsl:template>
+
+  <!-- Process "ListEntry" elements -->
+  <xsl:template match="doc:ListEntry">
+    <li class="listEntry">
+      <xsl:apply-templates/>
+    </li>
+  </xsl:template>
+
   <!-- Process "PageRef" elements -->
   <xsl:template match="doc:PageRef">
     <xsl:choose>
@@ -241,6 +322,27 @@
         <span class="missinglink"><xsl:value-of select="."/></span>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <!-- Process "PageRefList" elements -->
+  <xsl:template match="doc:PageRefList">
+    <ul class="pageRefList">
+      <xsl:apply-templates select="doc:PageRefListEntry"/>
+    </ul>
+  </xsl:template>
+
+  <!-- Process "PageRefListEntry" elements -->
+  <xsl:template match="doc:PageRefListEntry">
+    <li class="pageRefListEntry">
+      <xsl:choose>
+        <xsl:when test="contains($TypeFilesPresent,concat('[',@PageName,']'))">
+          <a href="{@PageName}.html"><xsl:value-of select="."/></a>
+        </xsl:when>
+        <xsl:otherwise>
+          <span class="missinglink"><xsl:value-of select="."/></span>
+        </xsl:otherwise>
+      </xsl:choose>
+    </li>
   </xsl:template>
 
   <!-- Process "FunctionMemberList" elements -->
@@ -262,6 +364,9 @@
         <xsl:if test="@Deprecated">
           <img title="Deprecated member" alt="Deprecated member" src="../images/icons/Caution.gif"/>
         </xsl:if>
+        <xsl:if test="@Blocked">
+          <img title="Blocked member. This member may be called internally, but is not available to be called directly from external code." alt="Blocked member" src="../images/icons/cross.gif"/>
+        </xsl:if>
         <xsl:if test="@Static">
           <img title="Static member" alt="Static member" src="../images/icons/static.gif"/>
         </xsl:if>
@@ -274,6 +379,9 @@
           </xsl:when>
           <xsl:when test="@Visibility='Private'">
             <img title="Private member" alt="Private member" src="../images/icons/privmethod.gif"/>
+          </xsl:when>
+          <xsl:when test="@Visibility='Internal'">
+            <img title="Internal member" alt="Internal member" src="../images/icons/privmethod.gif"/>
           </xsl:when>
         </xsl:choose>
       </td>
@@ -335,6 +443,9 @@
           <xsl:when test="@Visibility='Private'">
             <img title="Private member" alt="Private member" src="../images/icons/privfield.gif"/>
           </xsl:when>
+          <xsl:when test="@Visibility='Internal'">
+            <img title="Internal member" alt="Internal member" src="../images/icons/privfield.gif"/>
+          </xsl:when>
         </xsl:choose>
       </td>
       <td class="dataMembersData nameColumn">
@@ -375,6 +486,202 @@
         </xsl:choose>
       </td>
       <td class="dataMembersData descriptionColumn">
+        <div class="summary">
+          <xsl:apply-templates/>
+        </div>
+      </td>
+    </tr>
+  </xsl:template>
+
+  <!-- Process "EnumMemberList" elements -->
+  <xsl:template match="doc:EnumMemberList">
+    <table class="enumMembers">
+      <tr class="enumMembersRow">
+        <th class="enumMembersHeader iconColumn"></th>
+        <th class="enumMembersHeader nameColumn">Name</th>
+        <th class="enumMembersHeader descriptionColumn">Description</th>
+      </tr>
+      <xsl:apply-templates select="doc:EnumMemberListEntry"/>
+    </table>
+  </xsl:template>
+
+  <!-- Process "EnumMemberListEntry" elements -->
+  <xsl:template match="doc:EnumMemberListEntry">
+    <tr class="enumMembersRow">
+      <td class="enumMembersData iconColumn">
+        <xsl:if test="@Deprecated">
+          <img title="Deprecated member" alt="Deprecated member" src="../images/icons/Caution.gif"/>
+        </xsl:if>
+        <img title="Public Enum" alt="Public Enum" src="../images/icons/pubenumeration.gif"/>
+      </td>
+      <td class="enumMembersData nameColumn">
+        <xsl:choose>
+          <xsl:when test="@PageName">
+            <xsl:choose>
+              <xsl:when test="contains($TypeFilesPresent,concat('[',@PageName,']'))">
+                <a href="{@PageName}.html"><xsl:value-of select="@Name"/></a>
+              </xsl:when>
+              <xsl:otherwise>
+                <span class="missinglink"><xsl:value-of select="@Name"/></span>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:otherwise>
+            <span class="nolink"><xsl:value-of select="@Name"/></span>
+          </xsl:otherwise>
+        </xsl:choose>
+      </td>
+      <td class="enumMembersData descriptionColumn">
+        <div class="summary">
+          <xsl:apply-templates/>
+        </div>
+      </td>
+    </tr>
+  </xsl:template>
+
+  <!-- Process "TypeMemberList" elements -->
+  <xsl:template match="doc:TypeMemberList">
+    <table class="typeMembers">
+      <tr class="typeMembersRow">
+        <th class="typeMembersHeader iconColumn"></th>
+        <th class="typeMembersHeader nameColumn">Name</th>
+        <th class="typeMembersHeader descriptionColumn">Description</th>
+      </tr>
+      <xsl:apply-templates select="doc:TypeMemberListEntry"/>
+    </table>
+  </xsl:template>
+
+  <!-- Process "TypeMemberListEntry" elements -->
+  <xsl:template match="doc:TypeMemberListEntry">
+    <tr class="typeMembersRow">
+      <td class="typeMembersData iconColumn">
+        <xsl:if test="@Deprecated">
+          <img title="Deprecated member" alt="Deprecated member" src="../images/icons/Caution.gif"/>
+        </xsl:if>
+        <xsl:if test="@Static">
+          <img title="Static member" alt="Static member" src="../images/icons/static.gif"/>
+        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="@Visibility='Public'">
+            <xsl:choose>
+              <xsl:when test="@TypeCategory='Interface'">
+                <img title="Public Interface" alt="Public Interface" src="../images/icons/pubinterface.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Class'">
+                <img title="Public Class" alt="Public Class" src="../images/icons/pubclass.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Struct'">
+                <img title="Public Struct" alt="Public Struct" src="../images/icons/pubstructure.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Enumeration'">
+                <img title="Public Enum" alt="Public Enum" src="../images/icons/pubenumeration.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Delegate'">
+                <img title="Public Delegate" alt="Public Delegate" src="../images/icons/pubdelegate.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Event'">
+                <img title="Public Event" alt="Public Event" src="../images/icons/pubevent.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Library'">
+                <img title="Library" alt="Library" src="../images/icons/pubevent.gif"/>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="@Visibility='Protected'">
+            <xsl:choose>
+              <xsl:when test="@TypeCategory='Interface'">
+                <img title="Protected Interface" alt="Protected Interface" src="../images/icons/protinterface.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Class'">
+                <img title="Protected Class" alt="Protected Class" src="../images/icons/protclass.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Struct'">
+                <img title="Protected Struct" alt="Protected Struct" src="../images/icons/protstructure.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Enumeration'">
+                <img title="Protected Enum" alt="Protected Enum" src="../images/icons/protenumeration.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Delegate'">
+                <img title="Protected Delegate" alt="Protected Delegate" src="../images/icons/protdelegate.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Event'">
+                <img title="Protected Event" alt="Protected Event" src="../images/icons/protevent.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Library'">
+                <img title="Library" alt="Library" src="../images/icons/pubevent.gif"/>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="@Visibility='Private'">
+            <xsl:choose>
+              <xsl:when test="@TypeCategory='Interface'">
+                <img title="Private Interface" alt="Private Interface" src="../images/icons/privinterface.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Class'">
+                <img title="Private Class" alt="Private Class" src="../images/icons/privclass.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Struct'">
+                <img title="Private Struct" alt="Private Struct" src="../images/icons/privstructure.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Enumeration'">
+                <img title="Private Enum" alt="Private Enum" src="../images/icons/privenumeration.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Delegate'">
+                <img title="Private Delegate" alt="Private Delegate" src="../images/icons/privdelegate.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Event'">
+                <img title="Private Event" alt="Private Event" src="../images/icons/privevent.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Library'">
+                <img title="Library" alt="Library" src="../images/icons/pubevent.gif"/>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="@Visibility='Internal'">
+            <xsl:choose>
+              <xsl:when test="@TypeCategory='Interface'">
+                <img title="Internal Interface" alt="Internal Interface" src="../images/icons/privinterface.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Class'">
+                <img title="Internal Class" alt="Internal Class" src="../images/icons/privclass.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Struct'">
+                <img title="Internal Struct" alt="Internal Struct" src="../images/icons/privstructure.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Enumeration'">
+                <img title="Internal Enum" alt="Internal Enum" src="../images/icons/privenumeration.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Delegate'">
+                <img title="Internal Delegate" alt="Internal Delegate" src="../images/icons/privdelegate.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Event'">
+                <img title="Internal Event" alt="Internal Event" src="../images/icons/privevent.gif"/>
+              </xsl:when>
+              <xsl:when test="@TypeCategory='Library'">
+                <img title="Library" alt="Library" src="../images/icons/pubevent.gif"/>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+        </xsl:choose>
+      </td>
+      <td class="typeMembersData nameColumn">
+        <xsl:choose>
+          <xsl:when test="@PageName">
+            <xsl:choose>
+              <xsl:when test="contains($TypeFilesPresent,concat('[',@PageName,']'))">
+                <a href="{@PageName}.html"><xsl:value-of select="@Name"/></a>
+              </xsl:when>
+              <xsl:otherwise>
+                <span class="missinglink"><xsl:value-of select="@Name"/></span>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:otherwise>
+            <span class="nolink"><xsl:value-of select="@Name"/></span>
+          </xsl:otherwise>
+        </xsl:choose>
+      </td>
+      <td class="typeMembersData descriptionColumn">
         <div class="summary">
           <xsl:apply-templates/>
         </div>
@@ -478,27 +785,6 @@
         <xsl:apply-templates/>
       </dd>
     </dl>
-  </xsl:template>
-
-  <!-- Process "PageRefList" elements -->
-  <xsl:template match="doc:PageRefList">
-    <ul class="pageRefList">
-      <xsl:apply-templates select="doc:PageRefListEntry"/>
-    </ul>
-  </xsl:template>
-
-  <!-- Process "PageRefListEntry" elements -->
-  <xsl:template match="doc:PageRefListEntry">
-    <li class="pageRefListEntry">
-      <xsl:choose>
-        <xsl:when test="contains($TypeFilesPresent,concat('[',@PageName,']'))">
-          <a href="{@PageName}.html"><xsl:value-of select="."/></a>
-        </xsl:when>
-        <xsl:otherwise>
-          <span class="missinglink"><xsl:value-of select="."/></span>
-        </xsl:otherwise>
-      </xsl:choose>
-    </li>
   </xsl:template>
 
 </xsl:stylesheet>

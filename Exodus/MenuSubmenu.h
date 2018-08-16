@@ -19,16 +19,16 @@ public:
 	virtual Type GetType() const;
 
 	//Menu title functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetMenuTitle() const;
+	virtual Marshal::Ret<std::wstring> GetMenuTitle() const;
 
 	//Item management functions
 	virtual bool NoMenuItemsExist() const;
-	MarshalSupport::Marshal::Ret<std::list<IMenuItem*>> GetMenuItems() const;
+	Marshal::Ret<std::list<IMenuItem*>> GetMenuItems() const;
 
 	//Menu item creation and deletion
 	virtual IMenuSegment& AddMenuItemSegment(bool asurroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER);
-	virtual IMenuSubmenu& AddMenuItemSubmenu(const MarshalSupport::Marshal::In<std::wstring>& title);
-	virtual IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const MarshalSupport::Marshal::In<std::wstring>& title);
+	virtual IMenuSubmenu& AddMenuItemSubmenu(const Marshal::In<std::wstring>& title);
+	virtual IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title);
 	virtual void DeleteMenuItem(IMenuItem& menuItem);
 	virtual void DeleteAllMenuItems();
 

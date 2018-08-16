@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalIn.GetElement" Title="GetElement method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This method is only available when marshalling <TypeRef>std::vector</TypeRef> and <TypeRef>std::array</TypeRef> objects, and provides a way to marshal
+      individual entries from the bound collection. This is useful if large collections are being marshalled, but not all the elements in the collection are
+      required. Note that marshalling a collection is less efficient when done one element at a time, so this method should only be used where it is known that
+      a significant number of the elements in the bound collection do not need to be accessed. In other cases, the entire collection should be marshalled, and
+      elements accessed from the marshalled collection.
+    </Paragraph>
+    <Paragraph>
+      Note that this method will perform a move operation on the source element if possible, so an element should not be requested more than once through this
+      method, nor should the entire collection be marshalled through another method after <TypeRef>GetElement</TypeRef> has been called.
+    </Paragraph>
+    <Paragraph>
+      Note that this method is currently only available where the contained element is an assignable type.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage (std::vector, std::array only):">
+    <Code Language="C++"><![CDATA[void GetElement(size_type index, ElementType& element) const]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="index" Type="size_type">
+          The index of the element to marshal from the bound collection
+        </ArgumentListEntry>
+        <ArgumentListEntry Name="element" Type="ElementType">
+          The target object to marshal the retrieved element into
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

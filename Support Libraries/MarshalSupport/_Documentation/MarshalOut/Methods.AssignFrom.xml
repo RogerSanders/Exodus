@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalOut.AssignFrom" Title="AssignFrom method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This method is only available when marshalling <TypeRef>std::vector</TypeRef> and <TypeRef>std::array</TypeRef> objects, and provides a way to marshall a
+      raw array as the full contents of the bound collection. Individual elements will still be marshalled if required. This is the most efficient way to
+      initalize the contents of the <TypeRef>std::vector</TypeRef> and <TypeRef>std::array</TypeRef> collections. This method will always perform a copy of the
+      source elements. To perform a move of the source data, use the <PageRef PageName="SupportLibraries.MarshalSupport.MarshalOut.AssignFromWithMove">AssignFromWithMove method</PageRef>.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage (std::vector):">
+    <Code Language="C++"><![CDATA[void AssignFrom(const ElementType* data, size_t count) const]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="data" Type="ElementType*">
+          Pointer to a set of one or more consecutive elements to set as the content for the target container
+        </ArgumentListEntry>
+        <ArgumentListEntry Name="size_t" Type="count">
+          The number of consecutive entries to marshal from the source address
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="Usage (std::array):">
+    <Code Language="C++"><![CDATA[void AssignFrom(const ElementType* data) const]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="data" Type="ElementType*">
+          Pointer to a set consecutive elements to set as the content for the target array. Must contain at least as many elements as the array.
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut.AssignFromWithMove">AssignFromWithMove</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

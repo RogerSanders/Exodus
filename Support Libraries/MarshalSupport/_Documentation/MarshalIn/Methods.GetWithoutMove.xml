@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalIn.GetWithoutMove" Title="GetWithoutMove method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      Marshals the source object to a new or existing object. Unlike the <PageRef PageName="SupportLibraries.MarshalSupport.MarshalIn.Get">Get method</PageRef>,
+      this method will always perform a copy of the source object, and will never attempt a move operation. As such, it is safe to call this method multiple
+      times. Different template specializations provide different overloads of this method, however the differences and applicability of each overload are
+      detailed in the usage section below. Note that this method is not available when using move-only types.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage (Copyable types only):">
+    <Code Language="C++"><![CDATA[ContainerType GetWithoutMove() const]]></Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="ContainerType">
+        The newly constructed object populated with data marshalled from the source object.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="Usage (Copyable and assignable types only):">
+    <Code Language="C++"><![CDATA[void GetWithoutMove(ContainerType& targetObject) const]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="targetObject">
+          The target object to marshal the source data into.
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

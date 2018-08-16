@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalIn.Get" Title="Get method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      Marshals the source object to a new or existing object. This method performs a move operation on the source data if the source object was bound using a
+      non-const rvalue reference, such as from a temporary object or the result of an <TypeRef>std::move</TypeRef> operation, otherwise a copy is performed.
+      After calling this method, the source object should be considered invalid in the same way as if an <TypeRef>std::move</TypeRef> operation had been
+      performed, and no further attempts should be made to retrieve its value. Different template specializations provide different overloads of this method,
+      however the differences and applicability of each overload are detailed in the usage section below.
+  </Paragraph>
+  </Section>
+  <Section Title="Usage (All types):">
+    <Code Language="C++"><![CDATA[ContainerType Get() const]]></Code>
+    <SubSection Title="Return value">
+      <ReturnValue Type="ContainerType">
+        The newly constructed object populated with data marshalled from the source object.
+      </ReturnValue>
+    </SubSection>
+  </Section>
+  <Section Title="Usage (Assignable types only):">
+    <Code Language="C++"><![CDATA[void Get(ContainerType& targetObject) const]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="targetObject">
+          The target object to marshal the source data into.
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

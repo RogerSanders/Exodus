@@ -17,8 +17,8 @@ public:
 	void Initialize();
 
 	//Name functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
-	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname);
+	virtual Marshal::Ret<std::wstring> GetName() const;
+	virtual void SetName(const Marshal::In<std::wstring>& aname);
 
 	//Parent functions
 	virtual IHierarchicalStorageNode& GetParent() const;
@@ -28,25 +28,25 @@ public:
 
 	//Child functions
 	virtual IHierarchicalStorageNode& CreateChild();
-	virtual IHierarchicalStorageNode& CreateChild(const MarshalSupport::Marshal::In<std::wstring>& aname);
+	virtual IHierarchicalStorageNode& CreateChild(const Marshal::In<std::wstring>& aname);
 	virtual void DeleteChild(IHierarchicalStorageNode& node);
-	virtual MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetChildList() const;
-	virtual bool IsChildPresent(const MarshalSupport::Marshal::In<std::wstring>& name) const;
-	virtual IHierarchicalStorageNode* GetChild(const MarshalSupport::Marshal::In<std::wstring>& name, const IHierarchicalStorageNode* searchAfterChildNode = 0) const;
+	virtual Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetChildList() const;
+	virtual bool IsChildPresent(const Marshal::In<std::wstring>& name) const;
+	virtual IHierarchicalStorageNode* GetChild(const Marshal::In<std::wstring>& name, const IHierarchicalStorageNode* searchAfterChildNode = 0) const;
 
 	//Attribute functions
 	using IHierarchicalStorageNode::CreateAttribute;
-	virtual bool IsAttributePresent(const MarshalSupport::Marshal::In<std::wstring>& name) const;
-	virtual IHierarchicalStorageAttribute* GetAttribute(const MarshalSupport::Marshal::In<std::wstring>& name) const;
-	virtual IHierarchicalStorageAttribute& CreateAttribute(const MarshalSupport::Marshal::In<std::wstring>& name);
+	virtual bool IsAttributePresent(const Marshal::In<std::wstring>& name) const;
+	virtual IHierarchicalStorageAttribute* GetAttribute(const Marshal::In<std::wstring>& name) const;
+	virtual IHierarchicalStorageAttribute& CreateAttribute(const Marshal::In<std::wstring>& name);
 	virtual void DeleteAttribute(IHierarchicalStorageAttribute& attribute);
-	virtual MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageAttribute*>> GetAttributeList() const;
+	virtual Marshal::Ret<std::list<IHierarchicalStorageAttribute*>> GetAttributeList() const;
 
 	//Binary data functions
 	virtual bool GetBinaryDataPresent() const;
 	virtual void SetBinaryDataPresent(bool state);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetBinaryDataBufferName() const;
-	virtual void SetBinaryDataBufferName(const MarshalSupport::Marshal::In<std::wstring>& aname);
+	virtual Marshal::Ret<std::wstring> GetBinaryDataBufferName() const;
+	virtual void SetBinaryDataBufferName(const Marshal::In<std::wstring>& aname);
 	virtual Stream::IStream& GetBinaryDataBufferStream();
 	virtual bool GetInlineBinaryDataEnabled() const;
 	virtual void SetInlineBinaryDataEnabled(bool state);

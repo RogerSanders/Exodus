@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalOut.SetElement" Title="SetElement method" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      This method is only available when marshalling <TypeRef>std::vector</TypeRef> and <TypeRef>std::array</TypeRef> objects, and provides a way to marshal
+      individual entries to the bound collection. This is useful if large collections are bound, but not all the elements in the collection need to be modified.
+      Note that marshalling a collection is less efficient when done one element at a time, so this method should only be used where it is known that a
+      significant number of the elements in the bound collection do not need to be accessed. In other cases, the entire collection should be marshalled, and
+      elements accessed from the marshalled collection.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage (std::vector, std::array only):">
+    <Code Language="C++"><![CDATA[void SetElement(typename std::vector<ElementType, Alloc>::size_type index, const ElementType& element) const
+void SetElement(typename std::vector<ElementType, Alloc>::size_type index, ElementType&& element) const]]></Code>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="index" Type="size_type">
+          The index of the position in the bound collection to marshal the value into. The specified index must refer to an exising entry in the collection.
+        </ArgumentListEntry>
+        <ArgumentListEntry Name="element" Type="ElementType">
+          The source object to marshal into the target collection
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

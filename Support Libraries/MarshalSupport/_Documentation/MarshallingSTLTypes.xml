@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshallingSTL" Title="MarshalSupport Library - Marshalling STL Types" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Supported STL Types">
+    <Paragraph>
+      The MarshalSupport library has inbuilt support for marshalling a large number of STL objects, including all members of the containers library. The
+      following is a list of types provided by the C++ STL for which marshalling is natively supported by the MarshalSupport library:
+    </Paragraph>
+    <List>
+      <ListEntry><TypeRef>std::vector</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::array</TypeRef> (C++11)</ListEntry>
+      <ListEntry><TypeRef>std::list</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::forward_list</TypeRef> (C++11)</ListEntry>
+      <ListEntry><TypeRef>std::deque</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::set</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::multiset</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::unordered_set</TypeRef> (C++11)</ListEntry>
+      <ListEntry><TypeRef>std::unordered_multiset</TypeRef> (C++11)</ListEntry>
+      <ListEntry><TypeRef>std::map</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::multimap</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::unordered_map</TypeRef> (C++11)</ListEntry>
+      <ListEntry><TypeRef>std::unordered_multimap</TypeRef> (C++11)</ListEntry>
+      <ListEntry><TypeRef>std::stack</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::queue</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::priority_queue</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::basic_string</TypeRef> (IE, std::string, std::wstring, etc)</ListEntry>
+      <ListEntry><TypeRef>std::pair</TypeRef></ListEntry>
+      <ListEntry><TypeRef>std::tuple</TypeRef> (C++11)</ListEntry>
+      <ListEntry><TypeRef>std::unique_ptr</TypeRef> (C++11)</ListEntry>
+    </List>
+    <Paragraph>
+      In addition to these types that are natively supported by the MarshalSupport library, the following STL types do not require marshalling, as the
+      specification requires them to have a precise memory layout which is guaranteed across implementations:
+    </Paragraph>
+    <List>
+      <ListEntry><TypeRef>std::complex</TypeRef></ListEntry>
+    </List>
+  </Section>
+  <Section Title="Nested STL Container Types">
+    <Paragraph>
+      In addition to supporting marshalling STL types directly, native support is also provided for marshalling STL objects that are nested within each
+      other. For example, an object with the following definition can be marshalled successfully with no additional effort:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[std::list<std::vector<std::map<std::string, std::queue<std::tuple<int, std::wstring>>>>> someComplexObject;]]></Code>
+  </Section>
+  <Section Title="Unsupported STL Types">
+    <Paragraph>
+      There are several STL types for which marshalling is not currently supported, where an expectation may exist that they would be supported. They will be
+      listed and discussed in this section.
+    </Paragraph>
+    <SubSection Title="std::bitset and std::valarray">
+      <Paragraph>
+        The <TypeRef>std::bitset</TypeRef> and <TypeRef>std::valarray</TypeRef> types are not currently supported by the MarshalSupport library. There is no
+        technical reason why this is the case, it is simply because of their slightly obscure nature that support hasn't been included at this time. Support
+        for these types may be added in the future.
+      </Paragraph>
+    </SubSection>
+    <SubSection Title="std::shared_ptr and std::weak_ptr">
+      <Paragraph>
+        The <TypeRef>std::shared_ptr</TypeRef> and <TypeRef>std::weak_ptr</TypeRef> types are not currently supported by the MarshalSupport library. Although
+        the reference counting mechanism can be made to work across assembly boundaries, there are potential performance and memory usage problems if the same
+        pointer is passed between assemblies repeatedly. Future enhancements are possible in this area, which may add a level of support for these pointer
+        types.
+      </Paragraph>
+    </SubSection>
+    <SubSection Title="std::auto_ptr">
+      <Paragraph>
+        Since <TypeRef>std::auto_ptr</TypeRef> is deprecated and pending removal from the C++ standard, no attempt has been made to support it in the
+        MarshalSupport library. Please use std::unique_ptr if you are using a C++11 conforming compiler, or consider passing raw pointers with custom
+        deallocation routines in C++03.
+      </Paragraph>
+    </SubSection>
+  </Section>
+  <Section Title="STL Containers with Special Requirements">
+    <SubSection Title="std::basic_string">
+      <Paragraph>
+        The <TypeRef>std::basic_string</TypeRef> class is fully supported in the MarshalSupport library, with the special provision that the character type used
+        with the string doesn't require marshalling itself. Any primitive type such as char, or any "C" style custom structure which is composed exclusively of
+        primitive types satisfies this requirement. If for some reason you need a custom string type which uses std::basic_string and requires marshalling for
+        its elements, consider using the <TypeRef>std::vector</TypeRef> container when marshalling, which does support marshalling its elements. This
+        restriction may be lifted in future versions of the MarshalSupport library.
+      </Paragraph>
+    </SubSection>
+    <SubSection Title="std::unique_ptr">
+      <Paragraph>
+        The <TypeRef>std::unique_ptr</TypeRef> type is supported by the MarshalSupport library, however please note that the <TypeRef>std::default_delete</TypeRef>
+        type, which is used as the default deleter for these pointers, will attempt to free heap memory across assembly boundaries. The MarshalSupport library
+        doesn't prohibit the use of the <TypeRef>std::unique_ptr</TypeRef> type with the <TypeRef>std::default_delete</TypeRef> deletor selected however, as if
+        you are passing a custom interface type between assemblies which uses a custom delete operator and redirects to a virtual method, the operation is safe.
+        Since this is seen as one of the most common use cases of marshalling <TypeRef>std::unique_ptr</TypeRef> instances, the <TypeRef>std::default_delete</TypeRef>
+        type is not prohibited. If you are attempting to marshal a resource which doesn't have a custom delete operator that resolves memory deallocation issues
+        across assembly boundaries, please use the <PageRef PageName="SupportLibraries.MarshalSupport.MarshallableDelete">MarshallableDelete</PageRef> deletor,
+        which will ensure deletion occurs from the same assembly that constructed the original instance of the pointer.
+      </Paragraph>
+    </SubSection>
+  </Section>
+  <Section Title="Examples">
+    <Paragraph>
+      For usage examples of how to marshal STL types, please refer to the examples section in the <PageRef PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRef>,
+      <PageRef PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRef>, <PageRef PageName="SupportLibraries.MarshalSupport.MarshalInOut">Marshal::InOut</PageRef>,
+      and <PageRef PageName="SupportLibraries.MarshalSupport.MarshalRet">Marshal::Ret</PageRef> sections.
+    </Paragraph>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport">MarshalSupport Library Overview</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalInOut">Marshal::InOut</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalRet">Marshal::Ret</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

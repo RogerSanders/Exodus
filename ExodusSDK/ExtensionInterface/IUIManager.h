@@ -4,6 +4,7 @@
 #include "MarshalSupport/MarshalSupport.pkg"
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include "IViewPresenter.h"
+using namespace MarshalSupport::Operators;
 
 class IUIManager
 {
@@ -28,7 +29,7 @@ public:
 	virtual HWND CreateNativeWindow(IView& view, IViewPresenter& viewPresenter, HINSTANCE assemblyHandle, WNDPROC windowProcedure, DWORD windowStyle, DWORD extendedWindowStyle) = 0;
 
 	//Window management functions
-	virtual bool ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle, IHierarchicalStorageNode* windowState = 0) = 0;
+	virtual bool ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const Marshal::In<std::wstring>& windowTitle, IHierarchicalStorageNode* windowState = 0) = 0;
 	virtual void CloseWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle) = 0;
 	virtual void ShowWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle) = 0;
 	virtual void HideWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle) = 0;
@@ -43,7 +44,7 @@ public:
 	virtual void ResizeWindowToTargetClientSize(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, unsigned int windowClientWidth, unsigned int windowClientHeight) = 0;
 
 	//Window title functions
-	virtual void UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle) = 0;
+	virtual void UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const Marshal::In<std::wstring>& windowTitle) = 0;
 
 	//Dialog management functions
 	virtual void NotifyDialogActivated(HWND dialogWindow) = 0;
