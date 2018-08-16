@@ -127,7 +127,10 @@ void File::Close()
 {
 	if(fileOpen)
 	{
+		// Ensure the write buffer is flushed to disk before closing
 		EmptyDataBuffer();
+
+		// Close the file
 		fileOpen = false;
 		CloseHandle(fileHandle);
 	}

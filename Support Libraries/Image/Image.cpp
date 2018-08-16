@@ -1156,7 +1156,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 					//      single literal pixel value. Add 1 to this field to obtain the
 					//      true pixel count, IE, 0 = 1 pixel, 1 = 2 pixels, etc.
 					currentPacketCompressed = ReadBitfieldData(stream, currentBuffer, remainingBits, 1) != 0;
-					repetitionCount = (int)ReadBitfieldData(stream, currentBuffer, remainingBits, 7) + 1;
+					repetitionCount = (int)ReadBitfieldData(stream, currentBuffer, remainingBits, 7);
 					readNewRepetitionData = true;
 				}
 			}
