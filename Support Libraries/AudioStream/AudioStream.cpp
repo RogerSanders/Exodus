@@ -28,6 +28,13 @@ AudioStream::~AudioStream()
 	//Terminate the audio output stream, and free all resources
 	Close();
 	
+	//Delete our event handles
+	CloseHandle(eventHandles[0]);
+	CloseHandle(eventHandles[1]);
+	CloseHandle(eventHandles[2]);
+	CloseHandle(startupCompleteEventHandle);
+	CloseHandle(shutdownCompleteEventHandle);
+
 	//Release our critical section object
 	DeleteCriticalSection(&waveMutex);
 }
