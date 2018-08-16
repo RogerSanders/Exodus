@@ -13,15 +13,15 @@ public:
 	virtual AllocatorPointer GetAllocator() const;
 	virtual DestructorPointer GetDestructor() const;
 	virtual unsigned int GetSystemVersionNo() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemCopyright() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemComments() const;
+	virtual Marshal::Ret<std::wstring> GetSystemCopyright() const;
+	virtual Marshal::Ret<std::wstring> GetSystemComments() const;
 
 	//Setters
-	virtual void SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright, const MarshalSupport::Marshal::In<std::wstring>& asystemComments);
+	virtual void SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const Marshal::In<std::wstring>& asystemCopyright, const Marshal::In<std::wstring>& asystemComments);
 	virtual void SetSystemAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor);
 	virtual void SetSystemVersionNo(unsigned int asystemVersionNo);
-	virtual void SetSystemCopyright(const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright);
-	virtual void SetSystemComments(const MarshalSupport::Marshal::In<std::wstring>& asystemmComments);
+	virtual void SetSystemCopyright(const Marshal::In<std::wstring>& asystemCopyright);
+	virtual void SetSystemComments(const Marshal::In<std::wstring>& asystemmComments);
 
 private:
 	AllocatorPointer Allocator;

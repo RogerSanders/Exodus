@@ -32,7 +32,7 @@ MenuSelectableOption::Type MenuSelectableOption::GetType() const
 //----------------------------------------------------------------------------------------
 //Menu title functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> MenuSelectableOption::GetMenuTitle() const
+Marshal::Ret<std::wstring> MenuSelectableOption::GetMenuTitle() const
 {
 	return title;
 }

@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MarshalSupportUnitTestVS2005", "Support Libraries\MarshalSupport\Tests\MarshalSupportUnitTestVS2005.vcproj", "{59F60A95-070E-410B-8D1B-E3F98AED41F2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E69D2043-3793-4CE5-A201-432D70B91A49} = {E69D2043-3793-4CE5-A201-432D70B91A49}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MarshalSupportTestDLL", "Support Libraries\MarshalSupport\Tests\MarshalSupportTestDLLVS2005.vcproj", "{E69D2043-3793-4CE5-A201-432D70B91A49}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59F60A95-070E-410B-8D1B-E3F98AED41F2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{59F60A95-070E-410B-8D1B-E3F98AED41F2}.Debug|Win32.Build.0 = Debug|Win32
+		{59F60A95-070E-410B-8D1B-E3F98AED41F2}.Debug|x64.ActiveCfg = Debug|x64
+		{59F60A95-070E-410B-8D1B-E3F98AED41F2}.Debug|x64.Build.0 = Debug|x64
+		{59F60A95-070E-410B-8D1B-E3F98AED41F2}.Release|Win32.ActiveCfg = Release|Win32
+		{59F60A95-070E-410B-8D1B-E3F98AED41F2}.Release|Win32.Build.0 = Release|Win32
+		{59F60A95-070E-410B-8D1B-E3F98AED41F2}.Release|x64.ActiveCfg = Release|x64
+		{59F60A95-070E-410B-8D1B-E3F98AED41F2}.Release|x64.Build.0 = Release|x64
+		{E69D2043-3793-4CE5-A201-432D70B91A49}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E69D2043-3793-4CE5-A201-432D70B91A49}.Debug|Win32.Build.0 = Debug|Win32
+		{E69D2043-3793-4CE5-A201-432D70B91A49}.Debug|x64.ActiveCfg = Debug|x64
+		{E69D2043-3793-4CE5-A201-432D70B91A49}.Debug|x64.Build.0 = Debug|x64
+		{E69D2043-3793-4CE5-A201-432D70B91A49}.Release|Win32.ActiveCfg = Release|Win32
+		{E69D2043-3793-4CE5-A201-432D70B91A49}.Release|Win32.Build.0 = Release|Win32
+		{E69D2043-3793-4CE5-A201-432D70B91A49}.Release|x64.ActiveCfg = Release|x64
+		{E69D2043-3793-4CE5-A201-432D70B91A49}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

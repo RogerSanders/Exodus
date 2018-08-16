@@ -3,6 +3,7 @@
 #include "IGenericAccessDataValue.h"
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IGenericAccessDataInfo
 {
@@ -45,8 +46,8 @@ public:
 	//File path settings
 	virtual bool GetFilePathCreatingTarget() const = 0;
 	virtual bool GetFilePathAllowScanningIntoArchives() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFilePathExtensionFilter() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFilePathDefaultExtension() const = 0;
+	virtual Marshal::Ret<std::wstring> GetFilePathExtensionFilter() const = 0;
+	virtual Marshal::Ret<std::wstring> GetFilePathDefaultExtension() const = 0;
 
 	//Folder path settings
 	virtual bool GetFolderPathCreatingTarget() const = 0;

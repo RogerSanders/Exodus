@@ -38,13 +38,13 @@ void HierarchicalStorageNode::Initialize()
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> HierarchicalStorageNode::GetName() const
+Marshal::Ret<std::wstring> HierarchicalStorageNode::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageNode::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
+void HierarchicalStorageNode::SetName(const Marshal::In<std::wstring>& aname)
 {
 	name = aname;
 }
@@ -97,7 +97,7 @@ IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild()
 }
 
 //----------------------------------------------------------------------------------------
-IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild(const MarshalSupport::Marshal::In<std::wstring>& aname)
+IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild(const Marshal::In<std::wstring>& aname)
 {
 	HierarchicalStorageNode* child = new HierarchicalStorageNode(aname);
 	child->SetParent(this);
@@ -121,7 +121,7 @@ void HierarchicalStorageNode::DeleteChild(IHierarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalStorageNode::GetChildList() const
+Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalStorageNode::GetChildList() const
 {
 	std::list<IHierarchicalStorageNode*> childList;
 	for(size_t i = 0; i < children.size(); ++i)
@@ -132,7 +132,7 @@ MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalS
 }
 
 //----------------------------------------------------------------------------------------
-bool HierarchicalStorageNode::IsChildPresent(const MarshalSupport::Marshal::In<std::wstring>& name) const
+bool HierarchicalStorageNode::IsChildPresent(const Marshal::In<std::wstring>& name) const
 {
 	std::wstring nameResolved = name.Get();
 	for(ChildList::const_iterator i = children.begin(); i != children.end(); ++i)
@@ -147,7 +147,7 @@ bool HierarchicalStorageNode::IsChildPresent(const MarshalSupport::Marshal::In<s
 }
 
 //----------------------------------------------------------------------------------------
-IHierarchicalStorageNode* HierarchicalStorageNode::GetChild(const MarshalSupport::Marshal::In<std::wstring>& name, const IHierarchicalStorageNode* searchAfterChildNode) const
+IHierarchicalStorageNode* HierarchicalStorageNode::GetChild(const Marshal::In<std::wstring>& name, const IHierarchicalStorageNode* searchAfterChildNode) const
 {
 	std::wstring nameResolved = name.Get();
 	bool foundSearchStartNode = (searchAfterChildNode == 0);
@@ -166,7 +166,7 @@ IHierarchicalStorageNode* HierarchicalStorageNode::GetChild(const MarshalSupport
 //----------------------------------------------------------------------------------------
 //Attribute functions
 //----------------------------------------------------------------------------------------
-bool HierarchicalStorageNode::IsAttributePresent(const MarshalSupport::Marshal::In<std::wstring>& name) const
+bool HierarchicalStorageNode::IsAttributePresent(const Marshal::In<std::wstring>& name) const
 {
 	std::wstring nameResolved = name.Get();
 	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
@@ -180,7 +180,7 @@ bool HierarchicalStorageNode::IsAttributePresent(const MarshalSupport::Marshal::
 }
 
 //----------------------------------------------------------------------------------------
-IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttribute(const MarshalSupport::Marshal::In<std::wstring>& name) const
+IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttribute(const Marshal::In<std::wstring>& name) const
 {
 	std::wstring nameResolved = name.Get();
 	for(AttributeList::const_iterator i = attributes.begin(); i != attributes.end(); ++i)
@@ -194,7 +194,7 @@ IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttribute(const Marsh
 }
 
 //----------------------------------------------------------------------------------------
-IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttribute(const MarshalSupport::Marshal::In<std::wstring>& name)
+IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttribute(const Marshal::In<std::wstring>& name)
 {
 	IHierarchicalStorageAttribute* attribute = GetAttribute(name);
 	if(attribute == 0)
@@ -221,7 +221,7 @@ void HierarchicalStorageNode::DeleteAttribute(IHierarchicalStorageAttribute& att
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageAttribute*>> HierarchicalStorageNode::GetAttributeList() const
+Marshal::Ret<std::list<IHierarchicalStorageAttribute*>> HierarchicalStorageNode::GetAttributeList() const
 {
 	std::list<IHierarchicalStorageAttribute*> attributeList;
 	for(size_t i = 0; i < attributes.size(); ++i)
@@ -257,13 +257,13 @@ void HierarchicalStorageNode::SetBinaryDataPresent(bool state)
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> HierarchicalStorageNode::GetBinaryDataBufferName() const
+Marshal::Ret<std::wstring> HierarchicalStorageNode::GetBinaryDataBufferName() const
 {
 	return binaryDataName.c_str();
 }
 
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageNode::SetBinaryDataBufferName(const MarshalSupport::Marshal::In<std::wstring>& aname)
+void HierarchicalStorageNode::SetBinaryDataBufferName(const Marshal::In<std::wstring>& aname)
 {
 	binaryDataName = aname;
 }

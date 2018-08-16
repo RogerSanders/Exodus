@@ -57,13 +57,13 @@ void ProcessorMenus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& men
 }
 
 //----------------------------------------------------------------------------------------
-bool ProcessorMenus::RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
+bool ProcessorMenus::RestoreDeviceViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
 {
 	return debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
 }
 
 //----------------------------------------------------------------------------------------
-bool ProcessorMenus::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
+bool ProcessorMenus::OpenDeviceView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
 {
 	return debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);
 }

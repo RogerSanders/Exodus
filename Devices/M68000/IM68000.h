@@ -2,6 +2,8 @@
 #define __IM68000_H__
 #include "GenericAccess/GenericAccess.pkg"
 #include "Processor/Processor.pkg"
+#include "MarshalSupport/MarshalSupport.pkg"
+using namespace MarshalSupport::Operators;
 
 class IM68000 :public virtual IGenericAccess
 {
@@ -69,9 +71,9 @@ public:
 	virtual void SetBreakOnAllExceptions(bool state) = 0;
 	virtual bool GetDisableAllExceptions() const = 0;
 	virtual void SetDisableAllExceptions(bool state) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::list<ExceptionDebuggingEntry>> GetExceptionDebugEntries() const = 0;
-	virtual void SetExceptionDebugEntries(const MarshalSupport::Marshal::In<std::list<ExceptionDebuggingEntry>>& state) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExceptionName(Exceptions vectorNumber) const = 0;
+	virtual Marshal::Ret<std::list<ExceptionDebuggingEntry>> GetExceptionDebugEntries() const = 0;
+	virtual void SetExceptionDebugEntries(const Marshal::In<std::list<ExceptionDebuggingEntry>>& state) = 0;
+	virtual Marshal::Ret<std::wstring> GetExceptionName(Exceptions vectorNumber) const = 0;
 	virtual void TriggerException(Exceptions vectorNumber) = 0;
 };
 

@@ -4,6 +4,7 @@
 #include <string>
 class ISystemGUIInterface;
 class IGUIExtensionInterface;
+using namespace MarshalSupport::Operators;
 
 class ISystemInfo
 {
@@ -24,15 +25,15 @@ public:
 	virtual AllocatorPointer GetAllocator() const = 0;
 	virtual DestructorPointer GetDestructor() const = 0;
 	virtual unsigned int GetSystemVersionNo() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemCopyright() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSystemComments() const = 0;
+	virtual Marshal::Ret<std::wstring> GetSystemCopyright() const = 0;
+	virtual Marshal::Ret<std::wstring> GetSystemComments() const = 0;
 
 	//Setters
-	virtual void SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright, const MarshalSupport::Marshal::In<std::wstring>& asystemComments) = 0;
+	virtual void SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const Marshal::In<std::wstring>& asystemCopyright, const Marshal::In<std::wstring>& asystemComments) = 0;
 	virtual void SetSystemAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor) = 0;
 	virtual void SetSystemVersionNo(unsigned int asystemVersionNo) = 0;
-	virtual void SetSystemCopyright(const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright) = 0;
-	virtual void SetSystemComments(const MarshalSupport::Marshal::In<std::wstring>& asystemmComments) = 0;
+	virtual void SetSystemCopyright(const Marshal::In<std::wstring>& asystemCopyright) = 0;
+	virtual void SetSystemComments(const Marshal::In<std::wstring>& asystemmComments) = 0;
 };
 
 #endif

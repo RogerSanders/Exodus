@@ -51,25 +51,25 @@ bool Extension::ValidateExtension()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool Extension::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target)
+bool Extension::AddReference(const Marshal::In<std::wstring>& referenceName, IDevice* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IExtension* target)
+bool Extension::AddReference(const Marshal::In<std::wstring>& referenceName, IExtension* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
+bool Extension::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IClockSource* target)
+bool Extension::AddReference(const Marshal::In<std::wstring>& referenceName, IClockSource* target)
 {
 	return false;
 }
@@ -101,13 +101,13 @@ bool Extension::RemoveReference(IClockSource* target)
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Extension::GetExtensionClassName() const
+Marshal::Ret<std::wstring> Extension::GetExtensionClassName() const
 {
 	return className;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Extension::GetExtensionInstanceName() const
+Marshal::Ret<std::wstring> Extension::GetExtensionInstanceName() const
 {
 	return instanceName;
 }
@@ -207,49 +207,49 @@ void Extension::AddExtensionMenuItems(ExtensionMenu extensionMenu, IMenuSegment&
 {}
 
 //----------------------------------------------------------------------------------------
-bool Extension::RestoreSystemViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter)
+bool Extension::RestoreSystemViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::RestoreModuleViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID)
+bool Extension::RestoreModuleViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
+bool Extension::RestoreDeviceViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::RestoreExtensionViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IExtension* targetExtension)
+bool Extension::RestoreExtensionViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IExtension* targetExtension)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::OpenSystemView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName)
+bool Extension::OpenSystemView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::OpenModuleView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, unsigned int moduleID)
+bool Extension::OpenModuleView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, unsigned int moduleID)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
+bool Extension::OpenDeviceView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::OpenExtensionView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IExtension* targetExtension)
+bool Extension::OpenExtensionView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IExtension* targetExtension)
 {
 	return false;
 }

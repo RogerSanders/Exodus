@@ -92,14 +92,14 @@ void DeviceContext::ExecuteDeviceStep()
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> DeviceContext::GetFullyQualifiedDeviceInstanceName() const
+Marshal::Ret<std::wstring> DeviceContext::GetFullyQualifiedDeviceInstanceName() const
 {
 	std::wstring fullyQualifiedDeviceInstanceName = GetModuleInstanceName() + L"." + device.GetDeviceInstanceName();
 	return fullyQualifiedDeviceInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> DeviceContext::GetModuleDisplayName() const
+Marshal::Ret<std::wstring> DeviceContext::GetModuleDisplayName() const
 {
 	std::wstring moduleDisplayName;
 	systemObject.GetModuleDisplayName(device.GetDeviceModuleID(), moduleDisplayName);
@@ -107,7 +107,7 @@ MarshalSupport::Marshal::Ret<std::wstring> DeviceContext::GetModuleDisplayName()
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> DeviceContext::GetModuleInstanceName() const
+Marshal::Ret<std::wstring> DeviceContext::GetModuleInstanceName() const
 {
 	std::wstring moduleInstanceName;
 	systemObject.GetModuleInstanceName(device.GetDeviceModuleID(), moduleInstanceName);

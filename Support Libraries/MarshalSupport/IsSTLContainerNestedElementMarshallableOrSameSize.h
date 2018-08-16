@@ -9,11 +9,13 @@
 #include <stack>
 #include <queue>
 #include <string>
+#include <utility>
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 #include <array>
 #include <forward_list>
 #include <unordered_set>
 #include <unordered_map>
+#include <tuple>
 #endif
 namespace MarshalSupport {
 namespace Internal {
@@ -60,6 +62,12 @@ template<class ElementType, class Container, class Compare>
 inline MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(size_t expectedSize, const std::priority_queue<ElementType, Container, Compare>* elementPointer);
 template<class ElementType, class traits, class Alloc>
 inline MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(size_t expectedSize, const std::basic_string<ElementType, traits, Alloc>* elementPointer);
+template<class T1, class T2>
+inline MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(size_t expectedSize, const std::pair<T1, T2>* elementPointer);
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
+template<class... Args>
+inline MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(size_t expectedSize, const std::tuple<Args...>* elementPointer);
+#endif
 template<class ElementType>
 inline MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(size_t expectedSize, const ElementType* elementPointer);
 

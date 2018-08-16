@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+using namespace MarshalSupport::Operators;
 
 class LogEntry :public ILogEntry
 {
@@ -19,16 +20,16 @@ public:
 
 	//Getters
 	virtual EventLevel GetEventLevel() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetText() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetSource() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetEventLevelString() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetTimeString() const;
+	virtual Marshal::Ret<std::wstring> GetText() const;
+	virtual Marshal::Ret<std::wstring> GetSource() const;
+	virtual Marshal::Ret<std::wstring> GetEventLevelString() const;
+	virtual Marshal::Ret<std::wstring> GetTimeString() const;
 
 	//Setters
 	inline void SetText(const std::wstring& atext);
 	inline void SetSource(const std::wstring& asource);
 	inline void SetEventLevel(EventLevel alevel);
-	virtual void OverrideSourceText(const MarshalSupport::Marshal::In<std::wstring>& asource) const;
+	virtual void OverrideSourceText(const Marshal::In<std::wstring>& asource) const;
 
 	//Version functions
 	virtual unsigned int GetInterfaceVersion() const;

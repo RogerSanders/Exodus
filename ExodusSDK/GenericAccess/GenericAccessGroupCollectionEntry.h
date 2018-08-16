@@ -27,7 +27,7 @@ public:
 	inline GenericAccessGroupCollectionEntry* SetDataContext(const IGenericAccess::DataContext* adataContext);
 
 	//Group info functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
+	virtual Marshal::Ret<std::wstring> GetName() const;
 	inline GenericAccessGroupCollectionEntry* SetName(const std::wstring& aname);
 	virtual bool GetOpenByDefault() const;
 	inline GenericAccessGroupCollectionEntry* SetOpenByDefault(bool state);
@@ -36,14 +36,14 @@ public:
 	virtual IGenericAccessDataValue::DataType GetKeyDataType() const;
 	inline GenericAccessGroupCollectionEntry* SetKeyDataType(IGenericAccessDataValue::DataType akeyDataType);
 	virtual unsigned int GetEntryCount() const;
-	virtual MarshalSupport::Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GetEntries() const;
-	virtual MarshalSupport::Marshal::Ret<std::list<CollectionEntry>> GetCollectionEntries() const;
+	virtual Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GetEntries() const;
+	virtual Marshal::Ret<std::list<CollectionEntry>> GetCollectionEntries() const;
 	inline GenericAccessGroupCollectionEntry* AddCollectionEntry(IGenericAccessDataValue* key, IGenericAccessGroupEntry* value);
 	inline GenericAccessGroupCollectionEntry* AddCollectionEntry(const CollectionEntry& entry);
 	inline GenericAccessGroupCollectionEntry* RemoveCollectionEntry(const std::wstring& key);
 	inline GenericAccessGroupCollectionEntry* RemoveCollectionEntry(const IGenericAccessDataValue& key);
 	inline GenericAccessGroupCollectionEntry* RemoveCollectionEntry(IGenericAccessGroupEntry* value);
-	virtual IGenericAccessGroupEntry* GetCollectionEntry(const MarshalSupport::Marshal::In<std::wstring>& key) const;
+	virtual IGenericAccessGroupEntry* GetCollectionEntry(const Marshal::In<std::wstring>& key) const;
 	virtual IGenericAccessGroupEntry* GetCollectionEntry(const IGenericAccessDataValue& key) const;
 
 	//Modification functions

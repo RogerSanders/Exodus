@@ -4,6 +4,51 @@
     <ProjectGuid>{89CD5A4A-357E-44EB-BBEF-B629F0839EEC}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Resources\images\icons\Caution.gif" />
+    <Content Include="Resources\images\icons\note.gif" />
+    <Content Include="Resources\images\icons\privclass.gif" />
+    <Content Include="Resources\images\icons\privdelegate.gif" />
+    <Content Include="Resources\images\icons\privenumeration.gif" />
+    <Content Include="Resources\images\icons\privevent.gif" />
+    <Content Include="Resources\images\icons\privextension.gif" />
+    <Content Include="Resources\images\icons\privfield.gif" />
+    <Content Include="Resources\images\icons\privinterface.gif" />
+    <Content Include="Resources\images\icons\privmethod.gif" />
+    <Content Include="Resources\images\icons\privproperty.gif" />
+    <Content Include="Resources\images\icons\privstructure.gif" />
+    <Content Include="Resources\images\icons\protclass.gif" />
+    <Content Include="Resources\images\icons\protdelegate.gif" />
+    <Content Include="Resources\images\icons\protenumeration.gif" />
+    <Content Include="Resources\images\icons\protevent.gif" />
+    <Content Include="Resources\images\icons\protextension.gif" />
+    <Content Include="Resources\images\icons\protfield.gif" />
+    <Content Include="Resources\images\icons\protinterface.gif" />
+    <Content Include="Resources\images\icons\protmethod.gif" />
+    <Content Include="Resources\images\icons\protoperator.gif" />
+    <Content Include="Resources\images\icons\protproperty.gif" />
+    <Content Include="Resources\images\icons\protstructure.gif" />
+    <Content Include="Resources\images\icons\pubclass.gif" />
+    <Content Include="Resources\images\icons\pubdelegate.gif" />
+    <Content Include="Resources\images\icons\pubenumeration.gif" />
+    <Content Include="Resources\images\icons\pubevent.gif" />
+    <Content Include="Resources\images\icons\pubextension.gif" />
+    <Content Include="Resources\images\icons\pubfield.gif" />
+    <Content Include="Resources\images\icons\pubinterface.gif" />
+    <Content Include="Resources\images\icons\pubmethod.gif" />
+    <Content Include="Resources\images\icons\puboperator.gif" />
+    <Content Include="Resources\images\icons\pubproperty.gif" />
+    <Content Include="Resources\images\icons\pubstructure.gif" />
+    <Content Include="Resources\images\icons\security.gif" />
+    <Content Include="Resources\images\icons\static.gif" />
+    <Content Include="Resources\scripts\highlight.pack.js" />
+    <Content Include="Resources\scripts\new_highlight.pack.js" />
+    <Content Include="Resources\styles\DocStyle.css" />
+    <Content Include="Resources\styles\new_source.css" />
+    <Content Include="Resources\styles\source.css" />
+    <Content Include="TableOfContents.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Welcome.xml" />
     <Content Include="ExodusSDKProject.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -19,21 +64,30 @@
     <XMLPageInputFolderPath Condition="'$(XMLPageInputFolderPath)' == ''">$(SolutionDir)</XMLPageInputFolderPath>
     <ImageFilesInputFolderPath Condition="'$(ImageFilesInputFolderPath)' == ''">Resources\images\</ImageFilesInputFolderPath>
     <StyleFilesInputFolderPath Condition="'$(StyleFilesInputFolderPath)' == ''">Resources\styles\</StyleFilesInputFolderPath>
+    <ScriptFilesInputFolderPath Condition="'$(ScriptFilesInputFolderPath)' == ''">Resources\scripts\</ScriptFilesInputFolderPath>
+    <DownloadFilesInputFolderPath Condition="'$(DownloadFilesInputFolderPath)' == ''">Resources\downloads\</DownloadFilesInputFolderPath>
     <OutputFileDir Condition="'$(OutputFileDir)' == ''">$(SolutionDir)\Documentation\</OutputFileDir>
     <HTMLOutputFilePath Condition="'$(HTMLOutputFilePath)' == ''">$(OutputFileDir)\html\</HTMLOutputFilePath>
     <CHMIntermediateOutputFileDir Condition="'$(CHMIntermediateOutputFileDir)' == ''">$(OutputFileDir)\_CHMContent\</CHMIntermediateOutputFileDir>
     <CHMHTMLOutputFilePath Condition="'$(CHMHTMLOutputFilePath)' == ''">$(CHMIntermediateOutputFileDir)\html\</CHMHTMLOutputFilePath>
   </PropertyGroup>
   <ItemGroup>
-    <XMLPageFileGroupRaw Include="$(XMLPageInputFolderPath)**\*.xml" Exclude="$(XMLPageInputFolderPath)_Documentation\Notes\**\*.xml">
+    <XMLPageFileGroupRaw Include="$(XMLPageInputFolderPath)**\_Documentation\**\*.xml" Exclude="$(XMLPageInputFolderPath)_Documentation\Notes\**\*.xml">
       <InProject>false</InProject>
     </XMLPageFileGroupRaw>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="XML Schema\XMLDocSchema.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Target Name="Build" DependsOnTargets="SetXMLPageFileGroupMetadata">
     <ItemGroup>
       <XMLPageFileGroup Include="@(XMLPageFileGroupRaw)" Condition="'%(XMLOutputFileName)' != ''" />
       <ImageFilesGroup Include="$(ImageFilesInputFolderPath)/**/*.*" />
       <StyleFilesGroup Include="$(StyleFilesInputFolderPath)/**/*.*" />
+      <ScriptFilesGroup Include="$(ScriptFilesInputFolderPath)/**/*.*" />
+      <DownloadFilesGroup Include="$(DownloadFilesInputFolderPath)/**/*.*" />
     </ItemGroup>
     <PropertyGroup>
       <XMLPageFilePresentList>@(XMLPageFileGroup -> '[%(XMLOutputFileName)]')</XMLPageFilePresentList>
@@ -46,15 +100,18 @@
     <!-- Copy any additional files to include with the HTML output files -->
     <Copy SourceFiles="@(ImageFilesGroup)" DestinationFolder="$(OutputFileDir)\images\%(RecursiveDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(StyleFilesGroup)" DestinationFolder="$(OutputFileDir)\styles\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ScriptFilesGroup)" DestinationFolder="$(OutputFileDir)\scripts\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(DownloadFilesGroup)" DestinationFolder="$(OutputFileDir)\downloads\%(RecursiveDir)" SkipUnchangedFiles="true" />
     <!-- Create the index page for the project -->
     <XslTransformation XslInputPath="$(ConvertProjectXSLFilePath)" XmlInputPaths="$(ProjectXMLFilePath)" OutputPaths="$(OutputFileDir)index.html" />
     <!-- Create the documentation HTML files for the CHM project -->
     <MakeDir Directories="$(CHMHTMLOutputFilePath)" />
-    <Message Importance="High" Text="XMLFile: %(XMLPageFileGroup.Identity), %(Filename), %(XMLOutputFileName)" />
     <XslTransformation XslInputPath="$(ConvertDocsXSLFilePath)" XmlInputPaths="@(XMLPageFileGroup)" OutputPaths="$(CHMHTMLOutputFilePath)/%(XMLOutputFileName).html" Parameters="&lt;Parameter Name='TypeFilesPresent' Value='$(XMLPageFilePresentList)'/&gt;&lt;Parameter Name='BuildingCHMFiles' Value='true'/&gt;" />
     <!-- Copy any additional files to include with the HTML output files -->
     <Copy SourceFiles="@(ImageFilesGroup)" DestinationFolder="$(CHMIntermediateOutputFileDir)\images\%(RecursiveDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(StyleFilesGroup)" DestinationFolder="$(CHMIntermediateOutputFileDir)\styles\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ScriptFilesGroup)" DestinationFolder="$(CHMIntermediateOutputFileDir)\scripts\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(DownloadFilesGroup)" DestinationFolder="$(CHMIntermediateOutputFileDir)\downloads\%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="SetXMLPageFileGroupMetadata" Outputs="%(XMLPageFileGroupRaw.Identity)">
     <XmlPeek XmlInputPath="%(XMLPageFileGroupRaw.Identity)" Query="/doc:XMLDocContent/@PageName" Namespaces="&lt;Namespace Prefix='doc' Uri='http://www.exodusemulator.com/schema/XMLDocSchema.xsd'/&gt;" ContinueOnError="true">

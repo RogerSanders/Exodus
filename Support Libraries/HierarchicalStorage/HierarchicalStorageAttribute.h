@@ -11,8 +11,8 @@ public:
 	explicit HierarchicalStorageAttribute(const std::wstring& aname);
 
 	//Name functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
-	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname);
+	virtual Marshal::Ret<std::wstring> GetName() const;
+	virtual void SetName(const Marshal::In<std::wstring>& aname);
 
 protected:
 	//Stream functions

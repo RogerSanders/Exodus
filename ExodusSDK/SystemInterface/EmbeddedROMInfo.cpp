@@ -18,13 +18,13 @@ unsigned int EmbeddedROMInfo::GetIEmbeddedROMInfoVersion() const
 //----------------------------------------------------------------------------------------
 //Getters
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> EmbeddedROMInfo::GetName() const
+Marshal::Ret<std::wstring> EmbeddedROMInfo::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> EmbeddedROMInfo::GetDisplayName() const
+Marshal::Ret<std::wstring> EmbeddedROMInfo::GetDisplayName() const
 {
 	return name;
 }
@@ -60,7 +60,7 @@ unsigned int EmbeddedROMInfo::GetROMEntryBitCount() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> EmbeddedROMInfo::GetFilePath() const
+Marshal::Ret<std::wstring> EmbeddedROMInfo::GetFilePath() const
 {
 	return filePath;
 }
@@ -68,13 +68,13 @@ MarshalSupport::Marshal::Ret<std::wstring> EmbeddedROMInfo::GetFilePath() const
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
+void EmbeddedROMInfo::SetName(const Marshal::In<std::wstring>& aname)
 {
 	name = aname;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetDisplayName(const MarshalSupport::Marshal::In<std::wstring>& adisplayName)
+void EmbeddedROMInfo::SetDisplayName(const Marshal::In<std::wstring>& adisplayName)
 {
 	displayName = adisplayName;
 }
@@ -110,7 +110,7 @@ void EmbeddedROMInfo::SetROMEntryBitCount(unsigned int aromEntryBitCount)
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetFilePath(const MarshalSupport::Marshal::In<std::wstring>& afilePath)
+void EmbeddedROMInfo::SetFilePath(const Marshal::In<std::wstring>& afilePath)
 {
 	filePath = afilePath;
 }

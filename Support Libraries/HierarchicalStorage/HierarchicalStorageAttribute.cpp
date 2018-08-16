@@ -14,13 +14,13 @@ HierarchicalStorageAttribute::HierarchicalStorageAttribute(const std::wstring& a
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> HierarchicalStorageAttribute::GetName() const
+Marshal::Ret<std::wstring> HierarchicalStorageAttribute::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageAttribute::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
+void HierarchicalStorageAttribute::SetName(const Marshal::In<std::wstring>& aname)
 {
 	name = aname;
 }

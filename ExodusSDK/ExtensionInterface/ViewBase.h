@@ -35,7 +35,7 @@ public:
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const;
 
 	//New window state
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewDockingGroup() const;
+	virtual Marshal::Ret<std::wstring> GetViewDockingGroup() const;
 	virtual bool IsViewInitiallyDocked() const;
 	virtual bool IsViewInitiallyCollapsed() const;
 	virtual DockPos GetViewInitialDockPosition() const;

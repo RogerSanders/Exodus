@@ -317,7 +317,7 @@ IHierarchicalStorageNode& HierarchicalStorageTree::GetRootNode() const
 //----------------------------------------------------------------------------------------
 //Error handling functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> HierarchicalStorageTree::GetErrorString() const
+Marshal::Ret<std::wstring> HierarchicalStorageTree::GetErrorString() const
 {
 	return errorString;
 }
@@ -325,7 +325,7 @@ MarshalSupport::Marshal::Ret<std::wstring> HierarchicalStorageTree::GetErrorStri
 //----------------------------------------------------------------------------------------
 //Node access functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalStorageTree::GetBinaryDataNodeList()
+Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalStorageTree::GetBinaryDataNodeList()
 {
 	std::list<IHierarchicalStorageNode*> binaryEntityList;
 	root->AddBinaryDataEntitiesToList(binaryEntityList);

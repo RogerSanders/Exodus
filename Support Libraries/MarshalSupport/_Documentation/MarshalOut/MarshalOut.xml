@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalOut" Title="Marshal::Out" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Declaration">
+    <Code Language="C++"><![CDATA[template<class ContainerType,
+         bool IsOnlyMovable = MarshalSupport::Internal::is_only_movable<typename MarshalSupport::Internal::get_last_nested_container_element_type<ContainerType>::type>::value,
+         bool IsLastElement = MarshalSupport::Internal::is_last_nested_container_element<ContainerType>::value,
+         bool IsThisOrNextElementLastElement = MarshalSupport::Internal::is_this_or_nested_element_last_nested_container_element<ContainerType>::value>
+class Out;]]></Code>
+  </Section>
+
+  <Section Title="Description">
+    <Paragraph>
+      The <TypeRef>Marshal::Out</TypeRef> class is a helper class designed to allow largely transparent and automatic marshalling of types as output arguments
+      for functions. Through appropriate use, implicit conversions in the <TypeRef>Marshal::Out</TypeRef> type allow identical code to be written by the caller
+      whether marshalling is employed or not. An object supplied as an output argument can be marshalled out of the target function, allowing the caller to
+      receive an updated value. Marshalling a parameter with <TypeRef>Marshal::Out</TypeRef> provides similar functionality to passing an argument by non-const
+      reference, with the exception that the target function can only modify the value, it can't retrieve its current value.
+    </Paragraph>
+
+    <Paragraph>
+      Note that the <TypeRef>Marshal::Out</TypeRef> template type makes use of template specialization to change its implementation based on the specific type
+      supplied in its first template argument, and the characteristics of that type. As such, its list of members varies based on the type supplied.
+    </Paragraph>
+  </Section>
+
+  <Section Title="Members">
+    <SubSection Title="Constructors (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="Out" PageName="SupportLibraries.MarshalSupport.MarshalOut.Constructor">
+          Constructs the marshaller and binds the output object
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Marshal methods (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="Set" PageName="SupportLibraries.MarshalSupport.MarshalOut.Set">
+          Marshals the supplied value to the bound element, performing a move if possible.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Capacity methods (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="resize" PageName="SupportLibraries.MarshalSupport.MarshalOut.resize">
+          Resizes the bound collection to contain the specified number of elements.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="reserve" PageName="SupportLibraries.MarshalSupport.MarshalOut.reserve">
+          Reserves memory capacity for the specified number of elements in the bound collection.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Element access methods (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="SetElement" PageName="SupportLibraries.MarshalSupport.MarshalOut.SetElement">
+          Marshals a single element to the bound collection.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Modifier methods (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="push_back" PageName="SupportLibraries.MarshalSupport.MarshalOut.push_back">
+          Appends the specified value to the end of the bound collection.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="pop_back" PageName="SupportLibraries.MarshalSupport.MarshalOut.pop_back">
+          Removes the last entry from the bound collection.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="clear" PageName="SupportLibraries.MarshalSupport.MarshalOut.clear">
+          Removes all entries from the bound collection.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="assign" PageName="SupportLibraries.MarshalSupport.MarshalOut.assign">
+          Replaces the current contents of the bound collection with the indicated number of copies of the specified value.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="AssignFrom" PageName="SupportLibraries.MarshalSupport.MarshalOut.AssignFrom">
+          Replaces the current contents of the bound collection with the specified data.
+        </FunctionMemberListEntry>
+        <FunctionMemberListEntry Visibility="Public" Name="AssignFromWithMove" PageName="SupportLibraries.MarshalSupport.MarshalOut.AssignFromWithMove">
+          Replaces the current contents of the bound collection with the specified data, performing a move operation if possible.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+    <SubSection Title="Custom operators (varies between specializations)">
+      <FunctionMemberList>
+        <FunctionMemberListEntry Visibility="Public" Name="operator=">
+          Performs the same operation as calling the <PageRef PageName="SupportLibraries.MarshalSupport.MarshalOut.Set">Set</PageRef> method.
+        </FunctionMemberListEntry>
+      </FunctionMemberList>
+    </SubSection>
+  </Section>
+
+  <Section Title="Examples">
+    <SubSection Title="Recommended usage">
+      <Paragraph>
+        Given the following code without any marshalling involved:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[void SomeFunction(std::vector<int>& argByNonConstRef)
+{
+    argByNonConstRef.clear();
+    argByNonConstRef.push_back(1);
+}
+
+int main()
+{
+    std::vector<int> arg;
+    SomeFunction(arg);
+    std::cout << arg.back() << std::endl;
+    return 0;
+}]]></Code>
+      <Paragraph>
+        The recommended conversion to use marshalling would take this form:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[void SomeFunction(const Marshal::Out<std::vector<int>>& argByNonConstRef)
+{
+    std::vector<int> localArg;
+    localArg.push_back(1);
+    argByNonConstRef.Set(std::move(localArg));
+}
+
+int main()
+{
+    std::vector<int> arg;
+    SomeFunction(arg);
+    std::cout << arg.back() << std::endl;
+    return 0;
+}]]></Code>
+      <Paragraph>
+        Note that the syntax remains unchanged for the caller, making it relatively easy to add marshalling to existing APIs. The function argument is adapted
+        to use marshalling simply by wrapping it in a <TypeRef>Marshal::Out</TypeRef> helper. Note that the marshal helpers are always passed in by const
+        reference, even though the original signature passed in the parameter by non-const reference. This is essential in order to allow implicit conversions
+        to the marshal helper by the caller. In the function implementation, this example follows the simplest approach of constructing a local variable of the
+        same type, populating it with the required data, and calling the <PageRef PageName="SupportLibraries.MarshalSupport.MarshalOut.Set">Set method</PageRef>
+        on the marshal helper to explicitly marshal the object. The assignment operator could also be used. The use of <TypeRef>std::move</TypeRef> here can
+        give a performance boost with some types.
+      </Paragraph>
+      <Paragraph>
+        Be aware that this example shows the basic form of how any object type can be marshalled using the <TypeRef>Marshal::Out</TypeRef> helper. The
+        <TypeRef>std::vector</TypeRef> and <TypeRef>std::array</TypeRef> types have additional functions available that can be used to selectively marshal only
+        certain elements, or perform more efficient marshalling of the entire collection in some cases. The function implementation could have been left
+        unchanged from the original code sample in this case. Please refer to the list of members above for more information on these specialized methods.
+      </Paragraph>
+    </SubSection>
+    <SubSection Title="String conversion example">
+      <Paragraph>
+        Given the following code without any marshalling involved:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[void SomeFunction(std::string& argByNonConstRef)
+{
+    argByNonConstRef = "Test1";
+}
+
+int main()
+{
+    std::string test1;
+    SomeFunction(test1);
+    std::cout << test1 << std::endl;
+    return 0;
+}]]></Code>
+      <Paragraph>
+        The code can be converted to marshal the string argument by changing the function signature alone, as follows:
+      </Paragraph>
+      <Code Language="C++"><![CDATA[void SomeFunction(const Marshal::Out<std::string>& argByNonConstRef)
+{
+    argByNonConstRef = "Test1";
+}
+
+int main()
+{
+    std::string test1;
+    SomeFunction(test1);
+    std::cout << test1 << std::endl;
+    return 0;
+}]]></Code>
+      <Paragraph>
+        In this case, implicit conversions handle the conversion from string literals to our marshal helper.
+      </Paragraph>
+    </SubSection>
+  </Section>
+
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport">MarshalSupport Library Overview</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalInOut">Marshal::InOut</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalRet">Marshal::Ret</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

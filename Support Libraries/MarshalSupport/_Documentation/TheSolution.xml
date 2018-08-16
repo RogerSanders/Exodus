@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.Solution" Title="Understanding the Solution" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Understanding the Solution">
+    <Paragraph>
+      Now that <PageRef PageName="SupportLibraries.MarshalSupport.Problem">the problem</PageRef> has been outlined, and the six main areas of compatibility
+      detailed, this section is going to discuss how the MarshalSupport library addresses compatibility issues and removes burden on application developers to
+      handle this issue manually. Without the MarshalSupport library, compatibility issues relating to calling conventions and higher on the compatibility stack
+      need to be addressed by the application itself. The following image shows where primary responsibility lies for managing compatibility when the
+      MarshalSupport library is introduced:
+    </Paragraph>
+    <Image>MarshalSupport_CompatibilitySixAreas_Addressed</Image>
+    <Paragraph>
+      The MarshalSupport library is able to largely or entirely manage concerns related to everything except some aspects of the application-defined APIs, but
+      even at that level it is able to help by providing a pattern for development and tools to assist with handling application-defined types.
+    </Paragraph>
+  </Section>
+
+  <Section Title="How MarshalSupport works">
+    <Paragraph>
+      The MarshalSupport library works by getting heavily involved at the "linkage points" between assemblies. At any point where the execution of code
+      transitions from one assembly to another during program flow, where that transition happens as the direct result of application code with
+      application-supplied data, the MarshalSupport library seeks to act as a "man in the middle", establishing two-way communication across the assembly
+      boundary, and adapting the supplied data from a form the sender understands, to a form the receiver understands. Through appropriate use of virtual
+      functions and header-only inline functions, it is possible to create "assembly barriers", where it is guaranteed two given functions are on opposite sides
+      of the assembly boundary. With this separation established, complex structures can be broken down in one assembly into primitive types, which are
+      exchanged over the assembly boundary, with the complex type then recomposed on the other side. The MarshalSupport library uses this principle of assembly
+      barriers and decomposition as the primary method of marshalling. On top of that, several layers of templates sit to package up the marshalling process and
+      present it to the application in a simple and efficient manner, while augmenting the marshalling process for specific types where required. The entire
+      implementation is designed to keep within the limits of C/C++ ABI compatibility (as discussed in detail in <PageRef PageName="SupportLibraries.MarshalSupport.Problem">the problem</PageRef>),
+      to ensure that the MarshalSupport library is able to operate between different compiler types and versions.
+    </Paragraph>
+  </Section>
+
+  <Section Title="##TODO##">
+    <Paragraph>
+      ##TODO##
+    </Paragraph>
+  </Section>
+
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport">MarshalSupport Library Overview</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.Problem">Understanding the Problem</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

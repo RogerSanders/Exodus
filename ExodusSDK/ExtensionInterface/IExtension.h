@@ -8,6 +8,7 @@
 #include "IGUIExtensionInterface.h"
 #include <string>
 class IDevice;
+using namespace MarshalSupport::Operators;
 
 class IExtension
 {
@@ -37,18 +38,18 @@ public:
 	virtual bool ValidateExtension() = 0;
 
 	//Reference functions
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target) = 0;
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IExtension* target) = 0;
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target) = 0;
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IClockSource* target) = 0;
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IDevice* target) = 0;
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IExtension* target) = 0;
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target) = 0;
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IClockSource* target) = 0;
 	virtual bool RemoveReference(IDevice* target) = 0;
 	virtual bool RemoveReference(IExtension* target) = 0;
 	virtual bool RemoveReference(IBusInterface* target) = 0;
 	virtual bool RemoveReference(IClockSource* target) = 0;
 
 	//Name functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionClassName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetExtensionInstanceName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetExtensionClassName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetExtensionInstanceName() const = 0;
 	virtual unsigned int GetExtensionModuleID() const = 0;
 
 	//Savestate functions
@@ -72,14 +73,14 @@ public:
 	virtual void AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& menuSegment, unsigned int moduleID) = 0;
 	virtual void AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice) = 0;
 	virtual void AddExtensionMenuItems(ExtensionMenu extensionMenu, IMenuSegment& menuSegment, IExtension* targetExtension) = 0;
-	virtual bool RestoreSystemViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter) = 0;
-	virtual bool RestoreModuleViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID) = 0;
-	virtual bool RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice) = 0;
-	virtual bool RestoreExtensionViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IExtension* targetExtension) = 0;
-	virtual bool OpenSystemView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName) = 0;
-	virtual bool OpenModuleView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, unsigned int moduleID) = 0;
-	virtual bool OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice) = 0;
-	virtual bool OpenExtensionView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IExtension* targetExtension) = 0;
+	virtual bool RestoreSystemViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter) = 0;
+	virtual bool RestoreModuleViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID) = 0;
+	virtual bool RestoreDeviceViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice) = 0;
+	virtual bool RestoreExtensionViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IExtension* targetExtension) = 0;
+	virtual bool OpenSystemView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName) = 0;
+	virtual bool OpenModuleView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, unsigned int moduleID) = 0;
+	virtual bool OpenDeviceView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IDevice* targetDevice) = 0;
+	virtual bool OpenExtensionView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IExtension* targetExtension) = 0;
 
 	//##TODO## Add functions to deal with toolbars
 };

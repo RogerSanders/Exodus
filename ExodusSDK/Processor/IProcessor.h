@@ -8,6 +8,7 @@
 #include "IOpcodeInfo.h"
 #include <string>
 #include <list>
+using namespace MarshalSupport::Operators;
 
 class IProcessor :public virtual IGenericAccess
 {
@@ -64,14 +65,14 @@ public:
 	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const = 0;
 
 	//Breakpoint functions
-	virtual MarshalSupport::Marshal::Ret<std::list<IBreakpoint*>> GetBreakpointList() const = 0;
+	virtual Marshal::Ret<std::list<IBreakpoint*>> GetBreakpointList() const = 0;
 	virtual IBreakpoint* CreateBreakpoint() = 0;
 	virtual bool LockBreakpoint(IBreakpoint* breakpoint) const = 0;
 	virtual void UnlockBreakpoint(IBreakpoint* breakpoint) const = 0;
 	virtual void DeleteBreakpoint(IBreakpoint* breakpoint) = 0;
 
 	//Watchpoint functions
-	virtual MarshalSupport::Marshal::Ret<std::list<IWatchpoint*>> GetWatchpointList() const = 0;
+	virtual Marshal::Ret<std::list<IWatchpoint*>> GetWatchpointList() const = 0;
 	virtual IWatchpoint* CreateWatchpoint() = 0;
 	virtual bool LockWatchpoint(IWatchpoint* watchpoint) const = 0;
 	virtual void UnlockWatchpoint(IWatchpoint* watchpoint) const = 0;
@@ -80,7 +81,7 @@ public:
 	//Call stack functions
 	virtual bool GetCallStackDisassemble() const = 0;
 	virtual void SetCallStackDisassemble(bool state) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::list<CallStackEntry>> GetCallStack() const = 0;
+	virtual Marshal::Ret<std::list<CallStackEntry>> GetCallStack() const = 0;
 	virtual unsigned int GetCallStackLastModifiedToken() const = 0;
 	virtual void ClearCallStack() = 0;
 
@@ -91,7 +92,7 @@ public:
 	virtual void SetTraceDisassemble(bool state) = 0;
 	virtual unsigned int GetTraceLength() const = 0;
 	virtual void SetTraceLength(unsigned int state) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const = 0;
+	virtual Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const = 0;
 	virtual unsigned int GetTraceLogLastModifiedToken() const = 0;
 	virtual void ClearTraceLog() = 0;
 
@@ -164,9 +165,9 @@ public:
 	//Active disassembly analysis functions
 	virtual bool PerformActiveDisassemblyAnalysis() = 0;
 	virtual void ClearActiveDisassemblyAnalysis() = 0;
-	virtual bool ActiveDisassemblyExportAnalysisToASMFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const = 0;
-	virtual bool ActiveDisassemblyExportAnalysisToTextFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const = 0;
-	virtual bool ActiveDisassemblyExportAnalysisToIDCFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const = 0;
+	virtual bool ActiveDisassemblyExportAnalysisToASMFile(const Marshal::In<std::wstring>& filePath) const = 0;
+	virtual bool ActiveDisassemblyExportAnalysisToTextFile(const Marshal::In<std::wstring>& filePath) const = 0;
+	virtual bool ActiveDisassemblyExportAnalysisToIDCFile(const Marshal::In<std::wstring>& filePath) const = 0;
 };
 
 #include "IProcessor.inl"

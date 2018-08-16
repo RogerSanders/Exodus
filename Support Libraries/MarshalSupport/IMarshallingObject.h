@@ -4,11 +4,10 @@ namespace MarshalSupport {
 
 class IMarshallingObject
 {
-public:
+protected:
 	//Constructors
-	inline virtual ~IMarshallingObject() = 0;
+	inline ~IMarshallingObject() { };
 };
-IMarshallingObject::~IMarshallingObject() { }
 
 } //Close namespace MarshalSupport
 #endif

@@ -29,13 +29,13 @@ unsigned int SystemInfo::GetSystemVersionNo() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> SystemInfo::GetSystemCopyright() const
+Marshal::Ret<std::wstring> SystemInfo::GetSystemCopyright() const
 {
 	return copyright;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> SystemInfo::GetSystemComments() const
+Marshal::Ret<std::wstring> SystemInfo::GetSystemComments() const
 {
 	return comments;
 }
@@ -43,7 +43,7 @@ MarshalSupport::Marshal::Ret<std::wstring> SystemInfo::GetSystemComments() const
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright, const MarshalSupport::Marshal::In<std::wstring>& asystemComments)
+void SystemInfo::SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const Marshal::In<std::wstring>& asystemCopyright, const Marshal::In<std::wstring>& asystemComments)
 {
 	SetSystemAllocators(aAllocator, aDestructor);
 	SetSystemVersionNo(asystemVersionNo);
@@ -65,13 +65,13 @@ void SystemInfo::SetSystemVersionNo(unsigned int asystemVersionNo)
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemCopyright(const MarshalSupport::Marshal::In<std::wstring>& asystemCopyright)
+void SystemInfo::SetSystemCopyright(const Marshal::In<std::wstring>& asystemCopyright)
 {
 	copyright = asystemCopyright;
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemComments(const MarshalSupport::Marshal::In<std::wstring>& asystemComments)
+void SystemInfo::SetSystemComments(const Marshal::In<std::wstring>& asystemComments)
 {
 	comments = asystemComments;
 }

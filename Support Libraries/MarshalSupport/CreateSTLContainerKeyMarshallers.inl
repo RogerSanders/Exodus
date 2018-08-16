@@ -1,141 +1,180 @@
-#include "STLObjectKeyMarshaller.h"
+#include "NestedMarshaller.h"
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
+#include "TupleHelper.h"
+#endif
 namespace MarshalSupport {
 namespace Internal {
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::vector<ElementType, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::vector<ElementType, Alloc>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 //----------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::array<ElementType, ArraySize>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::array<ElementType, ArraySize>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 #endif
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::list<ElementType, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::list<ElementType, Alloc>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::forward_list<ElementType, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::forward_list<ElementType, Alloc>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 #endif
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::deque<ElementType, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::deque<ElementType, Alloc>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::set<ElementType, Compare, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::set<ElementType, Compare, Alloc>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::multiset<ElementType, Compare, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::multiset<ElementType, Compare, Alloc>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::unordered_set<ElementType, Hash, Pred, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::unordered_set<ElementType, Hash, Pred, Alloc>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::unordered_multiset<ElementType, Hash, Pred, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::unordered_multiset<ElementType, Hash, Pred, Alloc>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 #endif
 
 //----------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::map<KeyType, ElementType, Compare, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::map<KeyType, ElementType, Compare, Alloc>* elementPointer)
 {
-	keyMarshallerArray[keyMarshallerArrayIndex] = new STLObjectKeyMarshaller<KeyType>();
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	nestedMarshallerArray[nestedMarshallerArrayIndex] = new NestedMarshaller<KeyType>();
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 //----------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::multimap<KeyType, ElementType, Compare, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::multimap<KeyType, ElementType, Compare, Alloc>* elementPointer)
 {
-	keyMarshallerArray[keyMarshallerArrayIndex] = new STLObjectKeyMarshaller<KeyType>();
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	nestedMarshallerArray[nestedMarshallerArrayIndex] = new NestedMarshaller<KeyType>();
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 //----------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>* elementPointer)
 {
-	keyMarshallerArray[keyMarshallerArrayIndex] = new STLObjectKeyMarshaller<KeyType>();
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	nestedMarshallerArray[nestedMarshallerArrayIndex] = new NestedMarshaller<KeyType>();
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 //----------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>* elementPointer)
 {
-	keyMarshallerArray[keyMarshallerArrayIndex] = new STLObjectKeyMarshaller<KeyType>();
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	nestedMarshallerArray[nestedMarshallerArrayIndex] = new NestedMarshaller<KeyType>();
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 #endif
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Container>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::stack<ElementType, Container>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::stack<ElementType, Container>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Container>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::queue<ElementType, Container>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::queue<ElementType, Container>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class Container, class Compare>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::priority_queue<ElementType, Container, Compare>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::priority_queue<ElementType, Container, Compare>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 //----------------------------------------------------------------------------------------
 template<class ElementType, class traits, class Alloc>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const std::basic_string<ElementType, traits, Alloc>* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::basic_string<ElementType, traits, Alloc>* elementPointer)
 {
-	CreateSTLContainerKeyMarshallers(keyMarshallerArray, keyMarshallerArrayIndex+1, (const ElementType*)elementPointer);
+	CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
 //----------------------------------------------------------------------------------------
+template<class T1, class T2>
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::pair<T1, T2>* elementPointer)
+{
+	nestedMarshallerArray[nestedMarshallerArrayIndex] = new NestedMarshaller<T1>();
+	nestedMarshallerArray[nestedMarshallerArrayIndex+1] = new NestedMarshaller<T2>();
+}
+
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
+//----------------------------------------------------------------------------------------
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::tuple<>* elementPointer)
+{ }
+
+//----------------------------------------------------------------------------------------
+template<class... Args>
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::tuple<Args...>* elementPointer)
+{
+	TupleHelper<std::tuple_size<std::tuple<Args...>>::value-1, Args...>::CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex, elementPointer);
+}
+
+//----------------------------------------------------------------------------------------
+template<size_t TupleElementNo, class... Args>
+void TupleHelper<TupleElementNo, Args...>::CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::tuple<Args...>* elementPointer)
+{
+	nestedMarshallerArray[nestedMarshallerArrayIndex] = new NestedMarshaller<typename std::tuple_element<TupleElementNo, std::tuple<Args...>>::type>();
+	TupleHelper<TupleElementNo-1, Args...>::CreateSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, elementPointer);
+}
+
+//----------------------------------------------------------------------------------------
+template<class... Args>
+void TupleHelper<0, Args...>::CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::tuple<Args...>* elementPointer)
+{
+	nestedMarshallerArray[nestedMarshallerArrayIndex] = new NestedMarshaller<typename std::tuple_element<0, std::tuple<Args...>>::type>();
+}
+#endif
+
+//----------------------------------------------------------------------------------------
 template<class ElementType>
-void CreateSTLContainerKeyMarshallers(ISTLObjectKeyMarshallerBase* keyMarshallerArray[], size_t keyMarshallerArrayIndex, const ElementType* elementPointer)
+void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const ElementType* elementPointer)
 { }
 
 } //Close namespace Internal

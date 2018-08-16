@@ -47,7 +47,7 @@ public:
 	virtual HWND CreateNativeWindow(IView& view, IViewPresenter& viewPresenter, HINSTANCE assemblyHandle, WNDPROC windowProcedure, DWORD windowStyle, DWORD extendedWindowStyle);
 
 	//Window management functions
-	virtual bool ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle, IHierarchicalStorageNode* windowState = 0);
+	virtual bool ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const Marshal::In<std::wstring>& windowTitle, IHierarchicalStorageNode* windowState = 0);
 	virtual void CloseWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle);
 	virtual void ShowWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle);
 	virtual void HideWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle);
@@ -62,7 +62,7 @@ public:
 	virtual void ResizeWindowToTargetClientSize(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, unsigned int windowClientWidth, unsigned int windowClientHeight);
 
 	//Window title functions
-	virtual void UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle);
+	virtual void UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const Marshal::In<std::wstring>& windowTitle);
 
 	//Dialog management functions
 	virtual void NotifyDialogActivated(HWND dialogWindow);

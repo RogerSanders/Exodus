@@ -26,16 +26,16 @@ public:
 
 	//List info functions
 	virtual unsigned int GetDataID() const;
-	virtual MarshalSupport::Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GetSelectionList() const;
+	virtual Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GetSelectionList() const;
 	inline GenericAccessGroupSingleSelectionList* SetSelectionList(const std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>& aselectionList);
 	inline GenericAccessGroupSingleSelectionList* AddSelectionListEntry(const IGenericAccessDataValue* key, const IGenericAccessDataValue* value = 0);
 	virtual bool GetAllowNewItemEntry() const;
 	inline GenericAccessGroupSingleSelectionList*  SetAllowNewItemEntry(bool state);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
+	virtual Marshal::Ret<std::wstring> GetName() const;
 	inline GenericAccessGroupSingleSelectionList* SetName(const std::wstring& aname);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDescription() const;
+	virtual Marshal::Ret<std::wstring> GetDescription() const;
 	inline GenericAccessGroupSingleSelectionList* SetDescription(const std::wstring& adescription);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHelpFileLink() const;
+	virtual Marshal::Ret<std::wstring> GetHelpFileLink() const;
 	inline GenericAccessGroupSingleSelectionList* SetHelpFileLink(const std::wstring& ahelpFileLink);
 
 protected:

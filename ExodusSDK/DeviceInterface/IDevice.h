@@ -12,6 +12,7 @@ class ISystemDeviceInterface;
 class IDeviceContext;
 class IExtension;
 class IViewManager;
+using namespace MarshalSupport::Operators;
 
 class IDevice
 {
@@ -36,10 +37,10 @@ public:
 	virtual void Initialize() = 0;
 
 	//Reference functions
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target) = 0;
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IExtension* target) = 0;
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target) = 0;
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IClockSource* target) = 0;
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IDevice* target) = 0;
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IExtension* target) = 0;
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target) = 0;
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IClockSource* target) = 0;
 	virtual void RemoveReference(IDevice* target) = 0;
 	virtual void RemoveReference(IExtension* target) = 0;
 	virtual void RemoveReference(IBusInterface* target) = 0;
@@ -89,11 +90,11 @@ public:
 	//followed by the imported connector name surrounded in braces.
 	//##TODO## Remove all these name functions from the device interface entirely, and
 	//only store this data and allow retrieval of it through the system interface.
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDeviceClassName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDeviceInstanceName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFullyQualifiedDeviceInstanceName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleDisplayName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetModuleInstanceName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetDeviceClassName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetDeviceInstanceName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetFullyQualifiedDeviceInstanceName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetModuleDisplayName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetModuleInstanceName() const = 0;
 	virtual unsigned int GetDeviceModuleID() const = 0;
 
 	//Savestate functions
@@ -108,7 +109,7 @@ public:
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const = 0;
 
 	//CE line state functions
-	virtual unsigned int GetCELineID(const MarshalSupport::Marshal::In<std::wstring>& lineName, bool inputLine) const = 0;
+	virtual unsigned int GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const = 0;
 	virtual void SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber) = 0;
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber) = 0;
 	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const = 0;
@@ -129,8 +130,8 @@ public:
 	virtual void TransparentWritePort(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) = 0;
 
 	//Line functions
-	virtual unsigned int GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const = 0;
+	virtual unsigned int GetLineID(const Marshal::In<std::wstring>& lineName) const = 0;
+	virtual Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const = 0;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const = 0;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData) = 0;
@@ -140,14 +141,14 @@ public:
 	virtual void NegateCurrentOutputLineState() const = 0;
 
 	//Clock source functions
-	virtual unsigned int GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const = 0;
+	virtual unsigned int GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const = 0;
+	virtual Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const = 0;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate) = 0;
 
 	//Input functions
-	virtual unsigned int GetKeyCodeID(const MarshalSupport::Marshal::In<std::wstring>& keyCodeName) const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetKeyCodeName(unsigned int keyCodeID) const = 0;
+	virtual unsigned int GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const = 0;
+	virtual Marshal::Ret<std::wstring> GetKeyCodeName(unsigned int keyCodeID) const = 0;
 	virtual void HandleInputKeyDown(unsigned int keyCodeID) = 0;
 	virtual void HandleInputKeyUp(unsigned int keyCodeID) = 0;
 };

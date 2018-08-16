@@ -5,6 +5,7 @@
 #include <string>
 #include <list>
 class IHierarchicalStorageNode;
+using namespace MarshalSupport::Operators;
 
 class IHierarchicalStorageTree
 {
@@ -26,11 +27,11 @@ public:
 	virtual void SetSeparateBinaryDataEnabled(bool state) = 0;
 
 	//Error handling functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetErrorString() const = 0;
+	virtual Marshal::Ret<std::wstring> GetErrorString() const = 0;
 
 	//Node access functions
 	virtual IHierarchicalStorageNode& GetRootNode() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetBinaryDataNodeList() = 0;
+	virtual Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetBinaryDataNodeList() = 0;
 };
 
 #include "IHierarchicalStorageTree.inl"

@@ -41,7 +41,7 @@ bool MDControl3::ValidateDevice()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool MDControl3::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
+bool MDControl3::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	if(referenceName == L"BusInterface")
 	{
@@ -117,7 +117,7 @@ void MDControl3::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int MDControl3::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const
+unsigned int MDControl3::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
 	if(lineName == L"D0")
 	{
@@ -151,7 +151,7 @@ unsigned int MDControl3::GetLineID(const MarshalSupport::Marshal::In<std::wstrin
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> MDControl3::GetLineName(unsigned int lineID) const
+Marshal::Ret<std::wstring> MDControl3::GetLineName(unsigned int lineID) const
 {
 	switch((LineID)lineID)
 	{
@@ -370,7 +370,7 @@ bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const
 //----------------------------------------------------------------------------------------
 //Input functions
 //----------------------------------------------------------------------------------------
-unsigned int MDControl3::GetKeyCodeID(const MarshalSupport::Marshal::In<std::wstring>& keyCodeName) const
+unsigned int MDControl3::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const
 {
 	if(keyCodeName == L"Up")
 	{
@@ -408,7 +408,7 @@ unsigned int MDControl3::GetKeyCodeID(const MarshalSupport::Marshal::In<std::wst
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> MDControl3::GetKeyCodeName(unsigned int keyCodeID) const
+Marshal::Ret<std::wstring> MDControl3::GetKeyCodeName(unsigned int keyCodeID) const
 {
 	switch(keyCodeID)
 	{

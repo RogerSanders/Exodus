@@ -71,29 +71,29 @@ public:
 	virtual unsigned int GetISystemGUIInterfaceVersion() const;
 
 	//Savestate functions
-	virtual bool LoadState(const MarshalSupport::Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState);
-	virtual bool SaveState(const MarshalSupport::Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState);
-	virtual MarshalSupport::Marshal::Ret<StateInfo> GetStateInfo(const MarshalSupport::Marshal::In<std::wstring>& filePath, FileType fileType) const;
-	virtual bool LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const MarshalSupport::Marshal::Out<ModuleRelationshipMap>& relationshipMap) const;
-	virtual void SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool saveFilePathInfo = false, const MarshalSupport::Marshal::In<std::wstring>& relativePathBase = L"") const;
+	virtual bool LoadState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState);
+	virtual bool SaveState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState);
+	virtual Marshal::Ret<StateInfo> GetStateInfo(const Marshal::In<std::wstring>& filePath, FileType fileType) const;
+	virtual bool LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const Marshal::Out<ModuleRelationshipMap>& relationshipMap) const;
+	virtual void SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool saveFilePathInfo = false, const Marshal::In<std::wstring>& relativePathBase = L"") const;
 
 	//Logging functions
 	virtual void WriteLogEvent(const ILogEntry& entry) const;
-	virtual MarshalSupport::Marshal::Ret<std::vector<SystemLogEntry>> GetEventLog() const;
+	virtual Marshal::Ret<std::vector<SystemLogEntry>> GetEventLog() const;
 	virtual unsigned int GetEventLogLastModifiedToken() const;
 	virtual void ClearEventLog();
 	virtual unsigned int GetEventLogSize() const;
 	virtual void SetEventLogSize(unsigned int alogSize);
 
 	//Embedded ROM functions
-	virtual MarshalSupport::Marshal::Ret<std::list<unsigned int>> GetEmbeddedROMIDs() const;
+	virtual Marshal::Ret<std::list<unsigned int>> GetEmbeddedROMIDs() const;
 	virtual unsigned int GetEmbeddedROMInfoLastModifiedToken() const;
 	virtual bool GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& embeddedROMInfo) const;
-	virtual bool SetEmbeddedROMPath(unsigned int embeddedROMID, const MarshalSupport::Marshal::In<std::wstring>& filePath);
+	virtual bool SetEmbeddedROMPath(unsigned int embeddedROMID, const Marshal::In<std::wstring>& filePath);
 	virtual bool ReloadEmbeddedROMData(unsigned int embeddedROMID);
 
 	//Module setting functions
-	virtual MarshalSupport::Marshal::Ret<std::list<unsigned int>> GetModuleSettingIDs(unsigned int moduleID) const;
+	virtual Marshal::Ret<std::list<unsigned int>> GetModuleSettingIDs(unsigned int moduleID) const;
 	virtual bool GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSettingID, IModuleSettingInfo& moduleSettingInfo) const;
 	virtual bool GetModuleSettingOptionInfo(unsigned int moduleID, unsigned int moduleSettingID, unsigned int moduleSettingOptionIndex, IModuleSettingOptionInfo& moduleSettingOptionInfo) const;
 	virtual bool GetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned int moduleSettingID, unsigned int& activeModuleOptionIndex) const;
@@ -102,8 +102,8 @@ public:
 	virtual void ModuleSettingActiveOptionChangeNotifyDeregister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer);
 
 	//Path functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetCapturePath() const;
-	virtual void SetCapturePath(const MarshalSupport::Marshal::In<std::wstring>& apath);
+	virtual Marshal::Ret<std::wstring> GetCapturePath() const;
+	virtual void SetCapturePath(const Marshal::In<std::wstring>& apath);
 
 	//System interface functions
 	virtual void FlagInitialize();
@@ -118,49 +118,49 @@ public:
 
 	//Device registration
 	virtual bool RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHandle);
-	virtual void UnregisterDevice(const MarshalSupport::Marshal::In<std::wstring>& deviceName);
+	virtual void UnregisterDevice(const Marshal::In<std::wstring>& deviceName);
 
 	//Extension registration
 	virtual bool RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assemblyHandle);
-	virtual void UnregisterExtension(const MarshalSupport::Marshal::In<std::wstring>& extensionName);
+	virtual void UnregisterExtension(const Marshal::In<std::wstring>& extensionName);
 
 	//Module loading and unloading
-	virtual void LoadModuleSynchronous(const MarshalSupport::Marshal::In<std::wstring>& filePath, const MarshalSupport::Marshal::In<ConnectorMappingList>& connectorMappings);
+	virtual void LoadModuleSynchronous(const Marshal::In<std::wstring>& filePath, const Marshal::In<ConnectorMappingList>& connectorMappings);
 	virtual void LoadModuleSynchronousAbort();
 	virtual float LoadModuleSynchronousProgress() const;
 	virtual bool LoadModuleSynchronousComplete() const;
 	virtual bool LoadModuleSynchronousResult() const;
 	virtual bool LoadModuleSynchronousAborted() const;
-	virtual bool LoadModule(const MarshalSupport::Marshal::In<std::wstring>& filePath, const MarshalSupport::Marshal::In<ConnectorMappingList>& connectorMappings);
-	virtual bool SaveSystem(const MarshalSupport::Marshal::In<std::wstring>& filePath);
+	virtual bool LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal::In<ConnectorMappingList>& connectorMappings);
+	virtual bool SaveSystem(const Marshal::In<std::wstring>& filePath);
 	virtual bool UnloadModule(unsigned int moduleID);
 	virtual void UnloadAllModulesSynchronous();
 	virtual bool UnloadAllModulesSynchronousComplete() const;
 	virtual void UnloadAllModules();
-	virtual bool ReadModuleConnectorInfo(const MarshalSupport::Marshal::In<std::wstring>& filePath, const MarshalSupport::Marshal::Out<std::wstring>& systemClassName, const MarshalSupport::Marshal::Out<ConnectorImportList>& connectorsImported, const MarshalSupport::Marshal::Out<ConnectorExportList>& connectorsExported) const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> LoadModuleSynchronousCurrentModuleName() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> UnloadModuleSynchronousCurrentModuleName() const;
+	virtual bool ReadModuleConnectorInfo(const Marshal::In<std::wstring>& filePath, const Marshal::Out<std::wstring>& systemClassName, const Marshal::Out<ConnectorImportList>& connectorsImported, const Marshal::Out<ConnectorExportList>& connectorsExported) const;
+	virtual Marshal::Ret<std::wstring> LoadModuleSynchronousCurrentModuleName() const;
+	virtual Marshal::Ret<std::wstring> UnloadModuleSynchronousCurrentModuleName() const;
 
 	//Loaded module info functions
-	virtual MarshalSupport::Marshal::Ret<std::list<unsigned int>> GetLoadedModuleIDs() const;
+	virtual Marshal::Ret<std::list<unsigned int>> GetLoadedModuleIDs() const;
 	virtual bool GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& moduleInfo) const;
-	virtual bool GetModuleDisplayName(unsigned int moduleID, const MarshalSupport::Marshal::Out<std::wstring>& moduleDisplayName) const;
-	virtual bool GetModuleInstanceName(unsigned int moduleID, const MarshalSupport::Marshal::Out<std::wstring>& moduleInstanceName) const;
+	virtual bool GetModuleDisplayName(unsigned int moduleID, const Marshal::Out<std::wstring>& moduleDisplayName) const;
+	virtual bool GetModuleInstanceName(unsigned int moduleID, const Marshal::Out<std::wstring>& moduleInstanceName) const;
 	virtual void LoadedModulesChangeNotifyRegister(IObserverSubscription& observer);
 	virtual void LoadedModulesChangeNotifyDeregister(IObserverSubscription& observer);
 
 	//Connector info functions
-	virtual MarshalSupport::Marshal::Ret<std::list<unsigned int>> GetConnectorIDs() const;
+	virtual Marshal::Ret<std::list<unsigned int>> GetConnectorIDs() const;
 	virtual bool GetConnectorInfo(unsigned int connectorID, IConnectorInfo& connectorInfo) const;
 
 	//Loaded device info functions
-	virtual MarshalSupport::Marshal::Ret<std::list<IDevice*>> GetLoadedDevices() const;
-	virtual bool GetDeviceDisplayName(IDevice* device, const MarshalSupport::Marshal::Out<std::wstring>& deviceDisplayName) const;
-	virtual bool GetDeviceInstanceName(IDevice* device, const MarshalSupport::Marshal::Out<std::wstring>& deviceInstanceName) const;
-	virtual bool GetFullyQualifiedDeviceDisplayName(IDevice* device, const MarshalSupport::Marshal::Out<std::wstring>& fullyQualifiedDeviceDisplayName) const;
+	virtual Marshal::Ret<std::list<IDevice*>> GetLoadedDevices() const;
+	virtual bool GetDeviceDisplayName(IDevice* device, const Marshal::Out<std::wstring>& deviceDisplayName) const;
+	virtual bool GetDeviceInstanceName(IDevice* device, const Marshal::Out<std::wstring>& deviceInstanceName) const;
+	virtual bool GetFullyQualifiedDeviceDisplayName(IDevice* device, const Marshal::Out<std::wstring>& fullyQualifiedDeviceDisplayName) const;
 
 	//Loaded extension info functions
-	virtual MarshalSupport::Marshal::Ret<std::list<IExtension*>> GetLoadedExtensions() const;
+	virtual Marshal::Ret<std::list<IExtension*>> GetLoadedExtensions() const;
 
 	//System execution functions
 	virtual bool SystemRunning() const;
@@ -179,15 +179,15 @@ public:
 	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu) const;
 	virtual void BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const;
 	virtual void BuildDebugMenu(IMenuSubmenu& menuSubmenu) const;
-	virtual bool RestoreViewStateForSystem(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter) const;
-	virtual bool RestoreViewStateForModule(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID) const;
-	virtual bool RestoreViewStateForDevice(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& deviceInstanceName) const;
-	virtual bool RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const;
-	virtual bool RestoreViewStateForExtension(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const MarshalSupport::Marshal::In<std::wstring>& extensionInstanceName) const;
+	virtual bool RestoreViewStateForSystem(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter) const;
+	virtual bool RestoreViewStateForModule(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID) const;
+	virtual bool RestoreViewStateForDevice(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const Marshal::In<std::wstring>& deviceInstanceName) const;
+	virtual bool RestoreViewStateForExtension(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, const Marshal::In<std::wstring>& extensionInstanceName) const;
+	virtual bool RestoreViewStateForExtension(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const Marshal::In<std::wstring>& extensionInstanceName) const;
 
 	//Input functions
-	virtual KeyCode GetKeyCodeID(const MarshalSupport::Marshal::In<std::wstring>& keyCodeName) const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetKeyCodeName(KeyCode keyCode) const;
+	virtual KeyCode GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const;
+	virtual Marshal::Ret<std::wstring> GetKeyCodeName(KeyCode keyCode) const;
 	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) const;
 	virtual bool TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, KeyCode& inputKeyCode) const;
 	virtual bool TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, KeyCode& inputKeyCode) const;
@@ -197,9 +197,9 @@ public:
 	virtual void HandleInputAxisUpdate(AxisCode axisCode, float newValue);
 	virtual void HandleInputScrollUpdate(ScrollCode scrollCode, int scrollTicks);
 	virtual unsigned int GetInputDeviceListLastModifiedToken() const;
-	virtual MarshalSupport::Marshal::Ret<std::list<IDevice*>> GetInputDeviceList() const;
-	virtual MarshalSupport::Marshal::Ret<std::list<unsigned int>> GetDeviceKeyCodeList(IDevice* targetDevice) const;
-	virtual MarshalSupport::Marshal::Ret<std::list<KeyCode>> GetDeviceKeyCodePreferredDefaultMappingList(IDevice* targetDevice, unsigned int deviceKeyCode) const;
+	virtual Marshal::Ret<std::list<IDevice*>> GetInputDeviceList() const;
+	virtual Marshal::Ret<std::list<unsigned int>> GetDeviceKeyCodeList(IDevice* targetDevice) const;
+	virtual Marshal::Ret<std::list<KeyCode>> GetDeviceKeyCodePreferredDefaultMappingList(IDevice* targetDevice, unsigned int deviceKeyCode) const;
 	virtual bool IsKeyCodeMapped(KeyCode keyCode) const;
 	virtual bool IsDeviceKeyCodeMapped(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const;
 	virtual KeyCode GetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const;

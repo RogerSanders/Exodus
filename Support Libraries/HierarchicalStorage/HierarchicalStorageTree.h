@@ -27,11 +27,11 @@ public:
 	virtual void SetSeparateBinaryDataEnabled(bool state);
 
 	//Error handling functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetErrorString() const;
+	virtual Marshal::Ret<std::wstring> GetErrorString() const;
 
 	//Node access functions
 	virtual IHierarchicalStorageNode& GetRootNode() const;
-	virtual MarshalSupport::Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetBinaryDataNodeList();
+	virtual Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetBinaryDataNodeList();
 
 private:
 	//Save/Load functions

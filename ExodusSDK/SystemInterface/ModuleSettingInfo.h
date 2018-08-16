@@ -12,8 +12,8 @@ public:
 	virtual unsigned int GetIModuleSettingInfoVersion() const;
 
 	//Getters
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDisplayName() const;
+	virtual Marshal::Ret<std::wstring> GetName() const;
+	virtual Marshal::Ret<std::wstring> GetDisplayName() const;
 	virtual unsigned int GetOptionCount() const;
 	virtual unsigned int GetDefaultOptionIndex() const;
 	virtual unsigned int GetToggleSettingOnOptionIndex() const;
@@ -21,8 +21,8 @@ public:
 	virtual bool IsToggleSetting() const;
 
 	//Setters
-	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& aname);
-	virtual void SetDisplayName(const MarshalSupport::Marshal::In<std::wstring>& adisplayName);
+	virtual void SetName(const Marshal::In<std::wstring>& aname);
+	virtual void SetDisplayName(const Marshal::In<std::wstring>& adisplayName);
 	virtual void SetOptionCount(unsigned int aoptionCount);
 	virtual void SetDefaultOptionIndex(unsigned int adefaultOptionIndex);
 	virtual void SetToggleSettingOnOptionIndex(unsigned int aonOptionIndex);

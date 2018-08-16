@@ -943,7 +943,7 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 //----------------------------------------------------------------------------------------
 //Module functions
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::CanModuleBeLoaded(const MarshalSupport::Marshal::In<std::wstring>& filePath) const
+bool ExodusInterface::CanModuleBeLoaded(const Marshal::In<std::wstring>& filePath) const
 {
 	//Read the connector info for the module
 	ISystemGUIInterface::ConnectorImportList connectorsImported;
@@ -1002,7 +1002,7 @@ bool ExodusInterface::LoadModule(const std::wstring& folder)
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadModuleFromFile(const MarshalSupport::Marshal::In<std::wstring>& filePath)
+bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePath)
 {
 	//Pause view event processing while the system load is in progress. We do this to
 	//ensure any views which are flagged to be displayed in the system definition don't
@@ -1333,55 +1333,55 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetPreferenceDirectoryPath() const
+Marshal::Ret<std::wstring> ExodusInterface::GetPreferenceDirectoryPath() const
 {
 	return preferenceDirectoryPath;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathModules() const
+Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathModules() const
 {
 	return prefs.pathModules;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathSavestates() const
+Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathSavestates() const
 {
 	return prefs.pathSavestates;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathPersistentState() const
+Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathPersistentState() const
 {
 	return prefs.pathPersistentState;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathWorkspaces() const
+Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathWorkspaces() const
 {
 	return prefs.pathWorkspaces;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathCaptures() const
+Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathCaptures() const
 {
 	return prefs.pathCaptures;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathAssemblies() const
+Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathAssemblies() const
 {
 	return prefs.pathAssemblies;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferenceInitialSystem() const
+Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferenceInitialSystem() const
 {
 	return prefs.loadSystem;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferenceInitialWorkspace() const
+Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferenceInitialWorkspace() const
 {
 	return prefs.loadWorkspace;
 }
@@ -1697,7 +1697,7 @@ bool ExodusInterface::LoadAssembliesFromFolderSynchronous(const std::wstring& fo
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::LoadAssembly(const MarshalSupport::Marshal::In<std::wstring>& filePath)
+bool ExodusInterface::LoadAssembly(const Marshal::In<std::wstring>& filePath)
 {
 	//Attempt to load the target assembly and retrieve information on its plugin interface
 	PluginInfo pluginInfo;
@@ -1844,7 +1844,7 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 //----------------------------------------------------------------------------------------
 //File selection functions
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::SelectExistingFile(const MarshalSupport::Marshal::In<std::wstring>& selectionTypeString, const MarshalSupport::Marshal::In<std::wstring>& defaultExtension, const MarshalSupport::Marshal::In<std::wstring>& initialFilePath, const MarshalSupport::Marshal::In<std::wstring>& initialDirectory, bool scanIntoArchives, const MarshalSupport::Marshal::Out<std::wstring>& selectedFilePath) const
+bool ExodusInterface::SelectExistingFile(const Marshal::In<std::wstring>& selectionTypeString, const Marshal::In<std::wstring>& defaultExtension, const Marshal::In<std::wstring>& initialFilePath, const Marshal::In<std::wstring>& initialDirectory, bool scanIntoArchives, const Marshal::Out<std::wstring>& selectedFilePath) const
 {
 	//Break the supplied selection type string down into individual type entries
 	std::list<FileSelectionType> selectionTypes = ParseSelectionTypeString(selectionTypeString);
@@ -2037,7 +2037,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 }
 
 //----------------------------------------------------------------------------------------
-bool ExodusInterface::SelectNewFile(const MarshalSupport::Marshal::In<std::wstring>& selectionTypeString, const MarshalSupport::Marshal::In<std::wstring>& defaultExtension, const MarshalSupport::Marshal::In<std::wstring>& initialFilePath, const MarshalSupport::Marshal::In<std::wstring>& initialDirectory, const MarshalSupport::Marshal::Out<std::wstring>& selectedFilePath) const
+bool ExodusInterface::SelectNewFile(const Marshal::In<std::wstring>& selectionTypeString, const Marshal::In<std::wstring>& defaultExtension, const Marshal::In<std::wstring>& initialFilePath, const Marshal::In<std::wstring>& initialDirectory, const Marshal::Out<std::wstring>& selectedFilePath) const
 {
 	//Extract the first component from our combined path
 	std::vector<std::wstring> initialPathElements = PathSplitElements(initialFilePath);
@@ -2052,7 +2052,7 @@ bool ExodusInterface::SelectNewFile(const MarshalSupport::Marshal::In<std::wstri
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::vector<std::wstring>> ExodusInterface::PathSplitElements(const MarshalSupport::Marshal::In<std::wstring>& path) const
+Marshal::Ret<std::vector<std::wstring>> ExodusInterface::PathSplitElements(const Marshal::In<std::wstring>& path) const
 {
 	//##TODO## Format and comment this
 	std::wstring pathTemp = path;
@@ -2071,7 +2071,7 @@ MarshalSupport::Marshal::Ret<std::vector<std::wstring>> ExodusInterface::PathSpl
 }
 
 //----------------------------------------------------------------------------------------
-Stream::IStream* ExodusInterface::OpenExistingFileForRead(const MarshalSupport::Marshal::In<std::wstring>& path) const
+Stream::IStream* ExodusInterface::OpenExistingFileForRead(const Marshal::In<std::wstring>& path) const
 {
 	//##TODO## Provide more comments
 	std::vector<std::wstring> pathElements = PathSplitElements(path);
@@ -3907,7 +3907,8 @@ void ExodusInterface::JoystickInputWorkerThread()
 				}
 
 				//Notify the system of button state changes linked to this axis
-				if((axisStateOld >= 0.25f) && (axisStateNew < 0.25f))
+				const static float axisButtonTolerance = 0.25f;
+				if((axisStateOld >= axisButtonTolerance) && (axisStateNew < axisButtonTolerance))
 				{
 					ISystemGUIInterface::KeyCode keyCode;
 					if(system->TranslateJoystickAxisAsButton(joystickNo, axisNo, true, keyCode))
@@ -3915,7 +3916,7 @@ void ExodusInterface::JoystickInputWorkerThread()
 						system->HandleInputKeyUp(keyCode);
 					}
 				}
-				if((axisStateOld <= -0.25f) && (axisStateNew > -0.25f))
+				if((axisStateOld <= -axisButtonTolerance) && (axisStateNew > -axisButtonTolerance))
 				{
 					ISystemGUIInterface::KeyCode keyCode;
 					if(system->TranslateJoystickAxisAsButton(joystickNo, axisNo, false, keyCode))
@@ -3923,7 +3924,7 @@ void ExodusInterface::JoystickInputWorkerThread()
 						system->HandleInputKeyUp(keyCode);
 					}
 				}
-				if((axisStateOld < 0.25f) && (axisStateNew >= 0.25f))
+				if((axisStateOld < axisButtonTolerance) && (axisStateNew >= axisButtonTolerance))
 				{
 					ISystemGUIInterface::KeyCode keyCode;
 					if(system->TranslateJoystickAxisAsButton(joystickNo, axisNo, true, keyCode))
@@ -3931,7 +3932,7 @@ void ExodusInterface::JoystickInputWorkerThread()
 						system->HandleInputKeyDown(keyCode);
 					}
 				}
-				if((axisStateOld > -0.25f) && (axisStateNew <= -0.25f))
+				if((axisStateOld > -axisButtonTolerance) && (axisStateNew <= -axisButtonTolerance))
 				{
 					ISystemGUIInterface::KeyCode keyCode;
 					if(system->TranslateJoystickAxisAsButton(joystickNo, axisNo, false, keyCode))

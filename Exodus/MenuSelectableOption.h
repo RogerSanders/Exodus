@@ -16,7 +16,7 @@ public:
 	virtual Type GetType() const;
 
 	//Menu title functions
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetMenuTitle() const;
+	virtual Marshal::Ret<std::wstring> GetMenuTitle() const;
 
 	//Menu handler functions
 	virtual IMenuHandler& GetMenuHandler() const;

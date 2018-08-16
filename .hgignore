@@ -3,6 +3,7 @@ syntax: glob
 # Data folders to ignore
 Crash Reports/
 Data/
+.vs/
 
 # Compiled documentation and uncommitted directories to ignore
 Documentation/
@@ -20,10 +21,15 @@ _Documentation/obj/
 *.pgd
 *.aps
 *.APS
+*.VC.db
 
 # Compiled output folders to ignore
 Win32/
 x64/
+Debug/
+Release/
+debug/
+release/
 Assemblies/
 StaticModules/
 Exodus.exe

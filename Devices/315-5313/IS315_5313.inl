@@ -191,14 +191,14 @@ public:
 	PortMonitorEntry(const std::wstring& atarget, const std::wstring& asource, unsigned int adata, double aaccessTime, unsigned int ahcounterPos, unsigned int avcounterPos)
 	:target(atarget), source(asource), data(adata), accessTime(aaccessTime), hcounterPos(ahcounterPos), vcounterPos(avcounterPos)
 	{}
-	PortMonitorEntry(MarshalSupport::marshal_object_t, const PortMonitorEntry& sourceObject)
+	PortMonitorEntry(MarshalSupport::marshal_object_tag, const PortMonitorEntry& sourceObject)
 	{
 		sourceObject.MarshalToTarget(source, target, data, accessTime, hcounterPos, vcounterPos);
 	}
 
 private:
 	//Marshalling methods
-	virtual void MarshalToTarget(const MarshalSupport::Marshal::Out<std::wstring>& sourceMarshaller, const MarshalSupport::Marshal::Out<std::wstring>& targetMarshaller, unsigned int& dataMarshaller, double& accessTimeMarshaller, unsigned int& hcounterPosMarshaller, unsigned int& vcounterPosMarshaller) const
+	virtual void MarshalToTarget(const Marshal::Out<std::wstring>& sourceMarshaller, const Marshal::Out<std::wstring>& targetMarshaller, unsigned int& dataMarshaller, double& accessTimeMarshaller, unsigned int& hcounterPosMarshaller, unsigned int& vcounterPosMarshaller) const
 	{
 		sourceMarshaller = source;
 		targetMarshaller = target;

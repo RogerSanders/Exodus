@@ -3,8 +3,8 @@
   <!-- Assign defaults for any custom build properties which haven't been set already -->
   <PropertyGroup>
     <!-- Build system folder structure -->
-    <BuildSystemDir Condition="'$(BuildSystemDir)' == ''">$(SolutionDir)\Build\</BuildSystemDir>
-    <ThirdDir Condition="'$(ThirdDir)' == ''">$(SolutionDir)\Third\</ThirdDir>
+    <BuildSystemDir Condition="'$(BuildSystemDir)' == ''">$(SolutionDir)Build\</BuildSystemDir>
+    <ThirdDir Condition="'$(ThirdDir)' == ''">$(SolutionDir)Third\</ThirdDir>
 
     <ThirdDirPathZlib Condition="'$(ThirdDirPathZlib)' == ''">$(ThirdDir)zlib\zlib-1.2.8\</ThirdDirPathZlib>
     <ThirdDirPathLibjpeg Condition="'$(ThirdDirPathLibjpeg)' == ''">$(ThirdDir)libjpeg\jpeg-9a\</ThirdDirPathLibjpeg>

@@ -59,9 +59,9 @@ public:
 	inline GenericAccessDataInfo* SetFilePathCreatingTarget(bool state);
 	virtual bool GetFilePathAllowScanningIntoArchives() const;
 	inline GenericAccessDataInfo* SetFilePathAllowScanningIntoArchives(bool state);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFilePathExtensionFilter() const;
+	virtual Marshal::Ret<std::wstring> GetFilePathExtensionFilter() const;
 	inline GenericAccessDataInfo* SetFilePathExtensionFilter(const std::wstring& afilePathExtensionFilter);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetFilePathDefaultExtension() const;
+	virtual Marshal::Ret<std::wstring> GetFilePathDefaultExtension() const;
 	inline GenericAccessDataInfo* SetFilePathDefaultExtension(const std::wstring& afilePathDefaultExtension);
 
 	//Folder path settings

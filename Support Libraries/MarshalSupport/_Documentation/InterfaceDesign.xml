@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.InterfaceDesign" Title="Interface Design" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Overview">
+    <Paragraph>
+      One of the primary purposes of the MarshalSupport library is to assist with an interface-based programming model in C++. The library itself helps to
+      overcome limitations at the function level, and it is applicable for use even when an interface-based approach is not being used, but a model is presented
+      here for guidance, and to serve as an example of how interface-based programming can be easily achieved with the use of the MarshalSupport library.
+    </Paragraph>
+    <Paragraph>
+      Although the C++ language itself doesn't have the concept of interfaces, the interface model can be achieved through the use of abstract classes
+      containing pure virtual methods. Some sources will advocate that only "pure virtual interfaces" should be used, or in other words, only pure virtual
+      methods should be present on the abstract class for it to be considered an interface. This is an ideological argument however, it is not a technical
+      requirement. Any members can be present on your abstract types, as long as they don't introduce a link time dependency on content from a cpp file. You can
+      have inlined methods, nested enumerations and type definitions, template implementations, and so on. The only things you must avoid for technical reasons
+      are non-static data members and non-inlined methods, and if you want to support deleting your interface types directly, some points of implementation need
+      to be changed.
+    </Paragraph>
+  </Section>
+  <Section Title="Example - Interface Definition">
+    <Paragraph>
+      Here is an example of an interface that we might want to adapt to be safe to use across assembly boundaries:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[#pragma once
+#include <string>
+#include <vector>
+
+class IPalette
+{
+public:
+    //Nested types
+    struct Entry
+    {
+        float r;
+        float g;
+        float b;
+    };
+
+public:
+    //Destructor
+    inline virtual ~IPalette() = 0;
+
+    //Name methods
+    virtual std::string GetName() const = 0;
+    virtual void SetName(const std::string& name) = 0;
+
+    //Palette entry methods
+    virtual int GetEntryCount() const = 0;
+    virtual bool GetEntry(int entryNo, Entry& entry) const = 0;
+    virtual bool SetEntry(int entryNo, Entry entry) = 0;
+    virtual std::vector<Entry> GetAllEntries() const = 0;
+    virtual bool SetAllEntries(const std::vector<Entry>& entries) = 0;
+};
+IPalette::~IPalette() { }]]></Code>
+    <Paragraph>
+      This interface contains a structure definition as part of itself, and it contains a public virtual destructor, allowing it to be deleted directly without
+      leaking memory. It is using STL types on a variety of its methods in a variety of ways. You may choose to forbid deletion from your interface types by
+      defining a protected inline non-virtual destructor, depending on the specific interface you're implementing or your philosophical approach to interface
+      programming. Apart from this variation, this interface is fairly typical of many that you might want to expose between assemblies. If we now wanted to
+      adapt this interface to be safe to use across assembly boundaries using the MarshalSupport library, the interface would look something like this:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[#pragma once
+#include <string>
+#include <vector>
+#include "MarshalSupport.pkg"
+using namespace MarshalSupport::Operators;
+
+class IPalette
+{
+public:
+    //Nested types
+    struct Entry
+    {
+        float r;
+        float g;
+        float b;
+    };
+
+public:
+    //Name methods
+    virtual Marshal::Ret<std::string> GetName() const = 0;
+    virtual void SetName(const Marshal::In<std::string>& name) = 0;
+
+    //Palette entry methods
+    virtual int GetEntryCount() const = 0;
+    virtual bool GetEntry(int entryNo, Entry& entry) const = 0;
+    virtual bool SetEntry(int entryNo, Entry entry) = 0;
+    virtual Marshal::Ret<std::vector<Entry>> GetAllEntries() const = 0;
+    virtual bool SetAllEntries(const Marshal::In<std::vector<Entry>>& entries) = 0;
+
+public:
+    //Delete operator
+    static void operator delete(void* target)
+    {
+        if (target != 0)
+        {
+            static_cast<IPalette*>(target)->Destroy();
+        }
+    }
+
+protected:
+    //Delete method
+    virtual void Destroy() = 0;
+};]]></Code>
+    <Paragraph>
+      In this example, nothing changed about our structure definition, and all that changed about our function declarations was to wrap our STL types in the
+      appropriate marshal helpers. It is likely that no existing code that used this interface would have to change at all in order to accommodate the
+      introduction of the MarshalSupport library, if the interface was already defined as it was in the first code listing.
+    </Paragraph>
+    <Paragraph>
+      Note that if you're compiling for the x86 platform, you should consider using the <TypeRef>MARSHALSUPPORT_CALLINGCONVENTION</TypeRef> macro on each
+      virtual function declaration to select the appropriate calling convention for your system. This macro is used between the return type and the name on the
+      function declaration and definition to select the calling convention using compiler-specific keywords, if required. On x64 this is not currently required,
+      and there is strong cooperation between vendors today to adopt standard, well-defined calling conventions for new platforms, so the use of this macro is
+      not considered essential unless you know you are developing for a platform where the default calling convention may not be compatible between assemblies.
+      Refer to the calling conventions section in <PageRef PageName="SupportLibraries.MarshalSupport.Problem">the problem</PageRef> for more information.
+    </Paragraph>
+    <Paragraph>
+      The biggest changes that happened were to do with destruction. In order to support safe deletion of our interface across assembly boundaries, specifically
+      in order to ensure the memory is deallocated using the correct memory heap, we removed the public virtual destructor and replaced it with a protected
+      virtual <TypeRef>Delete</TypeRef> method. We then added a custom delete operator, which calls that method. This approach allows us to use the standard
+      delete keyword to destroy instances of this interface, and to use the interface in containers that do the same like <TypeRef>std::unique_ptr</TypeRef>,
+      while redirecting the entire delete operation back into the assembly that originally created it. On some ABI implementations, it is safe to keep the
+      virtual destructor defined alongside this implementation, which may suppress some compiler warnings about having virtual methods without a virtual
+      destructor. This isn't guaranteed safe on Microsoft Visual Studio, as virtual destructors aren't part of the C++ ABI subset for "COM" for which a
+      compatibility guarantee exists (see the C/C++ ABI section in <PageRef PageName="SupportLibraries.MarshalSupport.Problem">the problem</PageRef>). Although
+      the implementation is unlikely to change, using virtual destructors on interface definitions with the Microsoft ABI isn't recommended for this reason. On
+      this compiler platform, the generated warning should be ignored or suppressed, as the custom delete operator removes the need for the virtual destructor
+      in this case. Note that this warning is also known to trigger if you declare a protected non-virtual destructor to disable deleting, which is standard and
+      recommended practice for preventing deletion from base types, so this warning is often disabled on Microsoft compilers anyway.
+    </Paragraph>
+  </Section>
+  <Section Title="Example - Interface Implementation">
+    <Paragraph>
+      Continuing with the example interface we introduced above, this section will show how we might have implemented the original interface without
+      marshalling, and how we might implement the interface when marshalling is added. Here is the header of an implementation based on the original interface:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[#pragma once
+#include "IPalette.h"
+
+class Palette :public IPalette
+{
+public:
+    //Name methods
+    std::string GetName() const override;
+    void SetName(const std::string& name) override;
+
+    //Palette entry methods
+    int GetEntryCount() const override;
+    bool GetEntry(int entryNo, Entry& entry) const override;
+    bool SetEntry(int entryNo, Entry entry) override;
+    std::vector<Entry> GetAllEntries() const override;
+    bool SetAllEntries(const std::vector<Entry>& entries) override;
+
+private:
+    std::string _name;
+    std::vector<Entry> _entries;
+};]]></Code>
+    <Paragraph>
+      And here is the corresponding source file:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[#include "Palette.h"
+
+//Name methods
+std::string Palette::GetName() const
+{
+    return _name;
+}
+
+void Palette::SetName(const std::string& name)
+{
+    _name = name;
+}
+
+//Palette entry methods
+int Palette::GetEntryCount() const
+{
+    return (int)_entries.size();
+}
+
+bool Palette::GetEntry(int entryNo, Entry& entry) const
+{
+    if ((entryNo < 0) || (entryNo >= _entries.size()))
+    {
+        return false;
+    }
+    entry = _entries[entryNo];
+    return true;
+}
+
+bool Palette::SetEntry(int entryNo, Entry entry)
+{
+    if ((entryNo < 0) || (entryNo >= _entries.size()))
+    {
+        return false;
+    }
+    _entries[entryNo] = entry;
+    return true;
+}
+
+std::vector<Palette::Entry> Palette::GetAllEntries() const
+{
+    return _entries;
+}
+
+bool Palette::SetAllEntries(const std::vector<Entry>& entries)
+{
+    _entries = entries;
+}]]></Code>
+    <Paragraph>
+      When adapting this code to implement marshalling through the MarshalSupport library, you should anticipate some modifications being required on your
+      implementation, however they should be limited to some fairly trivial aspects of how you access marshalled parameters in your methods, and in this case
+      some minor changes to support destruction from your interface types. The adjusted header file to add marshalling support looks like this:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[#pragma once
+#include "IPalette.h"
+
+class Palette :public IPalette
+{
+public:
+    //Name methods
+    Marshal::Ret<std::string> GetName() const override;
+    void SetName(const Marshal::In<std::string>& name) override;
+
+    //Palette entry methods
+    int GetEntryCount() const override;
+    bool GetEntry(int entryNo, Entry& entry) const override;
+    bool SetEntry(int entryNo, Entry entry) override;
+    Marshal::Ret<std::vector<Entry>> GetAllEntries() const override;
+    bool SetAllEntries(const Marshal::In<std::vector<Entry>>& entries) override;
+
+protected:
+    //Delete method
+    void Destroy() override;
+
+private:
+    std::string _name;
+    std::vector<Entry> _entries;
+};
+]]></Code>
+    <Paragraph>
+      And here is the corresponding source file:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[#include "Palette.h"
+
+//Name methods
+Marshal::Ret<std::string> Palette::GetName() const
+{
+    return _name;
+}
+
+void Palette::SetName(const Marshal::In<std::string>& name)
+{
+    _name = name;
+}
+
+//Palette entry methods
+int Palette::GetEntryCount() const
+{
+    return (int)_entries.size();
+}
+
+bool Palette::GetEntry(int entryNo, Entry& entry) const
+{
+    if ((entryNo < 0) || (entryNo >= _entries.size()))
+    {
+        return false;
+    }
+    entry = _entries[entryNo];
+    return true;
+}
+
+bool Palette::SetEntry(int entryNo, Entry entry)
+{
+    if ((entryNo < 0) || (entryNo >= _entries.size()))
+    {
+        return false;
+    }
+    _entries[entryNo] = entry;
+    return true;
+}
+
+Marshal::Ret<std::vector<Palette::Entry>> Palette::GetAllEntries() const
+{
+    return _entries;
+}
+
+bool Palette::SetAllEntries(const Marshal::In<std::vector<Entry>>& entries)
+{
+    _entries = entries;
+}
+
+//Delete method
+void Palette::Destroy()
+{
+    ::operator delete(this);
+}]]></Code>
+    <Paragraph>
+      In this case, no changes were required to the existing function implementations, but if you're migrating existing code, you should evaluate if changes
+      should be made in your case. The biggest change here is again the introduction of the <TypeRef>Destroy</TypeRef> method to support deletion over assembly
+      boundaries. The implementation is simple however and is identical for all interfaces, which is simply to trigger the default delete operator on the
+      implemented type. The virtual method has dispatched the request across the assembly boundary and up the type hierarchy for us, so the default operator
+      will now work correctly without heap issues and without creating memory leaks, despite the lack of a virtual destructor. Note however that if you have
+      several levels of inheritance above your interfaces to handle implementation, you should introduce a virtual destructor in your first internal base class
+      to ensure memory leaks don't occur in higher level types. It may be appropriate to implement the Delete method at this level too, and optionally, the
+      inherited delete operator from the interface could be overridden to define one that calls the native delete operator again directly.
+    </Paragraph>
+  </Section>
+  <Section Title="Backwards Compatible Interfaces">
+    <Paragraph>
+      One of the main goals of interface based programming under any programming language is to allow the implementation of the interface to be maintained and
+      evolve independently of the code that consumes it. Under this model, it is expected that there will be a desire or a strong requirement to be able to not
+      only modify the implementation of an interface, but extend the interface definition itself, without breaking compatibility with existing pre-compiled
+      assemblies that exist. In some programming languages, the techniques and rules around how to achieve this are well defined and guaranteed by the language
+      itself. In C++ however, the language itself offers no support for this model, and instead we have to rely on what is well defined and guaranteed in the
+      compiler ABI we're dependent on. References from your relevant compiler ABI should be consulted to determine the limits that exist when attempting to
+      maintain backwards compatibility, to ensure that compatibility isn't broken. Please refer to the C/C++ ABI section in
+      <PageRef PageName="SupportLibraries.MarshalSupport.Problem">the problem</PageRef> for references to some documentation for major ABI implementations.
+    </Paragraph>
+    <Paragraph>
+      Although this is ABI specific, there is a set of rules and approaches that are valid across the major ABI implementations on the main PC platforms, which
+      can be used as a guide for keeping within the boundaries of backwards compatibility guarantees. Some general rules are as follows, in no particular order:
+    </Paragraph>
+    <List>
+      <ListEntry>
+        Single inheritance can be used. One interface can safely derive from another in order to extend it.
+      </ListEntry>
+      <ListEntry>
+        Where one interface derives from another, the base interface cannot be changed to another type, although the base interface can be extended safely.
+      </ListEntry>
+      <ListEntry>
+        Base interfaces cannot be added or removed on an existing interface.
+      </ListEntry>
+      <ListEntry>
+        Multiple inheritance cannot be used.
+      </ListEntry>
+      <ListEntry>
+        Virtual inheritance cannot be used.
+      </ListEntry>
+      <ListEntry>
+        Never reorder any members on an existing interface.
+      </ListEntry>
+      <ListEntry>
+        Methods can safely have their access modifier changed. This can be useful in changing a method from public to protected, to prohibit use in new code.
+      </ListEntry>
+      <ListEntry>
+        Never remove anything from an existing interface. Methods can be flagged or documented as deprecated, or changed to protected to prevent use in code,
+        but an implementation must be retained.
+      </ListEntry>
+      <ListEntry>
+        New methods can be added to the end of an existing interface definition, except on the Microsoft ABI, where overloads of existing named methods cannot
+        safely be added (see below for more info).
+      </ListEntry>
+      <ListEntry>
+        Method argument types cannot be changed, except when passed as a reference or pointer, and the new type is a supersets of the existing type and is
+        itself backwards compatible.
+      </ListEntry>
+      <ListEntry>
+        Covariant return types may not be stable in your compiler ABI. If in doubt, avoid their use.
+      </ListEntry>
+      <ListEntry>
+        Methods can be renamed without breaking binary compatibility.
+      </ListEntry>
+      <ListEntry>
+        Types can be renamed without breaking binary compatibility.
+      </ListEntry>
+    </List>
+    <Paragraph>
+      The two major approaches to extending existing interfaces while maintaining backwards compatibility are to either add all new methods to the end of an
+      existing interface definition, or to leave existing interfaces "frozen", and create a new interface that derives from the existing interface to extend it.
+      Each approach has its advantages and disadvantages. Deriving new interfaces from existing ones is "cleaner" in the sense that each interface is a well
+      defined extension of the one that came before it, and this relationship is represented in the inheritance chain itself. Using this approach does create
+      some maintenance difficulties however. With this approach, a new type names exist for each version of an interface (IE, <TypeRef>IPaletteV1</TypeRef>,
+      <TypeRef>IPaletteV2</TypeRef>, etc). A typedef in code can simplify the usage of this model by naming all interfaces with a version-specific name, and
+      using a typedef to name the latest available version as the public interface name. The resulting set of methods still ends up split over many interfaces
+      and possibly many files over time however, which can complicate matters. This approach is also incompatible with interfaces deriving from each other, as
+      extending an existing interface which is derived from by another interface would either alter the inheritance chain for the existing interface, breaking
+      binary compatibility, or require multiple inheritance, for which backwards compatibility generally can't be guaranteed. This approach is also less
+      efficient, as each extended base class introduces another vtable reference into the object, increasing its size and time required for construction.
+    </Paragraph>
+    <Paragraph>
+      If the contrasting approach is used, of adding all new methods to the end of an existing interface definition, many of the problems of the inheritance
+      approach are avoided. Interfaces can be used as bases for other interfaces without concern, object sizes don't increase from extending existing
+      interfaces, and there's less work involved since new types don't have to be created. On the Microsoft ABI there's one drawback to this approach however,
+      which is that when adding an overload of an existing named method, that overload is placed alongside the existing method in the vtable, breaking
+      compatibility with existing interfaces. A workaround for this is possible however, which is to convert all overloads of the existing method for which a
+      new overload needs to be added, into thunks that forward to a set of new methods that include the overload. Consider for example the following interface:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[class ISomeExample
+{
+public:
+    virtual void FirstMethod() = 0;
+    virtual void FirstMethod(bool someArg) = 0;
+    virtual void SecondMethod() = 0;
+};]]></Code>
+    <Paragraph>
+      We now want to add another overload of <TypeRef>FirstMethod</TypeRef> which takes an integer argument. If we try adding it to the end of the interface, it
+      will end up breaking binary compatibility for calls to <TypeRef>SecondMethod</TypeRef> and potentially other <TypeRef>FirstMethod</TypeRef> overloads on
+      the Microsoft ABI, as it would be inserted alongside the existing methods with the same name in the vtable. Since we can safely rename methods without
+      breaking compatibility however, we can solve this by replacing existing versions of <TypeRef>FirstMethod</TypeRef> with thunks, like so:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[class ISomeExample
+{
+public:
+    protected: inline virtual void FirstMethod_Thunk() { FirstMethod(); } public:
+    protected: inline virtual void FirstMethod_Thunk(bool someArg) { FirstMethod(someArg); } public:
+    virtual void SecondMethod() = 0;
+
+    virtual void FirstMethod() = 0;
+    virtual void FirstMethod(bool someArg) = 0;
+    virtual void FirstMethod(int someArg) = 0;
+};]]></Code>
+    <Paragraph>
+      The use of inline virtual methods here is convenient, as it allows the thunks to be contained within the interfaces themselves. The implementing class
+      doesn't need to know or care about their existence, as they've already been implemented on the base interfaces. Using thunks in this manner to relocate
+      the vtable reference for existing virtual functions allows any method to be added to existing interface definitions, even on the Microsoft ABI when
+      overloading an existing method. Note that if you're targeting the Itanium C++ ABI on Unix-based systems, thunks aren't required in this scenario, as the
+      order of method entries in the vtable is documented as being in exact order of declaration within the class.
+    </Paragraph>
+  </Section>
+  <Section Title="Constructing Interface Types">
+    <Paragraph>
+      There are a variety of ways to implement construction of interface types under an interface-based programming model in C++. The one central rule is that
+      while interfaces may be widely known and used throughout a given codebase, there should be only one area of the code that knows about the implementation
+      of that interface, IE, the concrete <TypeRef>Palette</TypeRef> class in the example above. Preferably, only a single function in the entire codebase
+      refers to the concrete type outside of the type itself. From a technical perspective, the only real requirement is that the implementation should only be
+      known about within one assembly. This allows the interface implementation to be changed freely, and no other assemblies that use the interface need to be
+      recompiled as a result, as the interface definition hasn't changed.
+    </Paragraph>
+    <Paragraph>
+      As for specifically how to allow construction of these interface types from other assemblies where required, the simplest approach is to export a global
+      function from the assembly that knows the concrete type, which accepts any required constructor arguments if any, creates an instance of the class on the
+      heap, and returns a pointer to the interface type. Functions exported in this manner should be exported as <TypeRef>extern "C"</TypeRef> to ensure that
+      the ABI-specific C++ name mangling rules aren't applied. On the Microsoft C++ compiler, this might be implemented like so:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[extern "C" __declspec(dllexport) IPalette* CreatePaletteObject()
+{
+    return new Palette();
+}]]></Code>
+    <Paragraph>
+      There are a variety of other approaches to this issue, such as object factories and service locators. The MarshalSupport library doesn't require any
+      particular approach to the issue around construction of interface implementations to be used, however a suggestion would be given to return constructed
+      interfaces wrapped in <TypeRef>std::unique_ptr</TypeRef> types with the delete operator technique shown above, to follow the RAII model and avoid the need
+      for the caller to manually delete interface types, which can lead to memory and resource leaks. This advice obviously only applies to objects which are
+      owned by the caller, as opposed to instances of interfaces which are constructed earlier and shared between callers. Adapting the exported function shown
+      above to use this approach, its implementation would look like this:
+    </Paragraph>
+    <Code Language="C++"><![CDATA[extern "C" __declspec(dllexport) Marshal::Ret<std::unique_ptr<IPalette>> CreatePaletteObject()
+{
+    return new Palette();
+}]]></Code>
+    <Paragraph>
+      Any other approach to interface construction is valid, as long as any call to construct or retrieve an instance of an interface type correctly marshals
+      any arguments or return values between assemblies where necessary. Beyond these points, other sources should be referred to for an evaluation of
+      approaches to interface construction.
+    </Paragraph>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport">MarshalSupport Library Overview</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.Problem">Understanding the Problem</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.Solution">Understanding the Solution</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalOut">Marshal::Out</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalInOut">Marshal::InOut</PageRefListEntry>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalRet">Marshal::Ret</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

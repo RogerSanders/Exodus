@@ -7,6 +7,7 @@
 #include <string>
 class IView;
 class IUIManager;
+using namespace MarshalSupport::Operators;
 
 class IViewPresenter
 {
@@ -35,15 +36,15 @@ public:
 
 	//View target functions
 	virtual ViewTarget GetViewTarget() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewTargetDeviceInstanceName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewTargetExtensionInstanceName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetViewTargetDeviceInstanceName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetViewTargetExtensionInstanceName() const = 0;
 	virtual bool GetViewTargetGlobalExtension() const = 0;
 	virtual unsigned int GetViewTargetModuleID() const = 0;
 
 	//State functions
 	virtual int GetViewID() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewGroupName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetViewName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetViewGroupName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetViewName() const = 0;
 	virtual bool LoadViewState(IHierarchicalStorageNode& viewState) = 0;
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const = 0;
 };

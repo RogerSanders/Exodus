@@ -9,41 +9,67 @@
 #include <stack>
 #include <queue>
 #include <string>
+#include <utility>
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 #include <array>
 #include <forward_list>
 #include <unordered_set>
 #include <unordered_map>
+#include <tuple>
 #endif
 namespace MarshalSupport {
 namespace Internal {
 
-template<class T> struct nested_container_has_keys { static const bool value = false; };
-template<class ElementType, class Alloc> struct nested_container_has_keys<std::vector<ElementType, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class T>
+struct nested_container_has_keys { static const bool value = false; };
+template<class ElementType, class Alloc>
+struct nested_container_has_keys<std::vector<ElementType, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-template<class ElementType, size_t ArraySize> struct nested_container_has_keys<std::array<ElementType, ArraySize>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, size_t ArraySize>
+struct nested_container_has_keys<std::array<ElementType, ArraySize>> { static const bool value = nested_container_has_keys<ElementType>::value; };
 #endif
-template<class ElementType, class Alloc> struct nested_container_has_keys<std::list<ElementType, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Alloc>
+struct nested_container_has_keys<std::list<ElementType, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-template<class ElementType, class Alloc> struct nested_container_has_keys<std::forward_list<ElementType, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Alloc>
+struct nested_container_has_keys<std::forward_list<ElementType, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
 #endif
-template<class ElementType, class Alloc> struct nested_container_has_keys<std::deque<ElementType, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
-template<class ElementType, class Compare, class Alloc> struct nested_container_has_keys<std::set<ElementType, Compare, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
-template<class ElementType, class Compare, class Alloc> struct nested_container_has_keys<std::multiset<ElementType, Compare, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Alloc>
+struct nested_container_has_keys<std::deque<ElementType, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Compare, class Alloc>
+struct nested_container_has_keys<std::set<ElementType, Compare, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Compare, class Alloc>
+struct nested_container_has_keys<std::multiset<ElementType, Compare, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-template<class ElementType, class Hash, class Pred, class Alloc> struct nested_container_has_keys<std::unordered_set<ElementType, Hash, Pred, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
-template<class ElementType, class Hash, class Pred, class Alloc> struct nested_container_has_keys<std::unordered_multiset<ElementType, Hash, Pred, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Hash, class Pred, class Alloc>
+struct nested_container_has_keys<std::unordered_set<ElementType, Hash, Pred, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Hash, class Pred, class Alloc>
+struct nested_container_has_keys<std::unordered_multiset<ElementType, Hash, Pred, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
 #endif
-template<class KeyType, class ElementType, class Compare, class Alloc> struct nested_container_has_keys<std::map<KeyType, ElementType, Compare, Alloc>> { static const bool value = true; };
-template<class KeyType, class ElementType, class Compare, class Alloc> struct nested_container_has_keys<std::multimap<KeyType, ElementType, Compare, Alloc>> { static const bool value = true; };
+template<class KeyType, class ElementType, class Compare, class Alloc>
+struct nested_container_has_keys<std::map<KeyType, ElementType, Compare, Alloc>> { static const bool value = true; };
+template<class KeyType, class ElementType, class Compare, class Alloc>
+struct nested_container_has_keys<std::multimap<KeyType, ElementType, Compare, Alloc>> { static const bool value = true; };
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-template<class KeyType, class ElementType, class Hash, class Pred, class Alloc> struct nested_container_has_keys<std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>> { static const bool value = true; };
-template<class KeyType, class ElementType, class Hash, class Pred, class Alloc> struct nested_container_has_keys<std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>> { static const bool value = true; };
+template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
+struct nested_container_has_keys<std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>> { static const bool value = true; };
+template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
+struct nested_container_has_keys<std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>> { static const bool value = true; };
 #endif
-template<class ElementType, class Container> struct nested_container_has_keys<std::stack<ElementType, Container>> { static const bool value = nested_container_has_keys<ElementType>::value; };
-template<class ElementType, class Container> struct nested_container_has_keys<std::queue<ElementType, Container>> { static const bool value = nested_container_has_keys<ElementType>::value; };
-template<class ElementType, class Container, class Compare> struct nested_container_has_keys<std::priority_queue<ElementType, Container, Compare>> { static const bool value = nested_container_has_keys<ElementType>::value; };
-template<class ElementType, class traits, class Alloc> struct nested_container_has_keys<std::basic_string<ElementType, traits, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Container>
+struct nested_container_has_keys<std::stack<ElementType, Container>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Container>
+struct nested_container_has_keys<std::queue<ElementType, Container>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class Container, class Compare>
+struct nested_container_has_keys<std::priority_queue<ElementType, Container, Compare>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class ElementType, class traits, class Alloc>
+struct nested_container_has_keys<std::basic_string<ElementType, traits, Alloc>> { static const bool value = nested_container_has_keys<ElementType>::value; };
+template<class T1, class T2>
+struct nested_container_has_keys<std::pair<T1, T2>> { static const bool value = true; };
+#if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
+template<class... Args>
+struct nested_container_has_keys<std::tuple<Args...>> { static const bool value = true; };
+#endif
 
 } //Close namespace Internal
 } //Close namespace MarshalSupport

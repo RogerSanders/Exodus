@@ -530,7 +530,7 @@ HWND ViewManager::CreateNativeWindow(IView& view, IViewPresenter& viewPresenter,
 //----------------------------------------------------------------------------------------
 //Window management functions
 //----------------------------------------------------------------------------------------
-bool ViewManager::ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle, IHierarchicalStorageNode* windowState)
+bool ViewManager::ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const Marshal::In<std::wstring>& windowTitle, IHierarchicalStorageNode* windowState)
 {
 	//If window state has been specified for this window, it is being loaded as part of a
 	//layout restore operation. In this case, we pass the window and state information
@@ -1262,7 +1262,7 @@ void ViewManager::ResizeWindowToTargetClientSize(IView& view, IViewPresenter& vi
 //----------------------------------------------------------------------------------------
 //Window title functions
 //----------------------------------------------------------------------------------------
-void ViewManager::UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const MarshalSupport::Marshal::In<std::wstring>& windowTitle)
+void ViewManager::UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const Marshal::In<std::wstring>& windowTitle)
 {
 	//Build a qualified title for this window
 	std::wstring qualifiedWindowTitle = BuildQualifiedWindowTitle(view, viewPresenter, windowHandle, windowTitle);

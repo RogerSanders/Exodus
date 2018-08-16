@@ -29,13 +29,13 @@ GenericAccessDataValueFilePath::DataType GenericAccessDataValueFilePath::GetType
 //----------------------------------------------------------------------------------------
 //Value read functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueFilePath::GetValue() const
+Marshal::Ret<std::wstring> GenericAccessDataValueFilePath::GetValue() const
 {
 	return dataValue;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueFilePath::GetValueString() const
+Marshal::Ret<std::wstring> GenericAccessDataValueFilePath::GetValueString() const
 {
 	return GetValue();
 }
@@ -43,13 +43,13 @@ MarshalSupport::Marshal::Ret<std::wstring> GenericAccessDataValueFilePath::GetVa
 //----------------------------------------------------------------------------------------
 //Value write functions
 //----------------------------------------------------------------------------------------
-bool GenericAccessDataValueFilePath::SetValueString(const MarshalSupport::Marshal::In<std::wstring>& value)
+bool GenericAccessDataValueFilePath::SetValueString(const Marshal::In<std::wstring>& value)
 {
 	return SetValueFilePath(value);
 }
 
 //----------------------------------------------------------------------------------------
-bool GenericAccessDataValueFilePath::SetValueFilePath(const MarshalSupport::Marshal::In<std::wstring>& value)
+bool GenericAccessDataValueFilePath::SetValueFilePath(const Marshal::In<std::wstring>& value)
 {
 	dataValue = value;
 	ApplyLimitSettingsToCurrentValue();

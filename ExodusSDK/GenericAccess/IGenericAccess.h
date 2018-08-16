@@ -6,6 +6,7 @@
 #include <set>
 #include <string>
 class IGenericAccessPage;
+using namespace MarshalSupport::Operators;
 
 class IGenericAccess
 {
@@ -26,11 +27,11 @@ public:
 	virtual unsigned int GetIGenericAccessVersion() const = 0;
 
 	//Data info functions
-	virtual MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetGenericDataIDList() const = 0;
+	virtual Marshal::Ret<std::set<unsigned int>> GetGenericDataIDList() const = 0;
 	virtual const IGenericAccessDataInfo* GetGenericDataInfo(unsigned int dataID) const = 0;
 
 	//Command info functions
-	virtual MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetGenericCommandIDList() const = 0;
+	virtual Marshal::Ret<std::set<unsigned int>> GetGenericCommandIDList() const = 0;
 	virtual const IGenericAccessCommandInfo* GetGenericCommandInfo(unsigned int commandID) const = 0;
 
 	//Page info functions
@@ -40,8 +41,8 @@ public:
 	//Data read/write functions
 	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const = 0;
 	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) = 0;
-	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, const MarshalSupport::Marshal::Out<std::wstring>& dataValue) const = 0;
-	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, const MarshalSupport::Marshal::In<std::wstring>& dataValue) = 0;
+	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, const Marshal::Out<std::wstring>& dataValue) const = 0;
+	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, const Marshal::In<std::wstring>& dataValue) = 0;
 	virtual bool ApplyGenericDataValueLimitSettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const = 0;
 	virtual bool ApplyGenericDataValueDisplaySettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const = 0;
 

@@ -81,7 +81,7 @@ void S315_5313Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& men
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313Menus::RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
+bool S315_5313Menus::RestoreDeviceViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
 {
 	bool result = false;
 	result |= debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
@@ -90,7 +90,7 @@ bool S315_5313Menus::RestoreDeviceViewState(const MarshalSupport::Marshal::In<st
 }
 
 //----------------------------------------------------------------------------------------
-bool S315_5313Menus::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
+bool S315_5313Menus::OpenDeviceView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
 {
 	bool result = false;
 	result |= debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);

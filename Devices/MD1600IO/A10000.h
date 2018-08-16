@@ -60,7 +60,7 @@ public:
 	virtual void Initialize();
 
 	//Reference functions
-	virtual bool AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target);
+	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual void RemoveReference(IBusInterface* target);
 
 	//Execute functions
@@ -72,8 +72,8 @@ public:
 	virtual void ExecuteCommit();
 
 	//Line functions
-	virtual unsigned int GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
+	virtual unsigned int GetLineID(const Marshal::In<std::wstring>& lineName) const;
+	virtual Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
 	virtual void SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetLineState(unsigned int targetLine, const Data& lineData);

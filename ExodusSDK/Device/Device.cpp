@@ -45,25 +45,25 @@ void Device::Initialize()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool Device::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IDevice* target)
+bool Device::AddReference(const Marshal::In<std::wstring>& referenceName, IDevice* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IExtension* target)
+bool Device::AddReference(const Marshal::In<std::wstring>& referenceName, IExtension* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
+bool Device::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IClockSource* target)
+bool Device::AddReference(const Marshal::In<std::wstring>& referenceName, IClockSource* target)
 {
 	return false;
 }
@@ -219,31 +219,31 @@ void Device::NotifyAfterExecuteStepFinishedTimeslice()
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Device::GetDeviceClassName() const
+Marshal::Ret<std::wstring> Device::GetDeviceClassName() const
 {
 	return implementationName;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Device::GetDeviceInstanceName() const
+Marshal::Ret<std::wstring> Device::GetDeviceInstanceName() const
 {
 	return instanceName;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Device::GetFullyQualifiedDeviceInstanceName() const
+Marshal::Ret<std::wstring> Device::GetFullyQualifiedDeviceInstanceName() const
 {
 	return deviceContext->GetFullyQualifiedDeviceInstanceName();
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Device::GetModuleDisplayName() const
+Marshal::Ret<std::wstring> Device::GetModuleDisplayName() const
 {
 	return deviceContext->GetModuleDisplayName();
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Device::GetModuleInstanceName() const
+Marshal::Ret<std::wstring> Device::GetModuleInstanceName() const
 {
 	return deviceContext->GetModuleInstanceName();
 }
@@ -297,7 +297,7 @@ void Device::SaveDebuggerState(IHierarchicalStorageNode& node) const
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetCELineID(const MarshalSupport::Marshal::In<std::wstring>& lineName, bool inputLine) const
+unsigned int Device::GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const
 {
 	return 0;
 }
@@ -381,13 +381,13 @@ void Device::TransparentWritePort(unsigned int interfaceNumber, unsigned int loc
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const
+unsigned int Device::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Device::GetLineName(unsigned int lineID) const
+Marshal::Ret<std::wstring> Device::GetLineName(unsigned int lineID) const
 {
 	return L"";
 }
@@ -430,13 +430,13 @@ void Device::NegateCurrentOutputLineState() const
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const
+unsigned int Device::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Device::GetClockSourceName(unsigned int clockSourceID) const
+Marshal::Ret<std::wstring> Device::GetClockSourceName(unsigned int clockSourceID) const
 {
 	return L"";
 }
@@ -452,13 +452,13 @@ void Device::TransparentSetClockSourceRate(unsigned int clockInput, double clock
 //----------------------------------------------------------------------------------------
 //Input functions
 //----------------------------------------------------------------------------------------
-unsigned int Device::GetKeyCodeID(const MarshalSupport::Marshal::In<std::wstring>& keyCodeName) const
+unsigned int Device::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const
 {
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Device::GetKeyCodeName(unsigned int keyCodeID) const
+Marshal::Ret<std::wstring> Device::GetKeyCodeName(unsigned int keyCodeID) const
 {
 	return L"";
 }

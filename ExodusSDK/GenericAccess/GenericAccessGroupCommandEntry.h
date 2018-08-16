@@ -26,11 +26,11 @@ public:
 
 	//Command info methods
 	virtual unsigned int GetCommandID() const;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const;
+	virtual Marshal::Ret<std::wstring> GetName() const;
 	inline GenericAccessGroupCommandEntry* SetName(const std::wstring& aname);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDescription() const;
+	virtual Marshal::Ret<std::wstring> GetDescription() const;
 	inline GenericAccessGroupCommandEntry* SetDescription(const std::wstring& adescription);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHelpFileLink() const;
+	virtual Marshal::Ret<std::wstring> GetHelpFileLink() const;
 	inline GenericAccessGroupCommandEntry* SetHelpFileLink(const std::wstring& ahelpFileLink);
 
 protected:

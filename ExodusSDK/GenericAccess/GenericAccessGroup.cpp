@@ -61,7 +61,7 @@ const IGenericAccess::DataContext* GenericAccessGroup::GetDataContext() const
 //----------------------------------------------------------------------------------------
 //Group info methods
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroup::GetName() const
+Marshal::Ret<std::wstring> GenericAccessGroup::GetName() const
 {
 	return name;
 }
@@ -81,7 +81,7 @@ unsigned int GenericAccessGroup::GetEntryCount() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroup::GetEntries() const
+Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroup::GetEntries() const
 {
 	return childEntries;
 }

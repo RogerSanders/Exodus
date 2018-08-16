@@ -3,6 +3,7 @@
 #include <ExtensionInterface/ExtensionInterface.pkg>
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <string>
+using namespace MarshalSupport::Operators;
 
 class IModuleSettingInfo
 {
@@ -15,8 +16,8 @@ public:
 	virtual unsigned int GetIModuleSettingInfoVersion() const = 0;
 
 	//Getters
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDisplayName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetDisplayName() const = 0;
 	virtual unsigned int GetOptionCount() const = 0;
 	virtual unsigned int GetDefaultOptionIndex() const = 0;
 	virtual unsigned int GetToggleSettingOnOptionIndex() const = 0;
@@ -24,8 +25,8 @@ public:
 	virtual bool IsToggleSetting() const = 0;
 
 	//Setters
-	virtual void SetName(const MarshalSupport::Marshal::In<std::wstring>& name) = 0;
-	virtual void SetDisplayName(const MarshalSupport::Marshal::In<std::wstring>& displayName) = 0;
+	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
+	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName) = 0;
 	virtual void SetOptionCount(unsigned int optionCount) = 0;
 	virtual void SetDefaultOptionIndex(unsigned int defaultOptionIndex) = 0;
 	virtual void SetToggleSettingOnOptionIndex(unsigned int onOptionIndex) = 0;

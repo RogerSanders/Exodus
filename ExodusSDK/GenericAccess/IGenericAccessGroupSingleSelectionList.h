@@ -14,11 +14,11 @@ public:
 
 	//List info functions
 	virtual unsigned int GetDataID() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GetSelectionList() const = 0;
+	virtual Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GetSelectionList() const = 0;
 	virtual bool GetAllowNewItemEntry() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDescription() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHelpFileLink() const = 0;
+	virtual Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetDescription() const = 0;
+	virtual Marshal::Ret<std::wstring> GetHelpFileLink() const = 0;
 };
 
 #endif

@@ -171,7 +171,7 @@ public:
 	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const;
 
 	//Breakpoint functions
-	virtual MarshalSupport::Marshal::Ret<std::list<IBreakpoint*>> GetBreakpointList() const;
+	virtual Marshal::Ret<std::list<IBreakpoint*>> GetBreakpointList() const;
 	virtual IBreakpoint* CreateBreakpoint();
 	virtual bool LockBreakpoint(IBreakpoint* breakpoint) const;
 	virtual void UnlockBreakpoint(IBreakpoint* breakpoint) const;
@@ -181,7 +181,7 @@ public:
 	inline void CheckExecution(unsigned int location) const;
 
 	//Watchpoint functions
-	virtual MarshalSupport::Marshal::Ret<std::list<IWatchpoint*>> GetWatchpointList() const;
+	virtual Marshal::Ret<std::list<IWatchpoint*>> GetWatchpointList() const;
 	virtual IWatchpoint* CreateWatchpoint();
 	virtual bool LockWatchpoint(IWatchpoint* watchpoint) const;
 	virtual void UnlockWatchpoint(IWatchpoint* watchpoint) const;
@@ -194,7 +194,7 @@ public:
 	//Call stack functions
 	virtual bool GetCallStackDisassemble() const;
 	virtual void SetCallStackDisassemble(bool state);
-	virtual MarshalSupport::Marshal::Ret<std::list<CallStackEntry>> GetCallStack() const;
+	virtual Marshal::Ret<std::list<CallStackEntry>> GetCallStack() const;
 	virtual unsigned int GetCallStackLastModifiedToken() const;
 	virtual void ClearCallStack();
 	void PushCallStack(unsigned int sourceAddress, unsigned int targetAddress, unsigned int returnAddress, const std::wstring& entry, bool fixedDisassembly = false);
@@ -207,7 +207,7 @@ public:
 	virtual void SetTraceDisassemble(bool state);
 	virtual unsigned int GetTraceLength() const;
 	virtual void SetTraceLength(unsigned int state);
-	virtual MarshalSupport::Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const;
+	virtual Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const;
 	virtual unsigned int GetTraceLogLastModifiedToken() const;
 	virtual void ClearTraceLog();
 	inline void RecordTrace(unsigned int pc);
@@ -284,9 +284,9 @@ public:
 	//Active disassembly analysis functions
 	virtual bool PerformActiveDisassemblyAnalysis();
 	virtual void ClearActiveDisassemblyAnalysis();
-	virtual bool ActiveDisassemblyExportAnalysisToASMFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const;
-	virtual bool ActiveDisassemblyExportAnalysisToTextFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const;
-	virtual bool ActiveDisassemblyExportAnalysisToIDCFile(const MarshalSupport::Marshal::In<std::wstring>& filePath) const;
+	virtual bool ActiveDisassemblyExportAnalysisToASMFile(const Marshal::In<std::wstring>& filePath) const;
+	virtual bool ActiveDisassemblyExportAnalysisToTextFile(const Marshal::In<std::wstring>& filePath) const;
+	virtual bool ActiveDisassemblyExportAnalysisToIDCFile(const Marshal::In<std::wstring>& filePath) const;
 
 	//Active disassembly formatting functions
 	virtual bool GetLeadingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;

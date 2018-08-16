@@ -13,9 +13,9 @@ public:
 
 	//Command info functions
 	virtual unsigned int GetCommandID() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDescription() const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetHelpFileLink() const = 0;
+	virtual Marshal::Ret<std::wstring> GetName() const = 0;
+	virtual Marshal::Ret<std::wstring> GetDescription() const = 0;
+	virtual Marshal::Ret<std::wstring> GetHelpFileLink() const = 0;
 };
 
 #endif

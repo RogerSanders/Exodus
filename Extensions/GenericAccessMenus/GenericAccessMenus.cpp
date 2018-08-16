@@ -81,7 +81,7 @@ void GenericAccessMenus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment&
 }
 
 //----------------------------------------------------------------------------------------
-bool GenericAccessMenus::RestoreDeviceViewState(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
+bool GenericAccessMenus::RestoreDeviceViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
 {
 	bool result = false;
 	result |= debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
@@ -90,7 +90,7 @@ bool GenericAccessMenus::RestoreDeviceViewState(const MarshalSupport::Marshal::I
 }
 
 //----------------------------------------------------------------------------------------
-bool GenericAccessMenus::OpenDeviceView(const MarshalSupport::Marshal::In<std::wstring>& viewGroupName, const MarshalSupport::Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
+bool GenericAccessMenus::OpenDeviceView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
 {
 	bool result = false;
 	result |= debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);

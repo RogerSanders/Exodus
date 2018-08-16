@@ -61,19 +61,19 @@ void Breakpoint::SetBreakEvent(bool state)
 //----------------------------------------------------------------------------------------
 //Name functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Breakpoint::GetName() const
+Marshal::Ret<std::wstring> Breakpoint::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-void Breakpoint::SetName(const MarshalSupport::Marshal::In<std::wstring>& aname)
+void Breakpoint::SetName(const Marshal::In<std::wstring>& aname)
 {
 	name = aname;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Breakpoint::GenerateName() const
+Marshal::Ret<std::wstring> Breakpoint::GenerateName() const
 {
 	std::wstring newName;
 	switch(locationCondition)

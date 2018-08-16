@@ -44,7 +44,7 @@ MenuSegment::Type MenuSegment::GetType() const
 //----------------------------------------------------------------------------------------
 //Menu title functions
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> MenuSegment::GetMenuSortTitle() const
+Marshal::Ret<std::wstring> MenuSegment::GetMenuSortTitle() const
 {
 	//If we have no child menu items, return an empty string.
 	if(menuItems.empty())
@@ -95,13 +95,13 @@ bool MenuSegment::NoMenuItemsExist() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetMenuItems() const
+Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetMenuItems() const
 {
 	return menuItems;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetSortedMenuItems() const
+Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetSortedMenuItems() const
 {
 	//If the menu items in this segment are sorted based on the order items were added,
 	//return the actual menu item list directly here, and abort any further processing.
@@ -153,7 +153,7 @@ IMenuSegment& MenuSegment::AddMenuItemSegment(bool asurroundWithSeparators, IMen
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const MarshalSupport::Marshal::In<std::wstring>& title)
+IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const Marshal::In<std::wstring>& title)
 {
 	IMenuSubmenu* newMenuItem = new MenuSubmenu(title);
 	menuItems.push_back(newMenuItem);
@@ -161,7 +161,7 @@ IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const MarshalSupport::Marshal::In<
 }
 
 //----------------------------------------------------------------------------------------
-IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const MarshalSupport::Marshal::In<std::wstring>& title)
+IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title)
 {
 	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, title);
 	menuItems.push_back(newMenuItem);

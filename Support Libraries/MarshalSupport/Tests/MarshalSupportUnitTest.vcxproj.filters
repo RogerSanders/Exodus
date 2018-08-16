@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="MarshalTestData.h" />
+    <ClInclude Include="CompareTestData.h" />
+    <ClInclude Include="CustomMarshalObject.h" />
+    <ClInclude Include="CatchWrapper.h" />
+    <ClInclude Include="MoveTypeNoCopy.h" />
+    <ClInclude Include="VectorHasher.h" />
+    <ClInclude Include="MoveTypeConstructOnly.h" />
+    <ClInclude Include="IMarshalTest.h">
+      <Filter>IMarshalTest</Filter>
+    </ClInclude>
+    <ClInclude Include="MarshalTest.h">
+      <Filter>IMarshalTest</Filter>
+    </ClInclude>
+    <ClInclude Include="IMarshalTestCPP11.h">
+      <Filter>IMarshalTest</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="UnitTestMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="IMarshalTest">
+      <UniqueIdentifier>{6dfc0047-49b5-4d39-bb12-80a0e1ede225}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

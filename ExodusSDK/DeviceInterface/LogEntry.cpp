@@ -65,19 +65,19 @@ LogEntry::EventLevel LogEntry::GetEventLevel() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetText() const
+Marshal::Ret<std::wstring> LogEntry::GetText() const
 {
 	return text.str();
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetSource() const
+Marshal::Ret<std::wstring> LogEntry::GetSource() const
 {
 	return source;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetEventLevelString() const
+Marshal::Ret<std::wstring> LogEntry::GetEventLevelString() const
 {
 	switch(eventLevel)
 	{
@@ -97,7 +97,7 @@ MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetEventLevelString() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetTimeString() const
+Marshal::Ret<std::wstring> LogEntry::GetTimeString() const
 {
 	std::wstringstream stream;
 	stream << std::setw(2) << std::setfill(L'0') << hour << L':' << minute << L':' << second << L'.' << millisecond;
@@ -107,7 +107,7 @@ MarshalSupport::Marshal::Ret<std::wstring> LogEntry::GetTimeString() const
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void LogEntry::OverrideSourceText(const MarshalSupport::Marshal::In<std::wstring>& asource) const
+void LogEntry::OverrideSourceText(const Marshal::In<std::wstring>& asource) const
 {
 	source = asource;
 }

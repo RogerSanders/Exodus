@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<XMLDocContent PageName="SupportLibraries.MarshalSupport.MarshalIn.Constructor" Title="Marshal::In Constructor" xmlns="http://www.exodusemulator.com/schema/XMLDocSchema.xsd">
+  <Section Title="Description">
+    <Paragraph>
+      Constructs the <TypeRef>Marshal::In</TypeRef> helper object. Different template specializations provide different overloads for this method, however the
+      differences and applicability of each overload are detailed in the usage section below. Note that this class is not intended to be explicitly constructed
+      in code, rather, it is expected that objects of this type will be generated automatically by the compiler through implicit conversions from the source
+      object.
+    </Paragraph>
+  </Section>
+  <Section Title="Usage">
+    <SubSection Title="Copyable types only:">
+      <Code Language="C++"><![CDATA[In(const ContainerType& source)
+In(const InOut<ContainerType>& source)]]></Code>
+    </SubSection>
+    <SubSection Title="All types:">
+      <Code Language="C++"><![CDATA[In(const Ret<ContainerType>& source)
+In(ContainerType&& source)]]></Code>
+    </SubSection>
+    <SubSection Title="With std::basic_string only:">
+      <Code Language="C++"><![CDATA[In(const ElementType* source)]]></Code>
+    </SubSection>
+    <SubSection Title="Argument list">
+      <ArgumentList>
+        <ArgumentListEntry Name="source">
+          The source object to bind to the marshaller. This is usually a reference to the source object being marshalled, however <TypeRef>Marshal::InOut</TypeRef>
+          and <TypeRef>Marshal::Ret</TypeRef> helpers can also act as the source, in which case the source object will be marshalled a directly through these
+          marshal helpers when requested. Note also that when types based on <TypeRef>std::basic_string</TypeRef>, such as <TypeRef>std::string</TypeRef> and
+          <TypeRef>std::wstring</TypeRef> are marshalled, the bound source can also be a pointer to a null terminated string, allowing string literals to be
+          provided directly as literal input arguments where marshalling is being performed.
+        </ArgumentListEntry>
+      </ArgumentList>
+    </SubSection>
+  </Section>
+  <Section Title="See also">
+    <PageRefList>
+      <PageRefListEntry PageName="SupportLibraries.MarshalSupport.MarshalIn">Marshal::In</PageRefListEntry>
+    </PageRefList>
+  </Section>
+</XMLDocContent>

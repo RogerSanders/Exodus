@@ -5,6 +5,7 @@
 #include "TimedBuffers/TimedBuffers.pkg"
 #include "MarshalSupport/MarshalSupport.pkg"
 #include <list>
+using namespace MarshalSupport::Operators;
 
 class IS315_5313 :public virtual IGenericAccess
 {
@@ -75,7 +76,7 @@ public:
 	virtual void CalculateEffectiveCellScrollSize(unsigned int hszState, unsigned int vszState, unsigned int& effectiveScrollWidth, unsigned int& effectiveScrollHeight) const = 0;
 	virtual DecodedPaletteColorEntry ReadDecodedPaletteColor(unsigned int paletteRow, unsigned int paletteIndex) const = 0;
 	virtual unsigned char ColorValueTo8BitValue(unsigned int colorValue, bool shadow, bool highlight) const = 0;
-	virtual MarshalSupport::Marshal::Ret<std::list<SpriteBoundaryLineEntry>> GetSpriteBoundaryLines(unsigned int planeNo) const = 0;
+	virtual Marshal::Ret<std::list<SpriteBoundaryLineEntry>> GetSpriteBoundaryLines(unsigned int planeNo) const = 0;
 
 	//Sprite list debugging functions
 	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo) const = 0;
@@ -94,7 +95,7 @@ public:
 	virtual void SetPortMonitorDataWriteEnabled(bool state) = 0;
 	virtual unsigned int GetPortMonitorLength() const = 0;
 	virtual void SetPortMonitorLength(unsigned int state) = 0;
-	virtual MarshalSupport::Marshal::Ret<std::list<PortMonitorEntry>> GetPortMonitorLog() const = 0;
+	virtual Marshal::Ret<std::list<PortMonitorEntry>> GetPortMonitorLog() const = 0;
 	virtual unsigned int GetPortMonitorLogLastModifiedToken() const = 0;
 	virtual void ClearPortMonitorLog() = 0;
 

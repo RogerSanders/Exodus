@@ -68,19 +68,19 @@ unsigned int GenericAccessGroupCommandEntry::GetCommandID() const
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetName() const
+Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetName() const
 {
 	return name;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetDescription() const
+Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetDescription() const
 {
 	return description;
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetHelpFileLink() const
+Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetHelpFileLink() const
 {
 	return helpFileLink;
 }

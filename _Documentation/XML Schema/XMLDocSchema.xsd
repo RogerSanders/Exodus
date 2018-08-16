@@ -12,6 +12,21 @@
       <xs:enumeration value="Public"/>
       <xs:enumeration value="Protected"/>
       <xs:enumeration value="Private"/>
+      <xs:enumeration value="Internal"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="TypeCategory">
+    <xs:annotation>
+      <xs:documentation>Specifies the category of the specified type</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Interface"/>
+      <xs:enumeration value="Class"/>
+      <xs:enumeration value="Struct"/>
+      <xs:enumeration value="Enumeration"/>
+      <xs:enumeration value="Delegate"/>
+      <xs:enumeration value="Event"/>
+      <xs:enumeration value="Library"/>
     </xs:restriction>
   </xs:simpleType>
   <!-- Complex types  -->
@@ -47,11 +62,15 @@
       <xs:element name="TOC" type="this:TOC"/>
       <xs:element name="Code" type="this:Code"/>
       <xs:element name="Image" type="this:Image"/>
+      <xs:element name="Download" type="this:Download"/>
+      <xs:element name="List" type="this:List"/>
       <xs:element name="PageRef" type="this:PageRef"/>
+      <xs:element name="PageRefList" type="this:PageRefList"/>
       <xs:element name="FunctionMemberList" type="this:FunctionMemberList"/>
       <xs:element name="DataMemberList" type="this:DataMemberList"/>
       <xs:element name="ArgumentList" type="this:ArgumentList"/>
-      <xs:element name="PageRefList" type="this:PageRefList"/>
+      <xs:element name="EnumMemberList" type="this:EnumMemberList"/>
+      <xs:element name="TypeMemberList" type="this:TypeMemberList"/>
       <xs:element name="ReturnValue" type="this:ReturnValue"/>
     </xs:choice>
     <xs:attribute name="PageName" type="xs:string" use="required">
@@ -80,13 +99,33 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="TypeRef" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Identifies a section of text as a type reference. No link will appear, but the text will be displayed differently to make the type reference stand out.</xs:documentation>
+    </xs:annotation>
+  </xs:complexType>
+
+  <xs:complexType name="URL" mixed="true">
+    <xs:annotation>
+      <xs:documentation>This node allows a URL to be inserted into the document with an optional display name, which will appear as a link in the generated document.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="DisplayName" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the text to show in the document for the link. If this is not specified, the full URL will be shown as the text.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
   <xs:complexType name="Paragraph" mixed="true">
     <xs:annotation>
       <xs:documentation>Defines a paragraph of text to insert in the generated document. Spacing will be inserted between consecutive paragraphs as required.</xs:documentation>
     </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="URL" type="this:URL"/>
+      <xs:element name="Download" type="this:Download"/>
       <xs:element name="PageRef" type="this:PageRef"/>
+      <xs:element name="TypeRef" type="this:TypeRef"/>
     </xs:choice>
   </xs:complexType>
 
@@ -101,11 +140,14 @@
       <xs:element name="TOC" type="this:TOC"/>
       <xs:element name="Code" type="this:Code"/>
       <xs:element name="Image" type="this:Image"/>
+      <xs:element name="List" type="this:List"/>
       <xs:element name="PageRef" type="this:PageRef"/>
+      <xs:element name="PageRefList" type="this:PageRefList"/>
       <xs:element name="FunctionMemberList" type="this:FunctionMemberList"/>
       <xs:element name="DataMemberList" type="this:DataMemberList"/>
       <xs:element name="ArgumentList" type="this:ArgumentList"/>
-      <xs:element name="PageRefList" type="this:PageRefList"/>
+      <xs:element name="EnumMemberList" type="this:EnumMemberList"/>
+      <xs:element name="TypeMemberList" type="this:TypeMemberList"/>
       <xs:element name="ReturnValue" type="this:ReturnValue"/>
     </xs:choice>
     <xs:attribute name="Title" type="xs:string" use="required">
@@ -128,11 +170,14 @@
       <xs:element name="TOC" type="this:TOC"/>
       <xs:element name="Code" type="this:Code"/>
       <xs:element name="Image" type="this:Image"/>
+      <xs:element name="List" type="this:List"/>
       <xs:element name="PageRef" type="this:PageRef"/>
+      <xs:element name="PageRefList" type="this:PageRefList"/>
       <xs:element name="FunctionMemberList" type="this:FunctionMemberList"/>
       <xs:element name="DataMemberList" type="this:DataMemberList"/>
       <xs:element name="ArgumentList" type="this:ArgumentList"/>
-      <xs:element name="PageRefList" type="this:PageRefList"/>
+      <xs:element name="EnumMemberList" type="this:EnumMemberList"/>
+      <xs:element name="TypeMemberList" type="this:TypeMemberList"/>
       <xs:element name="ReturnValue" type="this:ReturnValue"/>
     </xs:choice>
     <xs:attribute name="Title" type="xs:string" use="required">
@@ -192,6 +237,11 @@
     <xs:annotation>
       <xs:documentation>Allows a block of code to be shown with the correct formatting</xs:documentation>
     </xs:annotation>
+    <xs:attribute name="Language" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the language to interpret the code as</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="Image" mixed="true">
@@ -203,6 +253,34 @@
         <xs:documentation>Specifies the internal name of the document that this image references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Download" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Inserts a download link to the target file</xs:documentation>
+    </xs:annotation>
+  </xs:complexType>
+
+  <xs:complexType name="List">
+    <xs:annotation>
+      <xs:documentation>Allows a basic list of items to be presented to the user</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="ListEntry" type="this:ListEntry"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="ListEntry" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Defines a single entry in the parent list</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="List" type="this:List"/>
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="URL" type="this:URL"/>
+      <xs:element name="TypeRef" type="this:TypeRef"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+    </xs:choice>
   </xs:complexType>
 
   <xs:complexType name="PageRef" mixed="true">
@@ -251,6 +329,8 @@
     </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="URL" type="this:URL"/>
+      <xs:element name="TypeRef" type="this:TypeRef"/>
       <xs:element name="PageRef" type="this:PageRef"/>
     </xs:choice>
     <xs:attribute name="Static" type="xs:boolean" use="optional" default="false">
@@ -261,6 +341,11 @@
     <xs:attribute name="Deprecated" type="xs:boolean" use="optional" default="false">
       <xs:annotation>
         <xs:documentation>Specifies whether the use of this member is deprecated and should not be used in new code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Blocked" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>Specifies whether the use of this method is blocked or reserved for internal use by design, and cannot be called directly.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="Visibility" type="this:MemberVisibility" use="required">
@@ -295,6 +380,8 @@
     </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="URL" type="this:URL"/>
+      <xs:element name="TypeRef" type="this:TypeRef"/>
       <xs:element name="PageRef" type="this:PageRef"/>
     </xs:choice>
     <xs:attribute name="Static" type="xs:boolean" use="optional" default="false">
@@ -329,6 +416,93 @@
     </xs:attribute>
   </xs:complexType>
 
+  <xs:complexType name="EnumMemberList">
+    <xs:annotation>
+      <xs:documentation>Allows a list of enum entries to be nicely formatted and presented to the user</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="EnumMemberListEntry" type="this:EnumMemberListEntry"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="EnumMemberListEntry" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Defines a single entry in the parent enum member list</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="URL" type="this:URL"/>
+      <xs:element name="TypeRef" type="this:TypeRef"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+    </xs:choice>
+    <xs:attribute name="Deprecated" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>Specifies whether the use of this type is deprecated and should not be used in new code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Name" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the name of this enum entry in code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="PageName" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this entry references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="TypeMemberList">
+    <xs:annotation>
+      <xs:documentation>Allows a list of member types to be nicely formatted and presented to the user</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="TypeMemberListEntry" type="this:TypeMemberListEntry"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="TypeMemberListEntry" mixed="true">
+    <xs:annotation>
+      <xs:documentation>Defines a single entry in the parent type member list</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="URL" type="this:URL"/>
+      <xs:element name="TypeRef" type="this:TypeRef"/>
+      <xs:element name="PageRef" type="this:PageRef"/>
+    </xs:choice>
+    <xs:attribute name="Static" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>Specifies whether this is a static type</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Deprecated" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>Specifies whether the use of this type is deprecated and should not be used in new code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Visibility" type="this:MemberVisibility" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the visibility of this type member to external code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="TypeCategory" type="this:TypeCategory" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the category this particular type belongs to</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Name" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the name of this type in code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="PageName" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Specifies the internal name of the document that this entry references. A link will be shown to the target document if the specified name corresponds to another document.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
   <xs:complexType name="ArgumentList">
     <xs:annotation>
       <xs:documentation>Allows a list of arguments of a function to be nicely formatted and presented to the user</xs:documentation>
@@ -344,6 +518,8 @@
     </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="URL" type="this:URL"/>
+      <xs:element name="TypeRef" type="this:TypeRef"/>
       <xs:element name="PageRef" type="this:PageRef"/>
     </xs:choice>
     <xs:attribute name="Name" type="xs:string" use="required">
@@ -364,6 +540,8 @@
     </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="XHTMLContent" type="this:XHTMLContent"/>
+      <xs:element name="URL" type="this:URL"/>
+      <xs:element name="TypeRef" type="this:TypeRef"/>
       <xs:element name="PageRef" type="this:PageRef"/>
     </xs:choice>
     <xs:attribute name="Type" type="xs:string" use="required">

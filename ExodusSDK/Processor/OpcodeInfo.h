@@ -16,16 +16,16 @@ public:
 	virtual void SetIsValidOpcode(bool state);
 	virtual unsigned int GetOpcodeSize() const;
 	virtual void SetOpcodeSize(unsigned int state);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetOpcodeNameDisassembly() const;
-	virtual void SetOpcodeNameDisassembly(const MarshalSupport::Marshal::In<std::wstring>& state);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetOpcodeArgumentsDisassembly() const;
-	virtual void SetOpcodeArgumentsDisassembly(const MarshalSupport::Marshal::In<std::wstring>& state);
-	virtual MarshalSupport::Marshal::Ret<std::wstring> GetDisassemblyComment() const;
-	virtual void SetDisassemblyComment(const MarshalSupport::Marshal::In<std::wstring>& state);
-	virtual MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetLabelTargetLocations() const;
-	virtual void SetLabelTargetLocations(const MarshalSupport::Marshal::In<std::set<unsigned int>>& state);
-	virtual MarshalSupport::Marshal::Ret<std::set<unsigned int>> GetResultantPCLocations() const;
-	virtual void SetResultantPCLocations(const MarshalSupport::Marshal::In<std::set<unsigned int>>& state);
+	virtual Marshal::Ret<std::wstring> GetOpcodeNameDisassembly() const;
+	virtual void SetOpcodeNameDisassembly(const Marshal::In<std::wstring>& state);
+	virtual Marshal::Ret<std::wstring> GetOpcodeArgumentsDisassembly() const;
+	virtual void SetOpcodeArgumentsDisassembly(const Marshal::In<std::wstring>& state);
+	virtual Marshal::Ret<std::wstring> GetDisassemblyComment() const;
+	virtual void SetDisassemblyComment(const Marshal::In<std::wstring>& state);
+	virtual Marshal::Ret<std::set<unsigned int>> GetLabelTargetLocations() const;
+	virtual void SetLabelTargetLocations(const Marshal::In<std::set<unsigned int>>& state);
+	virtual Marshal::Ret<std::set<unsigned int>> GetResultantPCLocations() const;
+	virtual void SetResultantPCLocations(const Marshal::In<std::set<unsigned int>>& state);
 	virtual bool GetHasUndeterminedResultantPCLocation() const;
 	virtual void SetHasUndeterminedResultantPCLocation(bool state);
 

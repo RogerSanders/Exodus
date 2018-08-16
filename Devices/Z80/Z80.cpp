@@ -474,7 +474,7 @@ void Z80::BeginExecution()
 //----------------------------------------------------------------------------------------
 //Reference functions
 //----------------------------------------------------------------------------------------
-bool Z80::AddReference(const MarshalSupport::Marshal::In<std::wstring>& referenceName, IBusInterface* target)
+bool Z80::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	bool result = false;
 	externalReferenceLock.ObtainWriteLock();
@@ -932,7 +932,7 @@ void Z80::NotifyUpcomingTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 //Line functions
 //----------------------------------------------------------------------------------------
-unsigned int Z80::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lineName) const
+unsigned int Z80::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
 	if(lineName == L"RESET")
 	{
@@ -958,7 +958,7 @@ unsigned int Z80::GetLineID(const MarshalSupport::Marshal::In<std::wstring>& lin
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Z80::GetLineName(unsigned int lineID) const
+Marshal::Ret<std::wstring> Z80::GetLineName(unsigned int lineID) const
 {
 	switch((LineID)lineID)
 	{
@@ -1152,7 +1152,7 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, st
 //----------------------------------------------------------------------------------------
 //Clock source functions
 //----------------------------------------------------------------------------------------
-unsigned int Z80::GetClockSourceID(const MarshalSupport::Marshal::In<std::wstring>& clockSourceName) const
+unsigned int Z80::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const
 {
 	if(clockSourceName == L"CLK")
 	{
@@ -1162,7 +1162,7 @@ unsigned int Z80::GetClockSourceID(const MarshalSupport::Marshal::In<std::wstrin
 }
 
 //----------------------------------------------------------------------------------------
-MarshalSupport::Marshal::Ret<std::wstring> Z80::GetClockSourceName(unsigned int clockSourceID) const
+Marshal::Ret<std::wstring> Z80::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch((ClockID)clockSourceID)
 	{
@@ -1510,7 +1510,7 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 //----------------------------------------------------------------------------------------
 //CE line state functions
 //----------------------------------------------------------------------------------------
-unsigned int Z80::GetCELineID(const MarshalSupport::Marshal::In<std::wstring>& lineName, bool inputLine) const
+unsigned int Z80::GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const
 {
 	if(lineName == L"RD")
 	{
