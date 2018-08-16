@@ -24,8 +24,8 @@ breakOnNextOpcode(false), breakpointExists(false), watchpointExists(false)
 	activeDisassemblyArrayNextFreeID = 1;
 	activeDisassemblyStartLocation = 0;
 	activeDisassemblyEndLocation = 0;
-	activeDisassemblyUncommittedStartLocation = 0;
-	activeDisassemblyUncommittedEndLocation = 0;
+	activeDisassemblyUncommittedStartLocation = activeDisassemblyStartLocation;
+	activeDisassemblyUncommittedEndLocation = activeDisassemblyEndLocation;
 	activeDisassemblyAnalysisStartLocation = activeDisassemblyStartLocation;
 	activeDisassemblyAnalysisEndLocation = activeDisassemblyEndLocation;
 	activeDisassemblyAnalyzeCode = true;
@@ -114,7 +114,8 @@ bool Processor::BuildDevice()
 	//constructor.
 	unsigned int addressBusMask = (((1 << (GetAddressBusWidth() - 1)) - 1) << 1) | 0x01;
 	activeDisassemblyEndLocation = addressBusMask;
-	activeDisassemblyAnalysisEndLocation = addressBusMask;
+	activeDisassemblyUncommittedEndLocation = activeDisassemblyEndLocation;
+	activeDisassemblyAnalysisEndLocation = activeDisassemblyEndLocation;
 
 	//##TODO## Register a generic access page for modifying breakpoints and watchpoints
 	bool result = true;
