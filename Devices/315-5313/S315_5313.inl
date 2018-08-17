@@ -267,12 +267,15 @@ struct S315_5313::SpriteCellDisplayCacheEntry
 
 	unsigned int spriteDisplayCacheIndex;
 	unsigned int spriteCellColumnNo;
+	unsigned int spriteWidthInCells;
+	unsigned int spriteHeightInCells;
 	unsigned int patternCellOffsetX;
 	unsigned int patternCellOffsetY;
 	unsigned int patternRowOffset;
 	Data patternData;
 
 	//Debug info
+	unsigned int spriteTableIndex;
 	unsigned int spriteTableEntryAddress;
 };
 
