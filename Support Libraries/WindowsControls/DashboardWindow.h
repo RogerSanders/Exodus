@@ -179,7 +179,7 @@ private:
 	static void DrawImageSquare(IImage& image, unsigned int startPosX, unsigned int startPosY, unsigned int width, unsigned int height, const std::map<int, unsigned char>& penColorComponents);
 	//##TODO## Consider shifting this into the Image class, once the future of the image
 	//load routines and the image class itself is determined.
-	static HBITMAP DashboardWindow::ImageToLoadedDIB(IImage& image, HDC deviceContext);
+	static HBITMAP ImageToLoadedDIB(IImage& image, HDC deviceContext);
 
 private:
 	//Window handles

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <Uxtheme.h>
 #include <Vsstyle.h>
+#include <iterator>
 //##DEBUG##
 #include <iostream>
 

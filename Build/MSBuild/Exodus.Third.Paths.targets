@@ -8,7 +8,7 @@
 
     <ThirdDirPathZlib Condition="'$(ThirdDirPathZlib)' == ''">$(ThirdDir)zlib\zlib-1.2.8\</ThirdDirPathZlib>
     <ThirdDirPathLibjpeg Condition="'$(ThirdDirPathLibjpeg)' == ''">$(ThirdDir)libjpeg\jpeg-9a\</ThirdDirPathLibjpeg>
-    <ThirdDirPathLibtiff Condition="'$(ThirdDirPathLibtiff)' == ''">$(ThirdDir)libtiff\tiff-4.0.3\</ThirdDirPathLibtiff>
+    <ThirdDirPathLibtiff Condition="'$(ThirdDirPathLibtiff)' == ''">$(ThirdDir)libtiff\tiff-4.0.9\</ThirdDirPathLibtiff>
     <ThirdDirPathExpat Condition="'$(ThirdDirPathExpat)' == ''">$(ThirdDir)expat\expat-2.1.0\</ThirdDirPathExpat>
     <ThirdDirPathLibpng Condition="'$(ThirdDirPathLibpng)' == ''">$(ThirdDir)libpng\lpng1612\</ThirdDirPathLibpng>
     <ThirdDirPathCatch Condition="'$(ThirdDirPathCatch)' == ''">$(ThirdDir)catch\Catch\</ThirdDirPathCatch>

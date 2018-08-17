@@ -788,14 +788,6 @@ protected:
 		REQUIRE(test.GetValue() == 42);
 		return true;
 	}
-	virtual bool InTestMoveConstructOnly02(const Marshal::In<std::vector<MoveTypeConstructOnly>>& marshaller) const
-	{
-		std::vector<MoveTypeConstructOnly> test = marshaller.Get();
-		REQUIRE(test.size() == (size_t)2);
-		REQUIRE(test[0].GetValue() == 1);
-		REQUIRE(test[1].GetValue() == 2);
-		return true;
-	}
 	virtual bool InTestMoveConstructOnly03(const Marshal::In<std::list<MoveTypeConstructOnly>>& marshaller) const
 	{
 		std::list<MoveTypeConstructOnly> test = marshaller.Get();
