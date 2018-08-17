@@ -907,16 +907,14 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 		if(renderSpriteDisplayCellCacheCurrentIndex < renderSpriteDisplayCellCacheEntryCount)
 		{
 			//Obtain a reference to the corresponding sprite cell and sprite display cache
-			//entries for this sprite cell.
+			//entries for this sprite cell. Note that only the mappingData and hpos members
+			//of the sprite display cache entry are valid at this point, as other members
+			//of the structure will already have been updated for the following line.
 			SpriteCellDisplayCacheEntry& spriteCellDisplayCacheEntry = renderSpriteDisplayCellCache[renderSpriteDisplayCellCacheCurrentIndex];
 			SpriteDisplayCacheEntry& spriteDisplayCacheEntry = renderSpriteDisplayCache[spriteCellDisplayCacheEntry.spriteDisplayCacheIndex];
 
-			//Calculate the width and height of this sprite in cells
-			unsigned int spriteWidthInCells = spriteDisplayCacheEntry.sizeAndLinkData.GetDataSegment(10, 2) + 1;
-			unsigned int spriteHeightInCells = spriteDisplayCacheEntry.sizeAndLinkData.GetDataSegment(8, 2) + 1;
-
 			//Calculate the address of the target pattern data row for the sprite cell
-			unsigned int patternCellOffset = (spriteCellDisplayCacheEntry.patternCellOffsetX * spriteHeightInCells) + spriteCellDisplayCacheEntry.patternCellOffsetY;
+			unsigned int patternCellOffset = (spriteCellDisplayCacheEntry.patternCellOffsetX * spriteCellDisplayCacheEntry.spriteHeightInCells) + spriteCellDisplayCacheEntry.patternCellOffsetY;
 			unsigned int patternRowNumber = CalculatePatternDataRowNumber(spriteCellDisplayCacheEntry.patternRowOffset, interlaceMode2Active, spriteDisplayCacheEntry.mappingData);
 			unsigned int patternDataAddress = CalculatePatternDataRowAddress(patternRowNumber, patternCellOffset, interlaceMode2Active, spriteDisplayCacheEntry.mappingData);
 
@@ -991,11 +989,11 @@ void S315_5313::PerformVRAMRenderOperation(const AccessTarget& accessTarget, con
 							{
 								spritePixelBufferEntry.patternRowNo = patternRowNumber;
 								spritePixelBufferEntry.patternColumnNo = cellPixelIndex;
-								spritePixelBufferEntry.spriteTableEntryNo = spriteDisplayCacheEntry.spriteTableIndex;
+								spritePixelBufferEntry.spriteTableEntryNo = spriteCellDisplayCacheEntry.spriteTableIndex;
 								spritePixelBufferEntry.spriteTableEntryAddress = spriteCellDisplayCacheEntry.spriteTableEntryAddress;
 								spritePixelBufferEntry.spriteMappingData = spriteDisplayCacheEntry.mappingData;
-								spritePixelBufferEntry.spriteCellWidth = spriteWidthInCells;
-								spritePixelBufferEntry.spriteCellHeight = spriteHeightInCells;
+								spritePixelBufferEntry.spriteCellWidth = spriteCellDisplayCacheEntry.spriteWidthInCells;
+								spritePixelBufferEntry.spriteCellHeight = spriteCellDisplayCacheEntry.spriteHeightInCells;
 								spritePixelBufferEntry.spriteCellPosX = spriteCellDisplayCacheEntry.patternCellOffsetX;
 								spritePixelBufferEntry.spriteCellPosY = spriteCellDisplayCacheEntry.patternCellOffsetY;
 							}
@@ -2096,6 +2094,8 @@ void S315_5313::DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSetti
 				//pattern data for the topmost cell in the second column, and so on.
 				unsigned int spriteCellHorizontalOffset = (hflip)? (spriteWidthInCells - 1) - i: i;
 				SpriteCellDisplayCacheEntry& cellCacheEntry = spriteCellDisplayCache[spriteCellDisplayCacheEntryCount];
+				cellCacheEntry.spriteWidthInCells = spriteWidthInCells;
+				cellCacheEntry.spriteHeightInCells = spriteHeightInCells;
 				cellCacheEntry.patternCellOffsetX = spriteCellHorizontalOffset;
 				cellCacheEntry.patternCellOffsetY = spriteCellRowNumber;
 				cellCacheEntry.patternRowOffset = spriteCellPatternRowNumber;
@@ -2104,6 +2104,7 @@ void S315_5313::DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSetti
 				//Record debug info on this sprite cell buffer entry, so that we can
 				//reverse the render pipeline later for debug purposes and determine the
 				//sprite that generated this pixel.
+				cellCacheEntry.spriteTableIndex = spriteDisplayCacheEntry.spriteTableIndex;
 				cellCacheEntry.spriteTableEntryAddress = spriteTableEntryAddress;
 
 				//Advance to the next available entry in the sprite cell cache
