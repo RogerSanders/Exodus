@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Manifest>
-      <AdditionalManifestFiles>manifestx64.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>manifest.xml;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup />

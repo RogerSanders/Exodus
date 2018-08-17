@@ -501,7 +501,6 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="manifest.xml" />
-    <Xml Include="manifestx64.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
