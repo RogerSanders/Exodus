@@ -296,7 +296,6 @@ public:
 	virtual Marshal::Ret<std::vector<MoveTypeNoCopy>> RetTestNoCopy02() const = 0;
 	virtual Marshal::Ret<std::list<MoveTypeNoCopy>> RetTestNoCopy03() const = 0;
 	virtual bool InTestMoveConstructOnly01(const Marshal::In<MoveTypeConstructOnly>& marshaller) const = 0;
-	virtual bool InTestMoveConstructOnly02(const Marshal::In<std::vector<MoveTypeConstructOnly>>& marshaller) const = 0;
 	virtual bool InTestMoveConstructOnly03(const Marshal::In<std::list<MoveTypeConstructOnly>>& marshaller) const = 0;
 
 	//std::pair tests
