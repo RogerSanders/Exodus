@@ -1,5 +1,6 @@
 #include "PlaneView.h"
 #include "resource.h"
+#include <DataConversion/DataConversion.pkg>
 
 //----------------------------------------------------------------------------------------
 //Constructors
@@ -10,6 +11,7 @@ PlaneView::PlaneView(IUIManager& auiManager, PlaneViewPresenter& apresenter, IS3
 	glrc = 0;
 	buffer = 0;
 	hwndRender = NULL;
+	zoomSettings = { 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 5.5f, 6.0f, 6.5f, 7.0f, 7.5f, 8.0f, 8.5f, 9.0f, 9.5f, 10.0f };
 
 	selectedLayer = SELECTEDLAYER_LAYERA;
 	displayScreen = true;
@@ -41,8 +43,12 @@ INT_PTR PlaneView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
+	case WM_DESTROY:
+		return msgWM_DESTROY(hwnd, wparam, lparam);
 	case WM_COMMAND:
 		return msgWM_COMMAND(hwnd, wparam, lparam);
+	case WM_SIZE:
+		return msgWM_SIZE(hwnd, wparam, lparam);
 	case WM_HSCROLL:
 		return msgWM_HSCROLL(hwnd, wparam, lparam);
 	case WM_VSCROLL:
@@ -120,16 +126,21 @@ INT_PTR PlaneView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	RECT markerRect;
 	GetWindowRect(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MARKER), &markerRect);
 	POINT markerPos;
-	unsigned int width = DPIScaleWidth(64*8);   //markerRect.right - markerRect.left;
-	unsigned int height = DPIScaleHeight(64*8); //markerRect.bottom - markerRect.top;
 	markerPos.x = markerRect.left;
 	markerPos.y = markerRect.top;
 	ScreenToClient(hwnd, &markerPos);
+	int renderWindowPosX = markerPos.x;
+	int renderWindowPosY = markerPos.y;
+	int renderWindowWidth = markerRect.right - markerRect.left;
+	int renderWindowHeight = markerRect.bottom - markerRect.top;
 
 	//Create the window
-	hwndRender = CreateWindowEx(0, L"Plane Render Child", L"Plane Render Child", WS_CHILD, markerPos.x, markerPos.y, width, height, hwnd, NULL, GetAssemblyHandle(), this);
+	hwndRender = CreateWindowEx(0, L"Plane Render Child", L"Plane Render Child", WS_CHILD, renderWindowPosX, renderWindowPosY, renderWindowWidth, renderWindowHeight, hwnd, NULL, GetAssemblyHandle(), this);
 	ShowWindow(hwndRender, SW_SHOWNORMAL);
 	UpdateWindow(hwndRender);
+
+	//Update the positions of the render window and scrollbar controls
+	UpdateControlPositions(hwnd);
 
 	//Set the window controls to their default state
 	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERA, (selectedLayer == SELECTEDLAYER_LAYERA)? BST_CHECKED: BST_UNCHECKED);
@@ -169,6 +180,20 @@ INT_PTR PlaneView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNWINDOW), (windowPatternBaseManual)? TRUE: FALSE);
 	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNSPRITES), (spritePatternBaseManual)? TRUE: FALSE);
 
+	//Fill the zoom combobox with its list of values
+	for (unsigned int i = 0; i < zoomSettings.size(); ++i)
+	{
+		float zoomSetting = zoomSettings[i];
+		std::wstring zoomSettingString;
+		FloatToString(zoomSetting, zoomSettingString, false, 1);
+		LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_ADDSTRING, 0, (LPARAM)zoomSettingString.c_str());
+		SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_SETITEMDATA, newItemIndex, (LPARAM)i);
+	}
+
+	//Select the first zoom setting by default
+	imageZoomFactor = zoomSettings[0];
+	SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_SETCURSEL, (WPARAM)0, 0);
+
 	return TRUE;
 }
 
@@ -186,6 +211,13 @@ INT_PTR PlaneView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	hwndRender = NULL;
 
 	return FALSE;
+}
+
+//----------------------------------------------------------------------------------------
+INT_PTR PlaneView::msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	UpdateControlPositions(hwnd);
+	return TRUE;
 }
 
 //----------------------------------------------------------------------------------------
@@ -380,6 +412,16 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			}
 		}
 	}
+	else if((HIWORD(wparam) == CBN_SELCHANGE) && initializedDialog)
+	{
+		switch(LOWORD(wparam))
+		{
+		case IDC_S315_5313_PLANEVIEW_ZOOM:{
+			int itemIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_GETCURSEL, 0, 0);
+			imageZoomFactor = zoomSettings[(unsigned int)SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_GETITEMDATA, itemIndex, NULL)];
+			break;}
+		}
+	}
 	return TRUE;
 }
 
@@ -395,6 +437,68 @@ INT_PTR PlaneView::msgWM_VSCROLL(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
 	UpdateScrollbar(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_VSCROLL), wParam);
 	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------
+void PlaneView::UpdateControlPositions(HWND hwnd)
+{
+	//Obtain the current size of the client area of the window
+	RECT clientRect;
+	GetClientRect(hwnd, &clientRect);
+	int windowWidth = clientRect.right - clientRect.left;
+	int windowHeight = clientRect.bottom - clientRect.top;
+
+	//Retrieve the current size and position of the vertical scroll bar
+	RECT scrollBarVOriginalRect;
+	GetWindowRect(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_VSCROLL), &scrollBarVOriginalRect);
+	int scrollBarVOriginalWidth = scrollBarVOriginalRect.right - scrollBarVOriginalRect.left;
+	int scrollBarVOriginalHeight = scrollBarVOriginalRect.bottom - scrollBarVOriginalRect.top;
+	POINT scrollBarVPos;
+	scrollBarVPos.x = scrollBarVOriginalRect.left;
+	scrollBarVPos.y = scrollBarVOriginalRect.top;
+	ScreenToClient(hwnd, &scrollBarVPos);
+	int scrollBarVOriginalPosX = scrollBarVPos.x;
+	int scrollBarVOriginalPosY = scrollBarVPos.y;
+
+	//Retrieve the current size and position of the horizontal scroll bar
+	RECT scrollBarHOriginalRect;
+	GetWindowRect(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_HSCROLL), &scrollBarHOriginalRect);
+	int scrollBarHOriginalWidth = scrollBarHOriginalRect.right - scrollBarHOriginalRect.left;
+	int scrollBarHOriginalHeight = scrollBarHOriginalRect.bottom - scrollBarHOriginalRect.top;
+	POINT scrollBarHPos;
+	scrollBarHPos.x = scrollBarHOriginalRect.left;
+	scrollBarHPos.y = scrollBarHOriginalRect.top;
+	ScreenToClient(hwnd, &scrollBarHPos);
+	int scrollBarHOriginalPosX = scrollBarHPos.x;
+	int scrollBarHOriginalPosY = scrollBarHPos.y;
+
+	//Update the current size and position of the vertical scroll bar
+	int scrollBarVNewHeight = windowHeight - (scrollBarVOriginalPosY + scrollBarHOriginalHeight);
+	int scrollBarVNewPosX = windowWidth - scrollBarVOriginalWidth;
+	SetWindowPos(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_VSCROLL), NULL, scrollBarVNewPosX, scrollBarVOriginalPosY, scrollBarVOriginalWidth, scrollBarVNewHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+
+	//Update the current size and position of the horizontal scroll bar
+	int scrollBarHNewWidth = windowWidth - (scrollBarHOriginalPosX + scrollBarVOriginalWidth);
+	int scrollBarHNewPosY = windowHeight - scrollBarHOriginalHeight;
+	SetWindowPos(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_HSCROLL), NULL, scrollBarHOriginalPosX, scrollBarHNewPosY, scrollBarHNewWidth, scrollBarHOriginalHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+
+	if (hwndRender != NULL)
+	{
+		//Retrieve the current position of the render window
+		RECT renderWindowRect;
+		GetWindowRect(hwndRender, &renderWindowRect);
+		POINT renderWindowPos;
+		renderWindowPos.x = renderWindowRect.left;
+		renderWindowPos.y = renderWindowRect.top;
+		ScreenToClient(hwnd, &renderWindowPos);
+		int renderWindowPosX = renderWindowPos.x;
+		int renderWindowPosY = renderWindowPos.y;
+
+		//Set the new window size for the render window
+		int renderWindowWidth = scrollBarVNewPosX - renderWindowPosX;
+		int renderWindowHeight = scrollBarHNewPosY - renderWindowPosY;
+		SetWindowPos(hwndRender, NULL, renderWindowPosX, renderWindowPosY, renderWindowWidth, renderWindowHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -497,6 +601,8 @@ LRESULT PlaneView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 		return msgRenderWM_CREATE(hwnd, wparam, lparam);
 	case WM_DESTROY:
 		return msgRenderWM_DESTROY(hwnd, wparam, lparam);
+	case WM_SIZE:
+		return msgRenderWM_SIZE(hwnd, wparam, lparam);
 	case WM_TIMER:
 		return msgRenderWM_TIMER(hwnd, wparam, lparam);
 	case WM_LBUTTONDOWN:
@@ -514,27 +620,25 @@ LRESULT PlaneView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 //----------------------------------------------------------------------------------------
 LRESULT PlaneView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	//Obtain the current size of the client area of the window
+	RECT clientRect;
+	GetClientRect(hwnd, &clientRect);
+	int windowWidth = clientRect.right - clientRect.left;
+	int windowHeight = clientRect.bottom - clientRect.top;
+
 	//OpenGL Initialization code
-	int screenWidth = DPIScaleWidth(64*8);
-	int screenHeight = DPIScaleHeight(64*8);
 	glrc = CreateOpenGLWindow(hwnd);
 	if(glrc != NULL)
 	{
-		glViewport(0, 0, screenWidth, screenHeight);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0.0, (float)screenWidth, (float)screenHeight, 0.0, -1.0, 1.0);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		UpdateRenderWindowSize(hwnd, windowWidth, windowHeight);
 	}
 
 	//Allocate a memory buffer for the rendered VRAM data
-	int bufferWidth = 64*8;
-	int bufferHeight = 64*8;
+	bufferWidth = 128*8;
+	bufferHeight = 128*8;
 	buffer = new unsigned char[bufferWidth * bufferHeight * 4];
 
 	SetTimer(hwnd, 1, 50, NULL);
-
 	return 0;
 }
 
@@ -557,9 +661,32 @@ LRESULT PlaneView::msgRenderWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 }
 
 //----------------------------------------------------------------------------------------
+LRESULT PlaneView::msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
+{
+	//Obtain the current size of the client area of the window
+	RECT clientRect;
+	GetClientRect(hwnd, &clientRect);
+	int windowWidth = clientRect.right - clientRect.left;
+	int windowHeight = clientRect.bottom - clientRect.top;
+
+	//Update the size of the render window
+	UpdateRenderWindowSize(hwnd, windowWidth, windowHeight);
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------
 LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	initializedDialog = true;
+
+	//Obtain the current DPI scale factors
+	float dpiScaleX;
+	float dpiScaleY;
+	DPIGetScreenScaleFactors(dpiScaleX, dpiScaleY);
+
+	//Calculate the scale factors for the image
+	float imageScaleX = dpiScaleX * imageZoomFactor;
+	float imageScaleY = dpiScaleY * imageZoomFactor;
 
 	//Read the current state of all required registers
 	bool h40ModeActive = model.RegGetRS1();
@@ -578,8 +705,6 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Constants
 	const unsigned int blockPixelSizeX = 8;
 	const unsigned int blockPixelSizeY = (interlaceMode2Active)? 16: 8;
-	const unsigned int width = 64*8;
-	const unsigned int height = 64*8;
 	const unsigned int screenWidthInCells = (h40ModeActive)? 40: 32;
 	const unsigned int screenWidthInPixels = screenWidthInCells * blockPixelSizeX;
 	const unsigned int screenHeightInCells = (v30ModeActive)? 30: 28;
@@ -717,13 +842,13 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		hscrollInfo.nMin = 0;
 		hscrollInfo.nMax = (int)(selectedPlaneWidth > 0)? selectedPlaneWidth - 1: 0;
 		hscrollInfo.nPos = currentScrollPosH;
-		hscrollInfo.nPage = 64;
+		hscrollInfo.nPage = (unsigned int)((float)(currentRenderWindowWidth / blockPixelSizeX) / imageScaleX);
 		hscrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
 		SetScrollInfo(GetDlgItem(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_HSCROLL), SB_CTL, &hscrollInfo, TRUE);
 	}
 
 	//Apply the latest vertical scrollbar settings
-	unsigned int newScrollPageSizeV = (interlaceMode2Active)? 32: 64;
+	unsigned int newScrollPageSizeV = currentRenderWindowHeight / blockPixelSizeY;
 	if((currentScrollMaxV != (int)selectedPlaneHeight) || (currentScrollPageSizeV != newScrollPageSizeV))
 	{
 		SCROLLINFO vscrollInfo;
@@ -731,7 +856,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		vscrollInfo.nMin = 0;
 		vscrollInfo.nMax = (int)(selectedPlaneHeight > 0)? selectedPlaneHeight - 1: 0;
 		vscrollInfo.nPos = currentScrollPosV;
-		vscrollInfo.nPage = newScrollPageSizeV;
+		vscrollInfo.nPage = (unsigned int)((float)newScrollPageSizeV / imageScaleY);
 		vscrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
 		SetScrollInfo(GetDlgItem(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_VSCROLL), SB_CTL, &vscrollInfo, TRUE);
 	}
@@ -739,8 +864,12 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Calculate the pixel coordinates of the currently visible window region
 	unsigned int renderRegionPixelStartX = currentScrollPosH * blockPixelSizeX;
 	unsigned int renderRegionPixelStartY = currentScrollPosV * blockPixelSizeY;
-	unsigned int renderRegionPixelEndX = (currentScrollPosH * blockPixelSizeX) + width;
-	unsigned int renderRegionPixelEndY = (currentScrollPosV * blockPixelSizeY) + height;
+	unsigned int renderRegionPixelEndX = renderRegionPixelStartX + currentRenderWindowWidth;
+	unsigned int renderRegionPixelEndY = renderRegionPixelStartY + currentRenderWindowHeight;
+	renderRegionPixelEndX = (renderRegionPixelEndX >= bufferWidth) ? bufferWidth : renderRegionPixelEndX;
+	renderRegionPixelEndY = (renderRegionPixelEndY >= bufferHeight) ? bufferHeight : renderRegionPixelEndY;
+	renderRegionPixelEndX = (renderRegionPixelEndX >= (selectedPlaneWidth * blockPixelSizeX)) ? (selectedPlaneWidth * blockPixelSizeX) : renderRegionPixelEndX;
+	renderRegionPixelEndY = (renderRegionPixelEndY >= (selectedPlaneHeight * blockPixelSizeY)) ? (selectedPlaneHeight * blockPixelSizeY) : renderRegionPixelEndY;
 
 	//Obtain a copy of the current VRAM data buffer
 	model.LockExternalBuffers();
@@ -753,9 +882,9 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	model.UnlockExternalBuffers();
 
 	//Fill the plane render buffer
-	for(unsigned int ypos = 0; ypos < height; ++ypos)
+	for(unsigned int ypos = 0; ypos < bufferHeight; ++ypos)
 	{
-		for(unsigned int xpos = 0; xpos < width; ++xpos)
+		for(unsigned int xpos = 0; xpos < bufferWidth; ++xpos)
 		{
 			//Calculate the position of the current pixel in the currently selected layer
 			unsigned int layerPixelPosX = renderRegionPixelStartX + xpos;
@@ -813,10 +942,10 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			}
 
 			//Write this pixel colour value into the data buffer
-			buffer[((xpos + (((height-1)-ypos) * width)) * 4) + 0] = colorR;
-			buffer[((xpos + (((height-1)-ypos) * width)) * 4) + 1] = colorG;
-			buffer[((xpos + (((height-1)-ypos) * width)) * 4) + 2] = colorB;
-			buffer[((xpos + (((height-1)-ypos) * width)) * 4) + 3] = 0xFF;
+			buffer[((xpos + (ypos * bufferWidth)) * 4) + 0] = colorR;
+			buffer[((xpos + (ypos * bufferWidth)) * 4) + 1] = colorG;
+			buffer[((xpos + (ypos * bufferWidth)) * 4) + 2] = colorB;
+			buffer[((xpos + (ypos * bufferWidth)) * 4) + 3] = 0xFF;
 		}
 	}
 
@@ -893,10 +1022,10 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					unsigned int spritePixelPosYInBuffer = (spriteMapping.ypos + ypos) - renderRegionPixelStartY;
 
 					//Write this pixel colour value into the data buffer
-					buffer[((spritePixelPosXInBuffer + (((height-1)-spritePixelPosYInBuffer) * width)) * 4) + 0] = colorR;
-					buffer[((spritePixelPosXInBuffer + (((height-1)-spritePixelPosYInBuffer) * width)) * 4) + 1] = colorG;
-					buffer[((spritePixelPosXInBuffer + (((height-1)-spritePixelPosYInBuffer) * width)) * 4) + 2] = colorB;
-					buffer[((spritePixelPosXInBuffer + (((height-1)-spritePixelPosYInBuffer) * width)) * 4) + 3] = 0xFF;
+					buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * bufferWidth)) * 4) + 0] = colorR;
+					buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * bufferWidth)) * 4) + 1] = colorG;
+					buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * bufferWidth)) * 4) + 2] = colorB;
+					buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * bufferWidth)) * 4) + 3] = 0xFF;
 				}
 			}
 
@@ -966,13 +1095,13 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					&& (((layerPosScreenStartY < layerPosScreenEndY) && (layerPixelPosY >= layerPosScreenStartY) && (layerPixelPosY < layerPosScreenEndY))
 					|| ((layerPosScreenStartY > layerPosScreenEndY) && ((layerPixelPosY >= layerPosScreenStartY) || (layerPixelPosY < layerPosScreenEndY)))))
 					{
-						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX+1, layerPixelPosX+1, layerPixelPosY, layerPixelPosY+1));
+						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX, layerPixelPosY, layerPixelPosY+1));
 					}
 					if((((layerPixelPosX + pixelsPerColumn) % layerScrollPlaneWidthInPixels) == layerPosScreenEndX)
 					&& (((layerPosScreenStartY < layerPosScreenEndY) && (layerPixelPosY >= layerPosScreenStartY) && (layerPixelPosY < layerPosScreenEndY))
 					|| ((layerPosScreenStartY > layerPosScreenEndY) && ((layerPixelPosY >= layerPosScreenStartY) || (layerPixelPosY < layerPosScreenEndY)))))
 					{
-						unsigned int linePosX = (layerPixelPosX + pixelsPerColumn + 1) % layerScrollPlaneWidthInPixels;
+						unsigned int linePosX = (layerPixelPosX + pixelsPerColumn) % layerScrollPlaneWidthInPixels;
 						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(linePosX, linePosX, layerPixelPosY, layerPixelPosY+1));
 					}
 
@@ -985,14 +1114,15 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 						//If the current column wraps around to the start of the layer,
 						//split the boundary line, otherwise draw a single line to the end
 						//of the column.
+						unsigned int linePosY = layerPixelPosY + (layerPixelPosY == layerPosScreenLastRow ? 1 : 0);
 						if((layerPixelPosX + pixelsPerColumn) > layerScrollPlaneWidthInPixels)
 						{
-							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, layerPixelPosY, layerPixelPosY));
+							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, linePosY, linePosY));
 							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(0, (layerPixelPosX+pixelsPerColumn) % layerScrollPlaneWidthInPixels, layerPixelPosY, layerPixelPosY));
 						}
 						else
 						{
-							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, layerPixelPosY, layerPixelPosY));
+							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, linePosY, linePosY));
 						}
 					}
 
@@ -1089,15 +1219,21 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 
-			//If a nonstandard DPI mode is active, scale the pixel image based on the
-			//current DPI settings.
-			float dpiScaleX;
-			float dpiScaleY;
-			DPIGetScreenScaleFactors(dpiScaleX, dpiScaleY);
-			glPixelZoom(dpiScaleX, dpiScaleY);
+			//Clear the background of the image region
+			glClearColor(0.75f, 0.75f, 0.75f, 0.75f);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			//Scale the pixel image based on the current DPI settings and zoom factor
+			glPixelZoom(imageScaleX, -imageScaleY);
+
+			//Set the raster position and pixel buffer width to account for scrolling
+			glRasterPos2i(0, 0);
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, bufferWidth);
 
 			//Draw the pixel buffer to the screen
-			glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+			int drawImageWidth = renderRegionPixelEndX - renderRegionPixelStartX;
+			int drawImageHeight = renderRegionPixelEndY - renderRegionPixelStartY;
+			glDrawPixels(drawImageWidth, drawImageHeight, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
 			//Draw our screen boundary lines
 			for(unsigned int i = 0; i < (unsigned int)validScreenBoundaryLines.size(); ++i)
@@ -1114,8 +1250,8 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 				//Draw the line
 				glBegin(GL_LINES);
-					glVertex2i(validScreenBoundaryLines[i].pixelPosXBegin, validScreenBoundaryLines[i].pixelPosYBegin);
-					glVertex2i(validScreenBoundaryLines[i].pixelPosXEnd, validScreenBoundaryLines[i].pixelPosYEnd);
+					glVertex2f((float)validScreenBoundaryLines[i].pixelPosXBegin * imageScaleX, (float)validScreenBoundaryLines[i].pixelPosYBegin * imageScaleY);
+					glVertex2f((float)validScreenBoundaryLines[i].pixelPosXEnd * imageScaleX, (float)validScreenBoundaryLines[i].pixelPosYEnd * imageScaleY);
 				glEnd();
 			}
 			glColor3d(1.0, 1.0, 1.0);
@@ -1127,10 +1263,10 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			for(unsigned int i = 0; i < (unsigned int)validScreenBoundaryQuads.size(); ++i)
 			{
 				glBegin(GL_QUADS);
-					glVertex2i(validScreenBoundaryQuads[i].pixelPosXBegin, validScreenBoundaryQuads[i].pixelPosYBegin);
-					glVertex2i(validScreenBoundaryQuads[i].pixelPosXEnd, validScreenBoundaryQuads[i].pixelPosYBegin);
-					glVertex2i(validScreenBoundaryQuads[i].pixelPosXEnd, validScreenBoundaryQuads[i].pixelPosYEnd);
-					glVertex2i(validScreenBoundaryQuads[i].pixelPosXBegin, validScreenBoundaryQuads[i].pixelPosYEnd);
+					glVertex2f((float)validScreenBoundaryQuads[i].pixelPosXBegin * imageScaleX, (float)validScreenBoundaryQuads[i].pixelPosYBegin * imageScaleY);
+					glVertex2f((float)validScreenBoundaryQuads[i].pixelPosXEnd * imageScaleX, (float)validScreenBoundaryQuads[i].pixelPosYBegin * imageScaleY);
+					glVertex2f((float)validScreenBoundaryQuads[i].pixelPosXEnd * imageScaleX, (float)validScreenBoundaryQuads[i].pixelPosYEnd * imageScaleY);
+					glVertex2f((float)validScreenBoundaryQuads[i].pixelPosXBegin * imageScaleX, (float)validScreenBoundaryQuads[i].pixelPosYEnd * imageScaleY);
 				glEnd();
 			}
 			glColor4d(1.0, 1.0, 1.0, 1.0);
@@ -1173,6 +1309,30 @@ LRESULT PlaneView::msgRenderWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		presenter.GetSystemInterface().HandleInputKeyDown(keyCode);
 	}
 	return 0;
+}
+
+//----------------------------------------------------------------------------------------
+void PlaneView::UpdateRenderWindowSize(HWND hwnd, int renderWindowWidth, int renderWindowHeight)
+{
+	currentRenderWindowWidth = renderWindowWidth;
+	currentRenderWindowHeight = renderWindowHeight;
+
+	HDC hdc = GetDC(hwnd);
+	if(hdc != NULL)
+	{
+		if((glrc != NULL) && (wglMakeCurrent(hdc, glrc) != FALSE))
+		{
+			glViewport(0, 0, currentRenderWindowWidth, currentRenderWindowHeight);
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			glOrtho(0.0, (float)currentRenderWindowWidth, (float)currentRenderWindowHeight, 0.0, -1.0, 1.0);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+
+			wglMakeCurrent(NULL, NULL);
+		}
+		ReleaseDC(hwnd, hdc);
+	}
 }
 
 //----------------------------------------------------------------------------------------
