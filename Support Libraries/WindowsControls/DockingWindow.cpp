@@ -3014,30 +3014,32 @@ void DockingWindow::ShowDropTargets(bool allowCenterDocking)
 	//Calculate the sizes of each docking region
 	int borderWidth = 1;
 	int marginSize = 3;
-	int dockingRegionWindowContentSize = 24;
+	int dockingRegionWindowContentSizeNonScaled = 24;
+	int dockingRegionWindowContentWidth = DPIScaleWidth(dockingRegionWindowContentSizeNonScaled);
+	int dockingRegionWindowContentHeight = DPIScaleWidth(dockingRegionWindowContentSizeNonScaled);
 	int dockingRegionTopInsertMarginSize = 2;
-	int dockingRegionTopInsertIconWidth = dockingRegionWindowContentSize / 2;
-	int centerDockingIconWidth = dockingRegionWindowContentSize + (2 * marginSize);
-	int centerDockingIconHeight = centerDockingIconWidth;
+	int dockingRegionTopInsertIconWidth = dockingRegionWindowContentWidth / 2;
+	int centerDockingIconWidth = dockingRegionWindowContentWidth + (2 * marginSize);
+	int centerDockingIconHeight = dockingRegionWindowContentHeight + (2 * marginSize);
 	std::map<WindowEdge, int> dockingIconWidth;
 	std::map<WindowEdge, int> dockingIconHeight;
 	std::map<WindowEdge, int> dockingIconForceTopWidth;
 	std::map<WindowEdge, int> dockingIconForceTopHeight;
-	dockingIconWidth[WindowEdge::Left] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
-	dockingIconHeight[WindowEdge::Left] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconWidth[WindowEdge::Right] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
-	dockingIconHeight[WindowEdge::Right] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconWidth[WindowEdge::Top] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconHeight[WindowEdge::Top] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
-	dockingIconWidth[WindowEdge::Bottom] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconHeight[WindowEdge::Bottom] = dockingRegionWindowContentSize + dockingRegionTopInsertMarginSize;
+	dockingIconWidth[WindowEdge::Left] = dockingRegionWindowContentWidth + dockingRegionTopInsertMarginSize;
+	dockingIconHeight[WindowEdge::Left] = dockingRegionWindowContentWidth + ((marginSize + borderWidth) * 2);
+	dockingIconWidth[WindowEdge::Right] = dockingRegionWindowContentWidth + dockingRegionTopInsertMarginSize;
+	dockingIconHeight[WindowEdge::Right] = dockingRegionWindowContentWidth + ((marginSize + borderWidth) * 2);
+	dockingIconWidth[WindowEdge::Top] = dockingRegionWindowContentHeight + ((marginSize + borderWidth) * 2);
+	dockingIconHeight[WindowEdge::Top] = dockingRegionWindowContentHeight + dockingRegionTopInsertMarginSize;
+	dockingIconWidth[WindowEdge::Bottom] = dockingRegionWindowContentHeight + ((marginSize + borderWidth) * 2);
+	dockingIconHeight[WindowEdge::Bottom] = dockingRegionWindowContentHeight + dockingRegionTopInsertMarginSize;
 	dockingIconForceTopWidth[WindowEdge::Left] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
-	dockingIconForceTopHeight[WindowEdge::Left] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconForceTopHeight[WindowEdge::Left] = dockingRegionWindowContentWidth + ((marginSize + borderWidth) * 2);
 	dockingIconForceTopWidth[WindowEdge::Right] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
-	dockingIconForceTopHeight[WindowEdge::Right] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
-	dockingIconForceTopWidth[WindowEdge::Top] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconForceTopHeight[WindowEdge::Right] = dockingRegionWindowContentWidth + ((marginSize + borderWidth) * 2);
+	dockingIconForceTopWidth[WindowEdge::Top] = dockingRegionWindowContentHeight + ((marginSize + borderWidth) * 2);
 	dockingIconForceTopHeight[WindowEdge::Top] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
-	dockingIconForceTopWidth[WindowEdge::Bottom] = dockingRegionWindowContentSize + ((marginSize + borderWidth) * 2);
+	dockingIconForceTopWidth[WindowEdge::Bottom] = dockingRegionWindowContentHeight + ((marginSize + borderWidth) * 2);
 	dockingIconForceTopHeight[WindowEdge::Bottom] = dockingRegionTopInsertIconWidth + marginSize + borderWidth;
 
 	//Calculate the position of each docking region

@@ -809,13 +809,11 @@ bool ViewManager::ShowDockingWindowFirstTime(IView& view, IViewPresenter& viewPr
 
 		//Calculate the total window size to use in order to achieve a client region
 		//within the docking window of the specified size
-		unsigned int scaledWindowWidth = DPIScaleWidth(viewWidth);
-		unsigned int scaledWindowHeight = DPIScaleHeight(viewHeight);
 		RECT clientRect;
 		clientRect.left = 0;
 		clientRect.top = 0;
-		clientRect.right = scaledWindowWidth;
-		clientRect.bottom = scaledWindowHeight;
+		clientRect.right = viewWidth;
+		clientRect.bottom = viewHeight;
 		AdjustWindowRectEx(&clientRect, dockingWindowStyle, FALSE, dockingWindowExtendedStyle);
 		int adjustedWindowWidth = clientRect.right - clientRect.left;
 		int adjustedWindowHeight = clientRect.bottom - clientRect.top;

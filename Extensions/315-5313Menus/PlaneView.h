@@ -19,9 +19,11 @@ private:
 	//Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	INT_PTR msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_HSCROLL(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_VSCROLL(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	void UpdateControlPositions(HWND hwnd);
 	void UpdateScrollbar(HWND scrollWindow, WPARAM wParam);
 
 	//Render window procedure
@@ -31,10 +33,12 @@ private:
 	//Render window event handlers
 	LRESULT msgRenderWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_LBUTTONDOWN(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_KEYUP(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_KEYDOWN(HWND hwnd, WPARAM wParam, LPARAM lParam);
+	void UpdateRenderWindowSize(HWND hwnd, int renderWindowWidth, int renderWindowHeight);
 
 	//Render helper methods
 	void GetScrollPlanePaletteInfo(const std::vector<unsigned char>& vramData, unsigned int mappingBaseAddress, unsigned int patternBaseAddress, unsigned int planeWidth, unsigned int planeHeight, unsigned int xpos, unsigned int ypos, bool interlaceMode2Active, unsigned int& paletteRow, unsigned int& paletteIndex) const;
@@ -74,6 +78,12 @@ private:
 	bool initializedDialog;
 	std::wstring previousText;
 	unsigned int currentControlFocus;
+	int currentRenderWindowWidth;
+	int currentRenderWindowHeight;
+	float imageZoomFactor;
+	unsigned int bufferWidth;
+	unsigned int bufferHeight;
+	std::vector<float> zoomSettings;
 
 	SelectedLayer selectedLayer;
 	bool displayScreen;
