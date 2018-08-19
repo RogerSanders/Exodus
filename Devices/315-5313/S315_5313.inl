@@ -421,33 +421,33 @@ struct S315_5313::ImageBufferColorEntry
 //  |-----------------------------------------------------------|
 //  |EMPT |FULL |  F  |SOVR | COL | ODD | VB  | HB  | DMA | PAL |
 //  -------------------------------------------------------------
-// EMPT - FIFO empty flag. When there are no pending writes held in the 4-word FIFO, this
-//       bit is set, otherwise it is clear.
-// FULL - FIFO full flag. When there are 4 pending writes held in the 4-word FIFO, this bit
-//       is set, otherwise it is clear.
-// F    - VInt occurred. Set when a vertical interrupt event is being asserted by the VDP.
-//       This bit is cleared when the interrupt is acknowledged.
-// SOVR - Sprite Overflow. Set when either the maximum number of sprites on a line, or the
-//       maximum number of sprite pixels on a line, is exceeded. This flag is set at the
-//       time the sprite mapping data is being read, as soon as it is determined there is
-//       another mapping block which cannot be read. In other words, this flag is set when
-//       the last sprite mapping block on a line is read, if it is determined there is
-//       another sprite mapping block after that one. This flag is cleared when the status
-//       register is read.
-// COL  - Sprite Collision. Set whenever two non-transparent pixels in two sprites overlap
-//       on the screen. This occurs when the sprite pixel data is being read, at the
-//       instant a sprite pixel is read which is determined to overlap with an existing
-//       non-transparent pixel in the sprite line buffer. Since sprite pixel data is
-//       mostly read during the blanking period on the previous line, this is where this
-//       flag is usually asserted for the upcoming line. This flag is cleared when the
-//       status register is read.
-// ODD  - Set if the VDP is currently drawing an odd frame in interlace mode
-// VB   - During VBlank. Note that although not officially documented, hardware tests have
-//       shown this bit always returns true if the display is disabled.
-// HB   - During HBlank. Unlike the VBlank flag, this bit is unaffected by the display
-//       enable state.
-// DMA  - Set if a DMA operation is currently in progress
-// PAL  - Set if the PAL input line to the VDP is currently asserted
+// EMPT:  FIFO empty flag. When there are no pending writes held in the 4-word FIFO, this
+//        bit is set, otherwise it is clear.
+// FULL:  FIFO full flag. When there are 4 pending writes held in the 4-word FIFO, this bit
+//        is set, otherwise it is clear.
+// F:     VInt occurred. Set when a vertical interrupt event is being asserted by the VDP.
+//        This bit is cleared when the interrupt is acknowledged.
+// SOVR:  Sprite Overflow. Set when either the maximum number of sprites on a line, or the
+//        maximum number of sprite pixels on a line, is exceeded. This flag is set at the
+//        time the sprite mapping data is being read, as soon as it is determined there is
+//        another mapping block which cannot be read. In other words, this flag is set when
+//        the last sprite mapping block on a line is read, if it is determined there is
+//        another sprite mapping block after that one. This flag is cleared when the status
+//        register is read.
+// COL:   Sprite Collision. Set whenever two non-transparent pixels in two sprites overlap
+//        on the screen. This occurs when the sprite pixel data is being read, at the
+//        instant a sprite pixel is read which is determined to overlap with an existing
+//        non-transparent pixel in the sprite line buffer. Since sprite pixel data is
+//        mostly read during the blanking period on the previous line, this is where this
+//        flag is usually asserted for the upcoming line. This flag is cleared when the
+//        status register is read.
+// ODD:   Set if the VDP is currently drawing an odd frame in interlace mode
+// VB:    During VBlank. Note that although not officially documented, hardware tests have
+//        shown this bit always returns true if the display is disabled.
+// HB:    During HBlank. Unlike the VBlank flag, this bit is unaffected by the display
+//        enable state.
+// DMA:   Set if a DMA operation is currently in progress
+// PAL:   Set if the PAL input line to the VDP is currently asserted
 //----------------------------------------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagFIFOEmpty() const
 {
@@ -587,7 +587,7 @@ void S315_5313::SetRegisterData(unsigned int location, const AccessTarget& acces
 //----------------------------------------------------------------------------------------------------------------------
 //         ----------------------------------------
 //         | 7  | 6  | 5  | 4 |   3   | 2 | 1 | 0 |
-// 0x00(0)  |--------------------------------------|
+// 0x00(0) |--------------------------------------|
 //         |*VSI|*HSI|*LCB|IE1|*HSM/SS|*PS|M2 |*ES|
 //         ----------------------------------------
 //*VSI: Vertical Scroll Inhibit. Disable vertical scrolling for columns 24-31. This
@@ -758,30 +758,30 @@ void S315_5313::RegSetES(const AccessTarget& accessTarget, bool data)
 //----------------------------------------------------------------------------------------------------------------------
 //         --------------------------------------
 //         |  7   | 6  | 5 | 4 | 3 | 2 | 1 | 0  |
-// 0x01(1)  |------------------------------------|
+// 0x01(1) |------------------------------------|
 //         |*EVRAM|DISP|IE0|M1 |M3 |M5 |*SZ|*MAG|
 //         --------------------------------------
-//*EVRAM: Enables the extended 128Kb VRAM mode. This is unavailable in the Mega Drive, as
-//        only 64Kb of VRAM is present in the system. The only known systems to contain
-//        128Kb of VRAM are the Sega TeraDrive, and according to documentation, the "Super
-//        Mega Drive" development system produced by Sega.
+// *EVRAM: Enables the extended 128Kb VRAM mode. This is unavailable in the Mega Drive, as
+//         only 64Kb of VRAM is present in the system. The only known systems to contain
+//         128Kb of VRAM are the Sega TeraDrive, and according to documentation, the "Super
+//         Mega Drive" development system produced by Sega.
 // DISP:   Display enable. If this bit is cleared, the entire display is filled with the
-//        backdrop colour. During this time, the VDP can be accessed at any time without
-//        having to wait. Changing this bit takes effect immediately, and it can be
-//        toggled mid-line. Note that although not officially documented, hardware tests
-//        have confirmed that the vblank flag in the status register is always set while
-//        the display is disabled, even during active scan.
+//         backdrop colour. During this time, the VDP can be accessed at any time without
+//         having to wait. Changing this bit takes effect immediately, and it can be
+//         toggled mid-line. Note that although not officially documented, hardware tests
+//         have confirmed that the vblank flag in the status register is always set while
+//         the display is disabled, even during active scan.
 // IE0 :   Vertical interrupt enable
 // M1:     DMA enable
 // M3:     V30 mode enable. When set, display is 30 columns high, when cleared it's 28
-//        columns high.
+//         columns high.
 // M5:     Enables Mode 5. When cleared, mode 4 is active.
-//*SZ:    Sprite Size, in mode 4 only. When set, all sprites are 8x16 instead of 8x8. This
-//        register has no apparent effect in mode 5.
-//*MAG:   Sprite Zooming, in mode 4 only. This register actually has no apparent effect in
-//        either mode 4 or mode 5, but in the 315-5124 VDP used in the SMS, this register
-//        enabled sprite magnification, where all sprites are double the width and height,
-//        IE, each pixel is 2x2. This feature is not supported by the 315-5313.
+// *SZ:    Sprite Size, in mode 4 only. When set, all sprites are 8x16 instead of 8x8. This
+//         register has no apparent effect in mode 5.
+//*MAG:    Sprite Zooming, in mode 4 only. This register actually has no apparent effect in
+//         either mode 4 or mode 5, but in the 315-5124 VDP used in the SMS, this register
+//         enabled sprite magnification, where all sprites are double the width and height,
+//         IE, each pixel is 2x2. This feature is not supported by the 315-5313.
 // Note that bit 0 is reported to have an effect in genvdp.txt by Charles MacDonald, but
 // all attempts to produce any effect from this bit on the real hardware have failed. Based
 // on the description in genvdp.txt, I believe Charles may have been referring to the
@@ -901,7 +901,7 @@ void S315_5313::RegSetMAG(const AccessTarget& accessTarget, bool data)
 //         ---------------------------------------
 //         | 7 | 6  | 5  | 4  | 3  | 2  | 1  | 0 |
 //         |-------------------------------------|
-// 0x02(2)  |   | Scroll A Name Table Address |   |
+// 0x02(2) |   | Scroll A Name Table Address |   |
 //         |   |-----------------------------|   |
 //         |   |SA16|SA15|SA14|SA13|SA12|SA11|   |
 //         ---------------------------------------
@@ -928,7 +928,7 @@ void S315_5313::RegSetNameTableBaseScrollA(const AccessTarget& accessTarget, uns
 //         | 7 | 6  | 5  | 4  | 3  | 2  | 1  | 0 |
 //         |-------------------------------------|
 //         |   |  Window Name Table Address  |   |
-// 0x03(3)  | / |-----------------------------| / |
+// 0x03(3) | / |-----------------------------| / |
 //         |   |WD16|WD15|WD14|WD13|WD12|WD11|   |
 //         ---------------------------------------
 // WD16: This bit is only used in extended VRAM mode
@@ -957,7 +957,7 @@ void S315_5313::RegSetNameTableBaseWindow(const AccessTarget& accessTarget, unsi
 //         | 7 | 6 | 5 | 4 | 3  | 2  | 1  | 0  |
 //         |-----------------------------------|
 //         |               |   Scroll B Name   |
-// 0x04(4)  | /   /   /   / |   Table Address   |
+// 0x04(4) | /   /   /   / |   Table Address   |
 //         |               |-------------------|
 //         |               |SB16|SB15|SB14|SB13|
 //         -------------------------------------
@@ -978,7 +978,7 @@ void S315_5313::RegSetNameTableBaseScrollB(const AccessTarget& accessTarget, uns
 //         | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0 |
 //         |--------------------------------------|
 //         |    Sprite Attribute Table Address    |
-// 0x05(5)  |--------------------------------------|
+// 0x05(5) |--------------------------------------|
 //         |AT16|AT15|AT14|AT13|AT12|AT11|AT10|AT9|
 //         ----------------------------------------
 // AT16: This bit is only used in extended VRAM mode
@@ -992,7 +992,7 @@ void S315_5313::RegSetNameTableBaseScrollB(const AccessTarget& accessTarget, uns
 //         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 //         |-------------------------------|
 //         |   |Sprite Attribute Table |   |
-// 0x05(5)  | / |     Base Address      | / |
+// 0x05(5) | / |     Base Address      | / |
 //         |   |-----------------------|   |
 //         |   |B13|B12|B11|B10|B9 |B8 |   |
 //         ---------------------------------
@@ -1030,7 +1030,7 @@ void S315_5313::RegSetNameTableBaseSprite(const AccessTarget& accessTarget, unsi
 //----------------------------------------------------------------------------------------------------------------------
 //         -----------------------------------
 //         | 7 | 6 | 5  | 4 | 3 | 2  | 1 | 0 |
-// 0x06(6)  |---------------------------------|
+// 0x06(6) |---------------------------------|
 //         | / | / |AP16| / | / |AP13| / | / |
 //         -----------------------------------
 // AP16: This bit is only used in extended VRAM mode
@@ -1067,7 +1067,7 @@ void S315_5313::RegSetPatternBaseSprite(const AccessTarget& accessTarget, unsign
 //         | 7 | 6 | 5 | 4 | 3 | 2  | 1  | 0  |
 //         |----------------------------------|
 //         |       |Backgnd|   Background     |
-// 0x07(7)  | /   / |Palette|  Palette Index   |
+// 0x07(7) | /   / |Palette|  Palette Index   |
 //         |       |Select |                  |
 //         ------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -1121,7 +1121,7 @@ void S315_5313::RegSetBackgroundPaletteColumn(const AccessTarget& accessTarget, 
 //----------------------------------------------------------------------------------------------------------------------
 //         ---------------------------------
 //         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-// 0x08(8)  |-------------------------------|
+// 0x08(8) |-------------------------------|
 //         |      Background Scroll X      |
 //         ---------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -1139,7 +1139,7 @@ void S315_5313::RegSetBackgroundScrollX(const AccessTarget& accessTarget, unsign
 //----------------------------------------------------------------------------------------------------------------------
 //         ---------------------------------
 //         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-// 0x09(9)  |-------------------------------|
+// 0x09(9) |-------------------------------|
 //         |      Background Scroll Y      |
 //         ---------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -1157,7 +1157,7 @@ void S315_5313::RegSetBackgroundScrollY(const AccessTarget& accessTarget, unsign
 //----------------------------------------------------------------------------------------------------------------------
 //         ---------------------------------
 //         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-// 0x0A(10) |-------------------------------|
+// 0x0A(10)|-------------------------------|
 //         |H-Interrupt Data (Line Counter)|
 //         ---------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -1175,28 +1175,28 @@ void S315_5313::RegSetHInterruptData(const AccessTarget& accessTarget, unsigned 
 //----------------------------------------------------------------------------------------------------------------------
 //         ------------------------------------
 //         | 7 | 6 | 5 | 4 | 3 | 2  | 1  | 0  |
-// 0x0B(11) |----------------------------------|
+// 0x0B(11)|----------------------------------|
 //         |*U1|*U2| /   / |IE2|VSCR|HSCR|LSCR|
 //         ------------------------------------
-//*U1:  Mentioned by Charles MacDonald in c2tech.txt, described as follows:
-//      "VDP controls color bus. Reading or writing color RAM at any address only affects
-//      address zero, and the data read/written will often be corrupted."
-//*U2:  Mentioned in Accolade doc "The Sega Development System". Description was
-//      "Unknown - causes halt sometimes". Hardware tests have shown that setting this bit
-//      to 1 can indeed cause some kind of lockup. Just setting the register value to 1
-//      and trying to set it back again to 0 seems to lock up the system. If the enable
-//      and clear of this register value happen as two halves of a long-word register
-//      write however, no lockup occurs. The VDP doesn't request the bus, so it's not
-//      clear what causes the lockup at this point. Additional tests required. Note that
-//      this bit is also mentioned in c2tech.txt, also described as locking up the
-//      hardware when set.
+// *U1:  Mentioned by Charles MacDonald in c2tech.txt, described as follows:
+//       "VDP controls color bus. Reading or writing color RAM at any address only affects
+//       address zero, and the data read/written will often be corrupted."
+// *U2:  Mentioned in Accolade doc "The Sega Development System". Description was
+//       "Unknown - causes halt sometimes". Hardware tests have shown that setting this bit
+//       to 1 can indeed cause some kind of lockup. Just setting the register value to 1
+//       and trying to set it back again to 0 seems to lock up the system. If the enable
+//       and clear of this register value happen as two halves of a long-word register
+//       write however, no lockup occurs. The VDP doesn't request the bus, so it's not
+//       clear what causes the lockup at this point. Additional tests required. Note that
+//       this bit is also mentioned in c2tech.txt, also described as locking up the
+//       hardware when set.
 // IE2:  External interrupt enable
 // VSCR: Vertical scroll mode. Full screen vertical scrolling when clear, 2-cell column
-//      vertical scrolling when set.
+//       vertical scrolling when set.
 // HSCR: If LSCR is not set, HSCR toggles between cell-based horizontal scrolling when set,
-//      or full screen horizontal scrolling when clear.
+//       or full screen horizontal scrolling when clear.
 // LSCR: Enables line-based horizontal scrolling. When this bit is set, the state of HSCR
-//      is ignored.
+//       is ignored.
 //----------------------------------------------------------------------------------------------------------------------
 bool S315_5313::RegGet0B7(const AccessTarget& accessTarget) const
 {
@@ -1296,36 +1296,36 @@ void S315_5313::RegSetLSCR(const AccessTarget& accessTarget, bool data)
 //----------------------------------------------------------------------------------------------------------------------
 //         -----------------------------------
 //         | 7 | 6 | 5 | 4 | 3 | 2  | 1  | 0 |
-// 0x0C(12) |---------------------------------|
+// 0x0C(12)|---------------------------------|
 //         |RS0|*U1|*U2|*U3|STE|LSM1|LSM0|RS1|
 //         -----------------------------------
 // RS0 : When set, the VDP uses the EDCLK input to drive SC directly. When clear, the VDP
-//      calculates SC internally, as either MCLK/5 or MCLK/4, depending on the state of
-//      the RS1 bit.
-//*U1:  When this bit is set, it causes the VSYNC pin to output the internal pixel clock
-//      (dot clock) instead of the VSYNC signal.
-//*U2:  When this bit is set, the HSYNC line is never asserted. Effectively, the HSYNC
-//      line is disabled. It is possible that this is actually causing the HSYNC line to
-//      output some other kind of information, which under the circumstances that have
-//      been tested so far is always false.
-//*U3:  When set, the sprite/layer plane output line (SPA/B) is enabled. This causes that
-//      pin to be asserted if the current pixel is a sprite pixel, and negated if it is
-//      not.
+//       calculates SC internally, as either MCLK/5 or MCLK/4, depending on the state of
+//       the RS1 bit.
+// *U1:  When this bit is set, it causes the VSYNC pin to output the internal pixel clock
+//       (dot clock) instead of the VSYNC signal.
+// *U2:  When this bit is set, the HSYNC line is never asserted. Effectively, the HSYNC
+//       line is disabled. It is possible that this is actually causing the HSYNC line to
+//       output some other kind of information, which under the circumstances that have
+//       been tested so far is always false.
+// *U3:  When set, the sprite/layer plane output line (SPA/B) is enabled. This causes that
+//       pin to be asserted if the current pixel is a sprite pixel, and negated if it is
+//       not.
 // STE:  Shadow/highlight mode enable. When set, shadow/highlight mode is active.
 // LSM1: Interlace double flag. When set, double interlace mode is active if the interlace
-//      enable bit is set. If interlacing is enabled and this bit is not set, normal
-//      interlace mode is active.
+//       enable bit is set. If interlacing is enabled and this bit is not set, normal
+//       interlace mode is active.
 // LSM0: Interlace enable flag. When set, interlacing is active. Whether normal or double
-//      interlace mode is active depends on the state of LSM1.
+//       interlace mode is active depends on the state of LSM1.
 // RS1:  When set, changes the digital operation of the VDP to enable H40 mode instead of
-//      the default H32 mode. Also switches the internally generated SC signal from the
-//      MCLK/5 divider used for H32 mode, to an MCLK/4 divider for H40 mode. Note that
-//      this signal is not able to be displayed on a normal TV, because the scan rate is
-//      too fast. In the Mega Drive, the RS0 bit also needs to be set when enabling H40
-//      mode, to enable the external EDCLK input to drive the SC signal. EDCLK has a
-//      varying clock rate which increases the clock rate for active scan, while slowing
-//      it during HSYNC to keep the overall drawing time of a line in H40 mode the same as
-//      in H32 mode, which allows a normal TV to lock onto the signal.
+//       the default H32 mode. Also switches the internally generated SC signal from the
+//       MCLK/5 divider used for H32 mode, to an MCLK/4 divider for H40 mode. Note that
+//       this signal is not able to be displayed on a normal TV, because the scan rate is
+//       too fast. In the Mega Drive, the RS0 bit also needs to be set when enabling H40
+//       mode, to enable the external EDCLK input to drive the SC signal. EDCLK has a
+//       varying clock rate which increases the clock rate for active scan, while slowing
+//       it during HSYNC to keep the overall drawing time of a line in H40 mode the same as
+//       in H32 mode, which allows a normal TV to lock onto the signal.
 //##TODO## The VDP pinout information in the newly obtained Mega Drive service manuals
 // indicate that both CSYNC and HSYNC lines are I/O lines, with the sync information able
 // to be input over these lines. It's possible the U2 register here enables external HSYNC
@@ -1431,7 +1431,7 @@ void S315_5313::RegSetRS1(const AccessTarget& accessTarget, bool data)
 //         | 7 | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
 //         |--------------------------------------|
 //         |   |    HScroll Data Table Address    |
-// 0x0D(13) | / |----------------------------------|
+// 0x0D(13)| / |----------------------------------|
 //         |   |HS16|HS15|HS14|HS13|HS12|HS11|HS10|
 //         ----------------------------------------
 // HS16: This bit is only used in extended VRAM mode
@@ -1450,13 +1450,13 @@ void S315_5313::RegSetHScrollDataBase(const AccessTarget& accessTarget, unsigned
 //----------------------------------------------------------------------------------------------------------------------
 //         -----------------------------------
 //         | 7 | 6 | 5 | 4  | 3 | 2 | 1 | 0  |
-// 0x0E(14) |---------------------------------|
+// 0x0E(14)|---------------------------------|
 //         | / | / | / |PB16| / | / | / |PA16|
 //         -----------------------------------
 // PA16: When this bit is set and extended VRAM mode is enabled, layer A is rebased to the
-//      upper memory area.
+//       upper memory area.
 // PB16: When this bit and PA16 are both set and extended VRAM mode is enabled, layer B is
-//      rebased to the upper memory area.
+//       rebased to the upper memory area.
 //----------------------------------------------------------------------------------------------------------------------
 unsigned int S315_5313::RegGet0E57(const AccessTarget& accessTarget) const
 {
@@ -1522,7 +1522,7 @@ void S315_5313::RegSetPatternBaseScrollB(const AccessTarget& accessTarget, unsig
 //----------------------------------------------------------------------------------------------------------------------
 //         ---------------------------------
 //         | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-// 0x0F(15) |-------------------------------|
+// 0x0F(15)|-------------------------------|
 //         |      Auto Increment Data      |
 //         ---------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -1540,7 +1540,7 @@ void S315_5313::RegSetAutoIncrementData(const AccessTarget& accessTarget, unsign
 //----------------------------------------------------------------------------------------------------------------------
 //         -------------------------------------
 //         | 7 | 6 | 5  | 4  | 3 | 2 | 1  | 0  |
-// 0x10(16) |-----------------------------------|
+// 0x10(16)|-----------------------------------|
 //         | /   / |VSZ1|VSZ0| /   / |HSZ1|HSZ0|
 //         -------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -1642,7 +1642,7 @@ void S315_5313::RegSetHSZ0(const AccessTarget& accessTarget, bool data)
 //----------------------------------------------------------------------------------------------------------------------
 //         ----------------------------------
 //         | 7  | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-// 0x11(17) |--------------------------------|
+// 0x11(17)|--------------------------------|
 //         |RIGT| /   / |Window H Base Point|
 //         ----------------------------------
 // Note that despite what is recorded in the Accolade document "The Sega Development
@@ -1689,7 +1689,7 @@ void S315_5313::RegSetWindowBasePointX(const AccessTarget& accessTarget, unsigne
 //----------------------------------------------------------------------------------------------------------------------
 //         ----------------------------------
 //         | 7  | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-// 0x12(18) |--------------------------------|
+// 0x12(18)|--------------------------------|
 //         |DOWN| /   / |Window V Base Point|
 //         ----------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -1731,12 +1731,12 @@ void S315_5313::RegSetWindowBasePointY(const AccessTarget& accessTarget, unsigne
 //----------------------------------------------------------------------------------------------------------------------
 //         -----------------------------------------
 //         | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
-// 0x13(19) |---------------------------------------|
+// 0x13(19)|---------------------------------------|
 //         |LG7 |LG6 |LG5 |LG4 |LG3 |LG2 |LG1 |LG0 |
 //         -----------------------------------------
 //         -----------------------------------------
 //         | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
-// 0x14(20) |---------------------------------------|
+// 0x14(20)|---------------------------------------|
 //         |LG15|LG14|LG13|LG12|LG11|LG10|LG9 |LG8 |
 //         -----------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
@@ -1757,22 +1757,22 @@ void S315_5313::RegSetDMALengthCounter(const AccessTarget& accessTarget, unsigne
 //----------------------------------------------------------------------------------------------------------------------
 //         -----------------------------------------
 //         | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
-// 0x15(21) |---------------------------------------|
+// 0x15(21)|---------------------------------------|
 //         |SA8 |SA7 |SA6 |SA5 |SA4 |SA3 |SA2 |SA1 |
 //         -----------------------------------------
 //         -----------------------------------------
 //         | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
-// 0x16(22) |---------------------------------------|
+// 0x16(22)|---------------------------------------|
 //         |SA16|SA15|SA14|SA13|SA12|SA11|SA10|SA9 |
 //         -----------------------------------------
 //         -----------------------------------------
 //         | 7  | 6  | 5  | 4  | 3  | 2  | 1  | 0  |
-// 0x17(23) |---------------------------------------|
+// 0x17(23)|---------------------------------------|
 //         |DMD1|DMD0|SA22|SA21|SA20|SA19|SA18|SA17|
 //         |    |SA23|    |    |    |    |    |    |
 //         -----------------------------------------
 // DMD0:   Note that DMD0 acts as both DMD0 and SA23, so there's deliberate overlap in the
-//        access functions to these registers.
+//         access functions to these registers.
 //----------------------------------------------------------------------------------------------------------------------
 unsigned int S315_5313::RegGetDMASourceAddress(const AccessTarget& accessTarget) const
 {

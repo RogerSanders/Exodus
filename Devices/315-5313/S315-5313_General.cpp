@@ -1675,7 +1675,7 @@ void S315_5313::DMAWorkerThread()
 // this case too.
 // -R1B3(M2): Switches between V28 and V30 modes. No idea when it takes effect.
 // -R12B0(RS1): Switches between H32/H40 mode. Not sure if this can be done mid-line
-//(notes from charles macdonald suggest this may be possible), but we know it can be
+// (notes from charles macdonald suggest this may be possible), but we know it can be
 // done mid-frame.
 
 // Settings which MAY affect slots, but need to be tested:
