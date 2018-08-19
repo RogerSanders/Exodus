@@ -120,7 +120,7 @@ const S315_5313::HScanSettings S315_5313::H40ScanSettingsStatic(0x16C, 0x1C9, 0x
 // Vertical scan timing settings
 //----------------------------------------------------------------------------------------------------------------------
 // Analog screen sections in relation to VCounter:
-//-------------------------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 // |           Video |NTSC             |NTSC             |PAL              |PAL              |
 // |            Mode |H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|
 // |                 |V28     (M2=0)   |V30     (M2=1)   |V28     (M2=0)   |V30     (M2=1)   |
@@ -142,7 +142,7 @@ const S315_5313::HScanSettings S315_5313::H40ScanSettingsStatic(0x16C, 0x1C9, 0x
 // |Top border       |0x1F5-0x1FF|  11 |           |   0 |0x1DA-0x1FF|  38 |0x1E2-0x1FF|  30 |
 // |-----------------|-----------|-----|-----------|-----|-----------|-----|-----------|-----|
 // |TOTALS           |           | 262 |           | 240*|           | 313 |           | 313 |
-//-------------------------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 //*When V30 mode and NTSC mode are both active, no border, blanking, or retrace occurs. A
 // 30-row display is setup and rendered, however, immediately following the end of the 30th
 // row, the 1st row starts again. In addition, the VCounter is never reset, which usually
@@ -160,7 +160,7 @@ const S315_5313::HScanSettings S315_5313::H40ScanSettingsStatic(0x16C, 0x1C9, 0x
 
 // Digital render events in relation to VCounter under NTSC mode:
 //#ODD - Runs only when the ODD flag is set
-//----------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
 // |        Video |NTSC             |NTSC             |NTSC             |NTSC             |
 // |         Mode |H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|
 // |              |V28     (M2=0)   |V28     (M2=0)   |V30     (M2=1)   |V30     (M2=1)   |
@@ -197,11 +197,11 @@ const S315_5313::HScanSettings S315_5313::H40ScanSettingsStatic(0x16C, 0x1C9, 0x
 // |              |while VCounter is|     <Same>      |while VCounter is|     <Same>      |
 // |              |set to 0x0E0 in  |                 |set to 0x0F0 in  |                 |
 // |              |[1].             |                 |[1].             |                 |
-//----------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
 
 // Digital render events in relation to VCounter under PAL mode:
 //#ODD - Runs only when the ODD flag is set
-//----------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
 // |        Video |PAL              |PAL              |PAL              |PAL              |
 // |         Mode |H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|H32/H40(RSx00/11)|
 // |              |V28     (M2=0)   |V28     (M2=0)   |V30     (M2=1)   |V30     (M2=1)   |
@@ -238,7 +238,7 @@ const S315_5313::HScanSettings S315_5313::H40ScanSettingsStatic(0x16C, 0x1C9, 0x
 // |              |while VCounter is|     <Same>      |while VCounter is|     <Same>      |
 // |              |set to 0x0E0 in  |                 |set to 0x0F0 in  |                 |
 // |              |[1].             |                 |[1].             |                 |
-//----------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
 //##TODO## Evaluate the way we're using the first parameter vcounterActiveScanMaxValue in
 // code. Note that we subtract 1 from this value for the interlace values in PAL mode, but
 // we use the same values for both interlace and non-interlace modes in NTSC. Confirm if

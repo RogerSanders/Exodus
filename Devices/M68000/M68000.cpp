@@ -620,17 +620,17 @@ bool M68000::UsesExecuteSuspend() const
 //----------------------------------------------------------------------------------------------------------------------
 // Execute functions
 //----------------------------------------------------------------------------------------------------------------------
-//[Group 0]
+// [Group 0]
 // -Process Reset
 // -Process queued bus error or address error exception
 //
-//[Group 1]
+// [Group 1]
 // -Process the queued external interrupt
 // -Process privilege violation or illegal instruction opcodes if they occur while
 // fetching the next opcode.
 // -Process a trace exception if we executed an opcode with the trace bit set
 //
-//[Group 2]
+// [Group 2]
 // -Group 2 exceptions should be processed and taken during the execution of the opcode
 // from which they are generated. If a divide by 0 occurs during a div instruction for
 // example, when that opcode terminates, we should already be in the exception handler
