@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Implement a way for lines to be explicitly set to a particular state within an XML file,
 without having to map them to a device and control them actively. This is important for
@@ -16,7 +16,7 @@ compatible connectors. This will be essential in order for the user to quickly l
 complex systems, IE, a Mega Drive, with a MegaCD and 32x attached, and two controllers.
 -Enhance the interface between the system class and the device worker threads. Messages
 should be able to be sent to all devices simultaneously.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __SYSTEM_H__
 #define __SYSTEM_H__
 #include "WindowsSupport/WindowsSupport.pkg"

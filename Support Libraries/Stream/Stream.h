@@ -1,8 +1,8 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Apparently, wchar_t is 32-bit (UTF32 encoding) on unix. Make this library fully portable,
 so that it can work regardless of the particular encoding wchar_t uses.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #include "StreamInterface/StreamInterface.pkg"
 #ifndef __STREAM_H__
 #define __STREAM_H__

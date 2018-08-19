@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Description:
 This core emulates the Sega video display processor model 315-5313, first used in the
 Sega Mega Drive/Genesis console. This processor is an evolution of the VDP used in the
@@ -48,7 +48,7 @@ References:
 -TMS9918A/TMS9928A/TMS9929A Video Display Processors, Texas Instruments, 1982
 -http://gendev.spritesmind.net/forum/viewtopic.php?t=666
 -http://mamedev.emulab.it/haze/2006/08/09/mirror-mirror/
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #include "IS315_5313.h"
 #ifndef __S315_5313_H__
 #define __S315_5313_H__

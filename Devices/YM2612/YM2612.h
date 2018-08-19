@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Description:
 This core emulates the Yamaha YM2612(OPN2) FM synthesizer chip. Extensive hardware testing
 has been done on the YM2612 in order to confirm the behaviour of the real chip, and this
@@ -46,7 +46,7 @@ References:
 -YM3016 Datasheet, Yamaha LSI
 -YM2612 Test Register Notes, Charles MacDonald
 -YM2151	Test Register Notes, Jarek Burczynski
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #include "IYM2612.h"
 #ifndef __YM2612_H__
 #define __YM2612_H__

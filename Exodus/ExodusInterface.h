@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Add a window management menu, where the list of loaded views can be enumerated and
 managed.
@@ -34,7 +34,7 @@ add later. This interface should be the same one which is displayed to edit the
 comments.
 -The user should be able to rearrange existing savestates by dragging them around in
 the slots.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __EXODUSINTERFACE_H__
 #define __EXODUSINTERFACE_H__
 #include "WindowsSupport/WindowsSupport.pkg"

@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Description:
 This core emulates the SN76489 Programmable Sound Generator (PSG), and is designed to
 produce a sample-accurate output. Each channel is generated and mixed at the correct
@@ -36,7 +36,7 @@ References:
 -SN76489 Datasheet, Texas Instruments
 -SN76494 Datasheet, Texas Instruments
 -SN76489 sound chip details, John Kortink, http://web.inter.nl.net/users/J.Kortink/home/articles/sn76489/index.htm
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #include "ISN76489.h"
 #ifndef __SN76489_H__
 #define __SN76489_H__

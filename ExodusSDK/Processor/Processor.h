@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Revamp the disassembly dialog so that it only disassembles the opcodes that are within
 the window, and make it actively disassemble them on each refresh, so self-modifying code
@@ -97,7 +97,7 @@ breakpoints can be toggled from the disassembly view.
 -Consider a link between the code coverage data and the disassembly window, where the
 disassembly is optionally linked to the code coverage data, and ensures opcodes which are
 actually executed are disassembled correctly.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #include "IProcessor.h"
 #ifndef __PROCESSOR_H__
 #define __PROCESSOR_H__

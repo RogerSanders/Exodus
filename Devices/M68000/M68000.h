@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Description:
 This core emulates the Motorola M68000 CPU.
 
@@ -56,7 +56,7 @@ References:
 -M68000 Microprocessors User's Manual (M68000UM), Motorola, Ninth Edition 1993
 -68000 Undocumented Behavior Notes, Bart Trzynadlowski, Fourth Edition 2003
 -MC680x0 Reference (M68000 Programmer's Reference Manual HTML Transcription), Flint/DARKNESS, v1.1 1995
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #include "IM68000.h"
 #ifndef __M68000_M68000_H__
 #define __M68000_M68000_H__

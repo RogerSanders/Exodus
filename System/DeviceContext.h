@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Remove the "Sleep" command in our worker thread. We need all this code to be platform
 independent. I'd suggest you start your own "thread management" library with some thin
@@ -22,7 +22,7 @@ thread-safe counter, possibly implemented using interlocked operations, would be
 appropriate. The counter is set to the number of notified threads, each thread modifies it
 directly, and when the counter reaches 0, the last device to finish notifies a supplied
 conditional, which unlocks the calling thread.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __DEVICECONTEXT_H__
 #define __DEVICECONTEXT_H__
 #include "DeviceInterface/DeviceInterface.pkg"

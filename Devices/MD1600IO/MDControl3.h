@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Implement buffering of input, so that rollbacks don't cause lost input events
 -Consider adding an optional mode to simulate analog effects on button press events, where
@@ -10,7 +10,7 @@ routines when writing user code.
 References:
 -Sega Genesis I/O Chip and Peripherals, Charles MacDonald
 -Sega Six Button Controller Hardware Info, Charles Rosenberg, v1.0 1996-09-09
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __MDCONTROL3_H__
 #define __MDCONTROL3_H__
 #include "DeviceInterface/DeviceInterface.pkg"
